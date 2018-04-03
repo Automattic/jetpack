@@ -228,4 +228,14 @@ input.fb-options {
 	color: #ff0000;
 }
 
-.pub-connection-test. test-failed p { margin-top: 0; }
+#jetpack-publicize-message-box {
+	width: 100%;
+}
+
+.jetpack-publicize-form button {
+	float: right;
+}
+
+.jetpack-publicize-sidebar-title {
+	font-weight: bold;
+}

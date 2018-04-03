@@ -11,7 +11,7 @@ const webpackConfig = {
 	entry: {
 		admin: './_inc/client/admin.js',
 		'static': './_inc/client/static.jsx',
-		'modules-publicize-async': './modules/publicize/assets/async-publicize-panel.jsx',
+		'modules-publicize-gutenberg': './modules/publicize/assets/async_client/publicize-gutenberg-plugin.jsx',
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -43,7 +43,7 @@ const webpackConfig = {
 				include: [
 					path.join( __dirname, 'test' ),
 					path.join( __dirname, '_inc/client' ),
-					path.join( __dirname, 'modules/publicize/assets' ),
+					path.join( __dirname, 'modules/publicize/assets/async_client' ),
 				]
 			},
 			{
