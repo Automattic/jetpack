@@ -208,6 +208,16 @@ __( "Welcome to Jetpack Professional", "jetpack" ), // _inc/client/plans/plan-he
 __( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:112
 __( "Your site is on Development Mode", "jetpack" ), // _inc/client/plans/plan-header.jsx:125
 __( "Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:126
+_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:56
+_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:57
+_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:58
+_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:59
+_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:60
+_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:61
+_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:95
+__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:101
+__( "Read about how Jetpack uses your data in {{pp}}Automattic Privacy Policy{{/pp}} and {{js}}What Data Does Jetpack Sync{{/js}}?", "jetpack" ), // _inc/client/privacy/index.jsx:104
+__( "Send information to help us improve our products.", "jetpack" ), // _inc/client/privacy/index.jsx:129
 _x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
 _x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
 _x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
@@ -219,11 +229,6 @@ _x( "Invalid key", "Short warning message about an invalid key being used for Ak
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:118
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:122
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:155
-_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:80
-__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:86
-__( "Read about how Jetpack uses your data in {{pp}}Automattic Privacy Policy{{/pp}} and {{js}}What Data Does Jetpack Sync{{/js}}?", "jetpack" ), // _inc/client/privacy/index.jsx:89
-__( "Send information to help us improve our products.", "jetpack" ), // _inc/client/privacy/index.jsx:114
-__( "See more WordPress privacy information and resources on {{a}}privacy.blog{{/a}}.", "jetpack" ), // _inc/client/privacy/index.jsx:118
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:76
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:93
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -533,13 +538,6 @@ __( "By disconnecting %(siteName)s from WordPress.com you will no longer have ac
 _x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:172
 _x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:180
 __( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:187
-__( "Activating recommended features…", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:31
-__( "Activate recommended features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:31
-__( "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:56
-__( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:65
-__( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
-__( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:85
-__( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:86
 __( "You have successfully disconnected Jetpack", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:41
 __( "Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:44
 __( "What would you like to see on your Jetpack Dashboard?", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:33
@@ -572,6 +570,13 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:190
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:194
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:200
+__( "Activating recommended features…", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:31
+__( "Activate recommended features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:31
+__( "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:56
+__( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:65
+__( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
+__( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:85
+__( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:86
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:80
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:88
 __( "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:31
@@ -625,8 +630,8 @@ __( "Faster, more relevant and more powerful sitewide search.", "jetpack" ), // 
 __( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:211
 _x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:292
 _x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:293
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:72
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:81
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:79
 __( "We're here to help", "jetpack" ), // _inc/client/components/support-card/index.jsx:83
 __( "Jetpack comes with free, basic support for all users.", "jetpack" ), // _inc/client/components/support-card/index.jsx:88
 __( "Your paid plan gives you access to prioritized Jetpack support.", "jetpack" ), // _inc/client/components/support-card/index.jsx:89

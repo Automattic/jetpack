@@ -3,6 +3,11 @@
 Plugin Name: Social Media Icons Widget
 Description: A simple widget that displays social media icons
 Author: Automattic Inc.
+
+This widget is now deprecated.
+Any new features should go into modules/widgets/social-icons.php instead.
+@see https://github.com/Automattic/jetpack/pull/8498
+
 */
 
 
