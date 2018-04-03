@@ -249,7 +249,7 @@ class Jetpack_Tiled_Gallery {
 	public static function register_gallery_block() {
 		register_block_type( 'jetpack/gallery', array(
 			// 'render_callback' => 'my_plugin_render_block_latest_post',
-			'render_callback' => array( __CLASS__, 'render_gallery_block' ),
+			'render_callback' => array( __CLASS__, 'render_gallery_block' )
 		) );
 	}
 
