@@ -15,6 +15,9 @@ function jetpack_load_widgets() {
 	$widgets_include = array();
 
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
+		if ( 'jetpack-social-icons-class.php' === basename( $file) ) {
+			continue;
+		}
 		$widgets_include[] = $file;
 	}
 	/**
