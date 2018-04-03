@@ -17,7 +17,7 @@ render() {
 						activated="setting_name"
 						toggleSetting={ toggleSetting }
 						disabled={ isFetchingSettingsList }
-					>The setting description.</SettingToggle>
+					>Show falling snow on my blog until January 4<sup>th</sup>.</SettingToggle>
 		</div>
 	);
 }
