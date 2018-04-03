@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Activity Log: Started syncing comment untrashed and comment unspammed events.
 * Admin Page: Added inline module settings for plan welcome page.
 * Admin Page: Removed Javascript patterns previously used in the Admin Page that should improve performance lightly (bind pattern).
+* Admin Page: Made Jetpack Monitor setting management easier by adding a simple toggle.
 * Admin Page: Moved the button for closing the Jumpstart modal closer to the dialog so it's more visible.
 * Admin Page: Updated the "install and activate" link in the Backups card to be a functional link matching the "Set up" button.
 * Admin Page: Updated notices style to be more accessible.
