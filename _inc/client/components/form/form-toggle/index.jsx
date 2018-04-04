@@ -9,6 +9,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 
+/**
+ * Internal dependencies
+ */
+import Popover from 'components/popover';
+
 require( './style.scss' );
 
 export default class FormToggle extends Component {
@@ -21,14 +26,21 @@ export default class FormToggle extends Component {
 		className: PropTypes.string,
 		toggling: PropTypes.bool,
 		'aria-label': PropTypes.string,
-		children: PropTypes.node
+		children: PropTypes.node,
+		disabledReason: PropTypes.string
 	};
 
 	static defaultProps = {
 		checked: false,
 		disabled: false,
 		onKeyDown: () => {},
-		onChange: () => {}
+		onChange: () => {},
+		disabledPopoverPosition: 'bottom',
+		disabledReason: ''
+	};
+
+	state = {
+		showPopover: false
 	};
 
 	static idNum = 0;
@@ -40,6 +52,14 @@ export default class FormToggle extends Component {
 		this.onClick = this.onClick.bind( this );
 		this.onLabelClick = this.onLabelClick.bind( this );
 	}
+
+	togglePopover = () => {
+		this.setState( { showPopover: ! this.state.showPopover } );
+	};
+
+	_onPopoverClose = () => {
+		this.setState( { showPopover: false } );
+	};
 
 	componentWillMount() {
 		this.id = this.constructor.idNum++;
@@ -61,6 +81,8 @@ export default class FormToggle extends Component {
 	onClick() {
 		if ( ! this.props.disabled ) {
 			this.props.onChange();
+		} else if ( this.props.disabledReason ) {
+			this.togglePopover();
 		}
 	}
 
@@ -75,6 +97,19 @@ export default class FormToggle extends Component {
 			this.props.onChange();
 		}
 	}
+
+	renderPopover = () => {
+		return (
+			<Popover
+				isVisible={ this.state.showPopover }
+				context={ this.refs && this.refs.toggleSwitch }
+				position={ this.props.disabledPopoverPosition }
+				onClose={ this._onPopoverClose }
+				className="dops-info-popover__tooltip">
+					{ this.props.disabledReason }
+			</Popover>
+		);
+	};
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
@@ -102,11 +137,13 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
+						ref="toggleSwitch"
 					></span>
 					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
 						{ this.props.children }
 					</span>
 				</label>
+				{ this.renderPopover() }
 			</span>
 		);
 	}
