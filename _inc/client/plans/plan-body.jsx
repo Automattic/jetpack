@@ -26,7 +26,8 @@ import {
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule
+	isActivatingModule,
+	getModuleOverride
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
@@ -193,7 +194,8 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'wordads' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Ads' ) }</h3>
 								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
@@ -218,7 +220,8 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass ) && (
+						( 'is-business-plan' === planClass ) && ! this.props.getModuleOverride( 'search' ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'search' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Search' ) }</h3>
 								<p>{ __( 'Replace the default WordPress search with better results that will help your users find what they are looking for.' ) }</p>
@@ -243,7 +246,8 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'publicize' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Social Media Scheduling' ) }</h3>
 								<p>{ __( 'Schedule multiple Facebook, Twitter, and other social media postings in advance and view share history stats.' ) }</p>
@@ -269,13 +273,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site.' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button onClick={ this.handleButtonClickForTracking( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php?mode=grid' } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
@@ -294,7 +299,8 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
@@ -319,7 +325,8 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'google-analytics' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
@@ -450,7 +457,8 @@ export default connect(
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
-			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug )
+			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
+			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug )
 		};
 	},
 	( dispatch ) => {
