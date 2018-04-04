@@ -81,15 +81,7 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 fi
 
 echo
-if ! $(wp --allow-root core is-installed); then
-	echo "To install WordPress, run:"
-	echo
-	echo "  yarn docker:install"
-	echo
-	echo "...or install manually by opening http://${WP_DOMAIN}"
-else
-	echo "Open http://${WP_DOMAIN} to see your site!"
-fi
+echo "Open http://${WP_DOMAIN} to see your site!"
 echo
 
 # Run apache in the foreground so the container keeps running
