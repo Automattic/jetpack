@@ -9,6 +9,7 @@ const { __ } = wp.i18n;
  * Internal dependencies
  */
 import JetpackGalleryBlockEditor from './block-edit.jsx';
+import JetpackGalleryBlockSave from './block-save.jsx';
 
 const JetpackGalleryBlockType = 'jetpack/gallery';
 
@@ -32,27 +33,27 @@ const settings = {
 					selector: 'img',
 					attribute: 'src',
 				},
-				// link: {
-				// 	source: 'attribute',
-				// 	selector: 'img',
-				// 	attribute: 'data-link',
-				// },
-				// alt: {
-				// 	source: 'attribute',
-				// 	selector: 'img',
-				// 	attribute: 'alt',
-				// 	default: '',
-				// },
-				// id: {
-				// 	source: 'attribute',
-				// 	selector: 'img',
-				// 	attribute: 'data-id',
-				// },
-				// caption: {
-				// 	type: 'array',
-				// 	source: 'children',
-				// 	selector: 'figcaption',
-				// },
+				link: {
+					source: 'attribute',
+					selector: 'img',
+					attribute: 'data-link',
+				},
+				alt: {
+					source: 'attribute',
+					selector: 'img',
+					attribute: 'alt',
+					'default': '',
+				},
+				id: {
+					source: 'attribute',
+					selector: 'img',
+					attribute: 'data-id',
+				},
+				caption: {
+					type: 'array',
+					source: 'children',
+					selector: 'figcaption',
+				},
 			},
 		},
 	},
@@ -81,12 +82,9 @@ const settings = {
 			},
 		],
 	},
-	edit: JetpackGalleryBlockEditor,
 
-	// we render in PHP!
-	save: () => {
-		return null;
-	}
+	edit: JetpackGalleryBlockEditor,
+	save: JetpackGalleryBlockSave
 };
 
 wp.blocks.registerBlockType(
