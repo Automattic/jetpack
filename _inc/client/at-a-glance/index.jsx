@@ -32,6 +32,7 @@ import {
 	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
+import { getModuleOverride } from 'state/modules';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -99,27 +100,33 @@ class AtAGlance extends Component {
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
+			const pairs = [
+				{
+					header: securityHeader,
+					cards: securityCards
+				}
+			];
+
+			const performanceCards = [];
+			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
+				performanceCards.push( <DashPhoton { ...settingsProps } /> );
+			}
+			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
+				performanceCards.push( <DashSearch { ...settingsProps } /> );
+			}
+			if ( performanceCards.length ) {
+				pairs.push( {
+					header: <DashSectionHeader label={ __( 'Performance' ) } />,
+					cards: performanceCards
+				} );
+			}
+
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...settingsProps } { ...urls } />
-
-					{
-						renderPairs( [
-							{
-								header: securityHeader,
-								cards: securityCards
-							},
-							{
-								header: <DashSectionHeader label={ __( 'Performance' ) } />,
-								cards: [
-									<DashPhoton { ...settingsProps } />,
-									<DashSearch { ...settingsProps } />
-								]
-							}
-						] )
-					}
+					{ renderPairs( pairs ) }
 
 					{ connections }
 				</div>
@@ -167,6 +174,7 @@ export default connect(
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( moduleSettingsForm( AtAGlance ) );
