@@ -21,4 +21,6 @@ cp -f /tmp/htaccess-multi /var/www/html/.htaccess
 # Update domain to DB
 wp --allow-root db query "UPDATE wp_blogs SET domain='${WP_DOMAIN}' WHERE blog_id=1;"
 
+echo
 echo "WordPress converted to a multisite. Open ${WP_DOMAIN}"
+echo
