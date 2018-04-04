@@ -16,6 +16,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import JetpackBanner from 'components/jetpack-banner';
 
 export const Ads = moduleSettingsForm( class extends React.Component {
 	/**
@@ -36,6 +37,16 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 	};
 
 	render() {
+		if ( 'inactive' === this.props.getModuleOverride( 'wordads' ) ) {
+			return (
+				<JetpackBanner
+					title={ __( 'Ads', { context: 'Banner header' } ) }
+					icon="cog"
+					description={ __( 'Ads has been disabled by a site administrator.' ) }
+				/>
+			);
+		}
+
 		const isAdsActive = this.props.getOptionValue( 'wordads' );
 		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
 		const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
