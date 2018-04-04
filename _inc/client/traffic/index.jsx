@@ -31,7 +31,8 @@ export class Traffic extends React.Component {
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			getModuleOverride: this.props.getModuleOverride,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
