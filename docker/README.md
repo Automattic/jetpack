@@ -69,6 +69,12 @@ To convert installed single site into a multisite, run:
 yarn docker:multisite-convert
 ```
 
+To remove WordPress installation and start over, run:
+
+```sh
++yarn docker:uninstall
+```
+
 ### Start containers
 
 ```sh

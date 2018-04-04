@@ -2,7 +2,9 @@
 
 if $(wp --allow-root core is-installed); then
 	echo
-	echo "WordPress has already been installed."
+	echo "WordPress has already been installed. Uninstall it first by running:"
+	echo
+	echo "  yarn docker:uninstall"
 	echo
 	exit 1;
 fi
@@ -23,4 +25,6 @@ wp --allow-root plugin install query-monitor --activate
 # Activate Jetpack
 wp --allow-root plugin activate jetpack
 
+echo
 echo "WordPress installed. Open ${WP_DOMAIN}"
+echo

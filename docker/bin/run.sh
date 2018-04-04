@@ -80,8 +80,18 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
-# Run apache in the foreground so the container keeps running
+echo
+if ! $(wp --allow-root core is-installed); then
+	echo "To install WordPress, run:"
+	echo
+	echo "  yarn docker:install"
+	echo
+	echo "...or install manually by opening http://${WP_DOMAIN}"
+else
+	echo "Open http://${WP_DOMAIN} to see your site!"
+fi
+echo
 
-echo "Starting Apache in the foreground"
-echo "Open http://${WP_DOMAIN}"
+# Run apache in the foreground so the container keeps running
+echo "Running Apache in the foreground"
 apachectl -D FOREGROUND
