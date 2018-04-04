@@ -21,6 +21,7 @@ import Search from './search';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
+import { getModuleOverride } from 'state/modules';
 
 export class Traffic extends React.Component {
 	static displayName = 'TrafficSettings';
@@ -140,7 +141,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
-			lastPostUrl: getLastPostUrl( state )
+			lastPostUrl: getLastPostUrl( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Traffic );
