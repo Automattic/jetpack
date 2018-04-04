@@ -24,6 +24,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsGroup from 'components/settings-group';
 import SettingsCard from 'components/settings-card';
+import JetpackBanner from 'components/jetpack-banner';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -120,6 +121,20 @@ class SiteStatsComponent extends React.Component {
 			isStatsActive = this.props.getOptionValue( 'stats' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 			siteRoles = this.props.getSiteRoles();
+
+		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
+			return (
+				<JetpackBanner
+					title={ stats.name }
+					icon="cog"
+					description={ __( '%(moduleName)s has been disabled by a site administrator.', {
+						args: {
+							moduleName: stats.name
+						}
+					} ) }
+				/>
+			);
+		}
 
 		if ( ! isStatsActive ) {
 			return (
