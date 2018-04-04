@@ -18,12 +18,12 @@ jobs:
                   cd wp-e2e-tests
                   git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
-          key: dependency-cache-{{ checksum "wp-e2e-tests/package.json" }}
+          key: dependency-cache-v1-{{ checksum "wp-e2e-tests/package.json" }}
       - run: cd wp-e2e-tests && npm install
       - save_cache:
           paths:
             - ./wp-e2e-tests/node_modules
-          key: dependency-cache-{{ checksum "wp-e2e-tests/package.json" }}
+          key: dependency-cache-v1-{{ checksum "wp-e2e-tests/package.json" }}
       - run:
           name: Run Jetpack JN activation spec
           command: |
