@@ -42,13 +42,9 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	/**
 	 * Script & styles for admin widget form.
 	 */
-	public function enqueue_admin_scripts( $hook ) {
-		global $wp_customize;
-
-		if ( isset( $wp_customize ) || 'widgets.php' === $hook ) {
-			wp_enqueue_script( 'jetpack-widget-social-icons-script', plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ), array( 'jquery-ui-sortable' ), '20170506' );
-			wp_enqueue_style( 'jetpack-widget-social-icons-admin', plugins_url( 'social-icons/social-icons-admin.css', __FILE__ ), array(), '20170506' );
-		}
+	public function enqueue_admin_scripts() {
+		wp_enqueue_script( 'jetpack-widget-social-icons-script', plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ), array( 'jquery-ui-sortable' ), '20170506' );
+		wp_enqueue_style( 'jetpack-widget-social-icons-admin', plugins_url( 'social-icons/social-icons-admin.css', __FILE__ ), array(), '20170506' );
 	}
 
 	/**
