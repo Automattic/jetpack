@@ -124,6 +124,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $this->has_sync_item( $post_ID ) ) {
 			return;
 		}
+
+		if ( $this->has_sync_item( 'new' ) && 'new' !== $post_ID ) {
+			$this->sync_items[ $post_ID ] = $this->sync_items['new'];
+			unset( $this->sync_items['new'] );
+			return;
+		}
 		$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
 	}
 
@@ -153,13 +159,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function add_sync_item( $post_id, $sync_item ) {
-		if ( $this->has_sync_item( $post_id ) ) {
-			$this->sync_items[ $post_id ]->add_sync_item( $sync_item );
-		} else {
+		if ( $this->has_sync_item( 'new' ) && ! $this->has_sync_item( $post_id ) ) {
 			$this->sync_items[ $post_id ] = $this->sync_items['new'];
 			unset( $this->sync_items['new'] );
-			$this->sync_items[ $post_id ]->add_sync_item( $sync_item );
 		}
+
+		$this->sync_items[ $post_id ]->add_sync_item( $sync_item );
 	}
 
 	public function is_saving_post( $post_ID ) {
