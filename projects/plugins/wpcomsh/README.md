@@ -8,10 +8,11 @@ With the help of this mu-plugin, a Pressable site is transformed into a WP.com s
 
 ```
 # From the root of a wp.org install
+$ mkdir -p wp-content/mu-plugins
 $ cd wp-content/mu-plugins
 $ git clone git@github.com:Automattic/wpcomsh.git
+$ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 $ cd wpcomsh
-$ ln -s wpcomsh-loader.php ../plugins # or copy the loader
 $ git submodule update --init --recursive # installs the submodules
 $ composer install # installs the composer dependencies
 ```
@@ -20,10 +21,10 @@ To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin instal
 You will also need to install [Composer](https://getcomposer.org/)
 
 1. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site.
-2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/plugins`.
-It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugin in `wp-content/plugins`.
+2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
+It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
 3. Run `git submodule update --init --recursive` to clone and initialize the submodules (you'll need to run this again to pull in later updates to the submodules).
-4. From the project root run `$ composer install` to install composer based dependencies.
+4. From the project root run `composer install` to install composer based dependencies.
 
 Note: if you decide to download the zip of wpcomsh from the GitHub repo, it won't work as that zip doesn't contain all the git submodules which wpcomsh depends on.
 
