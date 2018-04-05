@@ -126,16 +126,61 @@ class Jetpack_XMLRPC_Server {
 		return $response;
 	}
 
-	function remote_provision( $request ) {
-		if ( ! isset( $request['access_token'] ) ) {
-			return $this->error( new Jetpack_Error( 'access_token_missing', sprintf( 'The required "%s" parameter is missing.', 'access_token' ), 400 ), 'jpc_remote_provision_fail' );
+	/**
+	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
+	 * register this site so that a plan can be provisioned.
+	 *
+	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_provision( $request ) {
+		if ( empty( $request['nonce'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'nonce_missing',
+					esc_html__( 'The required "nonce" parameter is missing.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
 		}
 
-		if ( ! isset( $request['local_username'] ) ) {
-			return $this->error( new Jetpack_Error( 'local_username_missing', sprintf( 'The required "%s" parameter is missing.', 'local_username' ), 400 ), 'jpc_remote_provision_fail' );
+		if ( empty( $request['local_username'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'local_username_missing',
+					esc_html__( 'The required "local_username" parameter is missing.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
 		}
 
-		$access_token = $request['access_token'];
+		$nonce = sanitize_text_field( $request['nonce'] );
+		unset( $request['nonce'] );
+
+		$api_url  = Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) );
+		$response = Jetpack_Client::_wp_remote_request(
+			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
+			array( 'method' => 'GET' ),
+			true
+		);
+
+		if (
+			200 !== wp_remote_retrieve_response_code( $response ) ||
+			'OK' !== trim( wp_remote_retrieve_body( $response ) )
+		) {
+			return $this->error(
+				new Jetpack_Error(
+					'invalid_nonce',
+					esc_html__( 'There was an issue validating this request.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
+		}
+
 		$local_username = $request['local_username'];
 
 		$user = get_user_by( 'login', $local_username );
@@ -152,23 +197,30 @@ class Jetpack_XMLRPC_Server {
 
 		wp_set_current_user( $user->ID );
 
-		// filter allowed parameters
-		$allowed_provision_args = array( 'access_token', 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
+		// Filter allowed parameters.
+		$allowed_provision_args = array(
+			'wpcom_user_id',
+			'wpcom_user_email',
+			'local_username',
+			'plan',
+			'force_register',
+			'force_connect',
+			'onboarding',
+			'partner_tracking_id',
+		);
+
 		$args = array_intersect_key(
 			$request,
 			array_flip( $allowed_provision_args )
 		);
 
-		$result = Jetpack_Provision::partner_provision( $access_token, $args );
+		$result = Jetpack_Provision::register_and_build_request_body( $args );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result, 'jpc_remote_provision_fail' );
 		}
 
-		// this is to prevent us from returning the access_token secret via a potentially unsecured channel.
-		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
-			unset( $result->access_token );
-		}
+		$result['client_id'] = Jetpack_Options::get_option( 'id' );
 
 		return $result;
 	}
