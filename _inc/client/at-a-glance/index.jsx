@@ -79,7 +79,6 @@ class AtAGlance extends Component {
 			);
 		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
 		const securityCards = [
-			<DashProtect { ...settingsProps } />,
 			<DashScan
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
@@ -90,10 +89,16 @@ class AtAGlance extends Component {
 				siteRawUrl={ this.props.siteRawUrl }
 				isRewindActive={ isRewindActive }
 			/>,
-			<DashMonitor { ...settingsProps } />,
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
+
+		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
+			securityCards.push( <DashProtect { ...settingsProps } /> );
+		}
+		if ( 'inactive' !== this.props.getModuleOverride( 'monitor' ) ) {
+			securityCards.push( <DashMonitor { ...settingsProps } /> );
+		}
 
 		// Maybe add the rewind card
 		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
