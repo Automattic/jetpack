@@ -4,7 +4,7 @@
   "description": "Like Jetpack for WPCom sites transferred to Pressable.",
   "license": "GPLv3",
   "require": {
-    "automattic/at-pressable-podcasting": "1.0.0",
+    "automattic/at-pressable-podcasting": "1.1.0",
     "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/text-media-widget-styles": "~1.0",
