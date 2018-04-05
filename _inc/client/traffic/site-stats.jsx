@@ -20,7 +20,6 @@ import {
 	FormFieldset,
 	FormLegend
 } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsGroup from 'components/settings-group';
 import SettingsCard from 'components/settings-card';
@@ -112,8 +111,11 @@ class SiteStatsComponent extends React.Component {
 		return () => this.updateOptions( role, setting );
 	}
 
-	handleModuleToggle = ( option_slug ) => {
-		return module_slug => this.props.updateFormStateModuleOption( module_slug, option_slug );
+	handleStatsOptionToggle( option_slug ) {
+		return () => this.props.updateFormStateModuleOption(
+			'stats',
+			option_slug
+		);
 	}
 
 	render() {
@@ -193,26 +195,23 @@ class SiteStatsComponent extends React.Component {
 						} }
 						>
 						<FormFieldset>
-							<ModuleToggle
-								slug="stats"
-								compact
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={ ! isStatsActive || unavailableInDevMode }
-								activated={ !! this.props.getOptionValue( 'admin_bar' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-								toggleModule={ this.handleModuleToggle( 'admin_bar' ) }
+								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Put a chart showing 48 hours of views in the admin bar' )
 									}
 								</span>
-							</ModuleToggle>
-							<ModuleToggle
-								slug="stats"
+							</CompactFormToggle>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'hide_smile' ) }
 								disabled={ ! isStatsActive || unavailableInDevMode }
-								activated={ !! this.props.getOptionValue( 'hide_smile' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-								toggleModule={ this.handleModuleToggle( 'hide_smile' ) }
+								onChange={ this.handleStatsOptionToggle( 'hide_smile' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -224,7 +223,7 @@ class SiteStatsComponent extends React.Component {
 										__( 'The image helps collect stats, but should work when hidden.' )
 									}
 								</span>
-							</ModuleToggle>
+							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
