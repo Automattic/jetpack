@@ -31,7 +31,7 @@ import {
 	fetchStatsData,
 	getActiveStatsTab
 } from 'state/at-a-glance';
-import { isModuleAvailable, getModules, getModuleOverride } from 'state/modules';
+import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 import JetpackBanner from 'components/jetpack-banner';
 
