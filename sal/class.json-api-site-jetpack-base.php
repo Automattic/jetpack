@@ -29,6 +29,15 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	function before_render() {
 	}
 
+	protected function wp_memory_limit() {
+		return $this->get_constant( 'WP_MEMORY_LIMIT' );
+	}
+
+	protected function wp_max_memory_limit() {
+		return $this->get_constant( 'WP_MAX_MEMORY_LIMIT' );
+	}
+
+
 	function after_render( &$response ) {
 		// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network
 		if ( current_user_can( 'manage_options' ) && $this->is_main_site( $response ) ) {
@@ -58,6 +67,8 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 		$options['software_version'] = (string) $this->wp_version();
 		$options['max_upload_size']  = $this->max_upload_size();
+		$options['wp_memory_limit']  = $this->wp_memory_limit();
+		$options['wp_max_memory_limit']  = $this->wp_max_memory_limit();
 
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site
