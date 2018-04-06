@@ -27,7 +27,7 @@ export default class FormToggle extends Component {
 		toggling: PropTypes.bool,
 		'aria-label': PropTypes.string,
 		children: PropTypes.node,
-		disabledReason: PropTypes.string
+		disabledReason: PropTypes.node
 	};
 
 	static defaultProps = {
@@ -36,7 +36,7 @@ export default class FormToggle extends Component {
 		onKeyDown: () => {},
 		onChange: () => {},
 		disabledPopoverPosition: 'bottom',
-		disabledReason: ''
+		disabledReason: '',
 	};
 
 	state = {
