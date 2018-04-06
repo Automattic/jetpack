@@ -69,7 +69,7 @@ class ModuleToggleComponent extends Component {
 						href="http://jetpack.com/support/module-overrides/"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={ { 'text-decoration': 'underline' } }
+						style={ { textDecoration: 'underline' } }
 					/>
 				)
 			}
