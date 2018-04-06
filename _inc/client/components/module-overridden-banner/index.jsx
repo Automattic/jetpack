@@ -10,14 +10,14 @@ import { translate as __ } from 'i18n-calypso';
  */
 import JetpackBanner from 'components/jetpack-banner';
 
-class ModuleOverridesBanner extends JetpackBanner {
+class ModuleOverridenBanner extends JetpackBanner {
 
 	static propTypes = {
 		moduleName: PropTypes.string.isRequired,
 	};
 
 	render() {
-		// There's point in showing a banner that tells the user a module has been disabled
+		// There's no point in showing a banner that tells the user a module has been disabled
 		// if it doesn't mention the module name. :)
 		if ( ! this.props.moduleName ) {
 			return null;
@@ -53,4 +53,4 @@ class ModuleOverridesBanner extends JetpackBanner {
 
 }
 
-export default ModuleOverridesBanner;
+export default ModuleOverridenBanner;
