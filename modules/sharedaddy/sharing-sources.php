@@ -367,7 +367,6 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
 	abstract public function get_options();
 }
 
-
 class Share_Email extends Sharing_Source {
 	public $shortname = 'email';
 	public $icon = '\f410';
@@ -1680,7 +1679,7 @@ class Share_Telegram extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( get_permalink( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
 	}
 
 	function display_footer() {
@@ -1700,7 +1699,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( get_permalink( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+		return $this->get_link( 'https://api.whatsapp.com/send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
 	}
 }
 
@@ -1737,11 +1736,13 @@ class Share_Skype extends Sharing_Source {
 			);
 			return $skype_share_html;
 		}
+
 		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
-		return $this->get_link( get_permalink( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Click to share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Click to share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -1750,8 +1751,10 @@ class Share_Skype extends Sharing_Source {
 			rawurlencode( $this->get_share_url( $post->ID ) ),
 			'en-US'
 		);
+
 		// Record stats
 		parent::process_request( $post, $post_data );
+
 		// Redirect to Skype
 		wp_redirect( $skype_url );
 		die();
