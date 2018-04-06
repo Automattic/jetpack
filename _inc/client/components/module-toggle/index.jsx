@@ -62,13 +62,26 @@ class ModuleToggleComponent extends Component {
 			return null;
 		}
 		const override = this.props.getModuleOverride( this.props.slug );
+		const args = {
+			components: {
+				link: (
+					<a
+						href="http://jetpack.com/support/module-overrides/"
+						target="_blank"
+						rel="noopener noreferrer"
+						style={ { 'text-decoration': 'underline' } }
+					/>
+				)
+			}
+		};
+
 		switch ( override ) {
 			case 'active':
-				return __( 'This feature has been enabled by a site administrator.' );
+				return __( 'This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.', args );
 			case 'inactive':
-				return __( 'This feature has been disabled by a site administrator.' );
+				return __( 'This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.', args );
 			default:
-				return __( 'This feature is being managed by a site administrator.' );
+				return __( 'This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.', args );
 		}
 	};
 
