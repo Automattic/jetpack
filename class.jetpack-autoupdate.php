@@ -64,7 +64,7 @@ class Jetpack_Autoupdate {
 		       || in_array( $item->slug, $autoupdate_theme_list ) )
 		     && 'theme' === $item->type
 		) {
-			$this->expect( $item->type + ':' + $item->slug, 'translation' );
+			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 
 			return true;
 		}
