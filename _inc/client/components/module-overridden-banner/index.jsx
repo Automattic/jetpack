@@ -4,11 +4,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
 import JetpackBanner from 'components/jetpack-banner';
+
+require( './style.scss' );
 
 class ModuleOverridenBanner extends JetpackBanner {
 
@@ -33,14 +36,18 @@ class ModuleOverridenBanner extends JetpackBanner {
 						href="http://jetpack.com/support/module-overrides/"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={ { textDecoration: 'underline' } }
 					/>
 				)
 			}
 		};
 
+		const classes = classNames( 'module-overridden-banner', {
+			'is-compact': this.props.compact,
+		} );
+
 		return (
 			<JetpackBanner
+				className={ classes }
 				title={ this.props.moduleName }
 				icon="cog"
 				description={ __(

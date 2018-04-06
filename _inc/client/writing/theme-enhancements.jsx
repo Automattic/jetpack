@@ -18,7 +18,7 @@ import { isModuleFound } from 'state/search';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class ThemeEnhancements extends React.Component {
     /**
@@ -134,15 +134,7 @@ class ThemeEnhancements extends React.Component {
 				>
 				{
 					infiniteScrollDisabledByOverride && (
-						<JetpackBanner
-							title={ infScr.name }
-							icon="cog"
-							description={ __( '%(moduleName)s has been disabled by a site administrator.', {
-								args: {
-									moduleName: infScr.name
-								}
-							} ) }
-						/>
+						<ModuleOverriddenBanner moduleName={ infScr.name } compact />
 					)
 				}
 				{
