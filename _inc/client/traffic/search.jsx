@@ -21,11 +21,6 @@ import { FormFieldset } from 'components/forms';
 
 class Search extends React.Component {
 	render() {
-		if ( 'inactive' === this.props.getModuleOverride( 'search' ) ) {
-			return null;
-		}
-
-
 		return (
 			<SettingsCard
 				{ ...this.props }

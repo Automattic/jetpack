@@ -20,10 +20,6 @@ class SeoComponent extends React.Component {
 	};
 
 	render() {
-		if ( 'inactive' === this.props.getModuleOverride( 'seo-tools' ) ) {
-			return null;
-		}
-
 		return (
 			<SettingsCard
 				{ ...this.props }

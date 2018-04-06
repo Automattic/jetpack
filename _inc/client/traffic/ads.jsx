@@ -36,10 +36,6 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 	};
 
 	render() {
-		if ( 'inactive' === this.props.getModuleOverride( 'wordads' ) ) {
-			return null;
-		}
-
 		const isAdsActive = this.props.getOptionValue( 'wordads' );
 		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
 		const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );

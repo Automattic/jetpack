@@ -21,10 +21,6 @@ export const GoogleAnalytics = moduleSettingsForm(
 		}
 
 		render() {
-			if ( 'inactive' === this.props.getModuleOverride( 'google-analytics' ) ) {
-				return null;
-			}
-
 			return (
 				<SettingsCard
 					{ ...this.props }

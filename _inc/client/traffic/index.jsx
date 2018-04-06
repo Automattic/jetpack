@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
@@ -21,7 +21,6 @@ import Search from './search';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
-import { getModuleOverride } from 'state/modules';
 
 export class Traffic extends React.Component {
 	static displayName = 'TrafficSettings';
