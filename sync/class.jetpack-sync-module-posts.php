@@ -85,7 +85,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		/**
 		 * Used for syncing deletion of batch post meta
 		 *
-		 * @since 6.0.0
+		 * @since 6.1.0
 		 *
 		 * @module sync
 		 *
