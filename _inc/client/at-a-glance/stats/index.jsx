@@ -33,7 +33,7 @@ import {
 } from 'state/at-a-glance';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
-import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 export class DashStats extends Component {
 	static propTypes = {
@@ -285,12 +285,7 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<DashSectionHeader label={ __( 'Site Stats' ) } />
-					<JetpackBanner
-						title={ __( 'Site stats', { context: 'Banner header' } ) }
-						icon="cog"
-						description={ __( 'Stats has been disabled by a site administrator.' ) }
-					/>
+					<ModuleOverriddenBanner moduleName={ __( 'Site Stats' ) } />
 				</div>
 			);
 		}
