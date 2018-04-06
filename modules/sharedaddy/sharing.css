@@ -240,7 +240,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-print a:before,
 .sd-social-official .sd-content li.share-print a:before {
 	content: '\f469';
-
 }
 
 .sd-social-icon .sd-content ul li.share-email a:before,
@@ -400,6 +399,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content .pocket_button iframe {
 	width: 98px;
 }
+
 
 /* Individual official buttons */
 .googleplus1_button .g-plus {
