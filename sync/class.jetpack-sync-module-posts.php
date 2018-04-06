@@ -49,7 +49,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
-		add_action( 'jetpack_batch_delete_post_meta', $callable, 10, 2 );
+		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
 
 		add_action( 'export_wp', $callable );
 		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
@@ -92,7 +92,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * $param array $feedback_ids feedback post IDs
 		 * $param string $meta_key to be deleted
 		 */
-		do_action( 'jetpack_batch_delete_post_meta', $feedback_ids, '_feedback_akismet_values');
+		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values');
 	}
 
 	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {

@@ -199,7 +199,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_batch_delete_post_meta' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_meta_batch_delete' );
 
 		$this->assertEquals( array( $post_id ), $event->args[0] );
 		$this->assertEquals( '_feedback_akismet_values', $event->args[1] );
