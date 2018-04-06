@@ -216,22 +216,26 @@ class Jetpack_Sync_Sender {
 		$checkout_duration = microtime( true ) - $checkout_start_time;
 
 		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $this->get_items_to_send( $buffer, true );
-
-		/**
-		 * Fires when data is ready to send to the server.
-		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
-		 * The items will be automatically re-sent later
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param array $data The action buffer
-		 * @param string $codec The codec name used to encode the data
-		 * @param double $time The current time
-		 * @param string $queue The queue used to send ('sync' or 'full_sync')
-		 */
-		Jetpack_Sync_Settings::set_is_sending( true );
-		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
-		Jetpack_Sync_Settings::set_is_sending( false );
+		if ( ! empty( $items_to_send ) ) {
+			/**
+			 * Fires when data is ready to send to the server.
+			 * Return false or WP_Error to abort the sync (e.g. if there's an error)
+			 * The items will be automatically re-sent later
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param array $data The action buffer
+			 * @param string $codec The codec name used to encode the data
+			 * @param double $time The current time
+			 * @param string $queue The queue used to send ('sync' or 'full_sync')
+			 */
+			Jetpack_Sync_Settings::set_is_sending( true );
+			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
+			Jetpack_Sync_Settings::set_is_sending( false );
+		} else {
+			$processed_item_ids = $skipped_items_ids;
+			$skipped_items_ids = array();
+		}
 
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
 			$checked_in_item_ids = $queue->checkin( $buffer );
