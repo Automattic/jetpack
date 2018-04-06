@@ -379,7 +379,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 
 		foreach ( $meta_ids as $meta_id ) {
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE meta_id = %d ", $meta_id ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE meta_id = %d", $meta_id ) );
 		}
 
 		// if we don't have an object ID what do we do - invalidate ALL meta?
