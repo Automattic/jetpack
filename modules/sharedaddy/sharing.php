@@ -1,12 +1,11 @@
 <?php
+if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
+	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
 
 class Sharing_Admin {
 	public function __construct() {
-		if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
-			define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-			define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-		}
-
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
