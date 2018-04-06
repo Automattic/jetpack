@@ -13,7 +13,6 @@ import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import JetpackBanner from 'components/jetpack-banner';
 
 export const GoogleAnalytics = moduleSettingsForm(
 	class extends Component {
@@ -23,18 +22,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 
 		render() {
 			if ( 'inactive' === this.props.getModuleOverride( 'google-analytics' ) ) {
-				const module = this.props.getModule( 'google-analytics' );
-				return (
-					<JetpackBanner
-						title={ module.name }
-						icon="cog"
-						description={ __( '%(moduleName)s has been disabled by a site administrator.', {
-							args: {
-								moduleName: module.name
-							}
-						} ) }
-					/>
-				);
+				return null;
 			}
 
 			return (

@@ -18,19 +18,13 @@ import { getSiteAdminUrl } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import { isFetchingSiteData } from 'state/site';
 import { FormFieldset } from 'components/forms';
-import JetpackBanner from 'components/jetpack-banner';
 
 class Search extends React.Component {
 	render() {
 		if ( 'inactive' === this.props.getModuleOverride( 'search' ) ) {
-			return (
-				<JetpackBanner
-					title={ __( 'Search', { context: 'Banner header' } ) }
-					icon="cog"
-					description={ __( 'Search has been disabled by a site administrator.' ) }
-				/>
-			);
+			return null;
 		}
+
 
 		return (
 			<SettingsCard
