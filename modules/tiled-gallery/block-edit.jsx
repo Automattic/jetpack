@@ -30,10 +30,10 @@ const {
 	BlockControls,
 } = wp.blocks;
 
-function JetpackGalleryImage( props ) {
-	const { url, alt, id } = props;
-	return ( <img src={ url } alt={ alt } data-id={ id } /> );
-}
+/**
+ * Internal dependencies
+ */
+import jetpackGalleryImage from './gallery-image.jsx';
 
 class JetpackGalleryBlockEditor extends Component {
 	constructor() {
@@ -205,15 +205,7 @@ class JetpackGalleryBlockEditor extends Component {
 			),
 			<ul key="gallery" className="jetpack-tiled-gallery">
 				{ dropZone }
-				{ images.map( ( img ) => (
-					<li className="blocks-gallery-item" key={ img.id || img.url }>
-						<JetpackGalleryImage
-							url={ img.url }
-							alt={ img.alt }
-							id={ img.id }
-						/>
-					</li>
-				) ) }
+				{ images.map( jetpackGalleryImage ) }
 				{ isSelected &&
 					<li className="blocks-gallery-item">
 						<FormFileUpload
