@@ -15,6 +15,7 @@ class Jetpack_Tiled_Gallery {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_assets' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 
@@ -239,6 +240,14 @@ class Jetpack_Tiled_Gallery {
   			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
   		);
   		wp_enqueue_script( 'jetpack-tiled-gallery-block' );
+  }
+
+
+	/**
+	 * Enqueue css for `column-count`-based tiled layout
+	 */
+	public static function enqueue_block_assets() {
+		wp_enqueue_style( 'jetpack-tiled-gallery', plugins_url( './css/style.css', __FILE__ ), array(), __FILETIME__ );
   }
 
 	/**
