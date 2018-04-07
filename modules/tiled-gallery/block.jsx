@@ -26,7 +26,7 @@ const settings = {
 			type: 'array',
 			'default': [],
 			source: 'query',
-			selector: 'ul.wp-block-gallery .blocks-gallery-item',
+			selector: '.blocks-gallery-item',
 			query: {
 				url: {
 					source: 'attribute',
