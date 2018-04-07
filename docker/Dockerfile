@@ -1,4 +1,5 @@
-FROM php:7.0-apache
+ARG PHP_VERSION=7.0-apache
+FROM php:${PHP_VERSION}
 
 VOLUME ["/var/www/html"]
 
