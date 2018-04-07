@@ -9,6 +9,7 @@
 	column-gap: 0;
 	padding: 0;
 	display: block;
+	line-height: 0;
 }
 
 @media (min-width: 782px) {
@@ -21,6 +22,10 @@
 	.jetpack-tiled-gallery {
 		column-count: 4;
 	}
+}
+
+.jetpack-tiled-gallery figure {
+	margin: 0;
 }
 
 .jetpack-tiled-gallery .blocks-gallery-item {
