@@ -64,9 +64,7 @@ const settings = {
 				type: 'block',
 				blocks: [ 'core/gallery' ],
 				transform: function( content ) {
-					return wp.blocks.createBlock( JetpackGalleryBlockType, {
-						content,
-					} );
+					return wp.blocks.createBlock( JetpackGalleryBlockType, content );
 				},
 			},
 		],
@@ -74,10 +72,8 @@ const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/gallery' ],
-				transform: ( { content } ) => {
-					return wp.blocks.createBlock( 'core/gallery', {
-						content,
-					} );
+				transform: function( content ) {
+					return wp.blocks.createBlock( 'core/gallery', content );
 				},
 			},
 		],
