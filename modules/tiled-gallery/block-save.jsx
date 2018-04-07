@@ -8,7 +8,7 @@ import jetpackGalleryImage from './gallery-image.jsx';
 function jetpackGalleryBlockSave( { attributes } ) {
 	const { images } = attributes;
 	return (
-		<ul>
+		<ul className="jetpack-tiled-gallery">
 			{ images.map( jetpackGalleryImage ) }
 		</ul>
 	);
