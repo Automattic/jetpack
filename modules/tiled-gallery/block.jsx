@@ -9,7 +9,7 @@ const { __ } = wp.i18n;
  * Internal dependencies
  */
 import JetpackGalleryBlockEditor from './block-edit.jsx';
-import JetpackGalleryBlockSave from './block-save.jsx';
+import jetpackGalleryBlockSave from './block-save.jsx';
 
 const JetpackGalleryBlockType = 'jetpack/gallery';
 
@@ -84,7 +84,7 @@ const settings = {
 	},
 
 	edit: JetpackGalleryBlockEditor,
-	save: JetpackGalleryBlockSave
+	save: jetpackGalleryBlockSave
 };
 
 wp.blocks.registerBlockType(
