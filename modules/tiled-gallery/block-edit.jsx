@@ -215,7 +215,9 @@ class JetpackGalleryBlockEditor extends Component {
 							onChange={ this.uploadFromFiles }
 							accept="image/*"
 							icon="insert"
-						/>
+						>
+							{ __( 'Upload an image' ) }
+						</FormFileUpload>
 					</li>
 				}
 			</ul>,
