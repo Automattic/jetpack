@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Feature: Engagement
  * Additional Search Queries: webmaster, google, analytics, console
- * Plans: business
+ * Plans: business, premium
  */
 
 include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
