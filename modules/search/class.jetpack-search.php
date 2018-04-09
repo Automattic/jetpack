@@ -1123,14 +1123,6 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
-		if ( ! empty( $filters ) && is_array( $filters ) ) {
-			foreach ( $filters as $filter ) {
-				$builder->add_filter( $filter );
-			}
-		}
-
-		$es_query_args['query'] = $builder->build_query();
-
 		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
 			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $parser );
