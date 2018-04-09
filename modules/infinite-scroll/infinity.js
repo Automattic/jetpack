@@ -70,7 +70,7 @@ Scroller = function( settings ) {
 				self.thefooter();
 				// Fire the refresh
 				self.refresh();
-                self.determineURL(); // determine the url 
+                self.determineURL(); // determine the url
 			}
 		}, 250 );
 
@@ -131,13 +131,14 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page           : this.page + this.offset, // Load the next page.
-		currentday     : this.currentday,
-		order          : this.order,
-		scripts        : window.infiniteScroll.settings.scripts,
-		styles         : window.infiniteScroll.settings.styles,
-		query_args     : window.infiniteScroll.settings.query_args,
-		last_post_date : window.infiniteScroll.settings.last_post_date
+		page          : this.page + this.offset, // Load the next page.
+		currentday    : this.currentday,
+		order         : this.order,
+		scripts       : window.infiniteScroll.settings.scripts,
+		styles        : window.infiniteScroll.settings.styles,
+		query_args    : window.infiniteScroll.settings.query_args,
+		query_before  : window.infiniteScroll.settings.query_before,
+		last_post_date: window.infiniteScroll.settings.last_post_date
 	};
 };
 
