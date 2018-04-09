@@ -341,6 +341,27 @@ class Jetpack_Sync_Functions {
 		return $wp_version;
 	}
 
+	public static function get_plugin_org_info() {
+		$update_plugins = get_site_transient( 'update_plugins' );
+		$org_plugin_data = array();
+		if ( isset( $update_plugins->no_update ) ) {
+			$org_plugin_data = (array) $update_plugins->no_update;
+		}
+		if ( isset( $update_plugins->response ) ) {
+			$org_plugin_data = array_merge( $org_plugin_data, $update_plugins->response );
+		}
+		$valid_org_plugin_data = array();
+		foreach ( $org_plugin_data as $plugin_file => $plugin_data ) {
+			$id = ( isset( $plugin_data->id ) ? explode( '/', (string) $plugin_data->id ) : null );
+			$icons = is_array( $plugin_data->icons ) ? $plugin_data->icons : null;
+			$valid_org_plugin_data[ $plugin_file ] = array_filter( array(
+				'icons' => $icons,
+				'slug' => $plugin_data->slug
+			) );
+			$valid_org_plugin_data[ $plugin_file ]['is_org'] = ( 'w.org' === $id[0] );
+		}
+		return $valid_org_plugin_data;
+	}
 	public static function site_icon_url() {
 		if ( ! function_exists( 'get_site_icon_url' ) || ! has_site_icon() ) {
 			return get_option( 'jetpack_site_icon_url' );
