@@ -1749,12 +1749,11 @@ class Jetpack_Search {
 			return;
 		}
 
-		//TODO: fixme
-		//jetpack_tracks_record_event(
-		//	wp_get_current_user(),
-		//	sprintf( 'jetpack_search_widget_%s', $event['action'] ),
-		//	$event['widget']
-		//);
+		jetpack_tracks_record_event(
+			wp_get_current_user(),
+			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
+			$event['widget']
+		);
 	}
 
 	/**
