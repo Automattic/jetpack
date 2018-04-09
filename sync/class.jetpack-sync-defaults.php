@@ -193,6 +193,7 @@ class Jetpack_Sync_Defaults {
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
 	);
 
 
