@@ -1204,17 +1204,6 @@ class The_Neverending_Home_Page {
 			$previousday = $_REQUEST['currentday'];
 		}
 
-		$sticky = get_option( 'sticky_posts' );
-		$post__not_in = self::wp_query()->get( 'post__not_in' );
-
-		//we have to take post__not_in args into consideration here not only sticky posts
-		if ( true === isset( $_REQUEST['query_args']['post__not_in'] ) ) {
-			$post__not_in = array_merge( $post__not_in, array_map( 'intval', (array) $_REQUEST['query_args']['post__not_in'] ) );
-		}
-
-		if ( ! empty( $post__not_in ) )
-			$sticky = array_unique( array_merge( $sticky, $post__not_in ) );
-
 		$post_status = array( 'publish' );
 		if ( current_user_can( 'read_private_posts' ) )
 			array_push( $post_status, 'private' );
@@ -1225,7 +1214,6 @@ class The_Neverending_Home_Page {
 			'paged'          => $page,
 			'post_status'    => $post_status,
 			'posts_per_page' => self::posts_per_page(),
-			'post__not_in'   => ( array ) $sticky,
 			'order'          => $order
 		) );
 
