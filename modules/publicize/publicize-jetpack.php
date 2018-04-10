@@ -40,10 +40,10 @@ class Publicize extends Publicize_Base {
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 
-		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/class-async-publicize.php' );
+		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/class-jetpack-publicize-gutenberg.php' );
 
-		// Extend publicize with support for asynchronous use (publish, and then later publicize).
-		$async_publicizer = new Async_Publicize( $this );
+		// Extend publicize with support for Gutenberg
+		$async_publicizer = new Jetpack_Publicize_Gutenberg( $this );
 	}
 
 	function force_user_connection() {

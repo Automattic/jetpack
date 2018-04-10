@@ -556,7 +556,7 @@ jQuery( function($) {
 			<span id="publicize-title">
 				<?php esc_html_e( 'Publicize:', 'jetpack' ); ?>
 				<?php if ( 0 < count( $services ) ) : ?>
-					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected( $services ); ?>
+					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected(); ?>
 					<span id="publicize-defaults">
 						<?php foreach ( $active as $item ) : ?>
 							<strong><?php echo esc_html( $item ); ?></strong>
@@ -584,18 +584,127 @@ jQuery( function($) {
 		</div> <?php // #publicize
 	}
 
-	private function get_metabox_form_connected( $services ) {
+	/**
+	 * Generates HTML content for connections form.
+	 *
+	 * Retrieves current connection list and generates HTML form.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @global WP_Post $post The current post instance being published.
+	 *
+	 * @return array {
+	 *     Array of content for generating connection form.
+	 *
+	 *     @type string HTML content of form
+	 *     @type array {
+	 *     		Array of connection labels for active connections only.
+	 *
+	 *          @type string Connection label string.
+	 *     }
+	 * }
+	 */
+	private function get_metabox_form_connected() {
 		global $post;
-		$active = array();
-		ob_start();
-		?> <div id="publicize-form" class="hide-if-js">
-			<ul>
+		$active_list = array();
 
+		$all_done = $this->done_sharing_post();
+		$connection_list = $this->get_filtered_connection_data();
+
+		ob_start();
+		?>
+			<div id="publicize-form" class="hide-if-js">
+				<ul>
+		<?php
+
+		foreach ( $connection_list as $c ) {
+			if ( $c['active'] ) {
+				$active_list[] = $c['label'];
+			}
+			?>
+				<li>
+					<label for="wpas-submit-<?php echo esc_attr( $c['unique_id'] ); ?>">
+						<input type="checkbox" name="wpas[submit][<?php echo $c['unique_id']; ?>]" id="wpas-submit-<?php echo $c['unique_id']; ?>" class="wpas-submit-<?php echo $c['name']; ?>" value="1" <?php
+						checked( true, $c['checked'] );
+						echo $c['disabled'];
+						?> />
+						<?php
+						if ( $c['hidden_checkbox'] ) {
+							// Need to submit a value to force a global connection to post
+							echo '<input type="hidden" name="wpas[submit][' . $c['unique_id'] . ']" value="1" />';
+						}
+						echo esc_html( $c['label'] );
+						?>
+					</label>
+				</li>
 			<?php
-			// We can set an _all flag to indicate that this post is completely done as
-			// far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
-			// have Publicize disabled.
-			$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
+		}
+
+		if ( $title = get_post_meta( $post->ID, $this->publicize->POST_MESS, true ) ) {
+			$title = esc_html( $title );
+		} else {
+			$title = '';
+		}
+
+		?>
+				</ul>
+
+				<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
+				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+
+				<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
+
+				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
+				<input type="hidden" name="wpas[0]" value="1" />
+
+			</div>
+		<?php if ( ! $all_done ) : ?>
+			<div id="pub-connection-tests"></div>
+		<?php endif; ?>
+		<?php // #publicize-form
+		return array( ob_get_clean(), $active_list );
+	}
+
+
+	// We can set an _all flag to indicate that this post is completely done as
+	// far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
+	// have Publicize disabled.
+	private function done_sharing_post()
+	{
+		global $post;
+		return get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
+	}
+
+	/**
+	 * Retrieves current list of connections and applies filters.
+	 *
+	 * Retrieves current available connections and checks if the connections
+	 * have already been used to share current post. Finally, the checkbox
+	 * form UI fields are calculated. This function exposes connection form
+	 * data directly as array so it can be retrieved for static HTML generation
+	 * or JSON consumption.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @global WP_Post $post The current post instance being published.
+	 *
+	 * @return array {
+	 *     Array of UI setup data for connection list form.
+	 *
+	 *     @type string 'unique_id'       ID string representing connection
+	 *     @type bool   'checked'         Default value of checkbox for connection.
+	 *     @type string 'disabled'        String of HTML disabled property of checkbox. Empty if not disabled.
+	 *     @type bool   'active'          True if connection is not skipped by filters and is not already done.
+	 *     @type bool   'hidden_checkbox' True if the connection should not be shared to by current user.
+	 *     @type string 'label'           Text description of checkbox.
+	 * }
+	 */
+	function get_filtered_connection_data() {
+		global $post;
+		$connection_list = array();
+
+		$services = $this->publicize->get_services( 'connected' );
+			$all_done = $this->done_sharing_post();
 
 			// We don't allow Publicizing to the same external id twice, to prevent spam
 			$service_id_done = (array) get_post_meta( $post->ID, $this->publicize->POST_SERVICE_DONE, true );
@@ -711,53 +820,21 @@ jQuery( function($) {
 						esc_html( $this->publicize->get_service_label( $name ) ),
 						esc_html( $this->publicize->get_display_name( $name, $connection ) )
 					);
-					if ( !$skip || $done ) {
-						$active[] = $label;
-					}
-					?>
-					<li>
-						<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
-							<input type="checkbox" name="wpas[submit][<?php echo $unique_id; ?>]" id="wpas-submit-<?php echo $unique_id; ?>" class="wpas-submit-<?php echo $name; ?>" value="1" <?php
-								checked( true, $checked );
-								echo $disabled;
-							?> />
-							<?php
-							if ( $hidden_checkbox ) {
-								// Need to submit a value to force a global connection to post
-								echo '<input type="hidden" name="wpas[submit][' . $unique_id . ']" value="1" />';
-							}
-							echo esc_html( $label );
-							?>
-						</label>
-					</li>
-					<?php
+					$active =  !$skip || $done;
+
+					$connection_list[] = array(
+						'unique_id'       => $unique_id,
+						'name'            => $name,
+						'checked'         => $checked,
+						'disabled'        => $disabled,
+						'active'          => $active,
+						'hidden_checkbox' => $hidden_checkbox,
+						'label'           => esc_html( $label ),
+					);
 				}
 			}
 
-			if ( $title = get_post_meta( $post->ID, $this->publicize->POST_MESS, true ) ) {
-				$title = esc_html( $title );
-			} else {
-				$title = '';
-			}
-			?>
-
-			</ul>
-
-			<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
-			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
-
-			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
-
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
-			<input type="hidden" name="wpas[0]" value="1" />
-
-		</div>
-		<?php if ( ! $all_done ) : ?>
-			<div id="pub-connection-tests"></div>
-		<?php endif; ?>
-		<?php // #publicize-form
-
-		return array( ob_get_clean(), $active );
+		return $connection_list;
 	}
 
 
