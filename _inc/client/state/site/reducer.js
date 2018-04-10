@@ -117,7 +117,7 @@ export function getAvailableFeatures( state ) {
  * @return {Object}  Features
  */
 export function getActiveFeatures( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'active' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'active' ], [] );
 }
 
 export function getAvailablePlans( state ) {
