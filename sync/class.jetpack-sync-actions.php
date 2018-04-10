@@ -55,6 +55,8 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function add_sender_shutdown() {
+		self::initialize_sender();
+		add_action( 'shutdown', array( self::$sender, 'handle_packages' ), 1 );
 		/**
 		 * Fires on every request before default loading sync sender code.
 		 * Return false to not load sync sender code that serializes pending
@@ -78,7 +80,6 @@ class Jetpack_Sync_Actions {
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
 		) ) {
-			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}

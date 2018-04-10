@@ -13,8 +13,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_save_term', $callable );
 		add_action( 'jetpack_sync_add_term', $callable );
 		add_action( 'delete_term', $callable, 10, 4 );
-		add_action( 'set_object_terms', $callable, 10, 6 );
-		add_action( 'deleted_term_relationships', $callable, 10, 2 );
+		add_action( 'set_object_terms', array( $this, 'add_action_to_packager' ), 10, 6 );
+		add_action( 'deleted_term_relationships', array( $this, 'add_action_to_packager'), 10, 2 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {

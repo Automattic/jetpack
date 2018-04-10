@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-packager.php';
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
@@ -107,9 +108,9 @@ abstract class Jetpack_Sync_Module {
 
 		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
 
-		return array_map( 
-			array( $this, 'unserialize_meta' ), 
-			$wpdb->get_results( 
+		return array_map(
+			array( $this, 'unserialize_meta' ),
+			$wpdb->get_results(
 				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
 				" AND meta_key IN ( $private_meta_whitelist_sql ) "
 				, OBJECT )
@@ -155,5 +156,11 @@ abstract class Jetpack_Sync_Module {
 		}
 
 		return $objects;
+	}
+
+	public function add_action_to_packager() {
+		$packager = Jetpack_Sync_Packager::get_instance();
+		$args = func_get_args();
+		$packager->add( current_filter(), $args );
 	}
 }
