@@ -8,7 +8,9 @@ import {
 	getModules,
 	getModule,
 	isModuleActivated,
-	getModuleOverride
+	getModuleOverride,
+	isModuleForcedActive,
+	isModuleForcedInactive,
 } from '../reducer';
 
 let state = {
@@ -124,6 +126,26 @@ describe( 'items selectors', () => {
 
 		it( 'should return false when module not overriden', () => {
 			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#isModuleForcedActive',  () => {
+		it( 'should return true when module forced on', () => {
+			expect( isModuleForcedActive( state, 'module-a' ) ).to.be.true;
+		} );
+
+		it( 'should return false when module not overriden', () => {
+			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#isModuleForcedInactive',  () => {
+		it( 'should return true when module forced off', () => {
+			expect( isModuleForcedInactive( state, 'module-b' ) ).to.be.true;
+		} );
+
+		it( 'should return false when module not overriden', () => {
+			expect( isModuleForcedInactive( state, 'module-c' ) ).to.be.false;
 		} );
 	} );
 } );

@@ -264,3 +264,23 @@ export function isModuleAvailable( state, moduleSlug ) {
 export function getModuleOverride( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'override' ], false );
 }
+
+/**
+ * Returns true if the module is forced to be active.
+ * @param {Object}   state Global state tree
+ * @param {String}   name  A module's name
+ * @return {Boolean}       Whether the module is forced to be active.
+ */
+export function isModuleForcedActive( state, name ) {
+	return getModuleOverride( state, name ) === 'active';
+}
+
+/**
+* Returns true if the module is forced to be inactive.
+* @param {Object}   state Global state tree
+* @param {String}   name  A module's name
+* @return {Boolean}       Whether the module is forced to be inactive.
+*/
+export function isModuleForcedInactive( state, name ) {
+	return getModuleOverride( state, name ) === 'inactive';
+}
