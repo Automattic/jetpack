@@ -668,9 +668,10 @@ class The_Neverending_Home_Page {
 			 *
 			 * @param string $clause SQL Date query.
 			 * @param object $query Query.
-			 * @param string $operator Query operator.
+			 * @param string $operator @deprecated Query operator.
 			 * @param string $last_post_date @deprecated Last Post Date timestamp.
 			 */
+			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<';
 			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) );
 			$where         .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
 		}
