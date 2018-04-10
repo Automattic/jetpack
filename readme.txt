@@ -98,7 +98,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 6.1 =
 
 * Release date: May 1, 2018
-* Release post: https://wp.me/p1moTy-7xM
+* Release post: https://wp.me/p1moTy-7Sj
 
 **Major Enhancements**
 
