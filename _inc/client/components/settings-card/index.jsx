@@ -29,6 +29,7 @@ import {
 } from 'lib/plans/constants';
 
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { isModuleForcedActive } from 'state/modules';
 import {
 	isAkismetKeyValid,
 	isCheckingAkismetKey,
@@ -108,7 +109,8 @@ export const SettingsCard = props => {
 			case FEATURE_WORDADS_JETPACK:
 				if (
 					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
+					'is-business-plan' === planClass ||
+					props.isAdsForcedActive
 				) {
 					return '';
 				}
@@ -318,6 +320,7 @@ SettingsCard.defaultProps = {
 export default connect(
 	( state ) => {
 		return {
+			isAdsForcedActive: isModuleForcedActive( state, 'wordads' ),
 			sitePlan: getSitePlan( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteRawUrl: getSiteRawUrl( state ),
@@ -325,7 +328,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: getVaultPressData( state )
+			vaultPressData: getVaultPressData( state ),
 		};
 	}
 )( SettingsCard );
