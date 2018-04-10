@@ -227,15 +227,3 @@ input.fb-options {
 .pub-connection-error {
 	color: #ff0000;
 }
-
-#jetpack-publicize-message-box {
-	width: 100%;
-}
-
-.jetpack-publicize-form button {
-	float: right;
-}
-
-.jetpack-publicize-sidebar-title {
-	font-weight: bold;
-}
