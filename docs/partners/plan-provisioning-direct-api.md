@@ -10,6 +10,8 @@ When you become a Jetpack partner, we will provide you with your partner ID and 
 
 To do that, you'll make a `POST` request to the `https://public-api.wordpress.com/oauth2/token` endpoint passing with the request parameters mentioned below.
 
+A successful response will include a JSON object with several keys. We are specifically interested in the `access_token` key, so be sure to grab that.
+
 For more detailed information about oAuth on WordPress.com, visit the [documentation on oAuth2 authentication](https://developer.wordpress.com/docs/oauth2/).
 
 #### Endpoint Information
@@ -39,16 +41,20 @@ Note: You only need to create the `access_token` once.
 Here is an example using cURL in shell.
 
 ```shell
+# Note: This example uses jq to parse JSON from the API.
 PARTNER_ID="your_partner_id_here"
 PARTNER_SECRET="your_partner_secret_here"
-curl --request POST \
+RESULT=$( curl --request POST \
     --url https://public-api.wordpress.com/oauth2/token \
     --header 'cache-control: no-cache' \
     --header 'content-type: multipart/form-data;' \
     --form client_id="$PARTNER_ID" \
     --form client_secret="$PARTNER_SECRET" \
     --form grant_type=client_credentials \
-    --form scope=jetpack-partner
+    --form scope=jetpack-partner )
+
+ACCESS_TOKEN=$( echo "$RESULT" | jq -r '.access_token' )
+echo "Access token is: $ACCESS_TOKEN"
 ```
 
 Here's an example using the request module in Node JS.
@@ -78,7 +84,7 @@ request( options, function ( error, response, body ) {
         throw new Error( error );
     }
 
-    console.log( body );
+    console.log( 'The access token is ' + JSON.parse( body ).access_token );
 } );
 
 ```
