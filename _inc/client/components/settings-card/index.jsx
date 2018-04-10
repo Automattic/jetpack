@@ -161,7 +161,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
@@ -176,7 +176,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
