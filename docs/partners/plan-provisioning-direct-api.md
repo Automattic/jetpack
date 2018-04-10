@@ -4,7 +4,7 @@ In [another document](plan-provisioning.md), we discussed how to provision and c
 
 If you have any questions or issues, our contact information can be found on the [README.md document](README.md).
 
-### Getting a Jetpack Partner access token
+## Getting a Jetpack Partner access token
 
 When you become a Jetpack partner, we will provide you with your partner ID and a secret key. Typically you just pass these values directly in to the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts. But, when calling the WordPress.com API directly, you'll first need to get an access token with for your partner ID with a scope of `jetpack-partner`.
 
@@ -14,19 +14,19 @@ A successful response will include a JSON object with several keys. We are speci
 
 For more detailed information about oAuth on WordPress.com, visit the [documentation on oAuth2 authentication](https://developer.wordpress.com/docs/oauth2/).
 
-#### Endpoint Information
+### Endpoint Information (/oauth2/token)
 
 - __Method__: POST
-- __URL__:    https://public-api.wordpress.com/oauth2/token
+- __URL__:    `https://public-api.wordpress.com/oauth2/token`
 
-#### Request Parameters
+### Request Parameters (/oauth2/token)
 
 - __grant_type__:    Value should be `client_credentials`
 - __scope__:         Value should be `jetpack-partner`
 - __client_id__:     The partner ID that we provide you
 - __client_secret__: The partner secret that we provide you
 
-#### Response Parameters
+### Response Parameters (/oauth2/token)
 
 - __access_token__: (string) This is the access token we'll need for the API calls below.
 - __token_type__:   (string) This should be `bearer`.
@@ -36,7 +36,7 @@ For more detailed information about oAuth on WordPress.com, visit the [documenta
 
 Note: You only need to create the `access_token` once.
 
-#### Examples
+### Examples (/oauth2/token)
 
 Here is an example using cURL in shell.
 
@@ -89,22 +89,22 @@ request( options, function ( error, response, body ) {
 
 ```
 
-### Provisioning a plan
+## Provisioning a plan
 
 Plans can be provisioned by making a request using your partner token from the step above along with local_username, siteurl, and plan parameters.
 
-#### Endpoint information
+### Endpoint information (/provision)
 
 - __Method__: POST
-- __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/provision
+- __URL__:    `https://public-api.wordpress.com/rest/v1.3/jpphp/provision`
 
-#### Request Parameters
+### Request Parameters (/provision)
 
 - __local_username__: The username on the local website (not the WordPress.com username) that should own the plan.
 - __siteurl__:        The URL where the WordPress core files reside.
 - __plan__:           A slug representing which plan to provision. One of `personal`, `premium`, or `professional`.
 
-#### Endpoint Errors
+### Endpoint Errors (/provision)
 
 The following is non-exhaustive list of errors that could be returned.
 
@@ -116,7 +116,7 @@ The following is non-exhaustive list of errors that could be returned.
 | 400       | invalid_plan              | %s is not a valid plan                                                    |
 | 403       | invalid_scope             | This token is not authorized to provision partner sites                   |
 
-### Examples
+### Examples (/provision)
 
 Here's an example using cURL in shell.
 
@@ -129,6 +129,7 @@ curl --request POST \
   --header 'plan: plan_here' \
   --header 'siteurl: siteurl_here'
 ```
+
 Here's an example using the request module in NodeJS.
 
 ```js
@@ -159,14 +160,14 @@ request( options, function ( error, response, body ) {
 } );
 ```
 
-### Cancelling a plan
+## Cancelling a plan
 
 Plans can be cancelled by making a request using your partner token from the step above and the URL of the site being cancelled.
 
-#### Endpoint Information
+### Endpoint Information (/partner-cancel)
 
 - __Method__: POST
-- __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel
+- __URL__:    `https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel`
 
 `$site` is the site's domain and path where `/` in the path is replaced with `::`. For example:
 
@@ -176,18 +177,18 @@ Plans can be cancelled by making a request using your partner token from the ste
 | `example.com/demo`    | `example.com::demo`     |
 | `example.com/demo/wp` | `example.com::demo::wp` |
 
-#### Query Parameters
+### Query Parameters (/partner-cancel)
 
 - __http_envelope__: Default to `false`. Sending `true` will force the HTTP status code to always be `200`. The JSON response is wrapped in an envelope containing the "real" HTTP status code and headers.
 - __pretty__:        Defaults to `false`. Setting to `true` will output pretty JSON.
 
-#### Response Parameters
+### Response Parameters (/partner-cancel)
 
 - __success__:       (bool) Was the operation successful?.
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
 
-#### Endpoint errors
+### Endpoint errors (/partner-cancel)
 
 | HTTP Code | Error Identifier      | Error Message                                                             |
 | --------- | --------------------- | ------------------------------------------------------------------------- |
@@ -197,7 +198,7 @@ Plans can be cancelled by making a request using your partner token from the ste
 | 403       | invalid_blog          | The blog ID %s is invalid                                                 |
 | 403       | incorrect_partner_key | Subscriptions can only be cancelled by the oAuth client that created them |
 
-### Examples
+### Examples (/partner-cancel)
 
 Here's an example using cURL in shell.
 
