@@ -26,7 +26,10 @@
 			'<ul>' +
 			'<li class="task-list-item enabled"><input type="checkbox" name="shortlived" checked class="task-list-item-checkbox">Launch a shortlived site</li>' +
 			'<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>' +
+			'<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" class="task-list-item-checkbox">Launch with Gutenberg installed</li>' +
 			'<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>' +
+			'<li class="task-list-item enabled"><input type="checkbox" name="wp-rollback" class="task-list-item-checkbox">Launch with WP Rollback installed</li>' +
+			'<li class="task-list-item enabled"><input type="checkbox" name="wp-downgrade" class="task-list-item-checkbox">Launch with WP Downgrade installed</li>' +
 			'</ul>' +
 			'</div>';
 		const branchIsForkedText =
