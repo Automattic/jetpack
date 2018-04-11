@@ -202,11 +202,13 @@ abstract class Jetpack_Admin_Page {
 			}
 			$to_deactivate = array_intersect( $active, $to_deactivate );
 
+			$to_leave_enabled = array();
 			foreach ( $to_deactivate as $feature ) {
 				if ( Jetpack::active_plan_supports( $feature ) ) {
-					$to_deactivate = array_diff( $to_deactivate, array( $feature ) );
+					$to_leave_enabled []= $feature;
 				}
 			}
+			$to_deactivate = array_diff( $to_deactivate, $to_leave_enabled );
 
 			if ( ! empty( $to_deactivate ) ) {
 				Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
