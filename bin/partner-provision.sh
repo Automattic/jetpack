@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # accepts: partner client ID and secret key, and some site info
 # executes wp-cli command to provision Jetpack site for given partner
@@ -66,11 +66,6 @@ if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; th
 	exit 1
 fi
 
-# default API host that can be overridden
-if [ -z "$JETPACK_START_API_HOST" ]; then
-	JETPACK_START_API_HOST='public-api.wordpress.com'
-fi
-
 jetpack_shell_is_errored() {
 	# Note that zero represents true below.
 	PHP_IN="
@@ -82,6 +77,25 @@ jetpack_shell_is_errored() {
 	";
 
 	return $( php -r "$PHP_IN" ) # TODO: Do we need to worry about word-splitting here?
+}
+
+jetpack_echo_key_from_json() {
+	PHP_IN="
+		\$object = json_decode( '$1' );
+		if ( ! \$object ) {
+			return 1;
+		}
+		echo ! empty( \$object->$2 ) ? \$object->$2 : ''; exit;
+
+		if ( ! empty( \$object->$2 ) ) {
+			echo \$object->$2;
+		} else {
+			echo '';
+		}
+		exit;
+	";
+
+	php -r "$PHP_IN"
 }
 
 # Fetch an access token using our client ID/secret.
@@ -103,6 +117,14 @@ if jetpack_shell_is_errored "$ACCESS_TOKEN_JSON"; then
 	exit 1
 fi
 
+ACCESS_TOKEN=$( jetpack_echo_key_from_json "$ACCESS_TOKEN_JSON" access_token | xargs echo )
+
+# If we don't have an access token, we can't go further.
+if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "" ]; then
+	echo "$ACCESS_TOKEN_JSON"
+	exit 1
+fi
+
 # add extra args if available
 if [ ! -z "$WP_USER" ]; then
 	GLOBAL_ARGS="$GLOBAL_ARGS --user=$WP_USER"
@@ -113,6 +135,9 @@ if [ ! -z "$SITE_URL" ]; then
 	GLOBAL_ARGS="$GLOBAL_ARGS --url=$SITE_URL"
 fi
 
+# Skip the theme and all plugins except Jetpack
+GLOBAL_ARGS="$GLOBAL_ARGS --skip-themes --skip-plugins=$(wp plugin list --field=name | grep -v ^jetpack$ | tr  '\n' ',')"
+
 # Remove leading whitespace
 GLOBAL_ARGS=$(echo "$GLOBAL_ARGS" | xargs echo)
 
@@ -120,47 +145,61 @@ GLOBAL_ARGS=$(echo "$GLOBAL_ARGS" | xargs echo)
 # Intentionally not quoting $GLOBAL_ARGS so that words in the string are split
 wp $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
 
-ADDITIONAL_ARGS=""
+# Default API host that can be overridden.
+if [ -z "$JETPACK_START_API_HOST" ]; then
+	JETPACK_START_API_HOST='public-api.wordpress.com'
+fi
+
+PROVISION_REQUEST_URL="https://$JETPACK_START_API_HOST/rest/v1.3/jpphp/provision"
+if [ ! -z "$PARTNER_TRACKING_ID" ]; then
+	PROVISION_REQUEST_URL="$PROVISION_REQUEST_URL?partner-tracking-id=$PARTNER_TRACKING_ID"
+fi
+
+PROVISION_REQUEST_ARGS=(
+	--silent \
+	--request POST \
+	--url "$PROVISION_REQUEST_URL"\
+	--header "authorization: Bearer $ACCESS_TOKEN" \
+	--header 'cache-control: no-cache' \
+	--header 'content-type: multipart/form-data;'
+)
+
 if [ ! -z "$ONBOARDING" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --onboarding=$ONBOARDING"
+	PROVISION_REQUEST_ARGS+=( --form "onboarding=$ONBOARDING" )
 fi
 
 if [ ! -z "$PLAN_NAME" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --plan=$PLAN_NAME"
+	PROVISION_REQUEST_ARGS+=( --form "plan=$PLAN_NAME" )
 fi
 
 if [ ! -z "$WPCOM_USER_ID" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_id=$WPCOM_USER_ID"
+	PROVISION_REQUEST_ARGS+=( --form "wpcom_user_id=$WPCOM_USER_ID" )
 fi
 
 if [ ! -z "$WPCOM_USER_EMAIL" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_email=$WPCOM_USER_EMAIL"
+	PROVISION_REQUEST_ARGS+=( --form "wpcom_user_email=$WPCOM_USER_EMAIL" )
 fi
 
 if [ ! -z "$FORCE_REGISTER" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_register=$FORCE_REGISTER"
+	PROVISION_REQUEST_ARGS+=( --form "force_register=$FORCE_REGISTER" )
 fi
 
 if [ ! -z "$FORCE_CONNECT" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_connect=$FORCE_CONNECT"
+	PROVISION_REQUEST_ARGS+=( --form "force_connect=$FORCE_CONNECT" )
 fi
 
-if [ ! -z "$WP_SITEURL" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --site_url=$WP_SITEURL"
+SITEURL=$( wp $GLOBAL_ARGS option get siteurl | xargs echo )
+PROVISION_REQUEST_ARGS+=( --form "siteurl=$SITEURL" )
+
+LOCAL_USERNAME=$( wp $GLOBAL_ARGS user get "$WP_USER" --field=login | xargs echo )
+PROVISION_REQUEST_ARGS+=( --form "local_username=$LOCAL_USERNAME" )
+
+PROVISION_REQUEST=$( curl "${PROVISION_REQUEST_ARGS[@]}" )
+
+if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
+	echo "$PROVISION_REQUEST"
+	exit 1
 fi
-
-if [ ! -z "$WP_HOME" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --home_url=$WP_HOME"
-fi
-
-if [ ! -z "$PARTNER_TRACKING_ID" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --partner-tracking-id=$PARTNER_TRACKING_ID"
-fi
-
-# Remove leading whitespace
-ADDITIONAL_ARGS=$(echo "$ADDITIONAL_ARGS" | xargs echo)
-
-# Make request to /jpphp/provision here
 
 # If request has access token, set it
 
