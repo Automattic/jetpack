@@ -201,6 +201,13 @@ if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
 	exit 1
 fi
 
-# If request has access token, set it
+# Get the access token for the Jetpack connection.
+ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | xargs echo )
 
-# Echo JSON object, optionally only echoing next_url
+# If we don't have an access token, we're done!
+if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
+	# TODO: Actually set the access token here.
+fi
+
+echo "$PROVISION_REQUEST"
+exit 0
