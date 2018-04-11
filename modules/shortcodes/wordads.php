@@ -40,8 +40,8 @@ class Jetpack_WordAds_Shortcode {
 		wp_enqueue_script(
 			'wordads-shortcode-editor-view',
 			Jetpack::get_file_url_for_environment(
-				'_inc/build/wordads/js/wordads-shortcode.min.js',
-				'modules/wordads/js/wordads-shortcode.js'
+				'_inc/build/wordads/js/editor-view.min.js',
+				'modules/wordads/js/editor-view.js'
 			),
 			array( 'wp-util', 'jquery', 'quicktags' ),
 			false,
