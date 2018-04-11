@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Embed WordAds 'add' in post
+ * Embed WordAds 'ad' in post
  *
  */
 class Jetpack_WordAds_Shortcode {
@@ -16,10 +16,6 @@ class Jetpack_WordAds_Shortcode {
 	 * Register our shortcode and enqueue necessary files.
 	 */
 	function action_init() {
-		// Enqueue styles if [recipe] exists.
-		// add_action( 'wp_head', array( $this, 'add_scripts' ), 1 );
-
-		// Render [recipe], along with other shortcodes that can be nested within.
 		add_shortcode( 'wordad', array( $this, 'wordads_shortcode' ) );
 	}
 
@@ -52,67 +48,15 @@ class Jetpack_WordAds_Shortcode {
 			true
 		);
 	}
-	/**
-	 * Enqueue scripts and styles
-	 */
-	function add_scripts() {
-		if ( empty( $GLOBALS['posts'] ) || ! is_array( $GLOBALS['posts'] ) ) {
-			return;
-		}
-
-		foreach ( $GLOBALS['posts'] as $p ) {
-			if ( has_shortcode( $p->post_content, 'recipe' ) ) {
-				$this->scripts_and_style_included = true;
-				break;
-			}
-		}
-
-		if ( ! $this->scripts_and_style_included ) {
-			return;
-		}
-
-		wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), '20130919' );
-		wp_style_add_data( 'jetpack-recipes-style', 'rtl', 'replace' );
-
-		// add $themecolors-defined styles.
-		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
-
-		wp_enqueue_script(
-			'jetpack-recipes-printthis',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
-			array( 'jquery' ),
-			'20170202'
-		);
-
-		wp_enqueue_script(
-			'jetpack-recipes-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
-			array( 'jquery', 'jetpack-recipes-printthis' ),
-			'20131230'
-		);
-
-		$title_var     = wp_title( '|', false, 'right' );
-		$rtl           = is_rtl() ? '-rtl' : '';
-		$print_css_var = plugins_url( "/css/recipes-print{$rtl}.css", __FILE__ );
-
-		wp_localize_script(
-			'jetpack-recipes-js',
-			'jetpack_recipes_vars',
-			array(
-				'pageTitle' => $title_var,
-				'loadCSS' => $print_css_var,
-			)
-		);
-	}
 
 	/**
-	 * Our [recipe] shortcode.
-	 * Prints recipe data styled to look good on *any* theme.
+	 * Our [wordad] shortcode.
+	 * Prints a WordAds Ad.
 	 *
 	 * @param array  $atts    Array of shortcode attributes.
 	 * @param string $content Post content.
 	 *
-	 * @return string HTML for recipe shortcode.
+	 * @return string HTML for WordAds shortcode.
 	 */
 	static function wordads_shortcode( $atts, $content = '' ) {
 		$atts = shortcode_atts(
@@ -124,7 +68,7 @@ class Jetpack_WordAds_Shortcode {
 	}
 
 	/**
-	 * The recipe output
+	 * The shortcode output
 	 *
 	 * @param array  $atts    Array of shortcode attributes.
 	 * @param string $content Post content.
