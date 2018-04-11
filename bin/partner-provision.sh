@@ -71,8 +71,37 @@ if [ -z "$JETPACK_START_API_HOST" ]; then
 	JETPACK_START_API_HOST='public-api.wordpress.com'
 fi
 
-# fetch an access token using our client ID/secret
-ACCESS_TOKEN_JSON=$(curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner")
+jetpack_shell_is_errored() {
+	# Note that zero represents true below.
+	PHP_IN="
+		\$object = json_decode( '$1' );
+		if ( ! \$object ) {
+			return 1;
+		}
+		echo ! empty( \$object->error ) ? 0 : 1; exit;
+	";
+
+	return $( php -r "$PHP_IN" ) # TODO: Do we need to worry about word-splitting here?
+}
+
+# Fetch an access token using our client ID/secret.
+ACCESS_TOKEN_JSON=$(
+	curl \
+		--silent \
+		--request POST \
+		--url https://public-api.wordpress.com/oauth2/token \
+		--header 'cache-control: no-cache' \
+		--header 'content-type: multipart/form-data;' \
+		--form client_id="$CLIENT_ID" \
+		--form client_secret="$CLIENT_SECRET" \
+		--form grant_type=client_credentials \
+		--form scope=jetpack-partner
+)
+
+if jetpack_shell_is_errored "$ACCESS_TOKEN_JSON"; then
+	echo "$ACCESS_TOKEN_JSON"
+	exit 1
+fi
 
 # add extra args if available
 if [ ! -z "$WP_USER" ]; then
