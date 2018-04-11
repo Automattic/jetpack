@@ -28,6 +28,7 @@ module.exports = function( grunt ) {
 					src: [
 						'*.php',
 						'**/*.php',
+						'!class.jetpack-cli.php',
 						'!docker/**',
 						'!node_modules/**',
 						'!tests/**',
