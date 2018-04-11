@@ -291,7 +291,7 @@ class Jetpack_Sync_Sender {
 	function get_codec() {
 		return $this->codec;
 	}
-	function set_codex() {
+	function set_codec() {
 		if ( function_exists( 'gzinflate' ) ) {
 			$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
 		} else {
@@ -363,7 +363,7 @@ class Jetpack_Sync_Sender {
 	function set_defaults() {
 		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->set_codex();
+		$this->set_codec();
 
 		// saved settings
 		Jetpack_Sync_Settings::set_importing( null );
