@@ -131,6 +131,8 @@ fi
 # Remove leading whitespace
 ADDITIONAL_ARGS=$(echo "$ADDITIONAL_ARGS" | xargs echo)
 
-# Provision the partner plan
-# Intentionally not quoting $GLOBAL_ARGS or $ADDITIONAL_ARGS so that words in the strings are split
-wp $GLOBAL_ARGS jetpack partner_provision "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS
+# Make request to /jpphp/provision here
+
+# If request has access token, set it
+
+# Echo JSON object, optionally only echoing next_url
