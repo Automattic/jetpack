@@ -43,6 +43,8 @@ class WordAds {
 		),
 	);
 
+	public $section_id_suffix = '3';
+
 	/**
 	 * Convenience function for grabbing options from params->options
 	 * @param  string $option the option to grab
@@ -250,6 +252,37 @@ HTML;
 	}
 
 	/**
+	 * Insert an inline ad into a post content
+	 * Used for rendering the `wordad` shortcode.
+	 *
+	 * @since 6.1.0
+	 */
+	function insert_inline_ad( $content ) {
+		// Ad JS won't work in XML feeds.
+		if ( is_feed() ) {
+			return $content;
+		}
+		/**
+		 * Allow third-party tools to disable the display of in post ads.
+		 *
+		 * @module wordads
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool true Should the in post unit be disabled. Default to false.
+		 */
+		$disable = apply_filters( 'wordads_inpost_disable', false );
+		if ( $disable ) {
+			return $content;
+		}
+
+		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		$this->section_id_suffix .= $this->section_id_suffix;
+		$content .= $this->get_ad( 'inline', $ad_type );
+		return $content;
+	}
+
+	/**
 	 * Inserts ad into header
 	 *
 	 * @since 4.5.0
@@ -315,7 +348,7 @@ HTML;
 
 	/**
 	 * Get the ad for the spot and type.
-	 * @param  string $spot top, side, or belowpost
+	 * @param  string $spot top, side, inline, or belowpost
 	 * @param  string $type iponweb or adsense
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
@@ -344,6 +377,12 @@ HTML;
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
 					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
 				}
+			} else if ( 'inline' === $spot ) {
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . $this->section_id_suffix;
+				$width = 300;
+				$height = 250;
+
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
