@@ -203,14 +203,11 @@ abstract class Jetpack_Admin_Page {
 			$to_deactivate = array_intersect( $active, $to_deactivate );
 
 			foreach ( $to_deactivate as $feature ) {
-				l( 'checking ' . $feature );
-				l( 'Plan supports: ' . Jetpack::active_plan_supports( $feature ) );
 				if ( Jetpack::active_plan_supports( $feature ) ) {
 					$to_deactivate = array_diff( $to_deactivate, array( $feature ) );
 				}
 			}
 
-			l( $to_deactivate );
 			if ( ! empty( $to_deactivate ) ) {
 				Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
 			}
