@@ -104,10 +104,17 @@ class Jetpack_WordAds_Shortcode {
 	 * @return string HTML output
 	 */
 	static function wordads_shortcode_html( $atts, $content = '' ) {
+		global $wordads;
+
+		if ( empty( $wordads ) ) {
+			return __( '<div>The WordAds module is not active</div>' );
+		}
 
 		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">';
 
 		$html .= 'Here\'s your ad sir</div>';
+
+		$html = $wordads->insert_ad( $html );
 
 		return $html;
 	}

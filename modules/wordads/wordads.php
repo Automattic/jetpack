@@ -241,7 +241,7 @@ HTML;
 		 * @param bool true Should the in post unit be disabled. Default to false.
 		 */
 		$disable = apply_filters( 'wordads_inpost_disable', false );
-		if ( ! $this->params->should_show() || $disable ) {
+		if ( $disable ) {
 			return $content;
 		}
 
