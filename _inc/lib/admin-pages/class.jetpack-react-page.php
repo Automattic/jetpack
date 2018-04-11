@@ -303,6 +303,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 */
 				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
 				'isAtomicSite' => jetpack_is_atomic_site(),
+				'plan' => Jetpack::get_active_plan(),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),

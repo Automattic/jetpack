@@ -26,7 +26,7 @@ export const data = ( state = {}, action ) => {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
-			return merge( {}, state, { siteFeatures: action.siteFeatures } );
+			return merge( {}, state, { site: { features: action.siteFeatures } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return merge( {}, state, { sitePlans: action.plans } );
 		default:
@@ -108,7 +108,7 @@ export function getSitePlan( state ) {
  * @return {Object}  Features
  */
 export function getAvailableFeatures( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'available' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'available' ], {} );
 }
 
 /**
@@ -117,7 +117,7 @@ export function getAvailableFeatures( state ) {
  * @return {Object}  Features
  */
 export function getActiveFeatures( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'active' ], [] );
+	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
 }
 
 export function getAvailablePlans( state ) {
