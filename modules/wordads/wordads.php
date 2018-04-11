@@ -43,8 +43,6 @@ class WordAds {
 		),
 	);
 
-	public $section_id_suffix = '3';
-
 	/**
 	 * Convenience function for grabbing options from params->options
 	 * @param  string $option the option to grab
@@ -277,7 +275,6 @@ HTML;
 		}
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		$this->section_id_suffix .= $this->section_id_suffix;
 		$content .= $this->get_ad( 'inline', $ad_type );
 		return $content;
 	}
@@ -378,7 +375,9 @@ HTML;
 					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . $this->section_id_suffix;
+				// Inline ads in post content
+				$MAGIC_ID = 3;
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . $MAGIC_ID;
 				$width = 300;
 				$height = 250;
 
