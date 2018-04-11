@@ -1,4 +1,4 @@
-/* global tinyMCE, QTags, wp */
+/* global wordadsEditorView, tinyMCE, QTags, wp */
 ( function( $, wp ) {
 	wp.mce = wp.mce || {};
 	if ( 'undefined' === typeof wp.mce.views ) {
@@ -16,4 +16,4 @@
 			window.console.error( 'Neither TinyMCE nor QuickTags is active. Unable to insert form.' );
 		}
 	} );
-}( jQuery, wp ) );
+}( jQuery, wp, wordadsEditorView ) );

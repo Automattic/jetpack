@@ -16,6 +16,11 @@ class Jetpack_WordAds_Shortcode {
 	 * Register our shortcode and enqueue necessary files.
 	 */
 	function action_init() {
+		global $wordads;
+
+		if ( empty( $wordads ) ) {
+			return null;
+		}
 		add_shortcode( 'wordad', array( $this, 'wordads_shortcode' ) );
 	}
 
@@ -29,6 +34,14 @@ class Jetpack_WordAds_Shortcode {
 			add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
 			add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
 		}
+	}
+
+	public static function mce_external_plugins( $plugin_array ) {
+		$plugin_array['wordads'] = Jetpack::get_file_url_for_environment(
+			'_inc/build/wordads/js/tinymce-plugin-wordads-button.min.js',
+			'modules/wordads/js/tinymce-plugin-wordads-button.js'
+		);
+		return $plugin_array;
 	}
 
 	/**
@@ -47,6 +60,11 @@ class Jetpack_WordAds_Shortcode {
 			false,
 			true
 		);
+		wp_localize_script( 'wordads-shortcode-editor-view', 'wordadsEditorView', array(
+			'labels' => array(
+				'tinymce_label' => __( 'Insert Ad', 'jetpack' ),
+			)
+		) );
 	}
 
 	/**
@@ -86,7 +104,7 @@ class Jetpack_WordAds_Shortcode {
 
 		$html .= '</div>';
 
-		$html = $wordads->insert_ad( $html );
+		$html = $wordads->insert_inline_ad( $html );
 
 		return $html;
 	}
