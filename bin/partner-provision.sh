@@ -211,9 +211,9 @@ fi
 ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | xargs echo )
 
 # If we don't have an access token, we're done!
-if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
-	# TODO: Actually set the access token here.
-fi
+#if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
+#	TODO: Actually set the access token here
+#fi
 
 echo "$PROVISION_REQUEST"
 exit 0
