@@ -29,7 +29,7 @@ git clone https://github.com/Automattic/jetpack.git && cd jetpack
 
 Optionally, copy settings file to modify it:
 ```sh
-cp defaults.env .env
+cp docker/default.env docker/.env
 ```
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
