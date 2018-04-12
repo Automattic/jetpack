@@ -34,7 +34,7 @@
     "docker:multisite-convert": "yarn docker:compose exec wordpress bash -c \"/var/scripts/multisite-convert.sh\"",
     "docker:sh": "yarn docker:compose exec wordpress bash",
     "docker:phpunit": "yarn docker:compose exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist",
-    "docker:tail": "yarn docker:compose exec wordpress bash -c \"tail -f /var/www/html/wp-content/debug.log\"",
+    "docker:tail": "yarn docker:compose exec wordpress bash -c \"/var/scripts/tail.sh\"",
     "docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
