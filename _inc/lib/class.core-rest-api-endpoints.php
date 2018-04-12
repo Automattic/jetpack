@@ -386,13 +386,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
 
 		if ( false === $data ) {
-			$path = '/plans';
+			$path = '/plans?_locale=' . get_user_locale();
 			// passing along from client to help geolocate currency
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) ) {
+			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+				$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we
+			}
+			//already have an list of forwarded ips, then just use that
+			if ( empty( $ip ) && isset( $_SERVER['HTTP_CLIENT_IP'] )) {
 				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
 			}
-			if ( empty( $ip ) ) {
+			if ( empty( $ip ) && isset( $_SERVER['REMOTE_ADDR'] ) ) {
 				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
 			}
 			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
