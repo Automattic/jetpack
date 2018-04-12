@@ -127,17 +127,11 @@ class PublicizeForm extends Component {
 			<PanelBody
 				initialOpen={ true }
 				id='publicize-title'
-				title={ [
-					__( 'Publicize: ' ),
+				title={
 					<span id="publicize-defaults" key='publicize-title-span'>
-						{ connections.filter( c => c.active).map(
-							c => <PublicizeConnectionTitle
-								label={ c.label }
-								key={ c.unique_id }
-							/>
-						) }
+						{ __( 'Share this post' ) }
 					</span>
-				] }
+				 }
 			>
 				<div id="publicize" className="misc-pub-section misc-pub-section-last">
 					<div id="publicize-form">
