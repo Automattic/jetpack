@@ -133,6 +133,15 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 								{ __( 'Second ad below post' ) }
 							</span>
 						</CompactFormToggle>
+						<small className="jp-form-setting-explanation">
+							{ __( 'You can now also place additional ads using the Ad widget. {{link}}Try it out!{{/link}}', {
+								components: {
+									link: <a
+										className="jp-module-settings__external-link"
+										href="customize.php?autofocus[panel]=widgets" />
+								}
+							} ) }
+						</small>
 					</FormFieldset>
 				</SettingsGroup>
 				{
