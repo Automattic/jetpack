@@ -3241,7 +3241,7 @@ p {
 	/**
 	 * Unlinks the current user from the linked WordPress.com user
 	 */
-	public static function unlink_user( $user_id = null ) {
+	public static function unlink_user( $user_id = null, $bypass_wpcom ) {
 		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
 			return false;
 
@@ -3253,14 +3253,14 @@ p {
 		if ( ! isset( $tokens[ $user_id ] ) )
 			return false;
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
-		$xml->query( 'jetpack.unlink_user', $user_id );
+		if ( $bypass_wpcom ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+			$xml->query( 'jetpack.unlink_user', $user_id );
+		}
 
 		unset( $tokens[ $user_id ] );
-
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
-
 		/**
 		 * Fires after the current user has been unlinked from WordPress.com.
 		 *
