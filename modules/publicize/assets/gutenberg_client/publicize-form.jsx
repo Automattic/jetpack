@@ -21,9 +21,9 @@ import React, { Component } from 'react';
  * Internal dependencies
  */
 const { __ } = wp.i18n;
-import PublicizeConnectionTitle from './publicize-connection-title'
 import PublicizeConnection from './publicize-connection'
 import { getPublicizeConnections } from './async-publicize-lib'
+import PublicizeConnectionVerify from './publicize-connection-verify'
 const { PanelBody } = wp.components;
 
 /**
@@ -156,8 +156,8 @@ class PublicizeForm extends Component {
 							disabled={ this.isDisabled() }
 						/>
 					</div>
-
 				</div>
+				<PublicizeConnectionVerify />
 			</PanelBody>
 		);
 	}
