@@ -1,6 +1,5 @@
 {
  "files": [
-  "fusion/whitelist.json",
   "_inc/facebook-embed.js",
   "_inc/gallery-settings.js",
   "_inc/genericons.php",
