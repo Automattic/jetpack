@@ -127,6 +127,7 @@ class Jetpack_Publicize_Gutenberg {
 			wp_localize_script( 'modules-publicize-gutenberg_js', 'gutenberg_publicize_setup',
 				array(
 					'connectionList' => wp_json_encode( $publicize_ui->get_filtered_connection_data() ),
+					'allServices'    => wp_json_encode( $publicize_ui->get_available_service_data() ),
 				)
 			);
 

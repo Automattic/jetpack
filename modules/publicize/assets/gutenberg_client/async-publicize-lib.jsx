@@ -19,4 +19,17 @@ export function getPublicizeConnections() {
 	return JSON.parse( gutenberg_publicize_setup.connectionList );
 }
 
+/**
+ * Gets list of all possible connections.
+ *
+ * Gets list of possible social sites ('twitter', 'facebook, etc..')
+ *
+ * @since 5.9.1
+ *
+ * @global gutenberg_publicize_setup Generated via localization in {@see class-jetpack-publicize-gutenberg.php}
+ */
+export function getAllConnections() {
+	return JSON.parse( gutenberg_publicize_setup.allServices );
+}
+
 

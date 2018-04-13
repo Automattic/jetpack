@@ -22,9 +22,6 @@ import React, { Component } from 'react';
  */
 const { __ } = wp.i18n;
 import PublicizeConnection from './publicize-connection'
-import { getPublicizeConnections } from './async-publicize-lib'
-import PublicizeConnectionVerify from './publicize-connection-verify'
-const { PanelBody } = wp.components;
 
 /**
  * Connection property value for if a connection should be shared.
@@ -42,7 +39,7 @@ const CONNECTION_DISABLED = '';
 class PublicizeForm extends Component {
 	constructor( props ) {
 		super( props );
-		var connectionList = getPublicizeConnections();
+		var connectionList = props.connections;
 
 		var activeConnections = {};
 		// Create properties for object where connection id the property name and 'checked' (true/false) is the value.
@@ -119,46 +116,35 @@ class PublicizeForm extends Component {
 		return disabled;
 	}
 
-
 	render() {
-		const { connections, shareMessage } = this.state;
+		const { connections } = this.props;
+		const { shareMessage } = this.state;
 		const messageLength = shareMessage.length;
 		return (
-			<PanelBody
-				initialOpen={ true }
-				id='publicize-title'
-				title={
-					<span id="publicize-defaults" key='publicize-title-span'>
-						{ __( 'Share this post' ) }
+			<div id="publicize" className="misc-pub-section misc-pub-section-last">
+				<div id="publicize-form">
+					<ul>
+						{connections.map( c =>
+							<PublicizeConnection
+								connectionData={ c }
+								key={ c.unique_id }
+								connectionChange={ this.connectionChange }
+							/>
+						) }
+					</ul>
+					<label htmlFor="wpas-title">{ __( 'Custom Message:' ) }</label>
+					<span id="wpas-title-counter" className="alignright hide-if-no-js">
+						{ messageLength }
 					</span>
-				 }
-			>
-				<div id="publicize" className="misc-pub-section misc-pub-section-last">
-					<div id="publicize-form">
-						<ul>
-							{ connections.map( c =>
-								<PublicizeConnection
-									connectionData={ c }
-									key={ c.unique_id }
-									connectionChange={ this.connectionChange }
-								/>
-							) }
-						</ul>
-						<label htmlFor="wpas-title">{ __( 'Custom Message:' ) }</label>
-						<span id="wpas-title-counter" className="alignright hide-if-no-js">
-							{ messageLength }
-						</span>
-						<textarea
-							id='jetpack-publicize-message-box'
-							value={ shareMessage }
-							onChange={ this.messageChange }
-							placeholder={ __('Publicize + Gutenberg :)') }
-							disabled={ this.isDisabled() }
-						/>
-					</div>
+					<textarea
+						id='jetpack-publicize-message-box'
+						value={ shareMessage }
+						onChange={ this.messageChange }
+						placeholder={ __( 'Publicize + Gutenberg :)' ) }
+						disabled={ this.isDisabled() }
+					/>
 				</div>
-				<PublicizeConnectionVerify />
-			</PanelBody>
+			</div>
 		);
 	}
 }
