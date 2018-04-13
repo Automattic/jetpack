@@ -37,6 +37,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 				'jetpack.syncObject'        => array( $this, 'sync_object' ),
 				'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
+				'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -81,7 +82,6 @@ class Jetpack_XMLRPC_Server {
 	function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
-			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
 	}
 
