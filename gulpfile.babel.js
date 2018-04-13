@@ -591,5 +591,3 @@ gulp.task(
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
 
-// travis CI tasks.
-gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );
