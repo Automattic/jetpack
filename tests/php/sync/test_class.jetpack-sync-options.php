@@ -170,6 +170,15 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 			'jetpack_api_cache_enabled'            => '1',
 			'sidebars_widgets'                     => array( 'array_version' => 3 ),
+			'start_of_week'                        => '0',
+			'blacklist_keys'                       => '',
+			'posts_per_page'                       => '1',
+			'posts_per_rss'                        => '1',
+			'show_on_front'                        => '0',
+			'ping_sites'                           => false,
+			'uploads_use_yearmonth_folders'        => '0',
+			'date_format'                          => '0',
+			'time_format'                          => '0',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
