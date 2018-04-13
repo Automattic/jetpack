@@ -1,5 +1,4 @@
 <?php
-
 require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
 
 abstract class Abstract_Jetpack_Site extends SAL_Site {
