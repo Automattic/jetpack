@@ -14,11 +14,11 @@
 const { __ } = wp.i18n;
 const { PluginPrePublishPanel } = wp.editPost.__experimental;
 const { registerPlugin } = wp.plugins;
-import PublicizeForm from './publicize-form'
+import PublicizePanel from './publicize-panel'
 
 const PluginRender = () => (
 	<PluginPrePublishPanel>
-		<PublicizeForm />
+		<PublicizePanel />
 	</PluginPrePublishPanel>
 );
 

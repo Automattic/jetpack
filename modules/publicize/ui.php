@@ -865,6 +865,36 @@ jQuery( function($) {
 		return $connection_list;
 	}
 
+	/**
+	 * Retrieves full list of available Publicize connection services.
+	 *
+	 * Retrieves current available publicize service connections
+	 * with associated labels and URLs.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @return array {
+	 *     Array of UI service connection data for all services
+	 *
+	 *     @type string 'name'  Name of service.
+	 *     @type string 'label' Display label for service.
+	 *     @type string 'url'   URL for adding connection to service.
+	 * }
+	 */
+	function get_available_service_data() {
+		$available_services = $this->publicize->get_services( 'all' );
+		$available_service_data = array();
+
+		foreach ( $available_services as $service_name => $service ) {
+			$available_service_data[] = array(
+				'name'  => $service_name,
+				'label' => $this->publicize->get_service_label( $service_name ),
+				'url'   => $this->publicize->connect_url( $service_name ),
+			);
+		}
+
+		return $available_service_data;
+	}
 
 	private function get_metabox_form_disconnected( $available_services ) {
 		ob_start();
