@@ -134,7 +134,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 							</span>
 						</CompactFormToggle>
 						<small className="jp-form-setting-explanation">
-							{ __( 'You can now also place additional ads using the Ad widget. {{link}}Try it out!{{/link}}', {
+							{ isAdsActive && __( 'You can place additional ads using the Ad widget. {{link}}Try it out!{{/link}}', {
 								components: {
 									link: <a
 										className="jp-module-settings__external-link"
