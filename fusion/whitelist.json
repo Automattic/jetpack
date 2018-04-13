@@ -71,6 +71,7 @@
   "json-endpoints/class.wpcom-json-api-update-taxonomy-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-term-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-user-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-upload-media-v1-1-endpoint.php",
   "json-endpoints/class.wpcom-json-api-upload-media-endpoint.php",
   "modules/after-the-deadline/atd-autoproofread.js",
   "modules/after-the-deadline/atd-nonvis-editor-plugin.js",
