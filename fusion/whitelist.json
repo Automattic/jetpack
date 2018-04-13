@@ -295,6 +295,7 @@
   "sal/class.json-api-metadata.php",
   "sal/class.json-api-platform-jetpack.php",
   "sal/class.json-api-platform.php",
+  "sal/class.json-api-post-base.php",
   "sal/class.json-api-post-jetpack.php",
   "sal/class.json-api-token.php",
   "tests/php/modules/shortcodes/test_class.archives.php",
