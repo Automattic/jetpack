@@ -509,17 +509,7 @@ class A8C_WPCOM_Masterbar {
 				'class' => 'mb-icon user-info-item',
 			),
 		) );
-
-		$wp_admin_bar->add_menu( array(
-			'parent' => $id,
-			'id'     => 'next-steps',
-			'title'  => esc_html__( 'Next Steps', 'jetpack' ),
-			'href'   => 'https://wordpress.com/me/next',
-			'meta'   => array(
-				'class' => 'mb-icon user-info-item',
-			),
-		) );
-
+		
 		$help_link = 'https://jetpack.com/support/';
 
 		if ( jetpack_is_atomic_site() ) {
