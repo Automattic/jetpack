@@ -111,6 +111,15 @@ class Jetpack_Sync_Defaults {
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 		'jetpack_api_cache_enabled',
+		'start_of_week',
+		'blacklist_keys',
+		'posts_per_page',
+		'posts_per_rss',
+		'show_on_front',
+		'ping_sites',
+		'uploads_use_yearmonth_folders',
+		'date_format',
+		'time_format',
 	);
 
 	public static function get_options_whitelist() {
