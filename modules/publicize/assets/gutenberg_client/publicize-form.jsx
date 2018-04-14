@@ -3,11 +3,9 @@
  *
  * Displays text area and connection list to allow user
  * to select connections to share to and write a custom
- * sharing message. Emulates classic editor form by
- * setting 'wpas...' post fields just like HTML form
- * would.
- *
- * {@see publicize.php/save_meta()}
+ * sharing message. Dispatches publicize form data to
+ * editor post data in format to match 'publicize' field
+ * schema defined in{@see class-jetpack-publicize-gutenberg.php}
  *
  * @since  5.9.1
  */
@@ -16,80 +14,36 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+import { compose } from 'redux';
 
 /**
  * Internal dependencies
  */
 const { __ } = wp.i18n;
+const {
+	withSelect,
+	withDispatch,
+	select,
+	dispatch,
+} = wp.data;
 import PublicizeConnection from './publicize-connection'
-
-/**
- * Connection property value for if a connection should be shared.
- *
- * @since  5.9.1
- */
-const CONNECTION_ENABLED = 'share';
-/**
- * Connection property value for if a connection should be shared.
- *
- * @since  5.9.1
- */
-const CONNECTION_DISABLED = '';
 
 class PublicizeForm extends Component {
 	constructor( props ) {
 		super( props );
-		var connectionList = props.connections;
-
-		var activeConnections = {};
-		// Create properties for object where connection id the property name and 'checked' (true/false) is the value.
-		for ( var key in connectionList ) {
-			var connectionData = connectionList[ key ];
-			activeConnections[ connectionData.unique_id ] = connectionData.checked ? CONNECTION_ENABLED : CONNECTION_DISABLED;
-		}
-		wp.data.dispatch( 'core/editor' ).editPost( {
-			wpas: {
-				'0': CONNECTION_ENABLED, // Needed for classic editor form emulation {@see publicize.php/save_meta()}
-				submit: activeConnections
-			}
+		let { connections } = this.props;
+		const { initializePublicize } = this.props;
+		const initialTitle = '';
+		// Connection data format must match 'publicize' REST field registered in {@see class-jetpack-publicize-gutenberg.php}.
+		const initialActiveConnections = connections.map( ( c ) => {
+			return (
+				{
+					unique_id: c.unique_id,
+					should_share: c.checked,
+				}
+			)
 		} );
-
-		this.state = {
-			connections: connectionList,
-			shareMessage: ''
-		}
-	}
-
-
-	/**
-	 * Handler for when sharing message is edited.
-	 *
-	 * Saves edited message to state and to the editor
-	 * as field 'wpas_title' to emulate classic editor form.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param event Change event data from textarea
-	 */
-	messageChange = ( event ) =>  {
-		this.setState( { shareMessage: event.target.value } );
-		wp.data.dispatch( 'core/editor' ).editPost( { wpas_title: event.target.value } );
-	}
-
-	/**
-	 * Update state connection enable/disable state based on checkbox.
-	 *
-	 * Saves enable/disable value to connection object in editor
-	 * as field wpas.submit[connection_id] to emulate classic editor form.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param event Change event data from textarea
-	 */
-	connectionChange = ( connectionID, checked ) =>  {
-		var connectionActiveList = wp.data.select( 'core/editor' ).getEditedPostAttribute( 'wpas' ).submit;
-		connectionActiveList[ connectionID ] = checked ? CONNECTION_ENABLED : CONNECTION_DISABLED;
-		wp.data.dispatch( 'core/editor' ).editPost( { wpas: { submit: connectionActiveList } } );
+		initializePublicize( initialTitle,  initialActiveConnections );
 	}
 
 	/**
@@ -100,10 +54,10 @@ class PublicizeForm extends Component {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @return bool True if whole form should be disabled.
+	 * @return {bool} True if whole form should be disabled.
 	 */
 	isDisabled() {
-		const { connections } = this.state;
+		const { connections } = this.props;
 		var disabled = true; // Assume all disabled
 
 		// Check to see if at least one connection is not disabled
@@ -117,9 +71,15 @@ class PublicizeForm extends Component {
 	}
 
 	render() {
-		const { connections } = this.props;
-		const { shareMessage } = this.state;
+		const {
+			connections,
+			connectionChange,
+			messageChange,
+			activeConnections,
+			shareMessage,
+		} = this.props;
 		const messageLength = shareMessage.length;
+
 		return (
 			<div id="publicize" className="misc-pub-section misc-pub-section-last">
 				<div id="publicize-form">
@@ -128,7 +88,8 @@ class PublicizeForm extends Component {
 							<PublicizeConnection
 								connectionData={ c }
 								key={ c.unique_id }
-								connectionChange={ this.connectionChange }
+								defaultEnabled={ c.checked }
+								connectionChange={ connectionChange }
 							/>
 						) }
 					</ul>
@@ -139,7 +100,7 @@ class PublicizeForm extends Component {
 					<textarea
 						id='jetpack-publicize-message-box'
 						value={ shareMessage }
-						onChange={ this.messageChange }
+						onChange={ messageChange }
 						placeholder={ __( 'Publicize + Gutenberg :)' ) }
 						disabled={ this.isDisabled() }
 					/>
@@ -149,5 +110,83 @@ class PublicizeForm extends Component {
 	}
 }
 
-export default PublicizeForm;
+export default compose(
+	withSelect( ( select ) => ( {
+		activeConnections: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) ?
+			[] : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).connections,
+		shareMessage: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) ?
+			'' : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).title,
+	} ) ),
+	withDispatch( ( dispatch, ownProps ) => ( {
+		/**
+		 * Directly sets post's publicize data.
+		 *
+		 * Sets initial values for publicize data this saved with post. Field schema defined in
+		 * {@see class-jetpack-publicize-gutenberg.php}
+		 *
+		 * @since 5.9.1
+		 *
+		 * @param {string} title             String to share post with
+		 * @param {array}  activeConnections Array of connection data {@see class-jetpack-publicize-gutenberg.php}
+		 */
+		initializePublicize( title, activeConnections ) {
+			dispatch( 'core/editor' ).editPost( {
+				publicize: {
+					title: title,
+					connections: activeConnections,
+				}
+			} );
+		},
 
+		/**
+		 * Update state connection enable/disable state based on checkbox.
+		 *
+		 * Saves enable/disable value to connections property in editor
+		 * in field 'publicize'.
+		 *
+		 * @since 5.9.1
+		 *
+		 * @param {string}  connectionID ID of the connection being enabled/disabled
+		 * @param {boolean} checked      True of connection should be enabled, false otherwise
+		 */
+		connectionChange( connectionID, checked ) {
+			//let publicizeData = wp.data.select( 'core/editor' ).getEditedPostAttribute( 'publicize' );
+			let { activeConnections } = ownProps;
+			const { shareMessage } = ownProps;
+			activeConnections.forEach( (c) => {
+				if ( c.unique_id === connectionID ) {
+					c.should_share = checked;
+				}
+			} );
+			dispatch( 'core/editor' ).editPost( {
+				publicize: {
+					title: shareMessage,
+					connections: activeConnections,
+				}
+			} );
+		},
+
+		/**
+		 * Handler for when sharing message is edited.
+		 *
+		 * Saves edited message to state and to the editor
+		 * in field 'publicize'.
+		 *
+		 * @since 5.9.1
+		 *
+		 * @param event Change event data from textarea element.
+		 */
+		messageChange( event ) {
+			let publicizeData = select( 'core/editor' ).getEditedPostAttribute( 'publicize' );
+			let { shareMessage } = ownProps;
+			const { activeConnections } = ownProps;
+			shareMessage = event.target.value;
+			dispatch( 'core/editor' ).editPost( {
+				publicize: {
+					title: shareMessage,
+					connections: activeConnections,
+				}
+			} );
+		}
+	} ) ),
+)( PublicizeForm );

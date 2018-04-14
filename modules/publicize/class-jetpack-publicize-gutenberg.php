@@ -27,69 +27,132 @@ class Jetpack_Publicize_Gutenberg {
 		// Do edit page specific setup.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ) );
 
-		add_action( 'rest_api_init', array( $this, 'add_wpas_post_fields' ) );
+		add_action( 'rest_api_init', array( $this, 'add_publicize_rest_fields' ) );
 
 	}
 
 	/**
-	 * Add rest fields to 'post' for Publicize support
+	 * Add rest field to 'post' for Publicize support
 	 *
-	 * To port over from classic editor's Publicize form, this explicitly
-	 * sets up 'wpas' and 'wpas_title' fields in `post` REST endpoint.
-	 * This is not strictly necessary since these values are read directly
-	 * from $_POST in {@see ./publicize.php}, but registering the fields here
-	 * provides validation and explicitly documents the schema.
+	 * Sets up 'publicize' schema to submit publicize sharing title
+	 * and individual connection sharing enables/disables. This schema
+	 * is registered with the 'post' endpoint REST endpoint so publicize
+	 * options can be saved when a post is published.
 	 *
 	 * @since 5.9.1
 	 */
-	public function add_wpas_post_fields() {
-		// Schema for 'wpas_title' field.
-		$wpas_title_schema = array(
-			'description' => esc_html__( 'Title of post when shared', 'jetpack' ),
-			'type'        => 'string',
-			'context'     => array( 'edit' ),
-		);
-
+	public function add_publicize_rest_fields() {
 		// Schema for wpas.submit[] field.
-		$wpas_submit_schema = array(
+		$publicize_submit_schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => esc_html__( 'Form data for list of connections that should be shared', 'jetpack' ),
+			'title'      => esc_html__( 'Publicize data for publishing post', 'jetpack' ),
 			'type'       => 'object',
 			'properties' => array(
-				'connection' => array(
-					'description' => esc_html__( 'Unique identifier string for a connection', 'jetpack' ),
+				'connections' => array(
+					'description' => esc_html__( 'List of connections to be shared to (or not).', 'jetpack' ),
 					'type'        => 'array',
 					'items'       => array(
-						'type' => 'string',
+						'type'       => 'object',
+						'properties' => array(
+							'unique_id'    => array(
+								'description' => esc_html__( 'Unique identifier string for a connection', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'should_share' => array(
+								'description' => esc_html__( 'Whether or not connection should be shared to.', 'jetpack' ),
+								'type'        => 'boolean',
+							),
+
+						),
 					),
+				),
+				'title'       => array(
+					'description' => esc_html__( 'Optional title to share post with.', 'jetpack' ),
+					'type'        => 'string',
 				),
 			),
 		);
 
-		// Registering the title field.
+		// Registering the publicize field with post endpoint.
 		register_rest_field(
 			'post',
-			'wpas_title',
+			'publicize',
 			array(
 				'get_callback'    => null,
-				'update_callback' => null, // No update callback. Value is read direct from $_POST in {@see ./publicize.php}.
-				'schema'          => $wpas_title_schema,
-			)
-		);
-
-		// Registering the wpas field that contains connections.
-		register_rest_field(
-			'post',
-			'wpas',
-			array(
-				'get_callback'    => null,
-				'update_callback' => null, // No update callback. Value is read direct from $_POST in {@see ./publicize.php}.
-				'schema'          => $wpas_submit_schema,
+				'update_callback' => array( $this, 'process_publicize_from_rest' ),
+				'schema'          => $publicize_submit_schema,
 			)
 		);
 	}
 
+	/**
+	 * Set up Publicize meta fields for publishing post.
+	 *
+	 * Process 'publicize' REST field to setup Publicize for publishing
+	 * post. Sets post meta keys to enable/disable each connection for
+	 * the post and sets publicize title meta key if a title message
+	 * is provided.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param array   $publicize_field 'publicize' REST field from {@see add_publicize_rest_fields()}.
+	 * @param WP_Post $post            Updated post instance being saved to REST endpoint.
+	 */
+	public function process_publicize_from_rest( $publicize_field, $post ) {
+		global $publicize;
 
+		// If post is about to be published.
+		if ( 'publish' === $post->post_status ) {
+			if ( empty( $publicize_field['title'] ) ) {
+				delete_post_meta( $post->ID, $publicize->POST_MESS );
+			} else {
+				update_post_meta( $post->ID, $publicize->POST_MESS, trim( stripslashes( $publicize_field['title'] ) ) );
+			}
+			if ( isset( $publicize_field['connections'] ) ) {
+				foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
+					foreach ( $connections as $connection ) {
+						if ( ! empty( $connection->unique_id ) ) {
+							$unique_id = $connection->unique_id;
+						} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
+							$unique_id = $connection['connection_data']['token_id'];
+						}
+
+						if ( $this->connection_should_share( $publicize_field['connections'], $unique_id ) ) {
+							// Delete skip flag meta key.
+							delete_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id );
+						} else {
+							// Flag connection to be skipped for this post.
+							update_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id, 1 );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if a connection should be shared to.
+	 *
+	 * Checks $connection_id against $connections_array to see if the connection associated
+	 * with $connection_id should be shared to. Will return true if $connection_id is in the
+	 * array and 'should_share' property is set to true, and will default to false otherwise.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param array  $connections_array 'connections' from 'publicize' REST field {@see add_publicize_rest_fields()}.
+	 * @param string $connection_id     Connection identifier string that is unique for each connection.
+	 * @return boolean True if connection should be shared to, false otherwise.
+	 */
+	private function connection_should_share( $connections_array, $connection_id ) {
+		foreach ( $connections_array as $connection ) {
+			if ( isset( $connection['unique_id'] )
+				&& ( $connection['unique_id'] === $connection_id )
+				&& $connection['should_share'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Enqueue scripts when they are needed for the edit page
@@ -119,6 +182,7 @@ class Jetpack_Publicize_Gutenberg {
 				array(
 					'jquery',
 					'wp-edit-post',
+					'wp-data',
 				),
 				false,
 				true
