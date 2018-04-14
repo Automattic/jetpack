@@ -33,7 +33,8 @@ class PublicizeConnection extends Component {
 	}
 
 	render() {
-		const { name, checked, label, disabled } = this.props.connectionData;
+		const { name, label, disabled } = this.props.connectionData;
+		const { defaultEnabled } = this.props;
 		const isDisabled = ( '' !== disabled );
 
 		return (
@@ -41,7 +42,7 @@ class PublicizeConnection extends Component {
 				<label>
 					<input type="checkbox"
 					       className={ 'wpas-submit-' + name }
-					       defaultChecked={ checked }
+					       defaultChecked={ defaultEnabled }
 					       onChange={ this.onConnectionChange }
 					       disabled={ isDisabled }
 					/>
