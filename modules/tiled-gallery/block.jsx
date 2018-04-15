@@ -26,7 +26,7 @@ const settings = {
 			type: 'array',
 			'default': [],
 			source: 'query',
-			selector: '.blocks-gallery-item',
+			selector: '.tiled-gallery-item',
 			query: {
 				url: {
 					source: 'attribute',
