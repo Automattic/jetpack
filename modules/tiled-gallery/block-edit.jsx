@@ -33,7 +33,7 @@ const {
 /**
  * Internal dependencies
  */
-import jetpackGalleryImage from './gallery-image.jsx';
+import TiledGalleryItem from './block/components/tiled-gallery-item.jsx';
 
 class JetpackGalleryBlockEditor extends Component {
 	constructor() {
@@ -149,7 +149,7 @@ class JetpackGalleryBlockEditor extends Component {
 		const { images } = attributes;
 
 		const dropZone = (
-			<DropZone
+			<DropZone key="item-dropzone"
 				onFilesDrop={ this.addFiles }
 			/>
 		);
@@ -203,11 +203,13 @@ class JetpackGalleryBlockEditor extends Component {
 					<h2>{ __( 'Jetpack Gallery Settings' ) }</h2>
 				</InspectorControls>
 			),
-			<ul key="gallery" className="jetpack-tiled-gallery">
+			<ul key="gallery-images" className="jetpack-tiled-gallery">
 				{ dropZone }
-				{ images.map( jetpackGalleryImage ) }
+				{ images.map( ( props ) => (
+					<TiledGalleryItem key={ props.id.toString() } { ...props } />
+				) ) }
 				{ isSelected &&
-					<li className="blocks-gallery-item">
+					<li key="item-uploader" className="blocks-gallery-item">
 						<FormFileUpload
 							multiple
 							isLarge
