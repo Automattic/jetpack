@@ -206,7 +206,7 @@ class JetpackGalleryBlockEditor extends Component {
 			<ul key="gallery-images" className="jetpack-tiled-gallery">
 				{ dropZone }
 				{ images.map( ( props ) => (
-					<TiledGalleryItem key={ props.id.toString() } { ...props } />
+					<TiledGalleryItem key={ props.id } { ...props } />
 				) ) }
 				{ isSelected &&
 					<li key="item-uploader" className="blocks-gallery-item">
