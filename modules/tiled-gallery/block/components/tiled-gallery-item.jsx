@@ -1,36 +1,56 @@
+/*global wp*/
+
+/**
+ * WordPress dependencies (npm)
+ */
+const { withSelect } = wp.data;
+
 /**
  * External Dependencies
  */
 import React from 'react';
+import get from 'lodash/get';
 
 function TiledGalleryImage( props ) {
 	const { url, alt, id, link } = props;
+	const { width, height } = get( props.image, [ 'media_details' ], { width: -1, height: -1 } );
+
 	return (
     <figure>
-			<meta itemprop="width" content={ 227 } />
-			<meta itemprop="height" content={ 170 } />
+			<span>{ width } x { height }</span>
+			<meta itemprop="width" content={ width } />
+			<meta itemprop="height" content={ height } />
 			<img
 				src={ url } alt={ alt } data-id={ id } data-link={ link }
-				width="227"
-				height="170"
-				data-original-width="227"
-				data-original-height="170" />
+				width={ width }
+				height={ height }
+				data-original-width={ width }
+				data-original-height={ height } />
     </figure>
 	);
 }
 
-function TiledGalleryItem( image ) {
-	const href = image.link;
-	const img = TiledGalleryImage( image );
-	const classes = [ 'tiled-gallery-item' ];
+function TiledGalleryItem( props ) {
+	const href = props.link;
+
+	const classes = [ 'tiled-gallery-item steve' ];
 	classes.push( 'tiled-gallery-item-small' );
 
+	const img = TiledGalleryImage( props );
+
 	return (
-    <div key={ image.id } className={ classes.join( ' ' ) } itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+		<li key={ props.id || props.url } className={ classes.join( ' ' ) } itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
 			{ href ? <a href={ href }>{ img }</a> : img }
-    </div>
+		</li>
 	);
 }
 
-export default TiledGalleryItem;
+export default withSelect( ( select, ownProps ) => {
+	const { getMedia } = select( 'core' );
+	const { id } = ownProps;
+
+	return {
+		image: id ? getMedia( id ) : null,
+	};
+} )( TiledGalleryItem );
 

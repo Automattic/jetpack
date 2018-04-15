@@ -9,7 +9,9 @@ function jetpackGalleryBlockSave( { attributes } ) {
 	const { images } = attributes;
 	return (
 		<ul className="jetpack-tiled-gallery">
-			{ images.map( TiledGalleryItem ) }
+			{ images.map( ( props ) =>
+				<TiledGalleryItem { ...props } />
+			) }
 		</ul>
 	);
 }
