@@ -62,7 +62,7 @@ class DashPluginUpdates extends Component {
 					updatesAvailable && (
 						<h2 className="jp-dash-item__count">
 							{
-								__( '%(number)s plugin', '%(number)s plugins', {
+								__( '%(number)s', '%(number)s', {
 									count: pluginUpdates.count,
 									args: { number: pluginUpdates.count }
 								} )
@@ -74,7 +74,7 @@ class DashPluginUpdates extends Component {
 					{
 						updatesAvailable
 							? [
-								__( 'Needs updating.', 'Need updating.', { count: pluginUpdates.count } ) + ' ',
+								__( 'Plugin needs updating.', 'Plugins need updating.', { count: pluginUpdates.count } ) + ' ',
 								! this.props.isDevMode && __( '{{a}}Turn on plugin autoupdates{{/a}}', {
 									components: { a: <a href={ managePluginsUrl } /> }
 								} )
