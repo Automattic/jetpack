@@ -371,7 +371,7 @@ class Jetpack_Sync_Functions {
 			return str_replace( '_', ' ', $timezone_string );
 		}
 
-		$gmt_offset = intval( get_option( 'gmt_offset', 0 ) );
+		$gmt_offset = floatval( get_option( 'gmt_offset', 0 ) );
 
 		if ( 0 <= $gmt_offset ) {
 			$formatted_gmt_offset = '+' . (string) $gmt_offset;
