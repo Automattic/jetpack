@@ -34,11 +34,11 @@
 	font-weight: 500;
 	font-size: rem( 32px );
 	display: inline;
-    border: 1px solid $dashboard-number-border;
-    border-radius: 4px;
-    padding: 0px 4px;
-    float: left;
-    min-width: 36px;
+	border: 1px solid $dashboard-number-border;
+	border-radius: 4px;
+	padding: 0px 4px;
+	float: left;
+	min-width: 36px;
 	text-align: center;
 
 	@include breakpoint( "<660px" ) {
