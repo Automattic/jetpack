@@ -85,6 +85,14 @@ jetpack_shell_is_errored() {
 	return $( php -r "$PHP_IN" ) # TODO: Do we need to worry about word-splitting here?
 }
 
+jetpack_is_wp_cli_error() {
+	if [[ $1 = *"Error:"* ]]; then
+		return 0
+	fi
+
+	return 1
+}
+
 jetpack_echo_key_from_json() {
 	PHP_IN="
 		\$object = json_decode( '$1' );
@@ -210,10 +218,14 @@ fi
 # Get the access token for the Jetpack connection.
 ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | xargs echo )
 
-# If we don't have an access token, we're done!
-#if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
-#	TODO: Actually set the access token here
-#fi
+# If we have an access token, set it and activate default modules!
+if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
+	RESULT=$(wp $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN")
+	if jetpack_is_wp_cli_error "$RESULT"; then
+		echo '{"success":false,"error_code":"authorization_failure","error_message":"Could not authorize_user"}'
+		exit 1
+	fi
+fi
 
 echo "$PROVISION_REQUEST"
 exit 0
