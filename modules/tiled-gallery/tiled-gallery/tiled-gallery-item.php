@@ -4,6 +4,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		$test = '';
+		
 
 		$this->image = $attachment_image;
 		$this->grayscale = $grayscale;
