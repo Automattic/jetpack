@@ -28,6 +28,10 @@ class Jetpack_Sync_Server_Eventstore {
 
 		if ( $action_name ) {
 			$events = array();
+			if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
+				return $events;
+			}
+
 			foreach ( $this->events[ $blog_id ] as $event ) {
 				if ( $event->action === $action_name ) {
 					$events[] = $event;

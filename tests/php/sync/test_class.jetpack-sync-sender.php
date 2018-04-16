@@ -5,6 +5,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_codec;
 	protected $action_timestamp;
 	protected $encoded_data;
+	protected $filter_ran;
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
 		// some trivial action so that there's an item in the queue
@@ -405,6 +406,31 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertFalse( $event );
+	}
+
+	function test_do_not_send_empty_queue_clear_skipped_items() {
+		$this->filter_ran = false;
+		$sync_queue = $this->listener->get_sync_queue();
+		$sync_queue->reset();
+		add_action( 'foo_action', array( $this->listener, 'action_handler' ) );
+		add_filter( 'jetpack_sync_send_data' , array( $this, 'run_filter' ) );
+		// log http_listener during send data, since in test we're not sending real HTTP requests
+		add_filter( 'jetpack_sync_before_send_foo_action', '__return_false' );
+
+		do_action( 'foo_action' );
+		$this->sender->do_sync();
+		remove_filter( 'jetpack_sync_send_data' , array( $this, 'run_filter' ) );
+
+		$this->assertFalse( false, 'ran filter jetpack_sync_send_data' );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'foo_action' );
+		$this->assertFalse( $event, 'Event data present' );
+		$this->assertFalse( $sync_queue->has_any_items() ,"We didn't empty the queue" );
+	}
+
+	function run_filter( $data ) {
+		$this->filter_ran = true;
+		return $data;
 	}
 
 	function create_http_listener_post_and_return_processed_ids( $data ) {
