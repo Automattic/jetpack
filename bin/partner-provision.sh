@@ -169,46 +169,46 @@ if [ ! -z "$PARTNER_TRACKING_ID" ]; then
 	PROVISION_REQUEST_URL="$PROVISION_REQUEST_URL?partner-tracking-id=$PARTNER_TRACKING_ID"
 fi
 
-PROVISION_REQUEST_ARGS=(
-	--silent \
-	--request POST \
-	--url "$PROVISION_REQUEST_URL"\
-	--header "authorization: Bearer $ACCESS_TOKEN" \
-	--header 'cache-control: no-cache' \
-	--header 'content-type: multipart/form-data;'
-)
-
 if [ ! -z "$ONBOARDING" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "onboarding=$ONBOARDING" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form onboarding=$ONBOARDING"
 fi
 
 if [ ! -z "$PLAN_NAME" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "plan=$PLAN_NAME" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form plan=$PLAN_NAME"
 fi
 
 if [ ! -z "$WPCOM_USER_ID" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "wpcom_user_id=$WPCOM_USER_ID" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form wpcom_user_id=$WPCOM_USER_ID"
 fi
 
 if [ ! -z "$WPCOM_USER_EMAIL" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "wpcom_user_email=$WPCOM_USER_EMAIL" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form wpcom_user_email=$WPCOM_USER_EMAIL"
 fi
 
 if [ ! -z "$FORCE_REGISTER" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "force_register=$FORCE_REGISTER" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form force_register=$FORCE_REGISTER"
 fi
 
 if [ ! -z "$FORCE_CONNECT" ]; then
-	PROVISION_REQUEST_ARGS+=( --form "force_connect=$FORCE_CONNECT" )
+	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form force_connect=$FORCE_CONNECT"
 fi
 
 SITEURL=$( wp $GLOBAL_ARGS option get siteurl | xargs echo )
-PROVISION_REQUEST_ARGS+=( --form "siteurl=$SITEURL" )
+PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form siteurl=$SITEURL"
 
 LOCAL_USERNAME=$( wp $GLOBAL_ARGS user get "$WP_USER" --field=login | xargs echo )
-PROVISION_REQUEST_ARGS+=( --form "local_username=$LOCAL_USERNAME" )
+PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form local_username=$LOCAL_USERNAME"
 
-PROVISION_REQUEST=$( curl "${PROVISION_REQUEST_ARGS[@]}" )
+PROVISION_REQUEST=$(
+	curl \
+		--silent \
+		--request POST \
+		--url "$PROVISION_REQUEST_URL" \
+		--header "authorization: Bearer $ACCESS_TOKEN" \
+		--header 'cache-control: no-cache' \
+		--header 'content-type: multipart/form-data;' \
+		$PROVISION_REQUEST_ARGS
+)
 
 if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
 	echo "$PROVISION_REQUEST"
