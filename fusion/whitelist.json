@@ -1,6 +1,5 @@
 {
  "files": [
-  "fusion/whitelist.json",
   "_inc/facebook-embed.js",
   "_inc/gallery-settings.js",
   "_inc/genericons.php",
@@ -299,6 +298,9 @@
   "sal/class.json-api-post-jetpack.php",
   "sal/class.json-api-site-base.php",
   "sal/class.json-api-token.php",
+  "sync/class.jetpack-sync-module-comments.php",
+  "sync/class.jetpack-sync-module-posts.php",
+  "sync/class.jetpack-sync-module-themes.php",
   "tests/php/modules/shortcodes/test_class.archives.php",
   "tests/php/modules/shortcodes/test_class.bandcamp.php",
   "tests/php/modules/shortcodes/test_class.dailymotion.php",
