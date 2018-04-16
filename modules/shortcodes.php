@@ -13,6 +13,11 @@
  * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
  */
 
+if ( ! defined( 'JETPACK_SHORTCODES_PLUGIN_URL' ) ) {
+	define( 'JETPACK_SHORTCODES_PLUGIN_URL', 'modules/shortcodes/' );
+	define( 'JETPACK_SHORTCODES_PLUGIN_DIR', plugin_dir_path( __FILE__ ) . 'shortcodes/' );
+}
+
 /**
  * Transforms the $atts array into a string that the old functions expected
  *
