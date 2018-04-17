@@ -211,8 +211,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_default_contentless_options() {
 		$this->setSyncClientDefaults();
-		// check that these values exist in the contentless options list
-		// $options
+		// Check that these values exist in the contentless options list
 		$options = array(
 			'mailserver_login' => 'pineapple',
 			'mailserver_pass'  => 'pineapple',
@@ -220,7 +219,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$contentless_options = $this->options_module->get_options_contentless();
 
-		// update all the options.
+		// Update all the options.
 		foreach ( $options as $option_name => $value ) {
 			update_option( $option_name, $value );
 		}
