@@ -371,18 +371,14 @@ class Jetpack_Sync_Functions {
 			return str_replace( '_', ' ', $timezone_string );
 		}
 
-		$gmt_offset = floatval( get_option( 'gmt_offset', 0 ) );
+		$gmt_offset = get_option( 'gmt_offset', 0 );
 
-		if ( 0 <= $gmt_offset ) {
-			$formatted_gmt_offset = '+' . (string) $gmt_offset;
-		} else {
-			$formatted_gmt_offset = (string) $gmt_offset;
-		}
+		$formatted_gmt_offset = sprintf( '%+g', floatval( $gmt_offset ) );
 
 		$formatted_gmt_offset = str_replace(
 			array( '.25', '.5', '.75' ),
 			array( ':15', ':30', ':45' ),
-			$formatted_gmt_offset
+			(string) $formatted_gmt_offset
 		);
 
 		/* translators: %s is UTC offset, e.g. "+1" */
