@@ -121,14 +121,20 @@ class Presentations {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script(
 			'jmpress',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/shortcodes/js/jmpress.min.js',
+				JETPACK_SHORTCODES_PLUGIN_URL . 'js/jmpress.js'
+			),
 			array( 'jquery' ),
 			'0.4.5',
 			true
 		);
 		wp_enqueue_script(
 			'presentations',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/shortcodes/js/main.min.js',
+				JETPACK_SHORTCODES_PLUGIN_URL . 'js/main.js'
+			),
 			array( 'jquery', 'jmpress' ),
 			false,
 			true

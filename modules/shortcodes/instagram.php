@@ -147,7 +147,10 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	if ( ! empty( $response_body->html ) ) {
 		wp_enqueue_script(
 			'jetpack-instagram-embed',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/shortcodes/js/instagram.min.js',
+				JETPACK_SHORTCODES_PLUGIN_URL . 'js/instagram.js'
+			),
 			array( 'jquery' ),
 			false,
 			true
