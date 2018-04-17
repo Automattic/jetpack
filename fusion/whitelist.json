@@ -241,6 +241,7 @@
   "modules/shortcodes/diggthis.php",
   "modules/shortcodes/flickr.php",
   "modules/shortcodes/googlemaps.php",
+  "modules/shortcodes/googleplus.php",
   "modules/shortcodes/googlevideo.php",
   "modules/shortcodes/houzz.php",
   "modules/shortcodes/images/collapse.png",
