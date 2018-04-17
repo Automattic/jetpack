@@ -8,6 +8,7 @@
 			<file>tests/php/test_class.functions.compat.php</file>
 			<file>tests/php/test_class.jetpack-network.php</file>
 			<file>tests/php/test_class.jetpack-client-server.php</file>
+			<file>tests/php/test_class.jetpack-ixr-client.php</file>
 			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
 			<file>tests/php/test_class.jetpack-constants.php</file>

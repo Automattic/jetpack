@@ -147,7 +147,7 @@ class Jetpack_Sync_Actions {
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
-
+		Jetpack::load_xml_rpc_client();
 		$rpc = new Jetpack_IXR_Client( array(
 			'url'     => $url,
 			'user_id' => JETPACK_MASTER_USER,
@@ -157,8 +157,7 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
-			$error = $rpc->get_jetpack_error();
-			return $error;
+			return $rpc->get_jetpack_error();
 		}
 
 		$response = $rpc->getResponse();

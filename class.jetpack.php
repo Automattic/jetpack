@@ -3273,27 +3273,38 @@ p {
 		return true;
 	}
 
+	public static function update_disconnection_notice( $user_id ) {
+		$notice = (array) Jetpack_Options::get_option( 'disconnection_notice' );
+		$notice = array_merge( $notice, array( $user_id ) );
+		Jetpack_Options::update_option( 'disconnection_notice', $notice );
+	}
+
 	public static function unlink_user_on_unknown_token( $user_id ) {
 		$master_user = (int) Jetpack_Options::get_option( 'master_user' );
 		if ( $user_id == 0 || $user_id == JETPACK_MASTER_USER ) {
 			$user_id = $master_user;
 		}
+
 		// unset the user token.
 		$tokens = Jetpack_Options::get_option( 'user_tokens' );
-		unset( $tokens[$user_id]);
+		unset( $tokens[$user_id] );
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		if ( $user_id !== $master_user ) {
+			self::update_disconnection_notice( $user_id );
 			return;
 		}
-		// try to demote master user
-		require_once( JETPACK__PLUGIN_DIR .'sync/class.jetpack-sync-users.php' );
-		Jetpack_sync_users::maybe_demote_master_user( $master_user );
 
-		// delete all the tokens
+		require_once( JETPACK__PLUGIN_DIR .'sync/class.jetpack-sync-users.php' );
+		Jetpack_sync_users::maybe_demote_master_user( $master_user, true );
 		if ( $master_user !== Jetpack_Options::get_option( 'master_user' ) ) {
+			// Master user switched
+			self::update_disconnection_notice( $user_id );
 			return;
 		}
+
+		// Delete Everything - disconnect the site
+		Jetpack_Options::update_option( 'disconnection_notice', $tokens );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		Jetpack_Options::delete_option( 'master_user' );
 		Jetpack_Options::delete_option( 'blog_token' );

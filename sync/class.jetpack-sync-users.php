@@ -49,10 +49,10 @@ class Jetpack_Sync_Users {
 		Jetpack::xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
 	}
 
-	static function maybe_demote_master_user( $user_id ) {
+	static function maybe_demote_master_user( $user_id, $skip_role_test = false ) {
 		$master_user_id = Jetpack_Options::get_option( 'master_user' );
 		$role           = self::get_role( $user_id );
-		if ( $user_id == $master_user_id && 'administrator' != $role ) {
+		if ( $user_id == $master_user_id && ( $skip_role_test || 'administrator' != $role ) ) {
 			$query      = new WP_User_Query(
 				array(
 					'fields'  => array( 'id' ),
