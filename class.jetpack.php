@@ -7096,16 +7096,11 @@ p {
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
-		/**
-		 * Filters whether Jetpack should use minified assets such as CSS and JavaScript files.
-		 *
-		 * @module general
-		 *
-		 * @since 6.1
-		 */
-		$minify = apply_filters( 'jetpack_should_use_minified_assets', true );
+		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
+			? $non_min_path
+			: $min_path;
 
-		return plugins_url( $minify ? $min_path : $non_min_path, JETPACK__PLUGIN_FILE );
+		return plugins_url( $path, JETPACK__PLUGIN_FILE );
 	}
 
 	/**
