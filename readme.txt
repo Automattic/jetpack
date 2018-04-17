@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: We improved the styles of status numbers so it doesn't look like floating.
+* Masterbar: We removed the Next Steps link from the Account sidebar.
 * Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
 
 **Improved compatibility**
