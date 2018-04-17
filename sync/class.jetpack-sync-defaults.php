@@ -120,6 +120,10 @@ class Jetpack_Sync_Defaults {
 		'uploads_use_yearmonth_folders',
 		'date_format',
 		'time_format',
+		'mailserver_url',
+		'mailserver_login', // Not syncing contents, only the option name
+		'mailserver_pass', // Not syncing contents, only the option name
+		'mailserver_port',
 	);
 
 	public static function get_options_whitelist() {
@@ -135,6 +139,25 @@ class Jetpack_Sync_Defaults {
 		 * @param array The default list of options.
 		 */
 		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+	}
+
+	// Do not sync contents for these events, only the option name
+	static $default_options_contentless = array(
+		'mailserver_login',
+		'mailserver_pass',
+	);
+
+	public static function get_options_contentless() {
+		/**
+		 * Filter the list of WordPress options that should be synced without content
+		 *
+		 * @module sync
+		 *
+		 * @since 6.1
+		 *
+		 * @param array The list of options synced without content.
+		 */
+		return apply_filters( 'jetpack_sync_options_contentless', self::$default_options_contentless );
 	}
 
 	static $default_constants_whitelist = array(

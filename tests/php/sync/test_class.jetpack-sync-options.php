@@ -179,6 +179,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'uploads_use_yearmonth_folders'        => '0',
 			'date_format'                          => '0',
 			'time_format'                          => '0',
+			'mailserver_url'                       => 'pineapple.example.com',
+			'mailserver_login'                     => '',
+			'mailserver_pass'                      => '',
+			'mailserver_port'                      => 1,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -186,7 +190,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$whitelist = $this->options_module->get_options_whitelist();
 
-		// update all the opyions.
+		// update all the options.
 		foreach ( $options as $option_name => $value ) {
 			update_option( $option_name, $value );
 		}
@@ -203,6 +207,43 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
 		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+	}
+
+	public function test_sync_default_contentless_options() {
+		$this->setSyncClientDefaults();
+		// check that these values exist in the contentless options list
+		// $options
+		$options = array(
+			'mailserver_login' => 'pineapple',
+			'mailserver_pass'  => 'pineapple',
+		);
+
+		$contentless_options = $this->options_module->get_options_contentless();
+
+		// update all the options.
+		foreach ( $options as $option_name => $value ) {
+			update_option( $option_name, $value );
+		}
+
+		$this->sender->do_sync();
+
+		$options_keys = array_keys( $options );
+		foreach ( $options_keys as $option_name ) {
+			$this->assertOptionIsSynced( $option_name, '' );
+		}
+		$contentless_options_difference = array_diff( $contentless_options, $options_keys );
+		// Are we testing all the options
+		$unique_contentless_options = array_unique( $contentless_options );
+
+		$this->assertEquals(
+			count( $unique_contentless_options ),
+			count( $contentless_options ),
+			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
+		);
+		$this->assertTrue(
+			empty( $contentless_options_difference ),
+			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
+		);
 	}
 
 	public function test_add_whitelisted_option_on_init_89() {

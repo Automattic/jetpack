@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
-	private $options_whitelist;
+	private $options_whitelist, $options_contentless;
 
 	public function name() {
 		return 'options';
@@ -35,6 +35,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		$this->update_options_whitelist();
+		$this->update_options_contentless();
 	}
 
 	public function set_late_default() {
@@ -102,8 +103,16 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		return $this->options_whitelist;
 	}
 
-	// reject non-whitelisted options
+	function update_options_contentless() {
+		$this->options_contentless = Jetpack_Sync_Defaults::get_options_contentless();
+	}
+
+	function get_options_contentless() {
+		return $this->options_contentless;
+	}
+
 	function whitelist_options( $args ) {
+		// Reject non-whitelisted options
 		if ( ! $this->is_whitelisted_option( $args[0] ) ) {
 			return false;
 		}
@@ -111,10 +120,19 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		// filter our weird array( false ) value for theme_mods_*
 		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
 			$this->filter_theme_mods( $args[1] );
-			if ( isset( $args[2] ) ) { 
+			if ( isset( $args[2] ) ) {
 				$this->filter_theme_mods( $args[2] );
 			}
 		}
+
+		// Set value(s) of contentless option to empty string(s)
+		if ( $this->is_contentless_option( $args[0] ) ) {
+			// Create a new array matching length of $args, containing empty strings
+			$empty = array_fill( 0, count( $args ), '' );
+			$empty[0] = $args[0];
+			return $empty;
+		}
+
 		return $args;
 	}
 
@@ -122,9 +140,13 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		return in_array( $option, $this->options_whitelist ) || 'theme_mods_' === substr( $option, 0, 11 );
 	}
 
+	private function is_contentless_option( $option ) {
+		return in_array( $option, $this->options_contentless );
+	}
+
 	private function filter_theme_mods( &$value ) {
 		if ( is_array( $value ) && isset( $value[0] ) ) {
-			unset( $value[0] ); 
+			unset( $value[0] );
 		}
 	}
 
