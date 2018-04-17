@@ -89,10 +89,6 @@ add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
-// Disable minified assets loading in development mode
-if ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) ) {
-	add_filter( 'jetpack_should_use_minified_assets', '__return_false' );
-}
 
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
