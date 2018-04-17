@@ -90,7 +90,7 @@ jetpack_shell_is_errored() {
 }
 
 jetpack_is_wp_cli_error() {
-	if [[ $1 = *"Error:"* ]]; then
+	if [ ! -z $( echo "$1" | grep Error:) ] || [ -z "$1" ]; then
 		return 0
 	fi
 
@@ -228,9 +228,9 @@ ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | x
 
 # If we have an access token, set it and activate default modules!
 if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
-	RESULT=$($WP_CLI_PATH $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN")
-	if jetpack_is_wp_cli_error "$RESULT"; then
-		echo '{"success":false,"error_code":"authorization_failure","error_message":"Could not authorize_user"}'
+	AUTHORIZE_RESULT=$( $WP_CLI_PATH $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN" )
+	if jetpack_is_wp_cli_error "$AUTHORIZE_RESULT"; then
+		echo "{\"success\":false,\"error_code\":\"authorization_failure\",\"error_message\":\"$AUTHORIZE_RESULT\"}"
 		exit 1
 	fi
 fi

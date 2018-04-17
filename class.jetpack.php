@@ -2786,7 +2786,7 @@ class Jetpack {
 			}
 
 			ob_start();
-			require $file;
+			require_once $file;
 
 			$active[] = $module;
 
