@@ -41,7 +41,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
-		add_filter( 'woocommerce_cart_item_remove', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
+
+		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
+		add_action( 'woocommerce_cart_item_removed', array( $this, 'remove_bundle_items_from_cart' ), 10, 2 );
 
 		// cart checkout
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
@@ -157,6 +159,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		);
 		$url = str_replace( 'href=', $new_attributes, $url );
 		return $url;
+	}
+
+	/**
+	 * Queue remove from cart events for each item in a bundle
+	 *
+	 * @param string $removed_cart_item_key cart item key
+	 * @param object $cart cart
+	 */
+	public function remove_bundle_items_from_cart( $removed_cart_item_key, $cart ) {
+		$cart_item = $cart->removed_cart_contents[ $removed_cart_item_key ];
+		$product_id = $cart_item[ 'product_id' ];
+		$quantity = $cart_item[ 'quantity' ];
+		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
 	}
 
 	/**
