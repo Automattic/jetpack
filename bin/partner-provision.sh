@@ -8,6 +8,7 @@ usage () {
 	--partner_id=partner_id \
 	--partner_secret=partner_secret \
 	--user=wp_user_id \
+	[--wp-cli-path=/usr/local/bin/wp]
 	[--plan=plan_name] \
 	[--onboarding=1] \
 	[--wpcom_user_id=1234] \
@@ -57,6 +58,9 @@ for i in "$@"; do
 			shift
 			;;
 		--allow-root )              GLOBAL_ARGS="--allow-root"
+			shift
+			;;
+		--wp-cli-path=* )           WP_CLI_PATH="${i#*=}"
 			shift
 			;;
 		-h | --help )               usage
@@ -139,6 +143,10 @@ if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "" ]; then
 	exit 1
 fi
 
+if [ -z "$WP_CLI_PATH" ]; then
+	WP_CLI_PATH="wp"
+fi
+
 # add extra args if available
 if [ ! -z "$WP_USER" ]; then
 	GLOBAL_ARGS="$GLOBAL_ARGS --user=$WP_USER"
@@ -150,14 +158,14 @@ if [ ! -z "$SITE_URL" ]; then
 fi
 
 # Skip the theme and all plugins except Jetpack
-GLOBAL_ARGS="$GLOBAL_ARGS --skip-themes --skip-plugins=$(wp plugin list --field=name | grep -v ^jetpack$ | tr  '\n' ',')"
+GLOBAL_ARGS="$GLOBAL_ARGS --skip-themes --skip-plugins=$($WP_CLI_PATH plugin list --field=name | grep -v ^jetpack$ | tr  '\n' ',')"
 
 # Remove leading whitespace
 GLOBAL_ARGS=$(echo "$GLOBAL_ARGS" | xargs echo)
 
 # Silently ensure Jetpack is active
 # Intentionally not quoting $GLOBAL_ARGS so that words in the string are split
-wp $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
+$WP_CLI_PATH $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
 
 # Default API host that can be overridden.
 if [ -z "$JETPACK_START_API_HOST" ]; then
@@ -193,10 +201,10 @@ if [ ! -z "$FORCE_CONNECT" ]; then
 	PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form force_connect=$FORCE_CONNECT"
 fi
 
-SITEURL=$( wp $GLOBAL_ARGS option get siteurl | xargs echo )
+SITEURL=$( $WP_CLI_PATH $GLOBAL_ARGS option get siteurl | xargs echo )
 PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form siteurl=$SITEURL"
 
-LOCAL_USERNAME=$( wp $GLOBAL_ARGS user get "$WP_USER" --field=login | xargs echo )
+LOCAL_USERNAME=$( $WP_CLI_PATH $GLOBAL_ARGS user get "$WP_USER" --field=login | xargs echo )
 PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form local_username=$LOCAL_USERNAME"
 
 PROVISION_REQUEST=$(
@@ -220,7 +228,7 @@ ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | x
 
 # If we have an access token, set it and activate default modules!
 if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
-	RESULT=$(wp $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN")
+	RESULT=$($WP_CLI_PATH $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN")
 	if jetpack_is_wp_cli_error "$RESULT"; then
 		echo '{"success":false,"error_code":"authorization_failure","error_message":"Could not authorize_user"}'
 		exit 1
