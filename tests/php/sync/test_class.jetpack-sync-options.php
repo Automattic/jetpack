@@ -227,11 +227,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$options_keys = array_keys( $options );
-		foreach ( $options_keys as $option_name ) {
+		$option_keys = array_keys( $options );
+		foreach ( $option_keys as $option_name ) {
 			$this->assertOptionIsSynced( $option_name, '' );
 		}
-		$contentless_options_difference = array_diff( $contentless_options, $options_keys );
+		$contentless_options_difference = array_diff( $contentless_options, $option_keys );
 		// Are we testing all the options
 		$unique_contentless_options = array_unique( $contentless_options );
 
