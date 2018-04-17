@@ -388,13 +388,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( false === $data ) {
 			$path = '/plans?_locale=' . get_user_locale();
 			// passing along from client to help geolocate currency
-			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we
-			}
-			//already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) && isset( $_SERVER['HTTP_CLIENT_IP'] )) {
-				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
-			}
+			$ip = Jetpack::current_user_ip( true );
 			if ( empty( $ip ) && isset( $_SERVER['REMOTE_ADDR'] ) ) {
 				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
 			}
