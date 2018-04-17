@@ -150,11 +150,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$product = $item['data'];
 
 		$new_attributes = sprintf(
-			' data-product_id="%s">',
+			'" data-product_id="%s">',
 			esc_attr( $product->get_id() )
 		);
 
-		$url = str_replace( '>', $new_attributes, $url );
+		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
 	}
 

@@ -262,12 +262,12 @@ class Jetpack_Google_Analytics_Universal {
 		$product = $item['data'];
 
 		$new_attributes = sprintf(
-			' data-product_id="%1$s" data-product_sku="%2$s">',
+			'" data-product_id="%1$s" data-product_sku="%2$s">',
 			esc_attr( $product->get_id() ),
 			esc_attr( $product->get_sku() )
 		);
 
-		$url = str_replace( '>', $new_attributes, $url );
+		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
 	}
 
