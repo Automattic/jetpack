@@ -935,9 +935,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_get_timezone_from_timezone_string() {
-		update_option( 'timezone_string', 'San_Marino/Berlin' );
+		update_option( 'timezone_string', 'America/Rankin_Inlet' );
 		update_option( 'gmt_offset', '' );
-		$this->assertEquals( 'San Marino/Berlin', Jetpack_Sync_Functions::get_timezone() );
+		$this->assertEquals( 'America/Rankin Inlet', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	function test_get_timezone_from_gmt_offset_zero() {
