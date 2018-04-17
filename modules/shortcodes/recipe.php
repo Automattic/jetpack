@@ -119,14 +119,20 @@ class Jetpack_Recipes {
 
 		wp_enqueue_script(
 			'jetpack-recipes-printthis',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/shortcodes/js/recipes-printthis.min.js',
+				JETPACK_SHORTCODES_PLUGIN_URL . 'js/recipes-printthis.js'
+			),
 			array( 'jquery' ),
 			'20170202'
 		);
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/shortcodes/js/recipes.min.js',
+				JETPACK_SHORTCODES_PLUGIN_URL . 'js/recipes.js'
+			),
 			array( 'jquery', 'jetpack-recipes-printthis' ),
 			'20131230'
 		);
