@@ -305,7 +305,15 @@ class Jetpack_Client {
 			$body = wp_json_encode( $body );
 		}
 
-		return self::remote_request( $args, $body );
+		$response = self::remote_request( $args, $body );
+
+		$result = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! empty( $result ) && isset( $result->error ) ) {
+			if ( 'unknown_token' === $response->error ) {
+				Jetpack::unlink_user_on_unknown_token( get_current_user_id() );
+			}
+		}
+		return $response;
 	}
 
 	/**
@@ -342,8 +350,16 @@ class Jetpack_Client {
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 			'method'  => $request_method,
 		) );
+		$response = Jetpack_Client::remote_request( $validated_args, $body );
 
-		return Jetpack_Client::remote_request( $validated_args, $body );
+		$result = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! empty( $result ) && isset( $result->error ) ) {
+			if ( 'unknown_token' === $result->error ) {
+				Jetpack::unlink_user_on_unknown_token( Jetpack_Options::get_option('master_user' ) );
+			}
+			return $response;
+		}
+		return $response;
 	}
 
 	/**

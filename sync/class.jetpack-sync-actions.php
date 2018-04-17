@@ -158,21 +158,6 @@ class Jetpack_Sync_Actions {
 
 		if ( ! $result ) {
 			$error = $rpc->get_jetpack_error();
-
-			if ( $error->get_error_code() === 'unknown_token' ) {
-				if ( $master_user = Jetpack_Options::get_option( 'master_user' ) ) {
-					Jetpack::unlink_user( $master_user, true );
-					Jetpack_sync_users::maybe_demote_master_user( $master_user );
-					if ( $master_user == Jetpack_Options::get_option( 'master_user') ) {
-						// Demotion didn't work!
-						Jetpack_Options::delete_option( 'master_user' );
-					}
-				}
-				return new WP_Error(
-					'unknown_token',
-					esc_html__( 'Sync has been blocked from WordPress.com because the site\s token is unknown', 'jetpack' )
-				);
-			}
 			return $error;
 		}
 

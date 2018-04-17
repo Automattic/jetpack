@@ -62,7 +62,12 @@ class Jetpack_IXR_Client extends IXR_Client {
 
 		// Is the message a fault?
 		if ( $this->message->messageType == 'fault' ) {
+
 			$this->error = new IXR_Error( $this->message->faultCode, $this->message->faultString );
+			$error = $this->get_jetpack_error();
+			if ( 'unknown_token' === $error->get_error_code() && isset( $this->jetpack_args['user_id'] ) ) {
+				Jetpack::unlink_user_on_unknown_token($this->jetpack_args['user_id']);
+			}
 			return false;
 		}
 

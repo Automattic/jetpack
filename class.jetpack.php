@@ -3241,7 +3241,7 @@ p {
 	/**
 	 * Unlinks the current user from the linked WordPress.com user
 	 */
-	public static function unlink_user( $user_id = null, $bypass_wpcom ) {
+	public static function unlink_user( $user_id = null, $bypass_wpcom = false ) {
 		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
 			return false;
 
@@ -3271,6 +3271,24 @@ p {
 		do_action( 'jetpack_unlinked_user', $user_id );
 
 		return true;
+	}
+
+	public static function unlink_user_on_unknown_token( $user_id ) {
+		l( 'UNLLINKED USER' );
+		$user_id = intval( $user_id );
+		$master_user = (int) Jetpack_Options::get_option( 'master_user' );
+		if ( (int) $user_id !== $master_user ) {
+			Jetpack::unlink_user( $user_id, true );
+			return;
+		}
+
+		Jetpack::unlink_user( $master_user, true );
+
+		require_once( JETPACK__PLUGIN_DIR .'sync/class.jetpack-sync-users.php' );
+		Jetpack_sync_users::maybe_demote_master_user( $master_user );
+		if ( $master_user == Jetpack_Options::get_option( 'master_user' ) ) {
+			Jetpack_Options::delete_option( 'master_user' );
+		}
 	}
 
 	/**
