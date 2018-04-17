@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
 * Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
+* Settings: Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
 * SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
 * SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
 
