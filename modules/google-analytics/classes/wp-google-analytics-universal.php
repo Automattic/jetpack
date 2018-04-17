@@ -20,7 +20,8 @@ class Jetpack_Google_Analytics_Universal {
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_track_purchases' ) );
 
-		add_action( 'wp_head', array( $this, 'wp_head' ), 999999 );
+		add_action( 'wp_head', array( $this, 'wp_head' ), 0 );
+		// Priority zero rationale: Google's docs now advise to put it their script at/near the beginning of the head (not the end)
 
 		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_to_cart' ) );
 		add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
@@ -32,9 +33,12 @@ class Jetpack_Google_Analytics_Universal {
 		add_action( 'woocommerce_after_single_product', array( $this, 'product_detail' ) );
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
 
-		// we need to send a pageview command last - so we use priority 24 to add
-		// this command's JavaScript just before wc_print_js is called (pri 25)
-		add_action( 'wp_footer', array( $this, 'send_pageview_in_footer' ), 24 );
+		// If WooCommerce is active, we need to send a pageview command "last" (i.e. in the footer), so
+		// that other universal commands can enqueue before it. We use priority 24 to add this command's
+		// JavaScript just before wc_print_js is called (pri 25)
+		if ( class_exists( 'WooCommerce' ) ) {
+			add_action( 'wp_footer', array( $this, 'send_pageview_in_footer' ), 24 );
+		}
 	}
 
 	public function wp_head() {
@@ -49,10 +53,18 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		// At this time, we only leverage universal analytics for enhanced ecommerce. If WooCommerce is not
-		// present, don't bother emitting the tracking ID or fetching analytics.js
+		$universal_commands = array();
+
+		// If WooCommerce is present, ask Google Analytics to load ecommerce tools
+		if ( class_exists( 'WooCommerce' ) ) {
+			array_push( $universal_commands, "ga( 'require', 'ec' );" );
+		}
+
+		// If WooCommerce isn't present, it is OK to immediately enqueue the pageview command
+		// (if WooCommerce is present, this command will be added in the footer instead, to
+		// allow other commands to queue ahead of it)
 		if ( ! class_exists( 'WooCommerce' ) ) {
-			return;
+			array_push( $universal_commands, "ga( 'send', 'pageview' );" );
 		}
 
 		/**
@@ -62,14 +74,14 @@ class Jetpack_Google_Analytics_Universal {
 		 *
 		 * @param array $custom_vars Array of universal Google Analytics queue elements
 		 */
-		$universal_commands = apply_filters( 'jetpack_wga_universal_commands', array() );
+
+		$universal_commands = apply_filters( 'jetpack_wga_universal_commands', $universal_commands );
 
 		$async_code = "
 			<!-- Jetpack Google Analytics -->
 			<script>
 				window.ga = window.ga || function(){ ( ga.q = ga.q || [] ).push( arguments ) }; ga.l=+new Date;
 				ga( 'create', '%tracking_id%', 'auto' );
-				ga( 'require', 'ec' );
 				%universal_commands%
 			</script>
 			<script async src='https://www.google-analytics.com/analytics.js'></script>
@@ -165,6 +177,10 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		if ( ! is_single() ) {
 			return;
 		}
@@ -228,6 +244,10 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
 		// updated and subsequent removals from cart would then not have this click
 		// handler attached
@@ -255,6 +275,10 @@ class Jetpack_Google_Analytics_Universal {
 			return $url;
 		}
 
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $url;
+		}
+
 		$item = WC()->cart->get_cart_item( $key );
 		$product = $item[ 'data' ];
 
@@ -273,6 +297,10 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( ! Jetpack_Google_Analytics_Options::track_product_impressions_is_enabled() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
@@ -301,6 +329,10 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( ! Jetpack_Google_Analytics_Options::track_product_clicks_is_enabled() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
@@ -344,6 +376,10 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		global $product;
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
@@ -365,6 +401,10 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( ! Jetpack_Google_Analytics_Options::track_checkout_started_is_enabled() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
@@ -399,11 +439,11 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		if ( is_admin() ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
-		if ( ! class_exists( 'WooCommerce' ) ) {
+		if ( is_admin() ) {
 			return;
 		}
 

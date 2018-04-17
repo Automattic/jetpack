@@ -50,7 +50,18 @@ class Jetpack_Google_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
-		if ( Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+		/**
+		 * Allow for universal analytics (analytics.js) to be used outside of ecommerce contexts
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param bool Whether universal analytics (analytics.js) should be used (true) or legacy (ga.js) should be used (false)
+		 */
+		$use_universal_analytics = apply_filters( 'jetpack_wga_use_universal_analytics',
+			Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled()
+		);
+
+		if ( $use_universal_analytics ) {
 			$analytics = new Jetpack_Google_Analytics_Universal();
 		} else {
 			$analytics = new Jetpack_Google_Analytics_Legacy();
@@ -70,5 +81,17 @@ class Jetpack_Google_Analytics {
 	}
 }
 
-global $jetpack_google_analytics;
-$jetpack_google_analytics = Jetpack_Google_Analytics::get_instance();
+/**
+ * Bootstrap analytics on the init action. This allows filtering of things like
+ * jetpack_wga_use_universal_analytics
+ *
+ * @since 6.1.0
+ *
+ * @return void
+ */
+function jetpack_wga_init() {
+	global $jetpack_google_analytics;
+	$jetpack_google_analytics = Jetpack_Google_Analytics::get_instance();
+}
+
+add_action( 'init', 'jetpack_wga_init' );
