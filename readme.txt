@@ -104,6 +104,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
+
 **Improved compatibility**
 
 **Bug fixes**
