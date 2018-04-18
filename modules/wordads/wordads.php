@@ -214,9 +214,6 @@ HTML;
 		<link rel='dns-prefetch' href='//ad.doubleclick.net' />
 		<link rel='dns-prefetch' href='//googleads.g.doubleclick.net' />
 		<link rel='dns-prefetch' href='//www.googletagservices.com' />
-		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
 		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
 HTML;
 	}
