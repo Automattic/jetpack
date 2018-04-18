@@ -294,6 +294,7 @@
   "modules/widgets/gravatar-profile.php",
   "modules/widgets/social-media-icons/style.css",
   "modules/widgets/top-posts/style.css",
+  "modules/widgets/twitter-timeline.php",
   "modules/widgets/upcoming-events.php",
   "modules/widgets/wordpress-post-widget/style.css",
   "sal/class.json-api-date.php",
