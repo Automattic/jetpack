@@ -298,16 +298,26 @@ class Jetpack_Media_Summary {
 		);
 	}
 
+	/**
+	 * Retrieve an excerpt for the post summary.
+	 *
+	 * @param  string  $post_content The post's content.
+	 * @param  string  $post_excerpt The post's excerpt. Empty if none was explicitly set.
+	 * @param  int     $max_words Maximum number of words for the excerpt. Used on wp.com. Default 16.
+	 * @param  int     $max_chars Maximum characters in the excerpt. Used on wp.com. Default 256.
+	 * @param  WP_Post $requested_post The post object.
+	 * @return string Post excerpt.
+	 **/
 	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $requested_post = null ) {
 		global $post;
 		$original_post = $post; // Saving the global for later use.
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
-				'text'           => $post_content,
-				'excerpt_only'   => true,
-				'show_read_more' => false,
-				'max_words'      => $max_words,
-				'max_chars'      => $max_chars,
+				'text'                => $post_content,
+				'excerpt_only'        => true,
+				'show_read_more'      => false,
+				'max_words'           => $max_words,
+				'max_chars'           => $max_chars,
 				'read_more_threshold' => 25,
 			) ) );
 		} elseif ( $requested_post instanceof WP_Post ) {
