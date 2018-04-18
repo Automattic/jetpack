@@ -11,7 +11,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -54,24 +54,19 @@ export class CustomContentTypes extends React.Component {
 		}
 
 		const module = this.props.module( 'custom-content-types' );
+		const disabledByOverride = ( 'inactive' === this.props.getModuleOverride( 'custom-content-types' ) );
+		const disabledReason = disabledByOverride && __( 'This feature has been disabled by a site administrator.' );
 		return (
 			<SettingsCard
 				{ ...this.props }
 				module="custom-content-types"
 				hideButton>
-				<SettingsGroup
-					hasChild
-					module={ module }
-					support={ {
-						text: __( 'Adds the Testimonial custom post type, allowing you to collect, organize, ' +
-							'and display testimonials on your site.' ),
-						link: 'https://jetpack.com/support/custom-content-types/',
-					} }
-					>
+				<SettingsGroup hasChild module={ module } support={ module.learn_more_button }>
 					<CompactFormToggle
 								checked={ this.state.testimonial }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
-								onChange={ this.handleTestimonialToggleChange }>
+								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || disabledByOverride }
+								onChange={ this.handleTestimonialToggleChange }
+								disabledReason={ disabledReason }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Testimonials' )
@@ -91,19 +86,11 @@ export class CustomContentTypes extends React.Component {
 							}
 						</p>
 					</FormFieldset>
-				</SettingsGroup>
-				<SettingsGroup
-					hasChild
-					module={ module }
-					support={ {
-						text: __( 'Adds the Portfolio custom post type, allowing you to manage and showcase projects on your site.' ),
-						link: 'https://jetpack.com/support/custom-content-types/',
-					} }
-					>
 					<CompactFormToggle
 								checked={ this.state.portfolio }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
-								onChange={ this.handlePortfolioToggleChange }>
+								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || disabledByOverride }
+								onChange={ this.handlePortfolioToggleChange }
+								disabledReason={ disabledReason }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Portfolios' )
@@ -133,7 +120,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
 		};
 	}
 )( moduleSettingsForm( CustomContentTypes ) );

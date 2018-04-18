@@ -62,6 +62,7 @@ describe( 'Dashboard Stats', () => {
 			connectUrl: 'https://wordpress.com/jetpack/connect/',
 			isEmptyStatsCardDismissed: false,
 			getOptionValue: module => 'stats' === module,
+			getModuleOverride: () => false,
 		};
 	} );
 

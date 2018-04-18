@@ -27,6 +27,7 @@ import SettingsGroup from 'components/settings-group';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSitePlan } from 'state/site';
+import { getModuleOverride } from 'state/modules';
 
 class Media extends React.Component {
 	/**
@@ -143,12 +144,14 @@ class Media extends React.Component {
 			</SettingsGroup>
 		);
 
+		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
 				header={ __( 'Media' ) }
 				hideButton={ ! foundCarousel }
-				feature={ FEATURE_VIDEO_HOSTING_JETPACK }
+				feature={ ! videoPressForcedInactive && FEATURE_VIDEO_HOSTING_JETPACK }
 				saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
 				>
 				{ foundCarousel && carouselSettings }
@@ -163,7 +166,8 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( moduleSettingsForm( Media ) );

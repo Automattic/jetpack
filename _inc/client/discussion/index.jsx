@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -47,6 +47,7 @@ export class Discussion extends React.Component {
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }
+					getModuleOverride={ this.props.getModuleOverride }
 				/>
 				{
 					foundSubscriptions && (
@@ -72,7 +73,8 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			connectUrl: getConnectUrl( state ),
-			isLinked: isCurrentUserLinked( state )
+			isLinked: isCurrentUserLinked( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Discussion );

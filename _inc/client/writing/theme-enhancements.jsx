@@ -18,6 +18,7 @@ import { isModuleFound } from 'state/search';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class ThemeEnhancements extends React.Component {
     /**
@@ -123,6 +124,8 @@ class ThemeEnhancements extends React.Component {
 		const minileven = this.props.getModule( 'minileven' );
 		const isMinilevenActive = this.props.getOptionValue( minileven.module );
 
+		const infiniteScrollDisabledByOverride = 'inactive' === this.props.getModuleOverride( 'infinite-scroll' );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -130,7 +133,12 @@ class ThemeEnhancements extends React.Component {
 				hideButton={ ! foundInfiniteScroll || ! this.props.isInfiniteScrollSupported }
 				>
 				{
-					foundInfiniteScroll && (
+					infiniteScrollDisabledByOverride && (
+						<ModuleOverriddenBanner moduleName={ infScr.name } compact />
+					)
+				}
+				{
+					foundInfiniteScroll && ! infiniteScrollDisabledByOverride && (
 						<SettingsGroup
 							hasChild
 							module={ { module: infScr.module } }
