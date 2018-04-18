@@ -29,7 +29,7 @@ function require_lib_from_dir( $slug, $lib_dir ) {
 	trigger_error( "Cannot find a library with slug $slug.", E_USER_ERROR );
 }
 
-function jetpack_require_lib( $slug ) {
+function require_lib( $slug ) {
    if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
        define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
    }
