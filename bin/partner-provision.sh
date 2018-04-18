@@ -66,14 +66,13 @@ for i in "$@"; do
 		-h | --help )               usage
 			exit
 			;;
-		* )                         usage
+		* )                         echo $(usage) >&2
 			exit 1
 	esac
 done
 
 if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; then
-	usage
-	exit 1
+	echo $(usage) >&2
 fi
 
 jetpack_shell_is_errored() {
@@ -143,7 +142,7 @@ ACCESS_TOKEN_JSON=$(
 )
 
 if jetpack_shell_is_errored "$ACCESS_TOKEN_JSON"; then
-	echo "$ACCESS_TOKEN_JSON"
+	echo "$ACCESS_TOKEN_JSON" >&2
 	exit 1
 fi
 
@@ -151,7 +150,7 @@ ACCESS_TOKEN=$( jetpack_echo_key_from_json "$ACCESS_TOKEN_JSON" access_token | x
 
 # If we don't have an access token, we can't go further.
 if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "" ]; then
-	echo "$ACCESS_TOKEN_JSON"
+	echo "$ACCESS_TOKEN_JSON" >&2
 	exit 1
 fi
 
@@ -231,7 +230,7 @@ PROVISION_REQUEST=$(
 )
 
 if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
-	echo "$PROVISION_REQUEST"
+	echo "$PROVISION_REQUEST" >&2
 	exit 1
 fi
 
@@ -242,7 +241,7 @@ ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | x
 if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ]; then
 	AUTHORIZE_RESULT=$( $WP_CLI_PATH $GLOBAL_ARGS jetpack authorize_user --token="$ACCESS_TOKEN" )
 	if jetpack_is_wp_cli_error "$AUTHORIZE_RESULT"; then
-		echo "{\"success\":false,\"error_code\":\"authorization_failure\",\"error_message\":\"$AUTHORIZE_RESULT\"}"
+		echo "{\"success\":false,\"error_code\":\"authorization_failure\",\"error_message\":\"$AUTHORIZE_RESULT\"}" >&2
 		exit 1
 	fi
 fi
