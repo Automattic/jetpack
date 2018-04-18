@@ -77,6 +77,10 @@ if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; th
 fi
 
 jetpack_shell_is_errored() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
 	# Note that zero represents true below.
 	PHP_IN="
 		\$object = json_decode( '$1' );
@@ -90,6 +94,10 @@ jetpack_shell_is_errored() {
 }
 
 jetpack_is_wp_cli_error() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
 	if [ ! -z $( echo "$1" | grep Error:) ] || [ -z "$1" ]; then
 		return 0
 	fi
@@ -98,6 +106,10 @@ jetpack_is_wp_cli_error() {
 }
 
 jetpack_echo_key_from_json() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
 	PHP_IN="
 		\$object = json_decode( '$1' );
 		if ( ! \$object ) {
