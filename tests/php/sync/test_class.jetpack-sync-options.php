@@ -179,6 +179,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'uploads_use_yearmonth_folders'        => '0',
 			'date_format'                          => '0',
 			'time_format'                          => '0',
+			'admin_email'                          => 'banana@example.org',
+			'new_admin_email'                      => 'banana@example.net',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

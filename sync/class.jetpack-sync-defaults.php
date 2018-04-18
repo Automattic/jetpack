@@ -120,6 +120,8 @@ class Jetpack_Sync_Defaults {
 		'uploads_use_yearmonth_folders',
 		'date_format',
 		'time_format',
+		'admin_email',
+		'new_admin_email',
 	);
 
 	public static function get_options_whitelist() {
