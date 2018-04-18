@@ -12,11 +12,6 @@
  */
 import React, { Component } from 'react';
 
-/**
- * Internal dependencies
- */
-const { __ } = wp.i18n;
-
 class PublicizeConnection extends Component {
 	/**
 	 * Handler for when connection is enabled/disabled.
@@ -25,11 +20,13 @@ class PublicizeConnection extends Component {
 	 * state change can be handled by parent.
 	 *
 	 * @since 5.9.1
+	 *
+	 * @param {object} event Checkbox element's onchange event object.
 	 */
-	onConnectionChange = ( event ) =>  {
+	onConnectionChange = ( event ) => {
 		const { unique_id } = this.props.connectionData;
 		const { connectionChange } = this.props;
-		connectionChange(unique_id, event.target.checked );
+		connectionChange( unique_id, event.target.checked );
 	}
 
 	render() {
@@ -39,12 +36,13 @@ class PublicizeConnection extends Component {
 
 		return (
 			<li>
-				<label>
+				<label htmlFor={ name }>
 					<input type="checkbox"
-					       className={ 'wpas-submit-' + name }
-					       defaultChecked={ defaultEnabled }
-					       onChange={ this.onConnectionChange }
-					       disabled={ isDisabled }
+						className={ 'wpas-submit-' + name }
+						id={ name }
+						defaultChecked={ defaultEnabled }
+						onChange={ this.onConnectionChange }
+						disabled={ isDisabled }
 					/>
 					{ label }
 				</label>

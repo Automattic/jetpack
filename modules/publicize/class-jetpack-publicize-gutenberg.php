@@ -183,6 +183,7 @@ class Jetpack_Publicize_Gutenberg {
 					'jquery',
 					'wp-edit-post',
 					'wp-data',
+					'wp-components',
 				),
 				false,
 				true

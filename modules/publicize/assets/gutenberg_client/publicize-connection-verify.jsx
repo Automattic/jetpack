@@ -18,7 +18,8 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-const { __ } = wp.i18n;
+const { __ } = window.wp.i18n;
+const { ajaxurl } = window;
 
 class PublicizeConnectionVerify extends Component {
 	constructor( props ) {
@@ -26,7 +27,7 @@ class PublicizeConnectionVerify extends Component {
 		this.state = {
 			failedConnections: {},
 			isLoading: false,
-		}
+		};
 	}
 
 	/**
@@ -38,10 +39,10 @@ class PublicizeConnectionVerify extends Component {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param object response from ajax action 'wp_ajax_test_publicize_conns' {@see publicize.php}
+	 * @param {object} response Response from ajax action 'wp_ajax_test_publicize_conns' {@see publicize.php}
 	 */
-	connectionTestComplete = ( response ) =>  {
-		var failureList = response.data.filter( connection => ( ! connection.connectionTestPassed ) );
+	connectionTestComplete = ( response ) => {
+		const failureList = response.data.filter( connection => ( ! connection.connectionTestPassed ) );
 		this.setState( {
 			failedConnections: failureList,
 			isLoading: false,
@@ -57,14 +58,13 @@ class PublicizeConnectionVerify extends Component {
 	 *
 	 * @since 5.9.1
 	 */
-	connectionTestStart = () =>  {
+	connectionTestStart = () => {
 		// Ajax request handled by 'wp_ajax_test_publicize_conns' action in {@see publicize.php}.
 		$.post( ajaxurl, { action: 'test_publicize_conns' }, this.connectionTestComplete );
 		this.setState( {
 			isLoading: true,
 		} );
-	}
-
+	};
 
 	/**
 	 * Opens up popup so user can refresh connection
@@ -74,43 +74,38 @@ class PublicizeConnectionVerify extends Component {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param string title       Title for popup.
-	 * @param string refreshHref Target URL for refresh popup.
-	 * @param object event       Event instance for onClick.
+	 * @param {object} event Event instance for onClick.
 	 */
-	refreshConnectionClick( title, refreshHref, event ) {
+	refreshConnectionClick = ( event ) => {
+		const { href, title } = event.target;
 		event.preventDefault();
 		// open a popup window
 		// when it is closed, kick off the tests again
-		var popupWin = window.open( refreshHref, title, '' );
-		var that = this;
-		var popupWinTimer= window.setInterval( function() {
-			if ( popupWin.closed !== false ) {
-				window.clearInterval( popupWinTimer );
-				that.connectionTestStart();
+		const popupWin = window.open( href, title, '' );
+		window.setInterval( () => {
+			if ( false !== popupWin.closed ) {
+				this.connectionTestStart();
 			}
 		}, 500 );
-
 	}
 
 	componentDidMount() {
 		this.connectionTestStart();
 	}
 
-
 	render() {
-		const { failedConnections }  = this.state;
-		if ( failedConnections.length > 0) {
+		const { failedConnections } = this.state;
+		if ( failedConnections.length > 0 ) {
 			return (
-				<div className='below-h2 error publicize-token-refresh-message'>
-					<p key='error-title'>{__( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:' )}</p>
+				<div className="below-h2 error publicize-token-refresh-message">
+					<p key="error-title">{ __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:' ) }</p>
 					{ failedConnections.filter( c => c.userCanRefresh ).map( c =>
 						<a
-							className='pub-refresh-button button'
+							className="pub-refresh-button button"
 							title={ c.refreshText }
 							href={ c.refreshURL }
-							target={'_refresh_' + c.serviceName }
-							onClick={ ( event ) => this.refreshConnectionClick( c.refreshText, c.refreshURL, event ) }
+							target={ '_refresh_' + c.serviceName }
+							onClick={ this.refreshConnectionClick }
 							key={ c.connectionID }
 
 						>
@@ -120,10 +115,8 @@ class PublicizeConnectionVerify extends Component {
 
 				</div>
 			);
-		} else {
-			return null;
 		}
-
+		return null;
 	}
 }
 

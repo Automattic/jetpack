@@ -9,12 +9,16 @@
  */
 
 /**
+ * External dependencies
+ */
+import React from 'react';
+
+/**
  * Internal dependencies
  */
-const { __ } = wp.i18n;
-const { PluginPrePublishPanel } = wp.editPost.__experimental;
-const { registerPlugin } = wp.plugins;
-import PublicizePanel from './publicize-panel'
+const { PluginPrePublishPanel } = window.wp.editPost.__experimental;
+const { registerPlugin } = window.wp.plugins;
+import PublicizePanel from './publicize-panel';
 
 const PluginRender = () => (
 	<PluginPrePublishPanel>
