@@ -933,7 +933,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 								wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
 							}
 						?>
-						<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
+						<input type=”hidden” name=”jetpack_subscriptions_widget” value=”submitted”>
+						<input type=”submit” name=”jetpack_subscriptions_widget_submit” value=”<?php echo esc_attr( $subscribe_button ); ?>”  />
 					</p>
 				<?php }?>
 			</form>
