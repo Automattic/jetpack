@@ -1,5 +1,37 @@
 <p>
 	<strong>
+		<?php _ex( 'Display banner for', 'action', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['display'], 'all' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'display_options' ) ); ?>"
+					type="radio"
+					value="button"
+				/>
+				<?php esc_html_e( 'All site visitors', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['display'], 'eu' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'display_options' ) ); ?>"
+					type="radio"
+					value="scroll"
+				/>
+				<?php esc_html_e( 'European Union visitors only', 'jetpack' ); ?>
+			</label>
+		</li>
+	</ul>
+</p>
+
+<hr />
+
+<p>
+	<strong>
 		<?php _ex( 'Hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
@@ -13,6 +45,11 @@
 				/>
 				<?php esc_html_e( 'after the user clicks the dismiss button', 'jetpack' ); ?>
 			</label>
+			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+				<p>
+					<strong><em><?php esc_html_e( 'This option is strongly recommended for Ads users.', 'jetpack' ); ?></em></strong>
+				</p>
+			<?php endif; ?>
 		</li>
 		<li>
 			<label>
@@ -44,6 +81,27 @@
 				value="<?php echo esc_attr( $instance['hide-timeout'] ); ?>"
 			/>
 			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
+		</li>
+	</ul>
+</p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php _ex( 'Consent expires after', 'action', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<input
+				max="365"
+				min="1"
+				name="<?php echo esc_attr( $this->get_field_name( 'consent-expiration' ) ); ?>"
+				style="padding: 3px 5px; width: 3.75em;"
+				type="number"
+				value="<?php echo esc_attr( $instance['consent-expiration'] ); ?>"
+			/>
+			<?php esc_html_e( 'days', 'jetpack' ); ?>
 		</li>
 	</ul>
 </p>

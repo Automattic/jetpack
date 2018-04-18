@@ -22,11 +22,56 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		public static $cookie_name = 'eucookielaw';
 
 		/**
-		 * EU Cookie Law cookie validity (30 days).
+		 * Array of two-letter country codes where GDPR applies.
 		 *
-		 * @var int
+		 * @var array
 		 */
-		public static $cookie_validity = 2592000;
+		public static $gdpr_zone = array(
+			// European Member countries
+			'AT', // Austria
+			'BE', // Belgium
+			'BG', // Bulgaria
+			'CY', // Cyprus
+			'CZ', // Czech Republic
+			'DE', // Germany
+			'DK', // Denmark
+			'EE', // Estonia
+			'ES', // Spain
+			'FI', // Finland
+			'FR', // France
+			'GR', // Greece
+			'HR', // Croatia
+			'HU', // Hungary
+			'IE', // Ireland
+			'IT', // Italy
+			'LT', // Lithuania
+			'LU', // Luxembourg
+			'LV', // Latvia
+			'MT', // Malta
+			'NL', // Netherlands
+			'PL', // Poland
+			'PT', // Portugal
+			'RO', // Romania
+			'SE', // Sweden
+			'SI', // Slovenia
+			'SK', // Slovakia
+			'GB', // United Kingdom
+			// Single Market Countries that GDPR applies to
+			'CH', // Switzerland
+			'IS', // Iceland
+			'LI', // Liechtenstein
+			'NO', // Norway
+		);
+
+		/**
+		 * Default display options.
+		 *
+		 * @var array
+		 */
+		private $display_options = array(
+			'all',
+			'eu',
+		);
 
 		/**
 		 * Default hide options.
@@ -115,8 +160,10 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function defaults() {
 			return array(
+				'display'            => $this->display_options[0],
 				'hide'               => $this->hide_options[0],
 				'hide-timeout'       => 30,
+				'consent-expiration' => 180,
 				'text'               => $this->text_options[0],
 				'customtext'         => '',
 				'color-scheme'       => $this->color_scheme_options[0],
@@ -137,6 +184,26 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			if ( 'eu' === $instance['display'] ) {
+				// Hide if we can detect this is a non-EU visitor.
+				if (
+					! isset( $_SERVER['GEOIP_COUNTRY_CODE'] )
+					|| ! in_array( $_SERVER['GEOIP_COUNTRY_CODE'], self::$gdpr_zone )
+				) {
+					return;
+				}
+			}
+
+			$classes = array();
+			$classes[] = 'hide-on-' . esc_attr( $instance['hide'] );
+			if ( 'negative' === $instance['color-scheme'] ) {
+				$classes[] = 'negative';
+			}
+			if ( Jetpack::is_module_active( 'wordads' ) ) {
+				$classes[] = 'ads-active';
+			}
+
 			echo $args['before_widget'];
 			require( dirname( __FILE__ ) . '/eu-cookie-law/widget.php' );
 			echo $args['after_widget'];
@@ -165,14 +232,20 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			$instance = array();
 			$defaults = $this->defaults();
 
-			$instance['hide']         = $this->filter_value( $new_instance['hide'], $this->hide_options );
-			$instance['text']         = $this->filter_value( $new_instance['text'], $this->text_options );
-			$instance['color-scheme'] = $this->filter_value( $new_instance['color-scheme'], $this->color_scheme_options );
-			$instance['policy-url']   = $this->filter_value( $new_instance['policy-url'], $this->policy_url_options );
+			$instance['display']        = $this->filter_value( $new_instance['display'], $this->display_options );
+			$instance['hide']           = $this->filter_value( $new_instance['hide'], $this->hide_options );
+			$instance['text']           = $this->filter_value( $new_instance['text'], $this->text_options );
+			$instance['color-scheme']   = $this->filter_value( $new_instance['color-scheme'], $this->color_scheme_options );
+			$instance['policy-url']     = $this->filter_value( $new_instance['policy-url'], $this->policy_url_options );
 
 			if ( isset( $new_instance['hide-timeout'] ) ) {
 				// Time can be a value between 3 and 1000 seconds.
 				$instance['hide-timeout'] = min( 1000, max( 3, intval( $new_instance['hide-timeout'] ) ) );
+			}
+
+			if ( isset( $new_instance['consent-expiration'] ) ) {
+				// Time can be a value between 1 and 365 days.
+				$instance['consent-expiration'] = min( 365, max( 1, intval( $new_instance['consent-expiration'] ) ) );
 			}
 
 			if ( isset( $new_instance['customtext'] ) ) {
