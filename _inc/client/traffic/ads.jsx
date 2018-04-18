@@ -31,6 +31,10 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 		analytics.tracks.recordJetpackClick( 'view-earnings' );
 	};
 
+	trackConfigureWidgetClick = () => {
+		analytics.tracks.recordJetpackClick( 'place-ad-widget' );
+	}
+
 	handleChange = setting => {
 		return () => this.updateOptions( setting );
 	};
@@ -64,7 +68,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<small className="jp-form-setting-explanation">
 							{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
 								components: {
-									link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" rel="noopener noreferrer" />
+									link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" rel="noopener noreferrer" onClick={ this.trackConfigureWidgetClick } />
 								}
 							} ) }
 						</small>
