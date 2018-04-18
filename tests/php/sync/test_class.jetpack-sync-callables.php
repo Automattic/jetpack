@@ -83,6 +83,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 			'roles'                            => Jetpack_Sync_Functions::roles(),
+			'timezone'                         => Jetpack_Sync_Functions::get_timezone(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -933,6 +934,35 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
+	function test_get_timezone_from_timezone_string() {
+		update_option( 'timezone_string', 'America/Rankin_Inlet' );
+		update_option( 'gmt_offset', '' );
+		$this->assertEquals( 'America/Rankin Inlet', Jetpack_Sync_Functions::get_timezone() );
+	}
+
+	function test_get_timezone_from_gmt_offset_zero() {
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '0' );
+		$this->assertEquals( 'UTC+0', Jetpack_Sync_Functions::get_timezone() );
+	}
+
+	function test_get_timezone_from_gmt_offset_plus() {
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '1' );
+		$this->assertEquals( 'UTC+1', Jetpack_Sync_Functions::get_timezone() );
+	}
+
+	function test_get_timezone_from_gmt_offset_fractions() {
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '5.5' );
+		$this->assertEquals( 'UTC+5:30', Jetpack_Sync_Functions::get_timezone() );
+	}
+
+	function test_get_timezone_from_gmt_offset_minus() {
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', '-1' );
+		$this->assertEquals( 'UTC-1', Jetpack_Sync_Functions::get_timezone() );
+	}
 }
 
 function jetpack_foo_is_callable_random() {
