@@ -280,6 +280,7 @@
   "modules/tiled-gallery/tiled-gallery/tiled-gallery-circle.php",
   "modules/tiled-gallery/tiled-gallery/tiled-gallery-item.php",
   "modules/tiled-gallery/tiled-gallery/tiled-gallery-layout.php",
+  "modules/tiled-gallery/tiled-gallery/tiled-gallery-rectangular.php",
   "modules/tiled-gallery/tiled-gallery/tiled-gallery-shape.php",
   "modules/tiled-gallery/tiled-gallery/tiled-gallery-square.php",
   "modules/tiled-gallery/tiled-gallery/tiled-gallery.css",
