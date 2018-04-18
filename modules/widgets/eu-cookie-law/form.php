@@ -154,11 +154,11 @@
 				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
 			/>
 			<span class="notice notice-warning" style="display: none;">
-        		<span style="display: block; margin: .5em 0;">
+				<span style="display: block; margin: .5em 0;">
 					<strong><?php esc_html_e( 'Caution:' ); ?></strong>
 					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.' ); ?>
 				</span>
-    		</span>
+			</span>
 		</li>
 	</ul>
 </p>
