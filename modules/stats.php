@@ -100,9 +100,9 @@ function jetpack_is_dnt_enabled() {
 	 * Filter the option which decides honor DNT or not.
 	 *
 	 * @module stats
-	 * @since 5.6.0
+	 * @since 6.1.0
 	 *
-	 * @return true if config honors DNT and client doesn't want to tracked, false if not.
+	 * @param bool false If config honors DNT and client doesn't want to tracked, false if not.
 	 */
 	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
 		return false;
