@@ -18,34 +18,22 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-const { __ } = wp.i18n;
-import { getPublicizeConnections } from './async-publicize-lib'
-import PublicizeNoConnections from './publicize-no-connections'
-const { PanelBody } = wp.components;
-import PublicizeForm from './publicize-form'
-import PublicizeConnectionVerify from './publicize-connection-verify'
+import { getPublicizeConnections } from './async-publicize-lib';
+import PublicizeNoConnections from './publicize-no-connections';
 
-/**
- * Connection property value for if a connection should be shared.
- *
- * @since  5.9.1
- */
-const CONNECTION_ENABLED = 'share';
-/**
- * Connection property value for if a connection should be shared.
- *
- * @since  5.9.1
- */
-const CONNECTION_DISABLED = '';
+import PublicizeForm from './publicize-form';
+import PublicizeConnectionVerify from './publicize-connection-verify';
+const { __ } = window.wp.i18n;
+const { PanelBody } = window.wp.components;
 
 class PublicizePanel extends Component {
 	constructor( props ) {
 		super( props );
-		var connectionList = getPublicizeConnections();
+		const connectionList = getPublicizeConnections();
 
 		this.state = {
 			connections: connectionList,
-		}
+		};
 	}
 
 	render() {
@@ -53,16 +41,16 @@ class PublicizePanel extends Component {
 		return (
 			<PanelBody
 				initialOpen={ true }
-				id='publicize-title'
+				id="publicize-title"
 				title={
-					<span id="publicize-defaults" key='publicize-title-span'>
+					<span id="publicize-defaults" key="publicize-title-span">
 						{ __( 'Share this post' ) }
 					</span>
-				 }
+				}
 			>
 				{ ( connections.length > 0 ) && <PublicizeForm connections={ connections } /> }
 				{ ( connections.length > 0 ) && <PublicizeConnectionVerify /> }
-				{ ( connections.length == 0 ) && <PublicizeNoConnections /> }
+				{ ( 0 === connections.length ) && <PublicizeNoConnections /> }
 			</PanelBody>
 		);
 	}

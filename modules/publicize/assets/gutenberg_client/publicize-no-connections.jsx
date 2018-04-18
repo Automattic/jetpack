@@ -16,16 +16,16 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-const { __, sprintf } = wp.i18n;
-import { getAllConnections } from './async-publicize-lib'
+const { __, sprintf } = window.wp.i18n;
+import { getAllConnections } from './async-publicize-lib';
 
 class PublicizeNoConnections extends Component {
 	constructor( props ) {
-		var allConnections = getAllConnections();
 		super( props );
+		const allConnections = getAllConnections();
 		this.state = {
 			allConnections: allConnections,
-		}
+		};
 	}
 
 	render() {
@@ -34,14 +34,15 @@ class PublicizeNoConnections extends Component {
 			<div>
 				<strong>{ __( 'Connect social accounts to share post: ' ) }</strong>
 				<br />
-				<ul className='not-connected'>
+				<ul className="not-connected">
 					{ allConnections.map( c =>
 						<li key={ c.name }>
 							<a
 								className="pub-service"
-							    key={ c.name }
+								key={ c.name }
 								title={ sprintf( __( 'Connect and share your posts on %s' ), c.label ) }
-								target='_blank'
+								target="_blank"
+								rel="noopener noreferrer"
 								href={ c.url }
 							>
 								{ c.label }

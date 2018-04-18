@@ -19,31 +19,26 @@ import { compose } from 'redux';
 /**
  * Internal dependencies
  */
-const { __ } = wp.i18n;
+const { __ } = window.wp.i18n;
 const {
 	withSelect,
 	withDispatch,
-	select,
-	dispatch,
-} = wp.data;
-import PublicizeConnection from './publicize-connection'
+} = window.wp.data;
+import PublicizeConnection from './publicize-connection';
 
 class PublicizeForm extends Component {
 	constructor( props ) {
 		super( props );
-		let { connections } = this.props;
-		const { initializePublicize } = this.props;
+		const { initializePublicize, connections } = this.props;
 		const initialTitle = '';
 		// Connection data format must match 'publicize' REST field registered in {@see class-jetpack-publicize-gutenberg.php}.
 		const initialActiveConnections = connections.map( ( c ) => {
-			return (
-				{
-					unique_id: c.unique_id,
-					should_share: c.checked,
-				}
-			)
+			return ( {
+				unique_id: c.unique_id,
+				should_share: c.checked,
+			} );
 		} );
-		initializePublicize( initialTitle,  initialActiveConnections );
+		initializePublicize( initialTitle, initialActiveConnections );
 	}
 
 	/**
@@ -54,15 +49,15 @@ class PublicizeForm extends Component {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @return {bool} True if whole form should be disabled.
+	 * @return {boolean} True if whole form should be disabled.
 	 */
 	isDisabled() {
 		const { connections } = this.props;
-		var disabled = true; // Assume all disabled
+		let disabled = true; // Assume all disabled
 
 		// Check to see if at least one connection is not disabled
-		for ( var key in connections ) {
-			if ( '' === connections[ key ].disabled ) {
+		for ( const c of connections ) {
+			if ( '' === c.disabled ) {
 				disabled = false;
 				break;
 			}
@@ -75,7 +70,6 @@ class PublicizeForm extends Component {
 			connections,
 			connectionChange,
 			messageChange,
-			activeConnections,
 			shareMessage,
 		} = this.props;
 		const messageLength = shareMessage.length;
@@ -98,7 +92,7 @@ class PublicizeForm extends Component {
 						{ messageLength }
 					</span>
 					<textarea
-						id='jetpack-publicize-message-box'
+						id="jetpack-publicize-message-box"
 						value={ shareMessage }
 						onChange={ messageChange }
 						placeholder={ __( 'Publicize + Gutenberg :)' ) }
@@ -112,10 +106,10 @@ class PublicizeForm extends Component {
 
 export default compose(
 	withSelect( ( select ) => ( {
-		activeConnections: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) ?
-			[] : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).connections,
-		shareMessage: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) ?
-			'' : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).title,
+		activeConnections: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) )
+			? [] : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).connections,
+		shareMessage: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) )
+			? '' : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).title,
 	} ) ),
 	withDispatch( ( dispatch, ownProps ) => ( {
 		/**
@@ -150,10 +144,8 @@ export default compose(
 		 * @param {boolean} checked      True of connection should be enabled, false otherwise
 		 */
 		connectionChange( connectionID, checked ) {
-			//let publicizeData = wp.data.select( 'core/editor' ).getEditedPostAttribute( 'publicize' );
-			let { activeConnections } = ownProps;
-			const { shareMessage } = ownProps;
-			activeConnections.forEach( (c) => {
+			const { activeConnections, shareMessage } = ownProps;
+			activeConnections.forEach( ( c ) => {
 				if ( c.unique_id === connectionID ) {
 					c.should_share = checked;
 				}
@@ -174,10 +166,9 @@ export default compose(
 		 *
 		 * @since 5.9.1
 		 *
-		 * @param event Change event data from textarea element.
+		 * @param {object} event Change event data from textarea element.
 		 */
 		messageChange( event ) {
-			let publicizeData = select( 'core/editor' ).getEditedPostAttribute( 'publicize' );
 			let { shareMessage } = ownProps;
 			const { activeConnections } = ownProps;
 			shareMessage = event.target.value;
