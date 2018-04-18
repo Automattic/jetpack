@@ -575,10 +575,11 @@ class Share_Twitter extends Sharing_Source {
 	/**
 	 * Determine the Twitter 'via' value for a post.
 	 *
-	 * @param  WP_Post $post Post object.
+	 * @param  WP_Post|int $post Post object or post ID.
 	 * @return string Twitter handle without the preceding @.
 	 **/
 	public static function sharing_twitter_via( $post ) {
+		$post = get_post( $post );
 		/**
 		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
 		 *
@@ -620,10 +621,11 @@ class Share_Twitter extends Sharing_Source {
 	/**
 	 * Determine the 'related' Twitter accounts for a post.
 	 *
-	 * @param  WP_Post $post Post object.
+	 * @param  WP_Post|int $post Post object or post ID.
 	 * @return string Comma-separated list of Twitter handles.
 	 **/
 	public static function get_related_accounts( $post ) {
+		$post = get_post( $post );
 		/**
 		 * Filter the list of related Twitter accounts added to the Twitter sharing button.
 		 *
