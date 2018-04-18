@@ -1,7 +1,7 @@
 <div
-	class="<?php echo 'negative' === $instance['color-scheme'] ? 'negative ' : '';
-	?>hide-on-<?php echo esc_attr( $instance['hide'] ); ?>"
+	class="<?php echo implode( ' ', $classes ); ?>"
 	data-hide-timeout="<?php echo intval( $instance['hide-timeout'] ); ?>"
+	data-consent-expiration="<?php echo intval( $instance['consent-expiration'] ); ?>"
 	id="eu-cookie-law"
 >
 	<form method="post">
