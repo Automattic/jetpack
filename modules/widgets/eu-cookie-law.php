@@ -151,6 +151,17 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			wp_enqueue_script(
+				'eu-cookie-law-widget-admin',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/eu-cookie-law/eu-cookie-law-admin.min.js',
+					'modules/widgets/eu-cookie-law/eu-cookie-law-admin.js'
+				),
+				array( 'jquery' ),
+				20180417
+			);
+
 			require( dirname( __FILE__ ) . '/eu-cookie-law/form.php' );
 		}
 
