@@ -44,7 +44,7 @@ class PublicizeNoConnections extends Component {
 		 * when it is closed, refresh connections
 		 */
 		const popupWin = window.open( href, '', '' );
-		let popupTimer = window.setInterval( () => {
+		const popupTimer = window.setInterval( () => {
 			if ( false !== popupWin.closed ) {
 				window.clearInterval( popupTimer );
 				refreshCallback();

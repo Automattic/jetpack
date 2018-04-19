@@ -27,7 +27,7 @@ class PublicizeSettingsButton extends Component {
 	 * @param {object} event Event instance for onClick.
 	 */
 	settingsClick = ( event ) => {
-		const href = "options-general.php?page=sharing";
+		const href = 'options-general.php?page=sharing';
 		const { refreshCallback } = this.props;
 		event.preventDefault();
 		/**
@@ -35,7 +35,7 @@ class PublicizeSettingsButton extends Component {
 		 * when it is closed, refresh connections
 		 */
 		const popupWin = window.open( href, '', '' );
-		let popupTimer = window.setInterval( () => {
+		const popupTimer = window.setInterval( () => {
 			if ( false !== popupWin.closed ) {
 				window.clearInterval( popupTimer );
 				refreshCallback();
@@ -44,8 +44,6 @@ class PublicizeSettingsButton extends Component {
 	}
 
 	render() {
-		const { isLoading } = this.props;
-
 		return (
 			<a
 				onClick={ this.settingsClick }
