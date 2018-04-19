@@ -66,7 +66,7 @@ class AppsCard extends React.Component {
 						<Button
 							className="is-primary"
 							onClick={ this.trackDownloadClick }
-							href="https://apps.wordpress.com/get">
+							href="https://apps.wordpress.com/get?utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard">
 							{ __( 'Download the free apps' ) }
 						</Button>
 						<br />
