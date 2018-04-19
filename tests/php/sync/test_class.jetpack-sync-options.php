@@ -181,6 +181,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'time_format'                          => '0',
 			'admin_email'                          => 'banana@example.org',
 			'new_admin_email'                      => 'banana@example.net',
+			'default_email_category'               => '2',
+			'default_role'                         => 'contributor',
+			'page_for_posts'                       => '2',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
