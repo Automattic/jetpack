@@ -23,6 +23,10 @@ function vine_embed_video( $matches, $attr, $url, $rawattr ) {
 	$max_height = 300;
 	$type = 'simple';
 
+	if ( true ) {
+		echo 'hi';
+	}
+
 	// Only allow 'postcard' or 'simple' types
 	if ( isset( $rawattr['type'] ) && $rawattr['type'] === 'postcard' )
 		$type = 'postcard';
