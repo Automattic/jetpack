@@ -97,6 +97,7 @@ done
 
 if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; then
 	echo $(usage) >&2
+	exit 1
 fi
 
 jetpack_shell_is_errored() {
@@ -104,16 +105,13 @@ jetpack_shell_is_errored() {
 		exit 1
 	fi
 
-	# Note that zero represents true below.
-	PHP_IN="
-		\$object = json_decode( '$1' );
-		if ( ! \$object ) {
-			return 1;
-		}
-		echo ! empty( \$object->error ) ? 0 : 1; exit;
-	";
+	JSON_ERROR=$( jetpack_echo_key_from_json "$1" error | xargs echo )
 
-	return $( php -r "$PHP_IN" ) # TODO: Do we need to worry about word-splitting here?
+	if [ -z "$JSON_ERROR" ]; then
+		return 1
+	else
+		return 0
+	fi
 }
 
 jetpack_is_wp_cli_error() {
