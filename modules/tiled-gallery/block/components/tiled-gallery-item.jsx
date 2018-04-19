@@ -52,14 +52,14 @@ function TiledGalleryItem( props ) {
 	const img = ( <TiledGalleryImage { ...props } /> );
 
 	return (
-		<li
+		<div
 			key={ props.id || props.url }
 			className={ classes.join( ' ' ) }
 			itemprop="associatedMedia"
 			itemscope=""
 			itemtype="http://schema.org/ImageObject">
 			{ href ? <a href={ href }>{ img }</a> : img }
-		</li>
+		</div>
 	);
 }
 
