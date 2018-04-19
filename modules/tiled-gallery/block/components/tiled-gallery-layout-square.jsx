@@ -48,7 +48,7 @@ class TiledGalleryLayoutSquare extends Component {
 				img_size = size;
 			}
 
-			image.width = image.height = img_size;
+			image.cropWidth = image.cropHeight = img_size;
 
 			const item = (
 				<TiledGalleryItem
@@ -59,6 +59,8 @@ class TiledGalleryLayoutSquare extends Component {
 					link={ image.link }
 					width={ image.width }
 					height={ image.height }
+					cropWidth={ image.cropWidth }
+					cropHeight={ image.cropHeight }
 					setAttributes={ image.setAttributes }
 				/>
 			);//new Jetpack_Tiled_Gallery_Square_Item( $image, $this->needs_attachment_link, $this->grayscale );
