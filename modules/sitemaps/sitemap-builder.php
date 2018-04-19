@@ -604,10 +604,11 @@ class Jetpack_Sitemap_Builder {
 
 			// Add as many items to the buffer as possible.
 			while ( false === $buffer->is_full() ) {
-				$last_post_id_index = abs( $last_post_id );
-				$urls               = array_slice(
+				$last_post_id_index       = abs( $last_post_id );
+				$start_from_post_id_index = $last_post_id_index ? $last_post_id_index + 1 : 0;
+				$urls                     = array_slice(
 					$other_urls,
-					$last_post_id_index + 1,
+					$start_from_post_id_index,
 					JP_SITEMAP_BATCH_SIZE,
 					true
 				);
