@@ -17,7 +17,13 @@
 
 .jp-apps-card__top {
 	padding: rem( 40px ) 0 0;
-	background: $gray-dark;
+	background: #ffffff;
+	text-align: center;
+
+	img {
+		max-width: 40%;
+		padding-top: 10px;
+	}
 
 	svg {
 		position: relative;
