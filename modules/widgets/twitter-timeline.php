@@ -115,7 +115,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		// Start tag output
 		// This tag is transformed into the widget markup by Twitter's
 		// widgets.js code
-		echo '<a class="twitter-timeline"';
+		echo '<a class="twitter-timeline" data-dnt="true"';
 
 		$data_attribs = array(
 			'width',
