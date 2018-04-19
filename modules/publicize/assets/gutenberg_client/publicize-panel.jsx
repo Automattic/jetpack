@@ -45,6 +45,15 @@ class PublicizePanel extends Component {
 		this.getConnectionsStart();
 	}
 
+	/**
+	 * Callback function for when connection request finishes
+	 *
+	 * Updates component state in response to request finishing.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param {object} result JSON result of connection request
+	 */
 	getConnectionsDone( result ) {
 		this.setState( {
 			isLoading: false,
@@ -53,7 +62,16 @@ class PublicizePanel extends Component {
 		} );
 	}
 
-	getConnectionsFail( xhr, textStatus, errorThrown ) {
+	/**
+	 * Callback function for when connection request fails
+	 *
+	 * Updates component state in response to request failing.
+	 * Does not clear 'connections' state property so previously
+	 * retrieved connection info can still be displayed.
+	 *
+	 * @since 5.9.1
+	 */
+	getConnectionsFail() {
 		this.setState( {
 			isLoading: false,
 			didFail: true,
@@ -61,7 +79,7 @@ class PublicizePanel extends Component {
 	}
 
 	/**
-	 *
+	 * Starts request for list current list of connections
 	 *
 	 * @since 5.9.1
 	 */
@@ -92,7 +110,7 @@ class PublicizePanel extends Component {
 			>
 				<PublicizeSettingsButton isLoading={ isLoading } refreshCallback={ this.getConnectionsStart } />
 				{ ( connections.length > 0 ) && <PublicizeForm connections={ connections } /> }
-				{ ( 0 === connections.length ) && <PublicizeNoConnections refreshCallback={ this.getConnectionsStart }/> }
+				{ ( 0 === connections.length ) && <PublicizeNoConnections refreshCallback={ this.getConnectionsStart } /> }
 				<a href="javascript:void(0)" onClick={ this.getConnectionsStart } disabled={ isLoading }>
 					{ refreshText }
 				</a>
