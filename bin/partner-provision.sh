@@ -133,22 +133,7 @@ jetpack_echo_key_from_json() {
 		exit 1
 	fi
 
-	PHP_IN="
-		\$object = json_decode( '$1' );
-		if ( ! \$object ) {
-			return 1;
-		}
-		echo ! empty( \$object->$2 ) ? \$object->$2 : ''; exit;
-
-		if ( ! empty( \$object->$2 ) ) {
-			echo \$object->$2;
-		} else {
-			echo '';
-		}
-		exit;
-	";
-
-	php -r "$PHP_IN"
+	echo $1 | sed -n 's/.*access_token":"\([^"]*\)",.*/\1/p'
 }
 
 # Fetch an access token using our client ID/secret.
