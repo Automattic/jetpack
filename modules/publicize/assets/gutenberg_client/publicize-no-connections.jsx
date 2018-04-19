@@ -28,6 +28,30 @@ class PublicizeNoConnections extends Component {
 		};
 	}
 
+	/**
+	 * Opens up popup so user can view/modify the associated connection
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param {object} event Event instance for onClick.
+	 */
+	connectionClick = ( event ) => {
+		const href = event.target.getAttribute( 'href' );
+		const { refreshCallback } = this.props;
+		event.preventDefault();
+		/**
+		 * Open a popup window, and
+		 * when it is closed, refresh connections
+		 */
+		const popupWin = window.open( href, '', '' );
+		let popupTimer = window.setInterval( () => {
+			if ( false !== popupWin.closed ) {
+				window.clearInterval( popupTimer );
+				refreshCallback();
+			}
+		}, 500 );
+	}
+
 	render() {
 		const { allConnections } = this.state;
 		return (
@@ -41,9 +65,8 @@ class PublicizeNoConnections extends Component {
 								className="pub-service"
 								key={ c.name }
 								title={ sprintf( __( 'Connect and share your posts on %s' ), c.label ) }
-								target="_blank"
-								rel="noopener noreferrer"
 								href={ c.url }
+								onClick={ this.connectionClick }
 							>
 								{ c.label }
 							</a>

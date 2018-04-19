@@ -23,21 +23,63 @@ import PublicizeNoConnections from './publicize-no-connections';
 
 import PublicizeForm from './publicize-form';
 import PublicizeConnectionVerify from './publicize-connection-verify';
+import PublicizeSettingsButton from './publicize-settings-button';
 const { __ } = window.wp.i18n;
 const { PanelBody } = window.wp.components;
+const { ajaxurl } = window;
 
 class PublicizePanel extends Component {
 	constructor( props ) {
 		super( props );
-		const connectionList = getPublicizeConnections();
+		// Get default connection list generated on original page load so user doesn't have to wait.
+		const staticConnectionList = getPublicizeConnections();
 
 		this.state = {
-			connections: connectionList,
+			connections: staticConnectionList,
+			isLoading: false,
+			didFail: false,
 		};
 	}
 
+	componentDidMount() {
+		this.getConnectionsStart();
+	}
+
+	getConnectionsDone( result ) {
+		this.setState( {
+			isLoading: false,
+			didFail: false,
+			connections: result.data,
+		} );
+	}
+
+	getConnectionsFail( xhr, textStatus, errorThrown ) {
+		this.setState( {
+			isLoading: false,
+			didFail: true,
+		} );
+	}
+
+	/**
+	 *
+	 *
+	 * @since 5.9.1
+	 */
+	getConnectionsStart = () => {
+		this.setState( {
+			isLoading: true,
+			didFail: false,
+		} );
+		$.post( ajaxurl,
+			{ action: 'get_publicize_connections' },
+			( result ) => this.getConnectionsDone( result ),
+			'json',
+		).fail( ( xhr, textStatus, errorThrown ) => this.getConnectionsFail( xhr, textStatus, errorThrown ) );
+	}
+
 	render() {
-		const { connections } = this.state;
+		const { connections, isLoading } = this.state;
+		const refreshText = isLoading ? __( 'Refreshing...' ) : __( 'Refresh connections' );
 		return (
 			<PanelBody
 				initialOpen={ true }
@@ -48,9 +90,13 @@ class PublicizePanel extends Component {
 					</span>
 				}
 			>
+				<PublicizeSettingsButton isLoading={ isLoading } refreshCallback={ this.getConnectionsStart } />
 				{ ( connections.length > 0 ) && <PublicizeForm connections={ connections } /> }
+				{ ( 0 === connections.length ) && <PublicizeNoConnections refreshCallback={ this.getConnectionsStart }/> }
+				<a href="javascript:void(0)" onClick={ this.getConnectionsStart } disabled={ isLoading }>
+					{ refreshText }
+				</a>
 				{ ( connections.length > 0 ) && <PublicizeConnectionVerify /> }
-				{ ( 0 === connections.length ) && <PublicizeNoConnections /> }
 			</PanelBody>
 		);
 	}

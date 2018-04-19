@@ -29,6 +29,24 @@ class Jetpack_Publicize_Gutenberg {
 
 		add_action( 'rest_api_init', array( $this, 'add_publicize_rest_fields' ) );
 
+		// Connection list callback.
+		add_action( 'wp_ajax_get_publicize_connections', array( $this, 'get_publicize_connections' ) );
+
+	}
+
+	/**
+	 * Retrieve current list of connected social accounts.
+	 *
+	 * Gets current list of connected accounts and send them as
+	 * JSON encoded data.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @global Publicize_UI $publicize_ui UI handler for instance for Publicize.
+	 */
+	public function get_publicize_connections() {
+		global $publicize_ui;
+		wp_send_json_success( $publicize_ui->get_filtered_connection_data() );
 	}
 
 	/**
