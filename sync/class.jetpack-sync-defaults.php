@@ -122,6 +122,9 @@ class Jetpack_Sync_Defaults {
 		'time_format',
 		'admin_email',
 		'new_admin_email',
+		'default_email_category',
+		'default_role',
+		'page_for_posts',
 	);
 
 	public static function get_options_whitelist() {
