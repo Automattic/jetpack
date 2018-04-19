@@ -395,6 +395,10 @@ class Publicize extends Publicize_Base {
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
