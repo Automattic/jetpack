@@ -133,7 +133,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	function do_embed( $embed_url ) {
 		// in order for oEmbed to fire in the `$wp_embed->shortcode` method, we need to set a post as the current post
-		$_posts = get_posts( array( 'posts_per_page' => 1, 'suppress_filters' => false ) );
+		$_posts = get_posts( array( 'posts_per_page' => 1 ) );
 		if ( ! empty( $_posts ) ) {
 			global $post;
 			$post = array_shift( $_posts );

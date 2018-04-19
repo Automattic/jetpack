@@ -324,16 +324,16 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 
 		if ( !empty( $include ) ) {
 			$include      = preg_replace( '/[^0-9,]+/', '', $include );
-			$_attachments = get_posts( array( 'include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false ) );
+			$_attachments = get_posts( array( 'include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
 			$attachments  = array();
 			foreach ( $_attachments as $key => $val ) {
 				$attachments[$val->ID] = $_attachments[$key];
 			}
 		} elseif ( !empty( $exclude ) ) {
 			$exclude     = preg_replace( '/[^0-9,]+/', '', $exclude );
-			$attachments = get_children( array( 'post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false ) );
+			$attachments = get_children( array( 'post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
 		} else {
-			$attachments = get_children( array( 'post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false ) );
+			$attachments = get_children( array( 'post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
 		}
 
 		if ( ! empty( $attachments ) ) {
