@@ -3,16 +3,14 @@
  */
 import React from 'react';
 
-import TiledGalleryItem from './block/components/tiled-gallery-item.jsx';
+/**
+ * Internal dependencies
+ */
+import TiledGalleryLayoutSquare from './block/components/tiled-gallery-layout-square.jsx';
 
-function jetpackGalleryBlockSave( { attributes } ) {
-	const { images } = attributes;
+function jetpackGalleryBlockSave( props ) {
 	return (
-		<ul className="jetpack-tiled-gallery">
-			{ images.map( ( props ) =>
-				<TiledGalleryItem key={ props.id } { ...props } />
-			) }
-		</ul>
+		<TiledGalleryLayoutSquare { ...props.attributes } />
 	);
 }
 
