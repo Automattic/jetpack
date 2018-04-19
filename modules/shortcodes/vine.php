@@ -24,7 +24,7 @@ function vine_embed_video( $matches, $attr, $url, $rawattr ) {
 	$type = 'simple';
 
 	if ( true ) {
-		echo 'bye';
+		echo 'be';
 	}
 
 	// Only allow 'postcard' or 'simple' types
