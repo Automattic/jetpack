@@ -96,9 +96,9 @@ class TiledGalleryLayoutSquare extends Component {
 		const rows = this.computeItems();
 
 		return (
-			<div className="jetpack-tiled-gallery tiled-gallery tiled-gallery-unresized">
+			<div className="tiled-gallery tiled-gallery-unresized">
 				{ rows.map( ( row, index ) =>
-					<div key={ index } className="jetpack-tiled-gallery-row tiled-gallery-row">
+					<div key={ index } className="tiled-gallery-row">
 						{ row.images }
 					</div>
 				) }
