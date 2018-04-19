@@ -30,7 +30,6 @@ class TiledGalleryImage extends Component {
 
 		return (
 			<figure>
-				<span>{ width } x { height }</span>
 				<meta itemprop="width" content={ width } />
 				<meta itemprop="height" content={ height } />
 				<img
