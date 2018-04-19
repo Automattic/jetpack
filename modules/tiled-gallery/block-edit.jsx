@@ -196,6 +196,16 @@ class JetpackGalleryBlockEditor extends Component {
 			];
 		}
 
+		const imageTiles = images.map( ( props, index ) => {
+			const setMyAttributes = ( attrs ) => this.setImageAttributes( index, attrs );
+			return (
+				<TiledGalleryItem
+					key={ props.id }
+					setAttributes={ setMyAttributes }
+					{ ...props } />
+				);
+		} );
+
 		return [
 			controls,
 			isSelected && (
@@ -205,9 +215,7 @@ class JetpackGalleryBlockEditor extends Component {
 			),
 			<ul key="gallery-images" className="jetpack-tiled-gallery">
 				{ dropZone }
-				{ images.map( ( props ) => (
-					<TiledGalleryItem key={ props.id } { ...props } />
-				) ) }
+				{ imageTiles }
 				{ isSelected &&
 					<li key="item-uploader" className="blocks-gallery-item">
 						<FormFileUpload

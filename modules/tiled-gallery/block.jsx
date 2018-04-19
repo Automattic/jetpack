@@ -28,6 +28,16 @@ const settings = {
 			source: 'query',
 			selector: '.tiled-gallery-item',
 			query: {
+				width: {
+					source: 'attribute',
+					selector: 'img',
+					attribute: 'data-original-width',
+				},
+				height: {
+					source: 'attribute',
+					selector: 'img',
+					attribute: 'data-original-height',
+				},
 				url: {
 					source: 'attribute',
 					selector: 'img',
