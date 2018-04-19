@@ -19,8 +19,9 @@ const settings = {
 	category: 'layout',
 
 	attributes: {
-		underlined: {
-			type: 'boolean',
+		columns: {
+			type: 'integer',
+			'default': 3,
 		},
 		images: {
 			type: 'array',
