@@ -26,7 +26,11 @@ class TiledGalleryImage extends Component {
 	}
 
 	render() {
-		const { url, alt, id, link, width, height } = this.props;
+		const { url, alt, id, link, width, height, cropWidth, cropHeight } = this.props;
+		const styleAttr = {
+			width: cropWidth + 'px',
+			height: cropHeight + 'px',
+		};
 
 		return (
 			<figure>
@@ -36,6 +40,7 @@ class TiledGalleryImage extends Component {
 					src={ url } alt={ alt } data-id={ id } data-link={ link }
 					width={ width }
 					height={ height }
+					style={ styleAttr }
 					data-original-width={ width }
 					data-original-height={ height } />
 			</figure>
@@ -46,7 +51,7 @@ class TiledGalleryImage extends Component {
 function TiledGalleryItem( props ) {
 	const href = props.link;
 
-	const classes = [ 'tiled-gallery-item steve' ];
+	const classes = [ 'tiled-gallery-item' ];
 	classes.push( 'tiled-gallery-item-small' );
 
 	const img = ( <TiledGalleryImage { ...props } /> );
