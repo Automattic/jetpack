@@ -139,7 +139,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new Jetpack_Error(
 					'nonce_missing',
-					esc_html__( 'The required "nonce" parameter is missing.', 'jetpack' ),
+					__( 'The required "nonce" parameter is missing.', 'jetpack' ),
 					400
 				),
 				'jpc_remote_provision_fail'
@@ -150,7 +150,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new Jetpack_Error(
 					'local_username_missing',
-					esc_html__( 'The required "local_username" parameter is missing.', 'jetpack' ),
+					__( 'The required "local_username" parameter is missing.', 'jetpack' ),
 					400
 				),
 				'jpc_remote_provision_fail'
@@ -174,7 +174,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new Jetpack_Error(
 					'invalid_nonce',
-					esc_html__( 'There was an issue validating this request.', 'jetpack' ),
+					__( 'There was an issue validating this request.', 'jetpack' ),
 					400
 				),
 				'jpc_remote_provision_fail'
@@ -190,7 +190,7 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		if ( ! $user ) {
-			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
+			return $this->error( new Jetpack_Error( 'user_unknown', __( 'User not found.', 'jetpack' ), 404 ) );
 		}
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/class.jetpack-provision.php';
