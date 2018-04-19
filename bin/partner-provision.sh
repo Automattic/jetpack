@@ -133,7 +133,7 @@ jetpack_echo_key_from_json() {
 		exit 1
 	fi
 
-	echo $1 | sed -n 's/.*access_token":"\([^"]*\)",.*/\1/p'
+	echo $1 | sed -n "s/.*\"$2\":\"\([^\"]*\)\",.*/\1/p"
 }
 
 # Fetch an access token using our client ID/secret.
