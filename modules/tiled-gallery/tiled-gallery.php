@@ -19,7 +19,9 @@ class Jetpack_Tiled_Gallery {
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 
-
+		// temporary (hack) - enqueue standard scripts (for every page..) so we can use existing tiled-gallery.js resize behaviour
+		// later: target this to posts that need it, or adapt it to component behaviour
+		self::default_scripts_and_styles();
 	}
 
 	public function tiles_enabled() {
