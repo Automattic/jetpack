@@ -386,15 +386,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
 
 		if ( false === $data ) {
-			$path = '/plans';
+			$path = '/plans?_locale=' . get_user_locale();
 			// passing along from client to help geolocate currency
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
-			}
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
-			}
+			$ip = Jetpack::current_user_ip( true );
 			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
 			$body = wp_remote_retrieve_body( $request );
 			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
