@@ -47,36 +47,7 @@ abstract class Jetpack_Sync_Module {
 	}
 
 	protected function get_check_sum( $values ) {
-		return crc32( wp_json_encode( $this->json_encode( $values ) ) );
-	}
-
-	private function json_encode( &$any, $seen_nodes = array() ) {
-		if ( is_object( $any ) ) {
-			$input = get_object_vars( $any );
-		} else {
-			$input = &$any;
-		}
-
-		if ( is_array( $input ) ) {
-			$seen_nodes[] = &$any;
-
-			$return = array();
-
-			foreach ( $input as $k => &$v ) {
-				if ( ( is_array( $v ) || is_object( $v ) ) ) {
-					if ( in_array( $v, $seen_nodes, true ) ) {
-						continue;
-					}
-					$return[ $k ] = $this->json_encode( $v, $seen_nodes );
-				} else {
-					$return[ $k ] = $v;
-				}
-			}
-
-			return $return;
-		}
-
-		return $any;
+		return crc32( wp_json_encode( jetpack_json_wrap( $values ) ) );
 	}
 
 	protected function still_valid_checksum( $sums_to_check, $name, $new_sum ) {
