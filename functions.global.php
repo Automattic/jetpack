@@ -182,7 +182,7 @@ function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 				if ( in_array( $v, $seen_nodes, true ) ) {
 					continue;
 				}
-				$return[ $k ] = $this->json_wrap( $v, $seen_nodes );
+				$return[ $k ] = jetpack_json_wrap( $v, $seen_nodes );
 			} else {
 				$return[ $k ] = $v;
 			}
