@@ -132,10 +132,6 @@ class Jetpack_Publicize_Gutenberg {
 		} else {
 			return $new_post_obj;
 		}
-		//echo("new_post:\n");
-		//var_dump($new_post);
-		//echo("post:\n");
-		//var_dump($post);
 
 		// If 'publicize' field has been set from editor and post is about to be published.
 		if ( isset( $request['publicize'] )
