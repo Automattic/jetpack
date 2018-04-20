@@ -19,6 +19,8 @@ function wufoo_shortcode( $atts ) {
 			'header'     => 'show',
 			'ssl'        => '',
 		), $atts
+
+	
 	);
 
 	// Check username and formhash to ensure they only have alphanumeric characters or underscores, and aren't empty.
