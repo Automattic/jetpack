@@ -54,6 +54,9 @@ class WordAds_Params {
 			'LangId'    => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
 			'AdSafe'    => 1, // TODO
 		);
+
+		$this->ad_consent_required = $this->is_eu_visitor() || apply_filters( 'personalized_ads_consent_requirement', false );
+		$this->ad_consent_obtained = isset( $_COOKIE['personalized-ads-consent'] );
 	}
 
 	/**
@@ -71,16 +74,12 @@ class WordAds_Params {
 	 * @since 4.5.0
 	 */
 	public static function is_cloudflare() {
-		if ( defined( 'WORDADS_CLOUDFLARE' ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_VISITOR'] ) ) {
+		if (
+			defined( 'WORDADS_CLOUDFLARE' )
+			|| isset( $_SERVER['HTTP_CF_CONNECTING_IP'] )
+			|| isset( $_SERVER['HTTP_CF_IPCOUNTRY'] )
+			|| isset( $_SERVER['HTTP_CF_VISITOR'] )
+		) {
 			return true;
 		}
 
@@ -175,6 +174,74 @@ class WordAds_Params {
 		$this->page_type_ipw = $page_type_ipw;
 		return $page_type_ipw;
 	}
+
+	/**
+	 * Get the status flag for gdpr compliance to pass to the ad server.
+	 *
+	 * @return int 1 if it's safe to use ad targeting, 2 if it's not.
+	 *
+	 * @since
+	 */
+	function get_consent_status() {
+		if (
+			( $this->ad_consent_required && $this->ad_consent_obtained )
+			|| ! $this->ad_consent_required
+		) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+
+	function is_eu_visitor() {
+		if ( isset( $_SERVER['GEOIP_COUNTRY_CODE'] ) ) {
+			$eu_countries = array(
+				// European Member countries
+				'AT', // Austria
+				'BE', // Belgium
+				'BG', // Bulgaria
+				'CY', // Cyprus
+				'CZ', // Czech Republic
+				'DE', // Germany
+				'DK', // Denmark
+				'EE', // Estonia
+				'ES', // Spain
+				'FI', // Finland
+				'FR', // France
+				'GR', // Greece
+				'HR', // Croatia
+				'HU', // Hungary
+				'IE', // Ireland
+				'IT', // Italy
+				'LT', // Lithuania
+				'LU', // Luxembourg
+				'LV', // Latvia
+				'MT', // Malta
+				'NL', // Netherlands
+				'PL', // Poland
+				'PT', // Portugal
+				'RO', // Romania
+				'SE', // Sweden
+				'SI', // Slovenia
+				'SK', // Slovakia
+				'GB', // United Kingdom
+				// Single Market Countries that GDPR applies to
+				'CH', // Switzerland
+				'IS', // Iceland
+				'LI', // Liechtenstein
+				'NO', // Norway
+			);
+
+			if (
+				! isset( $_SERVER['GEOIP_COUNTRY_CODE'] )
+				|| ! in_array( $_SERVER['GEOIP_COUNTRY_CODE'], $eu_countries )
+			) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 	/**
 	 * Returns true if page is static home
