@@ -43,6 +43,7 @@ for i in "$@"; do
 		-i=* | --user_id=* | --user=* )
 			WP_USER="${i#*=}"
 			GLOBAL_ARGS="$GLOBAL_ARGS --user=${i#*=}"
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form local_user=${i#*=}"
 			shift
 			;;
 		-w=* | --wpcom_user_id=* )
@@ -63,6 +64,7 @@ for i in "$@"; do
 			;;
 		-u=* | --url=* )
 			GLOBAL_ARGS="$GLOBAL_ARGS --url=${i#*=}"
+			SITEURL="${i#*=}"
 			shift
 			;;
 		--force_register=* )
@@ -165,11 +167,11 @@ fi
 # Intentionally not quoting $GLOBAL_ARGS so that words in the string are split
 $WP_CLI_PATH $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
 
-SITEURL=$( $WP_CLI_PATH $GLOBAL_ARGS option get siteurl | xargs echo )
-PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form siteurl=$SITEURL"
+if [ -z "$SITEURL" ]; then
+	SITEURL=$( $WP_CLI_PATH $GLOBAL_ARGS option get siteurl | xargs echo )
+fi
 
-LOCAL_USERNAME=$( $WP_CLI_PATH $GLOBAL_ARGS user get "$WP_USER" --field=login | xargs echo )
-PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form local_username=$LOCAL_USERNAME"
+PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form siteurl=$SITEURL"
 
 PROVISION_REQUEST=$(
 	curl \
@@ -181,6 +183,10 @@ PROVISION_REQUEST=$(
 		--header 'content-type: multipart/form-data;' \
 		$PROVISION_REQUEST_ARGS
 )
+
+if [ -z "$PROVISION_REQUEST" ]; then
+	echo "{\"success\":false,\"error_code\":\"unknown_error\",\"error_message\":\"Empty response from server\"}" >&2
+fi
 
 if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
 	echo "$PROVISION_REQUEST" >&2

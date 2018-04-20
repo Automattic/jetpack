@@ -47,10 +47,9 @@ class Jetpack_Provision { //phpcs:ignore
 			);
 		}
 
-		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Options::get_option( 'blog_token' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
-		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
+		if ( ! $blog_id || ! Jetpack_Options::get_option( 'blog_token' ) || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -60,8 +59,7 @@ class Jetpack_Provision { //phpcs:ignore
 				return new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) );
 			}
 
-			$blog_id    = Jetpack_Options::get_option( 'id' );
-			$blog_token = Jetpack_Options::get_option( 'blog_token' );
+			$blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
 		// If the user isn't specified, but we have a current master user, then set that to current user.
