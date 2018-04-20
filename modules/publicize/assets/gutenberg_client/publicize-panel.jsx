@@ -84,12 +84,16 @@ class PublicizePanel extends Component {
 	 * @since 5.9.1
 	 */
 	getConnectionsStart = () => {
+		const postId = $( '#post_ID' ).val();
 		this.setState( {
 			isLoading: true,
 			didFail: false,
 		} );
 		$.post( ajaxurl,
-			{ action: 'get_publicize_connections' },
+			{
+				action: 'get_publicize_connections',
+				postId: postId,
+			},
 			( result ) => this.getConnectionsDone( result ),
 			'json',
 		).fail( ( xhr, textStatus, errorThrown ) => this.getConnectionsFail( xhr, textStatus, errorThrown ) );

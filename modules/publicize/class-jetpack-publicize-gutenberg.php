@@ -48,7 +48,12 @@ class Jetpack_Publicize_Gutenberg {
 	 */
 	public function get_publicize_connections() {
 		global $publicize_ui;
-		wp_send_json_success( $publicize_ui->get_filtered_connection_data() );
+		if ( isset($_POST['postId'] ) ) {
+			$post_id = $_POST['postId'];
+		} else {
+			$post_id = null;
+		}
+		wp_send_json_success( $publicize_ui->get_filtered_connection_data( $post_id ) );
 	}
 
 	/**
@@ -115,18 +120,27 @@ class Jetpack_Publicize_Gutenberg {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param WP_Post         $new_post Updated post instance about to be inserted view REST endpoint.
-	 * @param WP_REST_Request $request  Request object, possibly containing 'publicize' field {@see add_publicize_rest_fields()}.
+	 * @param stdClass        $new_post_obj Updated post object about to be inserted view REST endpoint.
+	 * @param WP_REST_Request $request      Request object, possibly containing 'publicize' field {@see add_publicize_rest_fields()}.
 	 *
 	 * @return WP_Post Returns the original $new_post value unchanged.
 	 */
-	public function process_publicize_from_rest( $new_post, $request ) {
+	public function process_publicize_from_rest( $new_post_obj, $request ) {
 		global $publicize;
-		$post = get_post( $new_post->ID );
+		if ( property_exists( $new_post_obj, 'ID' ) ) {
+			$post = get_post( $new_post_obj->ID );
+		} else {
+			return $new_post_obj;
+		}
+		//echo("new_post:\n");
+		//var_dump($new_post);
+		//echo("post:\n");
+		//var_dump($post);
 
 		// If 'publicize' field has been set from editor and post is about to be published.
 		if ( isset( $request['publicize'] )
-				&& ( 'publish' === $new_post->post_status ) && ( 'publish' !== $post->post_status ) ) {
+				&& ( property_exists( $new_post_obj, 'post_status' ) && ( 'publish' === $new_post_obj->post_status ) )
+				&& ( 'publish' !== $post->post_status ) ) {
 
 			$publicize_field = $request['publicize'];
 
@@ -155,8 +169,8 @@ class Jetpack_Publicize_Gutenberg {
 				}
 			}
 		}
-		// Just pass post object object through.
-		return $new_post;
+		// Just pass post object through.
+		return $new_post_obj;
 	}
 
 	/**

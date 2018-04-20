@@ -702,13 +702,13 @@ jQuery( function($) {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @global WP_Post $post The current post instance being published.
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	private function done_sharing_post()
+	private function done_sharing_post( $post_id = null )
 	{
-		global $post;
+		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
 		return get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
 	}
 
@@ -723,7 +723,7 @@ jQuery( function($) {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @global WP_Post $post The current post instance being published.
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
 	 * @return array {
 	 *     Array of UI setup data for connection list form.
@@ -736,12 +736,13 @@ jQuery( function($) {
 	 *     @type string 'label'           Text description of checkbox.
 	 * }
 	 */
-	function get_filtered_connection_data() {
-		global $post;
+	function get_filtered_connection_data( $post_id = null ) {
 		$connection_list = array();
 
+		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
+
 		$services = $this->publicize->get_services( 'connected' );
-		$all_done = $this->done_sharing_post();
+		$all_done = $this->done_sharing_post( $post_id );
 
 		// We don't allow Publicizing to the same external id twice, to prevent spam
 		$service_id_done = (array) get_post_meta( $post->ID, $this->publicize->POST_SERVICE_DONE, true );
