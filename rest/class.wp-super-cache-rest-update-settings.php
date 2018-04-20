@@ -608,7 +608,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			wp_cache_setting( 'cache_page_secret', $cache_page_secret );
 
 			if ( function_exists( "opcache_invalidate" ) ) {
-				opcache_invalidate( $wp_cache_config_file );
+				@opcache_invalidate( $wp_cache_config_file );
 			}
 		}
 		wpsc_set_default_gc( true );

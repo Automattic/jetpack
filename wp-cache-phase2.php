@@ -1106,7 +1106,7 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 	@rename( $tmp_file, $my_file );
 
 	if ( function_exists( "opcache_invalidate" ) ) {
-		opcache_invalidate( $my_file );
+		@opcache_invalidate( $my_file );
 	}
 
 	return true;

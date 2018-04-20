@@ -23,7 +23,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		}
 
 		if ( function_exists( "opcache_invalidate" ) ) {
-			opcache_invalidate( $wp_cache_config_file );
+			@opcache_invalidate( $wp_cache_config_file );
 		}
 		include( $wp_cache_config_file );
 
@@ -78,7 +78,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function get_cache_type() {
 		global $wp_cache_config_file;
 		if ( function_exists( "opcache_invalidate" ) ) {
-			opcache_invalidate( $wp_cache_config_file );
+			@opcache_invalidate( $wp_cache_config_file );
 		}
 		include( $wp_cache_config_file );
 
