@@ -149,7 +149,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 				break;
 			case 'update_core':
-				if ( ! empty( $update->updates ) && is_array( $update->response ) ) {
+				if ( ! empty( $update->updates ) && is_array( $update->updates ) ) {
 					foreach ( $update->updates as $response ) {
 						if( ! empty( $response->response ) && $response->response === 'latest' ) {
 							continue;
