@@ -115,7 +115,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		// Start tag output
 		// This tag is transformed into the widget markup by Twitter's
 		// widgets.js code
-		echo '<a class="twitter-timeline" data-dnt="true"';
+		echo '<a class="twitter-timeline"';
 
 		$data_attribs = array(
 			'width',
@@ -306,6 +306,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'theme'        => 'light',
 			'chrome'       => array(),
 			'tweet-limit'  => null,
+			'dnt'          => apply_filters( 'jetpack_twitter_timeline_default_dnt', false ),
 		);
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
