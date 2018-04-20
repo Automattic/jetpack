@@ -21,8 +21,10 @@ class Jetpack_XMLRPC_Server {
 	 */
 	function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.jsonAPI'      => array( $this, 'json_api' ),
-			'jetpack.verifyAction' => array( $this, 'verify_action' ),
+			'jetpack.jsonAPI'           => array( $this, 'json_api' ),
+			'jetpack.verifyAction'      => array( $this, 'verify_action' ),
+			'jetpack.remoteRegister'    => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 		);
 
 		$this->user = $this->login();
@@ -37,7 +39,6 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 				'jetpack.syncObject'        => array( $this, 'sync_object' ),
 				'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
-				'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
