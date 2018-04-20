@@ -120,6 +120,11 @@ class Jetpack_Sync_Defaults {
 		'uploads_use_yearmonth_folders',
 		'date_format',
 		'time_format',
+		'admin_email',
+		'new_admin_email',
+		'default_email_category',
+		'default_role',
+		'page_for_posts',
 		'mailserver_url',
 		'mailserver_login', // Not syncing contents, only the option name
 		'mailserver_pass', // Not syncing contents, only the option name
@@ -219,12 +224,13 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
-		'get_plugins_action_links'		   => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
+		'get_plugins_action_links'         => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
+		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
 	);
 
 

@@ -123,11 +123,11 @@ Here's an example using cURL in shell.
 ```shell
 curl --request POST \
   --url https://public-api.wordpress.com/rest/v1.3/jpphp/provision \
-  --header 'authorization: Bearer access_token_here' \
+  --header "authorization: Bearer $ACCESS_TOKEN" \
   --header 'cache-control: no-cache' \
-  --header 'local_username: local_username_here' \
-  --header 'plan: plan_here' \
-  --header 'siteurl: siteurl_here'
+  --form plan=plan_here \
+  --form siteurl=siteurl_here \
+  --form local_username=local_username_here
 ```
 
 Here's an example using the request module in NodeJS.
@@ -145,9 +145,11 @@ var options = {
     headers: {
         'cache-control': 'no-cache',
         authorization: 'Bearer ' + accessToken,
-        plan: plan,
+    },
+    formData: {
+        local_username: local_username,
         siteurl: siteurl,
-        local_username: local_username
+        plan: plan
     }
 };
 

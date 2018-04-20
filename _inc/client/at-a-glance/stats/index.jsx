@@ -31,8 +31,9 @@ import {
 	fetchStatsData,
 	getActiveStatsTab
 } from 'state/at-a-glance';
-import { isModuleAvailable } from 'state/modules';
+import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 export class DashStats extends Component {
 	static propTypes = {
@@ -281,6 +282,13 @@ export class DashStats extends Component {
 	}
 
 	render() {
+		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
+			return (
+				<div>
+					<ModuleOverriddenBanner moduleName={ __( 'Site Stats' ) } />
+				</div>
+			);
+		}
 		return this.props.isModuleAvailable && (
 			<div>
 				<QueryStatsData range={ this.props.activeTab } />
@@ -304,6 +312,7 @@ export default connect(
 		connectUrl: getConnectUrl( state ),
 		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),

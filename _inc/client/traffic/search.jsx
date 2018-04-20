@@ -66,7 +66,7 @@ export default connect(
 		return {
 			siteAdminUrl: getSiteAdminUrl( state ),
 			sitePlan: getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
 		};
 	}
 )( moduleSettingsForm( Search ) );

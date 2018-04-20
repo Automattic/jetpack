@@ -162,6 +162,14 @@ class Jetpack_IDC {
 	 * Clears all IDC specific options. This method is used on disconnect and reconnect.
 	 */
 	static function clear_all_idc_options() {
+		// If the site is currently in IDC, let's also clear the VaultPress connection options.
+		// We have to check if the site is in IDC, otherwise we'd be clearing the VaultPress
+		// connection any time the Jetpack connection is cycled.
+		if ( Jetpack::validate_sync_error_idc_option() ) {
+			delete_option( 'vaultpress' );
+			delete_option( 'vaultpress_auto_register' );
+		}
+
 		Jetpack_Options::delete_option(
 			array(
 				'sync_error_idc',
