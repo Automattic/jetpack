@@ -192,6 +192,17 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
+		/**
+		 * jetpack_{$transient}_change
+		 * jetpack_update_plugins_change
+		 * jetpack_update_themes_change
+		 * jetpack_update_core_change
+		 *
+		 * @since 5.1.0
+		 *
+		 * @param array containing info that tells us what needs updating
+		 *
+		 */
 		do_action( "jetpack_{$transient}_change", $value );
 	}
 
