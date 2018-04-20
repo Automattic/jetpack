@@ -3,6 +3,7 @@
 	var facebookEmbed = function() {
 		var fbroot, src;
 
+
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
 			FB.XFBML.parse();
 		} else {
