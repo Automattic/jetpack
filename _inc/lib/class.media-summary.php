@@ -301,6 +301,10 @@ class Jetpack_Media_Summary {
 	/**
 	 * Retrieve an excerpt for the post summary.
 	 *
+	 * This function works around a suspected problem with Core. If resolved, this function should be simplified.
+	 * @link https://github.com/Automattic/jetpack/pull/8510
+	 * @link https://core.trac.wordpress.org/ticket/42814
+	 *
 	 * @param  string  $post_content The post's content.
 	 * @param  string  $post_excerpt The post's excerpt. Empty if none was explicitly set.
 	 * @param  int     $max_words Maximum number of words for the excerpt. Used on wp.com. Default 16.
