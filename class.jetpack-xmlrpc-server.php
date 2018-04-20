@@ -85,6 +85,13 @@ class Jetpack_XMLRPC_Server {
 		);
 	}
 
+	function provision_xmlrpc_methods() {
+		return array(
+			'jetpack.remoteRegister' => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
+		);
+	}
+
 	function remote_authorize( $request ) {
 		$user = get_user_by( 'id', $request['state'] );
 		JetpackTracking::record_user_event( 'jpc_remote_authorize_begin', array(), $user );
@@ -134,7 +141,13 @@ class Jetpack_XMLRPC_Server {
 	 * @return WP_Error|array
 	 */
 	public function remote_register( $request ) {
-		JetpackTracking::record_user_event( 'jpc_remote_register_begin', array(), $user );
+		JetpackTracking::record_user_event( 'jpc_remote_register_begin', array() );
+
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user ) {
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ) ), 'jpc_remote_register_fail' );
+		}
 
 		if ( empty( $request['nonce'] ) ) {
 			return $this->error(
@@ -171,9 +184,8 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		error_log("got nonce check response: ".print_r( $response, 1 ));
-
 		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Options::get_option( 'blog_token' ) || $request['force'] ) {
+			wp_set_current_user( $user->ID );
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -187,7 +199,7 @@ class Jetpack_XMLRPC_Server {
 		JetpackTracking::record_user_event( 'jpc_remote_register_success' );
 
 		return array(
-			'client_id', Jetpack_Options::get_option( 'id' )
+			'client_id' => Jetpack_Options::get_option( 'id' )
 		);
 	}
 
@@ -200,6 +212,60 @@ class Jetpack_XMLRPC_Server {
 	 * @return WP_Error|array
 	 */
 	public function remote_provision( $request ) {
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user ) {
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ) ), 'jpc_remote_register_fail' );
+		}
+
+		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
+			? get_site_icon_url()
+			: false;
+
+		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
+
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
+			$redirect_uri = add_query_arg(
+				array(
+					'action'      => 'jetpack-sso',
+					'redirect_to' => rawurlencode( admin_url() ),
+				),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		} else {
+			$redirect_uri = admin_url();
+		}
+
+		// generate secrets
+		$role    = Jetpack::translate_user_to_role( $user );
+		$secrets = Jetpack::init()->generate_secrets( 'authorize', $user->ID );
+
+		$response = array(
+			'jp_version'   => JETPACK__VERSION,
+			'redirect_uri' => $redirect_uri,
+			'user_id'      => $user->ID,
+			'user_email'   => $user->user_email,
+			'user_login'   => $user->user_login,
+			'scope'        => Jetpack::sign_role( $role, $user->ID ),
+			'secret'       => $secrets['secret_1'],
+			'is_active'    => Jetpack::is_active(),
+		);
+
+		if ( $site_icon ) {
+			$response['site_icon'] = $site_icon;
+		}
+
+		// this feels out of place here now
+		if ( $request['onboarding'] ) {
+			Jetpack::create_onboarding_token();
+			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
+		}
+
+		return $response;
+	}
+
+	private function fetch_and_verify_local_user( $request ) {
 		if ( empty( $request['local_user'] ) ) {
 			return $this->error(
 				new Jetpack_Error(
@@ -224,56 +290,7 @@ class Jetpack_XMLRPC_Server {
 			$user = get_user_by( 'ID', $local_user_info );
 		}
 
-		if ( ! $user ) {
-			return new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ) );
-		}
-
-		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
-			? get_site_icon_url()
-			: false;
-
-		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
-
-		/** This filter is documented in class.jetpack-cli.php */
-		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
-			$redirect_uri = add_query_arg(
-				array(
-					'action'      => 'jetpack-sso',
-					'redirect_to' => rawurlencode( admin_url() ),
-				),
-				wp_login_url() // TODO: come back to Jetpack dashboard?
-			);
-		} else {
-			$redirect_uri = admin_url();
-		}
-
-		// generate secrets
-		$role    = Jetpack::translate_user_to_role( $user );
-		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
-
-		$response = array(
-			'jp_version'   => JETPACK__VERSION,
-			'redirect_uri' => $redirect_uri,
-			'user_id'      => $user->ID,
-			'user_email'   => $user->user_email,
-			'user_login'   => $user->user_login,
-			'scope'        => Jetpack::sign_role( $role ),
-			'secret'       => $secrets['secret_1'],
-		);
-
-		if ( $site_icon ) {
-			$response['site_icon'] = $site_icon;
-		}
-
-		// this feels out of place here now
-		if ( $request['onboarding'] ) {
-			Jetpack::create_onboarding_token();
-			$response['onboarding'] = Jetpack_Options::get_option( 'onboarding' );
-		}
-
-		error_log("returning response ".print_r($response,1));
-
-		return $response;
+		return $user;
 	}
 
 	private function tracks_record_error( $name, $error, $user = null ) {
@@ -374,7 +391,6 @@ class Jetpack_XMLRPC_Server {
 	 * @return WP_User|bool
 	 */
 	function login() {
-		error_log("logging in");
 		Jetpack::init()->require_jetpack_authentication();
 		$user = wp_authenticate( 'username', 'password' );
 		if ( is_wp_error( $user ) ) {
@@ -383,15 +399,11 @@ class Jetpack_XMLRPC_Server {
 			} else {
 				$this->error = $user;
 			}
-			error_log("user is error".print_r($user, 1));
 			return false;
 		} else if ( !$user ) { // Shouldn't happen.
 			$this->error = new Jetpack_Error( 'invalid_request', 'Invalid Request', 403 );
-			error_log("user is empty");
 			return false;
 		}
-
-		error_log("user is ".print_r($user,1));
 
 		return $user;
 	}
