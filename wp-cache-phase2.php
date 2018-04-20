@@ -2725,7 +2725,15 @@ function wp_cache_post_change( $post_id ) {
 	if( !wp_cache_writers_entry() )
 		return $post_id;
 
-	if ( isset( $wp_cache_refresh_single_only ) && $wp_cache_refresh_single_only && ( strpos( $_SERVER[ 'HTTP_REFERER' ], 'edit-comments.php' ) || strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) ) {
+	if (
+		isset( $wp_cache_refresh_single_only ) &&
+		$wp_cache_refresh_single_only &&
+		(
+			isset( $_SERVER['HTTP_REFERER'] ) &&
+			strpos( $_SERVER['HTTP_REFERER'], 'edit-comments.php' ) ||
+			strpos( $_SERVER['REQUEST_URI'], 'wp-comments-post.php' )
+		)
+	) {
 		if ( defined( 'DONOTDELETECACHE' ) ) {
 			wp_cache_debug( "wp_cache_post_change: comment detected and it's moderated or spam. Not deleting cached files.", 4 );
 			return $post_id;
