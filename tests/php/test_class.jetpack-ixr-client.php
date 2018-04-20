@@ -63,7 +63,7 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 
 	public function return_unknown_token_error( $response ) {
 
-		$rr = new Requests_Response();
+		$requests_response = new Requests_Response();
 		return array(
 			'headers' => new Requests_Utility_CaseInsensitiveDictionary( $response, null ),
 			'body' => '<?xml version="1.0" encoding="UTF-8"?>
@@ -88,7 +88,7 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 				'message' => 'OK',
 			),
 			'cookies' => array(),
-			'http_response' => new WP_HTTP_Requests_Response( $rr ),
+			'http_response' => new WP_HTTP_Requests_Response( $requests_response ),
 		);
 	}
 }
