@@ -389,9 +389,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$path = '/plans?_locale=' . get_user_locale();
 			// passing along from client to help geolocate currency
 			$ip = Jetpack::current_user_ip( true );
-			if ( empty( $ip ) && isset( $_SERVER['REMOTE_ADDR'] ) ) {
-				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
-			}
 			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
 			$body = wp_remote_retrieve_body( $request );
 			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
