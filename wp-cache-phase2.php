@@ -888,6 +888,14 @@ function wpsc_get_protected_directories() {
 								);
 }
 
+function wpsc_debug_username() {
+	global $wp_cache_debug_username;
+	if ( ! isset( $wp_cache_debug_username ) || $wp_cache_debug_username == '' ) {
+		$wp_cache_debug_username = md5( time() + mt_rand() );
+		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
+	}
+	return $wp_cache_debug_username;
+}
 function wpsc_create_debug_log( $filename = '', $username = '' ) {
 	global $cache_path, $wp_cache_debug_username, $wp_cache_debug_log;
 	if ( $filename != '' ) {
@@ -898,7 +906,7 @@ function wpsc_create_debug_log( $filename = '', $username = '' ) {
 	if ( $username != '' ) {
 		$wp_cache_debug_username = $username;
 	} else {
-		$wp_cache_debug_username = md5( time() + mt_rand() );
+		$wp_cache_debug_username = wpsc_debug_username();
 	}
 
 	$msg = '

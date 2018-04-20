@@ -1994,31 +1994,39 @@ function wpsc_update_debug_settings() {
 		);
 	}
 
-	if ( isset( $_POST[ 'wpsc_delete_log' ] ) && $wp_cache_debug_log != '' ) {
+	if ( isset( $_POST[ 'wpsc_delete_log' ] ) && $_POST[ 'wpsc_delete_log' ] == 1 && $wp_cache_debug_log != '' ) {
 		@unlink( $cache_path . $wp_cache_debug_log );
 		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); // $wp_cache_debug_log, $wp_cache_debug_username
-	} elseif ( isset( $_POST[ 'wp_super_cache_debug' ] ) ) {
-		if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
-			extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
-		} elseif ( ! file_exists( $cache_path . $wp_cache_debug_log ) ) { // make sure debug log exists before toggling debugging
-			extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); // $wp_cache_debug_log, $wp_cache_debug_username
-		}
-		$wp_super_cache_debug = (int) $_POST[ 'wp_super_cache_debug' ];
-		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
 	}
+
+	if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
+		extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
+	} elseif ( ! file_exists( $cache_path . $wp_cache_debug_log ) ) { // make sure debug log exists before toggling debugging
+		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); // $wp_cache_debug_log, $wp_cache_debug_username
+	}
+	$wp_super_cache_debug = ( isset( $_POST[ 'wp_super_cache_debug' ] ) && $_POST[ 'wp_super_cache_debug' ] == 1 ) ? 1 : 0;
+	wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
 
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) ) {
 		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
 		wp_cache_setting( 'wp_cache_debug_log', $wp_cache_debug_log );
 		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
 		wp_cache_setting( 'wp_super_cache_comments', $wp_super_cache_comments );
-		$wp_cache_debug_ip = esc_html( $_POST[ 'wp_cache_debug_ip' ] );
+		if ( isset( $_POST[ 'wp_cache_debug_ip' ] ) ) {
+			$wp_cache_debug_ip = esc_html( $_POST[ 'wp_cache_debug_ip' ] );
+		} else {
+			$wp_cache_debug_ip = '';
+		}
 		wp_cache_setting( 'wp_cache_debug_ip', $wp_cache_debug_ip );
 		$wp_super_cache_front_page_check = isset( $_POST[ 'wp_super_cache_front_page_check' ] ) ? 1 : 0;
 		wp_cache_setting( 'wp_super_cache_front_page_check', $wp_super_cache_front_page_check );
 		$wp_super_cache_front_page_clear = isset( $_POST[ 'wp_super_cache_front_page_clear' ] ) ? 1 : 0;
 		wp_cache_setting( 'wp_super_cache_front_page_clear', $wp_super_cache_front_page_clear );
-		$wp_super_cache_front_page_text = esc_html( $_POST[ 'wp_super_cache_front_page_text' ] );
+		if ( isset( $_POST[ 'wp_super_cache_front_page_text' ] ) ) {
+			$wp_super_cache_front_page_text = esc_html( $_POST[ 'wp_super_cache_front_page_text' ] );
+		} else {
+			$wp_super_cache_front_page_text = '';
+		}
 		wp_cache_setting( 'wp_super_cache_front_page_text', $wp_super_cache_front_page_text );
 		$wp_super_cache_front_page_notification = isset( $_POST[ 'wp_super_cache_front_page_notification' ] ) ? 1 : 0;
 		wp_cache_setting( 'wp_super_cache_front_page_notification', $wp_super_cache_front_page_notification );
@@ -2066,7 +2074,8 @@ function wp_cache_debug_settings() {
 
 	echo '<form name="wpsc_delete" action="" method="post">';
 	wp_nonce_field('wp-cache');
-	submit_button( __( 'Delete', 'wp-super-cache' ), 'delete', 'wpsc_delete_log', false );
+	echo "<input type='hidden' name='wpsc_delete_log' value='1' />";
+	submit_button( __( 'Delete', 'wp-super-cache' ), 'delete', 'wpsc_delete_log_form', false );
 	echo "</form>";
 	echo '<form name="wpsc_delete" action="" method="post">';
 	if ( ! isset( $wp_super_cache_debug ) || $wp_super_cache_debug == 0 ) {
