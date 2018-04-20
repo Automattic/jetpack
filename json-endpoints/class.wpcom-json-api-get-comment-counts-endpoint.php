@@ -17,15 +17,13 @@ new WPCOM_JSON_API_GET_Comment_Counts_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comment-counts',
 
 	'response_format' => array(
-		'comment_counts' => array(
-			'all'            => '(int) Combined number of approved and unapproved comments',
-			'approved'       => '(int) Number of approved comments',
-			'pending'        => '(int) Number of unapproved comments',
-			'trash'          => '(int) Number of trash comments',
-			'spam'           => '(int) Number of spam comments',
-			'post_trashed'   => '(int) Number of comments whose parent post has been trashed',
-			'total_comments' => '(int) Combined number of comments in each category',
-		)
+		'all'            => '(int) Combined number of approved and unapproved comments',
+		'approved'       => '(int) Number of approved comments',
+		'pending'        => '(int) Number of unapproved comments',
+		'trash'          => '(int) Number of trash comments',
+		'spam'           => '(int) Number of spam comments',
+		'post_trashed'   => '(int) Number of comments whose parent post has been trashed',
+		'total_comments' => '(int) Combined number of comments in each category',
 	)
 ) );
 
