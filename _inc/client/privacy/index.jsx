@@ -102,8 +102,8 @@ class Privacy extends React.Component {
 							}
 							<br />
 							{ __(
-								'Read about how Jetpack uses your data in {{pp}}Automattic Privacy Policy{{/pp}} ' +
-								'and {{js}}What Data Does Jetpack Sync{{/js}}?', {
+								'Read about how Jetpack uses your data in the {{pp}}Automattic Privacy Policy{{/pp}} ' +
+								'and our {{js}}What Data Does Jetpack Sync?{{/js}} support document.', {
 									components: {
 										pp: <ExternalLink
 												href="https://automattic.com/privacy/"
