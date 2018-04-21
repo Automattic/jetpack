@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -1036,7 +1036,10 @@ class Jetpack_Beta {
 			if ( empty( $admin_email ) ) {
 				return;
 			}
-			$site_title = ! empty( get_bloginfo( 'name' ) ) ? get_bloginfo( 'name' ) : get_site_url();
+			// Calling empty() on a function return value crashes in PHP < 5.5.
+			// Thus we assign the return value explicitly and then check with empty().
+			$bloginfo_name = get_bloginfo( 'name' );
+			$site_title = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
 			$what_updated = 'Jetpack Beta Tester Plugin';
 			$subject = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
 			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
