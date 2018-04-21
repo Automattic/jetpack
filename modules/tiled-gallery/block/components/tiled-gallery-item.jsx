@@ -26,10 +26,10 @@ class TiledGalleryImage extends Component {
 	}
 
 	render() {
-		const { url, alt, id, link, width, height, cropWidth, cropHeight } = this.props;
+		const { url, alt, id, link, width, height } = this.props;
 		const styleAttr = {
-			width: cropWidth + 'px',
-			height: cropHeight + 'px',
+			width: width + 'px',
+			height: height + 'px',
 		};
 
 		return (
