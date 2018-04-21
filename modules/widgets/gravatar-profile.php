@@ -352,7 +352,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$expire = 300;
 			$response = wp_remote_get(
 				esc_url_raw( $profile_url ),
-				array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' ),
+				array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' )
 			);
 			$response_code = wp_remote_retrieve_response_code( $response );
 			if ( 200 == $response_code ) {
