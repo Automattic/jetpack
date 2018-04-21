@@ -91,7 +91,7 @@ request( options, function ( error, response, body ) {
 
 ## Provisioning a plan
 
-Plans can be provisioned by making a request using your partner token from the step above along with local_username, siteurl, and plan parameters.
+Plans can be provisioned by making a request using your partner token from the step above along with local_user, siteurl, and plan parameters.
 
 ### Endpoint information (/provision)
 
@@ -100,9 +100,14 @@ Plans can be provisioned by making a request using your partner token from the s
 
 ### Request Parameters (/provision)
 
-- __local_username__: The username on the local website (not the WordPress.com username) that should own the plan.
+- __local_user__:     The username, ID or email on the local website (not the WordPress.com username) that should own the plan. The corresponding user _must_ already exist.
 - __siteurl__:        The URL where the WordPress core files reside.
 - __plan__:           A slug representing which plan to provision. One of `personal`, `premium`, or `professional`.
+- __force_register__: (optional) A true/false value indicating whether to re-register a site even if we already have tokens for it. Useful for sites that have gotten into a bad state.
+- __force_connect__:  (optional) A true/false value indicating whether to re-connect a user even if we already have tokens for them. Useful for sites that have gotten into a bad state.
+- __onboarding__:     (optional) If true, put the user through our onboarding wizard for new sites.
+- __wpcom_user_id__:  (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively.
+- __wpcom_user_email__: (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively, and if necessary creating a WordPress.com account.
 
 ### Endpoint Errors (/provision)
 
@@ -111,7 +116,7 @@ The following is non-exhaustive list of errors that could be returned.
 | HTTP Code | Error Identifier          | Error Message                                                             |
 | --------- | ------------------------- | ------------------------------------------------------------------------- |
 | 400       | invalid_siteurl           | The required "siteurl" argument is missing.                               |
-| 400       | invalid_local_username    | The required "local_username" argument is missing.                        |
+| 400       | invalid_local_user        | The required "local_user" argument is missing.                            |
 | 400       | plan_downgrade_disallowed | Can not automatically downgrade plans. Contact support.                   |
 | 400       | invalid_plan              | %s is not a valid plan                                                    |
 | 403       | invalid_scope             | This token is not authorized to provision partner sites                   |
@@ -125,9 +130,9 @@ curl --request POST \
   --url https://public-api.wordpress.com/rest/v1.3/jpphp/provision \
   --header "authorization: Bearer $ACCESS_TOKEN" \
   --header 'cache-control: no-cache' \
-  --form plan=plan_here \
-  --form siteurl=siteurl_here \
-  --form local_username=local_username_here
+  --header 'local_user: username_id_or_email_here' \
+  --header 'plan: plan_here' \
+  --header 'siteurl: siteurl_here'
 ```
 
 Here's an example using the request module in NodeJS.
@@ -137,7 +142,7 @@ var request = require( 'request' );
 var accessToken = 'access_token_here';
 var plan = 'plan_here';
 var siteurl = 'http://example.com';
-var local_username = 'username_here';
+var local_user = 'username_id_or_email_here';
 
 var options = {
     method: 'POST',
@@ -149,7 +154,7 @@ var options = {
     formData: {
         local_username: local_username,
         siteurl: siteurl,
-        plan: plan
+        local_user: local_user
     }
 };
 
