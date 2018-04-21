@@ -15,12 +15,42 @@ import React from 'react';
  */
 import TiledGalleryItem from './tiled-gallery-item.jsx';
 
+// hard coded for now - ideally we'd inject $content_width
+// not sure how critical this is, likely necessary to work nicely with themes
+const CONTENT_WIDTH = 520;
+
 class TiledGalleryLayoutSquare extends Component {
+
+	renderItem( image, row ) {
+		const styleAttr = {
+			width: row.group_size + 'px',
+			height: row.group_size + 'px',
+		};
+		return (
+			<div
+				key={ image.id }
+				className="gallery-group"
+				style={ styleAttr }
+				data-original-width={ row.group_size }
+				data-original-height={ row.group_size }
+				>
+				<TiledGalleryItem
+					id={ image.id }
+					url={ image.url }
+					alt={ image.id }
+					link={ image.link }
+					width={ image.width }
+					height={ image.height }
+					setAttributes={ image.setAttributes }
+				/>
+			</div>
+		);
+	}
 
 	computeItems() {
 		const { columns, images } = this.props;
 
-		const content_width = 520; // todo: get content width
+		const content_width = CONTENT_WIDTH; // todo: get content width
 		const images_per_row = ( columns > 1 ? columns : 1 );
 		const margin = 2;
 
@@ -48,24 +78,9 @@ class TiledGalleryLayoutSquare extends Component {
 				img_size = size;
 			}
 
-			image.cropWidth = image.cropHeight = img_size;
+			image.width = image.height = img_size;
 
-			const item = (
-				<TiledGalleryItem
-					key={ image.id }
-					id={ image.id }
-					url={ image.url }
-					alt={ image.id }
-					link={ image.link }
-					width={ image.width }
-					height={ image.height }
-					cropWidth={ image.cropWidth }
-					cropHeight={ image.cropHeight }
-					setAttributes={ image.setAttributes }
-				/>
-			);//new Jetpack_Tiled_Gallery_Square_Item( $image, $this->needs_attachment_link, $this->grayscale );
-
-			row.images.push( item );
+			row.images.push( image );
 			c++;
 			items_in_row++;
 
@@ -98,12 +113,25 @@ class TiledGalleryLayoutSquare extends Component {
 		const rows = this.computeItems();
 
 		return (
-			<div className="tiled-gallery tiled-gallery-unresized">
-				{ rows.map( ( row, index ) =>
-					<div key={ index } className="tiled-gallery-row">
-						{ row.images }
-					</div>
-				) }
+			<div className="tiled-gallery tiled-gallery-unresized" data-original-width={ CONTENT_WIDTH }>
+				{ rows.map( ( row, index ) => {
+					const styleAttr = {
+						width: row.width + 'px',
+						height: row.height + 'px',
+					};
+
+					return (
+						<div
+							key={ index }
+							className="tiled-gallery-row gallery-row"
+							style={ styleAttr }
+							data-original-width={ row.width }
+							data-original-height={ row.height }
+							>
+							{ row.images.map( ( image ) => this.renderItem( image, row ) ) }
+						</div>
+					);
+				} ) }
 			</div>
 		);
 	}
