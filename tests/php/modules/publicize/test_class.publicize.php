@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 
 class WP_Test_Publicize extends WP_UnitTestCase {
 
