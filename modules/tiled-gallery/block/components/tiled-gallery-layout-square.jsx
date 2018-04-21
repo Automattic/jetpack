@@ -20,7 +20,7 @@ class TiledGalleryLayoutSquare extends Component {
 	computeItems() {
 		const { columns, images } = this.props;
 
-		const content_width = 400; // todo: get content width
+		const content_width = 520; // todo: get content width
 		const images_per_row = ( columns > 1 ? columns : 1 );
 		const margin = 2;
 
