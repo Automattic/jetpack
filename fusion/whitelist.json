@@ -30,6 +30,7 @@
   "json-endpoints/class.wpcom-json-api-delete-media-endpoint.php",
   "json-endpoints/class.wpcom-json-api-delete-media-v1-1-endpoint.php",
   "json-endpoints/class.wpcom-json-api-get-autosave-v1-1-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-get-comment-counts-endpoint.php",
   "json-endpoints/class.wpcom-json-api-get-comment-endpoint.php",
   "json-endpoints/class.wpcom-json-api-get-comment-history-endpoint.php",
   "json-endpoints/class.wpcom-json-api-get-comments-tree-endpoint.php",
