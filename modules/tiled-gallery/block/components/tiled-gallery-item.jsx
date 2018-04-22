@@ -16,7 +16,7 @@ class TiledGalleryImage extends Component {
 
 	componentWillReceiveProps( { image, width, height } ) {
 		// very carefully set width & height attributes once only!
-		if ( image && ! width && ! height ) {
+		if ( image && ! width && ! height && this.props.setAttributes ) {
 			const mediaInfo = get( image, [ 'media_details' ], { width: null, height: null } );
 			this.props.setAttributes( {
 				width: mediaInfo.width,
