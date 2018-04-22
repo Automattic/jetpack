@@ -15,6 +15,8 @@ class WordAds {
 
 	public $params = null;
 
+	public $ads = array();
+
 	/**
 	 * The different supported ad types.
 	 * v0.1 - mrec only for now
@@ -375,12 +377,7 @@ HTML;
 					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				// Inline ads in post content
-				$MAGIC_ID = 3;
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . $MAGIC_ID;
-				$width = 300;
-				$height = 250;
-
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID3 : $this->params->blog_id . '3';
 				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
@@ -417,16 +414,21 @@ HTML;
 	 * @since 5.7
 	 */
 	function get_ad_snippet( $section_id, $height, $width, $adblock_unit = 'mrec', $css = '' ) {
-		$this->ads[] = array( 'id' => $section_id, 'width' => $width, 'height' => $height );
+		$this->ads[] = array( 'section_id' => $section_id, 'width' => $width, 'height' => $height );
+		$ad_number = count( $this->ads );
+		// Max 6 ads per page.
+		if ( $ad_number > 6 ) {
+			return;
+		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
 		$adblock_ad = $this->get_adblocker_ad( $adblock_unit );
 
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
-			<div id="atatags-{$section_id}">
+			<div id="atatags-{$ad_number}">
 				<script$data_tags type="text/javascript">
 				__ATA.cmd.push(function() {
-					__ATA.initSlot('atatags-{$section_id}',  {
+					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
 						sectionId: '{$section_id}',
 						width: {$width},
