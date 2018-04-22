@@ -12,6 +12,7 @@ License: GPLv2 or later
 
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'GRUNION_RECAPTCHA_ENABLED',  ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) );
 
 if ( is_admin() ) {
 	require_once GRUNION_PLUGIN_DIR . 'admin.php';
@@ -429,6 +430,47 @@ class Grunion_Contact_Form_Plugin {
 		$is_widget = 0 === strpos( $id, 'widget-' );
 
 		$form = false;
+
+		/**
+		 * Filter for Enable/Disable reCaptcha for Contact Form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.1-alpha
+		 *
+		 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
+		 */
+		$is_recaptcha_enabled = apply_filters( 'grunion_contact_form_enable_recaptcha', constant( 'GRUNION_RECAPTCHA_ENABLED' ) );
+
+		if ( $is_recaptcha_enabled ) {
+			$recaptcha_response = $_POST['g-recaptcha-response'];
+			$error              = new WP_Error();
+
+			if ( empty( $recaptcha_response ) ) {
+				$error->add( '403', __( 'reCaptcha Validation is Required.', 'jetpack' ) );
+
+				// Set WP_Error for `template_redirect` errors.
+				set_query_var( 'grunion_contact_form_recaptcha_error', $error );
+
+				// Return WP_Error for ajax response.
+				return $error;
+			}
+
+			require_once JETPACK__PLUGIN_DIR . '/modules/recaptcha.php';
+
+			$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+			$result    = $recaptcha->verify( $recaptcha_response, $_SERVER['REMOTE_ADDR'] );
+
+			if ( empty( $result ) || is_wp_error( $result ) ) {
+				$error->add( '403', __( 'Invalid reCaptcha, Please try again.', 'jetpack' ) );
+
+				// Set WP_Error for `template_redirect` errors.
+				set_query_var( 'grunion_contact_form_recaptcha_error', $error );
+
+				// Return WP_Error for ajax response.
+				return $error;
+			}
+		}
 
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
@@ -2032,8 +2074,44 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
+			/**
+			 * Filter for Enable/Disable reCaptcha for Contact Form.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 6.1
+			 *
+			 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
+			 */
+			$is_recaptcha_enabled = apply_filters( 'grunion_contact_form_enable_recaptcha', constant( 'GRUNION_RECAPTCHA_ENABLED' ) );
+
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
+
+			/**
+			 * Show `template_redirect` validation errors for reCaptcha.
+			 */
+			if ( $is_recaptcha_enabled && empty( constant( 'DOING_AJAX' ) ) ) {
+
+				$recaptcha_error = get_query_var( 'grunion_contact_form_recaptcha_error' );
+
+				if ( is_wp_error( $recaptcha_error ) ) {
+
+					$r .= '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
+					$r .= esc_html( $recaptcha_error->get_error_message() );
+					$r .= '</li></ul></div>';
+				}
+			}
+
 			$r .= $form->body;
+
+			if ( $is_recaptcha_enabled ) {
+				require_once JETPACK__PLUGIN_DIR . '/modules/recaptcha.php';
+
+				$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+
+				$r .=  $recaptcha->get_recaptcha_html(); // xss ok
+			}
+
 			$r .= "\t<p class='contact-submit'>\n";
 
 			$gutenberg_submit_button_classes = '';
