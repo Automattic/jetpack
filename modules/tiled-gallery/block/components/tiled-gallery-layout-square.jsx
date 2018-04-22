@@ -19,33 +19,32 @@ import TiledGalleryItem from './tiled-gallery-item.jsx';
 // not sure how critical this is, likely necessary to work nicely with themes
 const CONTENT_WIDTH = 520;
 
-class TiledGalleryLayoutSquare extends Component {
+function TiledGallerySquareGroup( { group_size, id, url, link, width, height, setAttributes } ) {
+	const styleAttr = {
+		width: group_size + 'px',
+		height: group_size + 'px',
+	};
+	return (
+		<div
+			className="gallery-group"
+			style={ styleAttr }
+			data-original-width={ group_size }
+			data-original-height={ group_size }
+			>
+			<TiledGalleryItem
+				id={ id }
+				url={ url }
+				alt={ id }
+				link={ link }
+				width={ width }
+				height={ height }
+				setAttributes={ setAttributes }
+			/>
+		</div>
+	);
+}
 
-	renderItem( image, row ) {
-		const styleAttr = {
-			width: row.group_size + 'px',
-			height: row.group_size + 'px',
-		};
-		return (
-			<div
-				key={ image.id }
-				className="gallery-group"
-				style={ styleAttr }
-				data-original-width={ row.group_size }
-				data-original-height={ row.group_size }
-				>
-				<TiledGalleryItem
-					id={ image.id }
-					url={ image.url }
-					alt={ image.id }
-					link={ image.link }
-					width={ image.width }
-					height={ image.height }
-					setAttributes={ image.setAttributes }
-				/>
-			</div>
-		);
-	}
+class TiledGalleryLayoutSquare extends Component {
 
 	computeItems() {
 		const { columns, images } = this.props;
@@ -119,6 +118,7 @@ class TiledGalleryLayoutSquare extends Component {
 						width: row.width + 'px',
 						height: row.height + 'px',
 					};
+					const setMyAttributes = ( attrs ) => this.setImageAttributes( index, attrs );
 
 					return (
 						<div
@@ -128,7 +128,18 @@ class TiledGalleryLayoutSquare extends Component {
 							data-original-width={ row.width }
 							data-original-height={ row.height }
 							>
-							{ row.images.map( ( image ) => this.renderItem( image, row ) ) }
+							{ row.images.map( ( image ) => (
+								<TiledGallerySquareGroup
+									key={ image.id }
+									group_size={ row.group_size }
+									id={ image.id }
+									url={ image.url }
+									link={ image.link }
+									width={ image.width }
+									height={ image.height }
+									setAttributes={ setMyAttributes }
+								/>
+							) ) }
 						</div>
 					);
 				} ) }

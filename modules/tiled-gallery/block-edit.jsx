@@ -33,7 +33,7 @@ const {
 /**
  * Internal dependencies
  */
-import TiledGalleryItem from './block/components/tiled-gallery-item.jsx';
+import JetpackGalleryBlockSave from './block-save.jsx';
 
 class JetpackGalleryBlockEditor extends Component {
 	constructor() {
@@ -196,15 +196,7 @@ class JetpackGalleryBlockEditor extends Component {
 			];
 		}
 
-		const imageTiles = images.map( ( props, index ) => {
-			const setMyAttributes = ( attrs ) => this.setImageAttributes( index, attrs );
-			return (
-				<TiledGalleryItem
-					key={ props.id }
-					setAttributes={ setMyAttributes }
-					{ ...props } />
-				);
-		} );
+		const imageTiles = ( <JetpackGalleryBlockSave { ...this.props } /> );
 
 		return [
 			controls,
@@ -213,9 +205,9 @@ class JetpackGalleryBlockEditor extends Component {
 					<h2>{ __( 'Jetpack Gallery Settings' ) }</h2>
 				</InspectorControls>
 			),
+			imageTiles,
 			<ul key="gallery-images" className="jetpack-tiled-gallery">
 				{ dropZone }
-				{ imageTiles }
 				{ isSelected &&
 					<li key="item-uploader" className="blocks-gallery-item">
 						<FormFileUpload
