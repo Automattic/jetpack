@@ -27,7 +27,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_white_listed_function_is_synced() {
-
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 
 		$this->sender->do_sync();
@@ -963,6 +962,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'gmt_offset', '-1' );
 		$this->assertEquals( 'UTC-1', Jetpack_Sync_Functions::get_timezone() );
 	}
+
+	public function test_sync_callable_recursive_gets_checksum() {
+
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_banana' => 'jetpack_recursive_banana' ) );
+		$this->sender->do_sync();
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_banana' );
+		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );
+	}
+
+}
+
+function jetpack_recursive_banana() {
+	$banana = new StdClass;
+	$banana->arr = array();
+	$banana->arr[] = $banana;
+	return $banana;
 }
 
 function jetpack_foo_is_callable_random() {

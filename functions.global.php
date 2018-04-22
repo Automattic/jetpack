@@ -152,3 +152,44 @@ function jetpack_upgrader_pre_download( $reply ) {
 }
 
 add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
+
+
+/**
+ * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
+ *
+ * @since 6.1.0
+ *
+ * @param $any
+ * @param array $seen_nodes
+ *
+ * @return array
+ */
+function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
+	if ( is_object( $any ) ) {
+		$input = get_object_vars( $any );
+		$input['__o'] = 1;
+	} else {
+		$input = &$any;
+	}
+
+	if ( is_array( $input ) ) {
+		$seen_nodes[] = &$any;
+
+		$return = array();
+
+		foreach ( $input as $k => &$v ) {
+			if ( ( is_array( $v ) || is_object( $v ) ) ) {
+				if ( in_array( $v, $seen_nodes, true ) ) {
+					continue;
+				}
+				$return[ $k ] = jetpack_json_wrap( $v, $seen_nodes );
+			} else {
+				$return[ $k ] = $v;
+			}
+		}
+
+		return $return;
+	}
+
+	return $any;
+}
