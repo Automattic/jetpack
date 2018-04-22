@@ -3,6 +3,7 @@
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-simple-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
@@ -290,6 +291,13 @@ class Jetpack_Sync_Sender {
 	function get_codec() {
 		return $this->codec;
 	}
+	function set_codex() {
+		if ( function_exists( 'gzinflate' ) ) {
+			$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		} else {
+			$this->codec           = new Jetpack_Sync_Simple_Codec();
+		}
+	}
 
 	function send_checksum() {
 		require_once 'class.jetpack-sync-wp-replicastore.php';
@@ -350,10 +358,12 @@ class Jetpack_Sync_Sender {
 		$this->max_dequeue_time = $seconds;
 	}
 
+
+
 	function set_defaults() {
 		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		$this->set_codex();
 
 		// saved settings
 		Jetpack_Sync_Settings::set_importing( null );
