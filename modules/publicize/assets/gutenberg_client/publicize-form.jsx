@@ -97,7 +97,13 @@ class PublicizeForm extends Component {
 			shareMessage,
 			refreshCallback,
 		} = this.props;
-		const messageLength = shareMessage.length;
+		const MAXIMUM_MESSAGE_LENGTH = 256;
+		const charactersRemaining = MAXIMUM_MESSAGE_LENGTH - shareMessage.length;
+		let characterCountClass = 'jetpack-publicize-character-count';
+		// Highlight count if there's no more room.
+		if ( charactersRemaining <= 0 ) {
+			characterCountClass += ' wpas-twitter-length-limit';
+		}
 
 		return (
 			<div className="misc-pub-section misc-pub-section-last">
@@ -122,9 +128,10 @@ class PublicizeForm extends Component {
 							onChange={ messageChange }
 							placeholder={ __( 'Publicize + Gutenberg :)' ) }
 							disabled={ this.isDisabled() }
+							maxLength={ MAXIMUM_MESSAGE_LENGTH }
 						/>
-						<div className="jetpack-publicize-character-count">
-							{ sprintf( _n( '%d character', '%d characters', messageLength ), messageLength ) }
+						<div className={ characterCountClass }>
+							{ sprintf( _n( '%d character remaining', '%d characters remaining', charactersRemaining ), charactersRemaining ) }
 						</div>
 					</div>
 				</div>
