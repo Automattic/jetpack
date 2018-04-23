@@ -198,7 +198,14 @@ class Jetpack_XMLRPC_Server {
 			if ( is_wp_error( $registered ) ) {
 				return $this->error( $registered, 'jpc_remote_register_fail' );
 			} elseif ( ! $registered ) {
-				return $this->error( new Jetpack_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ), 'jpc_remote_register_fail' );
+				return $this->error(
+					new Jetpack_Error(
+						'registration_error',
+						__( 'There was an unspecified error registering the site', 'jetpack' ),
+						400
+					),
+					'jpc_remote_register_fail'
+				);
 			}
 		}
 
