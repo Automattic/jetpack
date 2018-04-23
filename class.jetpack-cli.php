@@ -885,47 +885,72 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Allows authorizing a user via the command line and will activate
+	 * Provision a site using a Jetpack Partner license
+	 *
+	 * Returns JSON blob
+	 *
+	 * ## OPTIONS
+	 *
+	 * <token_json>
+	 * : JSON blob of WPCOM API token
+	 * [--plan=<plan_name>]
+	 * : Slug of the requested plan, e.g. premium
+	 * [--wpcom_user_id=<user_id>]
+	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
+	 * [--wpcom_user_email=<wpcom_user_email>]
+	 * : Override the email we send to WordPress.com for registration
+	 * [--onboarding=<onboarding>]
+	 * : Guide the user through an onboarding wizard
+	 * [--force_register=<register>]
+	 * : Whether to force a site to register
+	 * [--force_connect=<force_connect>]
+	 * : Force JPS to not reuse existing credentials
+	 * [--home_url=<home_url>]
+	 * : Overrides the home option via the home_url filter, or the WP_HOME constant
+	 * [--site_url=<site_url>]
+	 * : Overrides the siteurl option via the site_url filter, or the WP_SITEURL constant
+	 * [--partner_tracking_id=<partner_tracking_id>]
+	 * : This is an optional ID that a host can pass to help identify a site in logs on WordPress.com
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack authorize_user --token=123456789abcdef
+	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
+	 *     { success: true }
 	 *
-	 * @synopsis --token=<value>
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner_tracking_id=<partner_tracking_id>]
 	 */
-	public function authorize_user( $args, $named_args ) {
-		if ( ! is_user_logged_in() ) {
-			WP_CLI::error( __( 'Please select a user to authorize via the --user global argument.', 'jetpack' ) );
+	public function partner_provision( $args, $named_args ) {
+		list( $token_json ) = $args;
+
+		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
 		}
 
-		if ( empty( $named_args['token'] ) ) {
-			WP_CLI::error( __( 'A non-empty token argument must be passed.', 'jetpack' ) );
+		if ( isset( $token->error ) ) {
+			$message = isset( $token->message )
+				? $token->message
+				: '';
+			$this->partner_provision_error( new WP_Error( $token->error, $message ) );
 		}
 
-		$token = sanitize_text_field( $named_args['token'] );
-
-		$is_master_user  = ! Jetpack::is_active();
-		$current_user_id = get_current_user_id();
-
-		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
-
-		if ( $is_master_user ) {
-			/**
-			 * Auto-enable SSO module for new Jetpack Start connections
-			 *
-			 * @since 5.0.0
-			 *
-			 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
-			 */
-			$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
-			Jetpack::handle_post_authorization_actions( $enable_sso, false );
-
-			/* translators: %d is a user ID */
-			WP_CLI::success( sprintf( __( 'Authorized %d and activated default modules.', 'jetpack' ), $current_user_id ) );
-		} else {
-			/* translators: %d is a user ID */
-			WP_CLI::success( sprintf( __( 'Authorized %d.', 'jetpack' ), $current_user_id ) );
+		if ( ! isset( $token->access_token ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/class.jetpack-provision.php';
+
+		$body_json = Jetpack_Provision::partner_provision( $token->access_token, $named_args );
+
+		if ( is_wp_error( $body_json ) ) {
+			error_log( json_encode( array(
+				'success'       => false,
+				'error_code'    => $body_json->get_error_code(),
+				'error_message' => $body_json->get_error_message()
+			) ) );
+			exit( 1 );
+		}
+
+		WP_CLI::log( json_encode( $body_json ) );
 	}
 
 	/**
