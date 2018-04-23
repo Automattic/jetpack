@@ -152,11 +152,9 @@
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",
-    "qunitjs": "~1.20.0",
     "react-test-renderer": "^15.5.0",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
-    "sinon-qunit": "~2.0.0",
     "webpack-dev-server": "2.9.2"
   },
   "engines": {

@@ -7247,10 +7247,6 @@ querystringify@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-1.0.0.tgz#6286242112c5b712fa654e526652bf6a13ff05cb"
 
-qunitjs@~1.20.0:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/qunitjs/-/qunitjs-1.20.0.tgz#3921ab9bbf727bccccb548c8e979319d0eec6058"
-
 raf@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.0.tgz#a28876881b4bc2ca9117d4138163ddb80f781575"
@@ -8088,10 +8084,6 @@ signal-exit@^3.0.0:
 sinon-chai@^2.8.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-2.14.0.tgz#da7dd4cc83cd6a260b67cca0f7a9fdae26a1205d"
-
-sinon-qunit@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/sinon-qunit/-/sinon-qunit-2.0.0.tgz#2dfb1fe0004bfb14a040639b22eb881ce9a65e10"
 
 sinon@^1.17.3:
   version "1.17.7"
