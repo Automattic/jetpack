@@ -4,7 +4,7 @@ VOLUME ["/var/www/html"]
 
 # Install required Ubuntu packages for having Apache PHP as a module
 # as well a bunch of other packages
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -q && apt-get install -q -y \
 	apache2 \
 	composer \
 	curl \
