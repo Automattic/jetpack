@@ -280,7 +280,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new Jetpack_Error(
 					'local_user_missing',
-					esc_html__( 'The required "local_user" parameter is missing.', 'jetpack' ),
+					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
 					400
 				),
 				'jpc_remote_provision_fail'
