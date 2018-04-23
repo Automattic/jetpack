@@ -78,6 +78,7 @@ services:
       - ./bin:/var/scripts
     ports:
       - "80:80"
+      - "1081:1081"
     restart: always
     env_file:
       - default.env

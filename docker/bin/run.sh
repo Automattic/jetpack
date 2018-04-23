@@ -80,10 +80,13 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
+# Run apache in the foreground so the container keeps running
+echo "Running Apache "
+apachectl start
+
 echo
 echo "Open http://${WP_DOMAIN} to see your site!"
 echo
 
-# Run apache in the foreground so the container keeps running
-echo "Running Apache in the foreground"
-apachectl -D FOREGROUND
+# Don't exit Docker container
+sleep infinity

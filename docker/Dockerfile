@@ -6,8 +6,10 @@ VOLUME ["/var/www/html"]
 # as well a bunch of other packages
 RUN apt-get update -q && apt-get install -q -y \
 	apache2 \
+	build-essential \
 	composer \
 	curl \
+	graphviz \
 	less \
 	libapache2-mod-php7.0 \
 	mysql-client \
@@ -31,6 +33,7 @@ RUN apt-get update -q && apt-get install -q -y \
 	ssmtp \
 	subversion \
 	sudo \
+	unzip \
 	vim \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -45,6 +48,14 @@ RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/build
 RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
+
+# Install Webgrind
+RUN curl https://github.com/jokkedk/webgrind/archive/master.zip -L -o /tmp/webgrind.zip \
+	&& unzip -q /tmp/webgrind.zip -d /tmp \
+	&& rm /tmp/webgrind.zip \
+	&& mv /tmp/webgrind-master /var/www/webgrind \
+	&& cd /var/www/webgrind \
+	&& make
 
 # Copy a default config file for an apache host
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf

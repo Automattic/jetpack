@@ -28,4 +28,17 @@ ServerName localhost
 	# CustomLog /var/log/apache-access.log combined
 </VirtualHost>
 
+# Webgrind: Xdebug profiling web frontend
+<VirtualHost *:1081>
+	ServerAdmin webmaster@localhost
+	DocumentRoot /var/www/webgrind
+
+		<Directory /var/www/webgrind>
+			AllowOverride All
+			Require all granted
+		</Directory>
+
+		LogLevel error
+</VirtualHost>
+
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet

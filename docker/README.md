@@ -274,6 +274,13 @@ You’ll likely need to install a browser extension like the following:
 * [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox
 * [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) for Google Chrome
 
+#### Profiling web frontend
+You can access profiling web frontend ([Webgrind](https://github.com/jokkedk/webgrind)) via your browser at [http://localhost:1081](http://localhost:1081)
+
+* Track time spent in functions by self cost or inclusive cost. Inclusive cost is time inside function + calls to other functions.
+* See if time is spent in internal or user functions.
+* See where any function was called from and which functions it calls.
+
 #### Remote debugging with Atom editor
 
 ![Screenshot showing Atom editor with Xdebug](https://user-images.githubusercontent.com/746152/37091829-573605f6-21e8-11e8-9f16-3908854fd7d6.png)
