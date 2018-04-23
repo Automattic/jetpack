@@ -317,7 +317,6 @@ HTML;
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
-		$blocker_unit = 'mrec';
 		if ( 'iponweb' == $type ) {
 			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
@@ -329,17 +328,16 @@ HTML;
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $blocker_unit );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width );
 			} else if ( 'belowpost' == $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'float:left;margin-top:0px;' );
 				}
 			}
 		} else if ( 'house' == $type ) {
@@ -375,11 +373,10 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $adblock_unit = 'mrec', $css = '' ) {
+	function get_ad_snippet( $section_id, $height, $width, $css = '' ) {
 		$this->ads[] = array( 'id' => $section_id, 'width' => $width, 'height' => $height );
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$adblock_ad = $this->get_adblocker_ad( $adblock_unit );
-
+		
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$section_id}">
@@ -393,43 +390,8 @@ HTML;
 					});
 				});
 				</script>
-				$adblock_ad
 			</div>
 		</div>
-HTML;
-	}
-
-	/**
-	 * Get Criteo Acceptable Ad unit
-	 * @param  string $unit mrec, mrec2, widesky, top, top_mrec
-	 *
-	 * @since 5.3
-	 */
-	public function get_adblocker_ad( $unit = 'mrec' ) {
-		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$criteo_id = mt_rand();
-		$height = 250;
-		$width = 300;
-		$zone_id = 388248;
-		if ( 'mrec2' == $unit ) { // 2nd belowpost
-			$zone_id = 837497;
-		} else if ( 'widesky' == $unit ) { // sidebar
-			$zone_id = 563902;
-			$width = 160;
-			$height= 600;
-		} else if ( 'top' == $unit ) { // top leaderboard
-			$zone_id = 563903;
-			$width = 728;
-			$height = 90;
-		} else if ( 'top_mrec' == $unit ) { // top mrec
-			$zone_id = 563903;
-		}
-
-		return <<<HTML
-		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;display:none !important;"></div>
-		<script$data_tags type="text/javascript">
-		(function(){var c=function(){var a=document.getElementById("crt-{$criteo_id}");window.Criteo?(a.parentNode.style.setProperty("display","inline-block","important"),a.style.setProperty("display","block","important"),window.Criteo.DisplayAcceptableAdIfAdblocked({zoneid:{$zone_id},containerid:"crt-{$criteo_id}",collapseContainerIfNotAdblocked:!0,callifnotadblocked:function(){a.style.setProperty("display","none","important");a.style.setProperty("visbility","hidden","important")}})):(a.style.setProperty("display","none","important"),a.style.setProperty("visibility","hidden","important"))};if(window.Criteo)c();else{if(!__ATA.criteo.script){var b=document.createElement("script");b.src="//static.criteo.net/js/ld/publishertag.js";b.onload=function(){for(var a=0;a<__ATA.criteo.cmd.length;a++){var b=__ATA.criteo.cmd[a];"function"===typeof b&&b()}};(document.head||document.getElementsByTagName("head")[0]).appendChild(b);__ATA.criteo.script=b}__ATA.criteo.cmd.push(c)}})();
-		</script>
 HTML;
 	}
 
