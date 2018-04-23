@@ -354,31 +354,26 @@ HTML;
 		$snippet = '';
 		$blocker_unit = 'mrec';
 		if ( 'iponweb' == $type ) {
-			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
 			$height = 250;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
 				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $blocker_unit );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, $blocker_unit );
 			} else if ( 'belowpost' == $spot ) {
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'mrec2', 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID3 : $this->params->blog_id . '3';
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -405,16 +400,16 @@ HTML;
 
 	/**
 	 * Returns the snippet to be inserted into the ad unit
-	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
+	 * @param  int $location
 	 * @param  string $css
 	 * @return string
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $adblock_unit = 'mrec', $css = '' ) {
-		$this->ads[] = array( 'section_id' => $section_id, 'width' => $width, 'height' => $height );
+	function get_ad_snippet( $height, $width, $location = '', $adblock_unit = 'mrec', $css = '' ) {
+		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
 		if ( $ad_number > 6 ) {
@@ -430,7 +425,7 @@ HTML;
 				__ATA.cmd.push(function() {
 					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
-						sectionId: '{$section_id}',
+						location: '{$location}',
 						width: {$width},
 						height: {$height}
 					});
