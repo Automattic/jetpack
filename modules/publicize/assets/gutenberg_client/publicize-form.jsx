@@ -19,12 +19,13 @@ import { compose } from 'redux';
 /**
  * Internal dependencies
  */
-const { __ } = window.wp.i18n;
+const { __, _n, sprintf } = window.wp.i18n;
 const {
 	withSelect,
 	withDispatch,
 } = window.wp.data;
 import PublicizeConnection from './publicize-connection';
+import PublicizeSettingsButton from './publicize-settings-button';
 
 class PublicizeForm extends Component {
 	constructor( props ) {
@@ -71,11 +72,12 @@ class PublicizeForm extends Component {
 			connectionChange,
 			messageChange,
 			shareMessage,
+			refreshCallback,
 		} = this.props;
 		const messageLength = shareMessage.length;
 
 		return (
-			<div id="publicize" className="misc-pub-section misc-pub-section-last">
+			<div className="misc-pub-section misc-pub-section-last">
 				<div id="publicize-form">
 					<ul>
 						{connections.map( c =>
@@ -87,17 +89,19 @@ class PublicizeForm extends Component {
 							/>
 						) }
 					</ul>
-					<label htmlFor="wpas-title">{ __( 'Custom Message:' ) }</label>
-					<span id="wpas-title-counter" className="alignright hide-if-no-js">
-						{ messageLength }
-					</span>
-					<textarea
-						id="jetpack-publicize-message-box"
-						value={ shareMessage }
-						onChange={ messageChange }
-						placeholder={ __( 'Publicize + Gutenberg :)' ) }
-						disabled={ this.isDisabled() }
-					/>
+					<PublicizeSettingsButton refreshCallback={ refreshCallback } />
+					<label htmlFor="wpas-title">{ __( 'Customize your message' ) }</label>
+					<div className="jetpack-publicize-message-box">
+						<textarea
+							value={ shareMessage }
+							onChange={ messageChange }
+							placeholder={ __( 'Publicize + Gutenberg :)' ) }
+							disabled={ this.isDisabled() }
+						/>
+						<div className="jetpack-publicize-character-count">
+							{ sprintf( _n( '%d character', '%d characters', messageLength ), messageLength ) }
+						</div>
+					</div>
 				</div>
 			</div>
 		);

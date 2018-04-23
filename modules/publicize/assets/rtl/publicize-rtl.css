@@ -198,3 +198,15 @@ input.fb-options {
 .pub-connection-error {
 	color: #ff0000;
 }
+
+.jetpack-publicize-message-box {
+	background-color: #ECECEC;
+}
+
+.jetpack-publicize-message-box textarea {
+	width: 100%;
+}
+
+.jetpack-publicize-character-count {
+	padding-right: 3px;
+}

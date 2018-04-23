@@ -23,7 +23,6 @@ import PublicizeNoConnections from './publicize-no-connections';
 
 import PublicizeForm from './publicize-form';
 import PublicizeConnectionVerify from './publicize-connection-verify';
-import PublicizeSettingsButton from './publicize-settings-button';
 const { __ } = window.wp.i18n;
 const { PanelBody } = window.wp.components;
 const { ajaxurl } = window;
@@ -112,8 +111,8 @@ class PublicizePanel extends Component {
 					</span>
 				}
 			>
-				<PublicizeSettingsButton isLoading={ isLoading } refreshCallback={ this.getConnectionsStart } />
-				{ ( connections.length > 0 ) && <PublicizeForm connections={ connections } /> }
+				<div>{ __( 'Connect and select social media services to share this post.' ) }</div>
+				{ ( connections.length > 0 ) && <PublicizeForm connections={ connections } refreshCallback={ this.getConnectionsStart } /> }
 				{ ( 0 === connections.length ) && <PublicizeNoConnections refreshCallback={ this.getConnectionsStart } /> }
 				<a href="javascript:void(0)" onClick={ this.getConnectionsStart } disabled={ isLoading }>
 					{ refreshText }

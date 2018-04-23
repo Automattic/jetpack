@@ -45,12 +45,14 @@ class PublicizeSettingsButton extends Component {
 
 	render() {
 		return (
-			<a
-				onClick={ this.settingsClick }
-				href="javascript:void(0)"
-			>
-				{ __( 'Settings' ) }
-			</a>
+			<div>
+				<a
+					onClick={ this.settingsClick }
+					href="javascript:void(0)"
+				>
+					{ __( 'Connect another service' ) }
+				</a>
+			</div>
 		);
 	}
 }
