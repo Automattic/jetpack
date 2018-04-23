@@ -47,11 +47,10 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
-	function test_xmlrpc_remote_provision_fails_no_nonce() {
-		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
+	function test_xmlrpc_remote_register_fails_no_nonce() {
 		$server = new Jetpack_XMLRPC_Server();
 
-		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
+		$response = $server->remote_register( array( 'local_user' => '1' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertContains( '[nonce_missing]', $response->message );
@@ -65,23 +64,17 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertContains( '[local_user_missing]', $response->message );
 	}
 
-	function test_xmlrpc_remote_provision_fails_nonce_validation() {
-		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
+	function test_xmlrpc_remote_register_fails_nonce_validation() {
 		$server = new Jetpack_XMLRPC_Server();
-		$response = $server->remote_provision( array( 'nonce' => '12345', 'local_user' => 'nonexistent' ) );
+		$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertContains( '[invalid_nonce]', $response->message );
 	}
 
-	function test_xmlrpc_remote_provision_nonce_validation() {
-		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
+	function test_xmlrpc_remote_register_nonce_validation() {
 		$server = new Jetpack_XMLRPC_Server();
 		$filters = array(
-			'__return_ok_status' => array(
-				'code' => 404,
-				'message' => 'user_unknown', // Signifies the nonce was valid.
-			),
 			'__return_invalid_nonce_status' => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
@@ -94,13 +87,32 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		foreach ( $filters as $filter => $expected ) {
 			add_filter( 'pre_http_request', array( $this, $filter ) );
-			$response = $server->remote_provision( array( 'nonce' => '12345', 'local_user' => 'nonexistent' ) );
+			$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
 			remove_filter( 'pre_http_request', array( $this, $filter ) );
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
 			$this->assertEquals( $expected['code'], $response->code );
 			$this->assertContains( sprintf( '[%s]', $expected['message'] ), $response->message );
 		}
+	}
+
+	function test_successful_remote_register_return() {
+		$server = new Jetpack_XMLRPC_Server();
+
+		$blog_token = Jetpack_Options::get_option( 'blog_token' );
+		$id         = Jetpack_Options::get_option( 'id' );
+
+		// Set these so that we don't try to register unnecessarily.
+		Jetpack_Options::update_option( 'blog_token', 1 );
+		Jetpack_Options::update_option( 'id', 1001 );
+
+		add_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+		$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
+		remove_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+
+		$this->assertInternalType( 'array', $response );
+		$this->assertArrayHasKey( 'client_id', $response );
+		$this->assertEquals( 1001, $response['client_id'] );
 	}
 
 	/*
