@@ -266,7 +266,7 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		// this feels out of place here now
-		if ( $request['onboarding'] ) {
+		if ( ! empty( $request['onboarding'] ) ) {
 			Jetpack::create_onboarding_token();
 			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
 		}

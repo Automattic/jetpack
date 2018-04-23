@@ -115,6 +115,41 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertEquals( 1001, $response['client_id'] );
 	}
 
+	function test_remote_provision_error_nonexistent_user() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array() );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertContains( 'local_user_missing', $response->message );
+
+		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertEquals( 'Jetpack: [input_error] Valid user is required', $response->message );
+	}
+
+	function test_remote_provision_success() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array( 'local_user' => 1 ) );
+
+		$this->assertInternalType( 'array', $response );
+
+		$expected_keys = array(
+			'jp_version',
+			'redirect_uri',
+			'user_id',
+			'user_email',
+			'user_login',
+			'scope',
+			'secret',
+			'is_active',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $response );
+		}
+	}
+
 	/*
 	 * Helpers
 	 */
