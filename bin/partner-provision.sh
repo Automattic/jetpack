@@ -50,6 +50,7 @@ for i in "$@"; do
 			shift
 			;;
 		-w=* | --wpcom_user_id=* )
+			WPCOM_USER_ID=${i#*=}
 			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form wpcom_user_id=${i#*=}"
 			shift
 			;;
@@ -100,8 +101,8 @@ for i in "$@"; do
 	esac
 done
 
-# check WP CLI exists
-if ! WP_CLI_PATH="$(type -p "$WP_CLI_COMMAND")" || [[ -z $WP_CLI_PATH ]]; then
+WP_CLI_CHECK=$($WP_CLI_COMMAND --skip-plugins --skip-themes option get home 2>/dev/null)
+if [ -z "$WP_CLI_CHECK" ]; then
 	WP_CLI_EXISTS=0
 else
 	WP_CLI_EXISTS=1
@@ -147,7 +148,7 @@ jetpack_echo_key_from_json() {
 		exit 1
 	fi
 
-	echo $1 | sed -n "s/.*\"$2\":\"\([^\"]*\)\",.*/\1/p"
+	echo $1 | sed -n "s/.*\"$2\":\"\([^\"]*\)\".*/\1/p"
 }
 
 # Fetch an access token using our client ID/secret.
