@@ -16,14 +16,6 @@ const {
 } = window.wp.components;
 
 class PublicizeConnection extends Component {
-	constructor( props ) {
-		super( props );
-		const { defaultEnabled } = props;
-		this.state = {
-			checked: defaultEnabled,
-		};
-	}
-
 	/**
 	 * Handler for when connection is enabled/disabled.
 	 *
@@ -34,12 +26,8 @@ class PublicizeConnection extends Component {
 	 */
 	onConnectionChange = () => {
 		const { unique_id } = this.props.connectionData;
-		const { connectionChange } = this.props;
-		const { checked } = this.state;
-		this.setState( {
-			checked: ! checked,
-		} );
-		connectionChange( unique_id, ! checked );
+		const { connectionChange, connectionOn } = this.props;
+		connectionChange( unique_id, ! connectionOn );
 	}
 
 	render() {
@@ -49,7 +37,7 @@ class PublicizeConnection extends Component {
 			disabled,
 			display_name,
 		} = this.props.connectionData;
-		const { checked } = this.state;
+		const { connectionOn } = this.props;
 		const isDisabled = ( '' !== disabled );
 		// Genericon names are dash separated
 		const socialName = name.replace( '_', '-' );
@@ -68,7 +56,7 @@ class PublicizeConnection extends Component {
 					<FormToggle
 						id={ label }
 						className="jetpack-publicize-connection-toggle"
-						checked={ checked }
+						checked={ connectionOn }
 						onChange={ this.onConnectionChange }
 						disabled={ isDisabled }
 					/>

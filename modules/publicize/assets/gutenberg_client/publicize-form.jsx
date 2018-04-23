@@ -30,10 +30,10 @@ import PublicizeSettingsButton from './publicize-settings-button';
 class PublicizeForm extends Component {
 	constructor( props ) {
 		super( props );
-		const { initializePublicize, connections } = this.props;
+		const { initializePublicize, staticConnections } = this.props;
 		const initialTitle = '';
 		// Connection data format must match 'publicize' REST field registered in {@see class-jetpack-publicize-gutenberg.php}.
-		const initialActiveConnections = connections.map( ( c ) => {
+		const initialActiveConnections = staticConnections.map( ( c ) => {
 			return ( {
 				unique_id: c.unique_id,
 				should_share: c.checked,
@@ -53,11 +53,11 @@ class PublicizeForm extends Component {
 	 * @return {boolean} True if whole form should be disabled.
 	 */
 	isDisabled() {
-		const { connections } = this.props;
+		const { staticConnections } = this.props;
 		let disabled = true; // Assume all disabled
 
 		// Check to see if at least one connection is not disabled
-		for ( const c of connections ) {
+		for ( const c of staticConnections ) {
 			if ( '' === c.disabled ) {
 				disabled = false;
 				break;
@@ -66,9 +66,32 @@ class PublicizeForm extends Component {
 		return disabled;
 	}
 
+	/**
+	 * Checks if a connection is turned on/off.
+	 *
+	 * Looks up connection by ID in activeConnections prop which is
+	 * an array of objects with properties 'unique_id' and 'should_share';
+	 * looks for an array entry with a 'unique_id' property that matches
+	 * the parameter value. If found, the connection 'should_share' value
+	 * is returned.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param {string} uniqueId Connection ID.
+	 * @return {boolean} True if the connection is currently switched on.
+	 */
+	isConnectionOn( uniqueId ) {
+		const { activeConnections } = this.props;
+		const matchingConnection = activeConnections.find( c => uniqueId === c.unique_id );
+		if ( null == matchingConnection ) {
+			return false;
+		}
+		return matchingConnection.should_share;
+	}
+
 	render() {
 		const {
-			connections,
+			staticConnections,
 			connectionChange,
 			messageChange,
 			shareMessage,
@@ -80,11 +103,11 @@ class PublicizeForm extends Component {
 			<div className="misc-pub-section misc-pub-section-last">
 				<div id="publicize-form">
 					<ul>
-						{connections.map( c =>
+						{staticConnections.map( c =>
 							<PublicizeConnection
 								connectionData={ c }
 								key={ c.unique_id }
-								defaultEnabled={ c.checked }
+								connectionOn={ this.isConnectionOn( c.unique_id ) }
 								connectionChange={ connectionChange }
 							/>
 						) }
@@ -122,18 +145,26 @@ export default compose(
 		 * Directly sets post's publicize data.
 		 *
 		 * Sets initial values for publicize data this saved with post. Field schema defined in
-		 * {@see class-jetpack-publicize-gutenberg.php}
+		 * {@see class-jetpack-publicize-gutenberg.php}. Input parameters are used as defaults.
+		 * They will be ignored if the 'publicize' field has already been set. This prevents
+		 * user changes from being erased every time pre-publish panel is opened and closed.
 		 *
 		 * @since 5.9.1
 		 *
-		 * @param {string} title             String to share post with
-		 * @param {array}  activeConnections Array of connection data {@see class-jetpack-publicize-gutenberg.php}
+		 * @param {string} initTitle             String to share post with
+		 * @param {array}  initActiveConnections Array of connection data {@see class-jetpack-publicize-gutenberg.php}
 		 */
-		initializePublicize( title, activeConnections ) {
+		initializePublicize( initTitle, initActiveConnections ) {
+			const {
+				activeConnections,
+				shareMessage,
+			} = ownProps;
+			const newConnections = ( activeConnections.length > 0 ) ? activeConnections : initActiveConnections;
+			const newTitle = ( shareMessage.length > 0 ) ? shareMessage : initTitle;
 			dispatch( 'core/editor' ).editPost( {
 				publicize: {
-					title: title,
-					connections: activeConnections,
+					title: newTitle,
+					connections: newConnections,
 				}
 			} );
 		},
@@ -151,7 +182,9 @@ export default compose(
 		 */
 		connectionChange( connectionID, checked ) {
 			const { activeConnections, shareMessage } = ownProps;
-			activeConnections.forEach( ( c ) => {
+			// Copy array (simply mutating data would cause the component to not be updated).
+			const newConnections = activeConnections.slice( 0 );
+			newConnections.forEach( ( c ) => {
 				if ( c.unique_id === connectionID ) {
 					c.should_share = checked;
 				}
@@ -159,7 +192,7 @@ export default compose(
 			dispatch( 'core/editor' ).editPost( {
 				publicize: {
 					title: shareMessage,
-					connections: activeConnections,
+					connections: newConnections,
 				}
 			} );
 		},
