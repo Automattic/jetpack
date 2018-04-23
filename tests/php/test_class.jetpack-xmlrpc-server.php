@@ -64,14 +64,6 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertContains( '[local_user_missing]', $response->message );
 	}
 
-	function test_xmlrpc_remote_register_fails_nonce_validation() {
-		$server = new Jetpack_XMLRPC_Server();
-		$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
-		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertEquals( 400, $response->code );
-		$this->assertContains( '[invalid_nonce]', $response->message );
-	}
-
 	function test_xmlrpc_remote_register_nonce_validation() {
 		$server = new Jetpack_XMLRPC_Server();
 		$filters = array(
