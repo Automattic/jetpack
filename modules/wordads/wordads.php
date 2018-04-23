@@ -334,10 +334,10 @@ HTML;
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'float:left;margin-top:0px;' );
 				}
 			}
 		} else if ( 'house' == $type ) {
