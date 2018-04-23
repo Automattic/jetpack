@@ -130,9 +130,9 @@ curl --request POST \
   --url https://public-api.wordpress.com/rest/v1.3/jpphp/provision \
   --header "authorization: Bearer $ACCESS_TOKEN" \
   --header 'cache-control: no-cache' \
-  --header 'local_user: username_id_or_email_here' \
-  --header 'plan: plan_here' \
-  --header 'siteurl: siteurl_here'
+ --form plan=plan_here \
+ --form siteurl=siteurl_here \
+ --form local_username=local_username_here
 ```
 
 Here's an example using the request module in NodeJS.
@@ -152,7 +152,7 @@ var options = {
         authorization: 'Bearer ' + accessToken,
     },
     formData: {
-        local_username: local_username,
+        plan: plan,
         siteurl: siteurl,
         local_user: local_user
     }

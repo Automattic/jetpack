@@ -247,7 +247,7 @@ class Jetpack_XMLRPC_Server {
 			$redirect_uri = admin_url();
 		}
 
-		// generate secrets
+		// Generate secrets.
 		$role    = Jetpack::translate_user_to_role( $user );
 		$secrets = Jetpack::init()->generate_secrets( 'authorize', $user->ID );
 
@@ -266,7 +266,6 @@ class Jetpack_XMLRPC_Server {
 			$response['site_icon'] = $site_icon;
 		}
 
-		// this feels out of place here now
 		if ( ! empty( $request['onboarding'] ) ) {
 			Jetpack::create_onboarding_token();
 			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
