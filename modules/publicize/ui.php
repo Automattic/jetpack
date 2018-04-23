@@ -707,6 +707,7 @@ jQuery( function($) {
 	 *     @type bool   'active'          True if connection is not skipped by filters and is not already done.
 	 *     @type bool   'hidden_checkbox' True if the connection should not be shared to by current user.
 	 *     @type string 'label'           Text description of checkbox.
+	 *     @type string 'display_name'    Username for sharing account.
 	 * }
 	 */
 	function get_filtered_connection_data( $post_id = null ) {
@@ -841,6 +842,7 @@ jQuery( function($) {
 					'active'          => $active,
 					'hidden_checkbox' => $hidden_checkbox,
 					'label'           => esc_html( $label ),
+					'display_name'    => $this->publicize->get_display_name( $name, $connection ),
 				);
 			}
 		}

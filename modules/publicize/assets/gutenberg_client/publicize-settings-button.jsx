@@ -45,7 +45,11 @@ class PublicizeSettingsButton extends Component {
 
 	render() {
 		return (
-			<div>
+			<div className="jetpack-publicize-add-connection-container">
+				<span
+					className="jetpack-publicize-add-icon dashicons-plus-alt"
+				>
+				</span>
 				<a
 					onClick={ this.settingsClick }
 					href="javascript:void(0)"

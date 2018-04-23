@@ -209,10 +209,22 @@ class Jetpack_Publicize_Gutenberg {
 		global $publicize_ui;
 
 		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
+			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
+
 			if ( is_rtl() ) {
-				wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20120925' );
+				wp_enqueue_style(
+					'publicize',
+					plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ),
+					array( 'dashicons' ),
+					'20120925'
+				);
 			} else {
-				wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20120925' );
+				wp_enqueue_style(
+					'publicize',
+					plugins_url( 'assets/publicize.css', __FILE__ ),
+					array( 'dashicons' ),
+					'20120925'
+				);
 			}
 
 			wp_enqueue_script(
