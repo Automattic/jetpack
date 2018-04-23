@@ -147,7 +147,11 @@ class Jetpack_XMLRPC_Server {
 		$user = $this->fetch_and_verify_local_user( $request );
 
 		if ( ! $user ) {
-			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ) ), 'jpc_remote_register_fail' );
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_register_fail' );
+		}
+
+		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error( $user, 'jpc_remote_register_fail' );
 		}
 
 		if ( empty( $request['nonce'] ) ) {
@@ -216,7 +220,11 @@ class Jetpack_XMLRPC_Server {
 		$user = $this->fetch_and_verify_local_user( $request );
 
 		if ( ! $user ) {
-			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ) ), 'jpc_remote_register_fail' );
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_register_fail' );
+		}
+
+		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error( $user, 'jpc_remote_register_fail' );
 		}
 
 		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )

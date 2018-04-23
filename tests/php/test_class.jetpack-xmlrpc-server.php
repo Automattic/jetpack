@@ -48,31 +48,34 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	}
 
 	function test_xmlrpc_remote_provision_fails_no_nonce() {
+		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
 		$server = new Jetpack_XMLRPC_Server();
 
-		$response = $server->remote_provision( array( 'local_username' => 'nonexistent' ) );
+		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertContains( '[nonce_missing]', $response->message );
 	}
 
-	function test_xmlrpc_remote_provision_fails_no_local_username() {
+	function test_xmlrpc_remote_provision_fails_no_local_user() {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
-		$this->assertContains( '[local_username_missing]', $response->message );
+		$this->assertContains( '[local_user_missing]', $response->message );
 	}
 
 	function test_xmlrpc_remote_provision_fails_nonce_validation() {
+		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
 		$server = new Jetpack_XMLRPC_Server();
-		$response = $server->remote_provision( array( 'nonce' => '12345', 'local_username' => 'nonexistent' ) );
+		$response = $server->remote_provision( array( 'nonce' => '12345', 'local_user' => 'nonexistent' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertContains( '[invalid_nonce]', $response->message );
 	}
 
 	function test_xmlrpc_remote_provision_nonce_validation() {
+		$this->markTestIncomplete( 'We no longer check for nonce on this method, but rely on signature' );
 		$server = new Jetpack_XMLRPC_Server();
 		$filters = array(
 			'__return_ok_status' => array(
@@ -91,7 +94,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		foreach ( $filters as $filter => $expected ) {
 			add_filter( 'pre_http_request', array( $this, $filter ) );
-			$response = $server->remote_provision( array( 'nonce' => '12345', 'local_username' => 'nonexistent' ) );
+			$response = $server->remote_provision( array( 'nonce' => '12345', 'local_user' => 'nonexistent' ) );
 			remove_filter( 'pre_http_request', array( $this, $filter ) );
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
