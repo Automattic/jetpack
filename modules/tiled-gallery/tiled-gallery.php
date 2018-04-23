@@ -18,10 +18,6 @@ class Jetpack_Tiled_Gallery {
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_assets' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
-
-		// temporary (hack) - enqueue standard scripts (for every page..) so we can use existing tiled-gallery.js resize behaviour
-		// later: target this to posts that need it, or adapt it to component behaviour
-		self::default_scripts_and_styles();
 	}
 
 	public function tiles_enabled() {
@@ -246,10 +242,10 @@ class Jetpack_Tiled_Gallery {
 
 
 	/**
-	 * Enqueue css for `column-count`-based tiled layout
+	 * Enqueue the existing css & js for the block (we are using it for Gutenberg also)
 	 */
 	public static function enqueue_block_assets() {
-		wp_enqueue_style( 'jetpack-tiled-gallery', plugins_url( './css/style.css', __FILE__ ), array(), __FILETIME__ );
+		self::default_scripts_and_styles();
   }
 
 	/**
