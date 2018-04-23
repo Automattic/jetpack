@@ -20,7 +20,6 @@ const { mediaUpload } = wp.utils;
 const {
 	IconButton,
 	DropZone,
-	FormFileUpload,
 	Toolbar,
 } = wp.components;
 const {
@@ -206,23 +205,7 @@ class JetpackGalleryBlockEditor extends Component {
 				</InspectorControls>
 			),
 			imageTiles,
-			<ul key="gallery-images" className="jetpack-tiled-gallery">
-				{ dropZone }
-				{ isSelected &&
-					<li key="item-uploader" className="blocks-gallery-item">
-						<FormFileUpload
-							multiple
-							isLarge
-							className="blocks-gallery-add-item-button"
-							onChange={ this.uploadFromFiles }
-							accept="image/*"
-							icon="insert"
-						>
-							{ __( 'Upload an image' ) }
-						</FormFileUpload>
-					</li>
-				}
-			</ul>,
+			dropZone,
 		];
 	}
 }
