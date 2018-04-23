@@ -271,6 +271,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			}
 		}
 
+		if ( 'true' === $new_instance['dnt'] | 'false' === $new_instance['dnt'] ) {
+				$instance['dnt'] = $new_instance['dnt'];
+		} else {
+			$instance['dnt'] = 'true';
+		}
+
 		return $instance;
 	}
 
