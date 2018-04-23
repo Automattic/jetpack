@@ -374,33 +374,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		/**
-		 * Filter to turn off caching of Jetpack plans
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool true Whether to cache Jetpack plans locally
-		 */
-		$use_cache = apply_filters( 'jetpack_cache_plans', true );
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/plans?_locale=' . get_user_locale(),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
 
-		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
-
-		if ( false === $data ) {
-			$path = '/plans?_locale=' . get_user_locale();
-			// passing along from client to help geolocate currency
-			$ip = Jetpack::current_user_ip( true );
-			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
-			$body = wp_remote_retrieve_body( $request );
-			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
-				$data = $body;
-			} else {
-				// something went wrong so we'll just return the response without caching
-				return $body;
-			}
-
-			if ( true === $use_cache ) {
-				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
-			}
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = $body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
 		}
 
 		return $data;
