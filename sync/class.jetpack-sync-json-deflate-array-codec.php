@@ -22,11 +22,12 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 	}
 
 	// @see https://gist.github.com/muhqu/820694
-	private function json_serialize( $any ) {
+
+	protected function json_serialize( $any ) {
 		return wp_json_encode( jetpack_json_wrap( $any ) );
 	}
 
-	private function json_unserialize( $str ) {
+	protected function json_unserialize( $str ) {
 		return $this->json_unwrap( json_decode( $str, true ) );
 	}
 
