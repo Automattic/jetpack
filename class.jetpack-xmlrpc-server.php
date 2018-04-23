@@ -191,6 +191,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Options::get_option( 'blog_token' ) || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
+
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
