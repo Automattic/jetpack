@@ -456,7 +456,9 @@ class Grunion_Contact_Form_Plugin {
 				return $error;
 			}
 
-			require_once JETPACK__PLUGIN_DIR . '/modules/recaptcha.php';
+			if ( ! class_exists( 'Jetpack_ReCaptcha' ) ) {
+				jetpack_require_lib( 'recaptcha' );
+			}
 
 			$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
 			$result    = $recaptcha->verify( $recaptcha_response, $_SERVER['REMOTE_ADDR'] );
@@ -2087,10 +2089,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
 
+			$doing_ajax = Jetpack_Constants::get_constant( 'DOING_AJAX' );
+
 			/**
 			 * Show `template_redirect` validation errors for reCaptcha.
 			 */
-			if ( $is_recaptcha_enabled && empty( constant( 'DOING_AJAX' ) ) ) {
+			if ( $is_recaptcha_enabled && empty( $doing_ajax ) ) {
 
 				$recaptcha_error = get_query_var( 'grunion_contact_form_recaptcha_error' );
 
@@ -2105,7 +2109,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= $form->body;
 
 			if ( $is_recaptcha_enabled ) {
-				require_once JETPACK__PLUGIN_DIR . '/modules/recaptcha.php';
+
+				if ( ! class_exists( 'Jetpack_ReCaptcha' ) ) {
+					jetpack_require_lib( 'recaptcha' );
+				}
 
 				$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
 
