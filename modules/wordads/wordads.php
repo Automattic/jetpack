@@ -95,6 +95,16 @@ class WordAds {
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 			header( 'Content-Type: text/plain; charset=utf-8' );
+
+			/**
+			 * Provide plugins a way of modifying the contents of the automatically-generated ads.txt file.
+			 *
+			 * @module wordads
+			 *
+			 * @since 6.1.0
+			 *
+			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
+			 */
 			$ads_txt_content = apply_filters( 'wordads_ads_txt', WordAds_API::get_wordads_ads_txt() );
 			echo esc_html( $ads_txt_content );
 			die();

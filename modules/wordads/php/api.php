@@ -44,10 +44,10 @@ class WordAds_API {
 	}
 
 	/**
-	 * Returns site's WordAds status
-	 * @return array boolean values for 'approved' and 'active'
+	 * Returns the ads.txt content needed to run WordAds.
+	 * @return array string contents of the ads.txt file.
 	 *
-	 * @since 4.5.0
+	 * @since 6.1.0
 	 */
 	public static function get_wordads_ads_txt() {
 		$endpoint = sprintf( '/sites/%d/wordads/ads-txt', Jetpack::get_option( 'id' ) );
