@@ -11,8 +11,19 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+const {
+	FormToggle,
+} = window.wp.components;
 
 class PublicizeConnection extends Component {
+	constructor( props ) {
+		super( props );
+		const { defaultEnabled } = props;
+		this.state = {
+			checked: defaultEnabled,
+		};
+	}
+
 	/**
 	 * Handler for when connection is enabled/disabled.
 	 *
@@ -20,32 +31,48 @@ class PublicizeConnection extends Component {
 	 * state change can be handled by parent.
 	 *
 	 * @since 5.9.1
-	 *
-	 * @param {object} event Checkbox element's onchange event object.
 	 */
-	onConnectionChange = ( event ) => {
+	onConnectionChange = () => {
 		const { unique_id } = this.props.connectionData;
 		const { connectionChange } = this.props;
-		connectionChange( unique_id, event.target.checked );
+		const { checked } = this.state;
+		this.setState( {
+			checked: ! checked,
+		} );
+		connectionChange( unique_id, ! checked );
 	}
 
 	render() {
-		const { name, label, disabled } = this.props.connectionData;
-		const { defaultEnabled } = this.props;
+		const {
+			name,
+			label,
+			disabled,
+			display_name,
+		} = this.props.connectionData;
+		const { checked } = this.state;
 		const isDisabled = ( '' !== disabled );
+		// Genericon names are dash separated
+		const socialName = name.replace( '_', '-' );
 
 		return (
 			<li>
-				<label htmlFor={ name }>
-					<input type="checkbox"
-						className={ 'wpas-submit-' + name }
-						id={ name }
-						defaultChecked={ defaultEnabled }
+				<div className="publicize-jetpack-connection-container">
+					<label htmlFor={ label }className="jetpack-publicize-connection-label">
+						<span
+							title={ label }
+							className={ 'jetpack-publicize-gutenberg-social-icon social-logo social-logo__' + socialName }
+						>
+						</span>
+						<span>{ display_name }</span>
+					</label>
+					<FormToggle
+						id={ label }
+						className="jetpack-publicize-connection-toggle"
+						checked={ checked }
 						onChange={ this.onConnectionChange }
 						disabled={ isDisabled }
 					/>
-					{ label }
-				</label>
+				</div>
 			</li>
 		);
 	}

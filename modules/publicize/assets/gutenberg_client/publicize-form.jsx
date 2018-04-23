@@ -90,7 +90,9 @@ class PublicizeForm extends Component {
 						) }
 					</ul>
 					<PublicizeSettingsButton refreshCallback={ refreshCallback } />
-					<label htmlFor="wpas-title">{ __( 'Customize your message' ) }</label>
+					<label className="jetpack-publicize-message-note" htmlFor="wpas-title">
+						{ __( 'Customize your message' ) }
+					</label>
 					<div className="jetpack-publicize-message-box">
 						<textarea
 							value={ shareMessage }
