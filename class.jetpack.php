@@ -1515,6 +1515,9 @@ class Jetpack {
 		// get available features
 		foreach ( self::get_available_modules() as $module_slug ) {
 			$module = self::get_module( $module_slug );
+			if ( ! isset( $module ) || ! is_array( $module ) ) {
+				continue;
+			}
 			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
 				$supports[] = $module_slug;
 			}
@@ -1568,7 +1571,8 @@ class Jetpack {
 		 *
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
-		return apply_filters( 'jetpack_development_mode', $development_mode );
+		$development_mode = ( bool ) apply_filters( 'jetpack_development_mode', $development_mode );
+		return $development_mode;
 	}
 
 	/**

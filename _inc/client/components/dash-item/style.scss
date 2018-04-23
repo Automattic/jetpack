@@ -29,10 +29,17 @@
 .jp-dash-item__count {
 	margin-top: 0;
 	margin-bottom: 0;
-	width: 100%;
+	margin-right: 8px;
 	color: $blue-medium;
 	font-weight: 500;
 	font-size: rem( 32px );
+	display: inline;
+	border: 1px solid $dashboard-number-border;
+	border-radius: 4px;
+	padding: 0px 4px;
+	float: left;
+	min-width: 36px;
+	text-align: center;
 
 	@include breakpoint( "<660px" ) {
 		font-size: rem( 23px );

@@ -41,6 +41,8 @@ import {
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverridenBanner from 'components/module-overridden-banner';
+import { getModuleOverride, getModule } from 'state/modules';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -87,10 +89,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
-				) {
+				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
 					return '';
 				}
 
@@ -106,10 +105,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_WORDADS_JETPACK:
-				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
-				) {
+				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
 					return '';
 				}
 
@@ -157,11 +153,12 @@ export const SettingsCard = props => {
 				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
 					return '';
 				}
+
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
@@ -176,7 +173,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
@@ -277,7 +274,49 @@ export const SettingsCard = props => {
 		return true;
 	};
 
-	return (
+	const featureIsOverriden = () => {
+		switch ( feature ) {
+			case FEATURE_VIDEO_HOSTING_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'videopress' );
+			case FEATURE_WORDADS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'wordads' );
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'google-analytics' );
+			case FEATURE_SEO_TOOLS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'seo-tools' );
+			case FEATURE_SEARCH_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'search' );
+			default:
+				return false;
+		}
+	};
+
+	// We only want to show this banner for Google Analytics and SEO Tools because
+	// they don't use the ModuleToggle for their UI.
+	const getModuleOverridenBanner = () => {
+		if ( ! featureIsOverriden() ) {
+			return false;
+		}
+		switch ( feature ) {
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				const googleAnalytics = props.getModule( 'google-analytics' );
+				return <ModuleOverridenBanner moduleName={ googleAnalytics.name } />;
+			case FEATURE_SEO_TOOLS_JETPACK:
+				const seoTools = props.getModule( 'seo-tools' );
+				return <ModuleOverridenBanner moduleName={ seoTools.name } />;
+			default:
+				return null;
+		}
+	};
+
+	const children = showChildren() && props.children;
+	const banner = ! props.fetchingSiteData && ! featureIsOverriden() && getBanner();
+
+	if ( ! children && ! banner ) {
+		return null;
+	}
+
+	return getModuleOverridenBanner() || (
 		<form className="jp-form-settings-card">
 			<SectionHeader label={ header }>
 				{
@@ -299,8 +338,8 @@ export const SettingsCard = props => {
 					props.action && <ProStatus proFeature={ props.action } siteAdminUrl={ props.siteAdminUrl } isCompact={ false } />
 				}
 			</SectionHeader>
-			{ showChildren() && props.children }
-			{ ! props.fetchingSiteData && getBanner( feature ) }
+			{ children }
+			{ banner }
 		</form>
 	);
 };
@@ -325,7 +364,9 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: getVaultPressData( state )
+			vaultPressData: getVaultPressData( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+			getModule: module_name => getModule( state, module_name ),
 		};
 	}
 )( SettingsCard );

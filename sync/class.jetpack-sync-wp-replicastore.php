@@ -388,6 +388,23 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 	}
 
+	// todo: test this out to make sure it works as expected.
+	public function delete_batch_metadata( $type, $object_ids, $meta_key ) {
+		global $wpdb;
+
+		$table = _get_meta_table( $type );
+		if ( ! $table ) {
+			return false;
+		}
+		$column = sanitize_key($type . '_id' );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE $column IN (%s) && meta_key = %s", implode( ',', $object_ids ),  $meta_key ) );
+
+		// if we don't have an object ID what do we do - invalidate ALL meta?
+		foreach ( $object_ids as $object_id ) {
+			wp_cache_delete( $object_id, $type . '_meta' );
+		}
+	}
+
 	// constants
 	public function get_constant( $constant ) {
 		$value = get_option( 'jetpack_constant_' . $constant );
@@ -595,7 +612,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function delete_user_locale( $user_id ) {
 		$this->invalid_call();
 	}
-	
+
 	public function get_user_locale( $user_id ) {
 		return jetpack_get_user_locale( $user_id );
 	}
@@ -636,7 +653,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				$where_sql    = Jetpack_Sync_Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-				
+
 				if ( empty( $columns ) ) {
 					$columns  = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
 				}

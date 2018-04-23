@@ -216,9 +216,6 @@ HTML;
 		<link rel='dns-prefetch' href='//ad.doubleclick.net' />
 		<link rel='dns-prefetch' href='//googleads.g.doubleclick.net' />
 		<link rel='dns-prefetch' href='//www.googletagservices.com' />
-		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
 		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
 HTML;
 	}
@@ -352,7 +349,6 @@ HTML;
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
-		$blocker_unit = 'mrec';
 		if ( 'iponweb' == $type ) {
 			$width = 300;
 			$height = 250;
@@ -362,15 +358,14 @@ HTML;
 				// mrec for mobile, leaderboard for desktop
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, $blocker_unit );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'mrec2', 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
 				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
@@ -408,7 +403,7 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $height, $width, $location = '', $adblock_unit = 'mrec', $css = '' ) {
+	function get_ad_snippet( $height, $width, $location = '', $css = '' ) {
 		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
@@ -416,8 +411,7 @@ HTML;
 			return;
 		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$adblock_ad = $this->get_adblocker_ad( $adblock_unit );
-
+		
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$ad_number}">
@@ -431,43 +425,8 @@ HTML;
 					});
 				});
 				</script>
-				$adblock_ad
 			</div>
 		</div>
-HTML;
-	}
-
-	/**
-	 * Get Criteo Acceptable Ad unit
-	 * @param  string $unit mrec, mrec2, widesky, top, top_mrec
-	 *
-	 * @since 5.3
-	 */
-	public function get_adblocker_ad( $unit = 'mrec' ) {
-		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$criteo_id = mt_rand();
-		$height = 250;
-		$width = 300;
-		$zone_id = 388248;
-		if ( 'mrec2' == $unit ) { // 2nd belowpost
-			$zone_id = 837497;
-		} else if ( 'widesky' == $unit ) { // sidebar
-			$zone_id = 563902;
-			$width = 160;
-			$height= 600;
-		} else if ( 'top' == $unit ) { // top leaderboard
-			$zone_id = 563903;
-			$width = 728;
-			$height = 90;
-		} else if ( 'top_mrec' == $unit ) { // top mrec
-			$zone_id = 563903;
-		}
-
-		return <<<HTML
-		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;display:none !important;"></div>
-		<script$data_tags type="text/javascript">
-		(function(){var c=function(){var a=document.getElementById("crt-{$criteo_id}");window.Criteo?(a.parentNode.style.setProperty("display","inline-block","important"),a.style.setProperty("display","block","important"),window.Criteo.DisplayAcceptableAdIfAdblocked({zoneid:{$zone_id},containerid:"crt-{$criteo_id}",collapseContainerIfNotAdblocked:!0,callifnotadblocked:function(){a.style.setProperty("display","none","important");a.style.setProperty("visbility","hidden","important")}})):(a.style.setProperty("display","none","important"),a.style.setProperty("visibility","hidden","important"))};if(window.Criteo)c();else{if(!__ATA.criteo.script){var b=document.createElement("script");b.src="//static.criteo.net/js/ld/publishertag.js";b.onload=function(){for(var a=0;a<__ATA.criteo.cmd.length;a++){var b=__ATA.criteo.cmd[a];"function"===typeof b&&b()}};(document.head||document.getElementsByTagName("head")[0]).appendChild(b);__ATA.criteo.script=b}__ATA.criteo.cmd.push(c)}})();
-		</script>
 HTML;
 	}
 

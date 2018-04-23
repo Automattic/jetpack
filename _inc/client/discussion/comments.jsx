@@ -17,6 +17,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 class CommentsComponent extends React.Component {
 	/**
@@ -31,6 +32,13 @@ class CommentsComponent extends React.Component {
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown' );
 		}
 		return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown', true );
+	};
+
+	handleMarkdownCommentsToggle = () => {
+		this.props.updateFormStateModuleOption(
+			'markdown',
+			'wpcom_publish_comments_with_markdown'
+		);
 	};
 
 	render() {
@@ -138,12 +146,14 @@ class CommentsComponent extends React.Component {
 							{
 								foundMarkdown && (
 									<FormFieldset>
-										<ModuleToggle
-											slug="markdown"
-											compact
-											activated={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+										<CompactFormToggle
+											checked={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+											disabled={
+												this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) ||
+												'inactive' === this.props.getModuleOverride( 'markdown' )
+											}
 											toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
-											toggleModule={ this.updateFormStateByMarkdown }
+											onChange={ this.handleMarkdownCommentsToggle }
 										>
 											<span className="jp-form-toggle-explanation">
 												{
@@ -153,13 +163,14 @@ class CommentsComponent extends React.Component {
 													{ __( 'Learn more' ) }
 												</a>
 											</span>
-										</ModuleToggle>
+										</CompactFormToggle>
 									</FormFieldset>
 								)
 							}
 							{
 								foundCommentLikes && (
 									<FormFieldset>
+
 										<ModuleToggle
 											slug="comment-likes"
 											compact

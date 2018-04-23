@@ -43,7 +43,7 @@ class Jetpack_Provision { //phpcs:ignore
 		if ( Jetpack::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
-				esc_html__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 			);
 		}
 
@@ -210,7 +210,7 @@ class Jetpack_Provision { //phpcs:ignore
 				return new WP_Error(
 					'server_error',
 					/* translators: %s is an HTTP status code retured from an API request. Ex. – 400 */
-					sprintf( esc_html__( 'Request failed with code %s', 'jetpack' ), $response_code )
+					sprintf( __( 'Request failed with code %s', 'jetpack' ), $response_code )
 				);
 			}
 		}

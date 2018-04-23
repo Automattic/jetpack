@@ -29,7 +29,7 @@ git clone https://github.com/Automattic/jetpack.git && cd jetpack
 
 Optionally, copy settings file to modify it:
 ```sh
-cp defaults.env .env
+cp docker/default.env docker/.env
 ```
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
@@ -259,8 +259,6 @@ To `tail -f` the PHP error log, run:
 yarn docker:tail
 ```
 
-**Note:** this command does not work in Windows.
-
 ### Debugging emails
 
 Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
@@ -338,7 +336,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 1. Name your debug configuration whatever you like.
 
 1. Check the 'Filter debug connection by IDE key', and enter 'PHPSTORM' for 'IDE Key ( Session ID )'.
- 
+
 1. Click the '...' on the 'Server' line to configure your remote server.
 
 1. In the server configuration window, click the '+' icon to create a new server configuration. Name it whatever you like.
@@ -354,7 +352,3 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 1. Back in the main configuration window, click 'Apply' then 'Ok'.
 
 1. You can now start a debug session by clicking 'Run -> Debug' in the main menu
-
-
-
-

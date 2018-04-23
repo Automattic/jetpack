@@ -47,6 +47,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
+		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
+		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
+		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+
 		add_action( 'export_wp', $callable );
 		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
 
@@ -74,6 +78,25 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
 		$this->import_end = true;
+	}
+
+	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
+		remove_action( 'deleted_post_meta', $this->action_handler );
+		/**
+		 * Used for syncing deletion of batch post meta
+		 *
+		 * @since 6.1.0
+		 *
+		 * @module sync
+		 *
+		 * $param array $feedback_ids feedback post IDs
+		 * $param string $meta_key to be deleted
+		 */
+		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values');
+	}
+
+	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {
+		add_action( 'deleted_post_meta', $this->action_handler );
 	}
 
 	public function sync_import_end() {

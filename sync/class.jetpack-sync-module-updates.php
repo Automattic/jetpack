@@ -118,7 +118,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$no_updated = array();
 		switch ( $transient ) {
 			case 'update_plugins':
-				if ( ! empty( $update->response ) ) {
+				if ( ! empty( $update->response ) && is_array( $update->response ) ) {
 					foreach ( $update->response as $plugin_slug => $response ) {
 						if ( ! empty( $plugin_slug ) && isset( $response->new_version ) ) {
 							$updates[] = array( $plugin_slug => $response->new_version );
@@ -135,7 +135,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 				break;
 			case 'update_themes':
-				if ( ! empty( $update->response ) ) {
+				if ( ! empty( $update->response ) && is_array( $update->response ) ) {
 					foreach ( $update->response as $theme_slug => $response ) {
 						if ( ! empty( $theme_slug ) && isset( $response['new_version'] ) ) {
 							$updates[] = array( $theme_slug => $response['new_version'] );
@@ -149,7 +149,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 				break;
 			case 'update_core':
-				if ( ! empty( $update->updates ) ) {
+				if ( ! empty( $update->updates ) && is_array( $update->updates ) ) {
 					foreach ( $update->updates as $response ) {
 						if( ! empty( $response->response ) && $response->response === 'latest' ) {
 							continue;
@@ -192,6 +192,17 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
+		/**
+		 * jetpack_{$transient}_change
+		 * jetpack_update_plugins_change
+		 * jetpack_update_themes_change
+		 * jetpack_update_core_change
+		 *
+		 * @since 5.1.0
+		 *
+		 * @param array containing info that tells us what needs updating
+		 *
+		 */
 		do_action( "jetpack_{$transient}_change", $value );
 	}
 
@@ -252,6 +263,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	public function expand_themes( $args ) {
 		if ( ! isset( $args[0], $args[0]->response ) ) {
+			return $args;
+		}
+		if ( ! is_array( $args[0]->response ) ) {
+			trigger_error( 'Warning: Not an Array as expected but -> ' . wp_json_encode( $args[0]->response ) . ' instead', E_USER_WARNING );
 			return $args;
 		}
 		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {

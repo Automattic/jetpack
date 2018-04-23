@@ -249,7 +249,7 @@ class Jetpack_SEO_Titles {
 			if ( '' === $format_array ) {
 				continue;
 			}
-			
+
 			if ( ! is_array( $format_array ) ) {
 				return false;
 			}
