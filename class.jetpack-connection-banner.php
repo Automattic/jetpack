@@ -166,7 +166,13 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 */
-	function render_banner() { ?>
+	function render_banner() {
+		$disconnection_notice = Jetpack_Options::get_option( 'disconnection_notice', array() );
+		$notice = sprintf( __( 'Your connection to WordPress.com broken please try reconnecting!', 'jetpack' ) );
+		if ( in_array( get_current_user_id(), $disconnection_notice ) ) {
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		} ?>
+
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
 				<span

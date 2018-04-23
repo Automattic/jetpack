@@ -22,6 +22,7 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) , 'Master user present' );
 		$this->assertFalse( Jetpack_Options::get_option( 'user_tokens' ), 'User Tokens Present' );
 		$this->assertFalse( Jetpack_Options::get_option( 'blog_token' ), 'Blog Token Present');
+		$this->assertEquals( array( $master_user ), Jetpack_Options::get_option( 'disconnection_notice' ) );
 	}
 
 	public function test_jetpack_client_recieves_unknown_token_demote_master_user() {
@@ -42,6 +43,7 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 		$this->assertFalse( isset( $tokens[$master_user] ), 'Master Token Present');
 		$this->assertTrue(  isset( $tokens[$master_user_new] ), 'New Master Token Present' );
 		$this->assertTrue( (bool)Jetpack_Options::get_option( 'blog_token' ), 'Blog Token Not Present' );
+		$this->assertEquals( array( $master_user ), Jetpack_Options::get_option( 'disconnection_notice' ) );
 
 	}
 

@@ -3241,7 +3241,7 @@ p {
 	/**
 	 * Unlinks the current user from the linked WordPress.com user
 	 */
-	public static function unlink_user( $user_id = null, $bypass_wpcom = false ) {
+	public static function unlink_user( $user_id = null ) {
 		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
 			return false;
 
@@ -3253,11 +3253,9 @@ p {
 		if ( ! isset( $tokens[ $user_id ] ) )
 			return false;
 
-		if ( $bypass_wpcom ) {
-			Jetpack::load_xml_rpc_client();
-			$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
-			$xml->query( 'jetpack.unlink_user', $user_id );
-		}
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml->query( 'jetpack.unlink_user', $user_id );
 
 		unset( $tokens[ $user_id ] );
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
@@ -3274,11 +3272,17 @@ p {
 	}
 
 	public static function update_disconnection_notice( $user_id ) {
-		$notice = (array) Jetpack_Options::get_option( 'disconnection_notice' );
-		$notice = array_merge( $notice, array( $user_id ) );
+		$notice = Jetpack_Options::get_option( 'disconnection_notice' );
+		$notice = ! empty( $notice ) && is_array( $notice ) ? array_merge( $notice, array( $user_id ) ) : array( $user_id );
 		Jetpack_Options::update_option( 'disconnection_notice', $notice );
 	}
 
+	/**
+	 * Removes a user's tokens that was already been removed on the .com but not yet on the Jetpack side
+	 * Disconnects the site if the master tokens are deleted
+	 *
+	 * @param $user_id
+	 */
 	public static function unlink_user_on_unknown_token( $user_id ) {
 		$master_user = (int) Jetpack_Options::get_option( 'master_user' );
 		if ( $user_id == 0 || $user_id == JETPACK_MASTER_USER ) {
@@ -3302,9 +3306,10 @@ p {
 			self::update_disconnection_notice( $user_id );
 			return;
 		}
+		var_dump( array_merge( array( $user_id ), array_keys( $tokens ) ) );
 
 		// Delete Everything - disconnect the site
-		Jetpack_Options::update_option( 'disconnection_notice', $tokens );
+		Jetpack_Options::update_option( 'disconnection_notice', array_merge( array( $user_id ), array_keys( $tokens ) ) );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		Jetpack_Options::delete_option( 'master_user' );
 		Jetpack_Options::delete_option( 'blog_token' );
