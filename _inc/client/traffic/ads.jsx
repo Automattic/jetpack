@@ -32,7 +32,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 	};
 
 	trackConfigureWidgetClick = () => {
-		analytics.tracks.recordJetpackClick( 'place-ad-widget' );
+		analytics.tracks.recordJetpackClick( 'place_ad_widget' );
 	}
 
 	handleChange = setting => {
