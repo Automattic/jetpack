@@ -217,7 +217,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		if ( false === $file_pointer ) {
 			return;
 		}
-
+		fclose( $file_pointer );
 		/**
 		 * This action is documented already in this file
 		 */
