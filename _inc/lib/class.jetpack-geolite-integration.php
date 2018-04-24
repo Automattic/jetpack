@@ -5,9 +5,6 @@
  * This class provide an interface to handle geolocation and error handling.
  *
  * Requires PHP 5.4+.
- *
- * @package WooCommerce\Classes
- * @since   3.4.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -15,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Geolite integration class.
  */
-class WC_Geolite_Integration {
+class Jetpack_Geolite_Integration {
 
 	/**
 	 * MaxMind GeoLite2 database path.
@@ -23,13 +20,6 @@ class WC_Geolite_Integration {
 	 * @var string
 	 */
 	private $database = '';
-
-	/**
-	 * Logger instance.
-	 *
-	 * @var WC_Logger
-	 */
-	private $log = null;
 
 	/**
 	 * Constructor.
@@ -61,28 +51,10 @@ class WC_Geolite_Integration {
 
 			$reader->close();
 		} catch ( Exception $e ) {
-			$this->log( $e->getMessage(), 'warning' );
+			error_log( $e->getMessage() );
 		}
 
 		return sanitize_text_field( strtoupper( $iso_code ) );
-	}
-
-	/**
-	 * Logging method.
-	 *
-	 * @param string $message Log message.
-	 * @param string $level   Log level.
-	 *                        Available options: 'emergency', 'alert',
-	 *                        'critical', 'error', 'warning', 'notice',
-	 *                        'info' and 'debug'.
-	 *                        Defaults to 'info'.
-	 */
-	private function log( $message, $level = 'info' ) {
-		if ( is_null( $this->log ) ) {
-			$this->log = wc_get_logger();
-		}
-
-		$this->log->log( $level, $message, array( 'source' => 'geoip' ) );
 	}
 
 	/**

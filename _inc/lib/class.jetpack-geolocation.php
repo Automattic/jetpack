@@ -88,7 +88,7 @@ class Jetpack_Geolocation {
 				$response         = wp_safe_remote_get( $service_endpoint, array( 'timeout' => 2 ) );
 
 				if ( ! is_wp_error( $response ) && rest_is_ip_address( $response['body'] ) ) {
-					$external_ip_address = apply_filters( 'jetpack_geolocation_ip_lookup_api_response', wc_clean( $response['body'] ), $service_name );
+					$external_ip_address = apply_filters( 'jetpack_geolocation_ip_lookup_api_response', $response['body'], $service_name );
 					break;
 				}
 			}
@@ -140,10 +140,7 @@ class Jetpack_Geolocation {
 			}
 		}
 
-		return array(
-			'country' => $country_code,
-			'state'   => '',
-		);
+		return $country_code;
 	}
 
 	/**
