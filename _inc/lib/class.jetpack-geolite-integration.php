@@ -89,10 +89,10 @@ class WC_Geolite_Integration {
 	 * Require geolite library.
 	 */
 	private function require_geolite_library() {
-		require_once WC_ABSPATH . '_inc/lib/geolite2/Reader/Decoder.php';
-		require_once WC_ABSPATH . '_inc/lib/geolite2/Reader/InvalidDatabaseException.php';
-		require_once WC_ABSPATH . '_inc/lib/geolite2/Reader/Metadata.php';
-		require_once WC_ABSPATH . '_inc/lib/geolite2/Reader/Util.php';
-		require_once WC_ABSPATH . '_inc/lib/geolite2/Reader.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/Reader/Decoder.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/Reader/InvalidDatabaseException.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/Reader/Metadata.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/Reader/Util.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/Reader.php';
 	}
 }
