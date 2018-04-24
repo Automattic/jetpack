@@ -165,11 +165,6 @@ class Jetpack_Sync_Functions {
 		}
 
 		ob_start();
-
-		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		}
-
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 		ob_end_clean();
 		if ( $filesystem_credentials_are_stored ) {
