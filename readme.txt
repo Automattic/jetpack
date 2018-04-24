@@ -95,80 +95,48 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.0 =
+= 6.1 =
 
-* Release date: April 3, 2018
-* Release post: https://wp.me/p1moTy-7xM
+* Release date: May 1, 2018
+* Release post: https://wp.me/p1moTy-7Sj
 
 **Major Enhancements**
-* Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
-* Admin Page: Introduced a Privacy toggle that allows the user to disable event tracking.
-* Widgets: Added new Social Icons widget and deprecated old Social Media Icons widget.
+
+* WordAds: Introduced shortcode for inline Ad placement.
+* WordAds: Added support for the ads.txt file.
 
 **Enhancements**
 
-* Activity Log: Started syncing comment untrashed and comment unspammed events.
-* Admin Page: Added inline module settings for plan welcome page.
-* Admin Page: Removed Javascript patterns previously used in the Admin Page that should improve performance lightly (bind pattern).
-* Admin Page: Made Jetpack Monitor setting management easier by adding a simple toggle.
-* Admin Page: Moved the button for closing the Jumpstart modal closer to the dialog so it's more visible.
-* Admin Page: Updated the "install and activate" link in the Backups card to be a functional link matching the "Set up" button.
-* Admin Page: Updated notices style to be more accessible.
-* Admin Page: We now show a link to see all plans on small screens.
-* Admin Page: Settings in Jetpack dashboard now feature contextual help and a link to learn more about it.
-* Ads: Added site id to head meta.
-* Comments: Improved accessibility of comments form by adding title attributes.
-* Connect: Removed account creation links from below the Set Up Jetpack buttons.
-* General: Show correct available status in Jetpack modules list if module is not supported by current plan.
-* General: Removed holiday snow module.
-* General: Return error in wp-cli if activating a module that is not supported by the current plan.
-* Google Translate Widget: Made sure the widget is responsive by default.
-* JITM: We now allow specifying that a jitm can be opened in a new window, or the same window.
-* JITM: We now don't use all caps for buttons text.
-* Likes: Removed Likes from Jumpstart.
-* Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
-* Masterbar: Made the Sign Out link in the Master always log you out from WordPress.com.
-* Publicize: Made styling of Publicize more consistent with wp-admin.
-* Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
-* Search: Made the Search widget available whether or not Extra Sidebar Widgets is enabled.
-* SEO Tools: Removed SEO Tools from Jumpstart
-* Shortcodes: We now load Twitters widget.js over https.
-* Subscriptions: We've made it a better experience if you try to subscribe to a site you are already subscribed to.
-* Sync: Stopped syncing personal data coming from WooCommerce orders.
-* VideoPress: Default to grid view when linking to upload videos
-* Warm Welcome: Added Search to the features listed on the Warm Welcome dialog for Professional Plan.
-* Widgets: Added rel=noopener attribute to links in the Display WordPress Posts widget if set to open in a new window.
-
+* Dashboard: We improved the styles of status numbers so it doesn't look like floating.
+* JSON API: Added support for Google My Business integration available on WordPress.com.
+* Masterbar: We removed the Next Steps link from the Account sidebar.
+* Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
+* Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
+* Shortcodes: Mixcloud shortcode now uses oEmbed.
+* Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
+* Sync: Removed requirement for gzencode.
+* Widgets: always load script via HTTPS for Gravatar Hovercards.
 
 **Improved compatibility**
 
-* bbPress: Markdown support added for bbPress CPTs.
-* PHP 7.1: Fixed an error coming from one of our json-api endpoints.
+* Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
+* Sharing: Removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
 
 **Bug fixes**
 
-* Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
-* Admin Page: Fixed directory separator character used when displaying the site URL on the disconnect dialog.
-* Admin Page: Fixed an issue by which clicking the back button on a page visited after the Admin Page would result in the Admin Page being rendered with cached data.
-* Admin Page: Don't show a Set Up button when searching for modules that are inactive in Jetpack Settings page. The Set Up button is meant for paid features coming from plugins.
-* Admin Page: Make it clear when tracking begins in the connetion dialog.
-* Admin Page: Hide the date range tabs when the initial dialog is shown.
-* Admin Page: Fixed the positioning of popovers in the Jetpack Settings page.
-* Admin Page: Fixed a bug with the Ads settings toggle.
-* Admin Page: Fixed a display issue for the custom user capability "jetpack_connect".
-* Admin Page: Made sure translations are properly applied to several phrases.
-* Connection Banner: Updated style to better fit wide screens.
-* Connection Banner: Added illustration SVGs.
-* Contact Form: Fixed width style of input for Website address.
-* Google Analytics: fix PHP notice on search pages.
-* Infinite Scroll: Fixed issues where the first was being duplicated on scroll.
-* Likes: Made manually enabled likes remain being likeable if Likes are enabled for all posts
-* Masterbar: Fixed a javascript error that would pop up with the Grammarly extension enabled on Chrome macOS.
-* Search: Added default values for the Search widget so it can be added from the Customizer.
-* Settings: Fixed overflow/overlap when there are many ignored phrases in spelling options.
-* Settings: Updated SEO/analytics links to avoid unnecessary redirects.
-* Stats: Fixed column spacing styling issues in WP Dashboard box for Jetpack stats.
-* VaultPress: Remove menu item that links nowhere when Rewind is enabled.
-* Widgets: Fixed issue with custom URL choice and selective refresh in the EU Cookie Law widget.
-* WooCommerce Analytics: Fixed PHP warning coming from str_replace usage.
-* WooCommerce Analytics: Started tracking all possible ways to add a product to a cart.
+* Admin Page: We fixed the internationalization of the plans page.
+* Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
+* Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
+* General: Fixed a warning that was being logged due to attempting to use in_array() over a variable that didn't always contain an array.
+* General: Fixed Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x.
+* JSON API: Fixed internationalization on embed endpoint.
+* Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
+* Publicize: Avoid adding Publicize post meta when a post transitions to publish and it is not a publicize-able post type.
+* Settings: Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
+* Slideshow: Fixed a Invalid argument supplied for foreach() warning.
+* SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
+* SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
+* Sync: Fixed Warning: Invalid argument supplied for foreach().
+* Sync: Fixed Warning: Warning: json_encode(): recursion detected.
+* WooCommerce Analytics: fixed broken Remove From Cart link.
+
