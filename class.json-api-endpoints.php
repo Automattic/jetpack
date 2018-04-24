@@ -650,7 +650,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			break;
 		case 'plugin_v1_2' :
-			$docs = Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
+			$docs = class_exists( 'Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint' )
+				? Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint::$_response_format
+				: Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
 				/**
