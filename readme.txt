@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: We improved the styles of status numbers so it doesn't look like floating.
 * Masterbar: We removed the Next Steps link from the Account sidebar.
 * Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
+* Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
 
 **Improved compatibility**
 
