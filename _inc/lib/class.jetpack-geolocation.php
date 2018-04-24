@@ -31,7 +31,6 @@ class Jetpack_Geolocation {
 	 * @var array
 	 */
 	private static $geoip_apis = array(
-		'freegeoip'  => 'https://freegeoip.net/json/%s',
 		'ipinfo.io'  => 'https://ipinfo.io/%s/json',
 		'ip-api.com' => 'http://ip-api.com/json/%s',
 	);
@@ -191,10 +190,6 @@ class Jetpack_Geolocation {
 						case 'ip-api.com':
 							$data         = json_decode( $response['body'] );
 							$country_code = isset( $data->countryCode ) ? $data->countryCode : ''; // @codingStandardsIgnoreLine
-							break;
-						case 'freegeoip':
-							$data         = json_decode( $response['body'] );
-							$country_code = isset( $data->country_code ) ? $data->country_code : '';
 							break;
 						default:
 							$country_code = apply_filters( 'jetpack_geolocation_geoip_response_' . $service_name, '', $response['body'] );
