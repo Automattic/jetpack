@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
 * Shortcodes: Mixcloud shortcode now uses oEmbed.
 * Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
+* Sync: Removed requirement for gzencode.
 * Widgets: always load script via HTTPS for Gravatar Hovercards.
 
 **Improved compatibility**
