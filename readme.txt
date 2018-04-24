@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * WordAds: Introduced shortcode for inline Ad placement.
+* WordAds: Added support for the ads.txt file.
 
 **Enhancements**
 
