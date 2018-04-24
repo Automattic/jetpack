@@ -1543,7 +1543,23 @@ class Jetpack {
 	public static function active_plan_supports( $feature ) {
 		$plan = Jetpack::get_active_plan();
 
-		if ( in_array( $feature, $plan['supports'] ) ) {
+		// Manually mapping WordPress.com features to Jetpack module slugs
+		foreach ( $plan['features']['active'] as $wpcom_feature ) {
+			switch ( $wpcom_feature ) {
+				case 'wordads-jetpack';
+
+				// WordAds are supported for this site
+				if ( 'wordads' === $feature ) {
+					return true;
+				}
+				break;
+			}
+		}
+
+		if (
+			in_array( $feature, $plan['supports'] )
+			|| in_array( $feature, $plan['features']['active'] )
+		) {
 			return true;
 		}
 
@@ -2884,9 +2900,7 @@ class Jetpack {
 			}
 		}
 
-		$plan = Jetpack::get_active_plan();
-
-		if ( ! in_array( $module, $plan['supports'] ) ) {
+		if ( ! Jetpack::active_plan_supports( $module ) ) {
 			return false;
 		}
 

@@ -21,15 +21,6 @@ abstract class Jetpack_Admin_Page {
 	static $block_page_rendering_for_idc;
 
 	/**
-	 * Flag to know if we already checked the plan.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @var bool
-	 */
-	static $plan_checked = false;
-
-	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
@@ -172,7 +163,7 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @param $page
 	 *
-	 * @return bool|array
+	 * @return array
 	 */
 	function check_plan_deactivate_modules( $page ) {
 		if (
@@ -187,49 +178,43 @@ abstract class Jetpack_Admin_Page {
 					'jetpack_page_akismet-key-config'
 				)
 			)
-			|| true === self::$plan_checked
 		) {
 			return false;
 		}
 
-		self::$plan_checked = true;
-		$previous = get_option( 'jetpack_active_plan', '' );
-		$current = Jetpack_Core_Json_Api_Endpoints::site_data();
-		if ( ! $current || is_wp_error( $current ) ) {
-			// If we can't get information about the current plan we don't do anything
-			self::$plan_checked = true;
-			return;
-		}
+		$current = Jetpack::get_active_plan();
 
 		$to_deactivate = array();
-		if ( isset( $current->plan->product_slug ) ) {
-			if (
-				empty( $previous )
-				|| ! isset( $previous['product_slug'] )
-				|| $previous['product_slug'] !== $current->plan->product_slug
-			) {
-				$active = Jetpack::get_active_modules();
-				switch ( $current->plan->product_slug ) {
-					case 'jetpack_free':
-						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
-						break;
-					case 'jetpack_personal':
-					case 'jetpack_personal_monthly':
-						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
-						break;
-					case 'jetpack_premium':
-					case 'jetpack_premium_monthly':
-						$to_deactivate = array( 'seo-tools', 'google-analytics', 'search' );
-						break;
+		if ( isset( $current['product_slug'] ) ) {
+			$active = Jetpack::get_active_modules();
+			switch ( $current['product_slug'] ) {
+				case 'jetpack_free':
+					$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
+					break;
+				case 'jetpack_personal':
+				case 'jetpack_personal_monthly':
+					$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
+					break;
+				case 'jetpack_premium':
+				case 'jetpack_premium_monthly':
+					$to_deactivate = array( 'seo-tools', 'google-analytics', 'search' );
+					break;
+			}
+			$to_deactivate = array_intersect( $active, $to_deactivate );
+
+			$to_leave_enabled = array();
+			foreach ( $to_deactivate as $feature ) {
+				if ( Jetpack::active_plan_supports( $feature ) ) {
+					$to_leave_enabled []= $feature;
 				}
-				$to_deactivate = array_intersect( $active, $to_deactivate );
-				if ( ! empty( $to_deactivate ) ) {
-					Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
-				}
+			}
+			$to_deactivate = array_diff( $to_deactivate, $to_leave_enabled );
+
+			if ( ! empty( $to_deactivate ) ) {
+				Jetpack::update_active_modules( array_filter( array_diff( $active, $to_deactivate ) ) );
 			}
 		}
 		return array(
-			'previous'   => $previous,
 			'current'    => $current,
 			'deactivate' => $to_deactivate
 		);
