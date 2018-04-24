@@ -208,7 +208,8 @@ input.fb-options {
 }
 
 .jetpack-publicize-character-count {
-	padding-right: 3px;
+	padding-right: 5px;
+	padding-bottom: 5px;
 }
 
 .publicize-jetpack-connection-container {
