@@ -19,7 +19,6 @@ import phplint from 'gulp-phplint';
 import phpunit from 'gulp-phpunit';
 import PluginError from 'plugin-error';
 import po2json from 'gulp-po2json';
-import qunit from 'gulp-qunit';
 import rename from 'gulp-rename';
 import request from 'request';
 import rtlcss from 'gulp-rtlcss';
@@ -394,14 +393,6 @@ gulp.task( 'js:hint', function() {
 } );
 
 /*
-	JS qunit
- */
-gulp.task( 'js:qunit', function() {
-	return gulp.src( 'tests/qunit/**/*.html' )
-		.pipe( qunit() );
-} );
-
-/*
 	I18n land
 */
 
@@ -600,5 +591,3 @@ gulp.task(
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
 
-// travis CI tasks.
-gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );
