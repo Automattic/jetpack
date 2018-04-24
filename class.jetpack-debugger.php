@@ -1,5 +1,7 @@
 <?php
 
+// Tracking tracking tracking, let's trigger the linter elsewhere 4!!
+
 class Jetpack_Debugger {
 
 	private static function is_jetpack_support_open() {

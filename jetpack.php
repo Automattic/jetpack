@@ -27,6 +27,8 @@ defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'ht
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
+// Tracking tracking tracking, let's trigger the linter!
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
