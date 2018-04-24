@@ -235,7 +235,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		if ( false === $file_pointer ) {
 			return;
 		}
-
+		fclose( $file_pointer );
+		
 		$theme_data = array(
 			'name' => $theme->get('Name'),
 			'version' => $theme->get('Version'),
