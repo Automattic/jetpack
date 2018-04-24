@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
+* Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
 * Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
 * Settings: Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
 * SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
