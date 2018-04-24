@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
 * Shortcodes: Mixcloud shortcode now uses oEmbed.
 * Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
+* Widgets: always load script via HTTPS for Gravatar Hovercards.
 
 **Improved compatibility**
 
