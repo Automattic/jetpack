@@ -102,6 +102,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* WordAds: Introduced shortcode for inline Ad placement.
+
 **Enhancements**
 
 * Dashboard: We improved the styles of status numbers so it doesn't look like floating.
