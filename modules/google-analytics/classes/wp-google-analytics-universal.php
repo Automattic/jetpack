@@ -248,22 +248,26 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	* Adds the product ID and SKU to the remove product link (for use by remove_from_cart above) if not present
-	*/
+	 * Adds the product ID and SKU to the remove product link (for use by remove_from_cart above) if not present
+	 *
+	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
+	 * @param string $key Unique Key ID for a cart item.
+	 */
 	public function remove_from_cart_attributes( $url, $key ) {
 		if ( false !== strpos( $url, 'data-product_id' ) ) {
 			return $url;
 		}
 
-		$item = WC()->cart->get_cart_item( $key );
-		$product = $item[ 'data' ];
+		$item    = WC()->cart->get_cart_item( $key );
+		$product = $item['data'];
 
-		$new_attributes = sprintf( 'href="%s" data-product_id="%s" data-product_sku="%s"',
-			esc_attr( $url ),
+		$new_attributes = sprintf(
+			'" data-product_id="%1$s" data-product_sku="%2$s">',
 			esc_attr( $product->get_id() ),
 			esc_attr( $product->get_sku() )
-			);
-		$url = str_replace( 'href=', $new_attributes, $url );
+		);
+
+		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
 	}
 
