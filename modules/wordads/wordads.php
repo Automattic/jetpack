@@ -15,6 +15,8 @@ class WordAds {
 
 	public $params = null;
 
+	public $ads = array();
+
 	/**
 	 * The different supported ad types.
 	 * v0.1 - mrec only for now
@@ -247,6 +249,36 @@ HTML;
 	}
 
 	/**
+	 * Insert an inline ad into a post content
+	 * Used for rendering the `wordad` shortcode.
+	 *
+	 * @since 6.1.0
+	 */
+	function insert_inline_ad( $content ) {
+		// Ad JS won't work in XML feeds.
+		if ( is_feed() ) {
+			return $content;
+		}
+		/**
+		 * Allow third-party tools to disable the display of in post ads.
+		 *
+		 * @module wordads
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool true Should the in post unit be disabled. Default to false.
+		 */
+		$disable = apply_filters( 'wordads_inpost_disable', false );
+		if ( $disable ) {
+			return $content;
+		}
+
+		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		$content .= $this->get_ad( 'inline', $ad_type );
+		return $content;
+	}
+
+	/**
 	 * Inserts ad into header
 	 *
 	 * @since 4.5.0
@@ -312,33 +344,31 @@ HTML;
 
 	/**
 	 * Get the ad for the spot and type.
-	 * @param  string $spot top, side, or belowpost
+	 * @param  string $spot top, side, inline, or belowpost
 	 * @param  string $type iponweb or adsense
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
 		if ( 'iponweb' == $type ) {
-			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
 			$height = 250;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
-				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
+			} else if ( 'inline' === $spot ) {
+				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -365,26 +395,31 @@ HTML;
 
 	/**
 	 * Returns the snippet to be inserted into the ad unit
-	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
+	 * @param  int $location
 	 * @param  string $css
 	 * @return string
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $css = '' ) {
-		$this->ads[] = array( 'id' => $section_id, 'width' => $width, 'height' => $height );
+	function get_ad_snippet( $height, $width, $location = '', $css = '' ) {
+		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
+		$ad_number = count( $this->ads );
+		// Max 6 ads per page.
+		if ( $ad_number > 6 ) {
+			return;
+		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
 		
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
-			<div id="atatags-{$section_id}">
+			<div id="atatags-{$ad_number}">
 				<script$data_tags type="text/javascript">
 				__ATA.cmd.push(function() {
-					__ATA.initSlot('atatags-{$section_id}',  {
+					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
-						sectionId: '{$section_id}',
+						location: '{$location}',
 						width: {$width},
 						height: {$height}
 					});
