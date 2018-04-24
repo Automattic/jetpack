@@ -694,7 +694,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
 		add_filter( 'sharing_enabled', array( $this, 'enable_services' ) );

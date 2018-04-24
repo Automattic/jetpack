@@ -22,14 +22,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					// Pinterest handles share counts for both http and https
 					pinterest: [
 						window.location.protocol +
-							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
-							encodeURIComponent( url )
+						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
+						encodeURIComponent( url )
 					],
 					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
 					facebook: [
 						window.location.protocol +
-							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-							encodeURIComponent( url )
+						'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
+						encodeURIComponent( url )
 					]
 				};
 
@@ -333,6 +333,10 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// Email button
 			$( 'a.share-email', this ).on( 'click', function() {
 				var url = $( this ).attr( 'href' );
+				var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
+				if ( url.indexOf( currentDomain ) !== 0 ) {
+					return true;
+				}
 
 				if ( $sharing_email.is( ':visible' ) ) {
 					$sharing_email.slideUp( 200 );
