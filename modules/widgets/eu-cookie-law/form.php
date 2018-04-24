@@ -7,9 +7,9 @@
 			<label>
 				<input
 					<?php checked( $instance['display'], 'all' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'display_options' ) ); ?>"
+					name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>"
 					type="radio"
-					value="button"
+					value="all"
 				/>
 				<?php esc_html_e( 'All site visitors', 'jetpack' ); ?>
 			</label>
@@ -18,9 +18,9 @@
 			<label>
 				<input
 					<?php checked( $instance['display'], 'eu' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'display_options' ) ); ?>"
+					name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>"
 					type="radio"
-					value="scroll"
+					value="eu"
 				/>
 				<?php esc_html_e( 'European Union visitors only', 'jetpack' ); ?>
 			</label>

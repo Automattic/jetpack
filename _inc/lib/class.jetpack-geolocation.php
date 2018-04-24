@@ -123,7 +123,7 @@ class Jetpack_Geolocation {
 				$country_code = strtoupper( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_COUNTRY_CODE'] ) ) ); // WPCS: input var ok, CSRF ok.
 			} else {
 				$ip_address = $ip_address ? $ip_address : self::get_ip_address();
-				$database   = apply_filters( 'jetpack_geolocation_local_database_path', JETPACK__PLUGIN_DIR . '_inc/lib/geolite2//GeoLite2-Country.mmdb' );
+				$database   = apply_filters( 'jetpack_geolocation_local_database_path', JETPACK__PLUGIN_DIR . '_inc/lib/geolite2/GeoLite2-Country.mmdb' );
 
 				if ( self::supports_geolite2() && file_exists( $database ) ) {
 					$country_code = self::geolocate_via_db( $ip_address, $database );
@@ -152,7 +152,7 @@ class Jetpack_Geolocation {
 	 */
 	private static function geolocate_via_db( $ip_address, $database ) {
 		if ( ! class_exists( 'Jetpack_Geolite_Integration', false ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-geoline-integration.php';
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-geolite-integration.php';
 		}
 
 		$geolite = new Jetpack_Geolite_Integration( $database );

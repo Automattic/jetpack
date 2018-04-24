@@ -184,12 +184,11 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-geolocation.php';
 			if ( 'eu' === $instance['display'] ) {
 				// Hide if we can detect this is a non-EU visitor.
 				if (
-					! isset( $_SERVER['GEOIP_COUNTRY_CODE'] )
-					|| ! in_array( $_SERVER['GEOIP_COUNTRY_CODE'], self::$gdpr_zone )
+					! in_array( Jetpack_Geolocation::geolocate_ip(), self::$gdpr_zone )
 				) {
 					return;
 				}
