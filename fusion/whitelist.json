@@ -297,6 +297,7 @@
   "modules/widgets/google-translate/google-translate.js",
   "modules/widgets/gravatar-profile.css",
   "modules/widgets/gravatar-profile.php",
+  "modules/widgets/social-media-icons.php",
   "modules/widgets/social-media-icons/style.css",
   "modules/widgets/top-posts/style.css",
   "modules/widgets/twitter-timeline.php",
