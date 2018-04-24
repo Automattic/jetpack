@@ -23,6 +23,10 @@ class DashProtect extends Component {
 	};
 
 	getContent() {
+		const support = {
+			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
+			link: 'https://jetpack.com/support/protect/',
+		};
 		const activateProtect = () => this.props.updateOptions( { protect: true } );
 
 		if ( this.props.getOptionValue( 'protect' ) ) {
@@ -33,6 +37,7 @@ class DashProtect extends Component {
 					<DashItem
 						label="Protect"
 						module="protect"
+						support={ support }
 						status="is-working"
 						className="jp-dash-item__recently-activated"
 					>
@@ -47,6 +52,7 @@ class DashProtect extends Component {
 				<DashItem
 					label="Protect"
 					module="protect"
+					support={ support }
 					status="is-working"
 				>
 					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
@@ -59,6 +65,7 @@ class DashProtect extends Component {
 			<DashItem
 				label="Protect"
 				module="protect"
+				support={ support }
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">{
