@@ -114,6 +114,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
+
 **Bug fixes**
 
 * Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
