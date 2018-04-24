@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
+* Sharing: Removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
 
 **Bug fixes**
 
