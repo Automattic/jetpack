@@ -631,7 +631,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'network'       => '(boolean)  Whether the plugin can only be activated network wide.',
 				'autoupdate'    => '(boolean)  Whether the plugin is auto updated',
 				'log'           => '(array:safehtml) An array of update log strings.',
-        		'action_links'  => '(array) An array of action links that the plugin uses.',
+				'action_links'  => '(array) An array of action links that the plugin uses.',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
