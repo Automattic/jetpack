@@ -553,6 +553,11 @@ class Jetpack {
 			} else {
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+				$signed = $this->verify_xml_rpc_signature();
+				if ( $signed && ! is_wp_error( $signed ) ) {
+					// the jetpack Provision method is available for blog-token-signed requests
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
+				}
 			}
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
@@ -2802,7 +2807,7 @@ class Jetpack {
 			}
 
 			ob_start();
-			require $file;
+			require_once $file;
 
 			$active[] = $module;
 
@@ -7152,5 +7157,36 @@ p {
 	 */
 	public static function jetpack_tos_agreed() {
 		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
+	}
+
+	/**
+	 * Handles activating default modules as well general cleanup for the new connection.
+	 *
+	 * @param boolean $activate_sso                 Whether to activate the SSO module when activating default modules.
+	 * @param boolean $redirect_on_activation_error Whether to redirect on activation error.
+	 * @return void
+	 */
+	public static function handle_post_authorization_actions( $activate_sso = false, $redirect_on_activation_error = false ) {
+		$other_modules = $activate_sso
+			? array( 'sso' )
+			: array();
+
+		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+			Jetpack::delete_active_modules();
+
+			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, false );
+		} else {
+			Jetpack::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, false );
+		}
+
+		// Since this is a fresh connection, be sure to clear out IDC options
+		Jetpack_IDC::clear_all_idc_options();
+		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
+
+		// Start nonce cleaner
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+
+		Jetpack::state( 'message', 'authorized' );
 	}
 }
