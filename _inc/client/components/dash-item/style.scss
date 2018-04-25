@@ -22,33 +22,42 @@
 	}
 }
 
+.jp-dash-item__content {
+	flex-grow: 1;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+
 .jp-dash-item__card {
 	margin: 0;
 }
 
 .jp-dash-item__count {
 	margin-top: 0;
-	margin-bottom: 0;
+	margin-bottom: 6px;
 	margin-right: 8px;
 	color: $blue-medium;
 	font-weight: 500;
 	font-size: rem( 32px );
-	display: inline;
+	display: inline-block;
 	border: 1px solid $dashboard-number-border;
 	border-radius: 4px;
 	padding: 0px 4px;
-	float: left;
 	min-width: 36px;
 	text-align: center;
 
 	@include breakpoint( "<660px" ) {
 		font-size: rem( 23px );
 	}
+
+	+ .jp-dash-item__description {
+		max-width: 61%;
+	}
 }
 
 .jp-dash-item__description {
 	margin: 0;
-	width: 90%; // Room for support info icon on right.
 	font-size: rem( 14px );
 }
 
