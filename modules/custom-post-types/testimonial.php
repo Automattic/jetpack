@@ -58,11 +58,6 @@ class Jetpack_Testimonial {
 			return;
 		}
 
-		// Enable Omnisearch for CPT.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) ) {
-			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
-		}
-
 		// CPT magic
 		$this->register_post_types();
 		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),               array( $this, 'flush_rules_on_enable' ), 10 );
