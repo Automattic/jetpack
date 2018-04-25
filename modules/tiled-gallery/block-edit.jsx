@@ -21,6 +21,8 @@ const {
 	IconButton,
 	DropZone,
 	Toolbar,
+	PanelBody,
+	RangeControl,
 } = wp.components;
 const {
 	MediaUpload,
@@ -33,6 +35,8 @@ const {
  * Internal dependencies
  */
 import JetpackGalleryBlockSave from './block-save.jsx';
+
+const MAX_COLUMNS = 8;
 
 class JetpackGalleryBlockEditor extends Component {
 	constructor() {
@@ -144,7 +148,7 @@ class JetpackGalleryBlockEditor extends Component {
 	}
 
 	render() {
-		const { attributes, isSelected, className } = this.props;
+		const { attributes, isSelected, className, columns } = this.props;
 		const { images } = attributes;
 
 		const dropZone = (
@@ -201,7 +205,15 @@ class JetpackGalleryBlockEditor extends Component {
 			controls,
 			isSelected && (
 				<InspectorControls key="inspector">
-					<h2>{ __( 'Jetpack Gallery Settings' ) }</h2>
+					<PanelBody title={ __( 'Jetpack Gallery Settings' ) }>
+						{ images.length > 1 && <RangeControl
+							label={ __( 'Columns' ) }
+							value={ columns }
+							onChange={ this.setColumnsNumber }
+							min={ 1 }
+							max={ Math.min( MAX_COLUMNS, images.length ) }
+						/> }
+					</PanelBody>
 				</InspectorControls>
 			),
 			imageTiles,
