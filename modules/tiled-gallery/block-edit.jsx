@@ -148,8 +148,8 @@ class JetpackGalleryBlockEditor extends Component {
 	}
 
 	render() {
-		const { attributes, isSelected, className, columns } = this.props;
-		const { images } = attributes;
+		const { attributes, isSelected, className } = this.props;
+		const { images, columns } = attributes;
 
 		const dropZone = (
 			<DropZone key="item-dropzone"
