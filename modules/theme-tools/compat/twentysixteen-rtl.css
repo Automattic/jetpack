@@ -161,6 +161,72 @@
 	opacity: 0.8;
 }
 
+/* Social Icons Widget */
+.widget.jetpack_widget_social_icons ul {
+	margin: 0 0 -0.4375em;
+}
+
+.widget.jetpack_widget_social_icons ul:before,
+.widget.jetpack_widget_social_icons ul:after {
+	content: "";
+	display: table;
+}
+
+.widget.jetpack_widget_social_icons ul:after {
+	clear: both;
+}
+
+.widget.jetpack_widget_social_icons li {
+	float: right;
+	margin: 0 0 0.4375em 0.4375em;
+}
+
+.widget.jetpack_widget_social_icons li a {
+	border: 1px solid currentColor;
+	border-radius: 50%;
+	color: inherit;
+	display: block;
+	position: relative;
+}
+
+.widget.jetpack_widget_social_icons li a:hover,
+.widget.jetpack_widget_social_icons li a:focus {
+	opacity: 0.8;
+}
+
+.widget.jetpack_widget_social_icons ul.size-small a {
+	height: 38px;
+	padding: 6px;
+	width: 38px;
+}
+
+.widget.jetpack_widget_social_icons ul.size-small svg {
+	height: 24px;
+	width: 24px;
+}
+
+.widget.jetpack_widget_social_icons ul.size-medium a {
+	height: 50px;
+	padding: 8px;
+	width: 50px;
+}
+
+.widget.jetpack_widget_social_icons ul.size-medium svg {
+	height: 32px;
+	width: 32px;
+}
+
+.widget.jetpack_widget_social_icons ul.size-large a {
+	height: 70px;
+	padding: 10px;
+	width: 70px;
+}
+
+.widget.jetpack_widget_social_icons ul.size-large svg {
+	height: 48px;
+	width: 48px;
+}
+
 /* Top Posts & Pages Widget */
 .widget_top-posts .widgets-list-layout .widgets-list-layout-blavatar {
 	margin-top: 0.25em;
