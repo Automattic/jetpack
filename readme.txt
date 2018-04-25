@@ -66,7 +66,7 @@ These include: [site stats](https://jetpack.com/features/traffic/site-stats), a 
 = Should I purchase a paid plan? =
 Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, SEO tools, search, priority support, and more.
 
-To learn more about the essential security and WordPress services we provide, vist our [plan comparison page](https://jetpack.com/pricing?from=wporg).
+To learn more about the essential security and WordPress services we provide, visit our [plan comparison page](https://jetpack.com/pricing?from=wporg).
 
 = Why do I need a WordPress.com account? =
 
@@ -110,7 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: We improved the styles of status numbers so it doesn't look like floating.
 * JSON API: Added support for Google My Business integration available on WordPress.com.
 * Masterbar: We removed the Next Steps link from the Account sidebar.
-* Publicize: Let the user now that we are going to send emails to subscribers and publicize to the different accounts.
+* Publicize: Let the user know that we are going to send emails to subscribers and publicize to the different accounts.
 * Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
 * Shortcodes: Mixcloud shortcode now uses oEmbed.
 * Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
@@ -132,8 +132,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * JSON API: Fixed internationalization on embed endpoint.
 * Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
 * Publicize: Avoid adding Publicize post meta when a post transitions to publish and it is not a publicize-able post type.
-* Settings: Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
-* Slideshow: Fixed a Invalid argument supplied for foreach() warning.
+* Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
+* Slideshow: Fixed an invalid argument supplied for foreach() warning.
 * SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
 * SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
 * Sync: Fixed Warning: Invalid argument supplied for foreach().
