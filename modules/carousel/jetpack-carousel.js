@@ -386,6 +386,8 @@ jQuery(document).ready(function($) {
 					$(window).unbind('keydown', keyListener);
 					$(window).unbind('resize', resizeListener);
 					$(window).scrollTop(scroll);
+					$( '.jp-carousel-previous-button' ).hide();
+					$( '.jp-carousel-next-button' ).hide();
 				})
 				.bind('jp_carousel.afterClose', function(){
 					if ( window.location.hash && history.back ) {
@@ -431,6 +433,47 @@ jQuery(document).ready(function($) {
 				}
 			});
 		}
+	};
+
+	var processSingleImageGallery = function() {
+		// process links that contain img tag with attribute data-attachment-id
+		$( 'a img[data-attachment-id]' ).each(function() {
+			var container = $( this ).parent();
+
+			// skip if image was already added to gallery by shortcode
+			if( container.parent( '.gallery-icon' ).length ) {
+				return;
+			}
+
+			// skip if the container is not a link
+			if ( 'undefined' === typeof( $( container ).attr( 'href' ) ) ) {
+				return;
+			}
+
+			var valid = false;
+
+			// if link points to 'Media File' (ignoring GET parameters) and flag is set allow it
+			if ( $( container ).attr( 'href' ).split( '?' )[0] === $( this ).attr( 'data-orig-file' ).split( '?' )[0] &&
+				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
+			) {
+				valid = true;
+			}
+
+			// if link points to 'Attachment Page' allow it
+			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
+				valid = true;
+			}
+
+			// links to 'Custom URL' or 'Media File' when flag not set are not valid
+			if( ! valid ) {
+				return;
+			}
+
+			// make this node a gallery recognizable by event listener above
+			$( container ).addClass( 'single-image-gallery' ) ;
+			// blog_id is needed to allow posting comments to correct blog
+			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
+		});
 	};
 
 	var methods = {
@@ -532,23 +575,28 @@ jQuery(document).ready(function($) {
 
 		},
 
-		next : function(){
-			var slide = gallery.jp_carousel( 'nextSlide' );
-			container.animate({scrollTop:0}, 'fast');
-
-			if ( slide ) {
-				this.jp_carousel('selectSlide', slide);
-			}
+		next : function() {
+			this.jp_carousel( 'previousOrNext', 'nextSlide' );
 		},
 
-		previous : function(){
-			var slide = gallery.jp_carousel( 'prevSlide' );
-			container.animate({scrollTop:0}, 'fast');
+		previous : function() {
+			this.jp_carousel( 'previousOrNext', 'prevSlide' );
+		},
+
+		previousOrNext : function ( slideSelectionMethodName ) {
+			if ( ! this.jp_carousel( 'hasMultipleImages' ) ) {
+				return false;
+			}
+
+			var slide = gallery.jp_carousel( slideSelectionMethodName );
 
 			if ( slide ) {
-				this.jp_carousel('selectSlide', slide);
+				container.animate( { scrollTop: 0 }, 'fast' );
+				this.jp_carousel( 'clearCommentTextAreaValue' );
+				this.jp_carousel( 'selectSlide', slide );
 			}
-		},
+        },
+
 
 
 		selectedSlide : function(){
@@ -689,6 +737,15 @@ jQuery(document).ready(function($) {
 				caption.html( current.data( 'caption' ) ).fadeIn( 'slow' );
 			} else {
 				caption.fadeOut( 'fast' ).empty();
+			}
+
+			// Record pageview in WP Stats, for each new image loaded full-screen.
+			if ( jetpackCarouselStrings.stats ) {
+				new Image().src = document.location.protocol +
+					'//pixel.wp.com/g.gif?' +
+					jetpackCarouselStrings.stats +
+					'&post=' + encodeURIComponent( attachmentId ) +
+					'&rand=' + Math.random();
 			}
 
 
@@ -964,8 +1021,47 @@ jQuery(document).ready(function($) {
 				return args.medium_file;
 			}
 
+			if ( isPhotonUrl ) {
+				// args.orig_file doesn't point to a Photon url, so in this case we use args.large_file
+				// to return the photon url of the original image.
+				var largeFileIndex = args.large_file.lastIndexOf( '?' );
+				var origPhotonUrl = args.large_file;
+				if ( -1 !== largeFileIndex ) {
+					origPhotonUrl = args.large_file.substring( 0, largeFileIndex );
+					// If we have a really large image load a smaller version
+					// that is closer to the viewable size
+					if ( args.orig_width > args.max_width || args.orig_height > args.max_height ) {
+						origPhotonUrl += '?fit=' + args.orig_max_width + '%2C' + args.orig_max_height;
+					}
+				}
+				return origPhotonUrl;
+			}
+
 			return args.orig_file;
 		},
+
+		getImageSizeParts: function( file, orig_width, isPhotonUrl ) {
+			var size		= isPhotonUrl ?
+							file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' ) :
+							file.replace( /.*-([\d]+x[\d]+)\..+$/, '$1' );
+
+			var size_parts  = ( size !== file ) ?
+							( isPhotonUrl ? size.split( '%2C' ) : size.split( 'x' ) ) :
+							[ orig_width, 0 ];
+
+			// If one of the dimensions is set to 9999, then the actual value of that dimension can't be retrieved from the url.
+			// In that case, we set the value to 0.
+			if ( '9999' === size_parts[0] ) {
+				size_parts[0] = '0';
+			}
+
+			if ( '9999' === size_parts[1] ) {
+				size_parts[1] = '0';
+			}
+
+			return size_parts;
+		},
+
 
 		originalDimensions: function() {
 			var splitted = $(this).data('orig-size').split(',');
@@ -1077,7 +1173,7 @@ jQuery(document).ready(function($) {
 			var $ul = $( '<ul class=\'jp-carousel-image-exif\'></ul>' );
 
 			$.each( meta, function( key, val ) {
-				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) ) {
+				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, $.makeArray( jetpackCarouselStrings.meta_data ) ) ) {
 					return;
 				}
 
@@ -1367,39 +1463,10 @@ jQuery(document).ready(function($) {
 
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
 	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
-		// process links that contain img tag with attribute data-attachment-id
-		$( 'a img[data-attachment-id]' ).each(function() {
-			var container = $( this ).parent();
-
-			// skip if image was already added to gallery by shortcode
-			if( container.parent( '.gallery-icon' ).length ) {
-				return;
-			}
-
-			var valid = false;
-
-			// if link points to 'Media File' and flag is set allow it
-			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
-				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
-			) {
-				valid = true;
-			}
-
-			// if link points to 'Attachment Page' allow it
-			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
-				valid = true;
-			}
-
-			// links to 'Custom URL' or 'Media File' when flag not set are not valid
-			if( ! valid ) {
-				return;
-			}
-
-			// make this node a gallery recognizable by event listener above
-			$( container ).addClass( 'single-image-gallery' ) ;
-			// blog_id is needed to allow posting comments to correct blog
-			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
-		});
+		processSingleImageGallery();
+		$( document.body ).on( 'post-load', function() {
+			processSingleImageGallery();
+		} );
 	}
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
