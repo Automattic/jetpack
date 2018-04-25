@@ -1,63 +1,101 @@
+/* global wp:true */
+/* global React:true */
+/* eslint-disable react/jsx-no-bind */
 /**
- * WordPress dependencies
+ * External dependencies
  */
-//import { translate as __ } from 'i18n-calypso';
+//const React = react;
 
 /**
  * Internal dependencies
  */
-//import './editor.scss';
+const { __ } = wp.i18n;
 
-( function( wp ) {
-	const {
-		registerBlockType,
-		// RichText,
-		// BlockControls,
-		// AlignmentToolbar,
-		// source
-	} = wp.blocks;
-	const blockStyle = { backgroundColor: '#900', color: '#fff', padding: '20px' };
-	const el = wp.element.createElement;
+const {
+	registerBlockType,
+	PlainText,
+	BlockControls,
+} = wp.blocks;
 
-	registerBlockType( 'jetpack/markdown-block', {
+const el = wp.element.createElement;
 
-		title: 'Markdown',
+registerBlockType( 'jetpack/markdown-block', {
 
-		description: 'We are going to have MARKDOWN!.',
+	title: 'Markdown',
 
-		icon: wp.element.createElement(
-			'svg',
-			{ xmlns: 'http://www.w3.org/2000/svg', 'class': 'dashicons', width: '208', height: '128', viewBox: '0 0 208 128' },
-			wp.element.createElement(
-				'rect', { width: '198', height: '118', x: '5', y: '5', ry: '10', stroke: '#000', 'stroke-width': '10', fill: 'none' }
-				),
-			wp.element.createElement(
-				'path', { d: 'M30 98v-68h20l20 25 20-25h20v68h-20v-39l-20 25-20-25v39zM155 98l-30-33h20v-35h20v35h20z' }
-				)
+	description: __( 'We are going to have MARKDOWN!.' ),
+
+	icon: el(
+		'svg',
+		{
+			xmlns: 'http://www.w3.org/2000/svg',
+			'class': 'dashicons',
+			width: '208',
+			height: '128',
+			viewBox: '0 0 208 128'
+		},
+		el(
+			'rect',
+			{
+				width: '198',
+				height: '118',
+				x: '5',
+				y: '5',
+				ry: '10',
+				stroke: '#000',
+				'stroke-width': '10',
+				fill: 'none'
+			}
 		),
+		el(
+			'path', { d: 'M30 98v-68h20l20 25 20-25h20v68h-20v-39l-20 25-20-25v39zM155 98l-30-33h20v-35h20v35h20z' }
+		)
+	),
 
-		category: 'formatting',
+	category: 'formatting',
 
-		attributes: {
-			content: {
-				type: 'string',
-				source: 'property',
-				selector: 'code',
-				property: 'textContent',
-			},
+	attributes: {
+		preview: false,
+		content: {
+			type: 'string',
+			source: 'property',
+			selector: 'textarea',
+			property: 'textContent',
 		},
 
-		supports: {
-			html: false,
-		},
+	},
 
-		edit: function() {
-			return el( 'p', { style: blockStyle }, 'Hello editor.' );
-		},
+	supports: {
+		html: false,
+	},
+	edit( { attributes, setAttributes, className, isSelected } ) {
+		return [
+			isSelected && (
+				<BlockControls key="controls">
+					<div className="components-toolbar">
+						<button
+							className={ 'components-tab-button is-active' }>
+							<span>Markdown</span>
+						</button>
+					</div>
+				</BlockControls>
+			),
+			<PlainText
+				className={ className }
+				value={ attributes.content }
+				onChange={ ( content ) => setAttributes( { content } ) }
+				aria-label={ __( 'Markdown' ) }
+			/>,
+		];
+	},
+	save( { attributes, className } ) {
+		return (
+			<PlainText
+				className={ className }
+				value={ attributes.content }
+				aria-label={ __( 'Markdown' ) }
+			/>
+		);
+	},
 
-		save: function() {
-			return el( 'p', { style: blockStyle }, 'Hello saved content.' );
-		},
-
-	} );
-} )( window.wp );
+} );
