@@ -50,11 +50,14 @@
 	@include breakpoint( "<660px" ) {
 		font-size: rem( 23px );
 	}
+
+	+ .jp-dash-item__description {
+		max-width: 61%;
+	}
 }
 
 .jp-dash-item__description {
 	margin: 0;
-	max-width: 61%;
 	font-size: rem( 14px );
 }
 
