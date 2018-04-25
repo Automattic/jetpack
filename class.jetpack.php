@@ -1472,6 +1472,9 @@ class Jetpack {
 				'product_slug' => 'jetpack_free',
 				'supports'     => array(),
 				'class'        => 'free',
+				'features'     => array(
+					'active' => array()
+				),
 			) );
 		}
 
