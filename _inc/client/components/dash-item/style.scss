@@ -26,6 +26,7 @@
 	flex-grow: 1;
 	display: flex;
 	flex-wrap: wrap;
+	align-items: flex-start;
 }
 
 .jp-dash-item__card {
@@ -53,7 +54,7 @@
 
 .jp-dash-item__description {
 	margin: 0;
-	max-width: 60%;
+	max-width: 61%;
 	font-size: rem( 14px );
 }
 
