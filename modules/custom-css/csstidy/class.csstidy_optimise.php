@@ -40,10 +40,6 @@
  * @version 1.0
  */
 class csstidy_optimise {
-
-	function csstidy_optimise(&$css) {
-		$this->__construct($css);
-	}
 	/**
 	 * Constructor
 	 * @param array $css contains the class csstidy
@@ -58,6 +54,10 @@ class csstidy_optimise {
 		$this->selector = & $css->selector;
 		$this->property = & $css->property;
 		$this->value = & $css->value;
+	}
+
+	function csstidy_optimise(&$css) {
+		$this->__construct($css);
 	}
 
 	/**

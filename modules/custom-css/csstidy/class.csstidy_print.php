@@ -60,9 +60,6 @@ class csstidy_print {
 	 */
 	public $output_css_plain = '';
 
-	function csstidy_print(&$css) {
-		$this->__construct($css);
-	}
 	/**
 	 * Constructor
 	 * @param array $css contains the class csstidy
@@ -77,6 +74,10 @@ class csstidy_print {
 		$this->charset = & $css->charset;
 		$this->import = & $css->import;
 		$this->namespace = & $css->namespace;
+	}
+
+	function csstidy_print(&$css) {
+		$this->__construct($css);
 	}
 
 	/**
