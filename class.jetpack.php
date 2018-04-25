@@ -679,6 +679,8 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-geolocation.php';
 	}
 
 	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
