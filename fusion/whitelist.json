@@ -274,6 +274,7 @@
   "modules/theme-tools/responsive-videos/responsive-videos.min.js",
   "modules/theme-tools/social-links.php",
   "modules/tiled-gallery/math/class-constrained-array-rounding.php",
+  "modules/tiled-gallery/tiled-gallery.php",
   "modules/tiled-gallery/tiled-gallery/templates/carousel-container.php",
   "modules/tiled-gallery/tiled-gallery/templates/circle-layout.php",
   "modules/tiled-gallery/tiled-gallery/templates/partials/carousel-image-args.php",
