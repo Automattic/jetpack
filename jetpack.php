@@ -29,7 +29,7 @@ defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API
 
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
- * in require_lib().
+ * in require_lib(). 
  *
  * @since 4.0.2
  *
