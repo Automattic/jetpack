@@ -32,7 +32,8 @@ registerBlockType( 'jetpack/markdown-block', {
 			'class': 'dashicons',
 			width: '208',
 			height: '128',
-			viewBox: '0 0 208 128'
+			viewBox: '0 0 208 128',
+			stroke: 'currentColor'
 		},
 		el(
 			'rect',
@@ -42,7 +43,6 @@ registerBlockType( 'jetpack/markdown-block', {
 				x: '5',
 				y: '5',
 				ry: '10',
-				stroke: '#000',
 				'stroke-width': '10',
 				fill: 'none'
 			}
