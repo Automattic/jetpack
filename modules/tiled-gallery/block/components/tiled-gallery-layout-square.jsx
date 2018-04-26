@@ -19,7 +19,7 @@ import TiledGalleryItem from './tiled-gallery-item.jsx';
 // not sure how critical this is, likely necessary to work nicely with themes
 const CONTENT_WIDTH = 520;
 
-function TiledGallerySquareGroup( { group_size, id, url, link, width, height, setAttributes } ) {
+function TiledGallerySquareGroup( { group_size, id, url, link, width, height, caption, setAttributes } ) {
 	const styleAttr = {
 		width: group_size + 'px',
 		height: group_size + 'px',
@@ -39,6 +39,7 @@ function TiledGallerySquareGroup( { group_size, id, url, link, width, height, se
 				width={ width }
 				height={ height }
 				setAttributes={ setAttributes }
+				caption={ caption }
 			/>
 		</div>
 	);
@@ -137,6 +138,7 @@ class TiledGalleryLayoutSquare extends Component {
 									link={ image.link }
 									width={ image.width }
 									height={ image.height }
+									caption={ image.caption }
 									setAttributes={ setMyAttributes }
 								/>
 							) ) }
