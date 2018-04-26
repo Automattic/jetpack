@@ -629,9 +629,9 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Create a where clause that will make sure post queries
-	 * will always return results prior to (descending sort)
-	 * or before (ascending sort) the last post date.
+	 * Create a where clause that will make sure post queries return posts
+	 * in the correct order, without duplicates, if a new post is added
+	 * and we're sorting by post date.
 	 *
 	 * @global $wpdb
 	 * @param string $where
@@ -645,18 +645,19 @@ class The_Neverending_Home_Page {
 			global $wpdb;
 
 			$sort_field = self::get_query_sort_field( $query );
-			if ( false == $sort_field )
-				return $where;
 
-			$last_post_date = $_REQUEST['last_post_date'];
-			// Sanitize timestamp
-			if ( empty( $last_post_date ) || !preg_match( '|\d{4}\-\d{2}\-\d{2}|', $last_post_date ) )
+			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) {
 				return $where;
+			}
 
-			$operator = 'ASC' == $_REQUEST['query_args']['order'] ? '>' : '<';
+			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) );
+
+			if ( empty( $query_before ) ) {
+				return $where;
+			}
 
 			// Construct the date query using our timestamp
-			$clause = $wpdb->prepare( " AND {$wpdb->posts}.{$sort_field} {$operator} %s", $last_post_date );
+			$clause = $wpdb->prepare( " AND {$wpdb->posts}.post_date <= %s", $query_before );
 
 			/**
 			 * Filter Infinite Scroll's SQL date query making sure post queries
@@ -667,10 +668,12 @@ class The_Neverending_Home_Page {
 			 *
 			 * @param string $clause SQL Date query.
 			 * @param object $query Query.
-			 * @param string $operator Query operator.
-			 * @param string $last_post_date Last Post Date timestamp.
+			 * @param string $operator @deprecated Query operator.
+			 * @param string $last_post_date @deprecated Last Post Date timestamp.
 			 */
-			$where .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
+			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<';
+			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) );
+			$where         .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
 		}
 
 		return $where;
@@ -839,6 +842,7 @@ class The_Neverending_Home_Page {
 				'parameters'           => self::get_request_parameters(),
 			),
 			'query_args'      => self::get_query_vars(),
+			'query_before'    => current_time( 'mysql' ),
 			'last_post_date'  => self::get_last_post_date(),
 			'body_class'	  => self::body_class(),
 		);
@@ -1200,17 +1204,6 @@ class The_Neverending_Home_Page {
 			$previousday = $_REQUEST['currentday'];
 		}
 
-		$sticky = get_option( 'sticky_posts' );
-		$post__not_in = self::wp_query()->get( 'post__not_in' );
-
-		//we have to take post__not_in args into consideration here not only sticky posts
-		if ( true === isset( $_REQUEST['query_args']['post__not_in'] ) ) {
-			$post__not_in = array_merge( $post__not_in, array_map( 'intval', (array) $_REQUEST['query_args']['post__not_in'] ) );
-		}
-
-		if ( ! empty( $post__not_in ) )
-			$sticky = array_unique( array_merge( $sticky, $post__not_in ) );
-
 		$post_status = array( 'publish' );
 		if ( current_user_can( 'read_private_posts' ) )
 			array_push( $post_status, 'private' );
@@ -1221,7 +1214,6 @@ class The_Neverending_Home_Page {
 			'paged'          => $page,
 			'post_status'    => $post_status,
 			'posts_per_page' => self::posts_per_page(),
-			'post__not_in'   => ( array ) $sticky,
 			'order'          => $order
 		) );
 
@@ -1246,7 +1238,6 @@ class The_Neverending_Home_Page {
 		 */
 		$query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
 
-		// Add query filter that checks for posts below the date
 		add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
 		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = $infinite_scroll_query = new WP_Query();
