@@ -23,6 +23,7 @@ const {
 	Toolbar,
 	PanelBody,
 	RangeControl,
+	SelectControl,
 } = wp.components;
 const {
 	MediaUpload,
@@ -37,6 +38,11 @@ const {
 import JetpackGalleryBlockSave from './block-save.jsx';
 
 const MAX_COLUMNS = 8;
+const linkOptions = [
+	{ value: 'attachment', label: __( 'Attachment Page' ) },
+	{ value: 'media', label: __( 'Media File' ) },
+	{ value: 'none', label: __( 'None' ) },
+];
 
 class JetpackGalleryBlockEditor extends Component {
 	constructor() {
@@ -149,7 +155,7 @@ class JetpackGalleryBlockEditor extends Component {
 
 	render() {
 		const { attributes, isSelected, className } = this.props;
-		const { images, columns } = attributes;
+		const { images, columns, linkTo } = attributes;
 
 		const dropZone = (
 			<DropZone key="item-dropzone"
@@ -213,6 +219,12 @@ class JetpackGalleryBlockEditor extends Component {
 							min={ 1 }
 							max={ Math.min( MAX_COLUMNS, images.length ) }
 						/> }
+						<SelectControl
+							label={ __( 'Link to' ) }
+							value={ linkTo }
+							onChange={ this.setLinkTo }
+							options={ linkOptions }
+						/>
 					</PanelBody>
 				</InspectorControls>
 			),

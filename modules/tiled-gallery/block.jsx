@@ -23,6 +23,10 @@ const settings = {
 			type: 'integer',
 			'default': 3,
 		},
+		linkTo: {
+			type: 'string',
+			'default': 'none',
+		},
 		images: {
 			type: 'array',
 			'default': [],
