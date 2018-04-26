@@ -281,11 +281,25 @@ class Publicize_Util {
 	}
 
 	public static function sanitize_message( $message ) {
-		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $message );
-		$message = wp_kses( $message, array() );
-		$message = preg_replace('/[\r\n\t ]+/', ' ', $message);
+		// Only script and style tags are stripped together with their content
+		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1[^>]*?>@si', '', $message );
+		$message = strip_tags( $message );
+
+		// Known shortcodes have already been processed, strip Jetpack's
+		$jetpack_shortcodes = get_option( 'jetpack_callable_shortcodes' );
+		if ( is_array( $jetpack_shortcodes ) ) {
+			$shortcode_regex = get_shortcode_regex( $jetpack_shortcodes );
+			$message = preg_replace( "/$shortcode_regex/", '', $message );
+		}
+
+		$message = html_entity_decode( $message, ENT_QUOTES, 'UTF-8' );
+
+		// White space that includes line breaks or carriage returns are
+		// condensed into a single \n. Other white space, into a single space
+		$message = preg_replace( '/[\r\n\t ]*[\r\n][\r\n\t ]*/', "\n", $message );
+		$message = preg_replace( '/[\t ]+/', ' ', $message );
 		$message = trim( $message );
-		$message = htmlspecialchars_decode( $message, ENT_QUOTES );
+
 		return $message;
 	}
 }
