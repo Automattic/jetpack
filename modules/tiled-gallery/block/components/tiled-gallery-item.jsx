@@ -26,7 +26,7 @@ class TiledGalleryImage extends Component {
 	}
 
 	render() {
-		const { url, alt, id, link, width, height } = this.props;
+		const { url, alt, id, link, width, height, caption } = this.props;
 		const styleAttr = {
 			width: width + 'px',
 			height: height + 'px',
@@ -43,6 +43,7 @@ class TiledGalleryImage extends Component {
 					style={ styleAttr }
 					data-original-width={ width }
 					data-original-height={ height } />
+				{ caption && caption.length > 0 && <figcaption className="tiled-gallery-caption">{ caption }</figcaption> }
 			</figure>
 		);
 	}
@@ -54,7 +55,17 @@ function TiledGalleryItem( props ) {
 	const classes = [ 'tiled-gallery-item' ];
 	classes.push( 'tiled-gallery-item-small' );
 
-	const img = ( <TiledGalleryImage { ...props } /> );
+	const img = (
+		<TiledGalleryImage
+			url={ props.url }
+			alt={ props.alt }
+			id={ props.id }
+			link={ props.link }
+			width={ props.width }
+			height={ props.height }
+			caption={ props.caption }
+		/>
+	);
 
 	return (
 		<div
