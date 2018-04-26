@@ -187,6 +187,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		}
 	}
 
+	if ( isset( $image_url_parts['scheme'] ) && 'https' == $image_url_parts['scheme'] ) {
+		$photon_url = add_query_arg( array( 'ssl' => 1 ), $photon_url );
+	}
+
 	return jetpack_photon_url_scheme( $photon_url, $scheme );
 }
 add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
@@ -240,7 +244,11 @@ function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
 
 function jetpack_photon_url_scheme( $url, $scheme ) {
 	if ( ! in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
-		$scheme = is_ssl() ? 'https' : 'http';
+		if ( preg_match( '#^(https?:)?//#', $url ) ) {
+			return $url;
+		}
+
+		$scheme = 'http';
 	}
 
 	if ( 'network_path' == $scheme ) {
@@ -249,7 +257,7 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 		$scheme_slashes = "$scheme://";
 	}
 
-	return preg_replace( '#^[a-z:]+//#i', $scheme_slashes, $url );
+	return preg_replace( '#^([a-z:]+)?//#i', $scheme_slashes, $url );
 }
 
 /**
