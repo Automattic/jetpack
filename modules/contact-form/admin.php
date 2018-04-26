@@ -1,4 +1,12 @@
 <?php
+
+function grunion_menu_alter() {
+	wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
+	wp_style_add_data( 'grunion-menu-alter', 'rtl', 'replace' );
+}
+
+add_action( 'admin_enqueue_scripts', 'grunion_menu_alter' );
+
 /**
  * Add a contact form button to the post composition screen
  */
