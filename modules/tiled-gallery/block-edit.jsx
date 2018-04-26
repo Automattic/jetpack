@@ -176,7 +176,16 @@ class JetpackGalleryBlockEditor extends Component {
 			];
 		}
 
-		const imageTiles = ( <JetpackGalleryBlockSave { ...this.props } /> );
+		// To avoid users accidentally navigating out of Gutenberg by clicking an image, we disable linkTo in the editor view here by forcing 'none'.
+		const imageTiles = (
+			<JetpackGalleryBlockSave
+				attributes={ {
+					images: images,
+					columns: columns,
+					linkTo: 'none',
+				} }
+			/>
+		);
 
 		return [
 			controls,

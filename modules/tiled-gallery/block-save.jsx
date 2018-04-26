@@ -8,9 +8,9 @@ import React from 'react';
  */
 import TiledGalleryLayoutSquare from './block/components/tiled-gallery-layout-square.jsx';
 
-function JetpackGalleryBlockSave( props ) {
+function JetpackGalleryBlockSave( { attributes } ) {
 	return (
-		<TiledGalleryLayoutSquare { ...props.attributes } />
+		<TiledGalleryLayoutSquare { ...attributes } />
 	);
 }
 
