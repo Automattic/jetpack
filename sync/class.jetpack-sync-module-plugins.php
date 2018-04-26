@@ -17,7 +17,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
-		add_filter( 'upgrader_pre_install', array( $this, 'populate_plugins' ) );
+		add_filter( 'upgrader_pre_install', array( $this, 'populate_plugins' ), 10, 1 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_completion' ), 10, 2 );
 		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
 		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
