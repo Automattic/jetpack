@@ -4,7 +4,6 @@
  * External Dependencies
  */
 import React from 'react';
-import filter from 'lodash/filter';
 import pick from 'lodash/pick';
 
 /**
@@ -52,12 +51,8 @@ class JetpackGalleryBlockEditor extends Component {
 		this.onSelectImages = this.onSelectImages.bind( this );
 		this.setLinkTo = this.setLinkTo.bind( this );
 		this.setColumnsNumber = this.setColumnsNumber.bind( this );
-		this.updateAlignment = this.updateAlignment.bind( this );
-		this.toggleImageCrop = this.toggleImageCrop.bind( this );
-		this.onRemoveImage = this.onRemoveImage.bind( this );
 		this.setImageAttributes = this.setImageAttributes.bind( this );
 		this.addFiles = this.addFiles.bind( this );
-		this.uploadFromFiles = this.uploadFromFiles.bind( this );
 
 		this.state = {
 			selectedImage: null,
@@ -71,18 +66,6 @@ class JetpackGalleryBlockEditor extends Component {
 					selectedImage: index,
 				} );
 			}
-		};
-	}
-
-	onRemoveImage( index ) {
-		return () => {
-			const images = filter( this.props.attributes.images, ( img, i ) => index !== i );
-			const { columns } = this.props.attributes;
-			this.setState( { selectedImage: null } );
-			this.props.setAttributes( {
-				images,
-				columns: columns ? Math.min( images.length, columns ) : columns,
-			} );
 		};
 	}
 
@@ -100,14 +83,6 @@ class JetpackGalleryBlockEditor extends Component {
 		this.props.setAttributes( { columns: value } );
 	}
 
-	updateAlignment( nextAlign ) {
-		this.props.setAttributes( { align: nextAlign } );
-	}
-
-	toggleImageCrop() {
-		this.props.setAttributes( { imageCrop: ! this.props.attributes.imageCrop } );
-	}
-
 	setImageAttributes( index, attributes ) {
 		const { attributes: { images }, setAttributes } = this.props;
 		if ( ! images[ index ] ) {
@@ -123,10 +98,6 @@ class JetpackGalleryBlockEditor extends Component {
 				...images.slice( index + 1 ),
 			],
 		} );
-	}
-
-	uploadFromFiles( event ) {
-		this.addFiles( event.target.files );
 	}
 
 	addFiles( files ) {
