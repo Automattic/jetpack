@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Jetpack_Geolocation
  */
@@ -6,14 +7,22 @@ class Jetpack_Geolocation {
 
 	protected $geolite_folder;
 
+	protected $geolite_files = array (
+		'ipv4'      => 'GeoLite2-Country-Blocks-IPv4.csv',
+		'ipv6'      => 'GeoLite2-Country-Blocks-IPv6.csv',
+		'countries' => 'GeoLite2-Country-Locations-en.csv',
+	);
+
 	protected $geolite_download_url = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country-CSV.zip';
 
 	function __construct() {
-
+		$upload_dir = wp_upload_dir();
 		$this->geolite_folder = apply_filters( 'jetpack_geolocation_local_database_path', $upload_dir['basedir'] . '/geolite2/' );
+		add_filter( 'cron_schedules', array( $this, 'add_monthly_cron_schedule' ) );
+		add_action( 'jetpack_download_geolite2_ip_db', array( $this, 'download_geolite_db' ) );
 
 		if ( ! wp_next_scheduled( 'jetpack_download_geolite2_ip_db' ) ) {
-			wp_schedule_event( strtotime( 'first tuesday of next month' ), 'monthly', 'jetpack_download_geolite2_ip_db' );
+			wp_schedule_event( strtotime( '1 minute' ), 'monthly', 'jetpack_download_geolite2_ip_db' );
 		}
 	}
 
@@ -66,12 +75,16 @@ class Jetpack_Geolocation {
 		return $client_ip;
 	}
 
-	function get_ip_country( $ip_address = '' ) {
+	function get_ip_country( $ip_address = false ) {
 		$country_headers = array(
 			'HTTP_CF_IPCOUNTRY',
 			'GEOIP_COUNTRY_CODE',
 			'HTTP_X_COUNTRY_CODE',
 		);
+
+		if ( ! $ip_address ) {
+			$ip_address = $this->get_visitor_ip_address();
+		}
 
 		foreach ( $country_headers as $header ) {
 			if ( array_key_exists( $header, $_SERVER ) ) {
@@ -81,31 +94,74 @@ class Jetpack_Geolocation {
 		}
 
 		if ( ! isset( $country_code ) ) {
-			geolite_ip_lookup( $ip_address );
+			$country_code = geolite_ip_lookup( $ip_address );
 		}
+
+		return $country_code;
 	}
 
-	function geolite_ip_lookup( $ip_address = '' ) {
-		$ipv4       = 'GeoLite2-Country-Blocks-IPv4.csv';
-		$ipv6       = 'GeoLite2-Country-Blocks-IPv6.csv';
-		$countries  = 'GeoLite2-Country-Locations-en.csv';
-		if (
-			! file_exists( $this->geolite_folder . $ipv4 )
-			|| ! file_exists( $this->geolite_folder . $ipv6 )
-			|| ! file_exists( $this->geolite_folder . $countries )
-		) {
-			$this->download_geolite_db();
+	function geolite_ip_lookup( $ip_address = false ) {
+
+		if ( ! $ip_address ) {
+			$ip_address = $this->get_visitor_ip_address();
+		}
+
+		// If any of our geolite2 files are missing, download the db and return false.
+		foreach ( $this->geolite_files as $geolite_file ) {
+			if ( ! file_exists( $this->geolite_folder . '/' . $geolite_file ) ) {
+				$this->download_geolite_db();
+				return false;
+			}
+		}
+
+		// Determine ip address type. Default to ipv6 because the database is much smaller (faster lookup).
+		if ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$ip_type = array(
+				'type'      => 'ipv6',
+				'delimiter' => ':',
+			);
+		} elseif ( filter_var( $ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			$ip_type =  array(
+				'type'      => 'ipv4',
+				'delimiter' => '.',
+			);
+		} else {
+			return false;
 		}
 
 		// @TODO Lookup IP in the csv files.
 	}
 
-	function jetpack_download_geolite2_ip_db() {
+	function download_geolite_db() {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . WPINC . '/pluggable.php';
+		WP_Filesystem();
+		global $wp_filesystem;
 
 		try {
+			// Download the geolite2 database and save it to a temp folder.
 			$tmp_geolite_path = download_url( $this->geolite_download_url );
-			$unzip_action = unzip_file( $tmp_geolite_path, $this->geolite_folder );
+			$unzip_action = unzip_file( $tmp_geolite_path, $this->geolite_folder . 'tmp/' );
+
+			// The zip contents contain a dated folder with the files inside. Find the folder name (dated for the current release).
+			$unzipped_files = scandir( $this->geolite_folder . 'tmp/' );
+			foreach ( $unzipped_files as $tmp_folder ) {
+
+				if ( false !== strpos( $tmp_folder, 'GeoLite2-Country-CSV' ) ) {
+					$files = scandir( $this->geolite_folder . 'tmp/' . $tmp_folder );
+
+					// Move the files out of the temp folder, overwriting previous version if they exist.
+					foreach ( $files as $file ) {
+						if ( is_file( $file ) ) {
+							$wp_filesystem->move( $this->geolite_folder . 'tmp/' . $tmp_folder . '/' . $file, $this->geolite_folder . '/' . $file, true );
+						}
+					}
+				}
+			}
+
+			// Delete the tmp folder.
+			$wp_filesystem->delete( $this->geolite_folder . 'tmp/', true );
+
 		} catch ( Exception $e ) {
 			error_log( $e->getMessage() );
 		}
@@ -119,7 +175,22 @@ class Jetpack_Geolocation {
 		wp_clear_scheduled_hook( 'jetpack_download_geolite2_ip_db' );
 	}
 
+	/**
+	 * Add a 'monthly' cron schedule.
+	 *
+	 * @param  array $schedules List of WP scheduled cron jobs.
+	 * @return array
+	 */
+	public static function add_monthly_cron_schedule( $cron_schedules ) {
+		$cron_schedules['monthly'] = array(
+			'interval' => 2635200,
+			'display'  => __( 'Monthly', 'jetpack' ),
+		);
+		return $cron_schedules;
+	}
+
 } // class Jetpack_Geolocation
 
-register_activation_hook( __FILE__, array( 'Jetpack_Geolocation', 'jetpack_download_geolite2_ip_db' ) );
+$Jetpack_Geolocation = new Jetpack_Geolocation();
+register_activation_hook( __FILE__, array( 'Jetpack_Geolocation', 'download_geolite_db' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Geolocation', 'remove_geolite_db' ) );
