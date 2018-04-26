@@ -50,10 +50,18 @@ class TiledGalleryImage extends Component {
 }
 
 function TiledGalleryItem( props ) {
-	const href = props.link;
-
 	const classes = [ 'tiled-gallery-item' ];
 	classes.push( 'tiled-gallery-item-small' );
+
+	let href;
+	switch ( props.linkTo ) {
+		case 'media':
+			href = props.url;
+			break;
+		case 'attachment':
+			href = props.link;
+			break;
+	}
 
 	const img = (
 		<TiledGalleryImage
@@ -64,6 +72,7 @@ function TiledGalleryItem( props ) {
 			width={ props.width }
 			height={ props.height }
 			caption={ props.caption }
+			linkTo={ props.linkTo }
 		/>
 	);
 
