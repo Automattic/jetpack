@@ -2889,7 +2889,7 @@ function wpsc_dirsize($directory, $sizes) {
 function wp_cache_clean_cache( $file_prefix, $all = false ) {
 	global $cache_path, $supercachedir, $blog_cache_dir, $wp_cache_object_cache;
 
-	do_action('wp_cache_cleared');
+	do_action( 'wp_cache_cleared' );
 
 	if ( $wp_cache_object_cache && function_exists( "reset_oc_version" ) )
 		reset_oc_version();

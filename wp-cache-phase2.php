@@ -2105,7 +2105,7 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 			}
 		}
 		closedir($handle);
-                do_action('wp_cache_cleared');
+		do_action( 'wp_cache_cleared' );
 	}
 	wp_cache_writers_exit();
 }
@@ -2542,7 +2542,7 @@ function wp_cache_clear_cache( $blog_id = 0 ) {
 			prune_super_cache( $cache_path . 'blogs/', true );
 		}
 	}
-	do_action('wp_cache_cleared');
+	do_action( 'wp_cache_cleared' );
 }
 
 function wpsc_delete_post_archives( $post ) {
