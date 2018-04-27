@@ -119,8 +119,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	private function get_plugin_info( $slug ) {
-		$plugins = ! empty( $this->plugins ) && is_array( $this->plugins ) ? $this->plugins : get_plugins();
-		return isset( $plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug), $plugins[ $slug ] ): array( 'slug' => $slug );
+		$plugins = get_plugins(); // Get the most up to date info
+		if ( isset( $plugins[ $slug ] ) ) {
+			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
+		};
+		// Try grabbing the info from before the update 
+		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ): array( 'slug' => $slug );
 	}
 
 	private function get_errors( $skin ) {
