@@ -15,7 +15,7 @@ import get from 'lodash/get';
 class TiledGalleryImage extends Component {
 
 	componentWillReceiveProps( { image, width, height } ) {
-		// very carefully set width & height attributes once only!
+		// very carefully set width & height attributes once only (to avoid recurse)!
 		if ( image && ! width && ! height && this.props.setAttributes ) {
 			const mediaInfo = get( image, [ 'media_details' ], { width: null, height: null } );
 			this.props.setAttributes( {
