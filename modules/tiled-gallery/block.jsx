@@ -15,7 +15,7 @@ const JetpackGalleryBlockType = 'jetpack/gallery';
 
 const settings = {
 	title: __( 'Jetpack Gallery' ),
-	icon: 'album',
+	icon: 'format-gallery',
 	category: 'layout',
 
 	attributes: {
