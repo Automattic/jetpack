@@ -14,7 +14,7 @@ const { __ } = wp.i18n;
 const { mediaUpload } = wp.utils;
 
 /**
- * WordPress dependencies (runtime – where should we get Gutenberg components from?)
+ * WordPress dependencies
  */
 const {
 	IconButton,
