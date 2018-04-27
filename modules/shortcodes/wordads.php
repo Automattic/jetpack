@@ -21,7 +21,7 @@ class Jetpack_WordAds_Shortcode {
 		if ( empty( $wordads ) ) {
 			return null;
 		}
-		add_shortcode( 'wordad', array( $this, 'wordads_shortcode' ) );
+		add_shortcode( 'wordads', array( $this, 'wordads_shortcode' ) );
 	}
 
 	/**
@@ -34,10 +34,7 @@ class Jetpack_WordAds_Shortcode {
 	 * @return string HTML for WordAds shortcode.
 	 */
 	static function wordads_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts(
-			array(
-			), $atts, 'wordads'
-		);
+		$atts = shortcode_atts( array(), $atts, 'wordads');
 
 		return self::wordads_shortcode_html( $atts, $content );
 	}
