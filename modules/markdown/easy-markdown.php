@@ -115,6 +115,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+        add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 2 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
 		add_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
@@ -135,6 +136,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
+		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 2 );
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
 		remove_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
@@ -556,6 +558,33 @@ tinymce.on( 'AddEditor', function( event ) {
 
 	protected function comment_hash( $content ) {
 		return 'c-' . substr( md5( $content ), 0, 8 );
+	}
+
+	/**
+	 * Define custom patterns that won't be processed by Markdown.
+	 *
+	 * @return array The patterns that will be ignored by Markdown.
+	 */
+	public function jetpack_markdown_preserve( ) {
+
+		$regex_patterns = [];
+		/**
+		 * Preserve all markdown block comments
+         * This will also hide the markdown blocks from the next pattern
+		 */
+		$regex_patterns[] = '{
+		(<!--\s*[/]{0,1}wp:jetpack\/markdown-block\s*-->)
+		}xsm';
+
+		/**
+		 * Preserve all Gutenberg blocks and their contents
+         * This will prevent unnecessary munging of non markdown content
+		 */
+		$regex_patterns[] = '{
+		(<!--\s*wp:.+?-->.*?<!--\s*\/wp:.+?-->)
+		}xsm';
+
+		return $regex_patterns;
 	}
 
 	/**
