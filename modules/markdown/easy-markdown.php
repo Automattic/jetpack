@@ -490,6 +490,22 @@ tinymce.on( 'AddEditor', function( event ) {
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
 		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636)
 		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
+
+		    /**
+             * If this is a gutenberg metabox update we can assume that Markdown will be reparsed from
+             * post_content to post_content_filtered therefore replacing the original Markdown with
+             * the previously rendered markup. This should only happen when saving from Gutenberg.
+             *
+             * todo: verify assumption, a better check may be needed here
+             *
+             * We will invert the fields so that the update is successful and the previously saved
+             * Markdown content remains the source of truth.
+             */
+
+            if(isset( $_POST['gutenberg_meta_boxes']) && isset( $_GET['classic-editor'] )) {
+				$post_data['post_content'] = $post_data['post_content_filtered'];
+			}
+
 			/**
 			 * Filter the original post content passed to Markdown.
 			 *
