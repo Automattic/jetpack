@@ -40,14 +40,36 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 		$this->assertTrue(  $master_user !== $master_user_new , 'Master Not switched present' );
 		$tokens = Jetpack_Options::get_option( 'user_tokens' );
 
-		$this->assertFalse( isset( $tokens[$master_user] ), 'Master Token Present');
+		$this->assertFalse( isset( $tokens[$master_user] ), 'Master Token Present' );
 		$this->assertTrue(  isset( $tokens[$master_user_new] ), 'New Master Token Present' );
 		$this->assertTrue( (bool)Jetpack_Options::get_option( 'blog_token' ), 'Blog Token Not Present' );
 		$this->assertEquals( array( $master_user ), Jetpack_Options::get_option( 'disconnection_notice' ) );
 
 	}
 
-	public function create_and_set_master_user( $another_connected_admin ) {
+	public function test_jetpack_client_recieves_unknown_token_removed_secondary_user_keeps_master_token() {
+
+		add_filter( 'http_response', array( $this, 'return_unknown_token_error' ) );
+		$other_user = $this->create_and_set_master_user( true, true );
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => $other_user
+		) );
+		$xml->query( 'jetpack.monitor.isActive' );
+		remove_filter('http_response', array( $this, 'return_unknown_token_error' ) );
+
+		$master_user = Jetpack_Options::get_option( 'master_user' );
+		$this->assertTrue(  $other_user !== $master_user , 'Master Switched present' );
+		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+
+		$this->assertFalse( isset( $tokens[$other_user] ), 'Other User Token Present' );
+		$this->assertTrue(  isset( $tokens[$master_user] ), 'Master Not Token Present' );
+		$this->assertTrue( (bool)Jetpack_Options::get_option( 'blog_token' ), 'Blog Token Not Present' );
+		$this->assertEquals( array( $other_user ), Jetpack_Options::get_option( 'disconnection_notice' ), 'Disconnection Notice not set Properly' );
+
+	}
+
+	public function create_and_set_master_user( $another_connected_admin = false , $return_other_connected_user = false ) {
 		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$tokens = array(
 			$master_user     => 'kiwi.a.' . $master_user
@@ -60,6 +82,9 @@ class WP_Test_Jetpack_IXR_Client extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $master_user );
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
 		Jetpack_Options::update_option( 'blog_token', 'kiwi.banana' );
+		if( $return_other_connected_user ) {
+			return $other_connected_admin;
+		}
 		return $master_user;
 	}
 

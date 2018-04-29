@@ -91,7 +91,7 @@ class Jetpack_JITM {
 
 		$base_location = wc_get_base_location();
 
-		switch ( $base_location['country'] ) {
+		switch ( $base_location[ 'country' ] ) {
 			case 'US':
 				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
 				break;
@@ -135,9 +135,9 @@ class Jetpack_JITM {
 	 * Injects the dom to show a JITM inside of
 	 */
 	function ajax_message() {
-		$message_path = $this->get_message_path();
-		$query_string = _http_build_query( $_GET, '', ',' );
-		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
+		$message_path   = $this->get_message_path();
+		$query_string   = _http_build_query( $_GET, '', ',' );
+		$current_screen = wp_unslash( $_SERVER[ 'REQUEST_URI' ] );
 		?>
 		<div class="jetpack-jitm-message"
 		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
@@ -163,28 +163,20 @@ class Jetpack_JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		wp_register_style(
-			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ),
-			false,
-			JETPACK__VERSION .
-			'-201243242'
-		);
-		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
-		wp_enqueue_style( 'jetpack-jitm-css' );
+		Jetpack_JITM::enqueue_styles();
 
-		wp_enqueue_script(
-			'jetpack-jitm-new',
-			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			true
-		);
+		wp_enqueue_script( 'jetpack-jitm-new', Jetpack::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
 			'api_root' => esc_url_raw( rest_url() ),
 		) );
+	}
+
+	static function enqueue_styles() {
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_register_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
+		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
+		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
+		wp_enqueue_style( 'jetpack-jitm-css' );
 	}
 
 	/**
@@ -197,7 +189,7 @@ class Jetpack_JITM {
 	 */
 	function dismiss( $id, $feature_class ) {
 		JetpackTracking::record_user_event( 'jitm_dismiss_client', array(
-			'jitm_id' => $id,
+			'jitm_id'       => $id,
 			'feature_class' => $feature_class,
 		) );
 
@@ -215,7 +207,7 @@ class Jetpack_JITM {
 			$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
 		}
 
-		$number = $hide_jitm[ $feature_class ]['number'];
+		$number = $hide_jitm[ $feature_class ][ 'number' ];
 
 		$hide_jitm[ $feature_class ] = array( 'last_dismissal' => time(), 'number' => $number + 1 );
 
@@ -271,54 +263,48 @@ class Jetpack_JITM {
 
 		if ( $use_cache ) {
 			$last_sync  = (int) get_transient( 'jetpack_last_plugin_sync' );
-			$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
+			$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes[ 'last_response_time' ];
 		} else {
 			$from_cache = false;
 		}
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
-				$path,
-				'2',
-				array(
+			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array(
 					'user_id'    => $user->ID,
 					'user_roles' => implode( ',', $user->roles ),
-				),
-				null,
-				'wpcom'
-			);
+				), null, 'wpcom' );
 
 			// silently fail...might be helpful to track it?
 			if ( is_wp_error( $wpcom_response ) ) {
 				return array();
 			}
 
-			$envelopes = json_decode( $wpcom_response['body'] );
+			$envelopes = json_decode( $wpcom_response[ 'body' ] );
 
 			if ( ! is_array( $envelopes ) ) {
 				return array();
 			}
 
-			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
+			$expiration = isset( $envelopes[ 0 ] ) ? $envelopes[ 0 ]->ttl : 300;
 
 			// do not cache if expiration is 0 or we're not using the cache
 			if ( 0 != $expiration && $use_cache ) {
-				$envelopes['last_response_time'] = time();
+				$envelopes[ 'last_response_time' ] = time();
 
 				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
 			}
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
-		unset( $envelopes['last_response_time'] );
+		unset( $envelopes[ 'last_response_time' ] );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
 			// if the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed
-			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
+			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature[ 'last_dismissal' ] < $envelope->expires || $dismissed_feature[ 'number' ] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
 			}
@@ -373,6 +359,91 @@ class Jetpack_JITM {
 		}
 
 		return $envelopes;
+	}
+
+	static function display( $args ) {
+		/**
+		 * Define the array of defaults
+		 */
+		$defaults = array(
+			'message'      => 'something',
+			'icon'        => Jetpack::get_jp_emblem(),
+			'description'  => null,
+			'content_list' => array(),
+			'content_list' => array(),
+			'url'          => null,
+			'action'       => null,
+			'new_window'   => false,
+			'primary'      => true,
+			'id'           => ''
+		);
+
+		/**
+		 * Parse incoming $args into an array and merge it with $defaults
+		 */
+		$args = wp_parse_args( $args, $defaults );
+		?>
+		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium "id="jetpack-jitm-<?php echo esc_attr( $args['id'] ); ?>">
+			<div class="jitm-banner__icon-plan">
+				<div class="jp-emblem"><?php echo $args['icon']; ?></div>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php echo $args['message'];?></div>
+				<?php if ( $args[ 'description' ] && $args[ 'description' ] !== '' ) { ?>
+					<div class="jitm-banner__description"><?php echo $args[ 'description' ]; ?>
+					<?php if ( count( $args[ 'content_list' ] ) > 0 ) { ?>
+						<ul class="banner__list">
+						<?php foreach ( $args[ 'content_list' ] as $item ) {
+							$text = $item[ 'text' ];
+							if ( ! empty( $item[ 'url' ] ) ) {
+								$text = '<a href="' . esc_url( $item[ 'url' ] ) . '" target="_blank" rel="noopener noreferrer" >' . $text . '</a>';
+							}
+							?>
+							<li>
+								<svg class="gridicon gridicons-checkmark" height="16" width="16"
+								     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+									<g>
+										<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414"/>
+									</g>
+								</svg>
+								<?php echo $text; ?>
+							</li>
+						<?php } ?>
+						</ul>
+					<?php } ?>
+					</div><!-- end of description -->
+				<?php } ?>
+				</div>
+			<?php if ( ! empty( $args['action'] ) ) { ?>
+				<div class="jitm-banner__action">
+					<a href="<?php echo esc_url( $args['url'] );?>"
+			            target="<?php echo ( (bool) $args['new_window'] ? '_self' : '_blank' );?>"
+			            rel="noopener noreferrer" title="<?php echo esc_attr( $args['action'] ); ?>"
+			            type="button"
+			            class="jitm-button is-compact <?php echo ( (bool) $args['primary'] ? 'is-primary' : '' ) ;?>"
+					><?php echo esc_html( $args['action'] ); ?></a>
+				</div>
+			<?php } ?>
+			<a href="#" class="jitm-banner__dismiss" id="jetpack-jitm-dimiss-<?php echo esc_js( $args[ 'id'] ); ?>" data-dismiss-url="<?php echo esc_url( $args['url'] ); ?>"></a>
+				<script type="application/javascript">
+					(function (document) {
+						var dismiss_button = document.getElementById( 'jetpack-jitm-dimiss-<?php echo esc_js( $args[ 'id'] ); ?>' );
+						dismiss_button.addEventListener( 'click', jetpack_dismiss_jitm );
+						function jetpack_dismiss_jitm( event ) {
+							document.getElementById( 'jetpack-jitm-<?php echo esc_js( $args[ 'id'] ); ?>' ).style.display = 'none';
+							event.preventDefault();
+							var request = new XMLHttpRequest();
+							// just send it we don't care about the reply
+							request.open( "GET", ajaxurl + '?action=jetpack_jitm_dismiss_<?php echo esc_js( $args[ 'id'] ); ?>&_nonce=<?php echo esc_js( wp_create_nonce( 'jitm_dismiss_' . $args['id'] ) ); ?>' );
+							request.send();
+						}
+						// body of the function
+					}(document, ajaxurl));
+				</script>
+			</div>
+		</div>
+		<?php
 	}
 }
 

@@ -2157,6 +2157,14 @@ class Jetpack {
 		} else {
 			$options = compact( 'user_tokens' );
 		}
+
+		// Remove any notice because the user connected
+		$notices = Jetpack_Options::get_option( 'disconnection_notice' );
+		if ( ! empty( $notices ) && isset( $notices[ $user_id ] ) ) {
+			unset( $notices[ $user_id ] );
+			Jetpack_Options::update_option( 'disconnection_notice', $notices );
+		}
+
 		return Jetpack_Options::update_options( $options );
 	}
 
@@ -3272,8 +3280,10 @@ p {
 	}
 
 	public static function update_disconnection_notice( $user_id ) {
-		$notice = Jetpack_Options::get_option( 'disconnection_notice' );
-		$notice = ! empty( $notice ) && is_array( $notice ) ? array_merge( $notice, array( $user_id ) ) : array( $user_id );
+		$notice = Jetpack_Options::get_option( 'disconnection_notice', array() );
+		if ( ! in_array( $user_id, $notice ) ) {
+			array_push( $notice, $user_id );
+		}
 		Jetpack_Options::update_option( 'disconnection_notice', $notice );
 	}
 
@@ -3285,7 +3295,7 @@ p {
 	 */
 	public static function unlink_user_on_unknown_token( $user_id ) {
 		$master_user = (int) Jetpack_Options::get_option( 'master_user' );
-		if ( $user_id == 0 || $user_id == JETPACK_MASTER_USER ) {
+		if ( (int) $user_id === 0 || $user_id === JETPACK_MASTER_USER ) {
 			$user_id = $master_user;
 		}
 
@@ -3306,8 +3316,6 @@ p {
 			self::update_disconnection_notice( $user_id );
 			return;
 		}
-		var_dump( array_merge( array( $user_id ), array_keys( $tokens ) ) );
-
 		// Delete Everything - disconnect the site
 		Jetpack_Options::update_option( 'disconnection_notice', array_merge( array( $user_id ), array_keys( $tokens ) ) );
 		Jetpack_Options::delete_option( 'user_tokens' );

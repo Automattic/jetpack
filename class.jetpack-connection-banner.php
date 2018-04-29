@@ -23,6 +23,7 @@ class Jetpack_Connection_Banner {
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
 		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
+		add_action( 'wp_ajax_jetpack_jitm_dismiss_disconnect_notice', array( $this, 'dismiss_reconnect_notice' ) );
 	}
 
 	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
@@ -100,6 +101,17 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
+
+		$disconnection_notice = Jetpack_Options::get_option( 'disconnection_notice', array() );
+		if ( in_array( get_current_user_id(), $disconnection_notice ) ) {
+			Jetpack_JITM::enqueue_styles();
+			add_action( 'admin_notices', array( $this, 'reconnect_banner' ) );
+			return;
+		}
 		// Kill if banner has been dismissed
 		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
 			return;
@@ -107,10 +119,6 @@ class Jetpack_Connection_Banner {
 
 		// Don't show the connect notice anywhere but the plugins.php after activating
 		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'jetpack_connect' ) ) {
 			return;
 		}
 
@@ -162,17 +170,42 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Renders the reconnection banner
+	 *
+	 */
+	function reconnect_banner() {
+		Jetpack_JITM::display( array(
+			'message' => esc_html__( 'Jetpack\'s connection to WordPress.com is broken!', 'jetpack' ),
+			'action' => esc_html__( 'Reconnect', 'jetpack' ),
+			'url' => Jetpack::init()->build_connect_url( true, true, 'reconnect' ),
+			'description' => esc_html__( 'Please reconnect to get everything up and running again.', 'jetpack' ),
+			'primary' => true,
+			'id' => 'disconnect_notice'
+		) );
+	}
+
+	function dismiss_reconnect_notice() {
+		if (
+			isset( $_GET['_nonce'] )
+		    && wp_verify_nonce( $_GET['_nonce'], 'jitm_dismiss_disconnect_notice' )
+		) {
+			$notice  = Jetpack_Options::get_option( 'disconnection_notice', array() );
+			unset( $notice[get_current_user_id() ] );
+			Jetpack_Options::update_option( 'disconnection_notice', $notice );
+			echo 'Worked';
+		} else {
+			echo 'fail';
+		}
+		die();
+	}
+
+	/**
 	 * Renders the new connection banner as of 4.4.0.
 	 *
 	 * @since 4.4.0
 	 */
 	function render_banner() {
-		$disconnection_notice = Jetpack_Options::get_option( 'disconnection_notice', array() );
-		$notice = sprintf( __( 'Your connection to WordPress.com broken please try reconnecting!', 'jetpack' ) );
-		if ( in_array( get_current_user_id(), $disconnection_notice ) ) {
-			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
-		} ?>
-
+		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
 				<span
