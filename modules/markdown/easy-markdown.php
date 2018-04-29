@@ -500,7 +500,14 @@ tinymce.on( 'AddEditor', function( event ) {
 			 * @param string $post_data['post_content'] Untransformed post content.
 			 */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
-			$post_data['post_content'] = $this->transform( $post_data['post_content'], array( 'id' => $post_id ) );
+
+			/**
+			 * Remove the textarea wrapper from the markdown block so that it
+             * renders as HTML text and not a textarea form element for the reader
+			 */
+			$text = $this->strip_gutenberg_text_area_wrapper($post_data['post_content']);
+
+			$post_data['post_content'] = $this->transform( $text, array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
@@ -558,6 +565,47 @@ tinymce.on( 'AddEditor', function( event ) {
 
 	protected function comment_hash( $content ) {
 		return 'c-' . substr( md5( $content ), 0, 8 );
+	}
+
+
+	/**
+     * Strips the textarea tags from the jetpack markdown block
+     *
+     * <textarea class="blocks-plain-text wp-block-jetpack-markdown-block" aria-label="Markdown" rows="1">
+     * </textarea>
+     *
+	 * @param $text string
+	 * @return string
+	 */
+	protected function strip_gutenberg_text_area_wrapper($text) {
+
+		$regex = '{
+		(<!--\s*wp:jetpack\/markdown-block\s*-->)
+		.*?<textarea\s*?class=[\\\]{0,1}".*?wp-block-jetpack-markdown-block.*?[\\\]{0,1}".*?>
+		(.*?)
+		<\/textarea>
+		.*?(<!--\s*\/wp:jetpack\/markdown-block\s*-->)
+		}xsm';
+
+
+		$text = preg_replace_callback(
+			$regex,
+			array(&$this, '_strip_gutenberg_text_area_wrapper_callback'),
+			$text
+		);
+
+		return $text;
+	}
+
+	/**
+     * Concatenates the relevant matched results and adds newlines to
+     * ensure the Markdown parser does not munge the results.
+     *
+	 * @param $matches array
+	 * @return string
+	 */
+	protected function _strip_gutenberg_text_area_wrapper_callback($matches) {
+		return $matches[1]."\n".$matches[2]."\n\n".$matches[3]; # String that will replace the block
 	}
 
 	/**
