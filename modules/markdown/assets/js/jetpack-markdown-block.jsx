@@ -82,6 +82,7 @@ registerBlockType( 'jetpack/markdown-block', {
 			),
 			<PlainText
 				className={ className }
+				markdown="1"
 				value={ attributes.content }
 				onChange={ ( content ) => setAttributes( { content } ) }
 				aria-label={ __( 'Markdown' ) }
@@ -92,6 +93,7 @@ registerBlockType( 'jetpack/markdown-block', {
 		return (
 			<PlainText
 				className={ className }
+				markdown="1"
 				value={ attributes.content }
 				aria-label={ __( 'Markdown' ) }
 			/>
