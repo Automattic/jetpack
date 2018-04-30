@@ -269,7 +269,7 @@ HTML;
 
 	/**
 	 * Insert an inline ad into a post content
-	 * Used for rendering the `wordad` shortcode.
+	 * Used for rendering the `wordads` shortcode.
 	 *
 	 * @since 6.1.0
 	 */
