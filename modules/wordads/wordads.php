@@ -426,11 +426,11 @@ HTML;
 		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
-		if ( $ad_number > 6 ) {
+		if ( $ad_number > 5 && 'top' !== $location ) {
 			return;
 		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		
+
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$ad_number}">
