@@ -22,58 +22,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		public static $cookie_name = 'eucookielaw';
 
 		/**
-		 * Array of two-letter country codes where GDPR applies.
-		 *
-		 * @var array
-		 */
-		public static $gdpr_zone = array(
-			// European Member countries
-			'AT', // Austria
-			'BE', // Belgium
-			'BG', // Bulgaria
-			'CY', // Cyprus
-			'CZ', // Czech Republic
-			'DE', // Germany
-			'DK', // Denmark
-			'EE', // Estonia
-			'ES', // Spain
-			'FI', // Finland
-			'FR', // France
-			'GR', // Greece
-			'HR', // Croatia
-			'HU', // Hungary
-			'IE', // Ireland
-			'IT', // Italy
-			'LT', // Lithuania
-			'LU', // Luxembourg
-			'LV', // Latvia
-			'MT', // Malta
-			'NL', // Netherlands
-			'PL', // Poland
-			'PT', // Portugal
-			'RO', // Romania
-			'SE', // Sweden
-			'SI', // Slovenia
-			'SK', // Slovakia
-			'GB', // United Kingdom
-			// Single Market Countries that GDPR applies to
-			'CH', // Switzerland
-			'IS', // Iceland
-			'LI', // Liechtenstein
-			'NO', // Norway
-		);
-
-		/**
-		 * Default display options.
-		 *
-		 * @var array
-		 */
-		private $display_options = array(
-			'all',
-			'eu',
-		);
-
-		/**
 		 * Default hide options.
 		 *
 		 * @var array
@@ -160,7 +108,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function defaults() {
 			return array(
-				'display'            => $this->display_options[0],
 				'hide'               => $this->hide_options[0],
 				'hide-timeout'       => 30,
 				'consent-expiration' => 180,
@@ -184,15 +131,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-geolocation.php';
-			if ( 'eu' === $instance['display'] ) {
-				// Hide if we can detect this is a non-EU visitor.
-				if (
-					! in_array( Jetpack_Geolocation::geolocate_ip(), self::$gdpr_zone )
-				) {
-					return;
-				}
-			}
 
 			$classes = array();
 			$classes[] = 'hide-on-' . esc_attr( $instance['hide'] );
@@ -231,7 +169,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			$instance = array();
 			$defaults = $this->defaults();
 
-			$instance['display']        = $this->filter_value( $new_instance['display'], $this->display_options );
 			$instance['hide']           = $this->filter_value( $new_instance['hide'], $this->hide_options );
 			$instance['text']           = $this->filter_value( $new_instance['text'], $this->text_options );
 			$instance['color-scheme']   = $this->filter_value( $new_instance['color-scheme'], $this->color_scheme_options );

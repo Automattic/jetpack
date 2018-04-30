@@ -1,37 +1,5 @@
 <p>
 	<strong>
-		<?php _ex( 'Display banner for', 'action', 'jetpack' ); ?>
-	</strong>
-	<ul>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['display'], 'all' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>"
-					type="radio"
-					value="all"
-				/>
-				<?php esc_html_e( 'All site visitors', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['display'], 'eu' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>"
-					type="radio"
-					value="eu"
-				/>
-				<?php esc_html_e( 'European Union visitors only', 'jetpack' ); ?>
-			</label>
-		</li>
-	</ul>
-</p>
-
-<hr />
-
-<p>
-	<strong>
 		<?php _ex( 'Hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
