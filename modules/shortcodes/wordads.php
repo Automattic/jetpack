@@ -54,7 +54,7 @@ class Jetpack_WordAds_Shortcode {
 		global $wordads;
 
 		if ( empty( $wordads ) ) {
-			return '<div>' . __( 'The WordAds module is not active' ) . '</div>';
+			return '<div>' . __( 'The WordAds module is not active', 'jetpack' ) . '</div>';
 		}
 
 		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">';
