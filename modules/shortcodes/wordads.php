@@ -25,7 +25,7 @@ class Jetpack_WordAds_Shortcode {
 	}
 
 	/**
-	 * Our [wordad] shortcode.
+	 * Our [wordads] shortcode.
 	 * Prints a WordAds Ad.
 	 *
 	 * @param array  $atts    Array of shortcode attributes.
