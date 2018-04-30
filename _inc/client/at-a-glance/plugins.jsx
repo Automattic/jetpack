@@ -35,11 +35,17 @@ class DashPluginUpdates extends Component {
 		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.pluginUpdates;
 
+		const support = {
+			text: __( 'Jetpack’s Plugin Updates allows you to choose which plugins update automatically.' ),
+			link: 'https://jetpack.com/support/site-management/',
+		};
+
 		if ( 'N/A' === pluginUpdates ) {
 			return (
 				<DashItem
 					label={ labelName }
 					module="manage"
+					support={ support }
 					status="is-working" >
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
@@ -56,13 +62,14 @@ class DashPluginUpdates extends Component {
 				key="plugin-updates"
 				label={ labelName }
 				module="manage"
+				support={ support }
 				status={ updatesAvailable ? 'is-warning' : workingOrInactive }
 				>
 				{
 					updatesAvailable && (
 						<h2 className="jp-dash-item__count">
 							{
-								__( '%(number)s plugin', '%(number)s plugins', {
+								__( '%(number)s', '%(number)s', {
 									count: pluginUpdates.count,
 									args: { number: pluginUpdates.count }
 								} )
@@ -74,7 +81,7 @@ class DashPluginUpdates extends Component {
 					{
 						updatesAvailable
 							? [
-								__( 'Needs updating.', 'Need updating.', { count: pluginUpdates.count } ) + ' ',
+								__( 'Plugin needs updating.', 'Plugins need updating.', { count: pluginUpdates.count } ) + ' ',
 								! this.props.isDevMode && __( '{{a}}Turn on plugin autoupdates{{/a}}', {
 									components: { a: <a href={ managePluginsUrl } /> }
 								} )

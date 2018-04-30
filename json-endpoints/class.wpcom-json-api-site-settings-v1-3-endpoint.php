@@ -86,6 +86,8 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'twitter_via'                          => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag'       => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'                 => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
+		'google_my_business_keyring_id'        => '(int) The Keyring token ID for a Google My Business token to associate with the site',
+		'google_my_business_location_id'       => '(string) The Keyring external user ID representing the associated Google My Business location for this site',
 		'timezone_string'                      => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                           => '(int) Site offset from UTC in hours',
 		'date_format'                          => '(string) PHP Date-compatible date format',

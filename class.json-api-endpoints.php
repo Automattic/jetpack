@@ -631,7 +631,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'network'       => '(boolean)  Whether the plugin can only be activated network wide.',
 				'autoupdate'    => '(boolean)  Whether the plugin is auto updated',
 				'log'           => '(array:safehtml) An array of update log strings.',
-        		'action_links'  => '(array) An array of action links that the plugin uses.',
+				'action_links'  => '(array) An array of action links that the plugin uses.',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
@@ -650,7 +650,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			break;
 		case 'plugin_v1_2' :
-			$docs = Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
+			$docs = class_exists( 'Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint' )
+				? Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint::$_response_format
+				: Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
 				/**
@@ -734,7 +736,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		default :
 			$method_name = $type['type'] . '_docs';
-			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
+			if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
 				$docs = WPCOM_JSON_API_Jetpack_Overrides::$method_name();
 			}
 
@@ -1166,6 +1168,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
+				if ( $site_id > -1 ) {
+					$site_visible = (
+						-1 != $active_blog->public ||
+						is_private_blog_user( $site_id, get_current_user_id() )
+					);
+				}
 				$profile_URL = "https://en.gravatar.com/{$login}";
 			} else {
 				$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
@@ -1197,8 +1205,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'ip_address'  => $ip_address, // (string|bool)
 		);
 
-		if ($site_id > -1) {
-			$author['site_ID'] = (int) $site_id;
+		if ( $site_id > -1 ) {
+			$author['site_ID']      = (int) $site_id;
+			$author['site_visible'] = $site_visible;
 		}
 
 		return (object) $author;
@@ -1854,9 +1863,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// First check to see if we get a mime-type match by file, otherwise, check to
 		// see if WordPress supports this file as an image. If neither, then it is not supported.
-		if ( ! $this->is_file_supported_for_sideloading( $tmp ) && 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
+		if ( ! $this->is_file_supported_for_sideloading( $tmp ) || 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return false;
+			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 
 		// emulate a $_FILES entry

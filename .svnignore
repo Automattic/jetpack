@@ -37,3 +37,7 @@ _inc/build/maps
 .codeclimate.yml
 yarn.lock
 docker
+bin/pre-commit-hook.js
+bin/travis_install.sh
+fusion
+yarn-error.log

@@ -33,6 +33,10 @@ const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Security Scanning' ) }
 		module={ props.feature || 'scan' }
+		support={ {
+			text: __( 'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.' ),
+			link: 'https://jetpack.com/support/security/',
+		} }
 		className={ props.className || '' }
 		status={ props.status || '' }
 		pro={ true }

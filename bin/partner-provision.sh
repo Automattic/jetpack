@@ -4,133 +4,223 @@
 # executes wp-cli command to provision Jetpack site for given partner
 
 usage () {
-	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--wpcom_user_email=wpcom_user_email] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url] [--partner-tracking-id]"
+	echo 'Usage: partner-provision.sh \
+	--partner_id=partner_id \
+	--partner_secret=partner_secret \
+	--user=wp_user_id \
+	[--wp-cli-path=/usr/local/bin/wp]
+	[--plan=plan_name] \
+	[--onboarding=1] \
+	[--wpcom_user_id=1234] \
+	[--wpcom_user_email=wpcom_user_email] \
+	[--url=http://example.com] \
+	[--force_connect=1] \
+	[--force_register=1] \
+	[--allow-root] \
+	[--partner-tracking-id=1]'
 }
 
-GLOBAL_ARGS=""
+# Note: this script should always be designed to keep wp-cli OPTIONAL
+# so that it can be run outside of the WordPress installation.
+WP_CLI_COMMAND="wp"
+WP_CLI_ARGS=""
 
-for i in "$@"; do
-	case $i in
-		-c=* | --partner_id=* )     CLIENT_ID="${i#*=}"
-			shift
-			;;
-		-s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
-			shift
-			;;
-		-i=* | --user_id=* | --user=* ) WP_USER="${i#*=}"
-			shift
-			;;
-		-w=* | --wpcom_user_id=* )  WPCOM_USER_ID="${i#*=}"
-			shift
-			;;
-		-e=* | --wpcom_user_email=* ) WPCOM_USER_EMAIL="${i#*=}"
-			shift
-			;;
-		-p=* | --plan=* )           PLAN_NAME="${i#*=}"
-			shift
-			;;
-		-o=* | --onboarding=* )     ONBOARDING="${i#*=}"
-			shift
-			;;
-		-u=* | --url=* )            SITE_URL="${i#*=}"
-			shift
-			;;
-		--force_register=* )        FORCE_REGISTER="${i#*=}"
-			shift
-			;;
-		--force_connect=* )         FORCE_CONNECT="${i#*=}"
-			shift
-			;;
-		--site_url=* )              WP_SITEURL="${i#*=}"
-			shift
-			;;
-		--home_url=* )              WP_HOME="${i#*=}"
-			shift
-			;;
-		--partner-tracking-id=* )   PARTNER_TRACKING_ID="${i#*=}"
-			shift
-			;;
-		--allow-root )              GLOBAL_ARGS="--allow-root"
-			shift
-			;;
-		-h | --help )               usage
-			exit
-			;;
-		* )                         usage
-			exit 1
-	esac
-done
-
-if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ]; then
-	usage
-	exit 1
-fi
-
-# default API host that can be overridden
+# Default API host that can be overridden.
 if [ -z "$JETPACK_START_API_HOST" ]; then
 	JETPACK_START_API_HOST='public-api.wordpress.com'
 fi
 
-# fetch an access token using our client ID/secret
-ACCESS_TOKEN_JSON=$(curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner")
+PROVISION_REQUEST_ARGS=""
+PROVISION_REQUEST_URL="https://$JETPACK_START_API_HOST/rest/v1.3/jpphp/provision"
 
-# add extra args if available
-if [ ! -z "$WP_USER" ]; then
-	GLOBAL_ARGS="$GLOBAL_ARGS --user=$WP_USER"
+for i in "$@"; do
+	case $i in
+		-c=* | --partner_id=* )
+			CLIENT_ID="${i#*=}"
+			shift
+			;;
+		-s=* | --partner_secret=* )
+			CLIENT_SECRET="${i#*=}"
+			shift
+			;;
+		-i=* | --user_id=* | --user=* )
+			WP_USER="${i#*=}"
+			WP_CLI_ARGS="$WP_CLI_ARGS --user=${i#*=}"
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form local_user=${i#*=}"
+			shift
+			;;
+		-w=* | --wpcom_user_id=* )
+			WPCOM_USER_ID=${i#*=}
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form wpcom_user_id=${i#*=}"
+			shift
+			;;
+		-e=* | --wpcom_user_email=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form wpcom_user_email=${i#*=}"
+			shift
+			;;
+		-p=* | --plan=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form plan=${i#*=}"
+			shift
+			;;
+		-o=* | --onboarding=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form onboarding=${i#*=}"
+			shift
+			;;
+		-u=* | --url=* )
+			WP_CLI_ARGS="$WP_CLI_ARGS --url=${i#*=}"
+			SITEURL="${i#*=}"
+			shift
+			;;
+		--force_register=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form force_register=${i#*=}"
+			shift
+			;;
+		--force_connect=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form force_connect=${i#*=}"
+			shift
+			;;
+		--partner-tracking-id=* )
+			PROVISION_REQUEST_URL="$PROVISION_REQUEST_URL?partner-tracking-id=${i#*=}"
+			shift
+			;;
+		--allow-root )
+			WP_CLI_ARGS="$WP_CLI_ARGS --allow-root"
+			shift
+			;;
+		--wp-cli-path=* )
+			WP_CLI_COMMAND="${i#*=}"
+			shift
+			;;
+		-h | --help )
+			usage
+			exit
+			;;
+		* )
+			echo $(usage) >&2
+			exit 1
+	esac
+done
+
+WP_CLI_CHECK=$($WP_CLI_COMMAND --skip-plugins --skip-themes option get home 2>/dev/null)
+if [ -z "$WP_CLI_CHECK" ]; then
+	WP_CLI_EXISTS=0
+else
+	WP_CLI_EXISTS=1
 fi
 
-# set URL arg for multisite compatibility
-if [ ! -z "$SITE_URL" ]; then
-	GLOBAL_ARGS="$GLOBAL_ARGS --url=$SITE_URL"
+if [ "$WP_CLI_EXISTS" -eq "1" ]; then
+	WP_CLI_ARGS="$WP_CLI_ARGS --skip-themes --skip-plugins=$($WP_CLI_COMMAND plugin list --field=name | grep -v ^jetpack$ | tr  '\n' ',')"
 fi
 
-# Remove leading whitespace
-GLOBAL_ARGS=$(echo "$GLOBAL_ARGS" | xargs echo)
+if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER" = "" ]; then
+	echo $(usage) >&2
+	exit 1
+fi
+
+jetpack_shell_is_errored() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
+	JSON_ERROR=$( jetpack_echo_key_from_json "$1" error | xargs echo )
+
+	if [ -z "$JSON_ERROR" ]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+jetpack_is_wp_cli_error() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
+	if [ ! -z $( echo "$1" | grep Error:) ] || [ -z "$1" ]; then
+		return 0
+	fi
+
+	return 1
+}
+
+jetpack_echo_key_from_json() {
+	if [ -z "$1" ]; then
+		exit 1
+	fi
+
+	echo $1 | sed -n "s/.*\"$2\":\"\([^\"]*\)\".*/\1/p"
+}
+
+# Fetch an access token using our client ID/secret.
+ACCESS_TOKEN_JSON=$(
+	curl \
+		--silent \
+		--request POST \
+		--url https://public-api.wordpress.com/oauth2/token \
+		--header 'cache-control: no-cache' \
+		--header 'content-type: multipart/form-data;' \
+		--form client_id="$CLIENT_ID" \
+		--form client_secret="$CLIENT_SECRET" \
+		--form grant_type=client_credentials \
+		--form scope=jetpack-partner
+)
+
+if jetpack_shell_is_errored "$ACCESS_TOKEN_JSON"; then
+	echo "$ACCESS_TOKEN_JSON" >&2
+	exit 1
+fi
+
+ACCESS_TOKEN=$( jetpack_echo_key_from_json "$ACCESS_TOKEN_JSON" access_token | xargs echo )
+
+# If we don't have an access token, we can't go further.
+if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "" ]; then
+	echo "$ACCESS_TOKEN_JSON" >&2
+	exit 1
+fi
 
 # Silently ensure Jetpack is active
-# Intentionally not quoting $GLOBAL_ARGS so that words in the string are split
-wp $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
-
-ADDITIONAL_ARGS=""
-if [ ! -z "$ONBOARDING" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --onboarding=$ONBOARDING"
+# Intentionally not quoting $WP_CLI_ARGS so that words in the string are split
+if [ "$WP_CLI_EXISTS" -eq "1" ]; then
+	$WP_CLI_COMMAND $WP_CLI_ARGS plugin activate jetpack >/dev/null 2>&1
 fi
 
-if [ ! -z "$PLAN_NAME" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --plan=$PLAN_NAME"
+if [ -z "$SITEURL" ] && [ "$WP_CLI_EXISTS" -eq "1" ]; then
+	SITEURL=$( $WP_CLI_COMMAND $WP_CLI_ARGS option get siteurl | xargs echo )
 fi
 
-if [ ! -z "$WPCOM_USER_ID" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_id=$WPCOM_USER_ID"
+PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form siteurl=$SITEURL"
+
+PROVISION_REQUEST=$(
+	curl \
+		--silent \
+		--request POST \
+		--url "$PROVISION_REQUEST_URL" \
+		--header "authorization: Bearer $ACCESS_TOKEN" \
+		--header 'cache-control: no-cache' \
+		--header 'content-type: multipart/form-data;' \
+		$PROVISION_REQUEST_ARGS
+)
+
+if [ -z "$PROVISION_REQUEST" ]; then
+	echo "{\"success\":false,\"error_code\":\"unknown_error\",\"error_message\":\"Empty response from server\"}" >&2
 fi
 
-if [ ! -z "$WPCOM_USER_EMAIL" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_email=$WPCOM_USER_EMAIL"
+if jetpack_shell_is_errored "$PROVISION_REQUEST"; then
+	echo "$PROVISION_REQUEST" >&2
+	exit 1
 fi
 
-if [ ! -z "$FORCE_REGISTER" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_register=$FORCE_REGISTER"
+# Get the access token for the Jetpack connection.
+ACCESS_TOKEN=$( jetpack_echo_key_from_json "$PROVISION_REQUEST" access_token | xargs echo )
+
+# If we have an access token, set it and activate default modules!
+if [ ! -z "$ACCESS_TOKEN" ] && [ "$ACCESS_TOKEN" != "" ] && [ ! -z "$WPCOM_USER_ID" ] && [ "$WP_CLI_EXISTS" -eq "1" ]; then
+	AUTHORIZE_RESULT=$( $WP_CLI_COMMAND $WP_CLI_ARGS jetpack authorize_user --token="$ACCESS_TOKEN" )
+	if jetpack_is_wp_cli_error "$AUTHORIZE_RESULT"; then
+		echo "{\"success\":false,\"error_code\":\"authorization_failure\",\"error_message\":\"$AUTHORIZE_RESULT\"}" >&2
+		exit 1
+	fi
 fi
 
-if [ ! -z "$FORCE_CONNECT" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_connect=$FORCE_CONNECT"
-fi
-
-if [ ! -z "$WP_SITEURL" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --site_url=$WP_SITEURL"
-fi
-
-if [ ! -z "$WP_HOME" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --home_url=$WP_HOME"
-fi
-
-if [ ! -z "$PARTNER_TRACKING_ID" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --partner-tracking-id=$PARTNER_TRACKING_ID"
-fi
-
-# Remove leading whitespace
-ADDITIONAL_ARGS=$(echo "$ADDITIONAL_ARGS" | xargs echo)
-
-# Provision the partner plan
-# Intentionally not quoting $GLOBAL_ARGS or $ADDITIONAL_ARGS so that words in the strings are split
-wp $GLOBAL_ARGS jetpack partner_provision "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS
+echo "$PROVISION_REQUEST"
+exit 0

@@ -257,6 +257,7 @@ function jetpack_og_tags() {
 			}
 		}
 	}
+	$og_output .= "\n<!-- End Jetpack Open Graph Tags -->\n";
 	echo $og_output;
 }
 

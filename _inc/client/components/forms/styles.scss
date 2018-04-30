@@ -36,6 +36,12 @@
 	font-size: rem( 14px );
 	word-break: break-word;
 	vertical-align: baseline;
+
+	.jp-form-toggle-privacy-info {
+		margin-left: rem( 5px );
+		padding-left: rem( 5px );
+		border-left: 1px solid rgba( $gray, 0.5 );
+	}
 }
 
 .jp-form-fieldset {

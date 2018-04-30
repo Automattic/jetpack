@@ -91,6 +91,33 @@ function stats_enqueue_dashboard_head() {
 }
 
 /**
+ * Checks if filter is set and dnt is enabled.
+ *
+ * @return bool
+ */
+function jetpack_is_dnt_enabled() {
+	/**
+	 * Filter the option which decides honor DNT or not.
+	 *
+	 * @module stats
+	 * @since 6.1.0
+	 *
+	 * @param bool false If config honors DNT and client doesn't want to tracked, false if not.
+	 */
+	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
+		return false;
+	}
+
+	foreach ( $_SERVER as $name => $value ) {
+		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Prevent sparkline img requests being redirected to upgrade.php.
  * See wp-admin/admin.php where it checks $wp_db_version.
  *
@@ -144,7 +171,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() ) {
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
 		return;
 	}
 

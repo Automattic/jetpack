@@ -398,6 +398,10 @@ class Jetpack_Carousel {
 
 	function add_data_to_images( $attr, $attachment = null ) {
 		$attachment_id   = intval( $attachment->ID );
+		if ( ! wp_attachment_is_image( $attachment_id ) ) {
+			return $attr;
+		}
+
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );

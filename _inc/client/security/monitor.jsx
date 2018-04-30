@@ -32,7 +32,15 @@ export const Monitor = moduleSettingsForm(
 					module="monitor"
 					header={ __( 'Downtime monitoring', { context: 'Settings header' } ) }
 				>
-					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'monitor' ) }>
+					<SettingsGroup
+						hasChild
+						disableInDevMode
+						module={ this.props.getModule( 'monitor' ) }
+						support={ {
+							text: __( 'Keep tabs on your site and receive alerts the moment downtime is detected.' ),
+							link: 'https://jetpack.com/support/monitor/',
+						} }
+					>
 						<ModuleToggle
 							slug="monitor"
 							disabled={ unavailableInDevMode }

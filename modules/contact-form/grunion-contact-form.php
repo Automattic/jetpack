@@ -59,9 +59,30 @@ class Grunion_Contact_Form_Plugin {
 			return;
 		}
 
+		/**
+		 * Fires right before deleting the _feedback_akismet_values post meta on $feedback_ids
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array $feedback_ids list of feedback post ID
+		 */
+		do_action( 'jetpack_daily_akismet_meta_cleanup_before', $feedback_ids );
 		foreach ( $feedback_ids as $feedback_id ) {
 			delete_post_meta( $feedback_id, '_feedback_akismet_values' );
 		}
+
+		/**
+		 * Fires right after deleting the _feedback_akismet_values post meta on $feedback_ids
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array $feedback_ids list of feedback post ID
+		 */
+		do_action( 'jetpack_daily_akismet_meta_cleanup_after', $feedback_ids );
 	}
 
 	/**

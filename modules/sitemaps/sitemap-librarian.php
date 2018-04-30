@@ -325,10 +325,11 @@ class Jetpack_Sitemap_Librarian {
 				"SELECT *
 					FROM $wpdb->posts
 					WHERE post_type='attachment'
-						AND post_mime_type IN ('image/jpeg','image/png','image/gif')
+						AND post_mime_type LIKE %s
 						AND ID>%d
 					ORDER BY ID ASC
 					LIMIT %d;",
+				'image/%',
 				$from_id,
 				$num_posts
 			)
@@ -357,10 +358,11 @@ class Jetpack_Sitemap_Librarian {
 				"SELECT *
 					FROM $wpdb->posts
 					WHERE post_type='attachment'
-						AND post_mime_type IN ('video/mpeg','video/wmv','video/mov','video/avi','video/ogg')
+						AND post_mime_type LIKE %s
 						AND ID>%d
 					ORDER BY ID ASC
 					LIMIT %d;",
+				'video/%',
 				$from_id,
 				$num_posts
 			)

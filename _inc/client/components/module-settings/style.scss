@@ -16,21 +16,6 @@
 	}
 }
 
-.jp-module-settings__learn-more {
-	position: absolute;
-	top: rem( 27px );
-	right: rem( 25px );
-	z-index: 1;
-
-	.jp-form-fieldset & {
-		top: 4px;
-	}
-
-	.dops-info-popover {
-		white-space: nowrap;
-	}
-}
-
 // Related Posts Preview styles
 .jp-related-posts-preview {
 	position: relative;
