@@ -135,7 +135,7 @@ class Jetpack_SSO_Notices {
 
 	/**
 	 * Message displayed when the site admin has disabled the default WordPress
-	 * login form in Settings > General > Single Sign On
+	 * login form in Settings > General > Secure Sign On
 	 *
 	 * @since 2.7
 	 * @param string $message

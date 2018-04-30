@@ -6621,7 +6621,7 @@ msgid "Require Two-Step Authentication"
 msgstr "يلزم إجراء مصادقة من خطوتين"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "تسجيل الدخول الموحد"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7714,7 +7714,7 @@ msgstr "يتيح لك تسجيل الدخول إلى كل المواقع الت�
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "تسجيل الدخول الموحد"
 
 #: modules/module-headings.php:164
