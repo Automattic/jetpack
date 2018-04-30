@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 4.9.1
-* Stable tag: 1.5.9
+* Tested up to: 4.9.5
+* Stable tag: 1.6.0
 * Requires at least: 3.0
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -260,6 +260,29 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+
+### 1.6.0 ###
+* Fix issues in multisite plugin (#501)
+* Fixes wp-cli plugin deactivate/activate (#499)
+* Cleanup - change quotes. (#495)
+* $htaccess_path defines the path to the global .htacess file. (#507)
+* Fix 'cannot redeclare gzip_accepted()' (#511)
+* Correct the renaming of tmp_wpcache_filename (removed unnecessary slash in path) which caused renaming to fail. (#516)
+* Add check for Jetpack mobile theme cookie (#515)
+* Optimize wp_cache_phase2 and create wpsc_register_post_hooks (#508)
+* WPCACHEHOME has a trailing slash (#513)
+* Cleanup cache enable/disable and update_mod_rewrite_rules (#500)
+* Post Update now clears category cache (#519)
+* Various fixes for saving the debug page form (#542)
+* Expert-caching and empty parameters, like ?amp, should not serve cached page (#533)
+* Tiny Yslow description fix (#527)
+* Add ipad to mobile list (#525)
+* Hide opcache_invalidate() warnings since it's disabled some places. (#543)
+* Check that HTTP_REFERER exists before checking it. (#544)
+* Replace Cron View" with WP Control because it's still updated. (#546)
+* adding hook (wp_cache_cleared) for full cache purges (#537)
+
 
 ### 1.5.9 ###
 * Fixed fatal error if the debug log was deleted while debugging was enabled and a visitor came to the site.
@@ -628,4 +651,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Fixes rare fatal error when using debug log
+Bug fix release
