@@ -369,25 +369,30 @@ HTML;
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
 		if ( 'iponweb' == $type ) {
+			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
 			$height = 250;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$snippet = $this->get_ad_snippet( $height, $width, $spot );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-top:0px;' );
+					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '3';
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -414,6 +419,7 @@ HTML;
 
 	/**
 	 * Returns the snippet to be inserted into the ad unit
+	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
 	 * @param  int $location
@@ -422,7 +428,7 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $height, $width, $location = '', $css = '' ) {
+	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
@@ -430,7 +436,7 @@ HTML;
 			return;
 		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		
+
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$ad_number}">
@@ -438,6 +444,7 @@ HTML;
 				__ATA.cmd.push(function() {
 					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
+						sectionId: '{$section_id}',
 						location: '{$location}',
 						width: {$width},
 						height: {$height}
