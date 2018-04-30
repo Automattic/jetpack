@@ -25,15 +25,17 @@ class Jetpack_Markdown_Block {
 		//return '<pre>' . print_r( $args, true ) . '</pre>';
 	}
 
-
-
 	public static function enqueue_block_editor_assets() {
-		wp_register_script(
+		wp_enqueue_script(
 			'jetpack-markdown-block',
 			plugins_url( 'assets/js/jetpack-markdown-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
-		wp_enqueue_script( 'jetpack-markdown-block' );
+		wp_enqueue_style(
+			'jetpack-markdown-block',
+			plugins_url( 'assets/css/jetpack-markdown-block.css', __FILE__ ),
+			array()
+		);
 
 	}
 
