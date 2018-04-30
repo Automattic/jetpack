@@ -6620,7 +6620,7 @@ msgid "Require Two-Step Authentication"
 msgstr "需要兩步驟驗證"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "單一登入"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7712,7 +7712,7 @@ msgstr "方便你使用 WordPress.com 帳號，並且按一下就能登入所有
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "單一登入"
 
 #: modules/module-headings.php:164

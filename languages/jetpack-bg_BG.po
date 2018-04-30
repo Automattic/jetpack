@@ -6559,7 +6559,7 @@ msgid "Require Two-Step Authentication"
 msgstr "Изискване на двустъпкова автентикация"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Една регистрация"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7648,7 +7648,7 @@ msgstr "Позволява ви да влизате във всичките си
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Една регистрация"
 
 #: modules/module-headings.php:164

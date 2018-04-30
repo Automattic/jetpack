@@ -125,7 +125,7 @@ msgstr ""
 
 #: modules/module-headings.php:127
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr ""
 
 #: modules/module-headings.php:132
@@ -288,7 +288,7 @@ msgid "RSS Links"
 msgstr ""
 
 #: modules/sso.php:150 modules/sso.php:984
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr ""
 
 #: modules/module-info.php:1009
@@ -3024,7 +3024,7 @@ msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to y
 msgstr ""
 
 #: modules/sso.php:985
-msgid "Connecting with Single Sign On enables you to log in via your WordPress.com account."
+msgid "Connecting with Secure Sign On enables you to log in via your WordPress.com account."
 msgstr ""
 
 #: modules/sso.php:1008
@@ -4306,7 +4306,7 @@ msgid "With the VideoPress module you can easily upload videos to your WordPress
 msgstr ""
 
 #: modules/module-info.php:829
-msgid "With Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
+msgid "With Secure Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
 msgstr ""
 
 #: modules/module-info.php:830

@@ -1394,7 +1394,7 @@ msgstr ""
 
 #: modules/module-headings.php:127
 msgctxt "Module Name"
-msgid "Jetpack Single Sign On"
+msgid "Jetpack Secure Sign On"
 msgstr ""
 
 #: modules/module-headings.php:132
@@ -1917,7 +1917,7 @@ msgid "You are not supposed to be here!"
 msgstr ""
 
 #: modules/sso.php:140
-msgid "Jetpack Single Sign On"
+msgid "Jetpack Secure Sign On"
 msgstr ""
 
 #: modules/sso.php:211
@@ -1961,7 +1961,7 @@ msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to y
 msgstr ""
 
 #: modules/sso.php:905
-msgid "WordPress.com Single Sign On"
+msgid "WordPress.com Secure Sign On"
 msgstr ""
 
 #: modules/sso.php:906
@@ -3131,7 +3131,7 @@ msgid "With the VideoPress module you can easily upload videos to your WordPress
 msgstr ""
 
 #: modules/module-info.php:822
-msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
+msgid "With WordPress.com Secure Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
 msgstr ""
 
 #: modules/module-info.php:823

@@ -6573,7 +6573,7 @@ msgid "Require Two-Step Authentication"
 msgstr "Forlang tofaktor.autensering"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Engangspålogging (SSO)"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7662,7 +7662,7 @@ msgstr "Lar deg logge inn på alle dine Jetpack-drevne nettsteder med ett klikk,
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Engangspålogging (SSO)"
 
 #: modules/module-headings.php:164
