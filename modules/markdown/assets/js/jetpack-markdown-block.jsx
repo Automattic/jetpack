@@ -55,14 +55,12 @@ registerBlockType( 'jetpack/markdown-block', {
 	category: 'formatting',
 
 	attributes: {
-		preview: false,
 		content: {
 			type: 'string',
 			source: 'property',
 			selector: 'textarea',
 			property: 'textContent',
 		},
-
 	},
 
 	supports: {
