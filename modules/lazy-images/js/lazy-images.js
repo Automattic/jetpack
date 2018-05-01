@@ -94,15 +94,22 @@ var jetpackLazyImagesModule = function( $ ) {
 	 */
 	function applyImage( image ) {
 		var theImage = $( image ),
-			src = theImage.attr( 'data-lazy-src' ),
-			srcset = theImage.attr( 'data-lazy-srcset' ),
-			sizes = theImage.attr( 'data-lazy-sizes' ),
+			src,
+			srcset,
+			sizes,
 			theClone;
 
-		if ( ! theImage.length || ! src ) {
+		if ( ! theImage.length ) {
 			return;
 		}
 
+		src = theImage.attr( 'data-lazy-src' );
+		if ( ! src ) {
+			return;
+		}
+
+		srcset = theImage.attr( 'data-lazy-srcset' );
+		sizes = theImage.attr( 'data-lazy-sizes' );
 		theClone = theImage.clone();
 
 		// Remove lazy attributes from the clone.
@@ -111,11 +118,16 @@ var jetpackLazyImagesModule = function( $ ) {
 		theClone.removeAttr( 'data-lazy-sizes' );
 
 		// Add the attributes we want on the finished image.
-		theClone.addClass( 'jetpack-lazy-image--handled' ),
-		theClone.attr( 'data-lazy-src', 1 ),
-		theClone.attr( 'src', src ),
-		theClone.attr( 'srcset', srcset ),
-		theClone.attr( 'sizes', sizes );
+		theClone.addClass( 'jetpack-lazy-image--handled' );
+		theClone.attr( 'data-lazy-src', 1 );
+		theClone.attr( 'src', src );
+
+		if ( srcset ) {
+			theClone.attr( 'srcset', srcset );
+		}
+		if ( sizes ) {
+			theClone.attr( 'sizes', sizes );
+		}
 
 		theImage.replaceWith( theClone );
 
