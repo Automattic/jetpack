@@ -557,25 +557,12 @@ class Publicize extends Publicize_Base {
 
 			<?php if ( ! empty( $me['name'] ) ) : ?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
-				<table id="option-profile">
-					<tbody>
-					<tr>
-						<td class="radio"><input type="radio" name="option" data-type="profile"
-						                         id="<?php echo esc_attr( $me['id'] ) ?>"
-						                         value="" <?php checked( $profile_checked, true ); ?> /></td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $me['id'] ) ?>"><img
-									src="<?php echo esc_url( $me['picture']['data']['url'] ) ?>" width="50"
-									height="50"/></label></td>
-						<td class="details"><label
-								for="<?php echo esc_attr( $me['id'] ) ?>"><?php echo esc_html( $me['name'] ) ?></label>
-						</td>
-					</tr>
-					</tbody>
-				</table>
+				<div class="error">
+					<?php _e( 'This feature is no longer supported due to changes in Facebook\'s API. You may still post to Pages, but not to your personal feed.', 'jetpack' ); ?>
+				</div>
 			<?php endif; ?>
 
 			<?php if ( $pages ) : ?>
-
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -604,7 +591,6 @@ class Publicize extends Publicize_Base {
 
 					</tbody>
 				</table>
-
 			<?php endif; ?>
 
 			<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
