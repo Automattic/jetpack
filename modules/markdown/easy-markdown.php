@@ -622,10 +622,13 @@ tinymce.on( 'AddEditor', function( event ) {
      * Concatenates the relevant matched results and adds newlines to
      * ensure the Markdown parser does not munge the results.
      *
+     * Fix the angle brackets before sending to the markdown parser
+     *
 	 * @param $matches array
 	 * @return string
 	 */
 	protected function _strip_gutenberg_text_area_wrapper_callback($matches) {
+		$matches[2] = self::markdown_block_fix_angled_brackets($matches[2]);
 		return $matches[1]."\n".$matches[2]."\n\n".$matches[3]; # String that will replace the block
 	}
 
@@ -670,9 +673,13 @@ tinymce.on( 'AddEditor', function( event ) {
 	 *
 	 * &lt;bold>Important Text&lt;/bold>
      *
-     * It is worth noting that this may be a "feature" of the PlainText Block which will
+     * It is worth noting that this may be a "feature" of Gutenberg which will
      * prevent Markdown from following it's specification:
      * Markdown formatting syntax is not processed within block-level HTML tags.
+     *
+     * To meet the spec we are running it before rendering the markdown in:
+     *
+     * _strip_gutenberg_text_area_wrapper_callback
      *
 	 *
 	 * todo: find out cause of angle bracket munging.
