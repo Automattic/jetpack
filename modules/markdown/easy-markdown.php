@@ -501,8 +501,11 @@ tinymce.on( 'AddEditor', function( event ) {
              * We will invert the fields so that the update is successful and the previously saved
              * Markdown content remains the source of truth.
              */
-
-            if(isset( $_POST['gutenberg_meta_boxes']) && isset( $_GET['classic-editor'] )) {
+            if(
+                    isset( $_POST['gutenberg_meta_boxes']) &&
+                    isset( $_GET['classic-editor']) &&
+					!isset( $_GET['rest_route'])
+            ) {
 				$post_data['post_content'] = $post_data['post_content_filtered'];
 			}
 
