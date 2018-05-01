@@ -591,7 +591,7 @@ jQuery( function($) {
 			<span id="publicize-title">
 				<?php esc_html_e( 'Publicize:', 'jetpack' ); ?>
 				<?php if ( 0 < count( $services ) ) : ?>
-					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected( $services ); ?>
+					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected(); ?>
 					<span id="publicize-defaults">
 						<?php foreach ( $active as $item ) : ?>
 							<strong><?php echo esc_html( $item ); ?></strong>
@@ -619,9 +619,30 @@ jQuery( function($) {
 		</div> <?php // #publicize
 	}
 
-	private function get_metabox_form_connected( $services ) {
+	/**
+	 * Generates HTML content for connections form.
+	 *
+	 * Retrieves current connection list and generates HTML form.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @global WP_Post $post The current post instance being published.
+	 *
+	 * @return array {
+	 *     Array of content for generating connection form.
+	 *
+	 *     @type string HTML content of form
+	 *     @type array {
+	 *     		Array of connection labels for active connections only.
+	 *
+	 *          @type string Connection label string.
+	 *     }
+	 * }
+	 */
+	private function get_metabox_form_connected() {
 		global $post;
 		$active = array();
+		$connection_list = $this->publicize->get_filtered_connection_data();
 		ob_start();
 		?> <div id="publicize-form" class="hide-if-js">
 			<ul>
@@ -630,144 +651,29 @@ jQuery( function($) {
 			// We can set an _all flag to indicate that this post is completely done as
 			// far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
 			// have Publicize disabled.
-			$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
-
-			// We don't allow Publicizing to the same external id twice, to prevent spam
-			$service_id_done = (array) get_post_meta( $post->ID, $this->publicize->POST_SERVICE_DONE, true );
-
-			foreach ( $services as $name => $connections ) {
-				foreach ( $connections as $connection ) {
-					$connection_data = '';
-					if ( method_exists( $connection, 'get_meta' ) )
-						$connection_data = $connection->get_meta( 'connection_data' );
-					elseif ( ! empty( $connection['connection_data'] ) )
-						$connection_data = $connection['connection_data'];
-
-					/**
-					 * Filter whether a post should be publicized to a given service.
-					 *
-					 * @module publicize
-					 *
-					 * @since 2.0.0
-					 *
-					 * @param bool true Should the post be publicized to a given service? Default to true.
-					 * @param int $post->ID Post ID.
-					 * @param string $name Service name.
-					 * @param array $connection_data Array of information about all Publicize details for the site.
-					 */
-					if ( ! $continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
-						continue;
-					}
-
-					if ( ! empty( $connection->unique_id ) ) {
-						$unique_id = $connection->unique_id;
-					} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
-						$unique_id = $connection['connection_data']['token_id'];
-					}
-
-					// Should we be skipping this one?
-					$skip = (
-						(
-							in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
-							&&
-							get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
-						)
-						||
-						(
-							is_array( $connection )
-							&&
-							(
-								( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] ) )
-								||
-								// Jetpack's connection data looks a little different.
-								( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['external_id'] ] ) )
-							)
-						)
-					);
-
-					// Was this connections (OR, old-format service) already Publicized to?
-					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
-
-					// If this one has already been publicized to, don't let it happen again
-					$disabled = '';
-					if ( $done ) {
-						$disabled = ' disabled="disabled"';
-					}
-
-					// If this is a global connection and this user doesn't have enough permissions to modify
-					// those connections, don't let them change it
-					$cmeta = $this->publicize->get_connection_meta( $connection );
-					$hidden_checkbox = false;
-					if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( $this->publicize->GLOBAL_CAP ) ) ) {
-						$disabled = ' disabled="disabled"';
-						/**
-						 * Filters the checkboxes for global connections with non-prilvedged users.
-						 *
-						 * @module publicize
-						 *
-						 * @since 3.7.0
-						 *
-						 * @param bool   $checked Indicates if this connection should be enabled. Default true.
-						 * @param int    $post->ID ID of the current post
-						 * @param string $name Name of the connection (Facebook, Twitter, etc)
-						 * @param array  $connection Array of data about the connection.
-						 */
-						$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
-					}
-
-					// Determine the state of the checkbox (on/off) and allow filtering
-					$checked = $skip != 1 || $done;
-					/**
-					 * Filter the checkbox state of each Publicize connection appearing in the post editor.
-					 *
-					 * @module publicize
-					 *
-					 * @since 2.0.1
-					 *
-					 * @param bool $checked Should the Publicize checkbox be enabled for a given service.
-					 * @param int $post->ID Post ID.
-					 * @param string $name Service name.
-					 * @param array $connection Array of connection details.
-					 */
-					$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $name, $connection );
-
-					// Force the checkbox to be checked if the post was DONE, regardless of what the filter does
-					if ( $done ) {
-						$checked = true;
-					}
-
-					// This post has been handled, so disable everything
-					if ( $all_done ) {
-						$disabled = ' disabled="disabled"';
-					}
-
-					$label = sprintf(
-						_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
-						esc_html( $this->publicize->get_service_label( $name ) ),
-						esc_html( $this->publicize->get_display_name( $name, $connection ) )
-					);
-					if ( !$skip || $done ) {
-						$active[] = $label;
-					}
-					?>
+			$all_done = $this->publicize->done_sharing_post();
+		foreach ( $connection_list as $c ) {
+			if ( $c['active'] ) {
+				$active[] = $c['label'];
+			}
+			?>
 					<li>
-						<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
-							<input type="checkbox" name="wpas[submit][<?php echo $unique_id; ?>]" id="wpas-submit-<?php echo $unique_id; ?>" class="wpas-submit-<?php echo $name; ?>" value="1" <?php
-								checked( true, $checked );
-								echo $disabled;
+						<label for="wpas-submit-<?php echo esc_attr( $c['unique_id'] ); ?>">
+							<input type="checkbox" name="wpas[submit][<?php echo $c['unique_id']; ?>]" id="wpas-submit-<?php echo $c['unique_id']; ?>" class="wpas-submit-<?php echo $c['name']; ?>" value="1" <?php
+								checked( true, $c['checked'] );
+								echo $c['disabled'];
 							?> />
 							<?php
-							if ( $hidden_checkbox ) {
+							if ( $c['hidden_checkbox'] ) {
 								// Need to submit a value to force a global connection to post
-								echo '<input type="hidden" name="wpas[submit][' . $unique_id . ']" value="1" />';
+								echo '<input type="hidden" name="wpas[submit][' . $c['unique_id'] . ']" value="1" />';
 							}
-							echo esc_html( $label );
+							echo esc_html( $c['label'] );
 							?>
 						</label>
 					</li>
 					<?php
 				}
-			}
 
 			if ( $title = get_post_meta( $post->ID, $this->publicize->POST_MESS, true ) ) {
 				$title = esc_html( $title );
