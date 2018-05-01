@@ -16,13 +16,9 @@ add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Markdown_Block', 'enq
 class Jetpack_Markdown_Block {
 
 	public static function register_block_types() {
-		register_block_type( 'jetpack/markdown', array(
-			'render_callback' => array( __CLASS__, 'render_markdown_block' ),
-		) );
-	}
-
-	public static function render_markdown_block( $args ) {
-		//return '<pre>' . print_r( $args, true ) . '</pre>';
+		register_block_type(
+			'jetpack/markdown-block'
+		);
 	}
 
 	public static function enqueue_block_editor_assets() {
