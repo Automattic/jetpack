@@ -137,15 +137,15 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
-		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
-		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
+		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6 );
+		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10 );
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
 		remove_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
-		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
-		remove_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
-		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
+		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10 );
+		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10 );
+		remove_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10 );
+		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10 );
 		remove_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
 		remove_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		remove_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
