@@ -669,6 +669,11 @@ tinymce.on( 'AddEditor', function( event ) {
 	 * The regex here will try to guess if it is an incomplete HTML tag
 	 *
 	 * &lt;bold>Important Text&lt;/bold>
+     *
+     * It is worth noting that this may be a "feature" of the PlainText Block which will
+     * prevent Markdown from following it's specification:
+     * Markdown formatting syntax is not processed within block-level HTML tags.
+     *
 	 *
 	 * todo: find out cause of angle bracket munging.
 	 *
