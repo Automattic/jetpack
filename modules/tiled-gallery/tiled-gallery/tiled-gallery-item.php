@@ -19,12 +19,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		}
 
 		$this->orig_file = wp_get_attachment_url( $this->image->ID );
-		// If Photon is active, use it for original
-		if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-			$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : jetpack_photon_url( $this->orig_file );
-		} else {
-			$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : $this->orig_file;
-		}
+		$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : $this->orig_file;
 
 		$img_args = array(
 			'w' => $this->image->width,
