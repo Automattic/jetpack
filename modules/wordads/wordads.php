@@ -96,7 +96,11 @@ class WordAds {
 		$this->insert_adcode();
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
-			$ads_txt_server_contents = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+
+			if ( false === ( $ads_txt_transient = get_transient( 'jetpack_ads_txt' ) ) ) {
+				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
+			}
 
 			/**
 			 * Provide plugins a way of modifying the contents of the automatically-generated ads.txt file.
@@ -107,7 +111,7 @@ class WordAds {
 			 *
 			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
 			 */
-			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_server_contents );
+			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
 
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
