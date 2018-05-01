@@ -512,17 +512,6 @@ tinymce.on( 'AddEditor', function( event ) {
 			}
 
 			/**
-			 * Sometimes we get (&lt;) an encoded < when the markup is coming from Gutenberg.
-             * The regex here will try to guess if it is an incomplete HTML tag
-             *
-             * &lt;bold>Important Text&lt;/bold>
-             *
-             * todo: a better fix should be looked for in the block or in Gutenberg
-             *
-			 */
-			$post_data['post_content'] = preg_replace( '/&lt;(.*?>)/m', '<$1', $post_data['post_content'] );
-
-			/**
 			 * Filter the original post content passed to Markdown.
 			 *
 			 * @module markdown
@@ -665,13 +654,27 @@ tinymce.on( 'AddEditor', function( event ) {
 	}
 
 	/**
-	 * Returns content with wpautop'ed markdown blocks
+	 * Returns content with wpautop'ed markdown blocks and fixed contents
 	 *
 	 * @param $matches array
 	 * @return string
 	 */
 	protected static function _wpautop_markdown_blocks_callback( $matches ) {
+		$matches[2] = self::markdown_block_fix_angled_brackets($matches[2]);
 		return $matches[1]. wpautop($matches[2]) . $matches[3];
+	}
+
+	/**
+	 * Sometimes we get (&lt;) an encoded < when the markup is coming from Gutenberg.
+	 * The regex here will try to guess if it is an incomplete HTML tag
+	 *
+	 * &lt;bold>Important Text&lt;/bold>
+	 *
+	 * todo: find out cause of angle bracket munging.
+	 *
+	 */
+	protected static function markdown_block_fix_angled_brackets( $content ) {
+		return preg_replace( '/&lt;(.*?>)/m', '<$1', $content );
 	}
 
 	/**
