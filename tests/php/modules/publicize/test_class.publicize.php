@@ -9,6 +9,14 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	private $post;
 	private $original_user = 0;
 
+	/**
+	 * Current test user id produced by factory method.
+	 *
+	 * @since 5.9.1
+	 * @var integer $user_id ID of current user.
+	 */
+	private $user_id;
+
 	public function setUp() {
 		parent::setUp();
 
@@ -18,7 +26,35 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
+		$this->user_id = $this->factory->user->create();
+		wp_set_current_user( $this->user_id );
+
+		Jetpack_Options::update_options( array(
+			'publicize_connections' => array(
+				'facebook' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => 0,
+							'token_id' => 'test-unique-id123',
+							'meta'     => array(
+								'display_name' => 'test-display-name123',
+							),
+						),
+					),
+				),
+				'tumblr'   => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => $this->user_id,
+							'token_id' => 'test-unique-id456',
+							'meta'     => array(
+								'display_name' => 'test-display-name456',
+							),
+						),
+					),
+				),
+			),
+		) );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
@@ -256,7 +292,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_get_filtered_connection_data_no_filters() {
 		global $publicize_ui;
 		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		$test_c          = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
+		// Get 'tumblr' test connection entry.
+		$test_c = $connection_list[1];
 		$this->assertEquals(
 			'test-unique-id456',
 			$test_c['unique_id']
@@ -292,162 +329,5 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'test-display-name456',
 			$test_c['display_name']
 		);
-	}
-
-	/**
-	 * Verify 'wpas_submit_post?' filter functionality by checking
-	 * connection list before and after a 'no facebook' filter has
-	 * been applied.
-	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
-	 * @since 5.9.1
-	 */
-	public function test_filter_wpas_submit_post() {
-		global $publicize_ui;
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		// Second connection should be 'tumblr' for unfiltered list.
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertEquals(
-			'facebook',
-			$facebook_connection['name'],
-			'Facebook connection should be available prior to filtering'
-		);
-
-		add_filter( 'wpas_submit_post?', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
-		// Get connection list again now that filter has been added.
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-
-		$this->assertEquals(
-			1,
-			count( $connection_list ),
-			'Connection list should be 1 long after \'facebook\' connection removed.'
-		);
-		// First and only connection should be 'tumblr' for unfiltered list.
-		$tumblr_connection = $connection_list[0];
-		$this->assertEquals(
-			'tumblr',
-			$tumblr_connection['name'],
-			'Tumblr connection should still be available after filtering out facebook connection.'
-		);
-	}
-
-	/**
-	 * By default, global connections (where user_id == 0)
-	 * are hidden for users that do not have the appropriate
-	 * capability. This test verifies that the
-	 * 'publicize_checkbox_global_default' filter
-	 * can be used to cause such a connection to be shown.
-	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
-	 * @since 5.9.1
-	 */
-	public function test_filter_publicize_checkbox_global_default() {
-		global $publicize_ui;
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertTrue(
-			$facebook_connection['hidden_checkbox'],
-			'Facebook connection checkbox should be hidden by default since test user does not have capability.'
-		);
-
-		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
-
-		// Get connection list again now that filter has been added.
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertFalse(
-			$facebook_connection['hidden_checkbox'],
-			'Facebook connection checkbox should not be set to hidden since filter set hidden to false.'
-		);
-
-	}
-
-	/**
-	 *
-	 * By default, all connection checkboxes are 'checked'.
-	 * This test confirms that the 'publicize_checkbox_default'
-	 * can correctly set default value to unchecked.
-	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
-	 * @since 5.9.1
-	 */
-	public function test_filter_publicize_checkbox_default() {
-		global $publicize_ui;
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertTrue(
-			$facebook_connection['checked'],
-			'Facebook connection should be checked by default with no filtering applied.'
-		);
-
-		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertFalse(
-			$facebook_connection['checked'],
-			'Facebook connection should be un-checked by default after filtering applied.'
-		);
-	}
-
-	/**
-	 * Confirms that a connection will be disabled after post is 'done.'
-	 *
-	 * If a post has already been published (and is this 'done' sharing),
-	 * its checkbox should be disabled.
-	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
-	 * @since 5.9.1
-	 */
-	public function test_get_filtered_connection_data_disabled_done_all() {
-		global $publicize_ui;
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		// First connection should be 'facebook' for unfiltered list.
-		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertEquals(
-			'',
-			$facebook_connection['disabled'],
-			'Facebook connection should not be disabled if the post is not \'done\'.'
-		);
-
-		/**
-		 * Publish post so the post will be considered 'done' publicizing
-		 * all connections should be disabled.
-		 */
-		$this->post->post_status = 'publish';
-		wp_insert_post( $this->post->to_array() );
-
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertEquals(
-			' disabled="disabled"',
-			$facebook_connection['disabled'],
-			'Facebook connection should be disabled if the post is \'done\'.'
-		);
-	}
-
-	/**
-	 * Filter callback to uncheck checkbox for 'faceboook' connection.
-	 *
-	 * Filter callback interface is the same for all filters within
-	 * get_filtered_connection_data so this callback can be reused
-	 * for all filter test cases.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param bool   $enabled         Should the connection be enabled.
-	 * @param int    $post_id         Post ID.
-	 * @param string $service_name    Name of social service to share to.
-	 * @param array  $connection_data Array of information about all Publicize details for the site.
-	 *
-	 * @return bool Whether or not the connection is enabled for the filter.
-	 */
-	public function publicize_connection_filter_no_facebook( $enabled, $post_id, $service_name, $connection_data ) {
-		// Block 'facebook' connection and let all others pass through.
-		if ( 'facebook' === $service_name ) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 }
