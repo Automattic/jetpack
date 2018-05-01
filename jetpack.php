@@ -29,7 +29,7 @@ defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API
 
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
- * in require_lib(). 
+ * in require_lib().
  *
  * @since 4.0.2
  *
@@ -83,6 +83,7 @@ require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php'
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
+
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'init', array( 'Jetpack', 'init' ) );
 add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
