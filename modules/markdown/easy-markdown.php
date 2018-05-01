@@ -115,8 +115,8 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
-		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 2 );
-        add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 2 );
+		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
+        add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
 		add_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
@@ -137,7 +137,8 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
-		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 2 );
+		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
+		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
 		remove_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
