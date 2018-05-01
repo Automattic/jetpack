@@ -717,6 +717,22 @@ tinymce.on( 'AddEditor', function( event ) {
 	}
 
 	/**
+	 * Swap post_content <--> post_content_filtered swap on Gutenberg post edit
+	 *
+	 * @param $post_to_edit
+	 * @return WP_Post
+	 */
+	public function after_gutenberg_gets_post_to_edit( $post_to_edit ) {
+		if ( $post_to_edit instanceof WP_Post) {
+			if ( $this->is_markdown( $post_to_edit->ID ) ) {
+				$post_to_edit['content']['raw'] = $this->edit_post_content( $post_to_edit->post_content, $post_to_edit->ID );
+			}
+		}
+		return $post_to_edit;
+	}
+
+
+	/**
 	 * Markdown conversion. Some DRYness for repetitive tasks.
 	 * @param  string $text  Content to be run through Markdown
 	 * @param  array  $args  Arguments, with keys:
