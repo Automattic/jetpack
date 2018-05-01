@@ -115,6 +115,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 2 );
         add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 2 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
 		add_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
@@ -636,6 +637,40 @@ tinymce.on( 'AddEditor', function( event ) {
 	 */
 	protected function _strip_gutenberg_text_area_wrapper_callback($matches) {
 		return $matches[1]."\n".$matches[2]."\n\n".$matches[3]; # String that will replace the block
+	}
+
+	/**
+     * If this is a Gutenberg post then we must run wpautop on the content contained in each markdown block
+     * since all blocks will be run through Gutenberns noop version of wpautop (gutenberg_wpautop) in compat.php
+     *
+     * We have placed the priority of the filter lower than the gutenberg_wpautop execution.
+     *
+	 * @param $content
+	 * @return string
+	 */
+	public static function wpautop_markdown_blocks($content) {
+
+		$regex = '{
+		(<!--\s*wp:jetpack\/markdown-block\s*-->)(.*?)(<!--\s*\/wp:jetpack\/markdown-block\s*-->)
+		}xsm';
+
+		$content = preg_replace_callback(
+			$regex,
+			array(__CLASS__, '_wpautop_markdown_blocks_callback'),
+			$content
+		);
+
+		return $content;
+	}
+
+	/**
+	 * Returns content with wpautop'ed markdown blocks
+	 *
+	 * @param $matches array
+	 * @return string
+	 */
+	protected static function _wpautop_markdown_blocks_callback( $matches ) {
+		return $matches[1]. wpautop($matches[2]) . $matches[3];
 	}
 
 	/**
