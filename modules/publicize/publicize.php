@@ -46,7 +46,7 @@ abstract class Publicize_Base {
 	* Sets up the basics of Publicize
 	*/
 	function __construct() {
-		$this->default_message = Publicize_Util::build_sprintf( array(
+		$this->default_message = self::build_sprintf( array(
 			/**
 			 * Filter the default Publicize message.
 			 *
@@ -61,7 +61,7 @@ abstract class Publicize_Base {
 			'url',
 		) );
 
-		$this->default_prefix = Publicize_Util::build_sprintf( array(
+		$this->default_prefix = self::build_sprintf( array(
 			/**
 			 * Filter the message prepended to the Publicize custom message.
 			 *
@@ -75,7 +75,7 @@ abstract class Publicize_Base {
 			'url',
 		) );
 
-		$this->default_suffix = Publicize_Util::build_sprintf( array(
+		$this->default_suffix = self::build_sprintf( array(
 			/**
 			 * Filter the message appended to the Publicize custom message.
 			 *
@@ -475,6 +475,20 @@ abstract class Publicize_Base {
 		}
 
 		wp_send_json_success( $test_results );
+	}
+
+	protected static function build_sprintf( $args ) {
+		$search = array();
+		$replace = array();
+		foreach ( $args as $k => $arg ) {
+			if ( 0 == $k ) {
+				$string = $arg;
+				continue;
+			}
+			$search[] = "%$arg%";
+			$replace[] = "%$k\$s";
+		}
+		return str_replace( $search, $replace, $string );
 	}
 }
 
