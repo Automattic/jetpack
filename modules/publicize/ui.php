@@ -706,7 +706,7 @@ jQuery( function($) {
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	private function done_sharing_post( $post_id = null )
+	function done_sharing_post( $post_id = null )
 	{
 		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
 		return get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
