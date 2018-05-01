@@ -510,6 +510,17 @@ tinymce.on( 'AddEditor', function( event ) {
 			}
 
 			/**
+			 * Sometimes we get (&lt;) an encoded < when the markup is coming from Gutenberg.
+             * The regex here will try to guess if it is an incomplete HTML tag
+             *
+             * &lt;bold>Important Text&lt;/bold>
+             *
+             * todo: a better fix should be looked for in the block or in Gutenberg
+             *
+			 */
+			$post_data['post_content'] = preg_replace( '/&lt;(.*?>)/m', '<$1', $post_data['post_content'] );
+
+			/**
 			 * Filter the original post content passed to Markdown.
 			 *
 			 * @module markdown
