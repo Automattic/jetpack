@@ -643,30 +643,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'google_my_business_keyring_id':
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-							if ( delete_option( $key ) ) {
-								$updated[ $key ] = null;
-							}
-						} else if ( update_option( $key, $value ) ) {
-							$updated[ $key ] = (int) $value;
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM && delete_option( $key ) ) || Jetpack_Options::delete_option( 'google_my_business_keyring_id' )  ) {
+							$updated[ $key ] = null;
 						}
-					} else {
-						Jetpack_Options::update_option( 'google_my_business_keyring_id', (int) $value );
+					} else if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM && update_option( $key, $value ) ) || Jetpack_Options::update_option( 'google_my_business_keyring_id', (string) $value ) ) {
+						$updated[ $key ] = (int) $value;
 					}
-					break;
+					break;					
 
 				case 'google_my_business_location_id':
-					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-							if ( delete_option( $key ) ) {
-								$updated[ $key ] = null;
-							}
-						} else if ( update_option( $key, $value ) ) {
-							$updated[ $key ] = (string) $value;
-						}	
-					} else {
-						Jetpack_Options::update_option( 'google_my_business_location_id', (string) $value );
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM && delete_option( $key ) ) || Jetpack_Options::delete_option( 'google_my_business_location_id' )  ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM && update_option( $key, $value ) ) || Jetpack_Options::update_option( 'google_my_business_location_id', (string) $value ) ) {
+						$updated[ $key ] = (string) $value;
 					}
 					break;
 
