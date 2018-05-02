@@ -71,25 +71,27 @@ class Jetpack_Options {
 		}
 
 		return array(
-			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
-			'publicize_connections',        // (array)  An array of Publicize connections from WordPress.com
-			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
-			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
-			'old_version',                  // (string) Used to determine which modules are the most recently added. previous_version:time
-			'fallback_no_verify_ssl_certs', // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
-			'time_diff',                    // (int)    Offset between Jetpack server's clocks and this server's clocks. Jetpack Server Time = time() + (int) Jetpack_Options::get_option( 'time_diff' )
-			'public',                       // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
-			'videopress',                   // (array)  VideoPress options array.
-			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
-			'social_links',                 // (array)  The specified links for each social networking site.
-			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
-			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
-			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
-			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
-			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
-			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
-			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
-			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
+			'id',                             // (int)    The Client ID/WP.com Blog ID of this site.
+			'publicize_connections',          // (array)  An array of Publicize connections from WordPress.com
+			'master_user',                    // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'version',                        // (string) Used during upgrade procedure to auto-activate new modules. version:time
+			'old_version',                    // (string) Used to determine which modules are the most recently added. previous_version:time
+			'fallback_no_verify_ssl_certs',   // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
+			'time_diff',                      // (int)    Offset between Jetpack server's clocks and this server's clocks. Jetpack Server Time = time() + (int) Jetpack_Options::get_option( 'time_diff' )
+			'public',                         // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
+			'videopress',                     // (array)  VideoPress options array.
+			'is_network_site',                // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
+			'social_links',                   // (array)  The specified links for each social networking site.
+			'identity_crisis_whitelist',      // (array)  An array of options, each having an array of the values whitelisted for it.
+			'gplus_authors',                  // (array)  The Google+ authorship information for connected users.
+			'last_heartbeat',                 // (int)    The timestamp of the last heartbeat that fired.
+			'jumpstart',                      // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'hide_jitm',                      // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
+			'custom_css_4.7_migration',       // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
+			'image_widget_migration',         // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
+			'gallery_widget_migration',       // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
+			'google_my_business_keyring_id',  // (int)	  Google My Business Keyring id
+			'google_my_business_location_id', // (string).Google My Business Location id
 		);
 	}
 
