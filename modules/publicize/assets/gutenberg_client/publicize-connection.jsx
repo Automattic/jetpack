@@ -38,7 +38,6 @@ class PublicizeConnection extends Component {
 			display_name,
 		} = this.props.connectionData;
 		const { connectionOn } = this.props;
-		const isDisabled = ( '' !== disabled );
 		// Genericon names are dash separated
 		const socialName = name.replace( '_', '-' );
 
@@ -58,7 +57,7 @@ class PublicizeConnection extends Component {
 						className="jetpack-publicize-connection-toggle"
 						checked={ connectionOn }
 						onChange={ this.onConnectionChange }
-						disabled={ isDisabled }
+						disabled={ disabled }
 					/>
 				</div>
 			</li>

@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Publicize_Gutenberg extends WP_UnitTestCase {
 
 		$this->publicize = publicize_init();
 		$this->publicized_post_id = null;
-		$this->gutenberg_publicize = new Jetpack_Publicize_Gutenberg();
+		$this->gutenberg_publicize = new Jetpack_Publicize_Gutenberg( $this->publicize );
 
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );

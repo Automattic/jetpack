@@ -16,6 +16,15 @@
  * @since 5.9.1
  */
 class Jetpack_Publicize_Gutenberg {
+
+	/**
+	 * Instance of Publicize used to access data gathering utility methods.
+	 *
+	 * @since 5.9.1
+	 * @var Publicize $publicize Instance of Jetpack Publicize class.
+	 */
+	private $publicize;
+
 	/**
 	 * Constructor for Jetpack_Publicize_Gutenberg
 	 *
@@ -23,7 +32,7 @@ class Jetpack_Publicize_Gutenberg {
 	 *
 	 * @since 5.9.1
 	 */
-	public function __construct() {
+	public function __construct( $publicize ) {
 		// Do edit page specific setup.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ) );
 
@@ -34,6 +43,8 @@ class Jetpack_Publicize_Gutenberg {
 
 		// Set up publicize flags right before post is actually published.
 		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
+
+		$this->publicize = $publicize;
 	}
 
 	/**
@@ -43,17 +54,14 @@ class Jetpack_Publicize_Gutenberg {
 	 * JSON encoded data.
 	 *
 	 * @since 5.9.1
-	 *
-	 * @global Publicize_UI $publicize_ui UI handler for instance for Publicize.
 	 */
 	public function get_publicize_connections() {
-		global $publicize_ui;
 		if ( isset($_POST['postId'] ) ) {
 			$post_id = $_POST['postId'];
 		} else {
 			$post_id = null;
 		}
-		wp_send_json_success( $publicize_ui->get_filtered_connection_data( $post_id ) );
+		wp_send_json_success( $this->publicize->get_filtered_connection_data( $post_id ) );
 	}
 
 	/**
@@ -201,13 +209,9 @@ class Jetpack_Publicize_Gutenberg {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @global Publicize_UI $publicize_ui UI handler for instance for Publicize.
-	 *
 	 * @param string $hook Current page url.
 	 */
 	public function post_page_enqueue( $hook ) {
-		global $publicize_ui;
-
 		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
 			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
 
@@ -242,8 +246,8 @@ class Jetpack_Publicize_Gutenberg {
 
 			wp_localize_script( 'modules-publicize-gutenberg_js', 'gutenberg_publicize_setup',
 				array(
-					'connectionList' => wp_json_encode( $publicize_ui->get_filtered_connection_data() ),
-					'allServices'    => wp_json_encode( $publicize_ui->get_available_service_data() ),
+					'connectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
+					'allServices'    => wp_json_encode( $this->publicize->get_available_service_data() ),
 				)
 			);
 

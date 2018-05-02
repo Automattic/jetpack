@@ -58,7 +58,7 @@ class PublicizeForm extends Component {
 
 		// Check to see if at least one connection is not disabled
 		for ( const c of staticConnections ) {
-			if ( '' === c.disabled ) {
+			if ( ! c.disabled ) {
 				disabled = false;
 				break;
 			}
