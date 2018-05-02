@@ -606,64 +606,63 @@ jQuery( function($) {
 	 */
 	private function get_metabox_form_connected() {
 		global $post;
-		$active = array();
-		$connection_list = $this->publicize->get_filtered_connection_data();
-		ob_start();
-		?> <div id="publicize-form" class="hide-if-js">
-			<ul>
+		$active_list = array();
 
-			<?php
-			// We can set an _all flag to indicate that this post is completely done as
-			// far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
-			// have Publicize disabled.
-			$all_done = $this->publicize->done_sharing_post();
+		$all_done = $this->publicize->done_sharing_post();
+		$connection_list = $this->publicize->get_filtered_connection_data();
+
+		ob_start();
+		?>
+			<div id="publicize-form" class="hide-if-js">
+				<ul>
+		<?php
+
 		foreach ( $connection_list as $c ) {
 			if ( $c['active'] ) {
-				$active[] = $c['label'];
+				$active_list[] = $c['label'];
 			}
 			?>
-					<li>
-						<label for="wpas-submit-<?php echo esc_attr( $c['unique_id'] ); ?>">
-							<input type="checkbox" name="wpas[submit][<?php echo $c['unique_id']; ?>]" id="wpas-submit-<?php echo $c['unique_id']; ?>" class="wpas-submit-<?php echo $c['name']; ?>" value="1" <?php
-								checked( true, $c['checked'] );
-								echo $c['disabled'];
-							?> />
-							<?php
-							if ( $c['hidden_checkbox'] ) {
-								// Need to submit a value to force a global connection to post
-								echo '<input type="hidden" name="wpas[submit][' . $c['unique_id'] . ']" value="1" />';
-							}
-							echo esc_html( $c['label'] );
-							?>
-						</label>
-					</li>
-					<?php
-				}
+				<li>
+					<label for="wpas-submit-<?php echo esc_attr( $c['unique_id'] ); ?>">
+						<input type="checkbox" name="wpas[submit][<?php echo $c['unique_id']; ?>]" id="wpas-submit-<?php echo $c['unique_id']; ?>" class="wpas-submit-<?php echo $c['name']; ?>" value="1" <?php
+						checked( true, $c['checked'] );
+						echo $c['disabled'];
+						?> />
+						<?php
+						if ( $c['hidden_checkbox'] ) {
+							// Need to submit a value to force a global connection to post
+							echo '<input type="hidden" name="wpas[submit][' . $c['unique_id'] . ']" value="1" />';
+						}
+						echo esc_html( $c['label'] );
+						?>
+					</label>
+				</li>
+			<?php
+		}
 
-			if ( $title = get_post_meta( $post->ID, $this->publicize->POST_MESS, true ) ) {
-				$title = esc_html( $title );
-			} else {
-				$title = '';
-			}
-			?>
+		if ( $title = get_post_meta( $post->ID, $this->publicize->POST_MESS, true ) ) {
+			$title = esc_html( $title );
+		} else {
+			$title = '';
+		}
 
-			</ul>
+		?>
+				</ul>
 
-			<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
-			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+				<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
+				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
 
-			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
+				<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
 
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
-			<input type="hidden" name="wpas[0]" value="1" />
+				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
+				<input type="hidden" name="wpas[0]" value="1" />
 
-		</div>
+			</div>
 		<?php if ( ! $all_done ) : ?>
 			<div id="pub-connection-tests"></div>
 		<?php endif; ?>
 		<?php // #publicize-form
-
-		return array( ob_get_clean(), $active );
+		return array( ob_get_clean(), $active_list );
 	}
 
 
