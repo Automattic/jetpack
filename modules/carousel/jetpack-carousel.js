@@ -746,6 +746,7 @@ jQuery(document).ready(function($) {
 					'&rand=' + Math.random();
 			}
 
+
 			// Load the images for the next and previous slides.
 			$( next ).add( previous ).each( function() {
 				gallery.jp_carousel( 'loadFullImage', $( this ) );
@@ -1058,6 +1059,7 @@ jQuery(document).ready(function($) {
 
 			return size_parts;
 		},
+
 
 		originalDimensions: function() {
 			var splitted = $(this).data('orig-size').split(',');
