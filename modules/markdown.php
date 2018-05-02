@@ -14,7 +14,9 @@
 
 include dirname( __FILE__ ) . '/markdown/easy-markdown.php';
 
-include dirname( __FILE__ ) . '/markdown/jetpack-markdown-block.php';
+if ( function_exists( 'register_block_type' ) ){
+	include dirname( __FILE__ ) . '/markdown/jetpack-markdown-block.php';
+}
 
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.
