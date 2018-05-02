@@ -661,7 +661,9 @@ jQuery( function($) {
 					<label for="wpas-submit-<?php echo esc_attr( $c['unique_id'] ); ?>">
 						<input type="checkbox" name="wpas[submit][<?php echo $c['unique_id']; ?>]" id="wpas-submit-<?php echo $c['unique_id']; ?>" class="wpas-submit-<?php echo $c['name']; ?>" value="1" <?php
 						checked( true, $c['checked'] );
-						echo $c['disabled'];
+						if ( $c['disabled'] ) {
+							echo 'disabled="disabled"';
+						}
 						?> />
 						<?php
 						if ( $c['hidden_checkbox'] ) {
