@@ -96,7 +96,11 @@ class WordAds {
 		$this->insert_adcode();
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
-			$ads_txt_server_contents = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+
+			if ( false === ( $ads_txt_transient = get_transient( 'jetpack_ads_txt' ) ) ) {
+				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
+			}
 
 			/**
 			 * Provide plugins a way of modifying the contents of the automatically-generated ads.txt file.
@@ -107,7 +111,7 @@ class WordAds {
 			 *
 			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
 			 */
-			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_server_contents );
+			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
 
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
@@ -269,7 +273,7 @@ HTML;
 
 	/**
 	 * Insert an inline ad into a post content
-	 * Used for rendering the `wordad` shortcode.
+	 * Used for rendering the `wordads` shortcode.
 	 *
 	 * @since 6.1.0
 	 */
@@ -369,25 +373,30 @@ HTML;
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
 		if ( 'iponweb' == $type ) {
+			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
 			$height = 250;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$snippet = $this->get_ad_snippet( $height, $width, $spot );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-top:0px;' );
+					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -414,6 +423,7 @@ HTML;
 
 	/**
 	 * Returns the snippet to be inserted into the ad unit
+	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
 	 * @param  int $location
@@ -422,15 +432,15 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $height, $width, $location = '', $css = '' ) {
+	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
-		if ( $ad_number > 6 ) {
+		if ( $ad_number > 5 && 'top' !== $location ) {
 			return;
 		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		
+
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$ad_number}">
@@ -438,6 +448,7 @@ HTML;
 				__ATA.cmd.push(function() {
 					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
+						sectionId: '{$section_id}',
 						location: '{$location}',
 						width: {$width},
 						height: {$height}

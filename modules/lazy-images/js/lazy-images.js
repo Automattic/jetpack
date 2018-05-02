@@ -93,30 +93,46 @@ var jetpackLazyImagesModule = function( $ ) {
 	 * @param {object} image The image object.
 	 */
 	function applyImage( image ) {
-		var src = image.getAttribute( 'data-lazy-src' ),
-			srcset = image.getAttribute( 'data-lazy-srcset' ),
-			sizes = image.getAttribute( 'data-lazy-sizes' );
+		var theImage = $( image ),
+			src,
+			srcset,
+			sizes,
+			theClone;
 
+		if ( ! theImage.length ) {
+			return;
+		}
+
+		src = theImage.attr( 'data-lazy-src' );
 		if ( ! src ) {
 			return;
 		}
 
-		// Prevent this from being lazy loaded a second time.
-		image.classList && image.classList.add( 'jetpack-lazy-image--handled' );
-		image.setAttribute( 'data-lazy-loaded', '1' );
+		srcset = theImage.attr( 'data-lazy-srcset' );
+		sizes = theImage.attr( 'data-lazy-sizes' );
+		theClone = theImage.clone();
 
-		image.setAttribute( 'src', src );
-		image.removeAttribute( 'data-lazy-src' );
+		// Remove lazy attributes from the clone.
+		theClone.removeAttr( 'data-lazy-src' ),
+		theClone.removeAttr( 'data-lazy-srcset' ),
+		theClone.removeAttr( 'data-lazy-sizes' );
+
+		// Add the attributes we want on the finished image.
+		theClone.addClass( 'jetpack-lazy-image--handled' );
+		theClone.attr( 'data-lazy-src', 1 );
+		theClone.attr( 'src', src );
 
 		if ( srcset ) {
-			image.setAttribute( 'srcset', srcset );
-			image.removeAttribute( 'data-lazy-srcset' );
+			theClone.attr( 'srcset', srcset );
+		}
+		if ( sizes ) {
+			theClone.attr( 'sizes', sizes );
 		}
 
-		if ( sizes ) {
-			image.setAttribute( 'sizes', sizes );
-			image.removeAttribute( 'data-lazy-sizes' );
-		}
+		theImage.replaceWith( theClone );
+
+		// Fire an event so that third-party code can perform actions after an image is loaded.
+		theClone.trigger( 'jetpack-lazy-loaded-image' );
 	}
 };
 
