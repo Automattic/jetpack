@@ -577,7 +577,7 @@ class Publicize extends Publicize_Base {
 					'active'          => $active,
 					'hidden_checkbox' => $hidden_checkbox,
 					'label'           => esc_html( $label ),
-					'display_name'    => $this->publicize->get_display_name( $name, $connection ),
+					'display_name'    => $this->get_display_name( $name, $connection ),
 				);
 			}
 		}
@@ -594,14 +594,17 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @since 5.9.1
 	 *
+	 * @global Publicize_UI $publicize_ui UI instance that contains the 'in_jetpack' property
+	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
 	function done_sharing_post( $post_id = null )
 	{
+		global $publicize_ui;
 		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
-		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
+		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $publicize_ui->in_jetpack && 'publish' == $post->post_status );
 	}
 
 	/**

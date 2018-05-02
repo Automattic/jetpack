@@ -242,19 +242,17 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * the helper method that checks post flags to prevent re-sharing
 	 * of already shared post.
 	 *
-	 * @covers Publicize_UI::done_sharing_post()
+	 * @covers Publicize::done_sharing_post()
 	 * @since 5.9.1
-	 * @global Publicize_UI $publicize_ui instance of class that contains helper methods for ui generation.
 	 */
 	public function test_done_sharing_post_for_done_all() {
-		global $publicize_ui;
 		$this->assertFalse(
-			$publicize_ui->done_sharing_post( $this->post->ID ),
+			$this->publicize->done_sharing_post( $this->post->ID ),
 			'Unshared/published post should not be \'done\''
 		);
 		update_post_meta( $this->post->ID, $this->publicize->POST_DONE . 'all', true );
 		$this->assertTrue(
-			$publicize_ui->done_sharing_post( $this->post->ID ),
+			$this->publicize->done_sharing_post( $this->post->ID ),
 			'Posts flagged as \'done\' should return true done sharing'
 		);
 	}
@@ -263,14 +261,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Verifies that "done sharing post" logic is correct. Checks
 	 * that already published post is correctly reported as 'done'.
 	 *
-	 * @covers Publicize_UI::done_sharing_post()
+	 * @covers Publicize::done_sharing_post()
 	 * @since 5.9.1
-	 * @global Publicize_UI $publicize_ui instance of class that contains helper methods for ui generation.
 	 */
 	public function test_done_sharing_post_for_published() {
-		global $publicize_ui;
 		$this->assertFalse(
-			$publicize_ui->done_sharing_post( $this->post->ID ),
+			$this->publicize->done_sharing_post( $this->post->ID ),
 			'Unshared/published post should not be \'done\''
 		);
 
@@ -279,7 +275,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertTrue(
-			$publicize_ui->done_sharing_post( $this->post->ID ),
+			$this->publicize->done_sharing_post( $this->post->ID ),
 			'Published post should be flagged as \'done\''
 		);
 	}
@@ -288,7 +284,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Verifies that get_services_connected returns all test
 	 * connections that are valid for the current user.
 	 *
-	 * @covers Publicize_UI::get_services_connected()
+	 * @covers Publicize::get_services_connected()
 	 * @since 5.9.1
 	 */
 	public function test_get_services_connected() {
@@ -302,12 +298,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * when there are no connection filters and the post
 	 * has not been shared yet.
 	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
+	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 5.9.1
 	 */
 	public function test_get_filtered_connection_data_no_filters() {
-		global $publicize_ui;
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$test_c          = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
 		$this->assertEquals(
 			'test-unique-id456',
@@ -351,12 +346,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * connection list before and after a 'no facebook' filter has
 	 * been applied.
 	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
+	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 5.9.1
 	 */
 	public function test_filter_wpas_submit_post() {
-		global $publicize_ui;
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		// Second connection should be 'tumblr' for unfiltered list.
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertEquals(
@@ -367,7 +361,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		add_filter( 'wpas_submit_post?', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
 		// Get connection list again now that filter has been added.
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
 		$this->assertEquals(
 			1,
@@ -390,12 +384,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * 'publicize_checkbox_global_default' filter
 	 * can be used to cause such a connection to be shown.
 	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
+	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 5.9.1
 	 */
 	public function test_filter_publicize_checkbox_global_default() {
-		global $publicize_ui;
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$facebook_connection['hidden_checkbox'],
@@ -405,7 +398,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertFalse(
 			$facebook_connection['hidden_checkbox'],
@@ -420,12 +413,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * This test confirms that the 'publicize_checkbox_default'
 	 * can correctly set default value to unchecked.
 	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
+	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 5.9.1
 	 */
 	public function test_filter_publicize_checkbox_default() {
-		global $publicize_ui;
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$facebook_connection['checked'],
@@ -433,7 +425,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		);
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertFalse(
@@ -448,12 +440,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * If a post has already been published (and is this 'done' sharing),
 	 * its checkbox should be disabled.
 	 *
-	 * @covers Publicize_UI::get_filtered_connection_data()
+	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 5.9.1
 	 */
 	public function test_get_filtered_connection_data_disabled_done_all() {
-		global $publicize_ui;
-		$connection_list = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		// First connection should be 'facebook' for unfiltered list.
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
 		$this->assertEquals(
@@ -469,7 +460,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->post->post_status = 'publish';
 		wp_insert_post( $this->post->to_array() );
 
-		$connection_list     = $publicize_ui->get_filtered_connection_data( $this->post->ID );
+		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
 		$this->assertEquals(
 			' disabled="disabled"',
