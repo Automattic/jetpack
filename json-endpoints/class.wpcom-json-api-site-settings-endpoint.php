@@ -658,11 +658,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'holidaysnow':
-					// Holiday snow has been deprecated. Always turn off.
-					$updated[ $key ] = false;
-					break;
-
 				case 'api_cache':
 					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
 						if ( delete_option( 'jetpack_api_cache_enabled' ) ) {
