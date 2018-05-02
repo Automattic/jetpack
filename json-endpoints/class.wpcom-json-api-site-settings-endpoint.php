@@ -367,12 +367,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
 					'eventbrite_api_token'    => $this->get_cast_option_value_or_null( 'eventbrite_api_token', 'intval' ),
-					'google_my_business_keyring_id' => defined( 'IS_WPCOM' ) && IS_WPCOM 
+					'google_my_business_keyring_id' => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? $this->get_cast_option_value_or_null( 'google_my_business_keyring_id', 'intval' )
-						: intval( Jetpack_Options::get_option( 'google_my_business_keyring_id' ) ),
-					'google_my_business_location_id' => (string) (  defined( 'IS_WPCOM' ) && IS_WPCOM 
+						: Jetpack_Options::get_option( 'google_my_business_keyring_id' ) ? intval( Jetpack_Options::get_option( 'google_my_business_keyring_id' ) ) : null,
+					'google_my_business_location_id' => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_option( 'google_my_business_location_id' )
-						: Jetpack_Options::get_option( 'google_my_business_location_id' ) ? intval( Jetpack_Options::get_option( 'google_my_business_location_id' ) ) : null,
+						: Jetpack_Options::get_option( 'google_my_business_location_id' ),
 					'gmt_offset'              => get_option( 'gmt_offset' ),
 					'timezone_string'         => get_option( 'timezone_string' ),
 					'date_format'             => get_option( 'date_format' ),
