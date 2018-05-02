@@ -9,30 +9,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	private $post;
 	private $original_user = 0;
 
-	/**
-	 * Current test user id produced by factory method.
-	 *
-	 * @since 5.9.1
-	 * @var integer $user_id ID of current user.
-	 */
-	private $user_id;
-
-	/**
-	 * Index in 'publicize_connections' test data of Facebook connection.
-	 *
-	 * @since 5.9.1
-	 * @var integer FACEBOOK_CONNECTION_INDEX index number of facebook connection.
-	 */
-	const FACEBOOK_CONNECTION_INDEX = 0;
-
-	/**
-	 * Index in 'publicize_connections' test data of Tumblr connection.
-	 *
-	 * @since 5.9.1
-	 * @var integer TUMBLR_CONNECTION_INDEX index number of Tumblr connection.
-	 */
-	const TUMBLR_CONNECTION_INDEX = 1;
-
 	public function setUp() {
 		parent::setUp();
 
@@ -42,35 +18,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		$this->user_id = $this->factory->user->create();
-		wp_set_current_user( $this->user_id );
-
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
-								'display_name' => 'test-display-name123',
-							),
-						),
-					),
-				),
-				'tumblr'   => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => $this->user_id,
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
-								'display_name' => 'test-display-name456',
-							),
-						),
-					),
-				),
-			),
-		) );
+		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
