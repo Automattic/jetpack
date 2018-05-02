@@ -598,6 +598,7 @@ jQuery(document).ready(function($) {
 		},
 
 
+
 		selectedSlide : function(){
 			return this.find('.selected');
 		},
