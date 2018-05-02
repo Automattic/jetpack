@@ -590,10 +590,12 @@ tinymce.on( 'AddEditor', function( event ) {
 
 
 	/**
-     * Strips the textarea tags from the jetpack markdown block
+     * Strips the textarea tags from the jetpack markdown block.
      *
-     * <textarea class="blocks-plain-text wp-block-jetpack-markdown-block" aria-label="Markdown" rows="1">
+     * <textarea class="wp-block-jetpack-markdown-block">
      * </textarea>
+     *
+     * Converts the left angle brackets from markup tags inside.
      *
 	 * @param $text string
 	 * @return string
@@ -602,7 +604,7 @@ tinymce.on( 'AddEditor', function( event ) {
 
 		$regex = '{
 		(<!--\s*wp:jetpack\/markdown-block\s*-->)
-		.*?<textarea\s*?class=[\\\]{0,1}".*?wp-block-jetpack-markdown-block.*?[\\\]{0,1}".*?>
+		.*?<textarea\s+class=.+?wp-block-jetpack-markdown-block.+?>
 		(.*?)
 		<\/textarea>
 		.*?(<!--\s*\/wp:jetpack\/markdown-block\s*-->)

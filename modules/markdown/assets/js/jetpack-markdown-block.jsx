@@ -56,10 +56,8 @@ registerBlockType( 'jetpack/markdown-block', {
 
 	attributes: {
 		content: {
-			type: 'string',
-			source: 'property',
+			source: 'text',
 			selector: 'textarea',
-			property: 'textContent',
 		},
 	},
 
@@ -80,7 +78,6 @@ registerBlockType( 'jetpack/markdown-block', {
 			),
 			<PlainText
 				className={ className }
-				markdown="1"
 				value={ attributes.content }
 				onChange={ ( content ) => setAttributes( { content } ) }
 				aria-label={ __( 'Markdown' ) }
@@ -88,14 +85,7 @@ registerBlockType( 'jetpack/markdown-block', {
 		];
 	},
 	save( { attributes, className } ) {
-		return (
-			<PlainText
-				className={ className }
-				markdown="1"
-				value={ attributes.content }
-				aria-label={ __( 'Markdown' ) }
-			/>
-		);
+		return <textarea className={ className }>{ attributes.content }</textarea>;
 	},
 
 } );
