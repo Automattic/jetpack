@@ -447,8 +447,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		// First connection should be 'facebook' for unfiltered list.
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertEquals(
-			'',
+		$this->assertFalse(
 			$facebook_connection['disabled'],
 			'Facebook connection should not be disabled if the post is not \'done\'.'
 		);
@@ -462,8 +461,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertEquals(
-			' disabled="disabled"',
+		$this->assertTrue(
 			$facebook_connection['disabled'],
 			'Facebook connection should be disabled if the post is \'done\'.'
 		);
