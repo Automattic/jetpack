@@ -69,9 +69,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			parent::__construct(
 				'eu_cookie_law_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
-				apply_filters( 'jetpack_widget_name', esc_html__( 'EU Cookie Law Banner', 'jetpack' ) ),
+				apply_filters( 'jetpack_widget_name', esc_html__( 'Cookies & Consents Banner', 'jetpack' ) ),
 				array(
-					'description' => esc_html__( 'Display a banner for compliance with the EU Cookie Law.', 'jetpack' ),
+					'description' => esc_html__( 'Display a banner for EU Cookie Law and GDPR compliance.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				),
 				array()
