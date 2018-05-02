@@ -445,24 +445,25 @@ class Publicize extends Publicize_Base {
 	 *     @type string 'display_name'    Username for sharing account.
 	 * }
 	 */
-	function get_filtered_connection_data( $post_id = null ) {
+	public function get_filtered_connection_data( $post_id = null ) {
 		$connection_list = array();
 
-		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
+		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
 
 		$services = $this->get_services( 'connected' );
 		$all_done = $this->done_sharing_post( $post_id );
 
-		// We don't allow Publicizing to the same external id twice, to prevent spam
+		// We don't allow Publicizing to the same external id twice, to prevent spam.
 		$service_id_done = (array) get_post_meta( $post->ID, $this->POST_SERVICE_DONE, true );
 
 		foreach ( $services as $name => $connections ) {
 			foreach ( $connections as $connection ) {
 				$connection_data = '';
-				if ( method_exists( $connection, 'get_meta' ) )
+				if ( method_exists( $connection, 'get_meta' ) ) {
 					$connection_data = $connection->get_meta( 'connection_data' );
-				elseif ( ! empty( $connection['connection_data'] ) )
+				} elseif ( ! empty( $connection['connection_data'] ) ) {
 					$connection_data = $connection['connection_data'];
+				}
 
 				/**
 				 * Filter whether a post should be publicized to a given service.
@@ -476,13 +477,13 @@ class Publicize extends Publicize_Base {
 				 * @param string $name Service name.
 				 * @param array $connection_data Array of information about all Publicize details for the site.
 				 */
-				if ( ! $continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
 					continue;
 				}
 
 				if ( ! empty( $connection->unique_id ) ) {
 					$unique_id = $connection->unique_id;
-				} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
+				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
 					$unique_id = $connection['connection_data']['token_id'];
 				}
 
