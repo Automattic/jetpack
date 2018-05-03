@@ -18,6 +18,10 @@ wp --allow-root core install \
 	--admin_email=${WP_ADMIN_EMAIL} \
 	--skip-email
 
+# Set the site hidden from search engines
+# https://codex.wordpress.org/Option_Reference#Privacy
+wp --allow-root option update blog_public 0
+
 # Install Query Monitor plugin
 # https://wordpress.org/plugins/query-monitor/
 wp --allow-root plugin install query-monitor --activate
