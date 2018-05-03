@@ -76,6 +76,8 @@
   "json-endpoints/class.wpcom-json-api-update-media-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-media-v1-1-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-post-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-update-post-v1-2-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-site-homepage-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-site-logo-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-taxonomy-endpoint.php",
