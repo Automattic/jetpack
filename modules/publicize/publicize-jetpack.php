@@ -507,20 +507,22 @@ class Publicize extends Publicize_Base {
 					)
 				);
 
-				// Was this connections (OR, old-format service) already Publicized to?
-				$done = ( 1 == get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->POST_DONE . $name, true ) ); // New and old style flags
+				// Was this connections (OR, old-format service) already Publicized to.
+				$done = ( 1 == get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true ) || 1 == get_post_meta( $post->ID, $this->POST_DONE . $name, true ) ); // New and old style flags
 
-				// If this one has already been publicized to, don't let it happen again
+				// If this one has already been publicized to, don't let it happen again.
 				$disabled = false;
 				if ( $done ) {
 					$disabled = true;
 				}
 
-				// If this is a global connection and this user doesn't have enough permissions to modify
-				// those connections, don't let them change it
-				$cmeta = $this->get_connection_meta( $connection );
+				/**
+				 * If this is a global connection and this user doesn't have enough permissions to modify
+				 * those connections, don't let them change it.
+				 */
+				$cmeta           = $this->get_connection_meta( $connection );
 				$hidden_checkbox = false;
-				if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( $this->GLOBAL_CAP ) ) ) {
+				if ( ! $done && ( 0 == $cmeta['connection_data']['user_id'] && ! current_user_can( $this->GLOBAL_CAP ) ) ) {
 					$disabled = true;
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
@@ -537,8 +539,8 @@ class Publicize extends Publicize_Base {
 					$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
 				}
 
-				// Determine the state of the checkbox (on/off) and allow filtering
-				$checked = $skip != 1 || $done;
+				// Determine the state of the checkbox (on/off) and allow filtering.
+				$checked = ( ( 1 != $skip ) || $done );
 				/**
 				 * Filter the checkbox state of each Publicize connection appearing in the post editor.
 				 *
@@ -553,22 +555,22 @@ class Publicize extends Publicize_Base {
 				 */
 				$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $name, $connection );
 
-				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does
+				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does.
 				if ( $done ) {
 					$checked = true;
 				}
 
-				// This post has been handled, so disable everything
+				// This post has been handled, so disable everything.
 				if ( $all_done ) {
 					$disabled = true;
 				}
 
-				$label = sprintf(
+				$label  = sprintf(
 					_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
 					esc_html( $this->get_service_label( $name ) ),
 					esc_html( $this->get_display_name( $name, $connection ) )
 				);
-				$active =  !$skip || $done;
+				$active = ! $skip || $done;
 
 				$connection_list[] = array(
 					'unique_id'       => $unique_id,
@@ -601,10 +603,9 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	function done_sharing_post( $post_id = null )
-	{
+	public function done_sharing_post( $post_id = null ) {
 		global $publicize_ui;
-		$post = get_post( $post_id ); // Defaults to current post if $post_id is null
+		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
 		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $publicize_ui->in_jetpack && 'publish' == $post->post_status );
 	}
 
@@ -625,7 +626,7 @@ class Publicize extends Publicize_Base {
 	 * }
 	 */
 	function get_available_service_data() {
-		$available_services = $this->get_services( 'all' );
+		$available_services     = $this->get_services( 'all' );
 		$available_service_data = array();
 
 		foreach ( $available_services as $service_name => $service ) {
