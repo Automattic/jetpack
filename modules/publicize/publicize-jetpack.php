@@ -420,7 +420,7 @@ class Publicize extends Publicize_Base {
 	 * data directly as array so it can be retrieved for static HTML generation
 	 * or JSON consumption.
 	 *
-	 * @since 5.9.1
+	 * @since 6.2.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
@@ -586,7 +586,7 @@ class Publicize extends Publicize_Base {
 	 * far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
 	 * have Publicize disabled.
 	 *
-	 * @since 5.9.1
+	 * @since 6.2.0
 	 *
 	 * @global Publicize_UI $publicize_ui UI instance that contains the 'in_jetpack' property
 	 *
@@ -606,7 +606,7 @@ class Publicize extends Publicize_Base {
 	 * Retrieves current available publicize service connections
 	 * with associated labels and URLs.
 	 *
-	 * @since 5.9.1
+	 * @since 6.2.0
 	 *
 	 * @return array {
 	 *     Array of UI service connection data for all services
