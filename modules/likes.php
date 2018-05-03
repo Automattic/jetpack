@@ -140,6 +140,20 @@ class Jetpack_Likes {
 		}
 	}
 
+
+	/**
+     * Stub for is_post_likeable, since some wpcom functions call this directly on the class
+	 * Are likes enabled for this post?
+     *
+     * @param int $post_id
+     * @return bool
+	 */
+	static function is_post_likeable( $post_id = 0 ) {
+		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
+        $settings = new Jetpack_Likes_Settings();
+        return $settings->is_post_likeable();
+	}
+
 	/**
 	 * Stub for is_likes_visible, since some themes were calling it directly from this class
 	 *
