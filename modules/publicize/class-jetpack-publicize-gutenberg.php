@@ -38,9 +38,6 @@ class Jetpack_Publicize_Gutenberg {
 
 		add_action( 'rest_api_init', array( $this, 'add_publicize_rest_fields' ) );
 
-		// Connection list callback.
-		add_action( 'wp_ajax_get_publicize_connections', array( $this, 'get_publicize_connections' ) );
-
 		// Set up publicize flags right before post is actually published.
 		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
 
@@ -53,15 +50,17 @@ class Jetpack_Publicize_Gutenberg {
 	 * Gets current list of connected accounts and send them as
 	 * JSON encoded data.
 	 *
+	 * @see Publicize::get_filtered_connection_data()
+	 *
 	 * @since 5.9.1
+	 *
+	 * @param WP_REST_Request $request Request instance from REST call.
+	 *
+	 * @return string JSON encoded connection list data.
 	 */
-	public function get_publicize_connections() {
-		if ( isset($_POST['postId'] ) ) {
-			$post_id = $_POST['postId'];
-		} else {
-			$post_id = null;
-		}
-		wp_send_json_success( $this->publicize->get_filtered_connection_data( $post_id ) );
+	public function rest_get_publicize_connections( $request ) {
+		$post_id = $request['post_id'];
+		return wp_json_encode( $this->publicize->get_filtered_connection_data( $post_id ) );
 	}
 
 	/**
@@ -116,6 +115,46 @@ class Jetpack_Publicize_Gutenberg {
 				'schema'          => $publicize_submit_schema,
 			)
 		);
+
+		/**
+		 * REST endpoint to get connection list data for current user and post id.
+		 *
+		 * @see Publicize::get_filtered_connection_data()
+		 *
+		 * @since 5.9.1
+		 */
+		register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/connections', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'rest_get_publicize_connections' ),
+			'post_id'             => array(
+				'validate_post_id' => array( $this, 'rest_connections_validate_post_id' ),
+			),
+			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
+		) );
+	}
+
+	/**
+	 * Check user capability for getting Publicize connection list from endpoint.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @return boolean True if current user has 'publish_post' capability.
+	 */
+	public function rest_connections_permission_callback() {
+		return current_user_can( 'publish_posts' );
+	}
+
+	/**
+	 * Check post id validity for Publicize connection list REST endpoint.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param mixed $param post_id parameter from REST call.
+	 *
+	 * @return boolean True if post_id is valid integer
+	 */
+	public function rest_connections_validate_post_id( $param ) {
+		return is_int( $param );
 	}
 
 	/**
@@ -246,8 +285,9 @@ class Jetpack_Publicize_Gutenberg {
 
 			wp_localize_script( 'modules-publicize-gutenberg_js', 'gutenberg_publicize_setup',
 				array(
-					'connectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
-					'allServices'    => wp_json_encode( $this->publicize->get_available_service_data() ),
+					'staticConnectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
+					'allServices'          => wp_json_encode( $this->publicize->get_available_service_data() ),
+					'api_nonce'            => wp_create_nonce( 'wp_rest' ),
 				)
 			);
 

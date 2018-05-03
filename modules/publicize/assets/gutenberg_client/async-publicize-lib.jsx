@@ -8,13 +8,13 @@
 /**
  * Internal dependencies
  */
-const { gutenberg_publicize_setup } = window;
+const { gutenberg_publicize_setup, wp } = window;
 
 /**
  * Get connection form set up data.
  *
  * Retrieves array of filtered connection UI data (labels, checked value,
- * URLs, etc.)
+ * URLs, etc.) from window global. This data only updates on refresh.
  *
  * @see ui.php
  *
@@ -22,8 +22,33 @@ const { gutenberg_publicize_setup } = window;
  *
  * @return {object} List of filtered connection UI data.
  */
-export function getPublicizeConnections() {
-	return JSON.parse( gutenberg_publicize_setup.connectionList );
+export function getStaticPublicizeConnections() {
+	return JSON.parse( gutenberg_publicize_setup.staticConnectionList );
+}
+
+/**
+ * Get up-to-date connection list data for post.
+ *
+ * Retrieves array of filtered connection UI data (labels, checked value).
+ * Connection list is queried based on post id because the connection
+ * filtering depends on current post.
+ *
+ * @see ui.php
+ *
+ * @since 5.9.1
+ *
+ * @param {integer} postId ID of post to query connection defaults for.
+ *
+ * @return {Promise} Promise for connection request.
+ */
+export function requestPublicizeConnections( postId ) {
+	return wp.apiRequest( {
+		path: '/publicize/posts/' + postId.toString() + '/connections',
+		contentType: 'application/json',
+		dataType: 'json',
+		processData: false,
+		method: 'GET',
+	} );
 }
 
 /**
