@@ -498,16 +498,28 @@ class Publicize extends Publicize_Base {
 						is_array( $connection )
 						&&
 						(
-							( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] ) )
+							(
+									isset( $connection['meta']['external_id'] )
+									&&
+									! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] )
+							)
 							||
 							// Jetpack's connection data looks a little different.
-							( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['external_id'] ] ) )
+							(
+									isset( $connection['external_id'] )
+									&&
+									! empty( $service_id_done[ $name ][ $connection['external_id'] ] )
+							)
 						)
 					)
 				);
 
 				// Was this connections (OR, old-format service) already Publicized to.
-				$done = ( 1 == get_post_meta( $post_id, $this->POST_DONE . $unique_id, true ) || 1 == get_post_meta( $post_id, $this->POST_DONE . $name, true ) ); // New and old style flags.
+				$done = (
+							( 1 == get_post_meta( $post_id, $this->POST_DONE . $unique_id, true ) )
+							||
+							( 1 == get_post_meta( $post_id, $this->POST_DONE . $name, true ) )
+				); // New and old style flags.
 
 				// If this one has already been publicized to, don't let it happen again.
 				$disabled = false;
