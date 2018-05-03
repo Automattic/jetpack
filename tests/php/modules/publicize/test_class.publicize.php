@@ -342,6 +342,47 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify case where no post id is provided and there is
+	 * no current post. 'Done' return value should be false
+	 * so a new post will not have connections disabled.
+	 *
+	 * @covers Publicize::done_sharing_post()
+	 * @since 6.2.0
+	 */
+	public function test_done_sharing_post_null_post() {
+		/**
+		 * Simulate null post by not providing post_id argument and
+		 * when current $post value is unset.
+		 */
+		$done_sharing = $this->publicize->done_sharing_post();
+		$this->assertFalse(
+			$done_sharing,
+			'Done sharing value should be false for null post id'
+		);
+	}
+
+	/**
+	 * Verify case where no post id is provided and there is
+	 * no current post. Connections data should be passed
+	 * through without disabling connections.
+	 *
+	 * @covers Publicize::get_filtered_connection_data()
+	 * @since 6.2.0
+	 */
+	public function test_get_filtered_connection_data_null_post() {
+		/**
+		 * Simulate null post by not providing post_id argument and
+		 * when current $post value is unset.
+		 */
+		$connection_list   = $this->publicize->get_filtered_connection_data();
+		$tumblr_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
+		$this->assertFalse(
+			$tumblr_connection['disabled'],
+			'All connections should be enabled for null post id'
+		);
+	}
+
+	/**
 	 * Verify 'wpas_submit_post?' filter functionality by checking
 	 * connection list before and after a 'no facebook' filter has
 	 * been applied.
