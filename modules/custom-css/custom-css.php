@@ -1751,7 +1751,7 @@ function safecss_post_title( $title, $post_id ) {
 function safe_css_enqueue_scripts() {
 	_deprecated_function( __FUNCTION__, '2.1', 'Jetpack_Custom_CSS::enqueue_scripts()' );
 
-	return Jetpack_Custom_CSS::enqueue_scripts();
+	return Jetpack_Custom_CSS::enqueue_scripts( null );
 }
 
 function safecss_admin_head() {
