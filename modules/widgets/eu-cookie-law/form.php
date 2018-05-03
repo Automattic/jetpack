@@ -10,14 +10,10 @@
 					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
 					type="radio"
 					value="button"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
 				/>
 				<?php esc_html_e( 'after the user clicks the dismiss button', 'jetpack' ); ?>
 			</label>
-			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
-				<p>
-					<strong><em><?php esc_html_e( 'This option is strongly recommended for Ads users.', 'jetpack' ); ?></em></strong>
-				</p>
-			<?php endif; ?>
 		</li>
 		<li>
 			<label>
@@ -26,6 +22,7 @@
 					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
 					type="radio"
 					value="scroll"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
 				/>
 				<?php esc_html_e( 'after the user scrolls the page', 'jetpack' ); ?>
 			</label>
@@ -37,6 +34,7 @@
 					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
 					type="radio"
 					value="time"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
 				/>
 				<?php esc_html_e( 'after this amount of time', 'jetpack' ); ?>
 			</label>
@@ -49,6 +47,14 @@
 				value="<?php echo esc_attr( $instance['hide-timeout'] ); ?>"
 			/>
 			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
+		</li>
+		<li>
+			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+				<p>
+					<em><?php esc_html_e( 'Button click is required when Jetpack Ads is turned on.', 'jetpack' ); ?></em>
+				</p>
+			<?php endif; ?>
+
 		</li>
 	</ul>
 </p>

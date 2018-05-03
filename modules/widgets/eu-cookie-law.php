@@ -130,15 +130,28 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
+			/**
+			 * Filters the display of the EU Cookie Law widget.
+			 *
+			 * @since 6.1.1
+			 *
+			 * @param bool true Should the EU Cookie Law widget be disabled. Default to false.
+			 */
+			if ( apply_filters( 'jetpack_disable_eu_cookie_law_widget', false ) ) {
+				return;
+			}
+
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			$classes = array();
-			$classes[] = 'hide-on-' . esc_attr( $instance['hide'] );
+			$classes['hide'] = 'hide-on-' . esc_attr( $instance['hide'] );
 			if ( 'negative' === $instance['color-scheme'] ) {
-				$classes[] = 'negative';
+				$classes['negative'] = 'negative';
 			}
+
 			if ( Jetpack::is_module_active( 'wordads' ) ) {
-				$classes[] = 'ads-active';
+				$classes['ads'] = 'ads-active';
+				$classes['hide'] = 'hide-on-button';
 			}
 
 			echo $args['before_widget'];
@@ -155,6 +168,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+			if ( Jetpack::is_module_active( 'wordads' ) ) {
+				$instance['hide'] = 'button';
+			}
 			require( dirname( __FILE__ ) . '/eu-cookie-law/form.php' );
 		}
 
