@@ -673,7 +673,7 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Swap post_content <--> post_content_filtered swap on Gutenberg post edit
+	 * Swap post_content <--> post_content_filtered on Gutenberg post edit
 	 *
 	 * @param $post_to_edit
 	 * @return array
