@@ -90,8 +90,6 @@ class Jetpack_Options {
 			'custom_css_4.7_migration',       // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 			'image_widget_migration',         // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',       // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
-			'google_my_business_keyring_id',  // (int)	  Google My Business Keyring id
-			'google_my_business_location_id', // (string).Google My Business Location id
 		);
 	}
 
@@ -540,6 +538,8 @@ class Jetpack_Options {
 			'jpo_site_type',
 			'jpo_homepage_format',
 			'jpo_contact_page',
+			'jetpack_google_my_business_keyring_id',
+			'jetpack_google_my_business_location_id',
 		);
 	}
 
