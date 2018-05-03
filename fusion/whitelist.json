@@ -56,6 +56,7 @@
   "json-endpoints/class.wpcom-json-api-list-media-endpoint.php",
   "json-endpoints/class.wpcom-json-api-list-media-v1-1-endpoint.php",
   "json-endpoints/class.wpcom-json-api-list-media-v1-2-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-list-post-type-taxonomies-endpoint.php",
   "json-endpoints/class.wpcom-json-api-list-posts-endpoint.php",
   "json-endpoints/class.wpcom-json-api-list-posts-v1-1-endpoint.php",
   "json-endpoints/class.wpcom-json-api-list-posts-v1-2-endpoint.php",
