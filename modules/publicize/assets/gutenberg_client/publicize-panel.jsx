@@ -18,20 +18,22 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-import { getPublicizeConnections } from './async-publicize-lib';
+import {
+	getStaticPublicizeConnections,
+	requestPublicizeConnections,
+} from './async-publicize-lib';
 import PublicizeNoConnections from './publicize-no-connections';
 
 import PublicizeForm from './publicize-form';
 import PublicizeConnectionVerify from './publicize-connection-verify';
 const { __ } = window.wp.i18n;
 const { PanelBody } = window.wp.components;
-const { ajaxurl } = window;
 
 class PublicizePanel extends Component {
 	constructor( props ) {
 		super( props );
 		// Get default connection list generated on original page load so user doesn't have to wait.
-		const staticConnectionList = getPublicizeConnections();
+		const staticConnectionList = getStaticPublicizeConnections();
 
 		this.state = {
 			connections: staticConnectionList,
@@ -51,14 +53,22 @@ class PublicizePanel extends Component {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param {object} result JSON result of connection request
+	 * @param {string} resultString JSON encoded result of connection request
 	 */
-	getConnectionsDone( result ) {
-		this.setState( {
-			isLoading: false,
-			didFail: false,
-			connections: result.data,
-		} );
+	getConnectionsDone( resultString ) {
+		try {
+			const result = JSON.parse( resultString );
+			this.setState( {
+				isLoading: false,
+				didFail: false,
+				connections: result,
+			} );
+		} catch ( e ) { // JSON parse fail.
+			this.setState( {
+				isLoading: false,
+				didFail: true,
+			} );
+		}
 	}
 
 	/**
@@ -78,7 +88,7 @@ class PublicizePanel extends Component {
 	}
 
 	/**
-	 * Starts request for list current list of connections
+	 * Starts request for current list of connections.
 	 *
 	 * @since 5.9.1
 	 */
@@ -88,14 +98,11 @@ class PublicizePanel extends Component {
 			isLoading: true,
 			didFail: false,
 		} );
-		$.post( ajaxurl,
-			{
-				action: 'get_publicize_connections',
-				postId: postId,
-			},
+
+		requestPublicizeConnections( postId ).then(
 			( result ) => this.getConnectionsDone( result ),
-			'json',
-		).fail( ( xhr, textStatus, errorThrown ) => this.getConnectionsFail( xhr, textStatus, errorThrown ) );
+			( xhr, textStatus, errorThrown ) => this.getConnectionsFail( xhr, textStatus, errorThrown )
+		);
 	}
 
 	render() {
