@@ -431,7 +431,7 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @since 6.2.0
 	 *
-	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
+	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
 	 *
 	 * @return array {
 	 *     Array of UI setup data for connection list form.
@@ -445,16 +445,22 @@ class Publicize extends Publicize_Base {
 	 *     @type string 'display_name'    Username for sharing account.
 	 * }
 	 */
-	public function get_filtered_connection_data( $post_id = null ) {
+	public function get_filtered_connection_data( $selected_post_id = null ) {
 		$connection_list = array();
 
-		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
+		$post = get_post( $selected_post_id ); // Defaults to current post if $post_id is null.
+		// Handle case where there is no current post.
+		if ( ! empty( $post ) ) {
+			$post_id = $post->ID;
+		} else {
+			$post_id = null;
+		}
 
 		$services = $this->get_services( 'connected' );
 		$all_done = $this->done_sharing_post( $post_id );
 
 		// We don't allow Publicizing to the same external id twice, to prevent spam.
-		$service_id_done = (array) get_post_meta( $post->ID, $this->POST_SERVICE_DONE, true );
+		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
 
 		foreach ( $services as $name => $connections ) {
 			foreach ( $connections as $connection ) {
@@ -473,11 +479,11 @@ class Publicize extends Publicize_Base {
 				 * @since 2.0.0
 				 *
 				 * @param bool true Should the post be publicized to a given service? Default to true.
-				 * @param int $post->ID Post ID.
+				 * @param int $post_id Post ID.
 				 * @param string $name Service name.
 				 * @param array $connection_data Array of information about all Publicize details for the site.
 				 */
-				if ( ! apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $name, $connection_data ) ) {
 					continue;
 				}
 
@@ -490,9 +496,11 @@ class Publicize extends Publicize_Base {
 				// Should we be skipping this one?
 				$skip = (
 					(
+						! empty( $post )
+						&&
 						in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
 						&&
-						get_post_meta( $post->ID, $this->POST_SKIP . $unique_id, true )
+						get_post_meta( $post_id, $this->POST_SKIP . $unique_id, true )
 					)
 					||
 					(
@@ -508,7 +516,7 @@ class Publicize extends Publicize_Base {
 				);
 
 				// Was this connections (OR, old-format service) already Publicized to.
-				$done = ( 1 == get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true ) || 1 == get_post_meta( $post->ID, $this->POST_DONE . $name, true ) ); // New and old style flags
+				$done = ( 1 == get_post_meta( $post_id, $this->POST_DONE . $unique_id, true ) || 1 == get_post_meta( $post_id, $this->POST_DONE . $name, true ) ); // New and old style flags.
 
 				// If this one has already been publicized to, don't let it happen again.
 				$disabled = false;
@@ -532,11 +540,11 @@ class Publicize extends Publicize_Base {
 					 * @since 3.7.0
 					 *
 					 * @param bool   $checked Indicates if this connection should be enabled. Default true.
-					 * @param int    $post->ID ID of the current post
+					 * @param int    $post_id ID of the current post
 					 * @param string $name Name of the connection (Facebook, Twitter, etc)
 					 * @param array  $connection Array of data about the connection.
 					 */
-					$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
+					$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post_id, $name, $connection );
 				}
 
 				// Determine the state of the checkbox (on/off) and allow filtering.
@@ -549,11 +557,11 @@ class Publicize extends Publicize_Base {
 				 * @since 2.0.1
 				 *
 				 * @param bool $checked Should the Publicize checkbox be enabled for a given service.
-				 * @param int $post->ID Post ID.
+				 * @param int $post_id Post ID.
 				 * @param string $name Service name.
 				 * @param array $connection Array of connection details.
 				 */
-				$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $name, $connection );
+				$checked = apply_filters( 'publicize_checkbox_default', $checked, $post_id, $name, $connection );
 
 				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does.
 				if ( $done ) {
@@ -606,6 +614,9 @@ class Publicize extends Publicize_Base {
 	public function done_sharing_post( $post_id = null ) {
 		global $publicize_ui;
 		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
+		if ( is_null( $post ) ) {
+			return false;
+		}
 		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $publicize_ui->in_jetpack && 'publish' == $post->post_status );
 	}
 
