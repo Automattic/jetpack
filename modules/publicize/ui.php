@@ -624,7 +624,7 @@ jQuery( function($) {
 	 *
 	 * Retrieves current connection list and generates HTML form.
 	 *
-	 * @since 5.9.1
+	 * @since Unknown
 	 *
 	 * @global WP_Post $post The current post instance being published.
 	 *
