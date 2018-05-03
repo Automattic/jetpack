@@ -674,12 +674,16 @@ class WPCom_Markdown {
 	 * Swap post_content <--> post_content_filtered swap on Gutenberg post edit
 	 *
 	 * @param $post_to_edit
-	 * @return WP_Post
+	 * @return array
 	 */
 	public function after_gutenberg_gets_post_to_edit( $post_to_edit ) {
-		if ( $post_to_edit instanceof WP_Post) {
-			if ( $this->is_markdown( $post_to_edit->ID ) ) {
-				$post_to_edit['content']['raw'] = $this->edit_post_content( $post_to_edit->post_content, $post_to_edit->ID );
+		if ( is_array( $post_to_edit ) ) {
+			if (
+				isset( $post_to_edit['content'] ) &&
+				isset( $post_to_edit['content']['raw'] ) &&
+				isset( $post_to_edit['id'] )
+			) {
+				$post_to_edit['content']['raw'] = $this->edit_post_content( $post_to_edit['content']['raw'], $post_to_edit['id'] );
 			}
 		}
 		return $post_to_edit;
