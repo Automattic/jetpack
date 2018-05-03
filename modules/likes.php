@@ -178,21 +178,6 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
-	 */
-	function sharing_meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
-		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
-		<p>
-			<label for="wpl_enable_post_sharing">
-				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
-			</label>
-			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> <?php
-	}
-
-	/**
 	  * Options to be added to the discussion page (see also admin_settings_init, etc below for Sharing settings page)
 	  */
 
