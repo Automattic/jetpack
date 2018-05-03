@@ -115,8 +115,9 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+		add_filter( 'after_gutenberg_gets_post_to_edit', array( $this, 'after_gutenberg_gets_post_to_edit' ), 10, 1 );
 		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
-    add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
+		add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -135,6 +136,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
+		remove_filter( 'after_gutenberg_gets_post_to_edit', array( $this, 'after_gutenberg_gets_post_to_edit' ), 10 );
 		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6 );
 		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10 );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
