@@ -280,7 +280,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Add ipad to mobile list (#525)
 * Hide opcache_invalidate() warnings since it's disabled some places. (#543)
 * Check that HTTP_REFERER exists before checking it. (#544)
-* Replace Cron View" with WP Control because it's still updated. (#546)
+* Replace Cron View" with WP Crontrol because it's still updated. (#546)
 * adding hook (wp_cache_cleared) for full cache purges (#537)
 
 
