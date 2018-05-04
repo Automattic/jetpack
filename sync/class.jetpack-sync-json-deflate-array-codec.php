@@ -27,6 +27,7 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 		if ( function_exists( 'jetpack_json_wrap' ) ) {
 			return wp_json_encode( jetpack_json_wrap( $any ) );
 		}
+		// This prevents fatal error when updating pre 6.0 via the cli command
 		return wp_json_encode( $this->json_wrap( $any ) );
 	}
 
