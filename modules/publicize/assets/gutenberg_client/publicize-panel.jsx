@@ -72,8 +72,9 @@ export default PublicizePanel = compose(
 	withSelect( ( select ) => ( {
 		connections: select( 'jetpack/publicize' ).getConnections(),
 		isLoading: select( 'jetpack/publicize' ).getIsLoading(),
+		postId: select( 'core/editor' ).getCurrentPost().id,
 	} ) ),
-	withDispatch( ( dispatch ) => ( {
+	withDispatch( ( dispatch, ownProps ) => ( {
 		getConnectionsDone: dispatch( 'jetpack/publicize' ).getConnectionsDone,
 		getConnectionsFail: dispatch( 'jetpack/publicize' ).getConnectionsFail,
 		/**
@@ -82,7 +83,7 @@ export default PublicizePanel = compose(
 		 * @since 5.9.1
 		 */
 		getConnectionsStart() {
-			const postId = $( '#post_ID' ).val();
+			const { postId } = ownProps;
 			const {
 				getConnectionsDone,
 				getConnectionsFail,
