@@ -12,6 +12,7 @@
  * External dependencies
  */
 import { compose } from 'redux';
+import isNil from 'lodash/isNil';
 
 /**
  * Internal dependencies
@@ -24,9 +25,9 @@ import PublicizeFormUnwrapped from './publicize-form-unwrapped';
 
 const PublicizeForm = compose(
 	withSelect( ( select ) => ( {
-		activeConnections: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) )
+		activeConnections: ( isNil( select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) )
 			? [] : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).connections,
-		shareMessage: ( null == select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) )
+		shareMessage: ( isNil( select( 'core/editor' ).getEditedPostAttribute( 'publicize' ) ) )
 			? '' : select( 'core/editor' ).getEditedPostAttribute( 'publicize' ).title,
 	} ) ),
 	withDispatch( ( dispatch, ownProps ) => ( {

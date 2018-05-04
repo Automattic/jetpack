@@ -13,6 +13,7 @@
  */
 import React, { Component } from 'react';
 import classnames from 'classnames';
+import isNil from 'lodash/isNil';
 
 /**
  * Internal dependencies
@@ -70,7 +71,7 @@ class PublicizeFormUnwrapped extends Component {
 	isConnectionOn( uniqueId ) {
 		const { activeConnections } = this.props;
 		const matchingConnection = activeConnections.find( c => uniqueId === c.unique_id );
-		if ( null == matchingConnection ) {
+		if ( isNil( matchingConnection ) ) {
 			return false;
 		}
 		return matchingConnection.should_share;
