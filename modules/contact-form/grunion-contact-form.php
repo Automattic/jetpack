@@ -742,7 +742,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data exporter.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  array $exporters An array of personal data exporters.
 	 *
@@ -760,7 +760,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Registers the personal data eraser.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  array $erasers An array of personal data erasers.
 	 *
@@ -778,7 +778,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Exports personal data.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  string $email  Email address.
 	 * @param  int    $page   Page to export.
@@ -835,7 +835,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Erases personal data.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  string $email Email address.
 	 * @param  int    $page  Page to erase.
@@ -873,7 +873,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Queries personal data by email address.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $per_page Post IDs per page. Default is `250`.
@@ -904,7 +904,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Filters searches by email address.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.1
 	 *
 	 * @param  string $search SQL where clause.
 	 *
