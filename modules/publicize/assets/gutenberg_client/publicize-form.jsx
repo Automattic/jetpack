@@ -184,16 +184,18 @@ export default compose(
 		 *
 		 * @since 5.9.1
 		 *
-		 * @param {string}  connectionID ID of the connection being enabled/disabled
-		 * @param {boolean} checked      True of connection should be enabled, false otherwise
+		 * @param {Object}  options              Top-level options parameter
+		 * @param {string}  options.connectionID ID of the connection being enabled/disabled
+		 * @param {boolean} options.shouldShare  True of connection should be shared to, false otherwise
 		 */
-		connectionChange( connectionID, checked ) {
+		connectionChange( options ) {
+			const { connectionID, shouldShare } = options;
 			const { activeConnections, shareMessage } = ownProps;
 			// Copy array (simply mutating data would cause the component to not be updated).
 			const newConnections = activeConnections.slice( 0 );
 			newConnections.forEach( ( c ) => {
 				if ( c.unique_id === connectionID ) {
-					c.should_share = checked;
+					c.should_share = shouldShare;
 				}
 			} );
 			dispatch( 'core/editor' ).editPost( {
