@@ -18,8 +18,8 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
+import { requestTestPublicizeConnections } from './async-publicize-lib';
 const { __ } = window.wp.i18n;
-const { ajaxurl } = window;
 
 class PublicizeConnectionVerify extends Component {
 	constructor( props ) {
@@ -59,11 +59,9 @@ class PublicizeConnectionVerify extends Component {
 	 * @since 5.9.1
 	 */
 	connectionTestStart = () => {
-		// Ajax request handled by 'wp_ajax_test_publicize_conns' action in {@see publicize.php}.
-		$.post( ajaxurl, { action: 'test_publicize_conns' }, this.connectionTestComplete );
-		this.setState( {
-			isLoading: true,
-		} );
+		requestTestPublicizeConnections().then(
+			() => this.connectionTestComplete
+		);
 	};
 
 	/**

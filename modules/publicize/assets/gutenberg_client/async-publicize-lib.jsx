@@ -1,14 +1,22 @@
 /**
- * Scripts for Gutenberg Publicize extension.
+ * Data access functions for Publicizing in Gutenberg.
  *
- * @file Scripts for Gutenberg Publicize extension.
+ * This file contains a set of helper functions that
+ * gather data and/or send requests for data to support
+ * the features of Publicize in Gutenberg.
+ *
+ * @file Data access functions for Gutenberg Publicize extension.
  * @since  5.9.1
  */
 
 /**
  * Internal dependencies
  */
-const { gutenberg_publicize_setup, wp } = window;
+const {
+	gutenberg_publicize_setup,
+	wp,
+	ajaxurl,
+} = window;
 
 /**
  * Get connection form set up data.
@@ -62,4 +70,18 @@ export function requestPublicizeConnections( postId ) {
  */
 export function getAllConnections() {
 	return JSON.parse( gutenberg_publicize_setup.allServices );
+}
+
+/**
+ * Verifies that all connections are still functioning.
+ *
+ * Ajax request handled by 'wp_ajax_test_publicize_conns' action
+ * in {@see publicize.php}.
+ *
+ * @since 5.9.1
+ *
+ * @return {object} List of possible services that can be connected to
+ */
+export function requestTestPublicizeConnections() {
+	return $.post( ajaxurl, { action: 'test_publicize_conns' } );
 }
