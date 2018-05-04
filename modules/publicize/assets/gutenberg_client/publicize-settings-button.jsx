@@ -27,7 +27,7 @@ class PublicizeSettingsButton extends Component {
 	 * @param {object} event Event instance for onClick.
 	 */
 	settingsClick = ( event ) => {
-		const href = 'options-general.php?page=sharing';
+		const href = 'options-general.php?page=sharing&publicize_popup=true';
 		const { refreshCallback } = this.props;
 		event.preventDefault();
 		/**

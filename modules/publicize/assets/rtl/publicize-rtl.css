@@ -242,3 +242,13 @@ input.fb-options {
 .jetpack-publicize-add-connection-container {
 	display: flex;
 }
+
+#publicize-popup-notify {
+	background-color: yellow;
+	height: 50px;
+	text-align: center;
+	width: 100%;
+	max-width: 1200px;
+	font-size: 20px;
+	padding-top: 30px;
+}
