@@ -52,7 +52,7 @@ class PublicizeSettingsButton extends Component {
 				</span>
 				<a
 					onClick={ this.settingsClick }
-					href="javascript:void(0)"
+					tabIndex="0"
 				>
 					{ __( 'Connect another service' ) }
 				</a>
