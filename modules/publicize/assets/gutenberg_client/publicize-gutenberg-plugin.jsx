@@ -19,6 +19,9 @@ import React from 'react';
 const { PluginPrePublishPanel } = window.wp.editPost.__experimental;
 const { registerPlugin } = window.wp.plugins;
 import PublicizePanel from './publicize-panel';
+import publicizeStore from './publicize-gutenberg-store';
+const { data } = window.wp;
+const { registerStore } = data;
 
 const PluginRender = () => (
 	<PluginPrePublishPanel>
@@ -29,3 +32,5 @@ const PluginRender = () => (
 registerPlugin( 'jetpack-publicize', {
 	render: PluginRender
 } );
+
+registerStore( 'jetpack/publicize', publicizeStore );
