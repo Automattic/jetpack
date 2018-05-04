@@ -48,16 +48,9 @@ class PublicizeFormUnwrapped extends Component {
 	 */
 	isDisabled() {
 		const { staticConnections } = this.props;
-		let disabled = true; // Assume all disabled
-
 		// Check to see if at least one connection is not disabled
-		for ( const c of staticConnections ) {
-			if ( ! c.disabled ) {
-				disabled = false;
-				break;
-			}
-		}
-		return disabled;
+		const formEnabled = staticConnections.some( c => ! c.disabled );
+		return ! formEnabled;
 	}
 
 	/**

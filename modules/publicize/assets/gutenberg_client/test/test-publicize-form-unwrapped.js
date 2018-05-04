@@ -36,7 +36,7 @@ const mockConnectionsEnabled = [
 	{
 		unique_id: '1',
 		checked: true,
-		disabled: false,
+		disabled: true,
 	},
 	{
 		unique_id: '2',
