@@ -107,7 +107,7 @@ class PublicizePanel extends Component {
 
 	render() {
 		const { connections, isLoading } = this.state;
-		const refreshText = isLoading ? __( 'Refreshing...' ) : __( 'Refresh connections' );
+		const refreshText = isLoading ? __( 'Refreshing…' ) : __( 'Refresh connections' );
 		return (
 			<PanelBody
 				initialOpen={ true }
