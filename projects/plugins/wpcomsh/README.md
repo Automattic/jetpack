@@ -11,10 +11,11 @@ With the help of this mu-plugin, a Pressable site is transformed into a WP.com s
 $ mkdir -p wp-content/mu-plugins
 $ cd wp-content/mu-plugins
 $ git clone git@github.com:Automattic/wpcomsh.git
-$ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 $ cd wpcomsh
 $ git submodule update --init --recursive # installs the submodules
 $ composer install # installs the composer dependencies
+$ cd ..
+$ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
