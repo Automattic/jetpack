@@ -247,6 +247,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_theme_sync() {
+
+		if ( ! method_exists(  'ReflectionClass', 'newInstanceWithoutConstructor' ) ) {
+			$this->markTestSkipped( 'See Jetpack issue #7691' );
+		}
+
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
