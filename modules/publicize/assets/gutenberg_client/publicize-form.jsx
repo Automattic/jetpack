@@ -5,7 +5,7 @@
  * to select connections to share to and write a custom
  * sharing message. Dispatches publicize form data to
  * editor post data in format to match 'publicize' field
- * schema defined in{@see class-jetpack-publicize-gutenberg.php}
+ * schema defined in {@see class-jetpack-publicize-gutenberg.php}
  *
  * @since  5.9.1
  */

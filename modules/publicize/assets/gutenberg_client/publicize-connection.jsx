@@ -66,4 +66,3 @@ class PublicizeConnection extends Component {
 }
 
 export default PublicizeConnection;
-
