@@ -12,6 +12,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -92,11 +93,10 @@ class PublicizeFormUnwrapped extends Component {
 		} = this.props;
 		const MAXIMUM_MESSAGE_LENGTH = 256;
 		const charactersRemaining = MAXIMUM_MESSAGE_LENGTH - shareMessage.length;
-		let characterCountClass = 'jetpack-publicize-character-count';
-		// Highlight count if there's no more room.
-		if ( charactersRemaining <= 0 ) {
-			characterCountClass += ' wpas-twitter-length-limit';
-		}
+		const characterCountClass = classnames(
+			'jetpack-publicize-character-count',
+			{ 'wpas-twitter-length-limit': ( charactersRemaining <= 0 ) }
+		);
 
 		return (
 			<div className="misc-pub-section misc-pub-section-last">
