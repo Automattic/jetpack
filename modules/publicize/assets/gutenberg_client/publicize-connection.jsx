@@ -27,7 +27,10 @@ class PublicizeConnection extends Component {
 	onConnectionChange = () => {
 		const { unique_id } = this.props.connectionData;
 		const { connectionChange, connectionOn } = this.props;
-		connectionChange( unique_id, ! connectionOn );
+		connectionChange( {
+			connectionID: unique_id,
+			shouldShare: ! connectionOn,
+		} );
 	}
 
 	render() {
