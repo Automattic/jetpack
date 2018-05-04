@@ -121,7 +121,7 @@ class PublicizePanel extends Component {
 				<div>{ __( 'Connect and select social media services to share this post.' ) }</div>
 				{ ( connections.length > 0 ) && <PublicizeForm staticConnections={ connections } refreshCallback={ this.getConnectionsStart } /> }
 				{ ( 0 === connections.length ) && <PublicizeNoConnections refreshCallback={ this.getConnectionsStart } /> }
-				<a href="javascript:void(0)" onClick={ this.getConnectionsStart } disabled={ isLoading }>
+				<a tabIndex="0" onClick={ this.getConnectionsStart } disabled={ isLoading }>
 					{ refreshText }
 				</a>
 				{ ( connections.length > 0 ) && <PublicizeConnectionVerify /> }
