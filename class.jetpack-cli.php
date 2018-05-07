@@ -1034,6 +1034,89 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Allows calling a WordPress.com API endpoint using the current blog's token.
+	 *
+	 * ## OPTIONS
+	 * --endpoint=<endpoint>
+	 * : The endpoint to call with the current blog's token, where `%d` represents the current blog's ID.
+	 *
+	 * [--api_version=<api_version>]
+	 * : The API version to query against.
+	 *
+	 * [--base_api_path=<base_api_path>]
+	 * : The base API path to query.
+	 * ---
+	 * default: rest
+	 * ---
+	 *
+	 * [--body=<body>]
+	 * : A JSON encoded string representing arguments to send in the body.
+	 *
+	 * [--field=<value>]
+	 * : Any number of arguments that should be passed to the endpoint.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack call_api --endpoint='/sites/%d'
+	 */
+	public function call_api( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$consumed_args = array(
+			'endpoint',
+			'api_version',
+			'base_api_path',
+			'body',
+		);
+
+		// Get args that should be passed to endpoint.
+		$other_args = array_diff_key( $named_args, array_flip( $consumed_args ) );
+
+		$decoded_body = ! empty( $named_args['body'] )
+			? json_decode( $named_args['body'] )
+			: false;
+
+		$endpoint_url = ( false === strpos( $named_args['endpoint'], '%d' ) )
+			? $named_args['endpoint']
+			: sprintf( $named_args['endpoint'], Jetpack_Options::get_option( 'id' ) );
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			$endpoint_url,
+			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
+			$other_args,
+			empty( $decoded_body ) ? null : $decoded_body,
+			$named_args['base_api_path']
+		);
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1ds is an endpoint route (ex. /sites/123456), %2$d is an error code, %3$s is an error message. */
+				__( 'Request to %1$s returned an error: (%2$d) %3$s.', 'jetpack' ),
+				$endpoint_url,
+				$response->get_error_code(),
+				$response->get_error_message()
+			) );
+		}
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1ds is an endpoint route (ex. /sites/123456), %2$d is an HTTP status code. */
+				__( 'Request to %1$s returned a non-200 response code: %2$d.', 'jetpack' ),
+				$endpoint_url,
+				wp_remote_retrieve_response_code( $response )
+			) );
+		}
+
+		WP_CLI::success( wp_remote_retrieve_body( $response ) );
+	}
+
+	public function get_stats( $args, $named_args ) {
+
+	}
+
 	private function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
 		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
