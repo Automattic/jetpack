@@ -35,6 +35,7 @@ add_filter( 'plugin_action_links', 'jetpack_docker_disable_plugin_deletion_link'
  * Fail deletion attempts of our important plugins
  */
 function jetpack_docker_disable_delete_plugin( $plugin_file ) {
+	global $jetpack_docker_avoided_plugins;
 	if ( in_array( $plugin_file, $jetpack_docker_avoided_plugins ) ) {
 		wp_die(
 			'Deleting plugin "' . $plugin_file . '" is diabled at mu-plugins/avoid-plugin-deletion.php',
