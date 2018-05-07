@@ -1113,8 +1113,38 @@ class Jetpack_CLI extends WP_CLI_Command {
 		WP_CLI::success( wp_remote_retrieve_body( $response ) );
 	}
 
+	/**
+	 * API wrapper for getting stats from the WordPress.com API for the current site.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--quantity=<quantity>]
+	 * : The number of units to include.
+	 * ---
+	 * default: 30
+	 * ---
+	 *
+	 * [--period=<period>]
+	 * : The unit of time to query stats for.
+	 * ---
+	 * default: day
+	 * options:
+	 *  - day
+	 *  - week
+	 *  - month
+	 * ---
+	 *
+	 * [--date=<date>]
+	 * : The latest date to return stats for. Ex. - 2018-01-01.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack get_stats
+	 */
 	public function get_stats( $args, $named_args ) {
-
+		$resource = add_query_arg( $named_args, '/visits' );
+		$endpoint = jetpack_stats_api_path( $resource );
+		WP_CLI::runcommand( sprintf( 'jetpack call_api --endpoint=%s', $endpoint ) );
 	}
 
 	private function get_api_host() {
