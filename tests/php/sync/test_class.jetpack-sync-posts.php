@@ -1020,15 +1020,6 @@ That was a cool video.';
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 
-	public function test_sync_export_content_event() {
-		// Can't call export_wp directly since it require no headers to be set...
-		do_action( 'export_wp', array( 'content' => 'all' ) );
-		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
-		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0]['content'], 'all' );
-	}
-	
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {
 			$this->test_already = true;
