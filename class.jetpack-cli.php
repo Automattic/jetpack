@@ -1142,9 +1142,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack get_stats
 	 */
 	public function get_stats( $args, $named_args ) {
-		$resource = add_query_arg( $named_args, '/visits' );
-		$endpoint = jetpack_stats_api_path( $resource );
-		WP_CLI::runcommand( sprintf( 'jetpack call_api --resource=%s', $endpoint ) );
+		WP_CLI::runcommand(
+			sprintf(
+				'jetpack call_api --resource=/sites/%d/stats/%s',
+				Jetpack_Options::get_option( 'id' ),
+				add_query_arg( $named_args, 'visits' )
+			),
+			array(
+				'launch' => false, // Use the current process.
+			)
+		);
 	}
 
 	private function get_api_host() {
