@@ -8,9 +8,9 @@ function wpcomsh_whitelist_xml_upload( $mimes ) {
 
 /**
  * Export site content in WXR format as a file in the upload directory.
- * 
+ *
  * Response is a JSON object with following fields:
- * 
+ *
  * `url` - URL of exported WXR file
  * `type` - export format (currently always `wxr`)
  * `size` - size of exported WXR file in bytes
@@ -24,31 +24,51 @@ function wpcomsh_rest_api_export( $request = null ) {
 
 	$args = wpcomsh_rest_api_export_options( $request );
 
-	// Capture WXR output of export_wp
-	ob_start();
-	export_wp( $args );
-	$wxr = ob_get_contents();
-	ob_end_clean();
 
 	// enable uploading of XML file type
 	add_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
 
-	// Save to uploads to be retrieved by importer
+	// Create a placeholder file in upload directory to stream exported content to.
+	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
 	$timestamp = current_time( 'timestamp', true );
-	$upload = wp_upload_bits( "wpcomsh-export-$timestamp.xml", null, $wxr );
+	$filename = "wpcomsh-export-$_blog_id-$timestamp.xml";
+	$upload = wp_upload_bits( $filename, null, '', null );
+
+	// disable uploading of WXR file type
+	remove_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
+
 	if ( ! empty( $upload['error'] ) ) {
 		return new WP_REST_Response( array(
 			'error' => $upload['error'],
 		), 500);
 	}
+	$upload_file = $upload['file'];
+	$upload_url = $upload['url'];
 
-	// disable uploading of WXR file type
-	remove_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
+	// Capture and stream WXR output of export_wp to $upload_file
+	ob_start( function ($data) use ( $upload_file ) {
+		file_put_contents( $upload_file, $data, FILE_APPEND );
+		return '';
+	}, 1048576 ); // flush to file in 1MB chunks
+	try {
+		export_wp( $args );
+	} catch ( Exception $e ) {
+		// exception occured, delete failed export file before returning error
+		ob_end_clean();
+		@unlink( $upload_file );
+		return new WP_REST_Response( array(
+			'error' => $e->getMessage(),
+		), 500);
+	}
+
+	// export finished without exception. flush and close
+	ob_end_clean();
+	$upload_size = filesize( $upload_file );
 
 	return new WP_REST_Response( array(
-		'url' => $upload['url'],
+		'url' => $upload_url,
 		'type' => 'wxr',
-		'size' => strlen( $wxr ),
+		'size' => $upload_size,
 	), 200);
 }
 
