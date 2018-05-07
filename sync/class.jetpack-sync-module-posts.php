@@ -23,10 +23,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	public function set_defaults() {
-		$this->import_end = false;
-	}
-
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 

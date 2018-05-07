@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-
 class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 	private $import_end = false;
@@ -19,6 +17,10 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 		// WordPress, Blogger, Livejournal, woo tax rate
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
+	}
+
+	public function set_defaults() {
+		$this->import_end = false;
 	}
 
 	public function sync_import_done( $importer ) {
