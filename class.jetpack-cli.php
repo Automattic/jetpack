@@ -1056,6 +1056,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * [--field=<value>]
 	 * : Any number of arguments that should be passed to the resource.
 	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack call_api --resource='/sites/%d'
@@ -1070,6 +1076,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			'api_version',
 			'base_api_path',
 			'body',
+			'pretty',
 		);
 
 		// Get args that should be passed to resource.
@@ -1110,7 +1117,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 			) );
 		}
 
-		WP_CLI::success( wp_remote_retrieve_body( $response ) );
+		$output = wp_remote_retrieve_body( $response );
+		if ( isset( $named_args['pretty'] ) ) {
+			$decoded_output = json_decode( $output );
+			if ( $decoded_output ) {
+				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
+			}
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			WP_CLI::log( $output );
+			WP_CLI::halt( 0 );
+		}
+
+		WP_CLI::success( $output );
 	}
 
 	/**
@@ -1137,17 +1157,42 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * [--date=<date>]
 	 * : The latest date to return stats for. Ex. - 2018-01-01.
 	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack get_stats
 	 */
 	public function get_stats( $args, $named_args ) {
+		$selected_args = array_intersect_key(
+			$named_args,
+			array_flip( array(
+				'quantity',
+				'period',
+				'date',
+			) )
+		);
+
+		$command = sprintf(
+			'jetpack call_api --resource=/sites/%d/stats/%s',
+			Jetpack_Options::get_option( 'id' ),
+			add_query_arg( $selected_args, 'visits' )
+		);
+
+		if ( isset( $named_args['pretty'] ) ) {
+			$command .= ' --pretty';
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			$command .= ' --strip-success';
+		}
+
 		WP_CLI::runcommand(
-			sprintf(
-				'jetpack call_api --resource=/sites/%d/stats/%s',
-				Jetpack_Options::get_option( 'id' ),
-				add_query_arg( $named_args, 'visits' )
-			),
+			$command,
 			array(
 				'launch' => false, // Use the current process.
 			)
