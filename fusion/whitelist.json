@@ -34,6 +34,7 @@
   "functions.opengraph.php",
   "json-api-config.php",
   "json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-bulk-delete-post-endpoint.php",
   "json-endpoints/class.wpcom-json-api-comment-endpoint.php",
   "json-endpoints/class.wpcom-json-api-delete-media-endpoint.php",
   "json-endpoints/class.wpcom-json-api-delete-media-v1-1-endpoint.php",
