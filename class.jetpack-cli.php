@@ -1172,10 +1172,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$named_args,
 			array_flip( array(
 				'quantity',
-				'period',
 				'date',
 			) )
 		);
+
+		// The API expects unit, but period seems to be more correct.
+		$selected_args['unit'] = $named_args['period'];
 
 		$command = sprintf(
 			'jetpack call_api --resource=/sites/%d/stats/%s',
