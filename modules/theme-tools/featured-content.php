@@ -114,6 +114,8 @@ class Featured_Content {
 		add_action( 'switch_theme',                       array( __CLASS__, 'switch_theme'       )    );
 		add_action( 'switch_theme',                       array( __CLASS__, 'delete_transient'   )    );
 		add_action( 'wp_loaded',                          array( __CLASS__, 'wp_loaded'          )    );
+		add_action( 'update_option_featured-content',     array( __CLASS__, 'flush_post_tag_cache'    ), 10, 2 );
+		add_action( 'delete_option_featured-content',     array( __CLASS__, 'flush_post_tag_cache'    ), 10, 2 );
 		add_action( 'split_shared_term',                  array( __CLASS__, 'jetpack_update_featured_content_for_split_terms', 10, 4 ) );
 
 
@@ -172,9 +174,9 @@ class Featured_Content {
 		}
 
 		$featured_posts = get_posts( array(
-			'include'          => $post_ids,
-			'posts_per_page'   => count( $post_ids ),
-			'post_type'        => self::$post_types,
+			'include'        => $post_ids,
+			'posts_per_page' => count( $post_ids ),
+			'post_type'      => self::$post_types,
 			'suppress_filters' => false,
 		) );
 
@@ -265,6 +267,23 @@ class Featured_Content {
 	 */
 	public static function delete_transient() {
 		delete_transient( 'featured_content_ids' );
+	}
+
+	/**
+	 * Flush the Post Tag relationships cache.
+	 *
+	 * Hooks in the "update_option_featured-content" action.
+	 */
+	public static function flush_post_tag_cache( $prev, $opts ) {
+		if ( ! empty( $opts ) && ! empty( $opts['tag-id'] ) ) {
+			$query = new WP_Query( array(
+				'tag_id' => (int) $opts['tag-id'],
+				'posts_per_page' => -1,
+			) );
+			foreach ( $query->posts as $post ) {
+				wp_cache_delete( $post->ID, 'post_tag_relationships' );
+			}
+		}
 	}
 
 	/**
@@ -644,7 +663,7 @@ class Featured_Content {
 Featured_Content::setup();
 
 /**
- * Adds the featured content plugin to the set of files for which action 
+ * Adds the featured content plugin to the set of files for which action
  * handlers should be copied when the theme context is loaded by the REST API.
  *
  * @param array $copy_dirs Copy paths with actions to be copied
