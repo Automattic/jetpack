@@ -204,7 +204,7 @@ class WordAds {
 		$pagetype = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id = $this->params->blog_id;
-		$consent = isset( $_COOKIE['personalized-ads-consent'] );
+		$consent = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
 			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id, consent: $consent };
