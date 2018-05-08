@@ -249,8 +249,8 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_ad( $content ) {
-		// Ad JS won't work in XML feeds.
-		if ( is_feed() ) {
+		// Don't insert ads in feeds, or for anything but the main display. (This is required for compatibility with the Publicize module).
+		if ( is_feed() || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
 		}
 		/**
