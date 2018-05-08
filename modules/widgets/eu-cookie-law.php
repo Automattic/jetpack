@@ -94,7 +94,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 					'modules/widgets/eu-cookie-law/eu-cookie-law.js'
 				),
 				array( 'jquery' ),
-				'20170404',
+				'20180522',
 				true
 			);
 		}
