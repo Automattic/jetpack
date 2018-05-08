@@ -74,6 +74,7 @@
   "json-endpoints/class.wpcom-json-api-sharing-buttons-endpoint.php",
   "json-endpoints/class.wpcom-json-api-site-user-endpoint.php",
   "json-endpoints/class.wpcom-json-api-taxonomy-endpoint.php",
+  "json-endpoints/class.wpcom-json-api-update-comment-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-customcss.php",
   "json-endpoints/class.wpcom-json-api-update-media-endpoint.php",
   "json-endpoints/class.wpcom-json-api-update-media-v1-1-endpoint.php",
