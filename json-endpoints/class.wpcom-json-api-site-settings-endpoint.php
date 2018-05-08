@@ -367,7 +367,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
 					'eventbrite_api_token'    => $this->get_cast_option_value_or_null( 'eventbrite_api_token', 'intval' ),
-					'jetpack_google_my_business_keyring_id' => (string) $this->get_cast_option_value_or_null( 'jetpack_google_my_business_keyring_id', 'intval' ),
+					'jetpack_google_my_business_keyring_id' => $this->get_cast_option_value_or_null( 'jetpack_google_my_business_keyring_id', 'intval' ),
 					'jetpack_google_my_business_location_id' => (string) get_option( 'jetpack_google_my_business_location_id' ),
 					'gmt_offset'              => get_option( 'gmt_offset' ),
 					'timezone_string'         => get_option( 'timezone_string' ),
