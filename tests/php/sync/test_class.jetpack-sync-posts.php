@@ -442,6 +442,25 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
+	function test_sync_post_includes_amp_permalink() {
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$post              = $insert_post_event->args[1];
+
+		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
+
+		function amp_get_permalink( $post_id ) {
+			return "http://example.com/?p=$post_id&amp";
+		}
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$post              = $insert_post_event->args[1];
+
+		$this->assertObjectHasAttribute( 'amp_permalink', $post );
+		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
+	}
+
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
 		$post_id = $this->factory->post->create();
 		$attachment_id = $this->factory->post->create( array(
@@ -675,7 +694,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
 		add_filter( 'sharing_enabled', array( $this, 'enable_services' ) );
@@ -997,51 +1018,6 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
 		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
-	}
-
-	public function test_sync_export_content_event() {
-		// Can't call export_wp directly since it require no headers to be set...
-		do_action( 'export_wp', array( 'content' => 'all' ) );
-		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
-		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0]['content'], 'all' );
-	}
-
-	function test_import_done_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_done', 'test' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'test', $event->args[0] );
-		$this->assertEquals( 'Unknown Importer', $event->args[1] );
-	}
-
-	function test_import_end_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_end' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'unknown', $event->args[0] );
-		$this->assertEquals( 'Unknown Importer', $event->args[1] );
-	}
-
-	function test_import_end_and_import_done_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_end' );
-		do_action( 'import_done', 'test' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'unknown', $event->args[0] );
-	}
-
-	function test_import_done_and_import_end_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_done', 'test' );
-		do_action( 'import_end' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'test', $event->args[0] );
 	}
 
 	function add_a_hello_post_type() {

@@ -25,6 +25,29 @@ function jetpack_subscriptions_configuration_load() {
 	exit;
 }
 
+/**
+ * Cherry picks keys from `$_SERVER` array.
+ *
+ * @since 6.0.0
+ *
+ * @return array An array of server data.
+ */
+function jetpack_subscriptions_cherry_pick_server_data() {
+	$data = array();
+
+	foreach ( $_SERVER as $key => $value ) {
+		if ( ! is_string( $value ) || 0 === strpos( $key, 'HTTP_COOKIE' ) ) {
+			continue;
+		}
+
+		if ( 0 === strpos( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
+			$data[ $key ] = $value;
+		}
+	}
+
+	return $data;
+}
+
 class Jetpack_Subscriptions {
 	public $jetpack = false;
 
@@ -77,6 +100,8 @@ class Jetpack_Subscriptions {
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
+
+		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 	}
 
 	/**
@@ -158,6 +183,24 @@ class Jetpack_Subscriptions {
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
 		}
+	}
+
+	function update_published_message( $messages ) {
+		global $post;
+		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
+			return $messages;
+		}
+
+		$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
+			esc_url( get_permalink( $post ) ),
+			__( 'View post' ) // intentinally omitted domain
+		);
+
+		$messages['post'][6] = sprintf(
+			/* translators: Message shown after a post is published */
+			esc_html__( 'Post published and sending emails to subscribers.', 'jetpack' )
+			) . $view_post_link_html;
+		return $messages;
 	}
 
 	public function should_email_post_to_subscribers( $post ) {
@@ -297,7 +340,6 @@ class Jetpack_Subscriptions {
 	 */
 	function subscriptions_settings_section() {
 	?>
-
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
 
 	<?php
@@ -511,7 +553,7 @@ class Jetpack_Subscriptions {
 													'source'         => 'widget',
 													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
 													'comment_status' => '',
-													'server_data'    => $_SERVER,
+													'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
 												)
 		);
 
@@ -674,7 +716,7 @@ class Jetpack_Subscriptions {
 										'source'         => 'comment-form',
 										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
 										'comment_status' => $approved,
-										'server_data'    => $_SERVER,
+										'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
 									)
 		);
 
@@ -838,22 +880,25 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			switch ( $_GET['subscribe'] ) :
 				case 'invalid_email' : ?>
 					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
-				<?php break;
+					<?php break;
 				case 'opted_out' : ?>
 					<p class="error"><?php printf( __( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
 							'https://subscribe.wordpress.com/',
 							__( 'Manage your email preferences.', 'jetpack' )
-						); ?>
-				<?php break;
+						); ?></p>
+					<?php break;
 				case 'already' : ?>
-					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
-				<?php break;
+					<p class="error"><?php printf( __( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							'https://subscribe.wordpress.com/',
+							__( 'Manage your email preferences.', 'jetpack' )
+						); ?></p>
+					<?php break;
 				case 'success' : ?>
 					<div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
-				<?php break;
+					<?php break;
 			endswitch;
 		endif;
 

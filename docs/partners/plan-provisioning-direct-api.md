@@ -4,27 +4,29 @@ In [another document](plan-provisioning.md), we discussed how to provision and c
 
 If you have any questions or issues, our contact information can be found on the [README.md document](README.md).
 
-### Getting a Jetpack Partner access token
+## Getting a Jetpack Partner access token
 
 When you become a Jetpack partner, we will provide you with your partner ID and a secret key. Typically you just pass these values directly in to the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts. But, when calling the WordPress.com API directly, you'll first need to get an access token with for your partner ID with a scope of `jetpack-partner`.
 
 To do that, you'll make a `POST` request to the `https://public-api.wordpress.com/oauth2/token` endpoint passing with the request parameters mentioned below.
 
+A successful response will include a JSON object with several keys. We are specifically interested in the `access_token` key, so be sure to grab that.
+
 For more detailed information about oAuth on WordPress.com, visit the [documentation on oAuth2 authentication](https://developer.wordpress.com/docs/oauth2/).
 
-#### Endpoint Information
+### Endpoint Information (/oauth2/token)
 
 - __Method__: POST
-- __URL__:    https://public-api.wordpress.com/oauth2/token
+- __URL__:    `https://public-api.wordpress.com/oauth2/token`
 
-#### Request Parameters
+### Request Parameters (/oauth2/token)
 
 - __grant_type__:    Value should be `client_credentials`
 - __scope__:         Value should be `jetpack-partner`
 - __client_id__:     The partner ID that we provide you
 - __client_secret__: The partner secret that we provide you
 
-#### Response Parameters
+### Response Parameters (/oauth2/token)
 
 - __access_token__: (string) This is the access token we'll need for the API calls below.
 - __token_type__:   (string) This should be `bearer`.
@@ -34,21 +36,25 @@ For more detailed information about oAuth on WordPress.com, visit the [documenta
 
 Note: You only need to create the `access_token` once.
 
-#### Examples
+### Examples (/oauth2/token)
 
 Here is an example using cURL in shell.
 
 ```shell
+# Note: This example uses jq to parse JSON from the API.
 PARTNER_ID="your_partner_id_here"
 PARTNER_SECRET="your_partner_secret_here"
-curl --request POST \
+RESULT=$( curl --request POST \
     --url https://public-api.wordpress.com/oauth2/token \
     --header 'cache-control: no-cache' \
     --header 'content-type: multipart/form-data;' \
     --form client_id="$PARTNER_ID" \
     --form client_secret="$PARTNER_SECRET" \
     --form grant_type=client_credentials \
-    --form scope=jetpack-partner
+    --form scope=jetpack-partner )
+
+ACCESS_TOKEN=$( echo "$RESULT" | jq -r '.access_token' )
+echo "Access token is: $ACCESS_TOKEN"
 ```
 
 Here's an example using the request module in Node JS.
@@ -78,23 +84,97 @@ request( options, function ( error, response, body ) {
         throw new Error( error );
     }
 
-    console.log( body );
+    console.log( 'The access token is ' + JSON.parse( body ).access_token );
 } );
 
 ```
 
-### Provisioning a plan
+## Provisioning a plan
 
-TBD.
+Plans can be provisioned by making a request using your partner token from the step above along with local_user, siteurl, and plan parameters.
 
-### Cancelling a plan
+### Endpoint information (/provision)
+
+- __Method__: POST
+- __URL__:    `https://public-api.wordpress.com/rest/v1.3/jpphp/provision`
+
+### Request Parameters (/provision)
+
+- __local_user__:     The username, ID or email on the local website (not the WordPress.com username) that should own the plan. The corresponding user _must_ already exist.
+- __siteurl__:        The URL where the WordPress core files reside.
+- __plan__:           A slug representing which plan to provision. One of `personal`, `premium`, or `professional`.
+- __force_register__: (optional) A true/false value indicating whether to re-register a site even if we already have tokens for it. Useful for sites that have gotten into a bad state.
+- __force_connect__:  (optional) A true/false value indicating whether to re-connect a user even if we already have tokens for them. Useful for sites that have gotten into a bad state.
+- __onboarding__:     (optional) If true, put the user through our onboarding wizard for new sites.
+- __wpcom_user_id__:  (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively.
+- __wpcom_user_email__: (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively, and if necessary creating a WordPress.com account.
+
+### Endpoint Errors (/provision)
+
+The following is non-exhaustive list of errors that could be returned.
+
+| HTTP Code | Error Identifier          | Error Message                                                             |
+| --------- | ------------------------- | ------------------------------------------------------------------------- |
+| 400       | invalid_siteurl           | The required "siteurl" argument is missing.                               |
+| 400       | invalid_local_user        | The required "local_user" argument is missing.                            |
+| 400       | plan_downgrade_disallowed | Can not automatically downgrade plans. Contact support.                   |
+| 400       | invalid_plan              | %s is not a valid plan                                                    |
+| 403       | invalid_scope             | This token is not authorized to provision partner sites                   |
+
+### Examples (/provision)
+
+Here's an example using cURL in shell.
+
+```shell
+curl --request POST \
+  --url https://public-api.wordpress.com/rest/v1.3/jpphp/provision \
+  --header "authorization: Bearer $ACCESS_TOKEN" \
+  --header 'cache-control: no-cache' \
+ --form plan=plan_here \
+ --form siteurl=siteurl_here \
+ --form local_username=local_username_here
+```
+
+Here's an example using the request module in NodeJS.
+
+```js
+var request = require( 'request' );
+var accessToken = 'access_token_here';
+var plan = 'plan_here';
+var siteurl = 'http://example.com';
+var local_user = 'username_id_or_email_here';
+
+var options = {
+    method: 'POST',
+    url: 'https://public-api.wordpress.com/rest/v1.3/jpphp/provision',
+    headers: {
+        'cache-control': 'no-cache',
+        authorization: 'Bearer ' + accessToken,
+    },
+    formData: {
+        plan: plan,
+        siteurl: siteurl,
+        local_user: local_user
+    }
+};
+
+request( options, function ( error, response, body ) {
+    if ( error ) {
+        throw new Error( error );
+    }
+
+    console.log( body );
+} );
+```
+
+## Cancelling a plan
 
 Plans can be cancelled by making a request using your partner token from the step above and the URL of the site being cancelled.
 
-#### Endpoint Information
+### Endpoint Information (/partner-cancel)
 
 - __Method__: POST
-- __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel
+- __URL__:    `https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel`
 
 `$site` is the site's domain and path where `/` in the path is replaced with `::`. For example:
 
@@ -104,18 +184,18 @@ Plans can be cancelled by making a request using your partner token from the ste
 | `example.com/demo`    | `example.com::demo`     |
 | `example.com/demo/wp` | `example.com::demo::wp` |
 
-#### Query Parameters
+### Query Parameters (/partner-cancel)
 
 - __http_envelope__: Default to `false`. Sending `true` will force the HTTP status code to always be `200`. The JSON response is wrapped in an envelope containing the "real" HTTP status code and headers.
 - __pretty__:        Defaults to `false`. Setting to `true` will output pretty JSON.
 
-#### Response Parameters
+### Response Parameters (/partner-cancel)
 
 - __success__:       (bool) Was the operation successful?.
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
 
-#### Endpoint errors
+### Endpoint errors (/partner-cancel)
 
 | HTTP Code | Error Identifier      | Error Message                                                             |
 | --------- | --------------------- | ------------------------------------------------------------------------- |
@@ -125,7 +205,7 @@ Plans can be cancelled by making a request using your partner token from the ste
 | 403       | invalid_blog          | The blog ID %s is invalid                                                 |
 | 403       | incorrect_partner_key | Subscriptions can only be cancelled by the oAuth client that created them |
 
-### Examples
+### Examples (/partner-cancel)
 
 Here's an example using cURL in shell.
 

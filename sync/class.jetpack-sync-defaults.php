@@ -111,6 +111,24 @@ class Jetpack_Sync_Defaults {
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 		'jetpack_api_cache_enabled',
+		'start_of_week',
+		'blacklist_keys',
+		'posts_per_page',
+		'posts_per_rss',
+		'show_on_front',
+		'ping_sites',
+		'uploads_use_yearmonth_folders',
+		'date_format',
+		'time_format',
+		'admin_email',
+		'new_admin_email',
+		'default_email_category',
+		'default_role',
+		'page_for_posts',
+		'mailserver_url',
+		'mailserver_login', // Not syncing contents, only the option name
+		'mailserver_pass', // Not syncing contents, only the option name
+		'mailserver_port',
 	);
 
 	public static function get_options_whitelist() {
@@ -126,6 +144,25 @@ class Jetpack_Sync_Defaults {
 		 * @param array The default list of options.
 		 */
 		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+	}
+
+	// Do not sync contents for these events, only the option name
+	static $default_options_contentless = array(
+		'mailserver_login',
+		'mailserver_pass',
+	);
+
+	public static function get_options_contentless() {
+		/**
+		 * Filter the list of WordPress options that should be synced without content
+		 *
+		 * @module sync
+		 *
+		 * @since 6.1
+		 *
+		 * @param array The list of options synced without content.
+		 */
+		return apply_filters( 'jetpack_sync_options_contentless', self::$default_options_contentless );
 	}
 
 	static $default_constants_whitelist = array(
@@ -187,12 +224,13 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
-		'get_plugins_action_links'		   => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
+		'get_plugins_action_links'         => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
+		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
 	);
 
 

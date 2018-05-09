@@ -41,7 +41,7 @@ export const fetchStatsData = ( range ) => {
 		return restApi.fetchStatsData( range ).then( statsData => {
 			dispatch( {
 				type: STATS_DATA_FETCH_SUCCESS,
-				statsData: statsData
+				statsData: statsData,
 			} );
 		} ).catch( error => {
 			dispatch( {

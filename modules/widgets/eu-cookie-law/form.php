@@ -123,7 +123,7 @@
 	<strong>
 		<?php esc_html_e( 'Policy URL', 'jetpack' ); ?>
 	</strong>
-	<ul>
+	<ul class="eu-cookie-law-widget-policy-url">
 		<li>
 			<label>
 				<input
@@ -148,11 +148,17 @@
 			<input
 				class="widefat"
 				name="<?php echo esc_attr( $this->get_field_name( 'custom-policy-url' ) ); ?>"
-				placeholder="<?php echo esc_attr( $instance['default-policy-url'] ); ?>"
+				placeholder="<?php echo esc_url( $instance['default-policy-url'] ); ?>"
 				style="margin-top: .5em;"
 				type="text"
-				value="<?php echo esc_attr( $instance['custom-policy-url'] ); ?>"
+				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
 			/>
+			<span class="notice notice-warning" style="display: none;">
+				<span style="display: block; margin: .5em 0;">
+					<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
+					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.', 'jetpack' ); ?>
+				</span>
+			</span>
 		</li>
 	</ul>
 </p>

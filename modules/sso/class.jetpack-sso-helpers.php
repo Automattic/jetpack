@@ -250,10 +250,11 @@ class Jetpack_SSO_Helpers {
 		 * @module sso
 		 *
 		 * @since 4.4.0
+		 * @since 6.1.0 Fixed a typo. Filter was previously jetpack_sso_auth_cookie_expirtation.
 		 *
 		 * @param int YEAR_IN_SECONDS
 		 */
-		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+		return intval( apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS ) );
 	}
 
 	/**

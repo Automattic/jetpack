@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import get from 'lodash/get';
+import each from 'lodash/each';
 import analytics from 'lib/analytics';
 
 /**
@@ -113,7 +114,15 @@ export function ModuleSettingsForm( InnerComponent ) {
 			this.props.updateOptions( this.state.options )
 				.then( () => {
 					// Track it
-					this.trackFormSubmission( this.state.options );
+
+					const saneOptions = {};
+
+					each( this.state.options, ( value, key ) => {
+						key = key.replace( /\-/, '_' );
+						saneOptions[ key ] = value;
+					} );
+
+					this.trackFormSubmission( saneOptions );
 
 					this.setState( { options: {} } );
 				} )

@@ -60,7 +60,15 @@ class RelatedPostsComponent extends React.Component {
 				{ ...this.props }
 				hideButton
 				module="related-posts">
-				<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ this.props.getModule( 'related-posts' ) }
+					support={ {
+						text: __( 'Automatically displays similar content at the end of each post.' ),
+						link: 'https://jetpack.com/support/related-posts/',
+					} }
+					>
 					<ModuleToggle
 						slug="related-posts"
 						disabled={ unavailableInDevMode }

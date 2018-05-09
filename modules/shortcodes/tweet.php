@@ -137,7 +137,7 @@ class Jetpack_Tweet {
 	 */
 	static public function jetpack_tweet_shortcode_script() {
 		if ( ! wp_script_is( 'twitter-widgets', 'registered' ) ) {
-			wp_register_script( 'twitter-widgets', set_url_scheme( 'http://platform.twitter.com/widgets.js' ), array(), JETPACK__VERSION, true );
+			wp_register_script( 'twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), JETPACK__VERSION, true );
 			wp_print_scripts( 'twitter-widgets' );
 		}
 	}

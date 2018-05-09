@@ -161,6 +161,26 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$this->assertContains( sprintf( 'data-lazy-src="%s"', $image_src[0] ), $image );
 	}
 
+	function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
+		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
+		$content = sprintf( '[gallery ids="%d"]', $attachment_id );
+		$instance = Jetpack_Lazy_Images::instance();
+
+		$instance->setup_filters();
+		$gallery_output = do_shortcode( $content );
+		$instance->remove_filters();
+
+		$this->assertContains( 'src="placeholder.jpg"', $gallery_output );
+
+		$instance->setup_filters();
+		add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_skip_lazy_class_to_attributes' ) );
+		$gallery_output = do_shortcode( $content );
+		remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_skip_lazy_class_to_attributes' ) );
+		$instance->remove_filters();
+
+		$this->assertNotContains( 'src="placeholder.jpg"', $gallery_output );
+	}
+
 	/**
 	 * @dataProvider get_process_image_test_data
 	 */
@@ -350,5 +370,10 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 	public function __skip_if_srcset( $should_skip, $attributes ) {
 		return isset( $attributes['srcset'] );
+	}
+
+	function add_skip_lazy_class_to_attributes( $attr ) {
+		$attr['class'] .= ' skip-lazy';
+		return $attr;
 	}
 }

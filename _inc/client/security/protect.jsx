@@ -103,7 +103,15 @@ export const Protect = moduleSettingsForm(
 						header={ toggle }
 						className={ classNames( { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 					>
-						<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
+						<SettingsGroup
+							hasChild
+							disableInDevMode
+							module={ this.props.getModule( 'protect' ) }
+							support={ {
+								text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
+								link: 'https://jetpack.com/support/protect/',
+							} }
+							>
 							<FormFieldset>
 								{ this.props.currentIp &&
 									<div>

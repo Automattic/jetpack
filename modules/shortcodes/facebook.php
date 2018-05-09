@@ -44,7 +44,10 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 
 	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
-		return $embed . wp_scripts()->do_items( array( 'jetpack-facebook-embed' ) );
+		ob_start();
+		wp_scripts()->do_items( array( 'jetpack-facebook-embed' ) );
+		$scripts = ob_get_clean();
+		return $embed . $scripts;
 	} else {
 		wp_enqueue_script( 'jetpack-facebook-embed' );
 		return $embed;

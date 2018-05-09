@@ -19,42 +19,60 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 - [Docker](https://www.docker.com/community-edition)
 - [NodeJS](https://nodejs.org)
 - [Yarn](https://yarnpkg.com/)
-- [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+- Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
-Install prerequisites and run:
+Install prerequisites and clone the repository:
 
 ```sh
-git clone https://github.com/Automattic/jetpack.git
-cd jetpack
+git clone https://github.com/Automattic/jetpack.git && cd jetpack
+```
+
+Optionally, copy settings file to modify it:
+```sh
+cp docker/default.env docker/.env
+```
+
+Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
+
+Finally, spin up the containers:
+```sh
 yarn docker:up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
 
-You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`.
+You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic so you shouldn’t need to change these even if you access the site via different domains.
-
 You should follow [Jetpack’s development documentation](../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+
+## Good to know
+
+WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
 ## Working with containers
 
 ### Quick install WordPress
 
-If you want to just quickly install WordPress and activate Jetpack, spin up the containers and then run:
+You can to just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
 yarn docker:install
 ```
 
-This will give you a single site with user/pass `wordpress`.
+This will give you a single site with user/pass `wordpress` (unless you changed these from `./docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
 
 To convert installed single site into a multisite, run:
 
 ```sh
 yarn docker:multisite-convert
+```
+
+To remove WordPress installation and start over, run:
+
+```sh
++yarn docker:uninstall
 ```
 
 ### Start containers
@@ -170,7 +188,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from "Using Ngrok with Jetpack" section below.
+Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 
@@ -241,8 +259,6 @@ To `tail -f` the PHP error log, run:
 yarn docker:tail
 ```
 
-**Note:** this command does not work in Windows.
-
 ### Debugging emails
 
 Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
@@ -275,8 +291,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 1. Configure php-debug:
 
 	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
-
-		![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
+	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
 
 	2. To map your current Jetpack directory to the docker filesystem path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
 
@@ -307,3 +322,33 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 1. You should be able to set breakpoints now:
 
 	![Screen animation showing setting a breakpoint](https://user-images.githubusercontent.com/746152/37093212-591fe7d8-21ed-11e8-8352-47839ce58964.gif)
+
+#### Remote debugging with PhpStorm editor
+
+Below are instructions for starting a debug session in PhpStorm that will listen to activity on your Jetpack docker.
+
+1. Configure your browser extension to use 'PHPSTORM' for its session ID.
+
+1. Open your Jetpack project in PhpStorm and chose 'Run -> Edit Configurations' from the main menu.
+
+1. Click the '+' icon, and chose 'PHP Remote Debug' to create a new debug configuration.
+
+1. Name your debug configuration whatever you like.
+
+1. Check the 'Filter debug connection by IDE key', and enter 'PHPSTORM' for 'IDE Key ( Session ID )'.
+
+1. Click the '...' on the 'Server' line to configure your remote server.
+
+1. In the server configuration window, click the '+' icon to create a new server configuration. Name it whatever you like.
+
+1. In the server configuration window, set your host to the URL you use to run Jetpack locally. ( Eg, localhost, or 0.0.0.0, or example.ngrok.io )
+
+1. In the server configuration window, check the 'Use path mappings' checkbox.
+
+1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/docker/wordpress' to '/var/www'
+
+1. In the server configuration window, click 'Apply' then 'Ok'.
+
+1. Back in the main configuration window, click 'Apply' then 'Ok'.
+
+1. You can now start a debug session by clicking 'Run -> Debug' in the main menu

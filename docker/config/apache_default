@@ -1,3 +1,5 @@
+ServerName localhost
+
 <VirtualHost *:80>
 	# The ServerName directive sets the request scheme, hostname and port that
 	# the server uses to identify itself. This is used when creating
@@ -6,15 +8,15 @@
 	# match this virtual host. For the default virtual host (this file) this
 	# value is not decisive as it is used as a last resort host regardless.
 	# However, you must set it for any further virtual host explicitly.
-	#ServerName www.example.com
+	ServerName localhost
 
 	ServerAdmin webmaster@localhost
 	DocumentRoot /var/www/html
 
-    <Directory /var/www/html>
-        AllowOverride All
-        Require all granted
-    </Directory>
+		<Directory /var/www/html>
+				AllowOverride All
+				Require all granted
+		</Directory>
 
 	# Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
 	# error, crit, alert, emerg.
@@ -22,8 +24,8 @@
 	# modules, e.g.
 	#LogLevel info ssl:warn
 
-    # ErrorLog /var/log/apache-errors.log
-    # CustomLog /var/log/apache-access.log combined
+		# ErrorLog /var/log/apache-errors.log
+		# CustomLog /var/log/apache-access.log combined
 
 	# For most configuration files from conf-available/, which are
 	# enabled or disabled at a global level, it is possible to
@@ -33,7 +35,5 @@
 	#Include conf-available/serve-cgi-bin.conf
 
 </VirtualHost>
-
-
 
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet

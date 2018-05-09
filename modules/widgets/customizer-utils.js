@@ -1,4 +1,4 @@
-/* global gapi, FB, twttr */
+/* global wp, gapi, FB, twttr */
 
 /**
  * Utilities to work with widgets in Customizer.
@@ -56,6 +56,9 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					// Refresh Twitter
 					else if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
 						twttr.widgets.load( placement.container[0] );
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'eu_cookie_law_widget' ) ) {
+						// Refresh EU Cookie Law
+						placement.container.fadeIn();
 					}
 				}
 			} );

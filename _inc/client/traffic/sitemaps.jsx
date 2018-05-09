@@ -40,7 +40,14 @@ export class Sitemaps extends React.Component {
 				module="sitemaps"
 				hideButton
 			>
-				<SettingsGroup module={ { module: 'sitemaps' } } hasChild support={ sitemaps.learn_more_button }>
+				<SettingsGroup
+					hasChild
+					module={ { module: 'sitemaps' } }
+					support={ {
+						text: __( 'Automatically generates the files required for search engines to index your site.' ),
+						link: 'https://jetpack.com/support/sitemaps/',
+					} }
+					>
 					<ModuleToggle
 						slug="sitemaps"
 						compact

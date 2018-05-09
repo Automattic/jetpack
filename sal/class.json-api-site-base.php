@@ -111,7 +111,19 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	public function is_wpcom_store() {
+		return false;
+	}
+
+	public function woocommerce_is_active() {
+		return false;
+	}
+
 	public function get_post_by_id( $post_id, $context ) {
+		// Remove the skyword tracking shortcode for posts returned via the API.
+		remove_shortcode( 'skyword-tracking' );
+		add_shortcode( 'skyword-tracking', '__return_empty_string' );
+
 		$post = get_post( $post_id, OBJECT, $context );
 
 		if ( ! $post ) {
@@ -181,18 +193,30 @@ abstract class SAL_Site {
 	// copied from class.json-api-endpoints.php
 	public function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
+		if ( empty( $post_type ) ) {
 			return true;
+		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type )
+		if ( 'any' == $post_type ) {
 			return true;
+		}
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) )
+		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) ) {
 			return true;
+		}
 
-		return false;
+		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+			if ( ! empty( $post_type_object->show_in_rest ) ) {
+				return $post_type_object->show_in_rest;
+			}
+			if ( ! empty( $post_type_object->publicly_queryable ) ) {
+				return $post_type_object->publicly_queryable;
+			}
+		}
+
+		return ! empty( $post_type_object->public );
 	}
 
 	// copied from class.json-api-endpoints.php
@@ -295,7 +319,6 @@ abstract class SAL_Site {
 			'name' => $name,
 			'numberposts' => 1,
 			'post_type' => $this->get_whitelisted_post_types(),
-		    'suppress_filters' => false,
 		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
@@ -554,5 +577,32 @@ abstract class SAL_Site {
 
 	function get_blog_public() {
 		return (int) get_option( 'blog_public' );
+	}
+
+	function has_pending_automated_transfer() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
+			return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
+		}
+
+		return false;
+	}
+
+	function signup_is_store() {
+		return $this->get_design_type() === 'store';
+	}
+
+	function get_roles() {
+		return new WP_Roles();
+	}
+
+	function get_design_type() {
+		$options = get_option( 'options' );
+		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
+	}
+
+	function get_site_goals() {
+		$options = get_option( 'options' );
+		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
 	}
 }

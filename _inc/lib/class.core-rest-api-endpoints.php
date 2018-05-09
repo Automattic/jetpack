@@ -122,6 +122,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Current user: get or set tracking settings.
+		register_rest_route( 'jetpack/v4', '/tracking/settings', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args'                => array(
+					'tracks_opt_out' => array( 'type' => 'boolean' ),
+				),
+			),
+		) );
+
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -357,39 +374,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		/**
-		 * Filter to turn off caching of Jetpack plans
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool true Whether to cache Jetpack plans locally
-		 */
-		$use_cache = apply_filters( 'jetpack_cache_plans', true );
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/plans?_locale=' . get_user_locale(),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
 
-		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
-
-		if ( false === $data ) {
-			$path = '/plans';
-			// passing along from client to help geolocate currency
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
-			}
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
-			}
-			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
-			$body = wp_remote_retrieve_body( $request );
-			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
-				$data = $body;
-			} else {
-				// something went wrong so we'll just return the response without caching
-				return $body;
-			}
-
-			if ( true === $use_cache ) {
-				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
-			}
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = $body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
 		}
 
 		return $data;
@@ -840,6 +841,74 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Gets current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function get_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				)
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Updates current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function update_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'PUT',
+					'headers' => array(
+						'Content-Type'    => 'application/json',
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				),
+				wp_json_encode( $request->get_params() )
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

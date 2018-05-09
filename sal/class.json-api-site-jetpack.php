@@ -101,8 +101,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function has_wordads() {
-		// TODO: any way to detect wordads on the site, or does it need to be modified on the way through?
-		return false;
+		return Jetpack::is_module_active( 'wordads' );
 	}
 
 	function get_frame_nonce() {

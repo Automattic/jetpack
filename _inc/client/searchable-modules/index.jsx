@@ -46,7 +46,6 @@ export const SearchableModules = moduleSettingsForm(
 				'enhanced-distribution',
 				'json-api',
 				'latex',
-				'monitor',
 				'notes',
 				'shortcodes',
 				'shortlinks',
@@ -113,7 +112,7 @@ class ActiveCard extends Component {
 				<SettingsGroup
 					disableInDevMode={ devMode }
 					module={ { module: m.module } }
-					support={ m.learn_more_button }
+					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>

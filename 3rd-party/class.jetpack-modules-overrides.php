@@ -32,7 +32,7 @@ class Jetpack_Modules_Overrides {
 	 * @return bool Whether there is a filter on the jetpack_active_modules option.
 	 */
 	public function do_overrides_exist() {
-		return (bool) has_filter( 'option_jetpack_active_modules' );
+		return (bool) ( has_filter( 'option_jetpack_active_modules' ) || has_filter( 'jetpack_active_modules' ) );
 	}
 
 	/**
@@ -79,6 +79,9 @@ class Jetpack_Modules_Overrides {
 		/** This filter is documented in wp-includes/option.php */
 		$filtered = apply_filters( 'option_jetpack_active_modules', array() );
 
+		/** This filter is documented in class.jetpack.php */
+		$filtered = apply_filters( 'jetpack_active_modules', $filtered );
+
 		$forced_on = array_diff( $filtered, array() );
 
 		/**
@@ -87,6 +90,9 @@ class Jetpack_Modules_Overrides {
 
 		/** This filter is documented in wp-includes/option.php */
 		$filtered = apply_filters( 'option_jetpack_active_modules', $available_modules );
+
+		/** This filter is documented in class.jetpack.php */
+		$filtered = apply_filters( 'jetpack_active_modules', $filtered );
 
 		$forced_off = array_diff( $available_modules, $filtered );
 

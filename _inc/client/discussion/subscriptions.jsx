@@ -73,7 +73,16 @@ class SubscriptionsComponent extends React.Component {
 				{ ...this.props }
 				hideButton
 				module="subscriptions">
-				<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ subscriptions }
+					support={ {
+						text: __( 'Allows readers to subscribe to your posts or comments, ' +
+							'and receive notifications of new content by email.' ),
+						link: 'https://jetpack.com/support/subscriptions/',
+					} }
+					>
 					<ModuleToggle
 						slug="subscriptions"
 						disabled={ unavailableInDevMode }

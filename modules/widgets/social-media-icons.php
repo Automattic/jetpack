@@ -3,6 +3,11 @@
 Plugin Name: Social Media Icons Widget
 Description: A simple widget that displays social media icons
 Author: Automattic Inc.
+
+This widget is now deprecated.
+Any new features should go into modules/widgets/social-icons.php instead.
+@see https://github.com/Automattic/jetpack/pull/8498
+
 */
 
 
@@ -40,7 +45,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		parent::__construct(
 			'wpcom_social_media_icons_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons (Deprecated)', 'jetpack' ) ),
 			array(
 				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ),
 				'customize_selective_refresh' => true,
@@ -325,6 +330,18 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
  * @return void
  */
 function wpcom_social_media_icons_widget_load_widget() {
-	register_widget( 'wpcom_social_media_icons_widget' );
+	$transient = 'wpcom_social_media_icons_widget::is_active';
+	$has_widget = get_transient( $transient );
+
+	if ( false === $has_widget ) {
+		$is_active_widget = is_active_widget( false, false, 'wpcom_social_media_icons_widget', false );
+		$has_widget       = (int) ! empty( $is_active_widget );
+		set_transient( $transient, $has_widget, 1 * HOUR_IN_SECONDS );
+	}
+
+	// [DEPRECATION]: Only register widget if active widget exists already
+	if ( $has_widget ) {
+		register_widget( 'wpcom_social_media_icons_widget' );
+	}
 }
 add_action( 'widgets_init', 'wpcom_social_media_icons_widget_load_widget' );

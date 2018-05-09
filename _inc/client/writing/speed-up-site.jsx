@@ -53,7 +53,12 @@ const SpeedUpSite = moduleSettingsForm(
 						<SettingsGroup
 							hasChild
 							disableInDevMode
-							module={ photon }>
+							module={ photon }
+							support={ {
+								text: __( 'Hosts your image files on the global WordPress.com servers.' ),
+								link: 'https://jetpack.com/support/photon/',
+							} }
+							>
 							<ModuleToggle
 								slug="photon"
 								disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -76,7 +81,12 @@ const SpeedUpSite = moduleSettingsForm(
 					{ foundLazyImages &&
 						<SettingsGroup
 							hasChild
-							module={ lazyImages }>
+							module={ lazyImages }
+							support={ {
+								text: __( "Delays the loading of images until they are visible in the visitor's browser." ),
+								link: 'https://jetpack.com/support/lazy-images/',
+							} }
+							>
 							<ModuleToggle
 								slug="lazy-images"
 								disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }

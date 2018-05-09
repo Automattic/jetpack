@@ -93,15 +93,16 @@
 
 	.jp-form-settings-group {
 		margin: 0px auto;
-		max-width: 300px;
+		max-width: 400px;
 		text-align: left;
 	}
 
 	.jp-form-has-child {
 		padding: 10px;
+		padding-right: 30px;
 	}
 
-	.jp-module-settings__learn-more {
+	.jp-support-info {
 		top: rem( 15px );
 		right: rem( 15px );
 	}

@@ -1,247 +1,124 @@
-## 5.9
+## 6.1
 
-### Activity Log
+### Admin Page
 
-We now show a better entry in the Activity Log for a failed login event.
+#### GDPR
 
-Start with a connected site having  a Professional Plan.
+We added "Privacy Information" links to each Jetpack module/feature card.
 
-* Log out of the site.
-* Attempt to login with wrong credentials.
-* Visit WordPress.com Activity log for the site.
-* Expect to see a login failed entry with a nice message related to a username instead of just the IP address origin of the failed attempt.
+To test:
 
-### Custom Content Types
+* Enable all Jetpack functionality on a Professional plan from the debug page in Jetpack: `/wp-admin/admin.php?page=jetpack_modules`.
+* Go to the Jetpack Dashboard Admin Page and check all of the icons in each module/feature to ensure they are working properly. In the case of "Privacy Information" links that aren't supposed to be working yet, please just review the URL itself and report any problems.
+* Repeat for every module/feature on the Jetpack Settings page too.
 
-We added support for excerpts to these custom content types.
+### Content options
 
-* Attempt to create either a new Portfolio post or a Testimonial one. 
-* Expect to see the excerpt field shown.
+ We now show featured images in WooCommerce pages when "Display on blog and archives" is turned off for Themes that support this feature.
+
+ To test:
+
+* Activate a theme that supports Content Options, For example Lodestar or Shoreditch.
+* Activate WooCommerce and add a few products.
+* Go to Customizer > Content Options and make sure "Display on blog and archives" under Featured Images is checked.
+* Visit Shop page - the product images should be visible. Visit blog page - the featured images should be visible.
+* Go to Customizer > Content Options and uncheck "Display on blog and archives" under Featured.
+* Visit Shop page - the product images should be visible. Visit blog page - the featured images should not be visible.
+* Deactivate WooCommerce and check if Content Options are working as expected, and there aren't any errors or warnings.
 
 ### General
 
-The suppress_filters param passed to get_posts / get_children was updated in several places. Passing this param allows plugins to filter wp query to modify behaviour.
+* We fixed a warning that started being shown with the latest releases of PHP.
 
-This one's hard to test.
+Start with Jetpack active Sharing active (or any module that outputs OG tags) on PHP 7.2.
 
-* [Advanced post cache](https://github.com/Automattic/advanced-post-cache) is an example of a plugin providing caching.
-* Out of the box, WP_Query runs a couple of queries and these are uncached. Advanced post cache, used on all WordPress.com sites (even GO VIP), hooks into WP_Query can caches the result of these queries to stop the running on every page load. With this suppress_filtersadvanced post cache doesn't not run. This means queries run unnecessarily and result in high level of traffic to database servers at peak times.
-* Test Jetpack with this plugin enabled and confirm that everything works as expected.
+* Visit a post without an explicitly set excerpt.
+* Confirm excerpt is set in the og tags in head with no PHP warnings like `Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x`.
 
+### Google Analytics
 
-### Jetpack Connect
+We fixed a conflict preventing Google Analytics from activating for Premium subscribers.
 
-With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
+* Start with a connected Jetpack site with a Premium plan.
+* Try to activate Google Analytics and confirm this works.
 
-* Start with a brand new site, with Jetpack active but not connected.
-* Visit the WordPress Dashboard and click the Set up Jetpack button.
-* Expect to be redirected to Calypso. Then click the Back button to get to the WordPress dashboard again.
-* Click the Set Up Jetpack button.
-* Expect to be redirected to Calypso.
-* Expect to **not** see a yellow notice stating that the site is already connected to another account.
+### Plans
 
-### Jetpack Onboarding
-
-_The following features are only enabled in the staging envirronment._
-
-We started allowing saving of a country field for the business address.
-Test with a **brand new site** that's not connected yet:
-
-* Start the onboarding flow for the Jetpack site by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`
-* On the site type step, choose **Business**
-* Skip to the Business Address step.
-* Verify the country field appears properly.
-* Input some data in it, and save the step. 
-* Verify the country saves properly and goes straight to the address widget.
-* Verify a fresh load of this step loads the setting properly.
-
-We also started allowing the enabling of the stats module on this flow. 
-
-Test with a **brand new site** that's not connected yet:
-
-* Start the onboarding flow (`/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`)
-* When arriving the Calypso screen, in your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_REQUEST', siteId: 12345678 } )`, where `12345678` is the ID of your site.
-* Verify the response contains a `stats` field in the `onboarding` option and it's disabled.
-* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
-* Verify you get a `stats not connected` error.
-* Connect the site.
-* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
-* Verify you receive a successful response, and the stats module gets enabled.
-
-
-This flow now deletes the temporary token used for saving settings when the site is connected.
-Test with a **brand new site** that's not connected yet:
-
-* Make sure you are logged into WP.com and the Jetpack site.
-* Start the onboarding flow by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wp-calypso` and get redirected to the site title step in Calypso
-* Visit `/wp-admin/options.php` and verify `jetpack_onboarding` contains the token.
-* Go to https://wordpress.com/jetpack/connect/ and connect the site.
-* Visit `/wp-admin/options.php` again and verify `jetpack_onboarding` is not present in the list of options.
-
-### Lazy images.
-
-We now properly hide settings for Lazy images if the module is filtered out.
-
-* Try to filter out lazy images as a module using this snippet:
-    ```
-    add_filter( 'jetpack_get_available_modules', function( $active ) {
-	    return array_diff_key( $active, array( 'lazy-images' => 'Does not matter' ) );
-    } );
-    ```
-* Make sure you don't see the module at all when you open the Writing tab, or search for something like `lazy`.
-
-
-We now allow images to be ignored by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you define via the `jetpack_lazy_images_blacklisted_classes` filter.
-
-* Create a post with some images. 
-* Apply the skip-lazy class to one of them.
-* Save the post
-* Visit the post in the frontend.
-* Expect the image to not be loaded in a deferred fashion.
-
-
-### Masterbar
-
-* Start by being signed in to WordPress.com.
-* Then, on a connected Jetpack site...
-* Enable the Masterbar from the Jetpack Settings Page.
-* Sign out from the Masterbar.
-* Go back to WordPress.com.
-* Expect to be logged in.
-
-Repeat steps on an Atomic site but expect to be logged out from WordPress.com in the end.
-
-* Start by being signed in to WordPress.com (non-proxied).
-* Then, on an Atomic site...
-* Enable the Masterbar from the Jetpack Settings Page..
-* Sign out from the Masterbar.
-* Go back to WordPress.com.
-* Expect to be logged out.
-
-### Search
-
-We now implicitly activate the Search Module when the Jetpack Search Widget gets added to a sidebar.
-
-Start with a site that has a plan that supports Jetpack Search.
-
-1. Remove any active search widgets and disable the search module via Settings -> Traffic.
-2. Verify that the widget still shows up in both the admin area and the customizer.
-3. Add the widget to your sidebar.
-4. Load the frontend of your site and verify that the widget shows up and works.
-5. Verify that the search module is now enabled again.
-
-
-We now link from the Jetpack Search settings card to the proper widgets section in the customizer
-
-* Go to Jetpack → Settings → Traffic and enable the Search module. Click on "Add Jetpack Search Widget" and verify that the widgets section of the Customizer opens once it fully loads (it'll take a moment).
-
-We now move any active Jetpack Search widgets to the inactive list if you disable the search module.
-
-1. Add the Jetpack Search widget to your sidebar. Ideally give it a custom title so you can more easily track it.
-2. Disable the search module.
-3. Refresh the page and verify that the search module is still disabled.
-4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
-
-### Tracks events
-
-We will log events now if the user has already accepted Terms of Service instead of doing it only when Jetpack is connected.
+We fixed the localization of the plans table in the Admin page
 
 To test:
 
-* Start with a fresh site 
-* Either add some error logging in `Jetpack_Tracks_Client::record_event()`, or look at the live tracks feed in mc for your username.
-* Click on any of the connection buttons.  The option should have been set.  You can check with `Jetpack_Options::get_option( 'tos_agreed' );`
-* You're looking for the events `jetpack_jpc_register_begin`, `jetpack_jpc_register_success` events specifically.  
-* Make sure that previously connected sites are still sending tracks events. 
-* Delete the plugin. The option should have been cleared along with the other Jetpack options.  
+* Start with a fresh site and connect it.
+* Switch the language of the site to one that has an acceptable percentage of translated strings.
+* Confirm the plans page shows in that language
 
-### Twitter Cards
 
-A new filter jetpack_twitter_image_default was added  to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
+### Publicize
+
+When a post transitions to publish, Jetpack used to add Publicize post meta to all posts, whether or not it was a publicize-able post type. We fixed that.
+
+Testing instructions:
+
+* Setup Jetpack + Publicize
+* Add a new CPT that is not able to be Publicized (e.g. lacking post_type_support('publicize')).
+* Publish a post.
+* Inspect the post meta and expect to see no _publicize_pending present.
+
+### Sharing
+
+We removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
+
+Testing instructions:
+
+* Enable sharing and/or like buttons on a site running WooCommerce.
+* Go to a regular page. Confirm sharing is displayed.
+* Add something to cart. Go to cart. Confirm sharing is NOT displayed.
+* Proceed to checkout, again sharing should be hidden.
+
+### Stats
+
+We added a new filter `jetpack_honor_dnt_header_for_stats`, which if enabled would make Jetpack not track stats for visitors with DNT enabled.
 
 To test:
 
-Include this snippet:
-
+* On a connected Jetpack site.
+* Add a code snippet like:
     ```
-    function my_twitter_image_default ($url) {
-	    return 'http://asdf.com/89asdf.gif';
-    }
-    add_filter( 'jetpack_twitter_cards_image_default', 'my_twitter_image_default' );
+    add_filter( 'jetpack_honor_dnt_header_for_stats', '__return_true' );
     ```
-* Fetch your site's home page, and a post page that wouldn't otherwise have a Twitter image set. Verify that they both now include `<meta name="twitter:image" content="http://asdf.com/89asdf.gif" />`.
+* Turn on the Do Not Track on your browser. You can find guidance on how to achieve this here: [Chrome](https://support.google.com/chrome/answer/2790761?co=GENIE.Platform%3DDesktop&hl=en), [Firefox](https://support.mozilla.org/en-US/kb/settings-privacy-browsing-history-do-not-track#w_tracking_3), [Safari](https://support.apple.com/kb/PH21416?locale=en_US), [Edge](https://privacy.microsoft.com/en-us/windows-10-microsoft-edge-and-privacy).
+* Visit the frontend of the site and confirm you don't get a stats entry for your visit.
 
-### Widget Visibility
+### WooCommerce Analytics
 
-A decodeEntities function was added in widget-conditions.js to handle entity decoding for the minor conditions dropdown.
+We fixed broken Remove From Cart links.
 
 To test:
 
-* Check the minor conditions dropdown with a category name that contains an entity (e.g. ampersand) in the widget visibility settings. 
-* Confirm that the category name is encoded properly on the dropdown.
+* Start with a Woo site with a Jetpack Professional plan.
+* In Calypso > Settings > Traffic, enable Google Analytics and all its options.
+* On your site, add products to your cart.
+* Go to the cart page.
+* Make sure that all remove from cart icons work, and include the product ID attribute.
 
-### WooCommerce analytics
+### WordAds
 
-* Use a test site which is connected with Jetpack and has WooCommerce active
-* As a logged out user, notice a request to  `https://stats.wp.com/s-20180821.js` on public facing pages. The `20180821` is dynamic and will change based on date
-* Notice `https://stats.wp.com/s-20180821.js` is not requested on `wp-admin` pages because this code should not run on admin facing pages. The same for logged in admin users.
-* Back to user facing pages, open the console and see `_wca` global exists and is an object. 
+We added a new shortcode: `[wordad]` for inline placement of Ads in posts and pages.
 
-#### Product Page View
-* Go to a product page
-* See a Network request `t.gif`
+To test:
 
-#### Add to Cart via a list
-* Click "Add to Cart"
-* See a Network request `t.gif`
+* Enable the Ads module.
+* Place a `[wordad]` shortcode in the body of a post.
+* View the post and expect to see an Ad in the post content.
 
-#### Add to Cart via a Product Page
-* Go to a product page
-* Enable the Preserve log checkbox at the top of the console to persist the console history between page refreshes or changes.
-* Click "Add to Cart"
-* See a Network request `t.gif`
+#### ads.txt
 
-#### Remove from Cart via click on the "X"
-* Add an item to your cart
-* Go to the cart and remove the item by clicking the "X"
-* See a Network request `t.gif`
+* We also added ads.txt support to the Ads module.
 
-#### Remove from Cart via updating the quantity
-* Add an item to your cart
-* Go to the cart and remove the item by changing the quantity to 0
-* Click "Update"
-* See a Network request `t.gif`
+To test:
 
-#### Order Received
-* "Place Order" on your cart
-* Once the page refreshes, see one event for each item in the order
-
-
-### Final Notes
-
-During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
-
-To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
-
-We would also recommend that you check your site's `debug.log` as you test.
-
-To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
-
-```php
-define( 'WP_DEBUG', true );
-
-if ( WP_DEBUG ) {
-
-	@error_reporting( E_ALL );
-	@ini_set( 'log_errors', true );
-	@ini_set( 'log_errors_max_len', '0' );
-
-	define( 'WP_DEBUG_LOG', true );
-	define( 'WP_DEBUG_DISPLAY', false );
-	define( 'CONCATENATE_SCRIPTS', false );
-	define( 'SAVEQUERIES', true );
-
-}
-```
+* Start with a connected Jetpack site and a plan that supports WordAds.
+* Activate the Jetpack Ads module if it's not active already.
+* Visit `yoursite/ads.txt`. You should now see a text file.
 
 **Thank you for all your help!**

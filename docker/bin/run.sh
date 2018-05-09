@@ -25,10 +25,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	while [ "$i" -le "$times" ]; do
 		sleep 3
 		wp --allow-root config create \
-			--dbhost=$WORDPRESS_DB_HOST \
-			--dbname=wordpress \
-			--dbuser=$WORDPRESS_DB_USER \
-			--dbpass=$WORDPRESS_DB_PASSWORD \
+			--dbhost=${MYSQL_HOST} \
+			--dbname=${MYSQL_DATABASE} \
+			--dbuser=${MYSQL_USER} \
+			--dbpass=${MYSQL_PASSWORD} \
 			&& break
 		[ ! $? -eq 0 ] || break;
 		echo "Waiting for creating wp-config.php until mysql is ready to receive connections"
@@ -80,7 +80,10 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
-# Run apache in the foreground so the container keeps running
+echo
+echo "Open http://${WP_DOMAIN} to see your site!"
+echo
 
-echo "Starting Apache in the foreground"
+# Run apache in the foreground so the container keeps running
+echo "Running Apache in the foreground"
 apachectl -D FOREGROUND

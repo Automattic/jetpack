@@ -9,6 +9,11 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 	// The deactivation is performed here because there may be pages that admin_init runs on,
 	// such as admin_ajax, that could deactivate the plugin without showing this notification.
 	deactivate_plugins( 'vaultpress/vaultpress.php' );
+
+	// Remove WP core notice that says that the plugin was activated.
+	if ( isset( $_GET['activate'] ) ) {
+		unset( $_GET['activate'] );
+	}
 	?>
 	<div class="notice notice-success vp-deactivated">
 		<h2 style="margin-bottom: 0.25em;"><?php _e( 'Jetpack is now handling your backups.', 'jetpack' ); ?></h2>

@@ -28,7 +28,13 @@ class Search extends React.Component {
 				feature={ FEATURE_SEARCH_JETPACK }
 				hideButton
 			>
-				<SettingsGroup module={ { module: 'search' } } hasChild support="https://jetpack.com/support/search">
+				<SettingsGroup
+					hasChild
+					module={ { module: 'search' } }
+					support={ {
+						text: __( 'Replaces the default WordPress search with a faster, filterable search experience.' ),
+						link: 'https://jetpack.com/support/search',
+					} }>
 					<ModuleToggle
 						slug="search"
 						compact
@@ -60,7 +66,7 @@ export default connect(
 		return {
 			siteAdminUrl: getSiteAdminUrl( state ),
 			sitePlan: getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
 		};
 	}
 )( moduleSettingsForm( Search ) );

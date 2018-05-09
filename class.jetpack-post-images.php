@@ -51,28 +51,31 @@ class Jetpack_PostImages {
 			$start = strpos( $slideshow, '[', $pos );
 			$end = strpos( $slideshow, ']', $start );
 			$post_images = json_decode( wp_specialchars_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ), ENT_QUOTES ) ); // parse via JSON
-			foreach ( $post_images as $post_image ) {
-				if ( !$post_image_id = absint( $post_image->id ) )
-					continue;
-
-				$meta = wp_get_attachment_metadata( $post_image_id );
-
-				// Must be larger than 200x200 (or user-specified)
-				if ( !isset( $meta['width'] ) || $meta['width'] < $width )
-					continue;
-				if ( !isset( $meta['height'] ) || $meta['height'] < $height )
-					continue;
-
-				$url = wp_get_attachment_url( $post_image_id );
-
-				$images[] = array(
-					'type'       => 'image',
-					'from'       => 'slideshow',
-					'src'        => $url,
-					'src_width'  => $meta['width'],
-					'src_height' => $meta['height'],
-					'href'       => $permalink,
-				);
+			// If the JSON didn't decode don't try and act on it.
+			if ( is_array( $post_images ) ) {
+				foreach ( $post_images as $post_image ) {
+					if ( !$post_image_id = absint( $post_image->id ) )
+						continue;
+	
+					$meta = wp_get_attachment_metadata( $post_image_id );
+	
+					// Must be larger than 200x200 (or user-specified)
+					if ( !isset( $meta['width'] ) || $meta['width'] < $width )
+						continue;
+					if ( !isset( $meta['height'] ) || $meta['height'] < $height )
+						continue;
+	
+					$url = wp_get_attachment_url( $post_image_id );
+	
+					$images[] = array(
+						'type'       => 'image',
+						'from'       => 'slideshow',
+						'src'        => $url,
+						'src_width'  => $meta['width'],
+						'src_height' => $meta['height'],
+						'href'       => $permalink,
+					);
+				}
 			}
 		}
 		ob_end_clean();

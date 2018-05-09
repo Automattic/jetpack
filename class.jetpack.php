@@ -553,6 +553,11 @@ class Jetpack {
 			} else {
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+				$signed = $this->verify_xml_rpc_signature();
+				if ( $signed && ! is_wp_error( $signed ) ) {
+					// the jetpack Provision method is available for blog-token-signed requests
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
+				}
 			}
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
@@ -655,7 +660,7 @@ class Jetpack {
 		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
 
 		/**
-		 * This is the hack to concatinate all css files into one.
+		 * This is the hack to concatenate all css files into one.
 		 * For description and reasoning see the implode_frontend_css method
 		 *
 		 * Super late priority so we catch all the registered styles
@@ -1455,20 +1460,20 @@ class Jetpack {
 		global $active_plan_cache;
 
 		// this can be expensive to compute so we cache for the duration of a request
-		if ( $active_plan_cache ) {
+		if ( is_array( $active_plan_cache ) && ! empty( $active_plan_cache ) ) {
 			return $active_plan_cache;
 		}
 
 		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Set the default options
-		if ( empty( $plan ) || ( isset( $plan['product_slug'] ) && 'jetpack_free' === $plan['product_slug'] ) ) {
-			$plan = wp_parse_args( $plan, array(
-				'product_slug' => 'jetpack_free',
-				'supports'     => array(),
-				'class'        => 'free',
-			) );
-		}
+		$plan = wp_parse_args( $plan, array(
+			'product_slug' => 'jetpack_free',
+			'class'        => 'free',
+			'features'     => array(
+				'active' => array()
+			),
+		) );
 
 		$supports = array();
 
@@ -1515,6 +1520,9 @@ class Jetpack {
 		// get available features
 		foreach ( self::get_available_modules() as $module_slug ) {
 			$module = self::get_module( $module_slug );
+			if ( ! isset( $module ) || ! is_array( $module ) ) {
+				continue;
+			}
 			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
 				$supports[] = $module_slug;
 			}
@@ -1540,7 +1548,23 @@ class Jetpack {
 	public static function active_plan_supports( $feature ) {
 		$plan = Jetpack::get_active_plan();
 
-		if ( in_array( $feature, $plan['supports'] ) ) {
+		// Manually mapping WordPress.com features to Jetpack module slugs
+		foreach ( $plan['features']['active'] as $wpcom_feature ) {
+			switch ( $wpcom_feature ) {
+				case 'wordads-jetpack';
+
+				// WordAds are supported for this site
+				if ( 'wordads' === $feature ) {
+					return true;
+				}
+				break;
+			}
+		}
+
+		if (
+			in_array( $feature, $plan['supports'] )
+			|| in_array( $feature, $plan['features']['active'] )
+		) {
 			return true;
 		}
 
@@ -1568,7 +1592,8 @@ class Jetpack {
 		 *
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
-		return apply_filters( 'jetpack_development_mode', $development_mode );
+		$development_mode = ( bool ) apply_filters( 'jetpack_development_mode', $development_mode );
+		return $development_mode;
 	}
 
 	/**
@@ -1724,6 +1749,34 @@ class Jetpack {
 	function current_user_is_connection_owner() {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
+	}
+
+	/**
+	 * Gets current user IP address.
+	 *
+	 * @param  bool $check_all_headers Check all headers? Default is `false`.
+	 *
+	 * @return string                  Current user IP address.
+	 */
+	public static function current_user_ip( $check_all_headers = false ) {
+		if ( $check_all_headers ) {
+			foreach ( array(
+				'HTTP_CF_CONNECTING_IP',
+				'HTTP_CLIENT_IP',
+				'HTTP_X_FORWARDED_FOR',
+				'HTTP_X_FORWARDED',
+				'HTTP_X_CLUSTER_CLIENT_IP',
+				'HTTP_FORWARDED_FOR',
+				'HTTP_FORWARDED',
+				'HTTP_VIA',
+			) as $key ) {
+				if ( ! empty( $_SERVER[ $key ] ) ) {
+					return $_SERVER[ $key ];
+				}
+			}
+		}
+
+		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 	}
 
 	/**
@@ -2754,7 +2807,7 @@ class Jetpack {
 			}
 
 			ob_start();
-			require $file;
+			require_once $file;
 
 			$active[] = $module;
 
@@ -2852,9 +2905,7 @@ class Jetpack {
 			}
 		}
 
-		$plan = Jetpack::get_active_plan();
-
-		if ( ! in_array( $module, $plan['supports'] ) ) {
+		if ( ! Jetpack::active_plan_supports( $module ) ) {
 			return false;
 		}
 
@@ -6535,6 +6586,8 @@ p {
 			'jetpack_is_holiday_snow_season'                         => null,
 			'jetpack_holiday_snow_option_updated'                    => null,
 			'jetpack_holiday_snowing'                                => null,
+			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
+			'jetpack_cache_plans'                                    => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -7105,5 +7158,36 @@ p {
 	 */
 	public static function jetpack_tos_agreed() {
 		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
+	}
+
+	/**
+	 * Handles activating default modules as well general cleanup for the new connection.
+	 *
+	 * @param boolean $activate_sso                 Whether to activate the SSO module when activating default modules.
+	 * @param boolean $redirect_on_activation_error Whether to redirect on activation error.
+	 * @return void
+	 */
+	public static function handle_post_authorization_actions( $activate_sso = false, $redirect_on_activation_error = false ) {
+		$other_modules = $activate_sso
+			? array( 'sso' )
+			: array();
+
+		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+			Jetpack::delete_active_modules();
+
+			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, false );
+		} else {
+			Jetpack::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, false );
+		}
+
+		// Since this is a fresh connection, be sure to clear out IDC options
+		Jetpack_IDC::clear_all_idc_options();
+		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
+
+		// Start nonce cleaner
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+
+		Jetpack::state( 'message', 'authorized' );
 	}
 }

@@ -38,7 +38,11 @@ class LoadingCard extends Component {
 				<SettingsGroup
 					disableInDevMode
 					module={ { module: 'backups' } }
-					support="https://help.vaultpress.com/get-to-know/">
+					support={ {
+						text: __( 'Backs up your site to the global WordPress.com servers, ' +
+							'allowing you to restore your content in the event of an emergency or error.' ),
+						link: 'https://help.vaultpress.com/get-to-know/',
+					} }>
 					{
 						__( 'Checking site status…' )
 					}
@@ -169,7 +173,11 @@ export const BackupsScan = moduleSettingsForm(
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
-						support="https://help.vaultpress.com/get-to-know/">
+						support={ {
+							text: __( 'Backs up your site to the global WordPress.com servers, ' +
+								'allowing you to restore your content in the event of an emergency or error.' ),
+							link: 'https://help.vaultpress.com/get-to-know/',
+						} }>
 						{
 							this.getCardText()
 						}

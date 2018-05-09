@@ -5,7 +5,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 6.0-alpha
+ * Version: 6.2-alpha
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.7' );
 
-define( 'JETPACK__VERSION',            '6.0-alpha' );
+define( 'JETPACK__VERSION',            '6.2-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -41,6 +41,26 @@ function jetpack_require_lib_dir() {
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+
+/**
+ * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
+ * code debug mode, it shouldn't use minified assets. Note that this filter is not being used
+ * in every place where assets are enqueued. The filter is added at priority 9 to be overridden
+ * by any default priority filter that runs after it.
+ *
+ * @since 6.2.0
+ *
+ * @return boolean
+ *
+ * @filter jetpack_should_use_minified_assets
+ */
+function jetpack_should_use_minified_assets() {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		return false;
+	}
+	return true;
+}
+add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
