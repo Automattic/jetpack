@@ -471,6 +471,10 @@ function stats_reports_css() {
 	padding-left: 0 !important;
 }
 
+#jp-plugin-container {
+	background-color: #f3f6f8;
+}
+
 #jp-stats-wrap {
 	max-width: 720px;
 	margin: 0 auto;
