@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 	}
 
 	public function test_pass() {
@@ -93,7 +93,26 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		), $local->get_posts() );
 		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
+	}
 
+	protected function assertEventIsSyncItem( $event ) {
+		$this->assertTrue( isset( $event->args[0] ), 'Does not have any arguments' );
+		$this->assertEquals( count( $event->args ), 1, 'More then 1 arguments returned by event' );
+		$sync_object = $event->args[0];
+		$this->assertTrue( isset( $sync_object['object'] ), 'No object found on the sync item' );
+		$this->assertTrue( isset( $sync_object['trigger'] ), 'No trigger found on the sync item' );
+	}
+
+	protected function get_synced_item_object( $event ) {
+		$sync_object = $event->args[0];
+		$this->assertTrue( isset( $sync_object['object'] ), 'No object found on the sync item' );
+		return $sync_object['object'];
+	}
+
+	protected function get_synced_item_state( $event ) {
+		$sync_object = $event->args[0];
+		$this->assertTrue( isset( $sync_object['state'] ), 'No state found on the sync item' );
+		return $sync_object['state'];
 	}
 
 	// asserts that two objects are the same if they're both "objectified",

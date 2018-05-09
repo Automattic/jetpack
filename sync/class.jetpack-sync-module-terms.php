@@ -2,18 +2,20 @@
 
 class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	private $taxonomy_whitelist;
+	private $action_handler;
 
 	function name() {
 		return 'terms';
 	}
 
 	function init_listeners( $callable ) {
+		$this->action_handler = $callable;
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetpack_sync_save_term', $callable );
 		add_action( 'jetpack_sync_add_term', $callable );
 		add_action( 'delete_term', $callable, 10, 4 );
-		add_action( 'set_object_terms', $callable, 10, 6 );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
 	}
 
@@ -65,6 +67,15 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 
 	function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_terms' );
+	}
+
+	public function set_object_terms( $object_id, $term_ids, $tt_ids, $taxonomy, $append ) {
+		$posts_sync_module = Jetpack_Sync_Modules::get_module( 'posts' );
+		if ( $posts_sync_module && $posts_sync_module->is_saving_post( $object_id ) ) {
+			return;
+		}
+		$args = func_get_args();
+		call_user_func_array( $this->action_handler, $args );
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
