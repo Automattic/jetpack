@@ -9,8 +9,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
 		add_action( 'jetpack_sync_current_theme_support', $callable );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
-		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
-		add_action( 'jetpack_updated_theme', $callable, 10, 2 );
+		add_action( 'jetpack_installed_themes', $callable, 10, 2 );
+		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
 		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion') );
 		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
