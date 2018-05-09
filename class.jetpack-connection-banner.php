@@ -835,6 +835,7 @@ class Jetpack_Connection_Banner {
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
 			<img
+				class="jetpack-logo"
 				src="<?php echo plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ); ?>"
 				alt="<?php
 					esc_attr_e(
@@ -952,7 +953,10 @@ class Jetpack_Connection_Banner {
 					/>
 				</div>
 			</div>
+
+			
 			<img
+				class="support-characters"
 				src="<?php echo plugins_url( 'images/characters.svg', JETPACK__PLUGIN_FILE ); ?>"
 				alt="<?php
 					esc_attr_e(
@@ -960,10 +964,12 @@ class Jetpack_Connection_Banner {
 						'jetpack'
 				); ?>"
 			/>
-			<h4>At your service whenever you need help</h4>
-			<p>
-				<?php esc_html_e( 'If you need help at any step of the way we’re happy to chat with you!', 'jetpack' ); ?>
-			</p>
+			<div class="jp-connect-full__step-support">
+				<h2>At your service whenever you need help</h2>
+				<h3>
+					<?php esc_html_e( 'If you need help at any step of the way we’re happy to chat with you!', 'jetpack' ); ?>
+				</h3>
+			</div>
 
 			<p class="jp-connect-full__button-container">
 				<a href="https://jetpack.com/contact-support/" class="dops-button">

@@ -54,9 +54,18 @@
 		text-align: center;
 
 		.jp-connect-full__container-card {
-			padding: rem( 32px ) rem( 64px ) rem( 96px );
+			padding: rem( 48px ) rem( 64px ) rem( 96px );
 			background: white;
 			margin: 1em;
+
+				img.jetpack-logo {
+					width: 160px;
+				}
+
+				img.support-characters {
+					margin-top: rem( 24px );
+					width: 50%;
+				}
 		}
 
 		h4 {
@@ -91,12 +100,12 @@
 .jp-connect-full__step-header {
 	max-width: 700px;
 	margin: 0 auto;
-	line-height: 1.25;
+	line-height: 1.5;
 
 	h2 {
-		margin: rem( 14px ) 0 rem( 8px ) 0;
+		margin: rem( 24px ) 0 0;
 		font-size: rem( 22px );
-		font-weight: normal;
+		font-weight: bold;
 		color: black;
 	}
 
@@ -104,6 +113,7 @@
 		color: $gray-text-min;
 		font-size: rem( 16px );
 		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
 	}
 
 	&.bottom {
@@ -112,7 +122,7 @@
 }
 .jp-connect-full__tos-blurb {
 	font-size: rem( 11px );
-	margin: 0 auto rem( 16px );
+	margin: 0 auto rem( 24px );
 	color: $gray-text-min;
 	a{
 		text-decoration: none;
@@ -153,7 +163,7 @@
 
 .jp-connect-full__slide {
 	max-width: 750px;
-	margin: 2em auto;
+	margin: 4em auto;
 	display: flex;
 	flex-direction: row;
 	justify-content: stretch;
@@ -173,6 +183,26 @@
 				width: 75%;
 			};
 		}
+	}
+}
+
+.jp-connect-full__step-support {
+	max-width: 700px;
+	margin: 0 auto;
+	line-height: 1.25;
+
+	h2 {
+		margin: rem( 16px ) 0 0;
+		font-size: rem( 22px );
+		font-weight: normal;
+		color: black;
+	}
+
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
 	}
 }
 
