@@ -286,41 +286,51 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$theme = $upgrader->theme_info();
-		if ( ! $theme instanceof WP_Theme ) {
-			return;
+		$themes = array();
+		foreach ( $details['themes'] as $theme_slug ) {
+			$theme = wp_get_theme( $theme_slug );
+
+			if ( ! $theme instanceof WP_Theme ) {
+				continue;
+			}
+
+			$themes[ $theme_slug ] = array(
+				'name' => $theme->get( 'Name' ),
+				'version' => $theme->get( 'Version' ),
+				'uri' => $theme->get( 'ThemeURI' ),
+				'stylesheet' => $theme->stylesheet,
+			);
 		}
-		$theme_info = array(
-			'name' => $theme->get( 'Name' ),
-			'version' => $theme->get( 'Version' ),
-			'uri' => $theme->get( 'ThemeURI' ),
-		);
+
+		if ( empty( $themes ) ) {
+				return;
+		}
 
 		if ( 'install' === $details['action'] ) {
 			/**
-			 * Signals to the sync listener that a theme was installed and a sync action
+			 * Signals to the sync listener that one or more themes was installed and a sync action
 			 * reflecting the installation and the theme info should be sent
 			 *
-			 * @since 4.9.0
+			 * @since 6.2.0
 			 *
-			 * @param string $theme->theme_root Text domain of the theme
-			 * @param mixed $theme_info Array of abbreviated theme info
+			 * @param mixed $themes Array of abbreviated theme info
 			 */
-			do_action( 'jetpack_installed_theme', $theme->stylesheet, $theme_info );
+			do_action( 'jetpack_installed_themes', $themes );
 		}
 
 		if ( 'update' === $details['action'] ) {
 			/**
-			 * Signals to the sync listener that a theme was updated and a sync action
+			 * Signals to the sync listener that one or more themes was updated and a sync action
 			 * reflecting the update and the theme info should be sent
 			 *
-			 * @since 4.9.0
+			 * @since 6.2.0
 			 *
-			 * @param string $theme->theme_root Text domain of the theme
-			 * @param mixed $theme_info Array of abbreviated theme info
+			 * @param mixed $themes Array of abbreviated theme info
 			 */
-			do_action( 'jetpack_updated_theme', $theme->stylesheet, $theme_info );
+			do_action( 'jetpack_updated_themes', $themes );
 		}
+
+
 	}
 
 	public function init_full_sync_listeners( $callable ) {
