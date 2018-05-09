@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a73c0e86cd03b2b0bde95fa0b4fc3fa0",
-    "content-hash": "fd3c085db58d26c6e05990cbc35a3f01",
+    "hash": "ec21500662e9175de76297d4dbbde601",
+    "content-hash": "84a3410979fb604e742f4a5201301e67",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "e36e0aa7b9810d97cc0887efa46d44ca3bdf7443"
+                "reference": "f1e93e2fd18f0eece3e5181d076aacb46747de11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/e36e0aa7b9810d97cc0887efa46d44ca3bdf7443",
-                "reference": "e36e0aa7b9810d97cc0887efa46d44ca3bdf7443",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/f1e93e2fd18f0eece3e5181d076aacb46747de11",
+                "reference": "f1e93e2fd18f0eece3e5181d076aacb46747de11",
                 "shasum": ""
             },
             "type": "library",
@@ -27,7 +27,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-04-05 22:49:11"
+            "time": "2018-05-09 19:01:17"
         },
         {
             "name": "automattic/custom-fonts",
