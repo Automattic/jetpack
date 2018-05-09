@@ -22,13 +22,24 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$this->assertEquals( $this->post->ID, $event->args[0] );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+
+		$this->assertEventIsSyncItem( $event );
+		$synced_object = $this->get_synced_item_object( $event );
+		$synced_state = $this->get_synced_item_state( $event );
+		$this->assertEquals( $this->post->ID, $synced_object->ID );
 
 		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
-		$this->assertEqualsObject( $this->post, $event->args[1] );
+		$this->assertEqualsObject( $this->post, $synced_object );
+
+		// check that the state is what we expect
+		$this->assertTrue( $synced_state['is_just_published'], 'Not just published' );
+		$this->assertTrue( isset( $synced_state[ 'previous_status' ] ), 'Does not have previous state' );
+		$this->assertTrue( isset( $synced_state[ 'is_auto_save' ] ), 'Does not have is auto save' );
+		$this->assertTrue( isset( $synced_state[ 'update' ] ), 'Does not have update' );
+		$this->assertTrue( isset( $synced_state[ 'author' ] ), 'Does not have author' );
 	}
 
 	public function test_add_post_syncs_post_data() {
@@ -43,8 +54,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_add_post_syncs_request_is_auto_save() {
 		//Sync from setup should not be auto save
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$this->assertFalse( $event->args[3]['is_auto_save'] );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+
+		$this->assertEventIsSyncItem( $event );
+		$synced_state = $this->get_synced_item_state( $event );
+
+		$this->assertFalse( $synced_state['is_auto_save'], 'is auto save set to false' );
 
 		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
 
@@ -53,8 +68,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$this->assertTrue( $event->args[3]['is_auto_save'] );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $event );
+		$synced_state = $this->get_synced_item_state( $event );
+		$this->assertTrue( $synced_state['is_auto_save'] );
 	}
 
 	public function test_trash_post_trashes_data() {
@@ -63,10 +80,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
-		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
 
-		$this->assertEquals( $insert_event->args[1]->post_status, 'trash' );
-		$this->assertEquals( $insert_event->args[0], $this->post->ID );
+		$this->assertEventIsSyncItem( $insert_event );
+		$synced_object = $this->get_synced_item_object( $insert_event );
+
+		$this->assertEquals( $synced_object->post_status, 'trash' );
+		$this->assertEquals( $synced_object->ID, $this->post->ID );
 
 		$this->server_event_storage->reset();
 
@@ -77,7 +97,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$delete_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
-		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
 		$this->assertFalse( $save_event );
 		$this->assertTrue( (bool) $delete_event );
 	}
@@ -87,9 +107,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
-		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$this->assertEquals( 'trash', $insert_event->args[1]->post_status ); //
-		$this->assertEquals( 'publish', $insert_event->args[3]['previous_status'] );
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+
+		$this->assertEventIsSyncItem( $insert_event );
+		$synced_state = $this->get_synced_item_state( $insert_event );
+		$synced_object = $this->get_synced_item_object( $insert_event );
+		$this->assertEquals( 'trash', $synced_object->post_status ); //
+		$this->assertEquals( 'publish', $synced_state['previous_status'] );
 	}
 
 	public function test_delete_post_deletes_data() {
@@ -270,6 +294,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( (bool) $should_not_be_there );
 
+		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+		$this->assertFalse( (bool) $should_not_be_there );
+
+		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertFalse( (bool) $should_not_be_there );
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
@@ -432,8 +461,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_permalink_and_shortlink() {
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+
+		$this->assertEventIsSyncItem( $insert_post_event );
+
+		$post              = $this->get_synced_item_object( $insert_post_event );
 
 		$this->assertObjectHasAttribute( 'permalink', $post );
 		$this->assertObjectHasAttribute( 'shortlink', $post );
@@ -443,8 +475,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_amp_permalink() {
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $insert_post_event );
+		$post = $this->get_synced_item_object( $insert_post_event );
 
 		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
 
@@ -454,8 +487,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 		$this->sender->do_sync();
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+		$this->assertEventIsSyncItem( $insert_post_event );
+		$post = $this->get_synced_item_object( $insert_post_event );
 
 		$this->assertObjectHasAttribute( 'amp_permalink', $post );
 		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
@@ -472,7 +506,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $insert_post_event );
+		$post_on_server = $this->get_synced_item_object( $insert_post_event );
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
 		$this->assertInternalType( 'string', $post_on_server->featured_image );
 		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
@@ -483,7 +519,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $insert_post_event );
+		$post_on_server = $this->get_synced_item_object( $insert_post_event );
 		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
 	}
 
@@ -526,12 +564,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
-		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$this->assertEquals( 1, $this->server_replica_storage->post_count() ); // the post.
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+		$this->assertEventIsSyncItem( $insert_post_event );
+		$post = $this->get_synced_item_object( $insert_post_event );
+
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
 
-		$this->assertEquals( $this->post->ID, $post->ID );
+		$this->assertEquals( $this->post->ID, $post->ID, 'Post IDs do not match as expected!' );
 		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
@@ -630,8 +670,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// get the synced object
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$synced_post = $event->args[1];
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $event );
+		$synced_post = $this->get_synced_item_object( $event );
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
 		$codec = $this->sender->get_codec();
@@ -815,45 +856,52 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+
+
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
+		// What the user entered
 		$content =
 			'Check out this cool video:
 
-[embed width="123" height="456"]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]
+[embed width="123" height="456"]https://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]
 
 That was a cool video.';
-
-		$oembeded =
-			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
-<p>That was a cool video.</p>'. "\n";
-
-		$filtered = '<p>Check out this cool video:</p>
-<p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
-<p>That was a cool video.</p>'. "\n";
 
 		$this->post->post_content = $content;
 
 		wp_update_post( $this->post );
 
-		$oembeded = explode( '#DIMENSIONS#', $oembeded );
-
-		$this->assertContains(
-			$oembeded[0],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
-		);
-		$this->assertContains(
-			$oembeded[1],
-			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
-		);
-
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
+
+		// What it looks like on the jetpack side
+		$oembeded =
+			'<p>Check out this cool video:</p>
+<p><iframe #DIMENSIONS# src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+<p>That was a cool video.</p>'. "\n";
+
+		// What it looks like filtered
+		$filtered = '<p>Check out this cool video:</p>
+<p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]https://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
+<p>That was a cool video.</p>'. "\n";
+
+		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+
+
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $synced_post->post_content ),
+			'$oembeded[0] is NOT the same as filtered $synced_post->post_content'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $synced_post->post_content ),
+			'$oembeded[1] is NOT the same as filtered $synced_post->post_content'
+		);
+
 		$this->assertEquals(
 			$filtered,
 			$synced_post->post_content_filtered,
@@ -864,12 +912,12 @@ That was a cool video.';
 		$this->assertContains(
 			$oembeded[0],
 			apply_filters( 'the_content', $filtered ),
-			'$oembeded is NOT the same as filtered $filtered'
+			'$oembeded[0] is NOT the same as filtered $filtered'
 		);
 		$this->assertContains(
 			$oembeded[1],
 			apply_filters( 'the_content', $filtered ),
-			'$oembeded is NOT the same as filtered $filtered'
+			'$oembeded[1] is NOT the same as filtered $filtered'
 		);
 	}
 
@@ -883,7 +931,7 @@ That was a cool video.';
 		return 'bar';
 	}
 
-	public function test_sync_jetpack_published_post_raw() {
+	public function test_sync_jetpack_post_published_raw() {
 		$post_id = $this->factory->post->create( array(  'post_status' => 'draft' ) );
 		$user_id = $this->factory->user->create();
 
@@ -906,16 +954,20 @@ That was a cool video.';
 
 		$event = $this->server_event_storage->get_most_recent_event();
 
-		$this->assertEquals( 'jetpack_published_post', $event->action );
-		$this->assertEquals( $post_id, $event->args[0] );
-		$this->assertEquals( 'post', $event->args[1]['post_type']);
+		$this->assertEquals( 'jetpack_post_published', $event->action );
+		$this->assertEventIsSyncItem( $event );
+		$post = $this->get_synced_item_object( $event );
+		$state = $this->get_synced_item_state( $event );
+		$this->assertEquals( $post_id, $post->ID );
+		$this->assertEquals( 'post', $post->post_type );
+
 		// We add the author information to this so that we know who the author is
 		// This information is useful when the post gets published via cron.
-		$this->assertEquals( $author->display_name, $event->args[1]['author']['display_name'] ); // since 5.4 ?
-		$this->assertEquals( $author->ID, $event->args[1]['author']['id'] ); // since 5.4 ?
-		$this->assertEquals( $author->user_email, $event->args[1]['author']['email'] ); // since 5.4 ?
-		$this->assertEquals( Jetpack::translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
-		$this->assertTrue( isset( $event->args[1]['author']['wpcom_user_id'] ) );
+		$this->assertEquals( $author->display_name, $state['author']['display_name'] ); // since 5.4 ?
+		$this->assertEquals( $author->ID, $state['author']['id'] ); // since 5.4 ?
+		$this->assertEquals( $author->user_email, $state['author']['email'] ); // since 5.4 ?
+		$this->assertEquals( Jetpack::translate_user_to_role( $author ), $state['author']['translated_role'] ); // since 5.4 ?
+		$this->assertTrue( isset( $state['author']['wpcom_user_id'] ) );
 	}
 
 	public function test_sync_jetpack_update_post_to_draft_shouldnt_publish() {
@@ -928,10 +980,10 @@ That was a cool video.';
 
 		$this->sender->do_sync();
 
-		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' ) );
 	}
 
-	public function test_sync_jetpack_published_post_should_set_send_subscription_to_false() {
+	public function test_sync_jetpack_post_published_should_set_send_subscription_to_false() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
  		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
@@ -944,12 +996,14 @@ That was a cool video.';
 
 		$this->sender->do_sync();
 
-		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
+		$this->assertEventIsSyncItem( $event );
+		$state = $this->get_synced_item_state( $event );
 
-		$this->assertFalse( $post_flags['send_subscription'] );
+		$this->assertFalse( $state['send_subscription'] );
 	}
 
-	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_true() {
+	public function test_sync_jetpack_post_published_should_set_set_send_subscription_to_true() {
 		$this->server_event_storage->reset();
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
@@ -969,14 +1023,15 @@ That was a cool video.';
 
 		$this->sender->do_sync();
 
-		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_post_published' );
 		$this->assertEquals( 1, count( $events ) );
 
-		$post_flags = $events[0]->args[1];
-		$this->assertTrue( $post_flags['send_subscription'] );
+		$this->assertEventIsSyncItem( $events[0] );
+		$state = $this->get_synced_item_state( $events[0] );
+		$this->assertTrue( $state['send_subscription'] );
 	}
 
-	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_false_for_post_type_other_than_post() {
+	public function test_sync_jetpack_post_published_should_set_set_send_subscription_to_false_for_post_type_other_than_post() {
 		$this->server_event_storage->reset();
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
@@ -991,18 +1046,19 @@ That was a cool video.';
 
 		$this->sender->do_sync();
 
-		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_post_published' );
 		$this->assertEquals( 1, count( $events ) );
 
-		$post_flags = $events[0]->args[1];
-		$this->assertFalse( $post_flags['send_subscription'] );
+		$this->assertEventIsSyncItem( $events[0] );
+		$state = $this->get_synced_item_state( $events[0] );
+		$this->assertFalse( $state['send_subscription'] );
 	}
 
 	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_status' => 'draft' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -1011,13 +1067,17 @@ That was a cool video.';
 
 		$events = array_slice( $events, -4);
 
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
-		$this->assertEquals( $events[0]->action, 'jetpack_sync_save_post' );
-		$this->assertEquals( $events[1]->action, 'jetpack_published_post' );
+		$this->assertEventIsSyncItem( $events[0] );
+		$this->assertEventIsSyncItem( $events[1] );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
-		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
+		$post0 = $this->get_synced_item_object( $events[0] );
+		$post1 = $this->get_synced_item_object( $events[1] );
+
+		$this->assertNotEquals( $post0->ID, $post1->ID );
+		$this->assertEquals( $events[0]->action, 'jetpack_post_published' );
+		$this->assertEquals( $events[1]->action, 'jetpack_post_saved' );
+		$this->assertEquals( $post_id, $post1->ID );
+
 	}
 
 	function add_a_hello_post_type() {

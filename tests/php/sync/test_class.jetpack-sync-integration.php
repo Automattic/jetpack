@@ -10,11 +10,13 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sends_publish_post_action() {
+		$this->server_event_storage->reset();
 		$post_id = $this->factory->post->create();
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
-		$this->assertEquals( 'jetpack_published_post', $event->action );
-		$this->assertEquals( $post_id, $event->args[0] );
+
+		$this->assertEquals( 'jetpack_post_published', $event->action );
+		$this->assertEquals( $post_id, $event->args[0]['object']->ID );
 	}
 
 	function test_upgrading_sends_options_constants_and_callables() {
@@ -25,10 +27,10 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$current_user = wp_get_current_user();
 
-		$expected_sync_config = array( 
+		$expected_sync_config = array(
 			'options' => true,
-			'functions' => true, 
-			'constants' => true, 
+			'functions' => true,
+			'constants' => true,
 			'users' => array( $current_user->ID )
 		);
 
@@ -36,7 +38,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 			$expected_sync_config['network_options'] = true;
 		}
 		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		
+
 		$this->assertEquals( $sync_status['config'], $expected_sync_config );
 	}
 
