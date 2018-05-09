@@ -471,7 +471,7 @@ function stats_reports_css() {
 	padding-left: 0 !important;
 }
 
-#jp-plugin-container {
+.jetpack_page_stats {
 	background-color: #f3f6f8;
 }
 
