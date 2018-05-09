@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20150408';
+	const VERSION = '20170109';
 	const SHORTCODE = 'jetpack-related-posts';
 	private static $instance = null;
 	private static $instance_raw = null;
@@ -53,6 +53,7 @@ class Jetpack_RelatedPosts {
 	protected $_convert_charset;
 	protected $_previous_post_id;
 	protected $_found_shortcode = false;
+	protected $_citations_enabled = false;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -72,13 +73,35 @@ class Jetpack_RelatedPosts {
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
 
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-			jetpack_require_lib( 'class.media-summary' );
+			$lib = 'class.media-summary';
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$lib = 'class.wpcom-media-summary';
+			}
+			jetpack_require_lib( $lib );
 		}
 
 		// Add Related Posts to the REST API Post response.
 		if ( function_exists( 'register_rest_field' ) ) {
 			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
 		}
+	}
+
+	protected function set_citations_enabled() {
+		//disable, some bugs causing query parsing errors
+		return;
+		if ( ! is_automattician() )
+			return;
+		$whitelist = array(
+			56857843, //elasticsearchp2
+			14838835, //datap2
+			86187505, //readersquadp2
+		);
+
+		$_blog_id = get_current_blog_id();
+		if ( in_array( $_blog_id, $whitelist ) )
+			$this->_citations_enabled = true;
+		else
+			$this->_citations_enabled = false;
 	}
 
 	/**
@@ -116,6 +139,7 @@ class Jetpack_RelatedPosts {
 	 * @returns null
 	 */
 	public function action_frontend_init() {
+		$this->set_citations_enabled();
 		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
 		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html_unsupported' ) );
 
@@ -157,6 +181,9 @@ class Jetpack_RelatedPosts {
 		$options = $this->get_options();
 
 		if ( $options['show_headline'] ) {
+			if ( $this->_citations_enabled ) {
+				$options['headline'] = __( 'Potential Citations', 'jetpack' );
+			}
 			$headline = sprintf(
 				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
 				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
@@ -281,8 +308,12 @@ EOT;
 			if ( ! isset( $this->_options['headline'] ) ) {
 				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
 			}
-			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
-				$this->_options['size'] = 3;
+			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 ) {
+				if ( $this->_citations_enabled )
+					$this->_options['size'] = 12;
+				else
+					$this->_options['size'] = 3;
+			}
 
 			/**
 			 * Filter Related Posts basic options.
@@ -620,30 +651,94 @@ EOT;
 
 		$filters = $this->_get_es_filters_from_args( $post_id, $args );
 		/**
-		 * Filter Elasticsearch options used to calculate Related Posts.
+		 * Filter ElasticSearch options used to calculate Related Posts.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $filters Array of Elasticsearch filters based on the post_id and args.
+		 * @param array $filters Array of ElasticSearch filters based on the post_id and args.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
 
 		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
 		/**
-		 * Filter the array of related posts matched by Elasticsearch.
+		 * Filter the array of related posts matched by ElasticSearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $results Array of related posts matched by Elasticsearch.
+		 * @param array $results Array of related posts matched by ElasticSearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $results, $post_id );
 	}
+
+	/**
+	 * Gets an array of auto citations for the given post_id.
+	 *
+	 * @param int $post_id
+	 * @param array $args - params to use when building ElasticSearch filters to narrow down the search domain.
+	 * @uses get_options, wp_parse_args, apply_filters
+	 * @return array
+	 */
+	public function get_auto_citation_posts( $post_id, array $args ) {
+		$options = $this->get_options();
+		if ( ! $options['enabled'] || 0 == (int)$post_id )
+			return array();
+
+		$defaults = array(
+			'size' => 12,
+			'date_range' => array(),
+			'seed' => mt_rand( 0, 10 ), //auto citations should change
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		$filters = array();
+
+		$results = $this->_get_auto_citation_posts( $post_id, $args['size'], $filters );
+
+		$posts = array();
+		foreach( $results as $i => $item )
+			$posts[] = $this->_get_autocite_post_data_for_post( $item, $i, $post_id );
+
+		return $posts;
+	}
+
+
+	/**
+	 * Returns a UTF-8 encoded array of post information for the given post_id
+	 *
+	 * @param int $post_id
+	 * @param int $position
+	 * @param int $origin The post id that this is related to
+	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
+	 * @return array
+	 */
+	protected function _get_autocite_post_data_for_post( $item, $position, $origin ) {
+		switch_to_blog( $item['blog_id'] );
+
+		$post = get_post( $item['post_id'] );
+
+		$data = array(
+			'id' => $post->ID,
+			'url' => get_permalink( $post->ID ),
+			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
+			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
+			'date' => get_the_date( '', $post->ID ),
+			'format' => get_post_format( $post->ID ),
+			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
+			'rel' => 'nofollow',
+			'context' => $item['context'],
+			'img' => '',
+		);
+
+		restore_current_blog();
+		return $data;
+	}
+
 
 	/**
 	 * =========================
@@ -775,6 +870,7 @@ EOT;
 			$excluded_post_ids = array();
 			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
 				$exclude_post_id = (int)$exclude_post_id;
+				$excluded_post_ids = array();
 				if ( $exclude_post_id > 0 )
 					$excluded_post_ids[] = $exclude_post_id;
 			}
@@ -823,6 +919,17 @@ EOT;
 
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
+
+		if ( $this->_citations_enabled ) {
+			$related_posts = $this->get_auto_citation_posts( get_the_ID(), array() );
+		} else {
+			$related_posts = $this->get_for_post_id(
+				get_the_ID(),
+				array(
+					'exclude_post_ids' => $excludes,
+				)
+			);
+		}
 
 		$options = $this->get_options();
 
@@ -961,8 +1068,20 @@ EOT;
 			'items' => array(),
 		);
 
-		if ( count( $related_posts ) == $options['size'] )
-			$response['items'] = $related_posts;
+		if ( $this->_citations_enabled ) {
+			if ( count( $related_posts ) > 3 ) {
+				$i = 0;
+				foreach( $related_posts as $p ) {
+					$response['items'][$i][] = $p;
+					$i++;
+					if ( 3 == $i )
+						$i = 0;
+				}
+			}
+		} else {
+			if ( count( $related_posts ) == $options['size'] )
+				$response['items'] = $related_posts;
+		}
 
 		echo json_encode( $response );
 
@@ -1183,13 +1302,13 @@ EOT;
 		);
 
 		/**
-		 * Filter the Related Posts matched by Elasticsearch.
+		 * Filter the Related Posts matched by ElasticSearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.9.0
 		 *
-		 * @param array $hits Array of Post IDs matched by Elasticsearch.
+		 * @param array $hits Array of Post IDs matched by ElasticSearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
@@ -1409,11 +1528,24 @@ EOT;
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
-		$enabled = is_single()
-			&&
-				! is_admin()
-			&&
-				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
+		// Default to enabled
+		$enabled = true;
+
+		// Must have feature enabled
+		$options = $this->get_options();
+		if ( ! $options['enabled'] ) {
+			$enabled = false;
+		}
+
+		// Only run for frontend pages
+		if ( is_admin() ) {
+			$enabled = false;
+		}
+
+		// Only run for standalone posts
+		if ( ! is_single() ) {
+			$enabled = false;
+		}
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
@@ -1449,15 +1581,11 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			wp_enqueue_script(
-				'jetpack_related-posts',
-				Jetpack::get_file_url_for_environment(
-					'_inc/build/related-posts/related-posts.min.js',
-					'modules/related-posts/related-posts.js'
-				),
-				$dependencies,
-				self::VERSION
-			);
+			if ( $this->_citations_enabled )
+				wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'auto-citations.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			else
+				wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+
 			$related_posts_js_options = array(
 				/**
 				 * Filter each Related Post Heading structure.
@@ -1470,9 +1598,14 @@ EOT;
 			);
 			wp_localize_script( 'jetpack_related-posts', 'related_posts_js_options', $related_posts_js_options );
 		}
-		if ( $style ){
-			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
-			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
+		if ( $style ) {
+			if ( $this->_citations_enabled ) {
+				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'auto-citations.css', __FILE__ ), array(), self::VERSION );
+				wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
+			} else {
+				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+				wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
+			}
 		}
 	}
 
@@ -1601,4 +1734,18 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 
 		return $hits;
 	}
+
+	/**
+	 * Workhorse method to return array of auto citation posts ids matched by ElasticSearch.
+	 *
+	 * @param int $post_id
+	 * @param int $size
+	 * @param array $filters
+	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body
+	 * @return array
+	 */
+	protected function _get_auto_citation_posts( $post_id, $size, array $filters ) {
+		return array();
+	}
+
 }
