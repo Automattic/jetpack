@@ -24,10 +24,16 @@ const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
-const trackWhatJetpackSyncView = () => analytics.tracks.recordJetpackClick( {
-	target: 'what-data-jetpack-sync',
+const trackCookiePolicyView = () => analytics.tracks.recordJetpackClick( {
+	target: 'cookie-policy',
 	feature: 'privacy'
 } );
+
+const trackPrivacyCenterView = () => analytics.tracks.recordJetpackClick( {
+	target: 'privacy-center',
+	feature: 'privacy'
+} );
+
 
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
@@ -100,6 +106,7 @@ class Privacy extends React.Component {
 							{
 								__( 'We are committed to your privacy and security. ' )
 							}
+						</p>
 						<p>
 							<CompactFormToggle
 								compact
@@ -121,9 +128,8 @@ class Privacy extends React.Component {
 
 								) }
 							</CompactFormToggle>
-
-							<br />
-
+						</p>
+						<p>
 							{ __(
 								'We use this information to improve our products, make our marketing to you more relevant, personalize your experience, and for the other purposes described in our {{pp}}privacy policy{{/pp}}.', {
 									components: {
@@ -135,9 +141,8 @@ class Privacy extends React.Component {
 									}
 								} )
 							}
-
-							<br />
-
+						</p>
+						<p>
 							{ __(
 								'We use other tracking technologies and cookies, including some from third parties. ' +
 								'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}} about these technologies and your options to control them.', {
@@ -145,6 +150,19 @@ class Privacy extends React.Component {
 										cookiePolicyLink: <ExternalLink
 												href="https://automattic.com/cookies/"
 												onClick={ trackCookiePolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
+						</p>
+						<p>
+							{ __(
+								'For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.', {
+									components: {
+										privacyCenterLink: <ExternalLink
+												href="https://jetpack.com/support/privacy"
+												onClick={ trackPrivacyCenterView }
 												target="_blank" rel="noopener noreferrer"
 												/>
 									}
