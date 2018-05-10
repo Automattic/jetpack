@@ -113,7 +113,7 @@
 
 				setTimeout( function(){
 					$editframe.trigger( 'checkheight' );
-				}, 250 );
+				}, 500 );
 
 				var $editfields = $editframe.contents().find( '.grunion-fields' ),
 					$buttons = $editframe.contents().find( '.grunion-controls' );
