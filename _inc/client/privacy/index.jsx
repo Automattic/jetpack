@@ -100,25 +100,6 @@ class Privacy extends React.Component {
 							{
 								__( 'We are committed to your privacy and security. ' )
 							}
-							<br />
-							{ __(
-								'Read about how Jetpack uses your data in the {{pp}}Automattic Privacy Policy{{/pp}} ' +
-								'and our {{js}}What Data Does Jetpack Sync?{{/js}} support document.', {
-									components: {
-										pp: <ExternalLink
-												href="https://automattic.com/privacy/"
-												onClick={ trackPrivacyPolicyView }
-												target="_blank" rel="noopener noreferrer"
-												/>,
-										js: <ExternalLink
-												href="https://jetpack.com/support/what-data-does-jetpack-sync/"
-												onClick={ trackWhatJetpackSyncView }
-												target="_blank" rel="noopener noreferrer"
-												/>
-									}
-								} )
-							}
-						</p>
 						<p>
 							<CompactFormToggle
 								compact
@@ -126,8 +107,49 @@ class Privacy extends React.Component {
 								disabled={ this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings }
 								onChange={ this.togglePrivacy }
 								id="privacy-settings">
-								{ __( 'Send information to help us improve our products.' ) }
+								{ __( 
+									'Allow us to collect information about how you use your services while you are logged in to your WordPress.com account through our own first-party analytics tool. ' +
+									'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.', {
+										components: {
+											cookiePolicyLink: <ExternalLink
+													href="https://automattic.com/cookies/"
+													onClick={ trackCookiePolicyView }
+													target="_blank" rel="noopener noreferrer"
+													/>
+											}
+									}
+
+								) }
 							</CompactFormToggle>
+
+							<br />
+
+							{ __(
+								'We use this information to improve our products, make our marketing to you more relevant, personalize your experience, and for the other purposes described in our {{pp}}privacy policy{{/pp}}.', {
+									components: {
+										pp: <ExternalLink
+												href="https://automattic.com/privacy/"
+												onClick={ trackPrivacyPolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
+
+							<br />
+
+							{ __(
+								'We use other tracking technologies and cookies, including some from third parties. ' +
+								'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}} about these technologies and your options to control them.', {
+									components: {
+										cookiePolicyLink: <ExternalLink
+												href="https://automattic.com/cookies/"
+												onClick={ trackCookiePolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
 						</p>
 					</SettingsGroup>
 				</SettingsCard>
