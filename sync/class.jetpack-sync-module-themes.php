@@ -9,7 +9,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
 		add_action( 'jetpack_sync_current_theme_support', $callable );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
-		add_action( 'jetpack_installed_themes', $callable, 10, 2 );
+		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
 		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion') );
 		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
@@ -286,39 +286,50 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$themes = array();
-		foreach ( $details['themes'] as $theme_slug ) {
-			$theme = wp_get_theme( $theme_slug );
-
+		if ( 'install' === $details['action'] ) {
+			$theme = $upgrader->theme_info();
 			if ( ! $theme instanceof WP_Theme ) {
-				continue;
+				return;
 			}
-
-			$themes[ $theme_slug ] = array(
+			$theme_info = array(
 				'name' => $theme->get( 'Name' ),
 				'version' => $theme->get( 'Version' ),
 				'uri' => $theme->get( 'ThemeURI' ),
-				'stylesheet' => $theme->stylesheet,
 			);
-		}
 
-		if ( empty( $themes ) ) {
-				return;
-		}
-
-		if ( 'install' === $details['action'] ) {
 			/**
-			 * Signals to the sync listener that one or more themes was installed and a sync action
+			 * Signals to the sync listener that a theme was installed and a sync action
 			 * reflecting the installation and the theme info should be sent
 			 *
-			 * @since 6.2.0
+			 * @since 4.9.0
 			 *
-			 * @param mixed $themes Array of abbreviated theme info
+			 * @param string $theme->theme_root Text domain of the theme
+			 * @param mixed $theme_info Array of abbreviated theme info
 			 */
-			do_action( 'jetpack_installed_themes', $themes );
+			do_action( 'jetpack_installed_theme', $theme->stylesheet, $theme_info );
 		}
 
 		if ( 'update' === $details['action'] ) {
+			$themes = array();
+			foreach ( $details['themes'] as $theme_slug ) {
+				$theme = wp_get_theme( $theme_slug );
+
+				if ( ! $theme instanceof WP_Theme ) {
+					continue;
+				}
+
+				$themes[ $theme_slug ] = array(
+					'name' => $theme->get( 'Name' ),
+					'version' => $theme->get( 'Version' ),
+					'uri' => $theme->get( 'ThemeURI' ),
+					'stylesheet' => $theme->stylesheet,
+				);
+			}
+
+			if ( empty( $themes ) ) {
+				return;
+			}
+
 			/**
 			 * Signals to the sync listener that one or more themes was updated and a sync action
 			 * reflecting the update and the theme info should be sent
