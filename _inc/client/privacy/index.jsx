@@ -115,7 +115,7 @@ class Privacy extends React.Component {
 								onChange={ this.togglePrivacy }
 								id="privacy-settings">
 								{ __( 
-									'Allow us to collect information about how you use your services while you are logged in to your WordPress.com account through our own first-party analytics tool. ' +
+									'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. ' +
 									'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.', {
 										components: {
 											cookiePolicyLink: <ExternalLink
@@ -131,7 +131,7 @@ class Privacy extends React.Component {
 						</p>
 						<p>
 							{ __(
-								'We use this information to improve our products, make our marketing to you more relevant, personalize your experience, and for the other purposes described in our {{pp}}privacy policy{{/pp}}.', {
+								'This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.', {
 									components: {
 										pp: <ExternalLink
 												href="https://automattic.com/privacy/"
@@ -144,8 +144,8 @@ class Privacy extends React.Component {
 						</p>
 						<p>
 							{ __(
-								'We use other tracking technologies and cookies, including some from third parties. ' +
-								'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}} about these technologies and your options to control them.', {
+								'We use other tracking tools, including some from third parties. ' +
+								'{{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.', {
 									components: {
 										cookiePolicyLink: <ExternalLink
 												href="https://automattic.com/cookies/"
