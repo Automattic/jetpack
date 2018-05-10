@@ -1100,7 +1100,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( is_wp_error( $response ) ) {
 			WP_CLI::error( sprintf(
-				/* translators: %1ds is an endpoint route (ex. /sites/123456), %2$d is an error code, %3$s is an error message. */
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an error code, %3$s is an error message. */
 				__( 'Request to %1$s returned an error: (%2$d) %3$s.', 'jetpack' ),
 				$resource_url,
 				$response->get_error_code(),
@@ -1110,7 +1110,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			WP_CLI::error( sprintf(
-				/* translators: %1ds is an endpoint route (ex. /sites/123456), %2$d is an HTTP status code. */
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an HTTP status code. */
 				__( 'Request to %1$s returned a non-200 response code: %2$d.', 'jetpack' ),
 				$resource_url,
 				wp_remote_retrieve_response_code( $response )
