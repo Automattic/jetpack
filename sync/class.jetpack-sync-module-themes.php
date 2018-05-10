@@ -341,7 +341,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			do_action( 'jetpack_updated_themes', $themes );
 		}
 
-
 	}
 
 	public function init_full_sync_listeners( $callable ) {
