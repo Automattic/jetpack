@@ -29,7 +29,7 @@ function wpcomsh_rest_api_export( $request = null ) {
 	if ( get_transient( $export_name ) ) {
 		return new WP_REST_Response( array(
 			'error' => "Export in progress",
-		), 403);
+		), 423);
 	} else {
 		// set an hour long _lock_
 		set_transient( $export_name, $export_name, HOUR_IN_SECONDS );
