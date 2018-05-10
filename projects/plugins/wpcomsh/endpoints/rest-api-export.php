@@ -23,21 +23,31 @@ function wpcomsh_rest_api_export( $request = null ) {
 	require_once( ABSPATH . 'wp-admin/includes/export.php' );
 
 	$args = wpcomsh_rest_api_export_options( $request );
+	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
+	$export_name = "wpcomsh-export-$_blog_id";
 
+	if ( get_transient( $export_name ) ) {
+		return new WP_REST_Response( array(
+			'error' => "Export in progress",
+		), 423);
+	} else {
+		// set an hour long _lock_
+		set_transient( $export_name, $export_name, HOUR_IN_SECONDS );
+	}
 
 	// enable uploading of XML file type
 	add_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
 
 	// Create a placeholder file in upload directory to stream exported content to.
-	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
 	$timestamp = current_time( 'timestamp', true );
-	$filename = "wpcomsh-export-$_blog_id-$timestamp.xml";
+	$filename = "$export_name-$timestamp.xml";
 	$upload = wp_upload_bits( $filename, null, '', null );
 
 	// disable uploading of WXR file type
 	remove_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
 
 	if ( ! empty( $upload['error'] ) ) {
+		delete_transient( $export_name );
 		return new WP_REST_Response( array(
 			'error' => $upload['error'],
 		), 500);
@@ -53,8 +63,9 @@ function wpcomsh_rest_api_export( $request = null ) {
 	try {
 		export_wp( $args );
 	} catch ( Exception $e ) {
-		// exception occured, delete failed export file before returning error
+		// exception occurred, delete failed export file before returning error
 		ob_end_clean();
+		delete_transient( $export_name );
 		@unlink( $upload_file );
 		return new WP_REST_Response( array(
 			'error' => $e->getMessage(),
@@ -65,6 +76,7 @@ function wpcomsh_rest_api_export( $request = null ) {
 	ob_end_clean();
 	$upload_size = filesize( $upload_file );
 
+	delete_transient( $export_name );
 	return new WP_REST_Response( array(
 		'url' => $upload_url,
 		'type' => 'wxr',
