@@ -2,25 +2,6 @@
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 //Mock object requiered for test_theme_update()
-class Dummy_Sync_Test_WP_Theme {
-	public $stylesheet = 'updated-theme';
-
-	public function get( $key ) {
-		switch ( $key ) {
-			case 'Name':
-				return 'Updated Theme';
-				break;
-			case 'Version':
-				return '10.0';
-				break;
-			case 'ThemeURI':
-				return 'http://NOT!';
-				break;
-		}
-	}
-}
-
-//Mock object requiered for test_theme_update()
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 
@@ -33,7 +14,14 @@ class Dummy_Sync_Test_WP_Upgrader {
 	}
 
 	function theme_info() {
-		return new Dummy_Sync_Test_WP_Theme();
+		$reflection = new ReflectionClass("WP_Theme" );
+
+		$instance = $reflection->newInstanceWithoutConstructor();
+
+		$reflectionStyleProperty = $reflection->getProperty( 'stylesheet' );
+		$reflectionStyleProperty->setAccessible( true ) ;
+		$reflectionStyleProperty->setValue( $instance, 'foobar-theme' );
+		return $instance;
 	}
 }
 
