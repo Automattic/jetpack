@@ -173,6 +173,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return null;
 	}
 
+	function is_connected_site() {
+		return true;
+	}
+
 	/**
 	 * Post functions
 	 */
