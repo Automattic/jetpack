@@ -34,7 +34,6 @@ const trackPrivacyCenterView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
-
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
 
@@ -114,7 +113,7 @@ class Privacy extends React.Component {
 								disabled={ this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings }
 								onChange={ this.togglePrivacy }
 								id="privacy-settings">
-								{ __( 
+								{ __(
 									'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. ' +
 									'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.', {
 										components: {
@@ -123,9 +122,8 @@ class Privacy extends React.Component {
 													onClick={ trackCookiePolicyView }
 													target="_blank" rel="noopener noreferrer"
 													/>
-											}
+										}
 									}
-
 								) }
 							</CompactFormToggle>
 						</p>
