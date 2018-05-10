@@ -6588,7 +6588,7 @@ p {
 			'jetpack_holiday_snowing'                                => null,
 			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
 			'jetpack_cache_plans'                                    => null,
-			'jetpack_updated_themes'                                 => 'jetpack_updated_themes',
+			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
 		);
 
 		// This is a silly loop depth. Better way?
