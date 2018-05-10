@@ -284,7 +284,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		if ( ! $this->is_saving_post( $post_id ) ) {
-			call_user_func_array( $this->action_handler, func_get_args() );
+			$args = func_get_args();
+			call_user_func_array( $this->action_handler, $args );
 			return;
 		}
 		// current_action() is 'added_post_meta', 'updated_post_meta' or 'deleted_post_meta'
