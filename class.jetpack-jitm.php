@@ -207,7 +207,7 @@ class Jetpack_JITM {
 			$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
 		}
 
-		$number = $hide_jitm[ $feature_class ][ 'number' ];
+		$number = $hide_jitm[ $feature_class ]['number'];
 
 		$hide_jitm[ $feature_class ] = array( 'last_dismissal' => time(), 'number' => $number + 1 );
 
