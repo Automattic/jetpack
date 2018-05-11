@@ -9,6 +9,7 @@ function grunion_media_button( ) {
 	if ( 'press-this.php' === $pagenow ) {
 		return;
 	}
+	
 
 	// Change in a synced file
 
