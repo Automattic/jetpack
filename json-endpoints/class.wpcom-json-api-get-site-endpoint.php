@@ -120,6 +120,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'podcasting_archive',
 		'is_domain_only',
 		'is_automated_transfer',
+		'is_wpcom_store',
+		'signup_is_store',
+		'has_pending_automated_transfer',
+		'woocommerce_is_active',
+		'design_type',
+		'site_goals'
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -135,7 +141,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
-		'frame_nonce'
+		'is_wpcom_store',
+		'woocommerce_is_active',
+		'frame_nonce',
+		'design_type',
+		'wordads'
 	);
 
 	private $site;
@@ -210,8 +220,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $this->render_response_keys( $response_keys );
 	}
 
-	private function has_blog_access( $token_details, $wpcom_blog_id ) {
-		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+	/**
+	 * Checks that the current user has access to the current blog,
+	 * and failing that checks that we have a valid blog token.
+	 *
+	 * @param $token_details array Details obtained from the authorization token
+	 * @param $blog_id int The server-side blog id on wordpress.com
+	 *
+	 * @return bool
+	 */
+	private function has_blog_access( $token_details, $blog_id ) {
+		$current_blog_id = (  defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+			$blog_id :
+			get_current_blog_id();
+
+		if ( is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
 			return true;
 		}
 
@@ -223,7 +246,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if (
 			'jetpack' === $token_details['auth'] &&
 			'blog' === $token_details['access'] &&
-			$wpcom_blog_id === $token_details['blog_id']
+			$current_blog_id === $token_details['blog_id']
 		) {
 			return true;
 		}
@@ -506,6 +529,34 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'blog_public':
 					$options[ $key ] = $site->get_blog_public();
+					break;
+				case 'is_wpcom_store':
+					$options[ $key ] = $site->is_wpcom_store();
+					break;
+				case 'signup_is_store':
+					$signup_is_store = $site->signup_is_store();
+
+					if ( $signup_is_store ) {
+						$options[ $key ] = $site->signup_is_store();
+					}
+
+					break;
+				case 'has_pending_automated_transfer':
+					$has_pending_automated_transfer = $site->has_pending_automated_transfer();
+
+					if ( $has_pending_automated_transfer ) {
+						$options[ $key ] = true;
+					}
+
+					break;
+				case 'woocommerce_is_active':
+					$options[ $key ] = $site->woocommerce_is_active();
+					break;
+				case 'design_type':
+					$options[ $key ] = $site->get_design_type();
+					break;
+				case 'site_goals':
+					$options[ $key ] = $site->get_site_goals();
 					break;
 			}
 		}

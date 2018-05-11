@@ -2,25 +2,6 @@
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 //Mock object requiered for test_theme_update()
-class Dummy_Sync_Test_WP_Theme {
-	public $stylesheet = 'updated-theme';
-
-	public function get( $key ) {
-		switch ( $key ) {
-			case 'Name':
-				return 'Updated Theme';
-				break;
-			case 'Version':
-				return '10.0';
-				break;
-			case 'ThemeURI':
-				return 'http://NOT!';
-				break;
-		}
-	}
-}
-
-//Mock object requiered for test_theme_update()
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 
@@ -33,7 +14,14 @@ class Dummy_Sync_Test_WP_Upgrader {
 	}
 
 	function theme_info() {
-		return new Dummy_Sync_Test_WP_Theme();
+		$reflection = new ReflectionClass("WP_Theme" );
+
+		$instance = $reflection->newInstanceWithoutConstructor();
+
+		$reflectionStyleProperty = $reflection->getProperty( 'stylesheet' );
+		$reflectionStyleProperty->setAccessible( true ) ;
+		$reflectionStyleProperty->setValue( $instance, 'foobar-theme' );
+		return $instance;
 	}
 }
 
@@ -259,7 +247,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_theme_sync() {
-		$this->markTestSkipped( 'See Jetpack issue #7691' );
+
+		if ( ! method_exists(  'ReflectionClass', 'newInstanceWithoutConstructor' ) ) {
+			$this->markTestSkipped( 'See Jetpack issue #7691' );
+		}
+
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
@@ -271,16 +263,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_theme' );
-
-		$expected = array(
-			'updated-theme',
-			array(
-				'name' => 'Updated Theme',
-				'version' => '10.0',
-                'uri' => 'http://NOT!',
-			)
-		);
-		$this->assertEquals( $expected, $event_data->args );
+		
+		$this->assertEquals( 'foobar-theme', $event_data->args[0] );
+		$this->assertTrue( isset( $event_data->args[1]['name'] ) );
+		$this->assertTrue( isset( $event_data->args[1]['version'] ) );
+		$this->assertTrue( isset( $event_data->args[1]['uri'] ) );
 	}
 
 	public function test_widgets_changes_get_synced() {

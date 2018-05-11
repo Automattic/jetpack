@@ -483,7 +483,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 * @module json-api
 		 *
 		 * @since 3.6.0
-		 * @since 6.2.0 Added $unfiltered_input parameter.
+		 * @since 6.1.1 Added $unfiltered_input parameter.
 		 *
 		 * @param array $input              Associative array of site settings to be updated.
 		 *                                  Cast and filtered based on documentation.
