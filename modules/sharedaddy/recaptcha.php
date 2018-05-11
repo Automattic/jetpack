@@ -61,6 +61,7 @@ class Jetpack_ReCaptcha {
 			'invalid-input-response' => __( 'The response parameter is invalid or malformed', 'jetpack' ),
 			'invalid-json'           => __( 'Invalid JSON', 'jetpack' ),
 			'unexpected-response'    => __( 'Unexpected response', 'jetpack' ),
+			'unexpected-hostname'    => __( 'Unexpected hostname', 'jetpack' ),
 		);
 	}
 
@@ -126,6 +127,14 @@ class Jetpack_ReCaptcha {
 
 		if ( true !== $resp_decoded['success'] ) {
 			return new WP_Error( $error_code, $error_message );
+		}
+
+		// Validate the hostname matches expected source
+		if ( isset( $resp_decoded['hostname'] ) ) {
+			$url = wp_parse_url( get_home_url() );
+			if ( $url['host'] !== $resp_decoded['hostname'] ) {
+				return new WP_Error( 'unexpected-host', $this->error_codes['unexpected-hostname'] );
+			}
 		}
 
 		return true;
