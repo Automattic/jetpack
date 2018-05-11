@@ -10,6 +10,8 @@ function grunion_media_button( ) {
 		return;
 	}
 
+	// Change in a synced file
+
 	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
 	$title = __( 'Add Contact Form', 'jetpack' );
 	$plugin_url = esc_url( GRUNION_PLUGIN_URL );

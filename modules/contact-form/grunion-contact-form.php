@@ -1534,6 +1534,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	function __construct( $attributes, $content = null ) {
 		global $post;
 
+		// This file in synced list, but out of sync
+
 		$this->hash = sha1( json_encode( $attributes ) . $content );
 		self::$forms[ $this->hash ] = $this;
 

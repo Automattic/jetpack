@@ -13,6 +13,8 @@
  */
 class Jetpack_Protect_Blocked_Login_Page {
 
+	// Change in an unsynced file
+
 	private static $__instance = null;
 	public $can_send_recovery_emails;
 	public $ip_address;
