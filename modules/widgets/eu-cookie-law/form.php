@@ -48,14 +48,15 @@
 			/>
 			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
 		</li>
+		<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
 		<li>
-			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
-				<p>
-					<em><?php esc_html_e( 'Button click is required when Jetpack Ads is turned on.', 'jetpack' ); ?></em>
-				</p>
-			<?php endif; ?>
-
+			<span class="notice notice-warning" style="display: block;">
+				<span style="display: block; margin: .5em 0;">
+					<?php esc_html_e( 'Users must provide consent via button click when Jetpack Ads is turned on.', 'jetpack' ); ?>
+				</span>
+			</span>
 		</li>
+		<?php endif; ?>
 	</ul>
 </p>
 
