@@ -48,16 +48,17 @@
 			/>
 			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
 		</li>
-		<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
-		<li>
-			<span class="notice notice-warning" style="display: block;">
-				<span style="display: block; margin: .5em 0;">
-					<?php esc_html_e( 'Users must provide consent via button click when Jetpack Ads is turned on.', 'jetpack' ); ?>
-				</span>
-			</span>
-		</li>
-		<?php endif; ?>
 	</ul>
+	<p>
+		<small>This determines the method for capturing consent.</small>
+	</p>
+	<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+		<span class="notice notice-warning" style="display: block;">
+			<span style="display: block; margin: .5em 0;">
+				<?php esc_html_e( 'Users must provide consent via button click when Jetpack Ads is turned on.', 'jetpack' ); ?>
+			</span>
+		</span>
+	<?php endif; ?>
 </p>
 
 <hr />
@@ -186,12 +187,23 @@
 				type="text"
 				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
 			/>
-			<span class="notice notice-warning" style="display: none;">
+			<span class="notice notice-warning default-policy" style="display: none;">
 				<span style="display: block; margin: .5em 0;">
 					<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
 					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.', 'jetpack' ); ?>
 				</span>
 			</span>
+			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+				<span class="notice notice-warning custom-policy" style="display: none;">
+					<span style="display: block; margin: .5em 0;">
+						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
+						<?php echo sprintf(
+							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+							esc_url( 'https://jetpack.com/support/ads/#privacy' )
+						); ?>
+					</span>
+				</span>
+			<?php endif; ?>
 		</li>
 	</ul>
 </p>
