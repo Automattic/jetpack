@@ -9,6 +9,9 @@ function grunion_media_button( ) {
 	if ( 'press-this.php' === $pagenow ) {
 		return;
 	}
+	
+
+	// Change in a synced file
 
 	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
 	$title = __( 'Add Contact Form', 'jetpack' );
