@@ -171,7 +171,7 @@ PC;
 	 *
 	 * @since 4.6.0
 	 */
-	public function test_gutenberg_non_markdown_saved_correctly() {
+	public function test_gutenberg_markdown_saved_correctly() {
 		$post_id = $this->add_test_gutenberg_markdown_post();
 		$post = get_post( $post_id );
 		$this->assertEquals(
