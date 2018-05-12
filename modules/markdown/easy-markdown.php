@@ -452,7 +452,7 @@ class WPCom_Markdown {
              * post_content to post_content_filtered therefore replacing the original Markdown with
              * the previously rendered markup. This should only happen when saving from Gutenberg.
              *
-             * todo: verify assumption, a better check may be needed here
+             * todo: a better check may be needed here
              *
              * We will invert the fields so that the update is successful and the previously saved
              * Markdown content remains the source of truth.
@@ -585,12 +585,13 @@ class WPCom_Markdown {
 	 */
 	protected function _strip_gutenberg_text_area_wrapper_callback($matches) {
 		$matches[2] = self::markdown_block_fix_angled_brackets($matches[2]);
-		return $matches[1]."\n".$matches[2]."\n\n".$matches[3]; # String that will replace the block
+		return $matches[1]."\n".$matches[2]."\n\n".$matches[3];
 	}
 
 	/**
      * If this is a Gutenberg post then we must run wpautop on the content contained in each markdown block
-     * since all blocks will be run through Gutenberns noop version of wpautop (gutenberg_wpautop) in compat.php
+     * since all blocks will be run through Gutenberg's noop version of wpautop (gutenberg_wpautop) in
+	 * gutenberg/lib/compat.php
      *
      * We have placed the priority of the filter lower than the gutenberg_wpautop execution.
      *
@@ -613,7 +614,7 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Returns content with wpautop'ed markdown blocks and fixed contents
+	 * Returns content with wpautop'ed markdown blocks and fixed angle brackets
 	 *
 	 * @param $matches array
 	 * @return string
