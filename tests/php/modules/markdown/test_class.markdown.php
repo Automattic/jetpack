@@ -120,20 +120,7 @@ PC;
 		return $post_content;
 	}
 
-	/**
-	 * Test if _wpcom_is_markdown postmeta is set as true
-	 * after a Gutenberg insert containing Markdown blocks.
-	 *
-	 * @since 4.6.0
-	 */
-	public function test_if_gutenberg_markdown_sets_wpcom_is_markdown_meta_as_true() {
-		$post_id = $this->add_test_gutenberg_post();
-		$this->assertEquals( WPCom_Markdown::get_instance()->is_markdown($post_id), true );
-	}
-
 	private function add_test_gutenberg_non_markdown_post() {
-
-
 
 		$post_id = $this->factory->post->create(
 			array(
@@ -158,6 +145,17 @@ PC;
 	}
 
 	/**
+	 * Test if _wpcom_is_markdown postmeta is set as true
+	 * after a Gutenberg insert containing Markdown blocks.
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_if_gutenberg_markdown_sets_wpcom_is_markdown_meta_as_true() {
+		$post_id = $this->add_test_gutenberg_post();
+		$this->assertEquals( WPCom_Markdown::get_instance()->is_markdown($post_id), true );
+	}
+
+	/**
 	 * Test if _wpcom_is_markdown postmeta is false or non-existent
 	 * after a Gutenberg insert of non-Markdown blocks.
 	 *
@@ -169,7 +167,21 @@ PC;
 	}
 
 	/**
-	 * Test if non-Markdown from Gutenberg is rendered and saved correctly.
+	 * Test if Markdown blocks from Gutenberg are rendered and saved correctly.
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_gutenberg_non_markdown_saved_correctly() {
+		$post_id = $this->add_test_gutenberg_markdown_post();
+		$post = get_post( $post_id );
+		$this->assertEquals(
+			$this->get_converted_gutenberg_markdown_post(),
+			$post->post_content
+		);
+	}
+
+	/**
+	 * Test if non-Markdown blocks from Gutenberg are rendered and saved correctly.
 	 *
 	 * @since 4.6.0
 	 */
