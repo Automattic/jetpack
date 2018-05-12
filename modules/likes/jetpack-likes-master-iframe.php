@@ -4,7 +4,7 @@
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version = '20180418';
+	$version = gmdate( 'YW' );
 	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
 	$_locale = get_locale();

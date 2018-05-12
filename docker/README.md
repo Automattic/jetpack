@@ -18,7 +18,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 #### Prerequisites:
 - [Docker](https://www.docker.com/community-edition)
 - [NodeJS](https://nodejs.org)
-- [Yarn](https://yarnpkg.com/)
+- [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 - Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites and clone the repository:
