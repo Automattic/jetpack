@@ -169,7 +169,7 @@ class JetpackGalleryBlockEditor extends Component {
 				<ImagePlaceholder key="gallery-placeholder"
 					className={ className }
 					icon="format-gallery"
-					label={ __( 'Gallery' ) }
+					label={ __( 'Jetpack Gallery' ) }
 					onSelectImage={ this.onSelectImages }
 					multiple
 				/>,
