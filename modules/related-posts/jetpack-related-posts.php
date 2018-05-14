@@ -591,11 +591,13 @@ EOT;
 	public function get_for_post_id( $post_id, array $args ) {
 		$options = $this->get_options();
 
-		if ( ! empty( $args['size'] ) )
+		if ( ! empty( $args['size'] ) ) {
 			$options['size'] = $args['size'];
+		}
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) )
+		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) || get_post_status( $post_id) !== 'publish' ) {
 			return array();
+		}
 
 		$defaults = array(
 			'size' => (int)$options['size'],
