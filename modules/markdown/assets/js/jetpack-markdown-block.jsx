@@ -23,7 +23,16 @@ registerBlockType( 'jetpack/markdown-block', {
 
 	title: 'Markdown',
 
-	description: __( 'We are going to have MARKDOWN!.' ),
+	description: [
+		__( 'Write your content in plain-text Markdown syntax.' ),
+		(
+		<p>
+			<a href="https://en.support.wordpress.com/markdown-quick-reference/">
+			Support Reference
+			</a>
+		</p>
+		)
+	],
 
 	icon: el(
 		'svg',
