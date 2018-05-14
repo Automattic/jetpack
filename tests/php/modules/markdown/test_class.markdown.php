@@ -1,131 +1,21 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/markdown.php';
+require_once( dirname( __FILE__ ) . '/../../../../modules/markdown.php');
 
 class WP_Test_Markdown extends WP_UnitTestCase {
-	
+
+	private $gutenberg_post;
+
+	private $fixture_gutenberg_post_insert;
+
+	private $fixture_gutenberg_post_rendered;
+
 	private function add_test_gutenberg_markdown_post() {
 
-		$post_content = <<<PC
-<!-- wp:html -->
-<div>
-    This is an HTML block
-</div>
-<p>
-    # Markdown in an HTML block should not render.
-</p>
-# Markdown in an HTML block should not render.
-<!-- /wp:html -->
-
-<!-- wp:jetpack/markdown-block -->
-<textarea class="wp-block-jetpack-markdown-block"># Header 1
-## Header 2
-### Header 3
-#### Header 4
-##### Header 5
-###### Header 6
-
-**double asterisks**
-
-__double underscores__
-
-&lt;div>
-__double underscores__ inside of HTML tags should not render.
-&lt;/div>
-</textarea>
-<!-- /wp:jetpack/markdown-block -->
-
-<p>This is a Classic block</p>
-
-<!-- wp:code -->
-<pre class="wp-block-code"><code>&lt;p>testing p tags&lt;/p></code></pre>
-<!-- /wp:code -->
-PC;
-
 		$post_id = $this->factory->post->create(
 			array(
-				'post_content' => $post_content,
+				'post_content' => $this->fixture_gutenberg_post_insert,
+				'post_content_filtered' => $this->fixture_gutenberg_post_insert,
 				'post_title' => 'Test Gutenberg Post',
-			)
-		);
-
-		return $post_id;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function get_converted_gutenberg_markdown_post() {
-		$post_content = <<<PC
-<!-- wp:html -->
-<div>
-    This is an HTML block
-</div>
-
-    # Markdown in an HTML block should not render.
-
-# Markdown in an HTML block should not render.
-<!-- /wp:html -->
-
-<!-- wp:jetpack/markdown-block -->
-
-<h1>Header 1</h1>
-
-<h2>Header 2</h2>
-
-<h3>Header 3</h3>
-
-<h4>Header 4</h4>
-
-<h5>Header 5</h5>
-
-<h6>Header 6</h6>
-
-<strong>double asterisks</strong>
-
-<strong>double underscores</strong>
-
-<div>
-__double underscores__ inside of HTML tags should not render.
-</div>
-
-<!-- /wp:jetpack/markdown-block -->
-
-This is a Classic block
-PC;
-
-		return $post_content;
-
-	}
-
-	private function get_gutenberg_non_markdown_post() {
-
-		$post_content = <<<PC
-<!-- wp:html -->
-<div>
-    This is an HTML block
-</div>
-<p>
-    # Markdown in an HTML block should not render.
-</p>
-# Markdown in an HTML block should not render.
-<!-- /wp:html -->
-
-<p>This is a Classic block</p>
-
-<!-- wp:code -->
-<pre class="wp-block-code"><code>&lt;p>testing p tags&lt;/p></code></pre>
-<!-- /wp:code -->
-PC;
-
-		return $post_content;
-	}
-
-	private function add_test_gutenberg_non_markdown_post() {
-
-		$post_id = $this->factory->post->create(
-			array(
-				'post_content' => $this->get_gutenberg_non_markdown_post(),
-				'post_title' => 'Test Gutenberg Non Markdown Post',
 			)
 		);
 
@@ -141,7 +31,26 @@ PC;
 
 		parent::setUp();
 
+		$this->fixture_gutenberg_post_insert = file_get_contents(
+			dirname( __FILE__ ) .'/fixtures/gutenberg-markdown-block-insert.txt'
+		);
+		$this->fixture_gutenberg_post_rendered = file_get_contents(
+			dirname( __FILE__ ) .'/fixtures/gutenberg-markdown-block-rendered.txt'
+		);
+
 		update_option( 'wpcom_publish_posts_with_markdown', true );
+		do_action( 'init' );
+
+		// If authorized role is not set, post will not be sanitized in an accurate way.
+		$author_id = $this->factory->user->create(
+			array( 'role' => 'editor', )
+		);
+
+		wp_set_current_user( $author_id );
+
+		$post_id = $this->add_test_gutenberg_markdown_post();
+		$this->gutenberg_post = get_post( $post_id );
+		
 	}
 
 	/**
@@ -150,47 +59,65 @@ PC;
 	 *
 	 * @since 4.6.0
 	 */
-	public function test_if_gutenberg_markdown_sets_wpcom_is_markdown_meta_as_true() {
-		$post_id = $this->add_test_gutenberg_post();
-		$this->assertEquals( WPCom_Markdown::get_instance()->is_markdown($post_id), true );
-	}
+	public function test_if_wpcom_is_markdown_meta_was_set_as_true() {
 
-	/**
-	 * Test if _wpcom_is_markdown postmeta is false or non-existent
-	 * after a Gutenberg insert of non-Markdown blocks.
-	 *
-	 * @since 4.6.0
-	 */
-	public function test_if_gutenberg_non_markdown_sets_wpcom_is_markdown_meta_as_false() {
-		$post_id = $this->add_test_gutenberg_non_markdown_post();
-		$this->assertEquals( WPCom_Markdown::get_instance()->is_markdown($post_id), false );
-	}
-
-	/**
-	 * Test if Markdown blocks from Gutenberg are rendered and saved correctly.
-	 *
-	 * @since 4.6.0
-	 */
-	public function test_gutenberg_markdown_saved_correctly() {
-		$post_id = $this->add_test_gutenberg_markdown_post();
-		$post = get_post( $post_id );
 		$this->assertEquals(
-			$this->get_converted_gutenberg_markdown_post(),
-			$post->post_content
+			WPCom_Markdown::get_instance()->is_markdown($this->gutenberg_post->ID)
+			, "1"
 		);
 	}
 
 	/**
-	 * Test if non-Markdown blocks from Gutenberg are rendered and saved correctly.
+	 * Test if Markdown and other blocks from Gutenberg are saved intact
+	 * in post_content_filtered after being processed by the Markdown module.
 	 *
 	 * @since 4.6.0
 	 */
-	public function test_gutenberg_non_markdown_saved_correctly() {
-		$post_id = $this->add_test_gutenberg_non_markdown_post();
-		$post = get_post( $post_id );
+	public function test_if_gutenberg_markdown_post_content_filtered_is_saved_correctly() {
+
 		$this->assertEquals(
-			$this->get_gutenberg_non_markdown_post(),
-			$post->post_content
+			$this->fixture_gutenberg_post_insert,
+			$this->gutenberg_post->post_content_filtered
+		);
+	}
+
+	/**
+	 * Test if the Markdown block and other blocks are retrieved correctly when supplied
+	 * to Gutenberg for editing.
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_if_gutenberg_markdown_post_is_retrieved_correctly_for_editing() {
+
+		$post_type_object = get_post_type_object( $this->gutenberg_post->post_type );
+		$request = new WP_REST_Request(
+			'GET',
+			sprintf( '/wp/v2/%s/%d', $post_type_object->rest_base, $this->gutenberg_post->ID )
+		);
+		$request->set_param( 'context', 'edit' );
+		$response = rest_do_request( $request );
+		$rest_post = rest_get_server()->response_to_data( $response, false );
+
+		$post_to_edit = apply_filters( 'after_gutenberg_gets_post_to_edit', $rest_post );
+
+		$this->assertEquals(
+			$this->fixture_gutenberg_post_insert,
+			$post_to_edit['content']['raw']
+		);
+
+	}
+
+	/**
+	 * Test if the Markdown block and other blocks are rendered correctly when supplied to
+	 * a user for viewing.
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_if_gutenberg_markdown_post_is_rendered_correctly_for_viewing() {
+
+		$this->assertEquals(
+			$this->fixture_gutenberg_post_rendered,
+			$this->gutenberg_post->post_content
 		);
 	}
 
