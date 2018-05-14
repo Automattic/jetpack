@@ -75,11 +75,14 @@ script:
 
 sudo: false
 
-# We need notifications for successful builds
-
 notifications:
-   webhooks: https://betadownload.jetpack.me/travis.php
+   webhooks:
+     urls:
+       - https://betadownload.jetpack.me/travis.php
+     on_success: always # Beta builder needs notifications for successful builds
    email:
+     on_success: never # default: change
+     recipients:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
        - jeremy@automattic.com

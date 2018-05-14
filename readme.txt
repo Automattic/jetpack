@@ -21,7 +21,7 @@ Create and customize your WordPress site from start to finish. Jetpack helps you
 * Integration with the official WordPress mobile apps
 
 = Marketing Services =
-Measure, promote, and earn moment from your site. Jetpack helps you with:
+Measure, promote, and earn money from your site. Jetpack helps you with:
 
 * Site stats and analytics
 * Automated social media posting and scheduling in advance

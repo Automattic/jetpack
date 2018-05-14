@@ -1460,23 +1460,20 @@ class Jetpack {
 		global $active_plan_cache;
 
 		// this can be expensive to compute so we cache for the duration of a request
-		if ( $active_plan_cache ) {
+		if ( is_array( $active_plan_cache ) && ! empty( $active_plan_cache ) ) {
 			return $active_plan_cache;
 		}
 
 		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Set the default options
-		if ( empty( $plan ) || ( isset( $plan['product_slug'] ) && 'jetpack_free' === $plan['product_slug'] ) ) {
-			$plan = wp_parse_args( $plan, array(
-				'product_slug' => 'jetpack_free',
-				'supports'     => array(),
-				'class'        => 'free',
-				'features'     => array(
-					'active' => array()
-				),
-			) );
-		}
+		$plan = wp_parse_args( $plan, array(
+			'product_slug' => 'jetpack_free',
+			'class'        => 'free',
+			'features'     => array(
+				'active' => array()
+			),
+		) );
 
 		$supports = array();
 
@@ -6591,6 +6588,7 @@ p {
 			'jetpack_holiday_snowing'                                => null,
 			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
 			'jetpack_cache_plans'                                    => null,
+			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
 		);
 
 		// This is a silly loop depth. Better way?
