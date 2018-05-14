@@ -42,6 +42,9 @@ class WPCom_Markdown {
 	private static $parser;
 	private static $instance;
 
+	// To ensure that Gutenberg has firm validation on compatibility.
+	public static $is_gutenberg_compatible = true;
+
 	// to ensure that our munged posts over xml-rpc are removed from the cache
 	public $posts_to_uncache = array();
 	private $monitoring = array( 'post' => array(), 'parent' => array() );
