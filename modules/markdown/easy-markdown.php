@@ -653,7 +653,7 @@ class WPCom_Markdown {
 	 */
 	public function jetpack_markdown_preserve( ) {
 
-		$regex_patterns = [];
+		$regex_patterns = array();
 		/**
 		 * Preserve all markdown block comments
          * This will also hide the markdown blocks from the next pattern
