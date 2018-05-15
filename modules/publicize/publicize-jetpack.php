@@ -38,7 +38,16 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
+		// Delete stored Publicize data if either the module or the Jetpack plugin are deactivated.
+		add_action( 'jetpack_deactivate_module_publicize', array( $this, 'purge_connection_data' ) );
+		register_deactivation_hook( plugin_basename( JETPACK__PLUGIN_FILE ), array( $this, 'purge_connection_data' ) );
+
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
+	}
+
+	function purge_connection_data() {
+		$request = sprintf( '/sites/%d/publicize-connections/delete', Jetpack_Options::get_option( 'id' ) );
+		Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1', array( 'method' => 'POST' ) );
 	}
 
 	function force_user_connection() {
