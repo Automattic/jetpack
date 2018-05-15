@@ -35,7 +35,7 @@ class WP_Super_Cache_Router {
 		$preload_cache   = new WP_Super_Cache_Rest_Preload();
 		$get_status 	 = new WP_Super_Cache_Rest_Get_Status();
 		$get_plugins     = new WP_Super_Cache_Rest_Get_Plugins();
-		$update_plugins  = new WP_Super_Cache_Rest_Update_plugins();
+		$update_plugins  = new WP_Super_Cache_Rest_Update_Plugins();
 
 		register_rest_route( $namespace, '/settings', array(
 			array(
