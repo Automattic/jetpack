@@ -584,6 +584,9 @@ class Jetpack {
 			Jetpack_Search_Performance_Logger::init();
 		}
 
+		// detect amp-wp and modify output as appropriate
+		jetpack_require_lib( 'class.jetpack-amp-support' );
+
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
@@ -1088,7 +1091,7 @@ class Jetpack {
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		if ( Jetpack::is_active() ) {
+		if ( Jetpack::is_active() && ! Jetpack_AMP_Support::is_amp_request() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
 	}

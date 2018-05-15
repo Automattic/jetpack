@@ -50,6 +50,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function setup_filters() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
 		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // run this later, so other content filters have run, including image_add_wh on WP.com
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
@@ -290,6 +293,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(

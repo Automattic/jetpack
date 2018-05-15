@@ -1413,7 +1413,9 @@ EOT;
 			&&
 				! is_admin()
 			&&
-				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
+				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) )
+			&&
+				! Jetpack_AMP_Support::is_amp_request();
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
