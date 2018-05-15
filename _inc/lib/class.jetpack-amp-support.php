@@ -25,6 +25,9 @@ class Jetpack_AMP_Support {
 		// disable imploding CSS
 		add_filter( 'jetpack_implode_frontend_css', array( 'Jetpack_AMP_Support', 'should_implode_css' ) );
 
+		// enforce freedom mode for videopress
+		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
+
 		// DONE
 		// disable likes
 		// disable comment likes
@@ -36,9 +39,9 @@ class Jetpack_AMP_Support {
 		// modify social sharing
 		// disable milestone widget
 		// force using separate stylesheets to avoid unnecessary tree shaking
-
-		// TODO
+		// videopress freedom mode
 		// import functions from jetpack-helper.php in amp-wp
+
 
 
 	}
@@ -81,6 +84,11 @@ class Jetpack_AMP_Support {
 		}
 
 		return $implode;
+	}
+
+	static function videopress_enable_freedom_mode( $options ) {
+		$options['freedom'] = true;
+		return $options;
 	}
 
 	static function render_sharing_html( $markup, $sharing_enabled ) {
