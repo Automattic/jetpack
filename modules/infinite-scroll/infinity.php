@@ -372,9 +372,29 @@ class The_Neverending_Home_Page {
 		if ( ! current_theme_supports( 'infinite-scroll' ) )
 			return;
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// This setting is no longer configurable in wp-admin on WordPress.com -- leave a pointer
+			add_settings_field( self::$option_name_enabled,
+				'<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>',
+				array( $this, 'infinite_setting_html_calypso_placeholder' ),
+				'reading'
+			);
+			return;
+		}
+
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
 		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
+	}
+
+	function infinite_setting_html_calypso_placeholder() {
+		$details = get_blog_details();
+		echo '<span>' . sprintf(
+			/* translators: Variables are the enclosing link to the settings page */
+			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.' ),
+			'<a href="' . esc_url( 'https://wordpress.com/settings/writing/' . $details->domain ) . '">',
+			'</a>'
+		) . '</span>';
 	}
 
 	/**
@@ -1598,6 +1618,14 @@ add_action( 'init', 'the_neverending_home_page_init', 20 );
  * If so, include the files which add theme support.
  */
 function the_neverending_home_page_theme_support() {
+	if (
+			defined( 'IS_WPCOM' ) && IS_WPCOM &&
+			defined( 'REST_API_REQUEST' ) && REST_API_REQUEST &&
+			! doing_action( 'restapi_theme_after_setup_theme' )
+	) {
+		// Don't source theme compat files until we're in the site's context
+		return;
+	}
 	$theme_name = get_stylesheet();
 
 	/**
