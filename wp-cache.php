@@ -2292,6 +2292,34 @@ function wp_cache_index_notice() {
 }
 add_action( 'admin_notices', 'wp_cache_index_notice' );
 
+function wpsc_config_file_notices() {
+	global $wp_cache_config_file;
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] != 'wpsupercache' ) {
+		return false;
+	}
+	$notice = get_transient( 'wpsc_config_error' );
+	if ( ! $notice ) {
+		return false;
+	}
+	switch( $notice ) {
+		case 'config_file_ro':
+			$msg = sprintf( __( 'Error: Configuration file is read only. Please make sure %s is writeable by the webserver.' ), $wp_cache_config_file );
+			break;
+		case 'tmp_file_ro':
+			$msg = sprintf( __( 'Error: The directory containing the configuration file %s is read only. Please make sure it is writeable by the webserver.' ), $wp_cache_config_file );
+			break;
+		case 'config_file_not_loaded':
+			$msg = sprintf( __( 'Error: Configuration file %s could not be loaded. Please reload the page.' ), $wp_cache_config_file );
+			break;
+		case 'config_file_missing':
+			$msg = sprintf( __( 'Error: Configuration file %s s missing. Please reload the page.' ), $wp_cache_config_file );
+			break;
+
+	}
+	echo '<div class="error"><p><strong>' . $msg . '</strong></p></div>';
+}
+add_action( 'admin_notices', 'wpsc_config_file_notices' );
+
 function wpsc_dismiss_indexhtml_warning() {
 		check_ajax_referer( "wpsc-index-dismiss" );
 		update_site_option( 'wp_super_cache_index_detected', 3 );
