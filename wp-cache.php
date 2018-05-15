@@ -2302,6 +2302,9 @@ function wpsc_config_file_notices() {
 		return false;
 	}
 	switch( $notice ) {
+		case 'error_move_tmp_config_file':
+			$msg = sprintf( __( 'Error: Could not rename temporary file to configuration file. Please make sure %s is writeable by the webserver.' ), $wp_cache_config_file );
+			break;
 		case 'config_file_ro':
 			$msg = sprintf( __( 'Error: Configuration file is read only. Please make sure %s is writeable by the webserver.' ), $wp_cache_config_file );
 			break;

@@ -1054,7 +1054,8 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		trigger_error( "Error: file $my_file is not writable." );
 		return false;
 	}
-	$tmp_file = dirname( $my_file ) . '/' . mt_rand() . '.php';
+
+	$tmp_file = tempnam( sys_get_temp_dir(), 'wpsc' );
 	if ( ! is_writeable_ACLSafe( $tmp_file ) ) {
 		set_transient( 'wpsc_config_error', 'tmp_file_ro', 10 );
 		trigger_error( "Error: temporary file $tmp_file is not writable. Make sure directory is writeable." );
@@ -1112,7 +1113,12 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 	fclose( $fd );
-	@rename( $tmp_file, $my_file );
+
+	if ( ! rename( $tmp_file, $my_file ) ) {
+		set_transient( 'wpsc_config_error', 'error_move_tmp_config_file', 10 );
+		trigger_error( "wp_cache_replace_line: Error  - could not rename $tmp_file to $my_file" );
+		return false;
+	}
 
 	if ( function_exists( "opcache_invalidate" ) ) {
 		@opcache_invalidate( $my_file );
