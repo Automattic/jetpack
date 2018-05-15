@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 4.9.5
-* Stable tag: 1.6.0
+* Stable tag: 1.6.1
 * Requires at least: 3.0
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -261,6 +261,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 ## Changelog ##
 
+### 1.6.1 ###
+* Fix the name of the WP Crontrol plugin. (#549)
+* Handle errors during deactivation/uninstall by email rather than exiting. (#551)
+* Add a notice when settings can't be updated. (#552 and #553)
 
 ### 1.6.0 ###
 * Fix issues in multisite plugin (#501)
