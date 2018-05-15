@@ -6,7 +6,6 @@
  * @see https://github.com/Automattic/amp-wp
  */
 class Jetpack_AMP_Support {
-	// static $modules_to_disable = array( 'likes', 'comment-likes', 'related-posts', 'carousel', 'photon', 'lazy-images', 'notes' );
 
 	static function init() {
 		if ( ! self::is_amp_request() ) {
@@ -23,36 +22,37 @@ class Jetpack_AMP_Support {
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 
 		// disable imploding CSS
-		add_filter( 'jetpack_implode_frontend_css', array( 'Jetpack_AMP_Support', 'should_implode_css' ) );
+		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
 		// enforce freedom mode for videopress
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
 
-		// DONE
-		// disable likes
-		// disable comment likes
-		// disable related posts
-		// disable carousel
-		// disable photon
-		// disable notifications
-		// disable devicepx
-		// modify social sharing
-		// disable milestone widget
-		// force using separate stylesheets to avoid unnecessary tree shaking
-		// videopress freedom mode
-		// import functions from jetpack-helper.php in amp-wp
+		// include Jetpack og tags when rendering native AMP head
+		add_action( 'amp_post_template_head', array( 'Jetpack_AMP_Support', 'amp_post_jetpack_og_tags' ) );
 
+		// Post rendering changes for legacy AMP
+		add_action( 'pre_amp_render_post', array( 'Jetpack_AMP_Support', 'amp_disable_the_content_filters' ) );
 
-
+		// Add post template metadata for legacy AMP
+		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
 	}
 
-	static function init_filter_jetpack_modules() {
+	static function admin_init() {
+		// disable Likes metabox for post editor if AMP canonical disabled
+		add_filter( 'post_flair_disable',  array( 'Jetpack_AMP_Support', 'is_amp_canonical' ), 99 );
+	}
+
+	static function init_filter_jetpack_widgets() {
 		if ( ! self::is_amp_request() ) {
 			return;
 		}
 
 		// widgets
 		add_filter( 'jetpack_widgets_to_include', array( 'Jetpack_AMP_Support', 'filter_available_widgets' ) );
+	}
+
+	static function is_amp_canonical() {
+		return function_exists( 'amp_is_canonical' ) && amp_is_canonical();
 	}
 
 	static function is_amp_request() {
@@ -78,12 +78,169 @@ class Jetpack_AMP_Support {
 		return substr($widget_path, -14) !== '/milestone.php';
 	}
 
-	static function should_implode_css( $implode ) {
-		if ( self::is_amp_request() ) {
-			return false;
+	static function amp_disable_the_content_filters() {
+		if ( defined( 'WPCOM') && WPCOM ) {
+			add_filter( 'videopress_show_2015_player', '__return_true' );
+			add_filter( 'protected_embeds_use_form_post', '__return_false' );
+			remove_filter( 'the_title', 'widont' );
 		}
 
-		return $implode;
+		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
+		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 );
+	}
+
+	/**
+	 * Add publisher and image metadata.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array   $metadata Metadata array.
+	 * @param WP_Post $post     Post.
+	 * @return array Modified metadata array.
+	 */
+	static function amp_post_template_metadata( $metadata, $post ) {
+		if ( isset( $metadata['publisher'] ) && ! isset( $metadata['publisher']['logo'] ) ) {
+			$metadata = self::add_blavatar_to_metadata( $metadata );
+		}
+
+		if ( ! isset( $metadata['image'] ) ) {
+			$metadata = self::add_image_to_metadata( $metadata, $post );
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Add blavatar to metadata.
+	 *
+	 * @since 0.3
+	 *
+	 * @param array $metadata Metadata.
+	 * @return array Metadata.
+	 */
+	static function add_blavatar_to_metadata( $metadata ) {
+		if ( ! function_exists( 'blavatar_domain' ) ) {
+			return $metadata;
+		}
+
+		$size = 60;
+
+		$metadata['publisher']['logo'] = array(
+			'@type'  => 'ImageObject',
+			'url'    => blavatar_url( blavatar_domain( site_url() ), 'img', $size, self::staticize_subdomain( 'https://wordpress.com/i/favicons/apple-touch-icon-60x60.png' ) ),
+			'width'  => $size,
+			'height' => $size,
+		);
+
+		return $metadata;
+	}
+
+	/**
+	 * Add image to metadata.
+	 *
+	 * @since 0.3.2
+	 *
+	 * @param array   $metadata Metadata.
+	 * @param WP_Post $post     Post.
+	 * @return array Metadata.
+	 */
+	static function add_image_to_metadata( $metadata, $post ) {
+		$image = Jetpack_PostImages::get_image( $post->ID, array(
+			'fallback_to_avatars' => true,
+			'avatar_size'         => 200,
+			// AMP already attempts these.
+			'from_thumbnail'      => false,
+			'from_attachment'     => false,
+		) );
+
+		if ( empty( $image ) ) {
+			return self::add_fallback_image_to_metadata( $metadata );
+		}
+
+		if ( ! isset( $image['src_width'] ) ) {
+			$dimensions = self::extract_image_dimensions_from_getimagesize( array(
+				$image['src'] => false,
+			) );
+
+			if ( false !== $dimensions[ $image['src'] ] ) {
+				$image['src_width']  = $dimensions['width'];
+				$image['src_height'] = $dimensions['height'];
+			}
+		}
+
+		$metadata['image'] = array(
+			'@type'  => 'ImageObject',
+			'url'    => $image['src'],
+			'width'  => $image['src_width'],
+			'height' => $image['src_height'],
+		);
+
+		return $metadata;
+	}
+
+	/**
+	 * Add fallback image to metadata.
+	 *
+	 * @since 0.3.2
+	 *
+	 * @param array $metadata Metadata.
+	 * @return array Metadata.
+	 */
+	static function add_fallback_image_to_metadata( $metadata ) {
+		$metadata['image'] = array(
+			'@type'  => 'ImageObject',
+			'url'    => self::staticize_subdomain( 'https://wordpress.com/i/blank.jpg' ),
+			'width'  => 200,
+			'height' => 200,
+		);
+
+		return $metadata;
+	}
+
+	static function staticize_subdomain( $domain ) {
+		// deal with WPCOM vs Jetpack
+		if ( function_exists( 'staticize_subdomain' ) ) {
+			return staticize_subdomain( $domain );
+		} else {
+			return Jetpack::staticize_subdomain( $domain );
+		}
+	}
+
+	/**
+	 * Extract image dimensions via wpcom/imagesize.
+	 *
+	 * @since 0.5
+	 *
+	 * @param array $dimensions Dimensions.
+	 * @return array Dimensions.
+	 */
+	static function extract_image_dimensions_from_getimagesize( $dimensions ) {
+		if ( ! ( defined('WPCOM') && WPCOM && function_exists( 'require_lib' ) ) ) {
+			return $dimensions;
+		}
+		require_lib( 'wpcom/imagesize' );
+
+		foreach ( $dimensions as $url => $value ) {
+			if ( is_array( $value ) ) {
+				continue;
+			}
+			$result = wpcom_getimagesize( $url );
+			if ( is_array( $result ) ) {
+				$dimensions[ $url ] = array(
+					'width'  => $result[0],
+					'height' => $result[1],
+				);
+			}
+		}
+
+		return $dimensions;
+	}
+
+	static function amp_post_jetpack_og_tags() {
+		Jetpack::init()->check_open_graph();
+		if ( function_exists( 'jetpack_og_tags' ) ) {
+			jetpack_og_tags();
+		}
 	}
 
 	static function videopress_enable_freedom_mode( $options ) {
@@ -135,7 +292,9 @@ class Jetpack_AMP_Support {
 
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 
-// this is necessary since for better or worse Jetpack modules are loaded during plugins_loaded, which means we must
+add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
+
+// this is necessary since for better or worse Jetpack modules and widget files are loaded during plugins_loaded, which means we must
 // take the opportunity to intercept initialisation before that point, either by adding explicit detection into the module,
 // or preventing it from loading in the first place (better for performance)
-add_action( 'plugins_loaded', array( 'Jetpack_AMP_Support', 'init_filter_jetpack_modules' ), 1 );
+add_action( 'plugins_loaded', array( 'Jetpack_AMP_Support', 'init_filter_jetpack_widgets' ), 1 );
