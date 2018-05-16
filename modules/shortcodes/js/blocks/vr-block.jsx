@@ -17,13 +17,16 @@ registerBlockType( 'gutenpack/vr', {
 	attributes: {
 		url: {
 			type: 'string',
+		},
+		view: {
+			type: 'string',
 		}
 	},
 
 	edit: props => {
 		const attributes = props.attributes;
 		const onSetUrl = ( value ) => {
-			props.setAttributes( { url: value } );
+			props.setAttributes( { url: value, view: '360' } );
 		};
 
 		const renderEdit = () => {
@@ -36,7 +39,7 @@ registerBlockType( 'gutenpack/vr', {
 							frameBorder="0"
 							width="100%"
 							height="300"
-							src={ 'https://vr.me.sh/view/?url=' + encodeURIComponent( attributes.url ) }
+							src={ 'https://vr.me.sh/view/?view=360&url=' + encodeURIComponent( attributes.url ) }
 						/>
 					</div>
 				);
@@ -70,7 +73,7 @@ registerBlockType( 'gutenpack/vr', {
 					frameBorder="0"
 					width="100%"
 					height="300"
-					src={ 'https://vr.me.sh/view/?url=' + encodeURIComponent( props.attributes.url ) }
+					src={ 'https://vr.me.sh/view/?view=360&url=' + encodeURIComponent( props.attributes.url ) }
 				/>
 			</div>
 		);
