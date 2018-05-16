@@ -1,6 +1,6 @@
 <p>
 	<strong>
-		<?php _ex( 'Hide the banner', 'action', 'jetpack' ); ?>
+		<?php _ex( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -49,13 +49,10 @@
 			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
 		</li>
 	</ul>
-	<p>
-		<small>This determines the method for capturing consent.</small>
-	</p>
 	<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
 		<span class="notice notice-warning" style="display: block;">
 			<span style="display: block; margin: .5em 0;">
-				<?php esc_html_e( 'Users must provide consent via button click when Jetpack Ads is turned on.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Visitors must provide consent by clicking the dismiss button when Jetpack Ads is turned on.', 'jetpack' ); ?>
 			</span>
 		</span>
 	<?php endif; ?>
