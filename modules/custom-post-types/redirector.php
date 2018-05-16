@@ -113,10 +113,14 @@ class Jetpack_Redirector {
 			// If redirect post object doesn't exist, update the cache
 			wp_cache_set( $url_hash, 0, self::CACHE_GROUP );
 			return false;
-		} elseif ( 0 !== $redirect_post->post_parent ) {
+		}
+
+		if ( 0 !== $redirect_post->post_parent ) {
 			// Add allowed params to the redirect URL.
 			return add_query_arg( $protected_param_values, get_permalink( $redirect_post->post_parent ) );
-		} elseif ( ! empty( $redirect_post->post_excerpt ) ) {
+		}
+
+		if ( ! empty( $redirect_post->post_excerpt ) ) {
 			// Add allowed params to the redirect URL.
 			return add_query_arg( $protected_param_values, esc_url_raw( $redirect_post->post_excerpt ) );
 		}
