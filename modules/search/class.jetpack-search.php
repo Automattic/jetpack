@@ -150,7 +150,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
+		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
 			return;
 		}
 
@@ -190,25 +190,6 @@ class Jetpack_Search {
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
-
-	/**
-	 * Is search supported on the current plan
-	 *
-	 * @since 6.0
-	 */
-	public function is_search_supported() {
-		return Jetpack::active_plan_supports( 'search' );
-	}
-
-	/**
-	 * Does this site have a VIP index
-	 *
-	 * @since 6.0
-	 */
-	public function has_vip_index() {
-		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
-	}
-	
 	/**
 	 * When an Elasticsearch query fails, this stores it and enqueues some debug information in the footer.
 	 *
@@ -847,7 +828,7 @@ class Jetpack_Search {
 		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
 
 		if ( empty( $args['query_fields'] ) ) {
-			if ( $this->has_vip_index() ) {
+			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
 				// VIP indices do not have per language fields
 				$match_fields        = array(
 					'title^0.1',
