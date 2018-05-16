@@ -121,7 +121,7 @@
 
 <p>
 	<strong>
-		<?php esc_html_e( 'Policy URL', 'jetpack' ); ?>
+		<?php esc_html_e( 'Privacy Policy Link', 'jetpack' ); ?>
 	</strong>
 	<ul class="eu-cookie-law-widget-policy-url">
 		<li>
@@ -143,7 +143,7 @@
 					type="radio"
 					value="custom"
 				/>
-				<?php esc_html_e( 'Custom:', 'jetpack' ); ?>
+				<?php esc_html_e( 'Custom URL:', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
@@ -165,7 +165,7 @@
 
 <p>
 	<strong>
-		<?php esc_html_e( 'Policy link text', 'jetpack' ); ?>
+		<?php esc_html_e( 'Link text', 'jetpack' ); ?>
 	</strong>
 	<label>
 		<input
