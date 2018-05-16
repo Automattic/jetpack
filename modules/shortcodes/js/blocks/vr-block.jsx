@@ -60,15 +60,17 @@
 								value={ attributes.url }
 								onChange={ onSetUrl }
 							/>
-							<SelectControl
-								label={ __( 'View Type' ) }
-								value={ attributes.view }
-								onChange={ onSetView }
-								options={ [
-									{ label: __( '360' ), value: '360' },
-									{ label: __( 'Cinema' ), value: 'cinema' },
-								] }
-							/>
+							<div style={ { marginTop: '10px' } }>
+								<SelectControl
+									label={ __( 'View Type' ) }
+									value={ attributes.view }
+									onChange={ onSetView }
+									options={ [
+										{ label: __( '360' ), value: '360' },
+										{ label: __( 'Cinema' ), value: 'cinema' },
+									] }
+								/>
+							</div>
 						</Placeholder>
 					</div>
 				);
