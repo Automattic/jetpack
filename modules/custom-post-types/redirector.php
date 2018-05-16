@@ -116,8 +116,22 @@ class Jetpack_Redirector {
 		}
 
 		if ( 0 !== $redirect_post->post_parent ) {
+			$parent_post = get_post( $redirect_post->post_parent );
+			if ( ! $parent_post instanceof WP_Post ) {
+				return false;
+			}
+
+			// Support redirecting directly to attached files...
+			if ( $parent_post->post_type === 'attachment' ) {
+				$ext_info = wp_check_filetype( $url );
+				// ...but only if the extension is allowed & matches
+				if ( $ext_info['ext'] && preg_match( '/\.' . $ext_info['ext'] . '$/', $parent_post->guid ) ) {
+					return $parent_post->guid;
+				}
+			}
+
 			// Add allowed params to the redirect URL.
-			return add_query_arg( $protected_param_values, get_permalink( $redirect_post->post_parent ) );
+			return add_query_arg( $protected_param_values, get_permalink( $parent_post ) );
 		}
 
 		if ( ! empty( $redirect_post->post_excerpt ) ) {
