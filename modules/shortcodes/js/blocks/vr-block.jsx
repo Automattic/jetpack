@@ -14,7 +14,7 @@
 
 	registerBlockType( 'gutenpack/vr', {
 		title: __( 'VR Image' ),
-		icon: 'sort',
+		icon: 'embed-photo',
 		category: 'embed',
 		supportHTML: false,
 		attributes: {
