@@ -103,23 +103,23 @@ class Jetpack_Redirector {
 			wp_cache_add( $url_hash, $redirect_post_id, self::CACHE_GROUP );
 		}
 
-		if ( $redirect_post_id ) {
-			$redirect_post = get_post( $redirect_post_id );
-
-			if ( ! $redirect_post instanceof WP_Post ) {
-				// If redirect post object doesn't exist, update the cache
-				wp_cache_set( $url_hash, 0, self::CACHE_GROUP );
-				return false;
-			} elseif ( 0 !== $redirect_post->post_parent ) {
-				// Add allowed params to the redirect URL.
-				return add_query_arg( $protected_param_values, get_permalink( $redirect_post->post_parent ) );
-			} elseif ( ! empty( $redirect_post->post_excerpt ) ) {
-				// Add allowed params to the redirect URL.
-				return add_query_arg( $protected_param_values, esc_url_raw( $redirect_post->post_excerpt ) );
-			}
+		if ( ! $redirect_post_id ) {
+			return false;
 		}
 
-		return false;
+		$redirect_post = get_post( $redirect_post_id );
+
+		if ( ! $redirect_post instanceof WP_Post ) {
+			// If redirect post object doesn't exist, update the cache
+			wp_cache_set( $url_hash, 0, self::CACHE_GROUP );
+			return false;
+		} elseif ( 0 !== $redirect_post->post_parent ) {
+			// Add allowed params to the redirect URL.
+			return add_query_arg( $protected_param_values, get_permalink( $redirect_post->post_parent ) );
+		} elseif ( ! empty( $redirect_post->post_excerpt ) ) {
+			// Add allowed params to the redirect URL.
+			return add_query_arg( $protected_param_values, esc_url_raw( $redirect_post->post_excerpt ) );
+		}
 	}
 
 	static function get_redirect_post_id( $url ) {
