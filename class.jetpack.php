@@ -585,7 +585,7 @@ class Jetpack {
 		}
 
 		// detect amp-wp and modify output as appropriate
-		jetpack_require_lib( 'class.jetpack-amp-support' );
+		require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
