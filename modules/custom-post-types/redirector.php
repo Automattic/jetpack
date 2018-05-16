@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Jetpack Legacy Redirector
- * Simple plugin for handling legacy redirects in a scalable manner.
+ * Jetpack Redirector
+ * Simple method to handle redirects in a scalable manner.
  * Forked from https://vip.wordpress.com/plugins/wpcom-legacy-redirector/
  *
  *  Maintain support for preexisting permalinks after importing or otherwise changing permalink structure.
@@ -24,7 +24,7 @@
  *  - post_excerpt if we're redirecting to an alternate URL.
  */
 
-class Jetpack_Legacy_Redirector {
+class Jetpack_Redirector {
 	const POST_TYPE = 'jetpack-redirect';
 	const CACHE_GROUP = 'jetpack-redirect';
 
@@ -32,7 +32,7 @@ class Jetpack_Legacy_Redirector {
 		register_post_type( self::POST_TYPE, array( 'public' => false ) );
 
 		// hook in early, before the canonical redirect
-		add_filter( 'template_redirect', array( 'Jetpack_Legacy_Redirector', 'maybe_do_redirect' ), 0 );
+		add_filter( 'template_redirect', array( 'Jetpack_Redirector', 'maybe_do_redirect' ), 0 );
 	}
 
 	static function maybe_do_redirect() {
@@ -48,7 +48,7 @@ class Jetpack_Legacy_Redirector {
 			$url .= '?' . $_SERVER['QUERY_STRING'];
 		}
 
-		$request_path = apply_filters( 'jetpack_legacy_redirector_request_path', $url );
+		$request_path = apply_filters( 'jetpack_redirector_request_path', $url );
 
 		if ( empty( $request_path ) ) {
 			return;
@@ -60,8 +60,8 @@ class Jetpack_Legacy_Redirector {
 			return;
 		}
 
-		header( 'X-legacy-redirect: HIT' );
-		$redirect_status = apply_filters( 'jetpack_legacy_redirector_redirect_status', 301, $url );
+		header( 'X-jetpack-redirector: HIT' );
+		$redirect_status = apply_filters( 'jetpack_redirector_redirect_status', 301, $url );
 		wp_safe_redirect( $redirect_uri, $redirect_status );
 		exit;
 	}
@@ -74,7 +74,7 @@ class Jetpack_Legacy_Redirector {
 		}
 
 		// Allowed list of Params that should be pass through as is.
-		$protected_params = apply_filters( 'jetpack_legacy_redirector_preserve_query_params', array(), $url );
+		$protected_params = apply_filters( 'jetpack_redirector_preserve_query_params', array(), $url );
 		$protected_param_values = array();
 		$param_values = array();
 
@@ -189,3 +189,5 @@ class Jetpack_Legacy_Redirector {
 		return $path . '?' . $components['query'];
 	}
 }
+
+add_action( 'init', array( 'Jetpack_Redirector', 'init' ) );

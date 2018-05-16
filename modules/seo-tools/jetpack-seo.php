@@ -43,11 +43,6 @@ class Jetpack_SEO {
 		}
 
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'set_custom_og_tags' ) );
-
-		if ( apply_filters( 'jetpack_seo_legacy_redirector', true ) ) {
-			jetpack_require_lib( 'class.jetpack-legacy-redirector' );
-			add_action( 'init', array( 'Jetpack_Legacy_Redirector', 'init' ) );
-		}
 	}
 
 	private function get_authors() {
