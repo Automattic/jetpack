@@ -130,7 +130,7 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 add_shortcode( 'vr', 'jetpack_vr_viewer_shortcode' );
 
 // Gutenberg!
-add_action( 'init', 'jetpack_register_block_type_vr' );
+add_action( 'admin_init', 'jetpack_register_block_type_vr' );
 function jetpack_register_block_type_vr() {
 	if ( ! function_exists( 'register_block_type' ) ) {
 		return;
@@ -144,7 +144,7 @@ function jetpack_register_block_type_vr() {
 
 	wp_register_style(
         'jetpack_vr_viewer_shortcode_editor_style',
-        plugins_url( 'modules/shortcodes/css/vr-block.css', JETPACK__PLUGIN_FILE ),
+        plugins_url( 'modules/shortcodes/css/blocks/vr-block.css', JETPACK__PLUGIN_FILE ),
         array( 'wp-edit-blocks' )
 	);
 
