@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Geo_Locate {
-    private static $instance;
+	private static $instance;
 
 	static public function init() {
 		if ( is_null( self::$instance ) ) {
@@ -61,8 +61,8 @@ class Jetpack_Geo_Locate {
 	}
 
 	public function sanitize_public( $public ) {
-	    return absint( $public ) ? 1 : 0;
-    }
+		return absint( $public ) ? 1 : 0;
+	}
 
 	public function sanitize_coordinate( $coordinate ) {
 		return round( (float) $coordinate, 7 );
