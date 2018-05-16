@@ -20,6 +20,9 @@ function require_lib_from_dir( $slug, $lib_dir ) {
 		"$lib_dir/$slug/0-load.php",
 		"$lib_dir/$slug/$basename.php",
 	);
+	if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+		$choices[] = JETPACK__PLUGIN_DIR . '/_inc/lib';
+	}
 	foreach( $choices as $file_name ) {
 		if ( is_readable( $file_name ) ) {
 			require_once $file_name;
@@ -30,13 +33,13 @@ function require_lib_from_dir( $slug, $lib_dir ) {
 }
 
 function jetpack_require_lib( $slug ) {
-   if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
-       define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-   }
+	if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
+		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
+	}
 
-   require_lib_from_dir( $slug, WP_CONTENT_DIR . '/lib' );
+	require_lib_from_dir( $slug, WP_CONTENT_DIR . '/lib' );
 }
 
 function jetpack_require_lib( $slug ) {
-   require_lib_from_dir( $slug, JETPACK__PLUGIN_DIR . '/_inc/lib' );
+	return jetpack_require_lib( $slug );
 }
