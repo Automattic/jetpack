@@ -677,13 +677,12 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Returns content with wpautop'ed markdown blocks and fixed angle brackets
+	 * Returns content with wpautop'ed markdown block content
 	 *
 	 * @param $matches array
 	 * @return string
 	 */
 	protected static function _wpautop_markdown_blocks_callback( $matches ) {
-		$matches[2] = self::markdown_block_fix_angled_brackets($matches[2]);
 		return $matches[1]. wpautop($matches[2]) . $matches[3];
 	}
 
