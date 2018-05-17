@@ -42,8 +42,30 @@ class WPCom_Markdown {
 	private static $parser;
 	private static $instance;
 
-	// To ensure that Gutenberg has firm validation on compatibility.
+	/**
+	 * To ensure that Gutenberg has firm validation on compatibility.
+	 *
+	 * @var bool
+	 */
 	public static $is_gutenberg_compatible = true;
+
+	/**
+	 * Pattern to match Gutenberg Markdown block opening tag exactly:
+	 *
+	 * <!-- wp:jetpack/markdown-block -->
+	 *
+	 * @var string
+	 */
+	protected static $markdown_block_opening_tag_pattern = '<!--\swp:jetpack\/markdown-block\s-->';
+
+	/**
+	 * Pattern to match Gutenberg Markdown block closing tag exactly:
+	 *
+	 * <!-- /wp:jetpack/markdown-block -->
+	 *
+	 * @var string
+	 */
+	protected static $markdown_block_closing_tag_pattern = '<!--\s/wp:jetpack\/markdown-block\s-->';
 
 	// to ensure that our munged posts over xml-rpc are removed from the cache
 	public $posts_to_uncache = array();
