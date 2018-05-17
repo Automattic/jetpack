@@ -290,6 +290,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(

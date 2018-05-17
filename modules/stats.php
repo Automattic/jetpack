@@ -169,7 +169,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
  * @return void
  */
 function stats_template_redirect() {
-	global $current_user, $stats_footer;
+	global $current_user, $rendered_stats_footer;
 
 	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
 		return;
@@ -186,19 +186,7 @@ function stats_template_redirect() {
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
 
-	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-	$data = stats_build_view_data();
-	$data_stats_array = stats_array( $data );
-
-	$stats_footer = <<<END
-<script type='text/javascript' src='{$script}' async='async' defer='defer'></script>
-<script type='text/javascript'>
-	_stq = window._stq || [];
-	_stq.push([ 'view', {{$data_stats_array}} ]);
-	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-</script>
-
-END;
+	$rendered_stats_footer = false;
 }
 
 
@@ -255,9 +243,44 @@ function stats_add_shutdown_action() {
  * @return void
  */
 function stats_footer() {
-	global $stats_footer;
-	print $stats_footer;
-	$stats_footer = '';
+	global $rendered_stats_footer;
+
+	if ( ! $rendered_stats_footer ) {
+		$data = stats_build_view_data();
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			stats_render_amp_footer( $data );
+		} else {
+			stats_render_footer( $data );
+		}
+		$rendered_stats_footer = true;
+	}
+}
+
+function stats_render_footer( $data ) {
+	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
+	$data_stats_array = stats_array( $data );
+
+	$stats_footer = <<<END
+<script type='text/javascript' src='{$script}' async='async' defer='defer'></script>
+<script type='text/javascript'>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {{$data_stats_array}} ]);
+	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
+</script>
+
+END;
+}
+
+function stats_render_amp_footer( $data ) {
+	$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
+	$data['rand'] = 'RANDOM'; // AMP placeholder.
+	$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
+	$data         = array_map( 'rawurlencode', $data );
+	$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
+
+	?>
+	<amp-pixel src="<?php echo esc_url( $pixel_url ); ?>"></amp-pixel>
+	<?php
 }
 
 /**
