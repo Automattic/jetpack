@@ -121,11 +121,11 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				'customtext'         => '',
 				'color-scheme'       => $this->color_scheme_options[0],
 				'policy-url'         => $this->policy_url_options[0],
-				'default-policy-url' => 'https://jetpack.com/support/cookies/',
+				'default-policy-url' => 'https://automattic.com/cookies/',
 				'custom-policy-url'  => '',
-				'policy-link-text'   => esc_html__( 'Our Cookie Policy', 'jetpack' ),
+				'policy-link-text'   => esc_html__( 'Cookie Policy', 'jetpack' ),
 				'button'             => esc_html__( 'Close and accept', 'jetpack' ),
-				'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies.', 'jetpack' ),
+				'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use.', 'jetpack' ),
 			);
 		}
 

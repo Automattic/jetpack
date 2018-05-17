@@ -13,7 +13,7 @@
 		?>
 		<br />
 		<?php
-		esc_html_e( 'To find out more, as well as how to remove or block these, see here:', 'jetpack' );
+		esc_html_e( 'To find out more, including how to control cookies, see here:', 'jetpack' );
 	} else {
 		echo esc_html( $instance['customtext'] );
 	} ?>
