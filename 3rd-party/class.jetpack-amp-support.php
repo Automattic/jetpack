@@ -62,11 +62,20 @@ class Jetpack_AMP_Support {
 		// can't use is_amp_endpoint() since it's not ready early enough in init.
 		// is_amp_endpoint() implementation calls is_feed, which bails with a notice if plugins_loaded isn't finished
 		// "Conditional query tags do not work before the query is run"
-		return ! is_admin() // this is necessary so that modules can still be enabled/disabled/configured as per normal via Jetpack admin
+		$is_amp_request = ! is_admin() // this is necessary so that modules can still be enabled/disabled/configured as per normal via Jetpack admin
 			&&
 				function_exists( 'amp_is_canonical' ) // this is really just testing if the plugin exists
 			&&
 				( amp_is_canonical() || isset( $_GET[ amp_get_slug() ] ) );
+
+		/**
+		 * Returns true if the current request should return valid AMP content.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
+		 */
+		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 
 	static function filter_available_widgets( $widgets ) {
