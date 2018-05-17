@@ -68,6 +68,7 @@
 									value={ attributes.view }
 									onChange={ onSetView }
 									options={ [
+										{ label: '', value: '' },
 										{ label: __( '360', 'jetpack' ), value: '360' },
 										{ label: __( 'Cinema', 'jetpack' ), value: 'cinema' },
 									] }
