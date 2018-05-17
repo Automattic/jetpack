@@ -688,21 +688,18 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Sometimes we get (&lt;) an encoded < when the markup is coming from Gutenberg.
+	 * We normally get (&lt;) an encoded < when the markup is coming from Gutenberg.
 	 * The regex here will try to guess if it is an incomplete HTML tag
 	 *
 	 * &lt;bold>Important Text&lt;/bold>
      *
-     * It is worth noting that this may be a "feature" of Gutenberg which will
-     * prevent Markdown from following it's specification:
+     * This is a feature of Gutenberg performed by the escapeHTML function in gutenberg/element/serialize.js.
+	 * It is worth noting that this will prevent Markdown from following it's specification:
      * Markdown formatting syntax is not processed within block-level HTML tags.
      *
      * To meet the spec we are running it before rendering the markdown in:
      *
      * _strip_gutenberg_text_area_wrapper_callback
-     *
-	 *
-	 * todo: find out cause of angle bracket munging.
 	 *
 	 */
 	protected static function markdown_block_fix_angled_brackets( $content ) {
