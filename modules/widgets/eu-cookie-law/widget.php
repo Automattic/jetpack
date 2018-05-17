@@ -9,13 +9,9 @@
 	</form>
 
 	<?php if ( 'default' == $instance['text'] || empty( $instance['customtext'] ) ) {
-		echo $instance['default-text'];
-		?>
-		<br />
-		<?php
-		esc_html_e( 'To find out more, including how to control cookies, see here:', 'jetpack' );
+		echo nl2br( $instance['default-text'] );
 	} else {
-		echo esc_html( $instance['customtext'] );
+		echo nl2br( esc_html( $instance['customtext'] ) );
 	} ?>
 
 	<a href="<?php

@@ -119,7 +119,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				'custom-policy-url'  => '',
 				'policy-link-text'   => esc_html__( 'Cookie Policy', 'jetpack' ),
 				'button'             => esc_html__( 'Close and accept', 'jetpack' ),
-				'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use.', 'jetpack' ),
+				'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use.', 'jetpack' ) . "\r\n" . esc_html__( 'To find out more, including how to control cookies, see here:', 'jetpack' ),
 			);
 		}
 

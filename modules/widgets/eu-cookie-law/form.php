@@ -1,5 +1,129 @@
 <p>
 	<strong>
+		<?php esc_html_e( 'Banner text', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['text'], 'default' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
+					type="radio"
+					value="default"
+				/>
+				<?php esc_html_e( 'Default', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['text'], 'custom' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
+					type="radio"
+					value="custom"
+				/>
+				<?php esc_html_e( 'Custom:', 'jetpack' ); ?>
+			</label>
+		</li>
+	</ul>
+	<textarea
+		class="widefat"
+		name="<?php echo esc_attr( $this->get_field_name( 'customtext' ) ); ?>"
+		placeholder="<?php echo esc_attr( $instance['default-text'] ); ?>"
+	><?php echo esc_html( $instance['customtext'] ); ?></textarea>
+</p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php esc_html_e( 'Privacy Policy Link', 'jetpack' ); ?>
+	</strong>
+	<ul class="eu-cookie-law-widget-policy-url">
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['policy-url'], 'default' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'policy-url' ) ); ?>"
+					type="radio"
+					value="default"
+				/>
+				<?php esc_html_e( 'Default', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['policy-url'], 'custom' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'policy-url' ) ); ?>"
+					type="radio"
+					value="custom"
+				/>
+				<?php esc_html_e( 'Custom URL:', 'jetpack' ); ?>
+			</label>
+			<input
+				class="widefat"
+				name="<?php echo esc_attr( $this->get_field_name( 'custom-policy-url' ) ); ?>"
+				placeholder="<?php echo esc_url( $instance['default-policy-url'] ); ?>"
+				style="margin-top: .5em;"
+				type="text"
+				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
+			/>
+			<span class="notice notice-warning default-policy" style="display: none;">
+				<span style="display: block; margin: .5em 0;">
+					<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
+					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.', 'jetpack' ); ?>
+				</span>
+			</span>
+			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+				<span class="notice notice-warning custom-policy" style="display: none;">
+					<span style="display: block; margin: .5em 0;">
+						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
+						<?php echo sprintf(
+							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+							esc_url( 'https://jetpack.com/support/ads/#privacy' )
+						); ?>
+					</span>
+				</span>
+			<?php endif; ?>
+		</li>
+	</ul>
+</p>
+
+<p>
+	<strong>
+		<?php esc_html_e( 'Link text', 'jetpack' ); ?>
+	</strong>
+	<label>
+		<input
+			class="widefat"
+			name="<?php echo $this->get_field_name( 'policy-link-text' ); ?>"
+			type="text"
+			value="<?php echo esc_attr( $instance['policy-link-text'] ); ?>"
+		/>
+	</label>
+</p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php esc_html_e( 'Button text', 'jetpack' ); ?>
+	</strong>
+	<label>
+		<input
+			class="widefat"
+			name="<?php echo $this->get_field_name( 'button' ); ?>"
+			type="text"
+			value="<?php echo esc_attr( $instance['button'] ); ?>"
+		/>
+	</label>
+</p>
+
+<hr />
+
+<p>
+	<strong>
 		<?php _ex( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
@@ -83,43 +207,6 @@
 
 <p>
 	<strong>
-		<?php esc_html_e( 'Banner text', 'jetpack' ); ?>
-	</strong>
-	<ul>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['text'], 'default' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
-					type="radio"
-					value="default"
-				/>
-				<?php esc_html_e( 'Default', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['text'], 'custom' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
-					type="radio"
-					value="custom"
-				/>
-				<?php esc_html_e( 'Custom:', 'jetpack' ); ?>
-			</label>
-		</li>
-	</ul>
-	<textarea
-		class="widefat"
-		name="<?php echo esc_attr( $this->get_field_name( 'customtext' ) ); ?>"
-		placeholder="<?php echo esc_attr( $instance['default-text'] ); ?>"
-	><?php echo esc_html( $instance['customtext'] ); ?></textarea>
-</p>
-
-<hr />
-
-<p>
-	<strong>
 		<?php _e( 'Color scheme', 'jetpack' ); ?>
 	</strong>
 	<ul>
@@ -149,91 +236,6 @@
 </p>
 
 <hr />
-
-<p>
-	<strong>
-		<?php esc_html_e( 'Policy URL', 'jetpack' ); ?>
-	</strong>
-	<ul class="eu-cookie-law-widget-policy-url">
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['policy-url'], 'default' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'policy-url' ) ); ?>"
-					type="radio"
-					value="default"
-				/>
-				<?php esc_html_e( 'Default', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['policy-url'], 'custom' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'policy-url' ) ); ?>"
-					type="radio"
-					value="custom"
-				/>
-				<?php esc_html_e( 'Custom:', 'jetpack' ); ?>
-			</label>
-			<input
-				class="widefat"
-				name="<?php echo esc_attr( $this->get_field_name( 'custom-policy-url' ) ); ?>"
-				placeholder="<?php echo esc_url( $instance['default-policy-url'] ); ?>"
-				style="margin-top: .5em;"
-				type="text"
-				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
-			/>
-			<span class="notice notice-warning default-policy" style="display: none;">
-				<span style="display: block; margin: .5em 0;">
-					<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
-					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.', 'jetpack' ); ?>
-				</span>
-			</span>
-			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
-				<span class="notice notice-warning custom-policy" style="display: none;">
-					<span style="display: block; margin: .5em 0;">
-						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
-						<?php echo sprintf(
-							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
-							esc_url( 'https://jetpack.com/support/ads/#privacy' )
-						); ?>
-					</span>
-				</span>
-			<?php endif; ?>
-		</li>
-	</ul>
-</p>
-
-<p>
-	<strong>
-		<?php esc_html_e( 'Policy link text', 'jetpack' ); ?>
-	</strong>
-	<label>
-		<input
-			class="widefat"
-			name="<?php echo $this->get_field_name( 'policy-link-text' ); ?>"
-			type="text"
-			value="<?php echo esc_attr( $instance['policy-link-text'] ); ?>"
-		/>
-	</label>
-</p>
-
-<hr />
-
-<p>
-	<strong>
-		<?php esc_html_e( 'Button text', 'jetpack' ); ?>
-	</strong>
-	<label>
-		<input
-			class="widefat"
-			name="<?php echo $this->get_field_name( 'button' ); ?>"
-			type="text"
-			value="<?php echo esc_attr( $instance['button'] ); ?>"
-		/>
-	</label>
-</p>
 
 <p class="small">
 	<?php esc_html_e( 'It is your own responsibility to ensure that your site complies with the relevant laws.', 'jetpack' ); ?>
