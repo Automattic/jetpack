@@ -719,7 +719,11 @@ class WPCom_Markdown {
          * This will also hide the markdown blocks from the next pattern
 		 */
 		$regex_patterns[] = '{
-		(<!--\s*[/]{0,1}wp:jetpack\/markdown-block\s*-->)
+		('.self::$markdown_block_opening_tag_pattern.')
+		}xsm';
+
+		$regex_patterns[] = '{
+		('.self::$markdown_block_closing_tag_pattern.')
 		}xsm';
 
 		/**
@@ -727,7 +731,7 @@ class WPCom_Markdown {
          * This will prevent unnecessary munging of non markdown content
 		 */
 		$regex_patterns[] = '{
-		(<!--\s*wp:.+?-->.*?<!--\s*\/wp:.+?-->)
+		(<!--\swp:.+?-->.*?<!--\s\/wp:.+?-->)
 		}xsm';
 
 		return $regex_patterns;
