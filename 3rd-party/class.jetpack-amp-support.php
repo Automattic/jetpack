@@ -112,7 +112,7 @@ class Jetpack_AMP_Support {
 	 */
 	static function amp_post_template_metadata( $metadata, $post ) {
 		if ( isset( $metadata['publisher'] ) && ! isset( $metadata['publisher']['logo'] ) ) {
-			$metadata = self::add_blavatar_to_metadata( $metadata );
+			$metadata = self::add_site_icon_to_metadata( $metadata );
 		}
 
 		if ( ! isset( $metadata['image'] ) ) {
@@ -130,19 +130,24 @@ class Jetpack_AMP_Support {
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
 	 */
-	static function add_blavatar_to_metadata( $metadata ) {
-		if ( ! function_exists( 'blavatar_domain' ) ) {
-			return $metadata;
-		}
-
+	static function add_site_icon_to_metadata( $metadata ) {
 		$size = 60;
 
-		$metadata['publisher']['logo'] = array(
-			'@type'  => 'ImageObject',
-			'url'    => blavatar_url( blavatar_domain( site_url() ), 'img', $size, self::staticize_subdomain( 'https://wordpress.com/i/favicons/apple-touch-icon-60x60.png' ) ),
-			'width'  => $size,
-			'height' => $size,
-		);
+		if ( function_exists( 'blavatar_domain' ) ) {
+			$metadata['publisher']['logo'] = array(
+				'@type'  => 'ImageObject',
+				'url'    => blavatar_url( blavatar_domain( site_url() ), 'img', $size, self::staticize_subdomain( 'https://wordpress.com/i/favicons/apple-touch-icon-60x60.png' ) ),
+				'width'  => $size,
+				'height' => $size,
+			);
+		} else if ( $site_icon_url = Jetpack_Sync_Functions::site_icon_url( $size ) ) {
+			$metadata['publisher']['logo'] = array(
+				'@type'  => 'ImageObject',
+				'url'    => $site_icon_url,
+				'width'  => $size,
+				'height' => $size,
+			);
+		}
 
 		return $metadata;
 	}
