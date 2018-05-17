@@ -9,7 +9,7 @@
 <!-- /wp:html -->
 
 <!-- wp:jetpack/markdown-block -->
-<textarea class="wp-block-jetpack-markdown-block"># Header 1
+<pre class="wp-block-jetpack-markdown-block"># Header 1
 ## Header 2
 ### Header 3
 #### Header 4
@@ -23,7 +23,7 @@ __double underscores__
 &lt;div>
 __double underscores__ inside of HTML tags should not render.
 &lt;/div>
-</textarea>
+</pre>
 <!-- /wp:jetpack/markdown-block -->
 
 <p>This is a Classic block</p>
