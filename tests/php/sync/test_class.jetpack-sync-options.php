@@ -188,6 +188,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'mailserver_login'                     => '',
 			'mailserver_pass'                      => '',
 			'mailserver_port'                      => 1,
+			'wp_page_for_privacy_policy'           => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

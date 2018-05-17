@@ -41,7 +41,7 @@ We like to think that integrating with Jetpack Start is fairly easy. From beginn
 2. Ensure Jetpack is installed on the WordPress site:
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
+    - `sh ./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
     - The script makes a call to our servers to register the site (if necessary) and provision the requested plan and any additional plugins such as VaultPress and Akismet
 4. If the script is successful, it will exit with code 0, and a JSON string. If any next steps are required in the browser, the JSON will include a URL to send your user to. E.g
     - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar" }`
@@ -57,7 +57,7 @@ The process for cancelling a single plan is just as simple as provisioning a pla
 2. Ensure Jetpack is installed on site
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-cancel.sh --partner_id={partner_id} --partner_secret={partner_secret} [--url=http://example.com]`
+    - `sh ./wp-content/plugins/jetpack/bin/partner-cancel.sh --partner_id={partner_id} --partner_secret={partner_secret} [--url=http://example.com]`
 4. If the script is successful, it will exit with code 0, and a JSON string.
     - `{ success: true }`
 5. If the script is unsuccessful, it will exit with code 1, and some text describing the error, like this:

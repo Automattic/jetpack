@@ -247,14 +247,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_theme_sync() {
-
-		if ( ! method_exists(  'ReflectionClass', 'newInstanceWithoutConstructor' ) ) {
-			$this->markTestSkipped( 'See Jetpack issue #7691' );
-		}
-
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
+			'themes' => array(
+				'twentyseventeen',
+				'twentysixteen',
+			)
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
@@ -262,12 +261,16 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_theme' );
-		
-		$this->assertEquals( 'foobar-theme', $event_data->args[0] );
-		$this->assertTrue( isset( $event_data->args[1]['name'] ) );
-		$this->assertTrue( isset( $event_data->args[1]['version'] ) );
-		$this->assertTrue( isset( $event_data->args[1]['uri'] ) );
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
+		$themes = $event_data->args[0];
+
+		//Not testing versions since they are subject to change
+		$this->assertEquals( 'Twenty Seventeen', $themes['twentyseventeen']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentyseventeen/', $themes['twentyseventeen']['uri'] );
+		$this->assertEquals( 'twentyseventeen', $themes['twentyseventeen']['stylesheet'] );
+		$this->assertEquals( 'Twenty Sixteen', $themes['twentysixteen']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentysixteen/', $themes['twentysixteen']['uri'] );
+		$this->assertEquals( 'twentysixteen', $themes['twentysixteen']['stylesheet'] );
 	}
 
 	public function test_widgets_changes_get_synced() {
