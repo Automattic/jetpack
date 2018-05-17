@@ -827,6 +827,7 @@ function sharing_display( $text = '', $echo = false ) {
 	 * @module sharedaddy
 	 *
 	 * @since 3.8.0
+	 * @since 6.2.0 Started sending $enabled as a second parameter.
 	 *
 	 * @param string $sharing_content Content markup of the Jetpack sharing links
 	 * @param array  $enabled         Array of Sharing Services currently enabled.
