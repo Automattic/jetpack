@@ -21,6 +21,9 @@ class Jetpack_AMP_Support {
 		add_filter( 'sharing_js', '__return_false' );
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 
+		// disable lazy images
+		add_filter( 'lazyload_is_enabled', '__return_false' );
+
 		// disable imploding CSS
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
