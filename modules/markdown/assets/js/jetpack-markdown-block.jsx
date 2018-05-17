@@ -65,8 +65,10 @@ registerBlockType( 'jetpack/markdown-block', {
 
 	attributes: {
 		content: {
-			source: 'text',
-			selector: 'textarea',
+			type: 'text',
+			source: 'property',
+			selector: 'pre',
+			property: 'textContent',
 		},
 	},
 
@@ -94,7 +96,7 @@ registerBlockType( 'jetpack/markdown-block', {
 		];
 	},
 	save( { attributes, className } ) {
-		return <textarea className={ className }>{ attributes.content }</textarea>;
+		return <pre className={ className }>{ attributes.content }</pre>;
 	},
 
 } );
