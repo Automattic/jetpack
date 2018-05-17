@@ -12,11 +12,13 @@
 	} = components;
 	const { __ } = i18n;
 
-	registerBlockType( 'gutenpack/vr', {
-		title: __( 'VR Image' ),
+	registerBlockType( 'jetpack/vr', {
+		title: __( 'VR Image', 'jetpack' ),
 		icon: 'embed-photo',
 		category: 'embed',
-		supportHTML: false,
+		support: {
+			html: false
+		},
 		attributes: {
 			url: {
 				type: 'string',
@@ -37,7 +39,7 @@
 					return (
 						<div className={ props.className }>
 							<iframe
-								title={ __( 'VR Image' ) }
+								title={ __( 'VR Image', 'jetpack' ) }
 								allowFullScreen="true"
 								frameBorder="0"
 								width="100%"
@@ -51,9 +53,9 @@
 					<div>
 						<Placeholder
 							key="placeholder"
-							instructions={ __( 'Enter URL to VR image' ) }
+							instructions={ __( 'Enter URL to VR image', 'jetpack' ) }
 							icon="format-image"
-							label={ __( 'VR Image' ) }
+							label={ __( 'VR Image', 'jetpack' ) }
 							className={ props.className }
 						>
 							<UrlInput
@@ -62,12 +64,12 @@
 							/>
 							<div style={ { marginTop: '10px' } }>
 								<SelectControl
-									label={ __( 'View Type' ) }
+									label={ __( 'View Type', 'jetpack' ) }
 									value={ attributes.view }
 									onChange={ onSetView }
 									options={ [
-										{ label: __( '360' ), value: '360' },
-										{ label: __( 'Cinema' ), value: 'cinema' },
+										{ label: __( '360', 'jetpack' ), value: '360' },
+										{ label: __( 'Cinema', 'jetpack' ), value: 'cinema' },
 									] }
 								/>
 							</div>
@@ -82,7 +84,7 @@
 			return (
 				<div className={ props.className }>
 					<iframe
-						title={ __( 'VR Image' ) }
+						title={ __( 'VR Image', 'jetpack' ) }
 						allowFullScreen="true"
 						frameBorder="0"
 						width="100%"

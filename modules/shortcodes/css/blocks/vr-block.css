@@ -1,4 +1,4 @@
-.wp-block-gutenpack-vr {
+.wp-block-jetpack-vr {
 	position: relative;
 	max-width: 525px;
 	margin-left: auto;
@@ -6,7 +6,7 @@
 	overflow: hidden;
 }
 
-iframe.wp-block-gutenpack-vr {
+iframe.wp-block-jetpack-vr {
 	position: absolute;
 	top: 0;
 	right: 0;
