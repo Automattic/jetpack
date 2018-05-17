@@ -571,17 +571,13 @@ class WPCom_Markdown {
 	/**
      * Strips the pre tags from the jetpack markdown block.
      *
-	 * Regex creates three capture groups in order to exclude the <pre></pre> wrapper from content:
+	 * Regex creates three capture groups in order to exclude the
+	 * <pre class="wp-block-jetpack-markdown-block"></pre>
+	 * wrapper from content:
 	 *
 	 * 1) opening tag
 	 * 2) content
 	 * 4) closing tag
-
-	 *
-     * <pre class="wp-block-jetpack-markdown-block">
-     * </pre>
-     *
-     * Converts the left angle brackets from markup tags inside.
      *
 	 * @param $text string
 	 * @return string
@@ -627,7 +623,8 @@ class WPCom_Markdown {
      * separate the content from the markdown block tags in order to ensure
 	 * that the Markdown parser does not munge the results.
 	 *
-	 * Fix the angle brackets before sending to the markdown parser
+	 * Restore the left angle brackets of markup tags inside Markdown block,
+	 * before sending to the markdown parser.
 	 *
 	 * @param $matches array
 	 * @return string
@@ -638,11 +635,15 @@ class WPCom_Markdown {
 	}
 
 	/**
-     * If this is a Gutenberg post then we must run wpautop on the content contained in each markdown block
-     * since all blocks will be run through Gutenberg's noop version of wpautop (gutenberg_wpautop) in
+	 * Gutenberg  substitutes the default content `wpautop` filter if it detects that the content has blocks.
+     * If the content has blocks will be run through Gutenberg's noop version of `wpautop`, `gutenberg_wpautop`, in
 	 * gutenberg/lib/compat.php
      *
-     * We have placed the priority of the filter lower than the gutenberg_wpautop execution.
+	 * `add_filter( 'the_content', 'gutenberg_wpautop', 8 );`
+	 *
+     * Markdown places the priority of the `wpautop_markdown_blocks` filter lower than the `gutenberg_wpautop`
+	 * execution. It runs the default content `wpautop` filter on the contents of each markdown block only so
+	 * that it displays properly in the front of the site.
 	 *
 	 * Regex creates three capture groups in order to run wpautop on the content group.
 	 *
