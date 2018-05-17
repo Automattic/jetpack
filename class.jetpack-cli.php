@@ -1152,6 +1152,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *  - day
 	 *  - week
 	 *  - month
+	 *  - year
 	 * ---
 	 *
 	 * [--date=<date>]
