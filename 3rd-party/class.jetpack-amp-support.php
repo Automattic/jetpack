@@ -187,9 +187,12 @@ class Jetpack_AMP_Support {
 	 * @return array Metadata.
 	 */
 	static function add_fallback_image_to_metadata( $metadata ) {
+		/** This filter is documented in functions.opengraph.php */
+		$default_image = apply_filters( 'jetpack_open_graph_image_default', 'https://wordpress.com/i/blank.jpg' );
+
 		$metadata['image'] = array(
 			'@type'  => 'ImageObject',
-			'url'    => self::staticize_subdomain( 'https://wordpress.com/i/blank.jpg' ),
+			'url'    => self::staticize_subdomain( $default_image ),
 			'width'  => 200,
 			'height' => 200,
 		);
