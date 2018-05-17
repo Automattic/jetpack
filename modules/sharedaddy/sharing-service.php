@@ -829,6 +829,7 @@ function sharing_display( $text = '', $echo = false ) {
 	 * @since 3.8.0
 	 *
 	 * @param string $sharing_content Content markup of the Jetpack sharing links
+	 * @param array  $enabled         Array of Sharing Services currently enabled.
 	 */
 	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content, $enabled );
 
