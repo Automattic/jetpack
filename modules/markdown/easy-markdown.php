@@ -569,10 +569,17 @@ class WPCom_Markdown {
 
 
 	/**
-     * Strips the textarea tags from the jetpack markdown block.
+     * Strips the pre tags from the jetpack markdown block.
      *
-     * <textarea class="wp-block-jetpack-markdown-block">
-     * </textarea>
+	 * Regex creates three capture groups in order to exclude the <pre></pre> wrapper from content:
+	 *
+	 * 1) opening tag
+	 * 2) content
+	 * 4) closing tag
+
+	 *
+     * <pre class="wp-block-jetpack-markdown-block">
+     * </pre>
      *
      * Converts the left angle brackets from markup tags inside.
      *
@@ -582,13 +589,29 @@ class WPCom_Markdown {
 	protected function strip_gutenberg_text_area_wrapper($text) {
 
 		$regex = '{
-		(<!--\s*wp:jetpack\/markdown-block\s*-->)
-		.*?<textarea\s+class=.+?wp-block-jetpack-markdown-block.+?>
-		(.*?)
-		<\/textarea>
-		.*?(<!--\s*\/wp:jetpack\/markdown-block\s*-->)
-		}xsm';
 
+		('.self::$markdown_block_opening_tag_pattern.')
+
+		# match anything after opening tag until first pre tag
+		.*?
+		
+		# match pre tag, allow for other attributes
+		# match class, allow for other classes and
+		# allow for other attributes after class attribute
+		<pre.+?class=.+?wp-block-jetpack-markdown-block.+?>
+
+		# capture all content
+		(.*?)
+
+		# match closing pre tag
+		<\/pre>
+		
+		# match anything after closing pre tag until first closing block
+		.*?
+
+		('.self::$markdown_block_closing_tag_pattern.')
+
+		}xsm';
 
 		$text = preg_replace_callback(
 			$regex,
@@ -601,10 +624,11 @@ class WPCom_Markdown {
 
 	/**
      * Concatenates the relevant matched results and adds newlines to
-     * ensure the Markdown parser does not munge the results.
-     *
-     * Fix the angle brackets before sending to the markdown parser
-     *
+     * separate the content from the markdown block tags in order to ensure
+	 * that the Markdown parser does not munge the results.
+	 *
+	 * Fix the angle brackets before sending to the markdown parser
+	 *
 	 * @param $matches array
 	 * @return string
 	 */
@@ -619,6 +643,13 @@ class WPCom_Markdown {
 	 * gutenberg/lib/compat.php
      *
      * We have placed the priority of the filter lower than the gutenberg_wpautop execution.
+	 *
+	 * Regex creates three capture groups in order to run wpautop on the content group.
+	 *
+	 * 1) opening tag
+	 * 2) content
+	 * 3) closing tag
+	 *
      *
 	 * @param $content
 	 * @return string
@@ -626,7 +657,14 @@ class WPCom_Markdown {
 	public static function wpautop_markdown_blocks($content) {
 
 		$regex = '{
-		(<!--\s*wp:jetpack\/markdown-block\s*-->)(.*?)(<!--\s*\/wp:jetpack\/markdown-block\s*-->)
+		
+		('.self::$markdown_block_opening_tag_pattern.')
+		
+		# capture all content
+		(.*?)
+		
+		('.self::$markdown_block_closing_tag_pattern.')
+		
 		}xsm';
 
 		$content = preg_replace_callback(
