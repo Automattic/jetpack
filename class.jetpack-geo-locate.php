@@ -120,6 +120,8 @@ class Jetpack_Geo_Locate {
 			return;
 		}
 
+		echo  "\n<!-- Jetpack Geo-location Tags -->\n";
+
 		printf(
 			'<meta name="geo.position" content="%s:%s" />' . PHP_EOL,
 			esc_attr( $meta_values['latitude'] ),
@@ -131,6 +133,8 @@ class Jetpack_Geo_Locate {
 			esc_attr( $meta_values['latitude'] ),
 			esc_attr( $meta_values['longitude'] )
 		);
+
+		echo  "\n<!-- End Jetpack Geo-location Tags -->\n";
 	}
 
 	/**
