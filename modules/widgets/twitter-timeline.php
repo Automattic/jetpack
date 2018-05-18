@@ -134,17 +134,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
 
-		$type      = ( isset( $instance['type'] ) ? $instance['type'] : '' );
 		$widget_id = ( isset( $instance['widget-id'] ) ? $instance['widget-id'] : '' );
-		switch ( $type ) {
-			case 'profile':
-				echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
-				break;
-			case 'widget-id':
-			default:
-				echo ' data-widget-id="' . esc_attr( $widget_id ) . '"';
-				break;
-		}
+		echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
 
 		// End tag output
 		echo '>';
@@ -240,10 +231,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		}
 
-		$instance['type'] = 'widget-id';
-		if ( in_array( $new_instance['type'], array( 'widget-id', 'profile' ) ) ) {
-			$instance['type'] = $new_instance['type'];
-		}
+		$instance['type'] = 'profile';
 
 		$instance['theme'] = 'light';
 		if ( in_array( $new_instance['theme'], array( 'light', 'dark' ) ) ) {
@@ -294,6 +282,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'title'        => esc_html__( 'Follow me on Twitter', 'jetpack' ),
 			'width'        => '',
 			'height'       => '400',
+			'type'         => 'profile',
 			'widget-id'    => '',
 			'link-color'   => '#f96e5b',
 			'border-color' => '#e8e8e8',
@@ -304,16 +293,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
-		if ( empty( $instance['type'] ) ) {
-			// Decide the correct widget type.  If this is a pre-existing
-			// widget with a numeric widget ID, then the type should be
-			// 'widget-id', otherwise it should be 'profile'.
-			if ( ! empty( $instance['widget-id'] ) && is_numeric( $instance['widget-id'] ) ) {
-				$instance['type'] = 'widget-id';
-			} else {
-				$instance['type'] = 'profile';
-			}
-		}
+		$instance['type'] = 'profile';
 		?>
 
 		<p>
@@ -368,39 +348,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 		</p>
 
-		<p class="jetpack-twitter-timeline-widget-type-container">
-			<label for="<?php echo $this->get_field_id( 'type' ); ?>">
-				<?php esc_html_e( 'Widget Type:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#widget-type' ); ?>
-			</label>
-			<select
-				name="<?php echo $this->get_field_name( 'type' ); ?>"
-				id="<?php echo $this->get_field_id( 'type' ); ?>"
-				class="jetpack-twitter-timeline-widget-type widefat"
-			>
-				<option value="profile"<?php selected( $instance['type'], 'profile' ); ?>>
-					<?php esc_html_e( 'Profile', 'jetpack' ); ?>
-				</option>
-				<option value="widget-id"<?php selected( $instance['type'], 'widget-id' ); ?>>
-					<?php esc_html_e( 'Widget ID', 'jetpack' ); ?>
-				</option>
-			</select>
-		</p>
-
 		<p class="jetpack-twitter-timeline-widget-id-container">
-			<label
-				for="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				data-widget-type="widget-id"
-				<?php echo ( 'widget-id' === $instance['type'] ? '' : 'style="display: none;"' ); ?>
-			>
-				<?php esc_html_e( 'Widget ID:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#widget-id' ); ?>
-			</label>
-			<label
-				for="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				data-widget-type="profile"
-				<?php echo ( 'profile' === $instance['type'] ? '' : 'style="display: none;"' ); ?>
-			>
+			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>">
 				<?php esc_html_e( 'Twitter Username:', 'jetpack' ); ?>
 				<?php echo $this->get_docs_link( '#twitter-username' ); ?>
 			</label>
