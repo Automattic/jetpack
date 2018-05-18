@@ -23,7 +23,7 @@ class Jetpack_Geo_Locate {
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_filter( 'the_content', array( $this, 'the_content_microformat' ) );
 		add_filter( 'the_content', array( $this, 'the_content_location_display' ), 15, 1 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_flair_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		$this->register_rss_hooks();
 	}
@@ -220,7 +220,7 @@ class Jetpack_Geo_Locate {
 	/**
 	 * Enqueue CSS for rendering post flair with geo-location.
 	 */
-	public function enqueue_flair_scripts() {
+	public function enqueue_scripts() {
 		wp_enqueue_style( 'dashicons' );
 	}
 
