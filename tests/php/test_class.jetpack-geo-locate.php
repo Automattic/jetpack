@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	public function tearDown() {
-		Jetpack_Geo_Locate::resetInstance();
+		Jetpack_Geo_Locate::reset_instance();
 	}
 
 	public function test_get_meta_values_returns_valid_array_for_nonexistent_post() {

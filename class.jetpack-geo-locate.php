@@ -14,7 +14,7 @@ class Jetpack_Geo_Locate {
 	/**
 	 * This is mostly just used for testing purposes.
 	 */
-	static public function resetInstance() {
+	static public function reset_instance() {
 		self::$instance = null;
 	}
 
@@ -70,7 +70,7 @@ class Jetpack_Geo_Locate {
 			array(
 				'sanitize_callback' => 'sanitize_text_field',
 				'type'              => 'string',
-				'single'            => true
+				'single'            => true,
 			)
 		);
 	}
@@ -211,8 +211,8 @@ class Jetpack_Geo_Locate {
 			ent2ncr( esc_html( $meta_values['longitude'] ) )
 		);
 
-		printf("\t\t<geo:lat>%s</geo:lat>\n", ent2ncr( esc_html( $meta_values['latitude'] ) ) );
-		printf("\t\t<geo:long>%s</geo:long>\n", ent2ncr( esc_html( $meta_values['longitude'] ) ) );
+		printf( "\t\t<geo:lat>%s</geo:lat>\n", ent2ncr( esc_html( $meta_values['latitude'] ) ) );
+		printf( "\t\t<geo:long>%s</geo:long>\n", ent2ncr( esc_html( $meta_values['longitude'] ) ) );
 	}
 
 	/**
@@ -237,10 +237,10 @@ class Jetpack_Geo_Locate {
 			'latitude'     => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'latitude' ) ),
 			'longitude'    => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'longitude' ) ),
 			'label'        => $this->get_meta_value( $post_id, 'address' ),
-			'is_populated' => false
+			'is_populated' => false,
 		);
 
-		if ( $meta_values['latitude'] && $meta_values['longitude'] && $meta_values['label']) {
+		if ( $meta_values['latitude'] && $meta_values['longitude'] && $meta_values['label'] ) {
 			$meta_values['is_populated'] = true;
 		}
 
@@ -290,7 +290,7 @@ class Jetpack_Geo_Locate {
 
 		$current_filters = (array) $GLOBALS['wp_current_filter'];
 
-		return in_array( 'get_the_excerpt', $current_filters);
+		return in_array( 'get_the_excerpt', $current_filters );
 	}
 }
 
