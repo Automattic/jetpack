@@ -20,6 +20,7 @@ class Jetpack_Geo_Locate {
 
 	private function __construct() {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+		add_action( 'wp_head', array( $this, 'wp_head' ) );
 
 		$this->register_rss_hooks();
 	}
@@ -97,6 +98,32 @@ class Jetpack_Geo_Locate {
 		}
 
 		return round( (float) $coordinate, 7 );
+	}
+
+	function wp_head() {
+		if ( ! $this->is_single() ) {
+			return;
+		}
+
+		global $post;
+
+		$meta_values = $this->get_meta_values( $post->ID );
+
+		if ( ! $meta_values['is_public'] ) {
+			return;
+		}
+
+		printf(
+			'<meta name="geo.position" content="%s:%s" />' . PHP_EOL,
+			esc_attr( $meta_values['latitude'] ),
+			esc_attr( $meta_values['longitude'] )
+		);
+
+		printf(
+			'<meta name="ICBM" content="%s, %s" />' . PHP_EOL,
+			esc_attr( $meta_values['latitude'] ),
+			esc_attr( $meta_values['longitude'] )
+		);
 	}
 
 	/**
@@ -185,6 +212,15 @@ class Jetpack_Geo_Locate {
 	 */
 	public function get_meta_value( $post_id, $meta_field_name ) {
 		return get_post_meta( $post_id, 'geo_' . $meta_field_name, true );
+	}
+
+	/**
+	 * Simple wrapper for testing purposes.
+	 *
+	 * @return bool
+	 */
+	public function is_single() {
+		return is_single();
 	}
 }
 
