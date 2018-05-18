@@ -104,7 +104,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add publisher and image metadata to legacy AMP post.
 	 *
-	 * @since 6.2
+	 * @since 6.2.0
 	 *
 	 * @param array   $metadata Metadata array.
 	 * @param WP_Post $post     Post.
@@ -125,7 +125,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add blavatar to legacy AMP post metadata.
 	 *
-	 * @since 6.2
+	 * @since 6.2.0
 	 *
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
@@ -155,7 +155,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add image to legacy AMP post metadata.
 	 *
-	 * @since 6.2
+	 * @since 6.2.0
 	 *
 	 * @param array   $metadata Metadata.
 	 * @param WP_Post $post     Post.
@@ -198,7 +198,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add fallback image to legacy AMP post metadata.
 	 *
-	 * @since 6.2
+	 * @since 6.2.0
 	 *
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
@@ -229,7 +229,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Extract image dimensions via wpcom/imagesize, only on WPCOM
 	 *
-	 * @since 6.2
+	 * @since 6.2.0
 	 *
 	 * @param array $dimensions Dimensions.
 	 * @return array Dimensions.
