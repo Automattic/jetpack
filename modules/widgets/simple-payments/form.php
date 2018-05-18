@@ -23,6 +23,7 @@
 		<?php } ?>
 	</select>
 </p>
+<?php if ( is_customize_preview() ) { ?>
 <p>
 	<div class="alignleft">
 		<button class="button jetpack-simple-payments-edit-product"><?php esc_html_e( 'Edit Selected' ); ?></button>
@@ -136,3 +137,16 @@
 	</p>
 	<hr />
 </div>
+<?php } else { ?>
+<p class="jetpack-simple-payments-products-warning">
+	<?php
+		echo sprintf(
+			wp_kses(
+				__( 'You can only create and edit payment buttons in the <a href="%s">Customizer</a>.' ),
+				array(  'a' => array( 'href' => array() ) )
+			),
+			esc_url( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) )
+		);
+	?>
+</p>
+<?php } ?>
