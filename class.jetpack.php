@@ -7105,6 +7105,10 @@ p {
 	 */
 	public static function is_akismet_active() {
 		if ( method_exists( 'Akismet' , 'http_post' ) || function_exists( 'akismet_http_post' ) ) {
+			$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
+			if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
+				return false;
+			}
 			return true;
 		}
 		return false;
