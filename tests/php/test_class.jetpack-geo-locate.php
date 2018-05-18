@@ -141,28 +141,28 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 		$this->assertContains( '&gt;', $output );
 	}
 
-	public function test_the_content_aborts_when_is_feed() {
+	public function test_the_content_microformat_aborts_when_is_feed() {
 		$instance = $this->get_instance_with_mock_public_post();
 
 		$instance->method( 'is_feed' )->willReturn( true );
 
-		$this->assertEquals( 'Original content',  $instance->the_content( 'Original content' ) );
+		$this->assertEquals( 'Original content',  $instance->the_content_microformat( 'Original content' ) );
 	}
 
-	public function test_the_content_aborts_when_meta_values_are_private() {
+	public function test_the_content_microformat_aborts_when_meta_values_are_private() {
 		$instance = $this->get_instance_with_mock_private_post();
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$this->assertEquals( 'Original content',  $instance->the_content( 'Original content' ) );
+		$this->assertEquals( 'Original content',  $instance->the_content_microformat( 'Original content' ) );
 	}
 
-	public function test_the_content_appends_microformat_when_meta_values_are_public() {
+	public function test_the_content_microformat_appends_microformat_when_meta_values_are_public() {
 		$instance = $this->get_instance_with_mock_public_post();
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$modifiedContent = $instance->the_content( 'Original content' );
+		$modifiedContent = $instance->the_content_microformat( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modifiedContent);
 		$this->assertContains( self::MOCK_LAT, $modifiedContent);
@@ -171,12 +171,52 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 		$this->assertContains( '<span class="longitude">', $modifiedContent);
 	}
 
-	public function test_the_content_escapes_malicious_meta_values() {
+	public function test_the_content_microformat_escapes_malicious_meta_values() {
 		$instance = $this->get_instance_with_mock_malicious_post();
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$modifiedContent = $instance->the_content( 'Original content' );
+		$modifiedContent = $instance->the_content_microformat( 'Original content' );
+
+		$this->assertStringStartsWith( 'Original content', $modifiedContent);
+		$this->assertNotContains( '<attack>', $modifiedContent );
+		$this->assertContains( '&lt;', $modifiedContent );
+		$this->assertContains( '&gt;', $modifiedContent );
+	}
+
+	public function test_the_content_location_display_aborts_when_is_not_single() {
+		$instance = $this->get_instance_with_mock_public_post();
+
+		$instance->method( 'is_single' )->willReturn( false );
+
+		$this->assertEquals( 'Original content',  $instance->the_content_location_display( 'Original content' ) );
+	}
+
+	public function test_the_content_location_display_aborts_when_meta_values_are_private() {
+		$instance = $this->get_instance_with_mock_private_post();
+
+		$instance->method( 'is_single' )->willReturn( true );
+
+		$this->assertEquals( 'Original content',  $instance->the_content_location_display( 'Original content' ) );
+	}
+
+	public function test_the_content_location_display_appends_microformat_when_meta_values_are_public() {
+		$instance = $this->get_instance_with_mock_public_post();
+
+		$instance->method( 'is_single' )->willReturn( true );
+
+		$modifiedContent = $instance->the_content_location_display( 'Original content' );
+
+		$this->assertStringStartsWith( 'Original content', $modifiedContent);
+		$this->assertContains( self::MOCK_ADDRESS, $modifiedContent);
+	}
+
+	public function test_the_content_location_display_escapes_malicious_meta_values() {
+		$instance = $this->get_instance_with_mock_malicious_post();
+
+		$instance->method( 'is_single' )->willReturn( true );
+
+		$modifiedContent = $instance->the_content_location_display( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modifiedContent);
 		$this->assertNotContains( '<attack>', $modifiedContent );

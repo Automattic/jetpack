@@ -21,7 +21,9 @@ class Jetpack_Geo_Locate {
 	private function __construct() {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
-		add_filter( 'the_content', array( $this, 'the_content' ) );
+		add_filter( 'the_content', array( $this, 'the_content_microformat' ) );
+		add_filter( 'the_content', array( $this, 'the_content_location_display'), 15, 1 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_flair_scripts' ) );
 
 		$this->register_rss_hooks();
 	}
@@ -139,7 +141,7 @@ class Jetpack_Geo_Locate {
 	 *
 	 * @return string
 	 */
-	public function the_content( $content ) {
+	public function the_content_microformat( $content ) {
 		if ( $this->is_feed() || $this->is_currently_excerpt_filter() ) {
 			return $content;
 		}
@@ -216,6 +218,47 @@ class Jetpack_Geo_Locate {
 	}
 
 	/**
+	 * Enqueue CSS for rendering post flair with geo-location.
+	 */
+	public function enqueue_flair_scripts() {
+		wp_enqueue_style( 'dashicons' );
+	}
+
+	/**
+	 * If we're rendering a single post and public geo-location data is available for it,
+	 * include the human-friendly location label in the output.
+	 *
+	 * @param string $html
+	 *
+	 * @return string
+	 */
+	public function the_content_location_display( $content ) {
+		global $post;
+
+		if ( ! $this->is_single() ) {
+			return $content;
+		}
+
+		$meta_values = $this->get_meta_values( $post->ID );
+
+		if ( ! $meta_values['is_public'] ) {
+			return $content;
+		}
+
+		// If the location has not been labeled, do not show the location
+		if ( ! $meta_values['label'] ) {
+			return $content;
+		}
+
+		$content .= '<div class="post-geo-location-label geo-chip">';
+		$content .= '<span class="dashicons dashicons-location" style="vertical-align: text-top;"></span> ';
+		$content .= esc_html( $meta_values['label'] );
+		$content .= '</div>';
+
+		return $content;
+	}
+
+	/**
 	 * This method always returns an array with the following structure:
 	 *
 	 * array(is_public => bool, latitude => float, longitude => float, label => string, is_populated => bool)
@@ -236,7 +279,7 @@ class Jetpack_Geo_Locate {
 			'is_public'    => (bool) $this->sanitize_public( $this->get_meta_value( $post_id, 'public' ) ),
 			'latitude'     => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'latitude' ) ),
 			'longitude'    => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'longitude' ) ),
-			'label'        => $this->get_meta_value( $post_id, 'address' ),
+			'label'        => trim( $this->get_meta_value( $post_id, 'address' ) ),
 			'is_populated' => false,
 		);
 
