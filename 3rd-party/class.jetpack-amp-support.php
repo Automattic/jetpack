@@ -87,7 +87,7 @@ class Jetpack_AMP_Support {
 	}
 
 	static function is_supported_widget( $widget_path ) {
-		return substr($widget_path, -14) !== '/milestone.php';
+		return substr( $widget_path, -14 ) !== '/milestone.php';
 	}
 
 	static function amp_disable_the_content_filters() {
@@ -102,9 +102,9 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Add publisher and image metadata.
+	 * Add publisher and image metadata to legacy AMP post.
 	 *
-	 * @since 0.3
+	 * @since 6.2.0
 	 *
 	 * @param array   $metadata Metadata array.
 	 * @param WP_Post $post     Post.
@@ -123,9 +123,9 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Add blavatar to metadata.
+	 * Add blavatar to legacy AMP post metadata.
 	 *
-	 * @since 0.3
+	 * @since 6.2.0
 	 *
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
@@ -153,9 +153,9 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Add image to metadata.
+	 * Add image to legacy AMP post metadata.
 	 *
-	 * @since 0.3.2
+	 * @since 6.2.0
 	 *
 	 * @param array   $metadata Metadata.
 	 * @param WP_Post $post     Post.
@@ -196,9 +196,9 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Add fallback image to metadata.
+	 * Add fallback image to legacy AMP post metadata.
 	 *
-	 * @since 0.3.2
+	 * @since 6.2.0
 	 *
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
@@ -227,9 +227,9 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
-	 * Extract image dimensions via wpcom/imagesize.
+	 * Extract image dimensions via wpcom/imagesize, only on WPCOM
 	 *
-	 * @since 0.5
+	 * @since 6.2.0
 	 *
 	 * @param array $dimensions Dimensions.
 	 * @return array Dimensions.
