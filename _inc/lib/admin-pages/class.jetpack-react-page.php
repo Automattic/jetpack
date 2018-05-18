@@ -147,21 +147,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 	}
 
-	function get_i18n_data() {
-
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
-
-		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
-			$locale_data = @file_get_contents( $i18n_json );
-			if ( $locale_data ) {
-				return $locale_data;
-			}
-		}
-
-		// Return empty if we have nothing to return so it doesn't fail when parsed in JS
-		return '{}';
-	}
-
 	/**
 	 * Gets array of any Jetpack notices that have been dismissed.
 	 *
@@ -312,7 +297,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes ),
 				),
 			),
-			'locale' => $this->get_i18n_data(),
+			'locale' => Jetpack::get_i18n_data_json(),
 			'localeSlug' => join( '-', explode( '_', jetpack_get_user_locale() ) ),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),

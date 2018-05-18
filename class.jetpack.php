@@ -625,6 +625,9 @@ class Jetpack {
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
+		// gutenberg locale
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
+
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
 		/**
@@ -2592,6 +2595,30 @@ class Jetpack {
 	}
 
 	/**
+	 * Get i18n strings as a JSON-encoded string
+	 *
+	 * @return string The locale as JSON
+	 */
+	public static function get_i18n_data_json() {
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
+
+		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
+			$locale_data = @file_get_contents( $i18n_json );
+			if ( $locale_data ) {
+				return $locale_data;
+			}
+		}
+
+		// Return valid empty Jed locale
+		return json_encode( array(
+			'' => array(
+				'domain' => 'jetpack',
+				'lang'   => is_admin() ? get_user_locale() : get_locale(),
+			),
+		) );
+	}
+
+	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
 	 * @since 3.9.2
@@ -3817,6 +3844,13 @@ p {
 
 	function admin_menu_order() {
 		return true;
+	}
+
+	function enqueue_gutenberg_locale() {
+		wp_add_inline_script(
+			'wp-i18n',
+			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
+		);
 	}
 
 	function jetpack_menu_order( $menu_order ) {
