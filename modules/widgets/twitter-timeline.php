@@ -106,7 +106,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		if ( 'widget-id' === $instance['type'] && current_user_can( 'edit_theme_options' ) ) {
 			echo '<p>' . esc_html__( 'Widget ID is deprecated and will stop working on 27 July 2018. Please update your Twitter Timeline widget.', 'jetpack' ) . '</p>';
-
 		}
 
 		// Start tag output
