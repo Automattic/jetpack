@@ -21,6 +21,7 @@ class Jetpack_Geo_Locate {
 	private function __construct() {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
+		add_filter( 'the_content', array( $this, 'the_content' ) );
 
 		$this->register_rss_hooks();
 	}
@@ -100,6 +101,10 @@ class Jetpack_Geo_Locate {
 		return round( (float) $coordinate, 7 );
 	}
 
+	/**
+	 * Render geo.position and ICBM meta tags with public geo meta values when rendering
+	 * a single post.
+	 */
 	function wp_head() {
 		if ( ! $this->is_single() ) {
 			return;
@@ -124,6 +129,47 @@ class Jetpack_Geo_Locate {
 			esc_attr( $meta_values['latitude'] ),
 			esc_attr( $meta_values['longitude'] )
 		);
+	}
+
+	/**
+	 * Append public meta values in the Geo microformat (https://en.wikipedia.org/wiki/Geo_(microformat)
+	 * to the supplied content.
+	 *
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	public function the_content( $content ) {
+		if ( $this->is_feed() || $this->is_currently_excerpt_filter() ) {
+			return $content;
+		}
+
+		global $post;
+
+		$meta_values = $this->get_meta_values( $post->ID );
+
+		if ( ! $meta_values['is_public'] ) {
+			return $content;
+		}
+
+		$microformat = sprintf(
+			'<div id="geo-post-%d" class="geo geo-post" style="display: none">',
+			esc_attr( $post->ID )
+		);
+
+		$microformat .= sprintf(
+			'<span class="latitude">%s</span>',
+			esc_html( $meta_values['latitude'] )
+		);
+
+		$microformat .= sprintf(
+			'<span class="longitude">%s</span>',
+			esc_html( $meta_values['longitude'] )
+		);
+
+		$microformat .= '</div>';
+
+		return $content . $microformat;
 	}
 
 	/**
@@ -221,6 +267,30 @@ class Jetpack_Geo_Locate {
 	 */
 	public function is_single() {
 		return is_single();
+	}
+
+	/**
+	 * Simple wrapper for testing purposes.
+	 *
+	 * @return bool
+	 */
+	public function is_feed() {
+		return is_feed();
+	}
+
+	/**
+	 * Check to see if the current filter is the get_the_excerpt filter.
+	 *
+	 * @return bool
+	 */
+	public function is_currently_excerpt_filter() {
+		if ( isset( $GLOBALS['wp_current_filter'] ) ) {
+			return false;
+		}
+
+		$current_filters = (array) $GLOBALS['wp_current_filter'];
+
+		return in_array( 'get_the_excerpt', $current_filters);
 	}
 }
 

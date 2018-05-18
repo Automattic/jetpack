@@ -141,6 +141,49 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 		$this->assertContains( '&gt;', $output );
 	}
 
+	public function test_the_content_aborts_when_is_feed() {
+		$instance = $this->get_instance_with_mock_public_post();
+
+		$instance->method( 'is_feed' )->willReturn( true );
+
+		$this->assertEquals( 'Original content',  $instance->the_content( 'Original content' ) );
+	}
+
+	public function test_the_content_aborts_when_meta_values_are_private() {
+		$instance = $this->get_instance_with_mock_private_post();
+
+		$instance->method( 'is_feed' )->willReturn( false );
+
+		$this->assertEquals( 'Original content',  $instance->the_content( 'Original content' ) );
+	}
+
+	public function test_the_content_appends_microformat_when_meta_values_are_public() {
+		$instance = $this->get_instance_with_mock_public_post();
+
+		$instance->method( 'is_feed' )->willReturn( false );
+
+		$modifiedContent = $instance->the_content( 'Original content' );
+
+		$this->assertStringStartsWith( 'Original content', $modifiedContent);
+		$this->assertContains( self::MOCK_LAT, $modifiedContent);
+		$this->assertContains( self::MOCK_LONG, $modifiedContent);
+		$this->assertContains( '<span class="latitude">', $modifiedContent);
+		$this->assertContains( '<span class="longitude">', $modifiedContent);
+	}
+
+	public function test_the_content_escapes_malicious_meta_values() {
+		$instance = $this->get_instance_with_mock_malicious_post();
+
+		$instance->method( 'is_feed' )->willReturn( false );
+
+		$modifiedContent = $instance->the_content( 'Original content' );
+
+		$this->assertStringStartsWith( 'Original content', $modifiedContent);
+		$this->assertNotContains( '<attack>', $modifiedContent );
+		$this->assertContains( '&lt;', $modifiedContent );
+		$this->assertContains( '&gt;', $modifiedContent );
+	}
+
 	private function get_instance() {
 		return Jetpack_Geo_Locate::init();
 	}
@@ -204,7 +247,10 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	 * @return Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function createMockInstance( $additional_mock_methods = array() ) {
-		$mock_methods = array_merge( array( 'get_meta_value', 'is_single' ), $additional_mock_methods );
+		$mock_methods = array_merge(
+			array( 'get_meta_value', 'is_single', 'is_feed' ),
+			$additional_mock_methods
+		);
 
 		/* @var $instance Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject */
 		return $this->getMockBuilder( Jetpack_Geo_Locate::class )
