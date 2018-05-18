@@ -24,6 +24,10 @@ class Jetpack_Geo_Locate {
 		$this->register_rss_hooks();
 	}
 
+	/**
+	 * Register support for the geo-location feature on pages and posts.  Register the meta
+	 * fields managed by this plugin so that they are properly sanitized during save.
+	 */
 	public function wordpress_init() {
 		add_post_type_support( 'post', 'geo-location' );
 		add_post_type_support( 'page', 'geo-location' );
@@ -69,10 +73,24 @@ class Jetpack_Geo_Locate {
 		);
 	}
 
+	/**
+	 * Filter "public" input to always be either 1 or 0.
+	 *
+	 * @param mixed $public
+	 *
+	 * @return int
+	 */
 	public function sanitize_public( $public ) {
 		return absint( $public ) ? 1 : 0;
 	}
 
+	/**
+	 * Filter geo coordinates and normalize them to floats with 7 digits of precision.
+	 *
+	 * @param mixed $coordinate
+	 *
+	 * @return float|null
+	 */
 	public function sanitize_coordinate( $coordinate ) {
 		if ( ! $coordinate ) {
 			return null;
