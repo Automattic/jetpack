@@ -10,7 +10,8 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: './_inc/client/admin.js',
-		'static': './_inc/client/static.jsx'
+		'static': './_inc/client/static.jsx',
+		gutenberg: './_inc/client/gutenberg.jsx',
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
