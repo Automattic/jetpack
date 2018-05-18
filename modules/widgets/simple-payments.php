@@ -62,6 +62,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			echo '</div><!--simple-payments-->';
 
 			echo $args['after_widget'];
+
+			do_action( 'jetpack_stats_extra', 'widget_view', 'simple_payments' );
 		}
 
 		/**
