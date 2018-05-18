@@ -142,11 +142,11 @@ class Jetpack_Geo_Locate {
 	 * @return string
 	 */
 	public function the_content_microformat( $content ) {
-		if ( $this->is_feed() || $this->is_currently_excerpt_filter() ) {
+		global $post;
+
+		if ( ! $post || $this->is_feed() || $this->is_currently_excerpt_filter() ) {
 			return $content;
 		}
-
-		global $post;
 
 		$meta_values = $this->get_meta_values( $post->ID );
 
@@ -235,7 +235,7 @@ class Jetpack_Geo_Locate {
 	public function the_content_location_display( $content ) {
 		global $post;
 
-		if ( ! $this->is_single() ) {
+		if ( ! $post || ! $this->is_single() ) {
 			return $content;
 		}
 
