@@ -20,6 +20,8 @@ class Jetpack_Geo_Locate {
 
 	private function __construct() {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+
+		$this->register_rss_hooks();
 	}
 
 	public function wordpress_init() {
@@ -77,6 +79,49 @@ class Jetpack_Geo_Locate {
 		}
 
 		return round( (float) $coordinate, 7 );
+	}
+
+	/**
+	 * Register a range of hooks for integrating geo data with various feeds.
+	 */
+	public function register_rss_hooks() {
+		add_action( 'rss2_ns', array( $this, 'rss_namespace' ) );
+		add_action( 'atom_ns', array( $this, 'rss_namespace' ) );
+		add_action( 'rdf_ns', array( $this, 'rss_namespace' ) );
+		add_action( 'rss_item', array( $this, 'rss_item' ) );
+		add_action( 'rss2_item', array( $this, 'rss_item' ) );
+		add_action( 'atom_entry', array( $this, 'rss_item' ) );
+		add_action( 'rdf_item', array( $this, 'rss_item' ) );
+	}
+
+	/**
+	 * Add the georss namespace during RSS generation.
+	 */
+	public function rss_namespace() {
+		echo 'xmlns:georss="http://www.georss.org/georss" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
+	}
+
+	/**
+	 * Output georss data for RSS items, assuming we have data for the currently rendered post and
+	 * that data as marked as public.
+	 */
+	public function rss_item() {
+		global $post;
+
+		$meta_values = $this->get_meta_values( $post->ID );
+
+		if ( ! $meta_values['is_public'] ) {
+			return;
+		}
+
+		printf(
+			"\t<georss:point>%s %s</georss:point>\n",
+			ent2ncr( esc_html( $meta_values['latitude'] ) ),
+			ent2ncr( esc_html( $meta_values['longitude'] ) )
+		);
+
+		printf("\t\t<geo:lat>%s</geo:lat>\n", ent2ncr( esc_html( $meta_values['latitude'] ) ) );
+		printf("\t\t<geo:long>%s</geo:long>\n", ent2ncr( esc_html( $meta_values['longitude'] ) ) );
 	}
 
 	/**
