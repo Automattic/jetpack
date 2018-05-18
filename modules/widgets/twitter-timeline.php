@@ -86,7 +86,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
 				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
-				echo '<div>' . esc_html__( 'Widget ID is not supported anymore. Please update your Twitter Timeline widget.', 'jetpack' );
+				echo '<p>' . esc_html__( 'Widget ID is not supported anymore. Please update your Twitter Timeline widget.', 'jetpack' ) . '</p>';
 				echo $args['after_widget'];
 			}
 			return;
@@ -102,6 +102,11 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
+		}
+
+		if ( 'widget-id' === $instance['type'] && current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . esc_html__( 'Widget ID is deprecated and will stop working on 27 July 2018. Please update your Twitter Timeline widget.', 'jetpack' ) . '</p>';
+
 		}
 
 		// Start tag output
