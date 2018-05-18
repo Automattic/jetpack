@@ -38,7 +38,7 @@ li.toplevel_page_jetpack .wp-menu-image:before {
 	position: relative;
 	.editor-inserter__item-icon {
 		background-color: #00BE28;
-		color: white;
+		color: white !important;
 		&:hover {
 			color: white;
 		}
