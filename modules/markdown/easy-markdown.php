@@ -100,7 +100,7 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * If we're in a bulk edit session, unload so that we don't lose our markdown metadata
+	 * If we're in a bulk edit session, unload so that we don't lose our Markdown metadata
 	 * @return null
 	 */
 	public function maybe_unload_for_bulk_edit() {
@@ -440,7 +440,7 @@ class WPCom_Markdown {
 	 * @return string          Swapped content
 	 */
 	public function edit_post_content_filtered( $content, $id ) {
-		// if markdown was disabled, let's turn this off
+		// if Markdown was disabled, let's turn this off
 		if ( ! $this->is_posting_enabled() && $this->is_markdown( $id ) ) {
 			$post = get_post( $id );
 			if ( $post && ! empty( $post->post_content_filtered ) ) {
@@ -460,9 +460,9 @@ class WPCom_Markdown {
 	public function wp_insert_post_data( $post_data, $postarr ) {
 		// $post_data array is slashed!
 		$post_id = isset( $postarr['ID'] ) ? $postarr['ID'] : false;
-		// bail early if markdown is disabled or this post type is unsupported.
+		// bail early if Markdown is disabled or this post type is unsupported.
 		if ( ! $this->is_posting_enabled() || ! post_type_supports( $post_data['post_type'], self::POST_TYPE_SUPPORT ) ) {
-			// it's disabled, but maybe this *was* a markdown post before.
+			// it's disabled, but maybe this *was* a Markdown post before.
 			if ( $this->is_markdown( $post_id ) && ! empty( $post_data['post_content_filtered'] ) ) {
 				$post_data['post_content_filtered'] = '';
 			}
@@ -473,7 +473,7 @@ class WPCom_Markdown {
 		}
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
-		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636)
+		// also prevent quick edit feature from overriding already-saved Markdown (issue https://github.com/Automattic/jetpack/issues/636)
 		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
 
 			/**
@@ -506,8 +506,8 @@ class WPCom_Markdown {
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
 
 			/**
-			 * Remove the textarea wrapper from the markdown block so that it
-			 * renders as HTML text and not a textarea form element for the reader
+			 * Remove the Markdown wrapper from the Markdown block so that it
+			 * renders as HTML text and not the Markdown container element for the reader.
 			 */
 			$text = $this->strip_gutenberg_markdown_wrapper( $post_data['post_content'] );
 
@@ -523,7 +523,7 @@ class WPCom_Markdown {
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		}
 
-		// set as markdown on the wp_insert_post hook later
+		// set as Markdown on the wp_insert_post hook later
 		if ( $post_id ) {
 			$this->monitoring['post'][ $post_id ] = true;
 		} else {
@@ -626,16 +626,16 @@ class WPCom_Markdown {
 
 	/**
 	 * Concatenates the relevant matched results and adds newlines to
-	 * separate the content from the markdown block tags in order to ensure
+	 * separate the content from the Markdown block tags in order to ensure
 	 * that the Markdown parser does not munge the results.
 	 *
 	 * Restore the left angle brackets of markup tags inside Markdown block,
-	 * before sending to the markdown parser.
+	 * before sending to the Markdown parser.
 	 *
 	 * @param $matches array
 	 * @return string
 	 */
-	protected function _strip_gutenberg_text_area_wrapper_callback( $matches ) {
+	protected function _strip_gutenberg_markdown_wrapper_callback( $matches ) {
 		$matches[2] = self::markdown_block_fix_angled_brackets( $matches[2] );
 		return $matches[1] . "\n" . $matches[2] . "\n\n" . $matches[3];
 	}
@@ -648,11 +648,11 @@ class WPCom_Markdown {
 	 * `add_filter( 'the_content', 'gutenberg_wpautop', 8 );`
 	 *
 	 * Markdown places the priority of the `wpautop_markdown_blocks` filter lower than the `gutenberg_wpautop`
-	 * execution. It runs the default content `wpautop` filter on the contents of each markdown block only so
+	 * execution. It runs the default content `wpautop` filter on the contents of each Markdown block only so
 	 * that it displays properly in the front of the site.
 	 *
 	 * The only reason we run `wautop` on the content is because the legacy functionality
-	 * treats markdown spaces as follows:
+	 * treats Markdown spaces as follows:
 	 *
 	 * __bold__
 	 * **bold**
@@ -713,7 +713,7 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Returns content with wpautop'ed markdown block content
+	 * Returns content with wpautop'ed Markdown block content
 	 *
 	 * @param $matches array
 	 * @return string
@@ -732,9 +732,9 @@ class WPCom_Markdown {
 	 * It is worth noting that this will prevent Markdown from following it's specification:
 	 * Markdown formatting syntax is not processed within block-level HTML tags.
 	 *
-	 * To meet the spec we are running it before rendering the markdown in:
+	 * To meet the spec we are running it before rendering the Markdown in:
 	 *
-	 * _strip_gutenberg_text_area_wrapper_callback
+	 * _strip_gutenberg_markdown_wrapper_callback
 	 *
 	 */
 	protected static function markdown_block_fix_angled_brackets( $content ) {
@@ -750,8 +750,8 @@ class WPCom_Markdown {
 
 		$regex_patterns = array();
 		/**
-		 * Preserve all markdown block comments
-		 * This will also hide the markdown blocks from the next pattern
+		 * Preserve all Markdown block comments
+		 * This will also hide the Markdown blocks from the next pattern
 		 */
 		$regex_patterns[] = '{
 		(' . self::$markdown_block_opening_tag_pattern . ')
@@ -763,7 +763,7 @@ class WPCom_Markdown {
 
 		/**
 		 * Preserve all Gutenberg blocks and their contents
-		 * This will prevent unnecessary munging of non markdown content
+		 * This will prevent unnecessary munging of non Markdown content
 		 */
 		$regex_patterns[] = '{
 		(<!--\swp:.+?-->.*?<!--\s\/wp:.+?-->)
@@ -993,7 +993,7 @@ class WPCom_Markdown {
 
 
 	/**
-	 * We munge the post cache to serve proper markdown content to XML-RPC clients.
+	 * We munge the post cache to serve proper Markdown content to XML-RPC clients.
 	 * Uncache these after the XML-RPC session ends.
 	 * @return null
 	 */
