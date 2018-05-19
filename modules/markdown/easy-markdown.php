@@ -645,6 +645,35 @@ class WPCom_Markdown {
 	 * execution. It runs the default content `wpautop` filter on the contents of each markdown block only so
 	 * that it displays properly in the front of the site.
 	 *
+	 * The only reason we run `wautop` on the content is because the legacy functionality
+	 * treats markdown spaces as follows:
+	 *
+	 * __bold__
+	 * **bold**
+	 *
+	 * <p>
+	 *   <strong>bold</strong>
+	 *   <br>
+	 *   <strong>bold</strong>
+	 * </p>
+	 *
+	 *
+	 * __bold__
+	 *
+	 * **bold**
+	 *
+	 * <p>
+	 *   <strong>bold</strong>
+	 * </p>
+	 * <p>
+	 *   <strong>bold</strong>
+	 * </p>
+	 *
+	 * This goes against the Markdown spec but is left here for parity. Without it, all spacing is ignored.
+	 * and printed in both cases above as follows:
+	 *
+	 * <strong>bold</strong><strong>bold</strong><strong>bold</strong><strong>bold</strong>
+	 *
 	 * Regex creates three capture groups in order to run wpautop on the content group.
 	 *
 	 * 1) opening tag
