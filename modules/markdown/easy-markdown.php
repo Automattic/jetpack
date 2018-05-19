@@ -509,7 +509,7 @@ class WPCom_Markdown {
 			 * Remove the textarea wrapper from the markdown block so that it
 			 * renders as HTML text and not a textarea form element for the reader
 			 */
-			$text = $this->strip_gutenberg_text_area_wrapper( $post_data['post_content'] );
+			$text = $this->strip_gutenberg_markdown_wrapper( $post_data['post_content'] );
 
 			$post_data['post_content'] = $this->transform( $text, array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
@@ -575,7 +575,7 @@ class WPCom_Markdown {
 
 
 	/**
-	 * Strips the pre tags from each jetpack markdown block.
+	 * Strips the pre tags from each jetpack Markdown block.
 	 *
 	 * Regex creates three capture groups in order to exclude the
 	 * <pre class="wp-block-jetpack-markdown-block"></pre>
@@ -588,7 +588,7 @@ class WPCom_Markdown {
 	 * @param $text string
 	 * @return string
 	 */
-	protected function strip_gutenberg_text_area_wrapper( $text ) {
+	protected function strip_gutenberg_markdown_wrapper( $text ) {
 
 		$regex = '{
 
@@ -617,7 +617,7 @@ class WPCom_Markdown {
 
 		$text = preg_replace_callback(
 			$regex,
-			array( &$this, '_strip_gutenberg_text_area_wrapper_callback' ),
+			array( &$this, '_strip_gutenberg_markdown_wrapper_callback' ),
 			$text
 		);
 
