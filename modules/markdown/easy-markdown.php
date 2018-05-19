@@ -569,7 +569,7 @@ class WPCom_Markdown {
 
 
 	/**
-     * Strips the pre tags from the jetpack markdown block.
+     * Strips the pre tags from each jetpack markdown block.
      *
 	 * Regex creates three capture groups in order to exclude the
 	 * <pre class="wp-block-jetpack-markdown-block"></pre>
