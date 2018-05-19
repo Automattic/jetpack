@@ -4,7 +4,6 @@
 /**
  * External dependencies
  */
-//const React = react;
 
 /**
  * Internal dependencies
