@@ -3,6 +3,10 @@
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-geo-locate.php' );
 
 class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
+	const DISABLE_CONSTRUCTOR = true;
+
+	const ENABLE_CONSTRUCTOR = false;
+
 	const MOCK_LAT = '41.878114';
 
 	const MOCK_LONG = '-87.629798';
@@ -18,6 +22,38 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 
 	public function tearDown() {
 		Jetpack_Geo_Locate::reset_instance();
+	}
+
+	public function test_location_display_filter_skipped_when_lacking_theme_support() {
+		$instance = $this->create_mock_instance(
+			[ 'current_theme_supports', 'the_content_location_display' ],
+			self::ENABLE_CONSTRUCTOR
+		);
+
+		$instance->method( 'current_theme_supports' )->willReturn( false );
+
+		$instance->expects( $this->never() )
+			->method( 'the_content_location_display' );
+
+		$instance->wordpress_init();
+
+		apply_filters( 'the_content', 'Test' );
+	}
+
+	public function test_location_display_filter_called_when_theme_supports_geo_location() {
+		$instance = $this->create_mock_instance(
+			[ 'current_theme_supports', 'the_content_location_display' ],
+			self::ENABLE_CONSTRUCTOR
+		);
+
+		$instance->method( 'current_theme_supports' )->with( 'geo-location' )->willReturn( true );
+
+		$instance->expects( $this->atLeastOnce() )
+			->method( 'the_content_location_display' );
+
+		$instance->wordpress_init();
+
+		apply_filters( 'the_content', 'Test' );
 	}
 
 	public function test_get_meta_values_returns_valid_array_for_nonexistent_post() {
@@ -248,7 +284,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	private function get_instance_with_mock_public_post() {
-		$instance = $this->createMockInstance();
+		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
 	         ->will(
@@ -266,7 +302,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	private function get_instance_with_mock_malicious_post() {
-		$instance = $this->createMockInstance( array( 'get_meta_values' ) );
+		$instance = $this->create_mock_instance( array( 'get_meta_values' ) );
 
 		$instance->method( 'get_meta_values' )
 	         ->will(
@@ -285,7 +321,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	private function get_instance_with_mock_private_post() {
-		$instance = $this->createMockInstance();
+		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
 	         ->will(
@@ -303,18 +339,27 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @param string[] $additional_mock_methods
+	 * @param boolean $disable_constructor
 	 * @return Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject
 	 */
-	private function createMockInstance( $additional_mock_methods = array() ) {
+	private function create_mock_instance(
+		$additional_mock_methods = array(),
+		$disable_constructor = self::DISABLE_CONSTRUCTOR
+	) {
 		$mock_methods = array_merge(
 			array( 'get_meta_value', 'is_single', 'is_feed' ),
 			$additional_mock_methods
 		);
 
 		/* @var $instance Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject */
-		return $this->getMockBuilder( Jetpack_Geo_Locate::class )
-             ->disableOriginalConstructor()
-             ->setMethods( $mock_methods )
-             ->getMock();
+		$builder = $this->getMockBuilder( Jetpack_Geo_Locate::class )
+			->setMethods( $mock_methods );
+
+		if ( $disable_constructor ) {
+			$builder->disableOriginalConstructor();
+		}
+
+        return $builder->getMock();
 	}
 }

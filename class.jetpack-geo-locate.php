@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Adds support for geo-location features.
+ *
+ * All Jetpack sites can support geo-location features.  Users can tag posts with geo-location data
+ * using the UI provided by Calypso.  That information will be included in RSS feeds, meta tags during
+ * wp_head, and in the Geo microformat following post content.
+ *
+ * If your theme declares support for "geo-location", you'll also get a small icon and location label
+ * visible to users at the bottom of single posts and pages.
+ *
+ * To declare support in your theme, call `add_theme_support( 'geo-location' )`.
+ */
 class Jetpack_Geo_Locate {
 	private static $instance;
 
@@ -18,11 +30,10 @@ class Jetpack_Geo_Locate {
 		self::$instance = null;
 	}
 
-	private function __construct() {
+	public function __construct() {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_filter( 'the_content', array( $this, 'the_content_microformat' ) );
-		add_filter( 'the_content', array( $this, 'the_content_location_display' ), 15, 1 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		$this->register_rss_hooks();
@@ -33,6 +44,11 @@ class Jetpack_Geo_Locate {
 	 * fields managed by this plugin so that they are properly sanitized during save.
 	 */
 	public function wordpress_init() {
+		// Only render location label after post content, if the theme claims to support "geo-location".
+		if ( $this->current_theme_supports( 'geo-location' ) ) {
+			add_filter( 'the_content', array( $this, 'the_content_location_display' ), 15, 1 );
+		}
+
 		add_post_type_support( 'post', 'geo-location' );
 		add_post_type_support( 'page', 'geo-location' );
 
@@ -344,6 +360,16 @@ class Jetpack_Geo_Locate {
 	 */
 	public function is_feed() {
 		return is_feed();
+	}
+
+	/**
+	 * Simple wrapper for testing purposes.
+	 *
+	 * @param string $feature
+	 * @return bool
+	 */
+	public function current_theme_supports( $feature ) {
+		return current_theme_supports( $feature );
 	}
 
 	/**
