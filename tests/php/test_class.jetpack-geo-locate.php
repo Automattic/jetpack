@@ -39,6 +39,25 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 		$this->assertFalse( $meta_values['is_populated'] );
 	}
 
+	public function test_get_meta_values_returns_valid_array_for_null_post() {
+		$instance    = $this->get_instance();
+		$meta_values = $instance->get_meta_values( null );
+
+		$this->assertTrue( is_array( $meta_values ) );
+
+		$this->assertArrayHasKey( 'is_public', $meta_values );
+		$this->assertArrayHasKey( 'latitude', $meta_values );
+		$this->assertArrayHasKey( 'longitude', $meta_values );
+		$this->assertArrayHasKey( 'label', $meta_values );
+		$this->assertArrayHasKey( 'is_populated', $meta_values );
+
+		$this->assertFalse( $meta_values['is_public'] );
+		$this->assertNull( $meta_values['latitude'] );
+		$this->assertNull( $meta_values['longitude'] );
+		$this->assertEquals( '', $meta_values['label'] );
+		$this->assertFalse( $meta_values['is_populated'] );
+	}
+
 	public function test_get_meta_values_with_existing_post_returns_expected_values() {
 		$instance    = $this->get_instance_with_mock_public_post();
 		$meta_values = $instance->get_meta_values( 1 );

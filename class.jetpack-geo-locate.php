@@ -112,9 +112,7 @@ class Jetpack_Geo_Locate {
 			return;
 		}
 
-		global $post;
-
-		$meta_values = $this->get_meta_values( $post->ID );
+		$meta_values = $this->get_meta_values( $this->get_post_id() );
 
 		if ( ! $meta_values['is_public'] ) {
 			return;
@@ -153,13 +151,11 @@ class Jetpack_Geo_Locate {
 	 * @return string
 	 */
 	public function the_content_microformat( $content ) {
-		global $post;
-
-		if ( ! $post || $this->is_feed() || $this->is_currently_excerpt_filter() ) {
+		if ( $this->is_feed() || $this->is_currently_excerpt_filter() ) {
 			return $content;
 		}
 
-		$meta_values = $this->get_meta_values( $post->ID );
+		$meta_values = $this->get_meta_values( $this->get_post_id() );
 
 		if ( ! $meta_values['is_public'] ) {
 			return $content;
@@ -167,7 +163,7 @@ class Jetpack_Geo_Locate {
 
 		$microformat = sprintf(
 			'<div id="geo-post-%d" class="geo geo-post" style="display: none">',
-			esc_attr( $post->ID )
+			esc_attr( $this->get_post_id() )
 		);
 
 		$microformat .= sprintf(
@@ -210,9 +206,7 @@ class Jetpack_Geo_Locate {
 	 * that data as marked as public.
 	 */
 	public function rss_item() {
-		global $post;
-
-		$meta_values = $this->get_meta_values( $post->ID );
+		$meta_values = $this->get_meta_values( $this->get_post_id() );
 
 		if ( ! $meta_values['is_public'] ) {
 			return;
@@ -244,13 +238,11 @@ class Jetpack_Geo_Locate {
 	 * @return string
 	 */
 	public function the_content_location_display( $content ) {
-		global $post;
-
-		if ( ! $post || ! $this->is_single() ) {
+		if (! $this->is_single() ) {
 			return $content;
 		}
 
-		$meta_values = $this->get_meta_values( $post->ID );
+		$meta_values = $this->get_meta_values( $this->get_post_id() );
 
 		if ( ! $meta_values['is_public'] ) {
 			return $content;
@@ -267,6 +259,24 @@ class Jetpack_Geo_Locate {
 		$content .= '</div>';
 
 		return $content;
+	}
+
+	/**
+	 * Get the ID of the current global post object, if available.  Otherwise, return null.
+	 *
+	 * This isolates the access of the global scope to this single method, making it easier to
+	 * safeguard against unexpected missing $post objects in other hook functions.
+	 *
+	 * @return int|null
+	 */
+	public function get_post_id() {
+		global $post;
+
+		if ( ! isset( $post) || ! $post || ! is_object( $post ) || ! isset( $post->ID ) ) {
+			return null;
+		}
+
+		return $post->ID;
 	}
 
 	/**
@@ -342,7 +352,7 @@ class Jetpack_Geo_Locate {
 	 * @return bool
 	 */
 	public function is_currently_excerpt_filter() {
-		if ( isset( $GLOBALS['wp_current_filter'] ) ) {
+		if ( ! isset( $GLOBALS['wp_current_filter'] ) ) {
 			return false;
 		}
 
