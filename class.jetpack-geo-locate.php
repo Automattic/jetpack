@@ -311,6 +311,10 @@ class Jetpack_Geo_Locate {
 	 * @return mixed
 	 */
 	public function get_meta_value( $post_id, $meta_field_name ) {
+		if ( ! $post_id ) {
+			return null;
+		}
+
 		return get_post_meta( $post_id, 'geo_' . $meta_field_name, true );
 	}
 
