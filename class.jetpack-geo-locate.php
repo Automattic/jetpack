@@ -41,7 +41,7 @@ class Jetpack_Geo_Locate {
 			'geo_public',
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_public' ),
-				'type'              => 'string',
+				'type'              => 'boolean',
 				'single'            => true,
 			)
 		);
