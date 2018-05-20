@@ -121,7 +121,14 @@ class Jetpack_Geo_Locate {
 		}
 
 		echo  "\n<!-- Jetpack Geo-location Tags -->\n";
-		
+
+		if ( $meta_values['label'] ) {
+			printf(
+				'<meta name="geo.placename" content="%s" />',
+				esc_attr( $meta_values['label'] )
+			);
+		}
+
 		printf(
 			'<meta name="geo.position" content="%s;%s" />' . PHP_EOL,
 			esc_attr( $meta_values['latitude'] ),
