@@ -10,9 +10,11 @@
 				.closest( '.eu-cookie-law-widget-policy-url' );
 
 			if ( $policyUrl.find( 'input[type="radio"][value="default"]' ).is( ':checked' ) ) {
-				$policyUrl.find( '.notice' ).css( 'display', 'block' );
+				$policyUrl.find( '.notice.default-policy' ).css( 'display', 'block' );
+				$policyUrl.find( '.notice.custom-policy' ).hide();
 			} else {
-				$policyUrl.find( '.notice' ).hide();
+				$policyUrl.find( '.notice.default-policy' ).hide();
+				$policyUrl.find( '.notice.custom-policy' ).css( 'display', 'block' );
 			}
 		};
 
