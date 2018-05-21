@@ -115,4 +115,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-* We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
+* General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
+* Sharing: make sure JS files can be loaded on development sites.
+
