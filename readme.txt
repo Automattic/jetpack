@@ -105,8 +105,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Ads: Added new setting for Banner consent expiration. Added new filter jetpack_disable_eu_cookie_law_widget, which can be used to disable the banner.
+* Ads: Added a new personalized-ads-consent cookie for ads-enabled sites.
+* Ads: Added requirement and notice, and button-click opt-in for ads module users.
 * GDPR: A new warning is displayed while configuring an instance of the EU Cookie Law widget: "Caution: The default policy URL only covers cookies set by Jetpack. If you're running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement."
-
 **Improved compatibility**
 
 **Bug fixes**
