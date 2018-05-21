@@ -105,6 +105,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* GDPR: A new warning is displayed while configuring an instance of the EU Cookie Law widget: "Caution: The default policy URL only covers cookies set by Jetpack. If you're running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement."
+
 **Improved compatibility**
 
 **Bug fixes**
