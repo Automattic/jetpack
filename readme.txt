@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Ads: We updated Ads behaviour to not show unless the visitor is on the main query within the loop.
 * General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
 * Sharing: make sure JS files can be loaded on development sites.
 
