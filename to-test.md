@@ -1,124 +1,81 @@
-## 6.1
+## 6.1.1
 
-### Admin Page
+### Privacy
 
-#### GDPR
-
-We added "Privacy Information" links to each Jetpack module/feature card.
+#### Warning about extent of Jetpack's Privacy Policy
 
 To test:
 
-* Enable all Jetpack functionality on a Professional plan from the debug page in Jetpack: `/wp-admin/admin.php?page=jetpack_modules`.
-* Go to the Jetpack Dashboard Admin Page and check all of the icons in each module/feature to ensure they are working properly. In the case of "Privacy Information" links that aren't supposed to be working yet, please just review the URL itself and report any problems.
-* Repeat for every module/feature on the Jetpack Settings page too.
+* Be sure 'Extra Sidebar Widgets' are enabled in Jetpack.
+See: /wp-admin/admin.php?page=jetpack_modules to review.
+* Add the EU Cookie Law Banner widget.
+* It should be using our cookies statement as a default setting, which will generate this notice.
+* Using a custom URL should automatically disable the notice.
+* Save the widget, try with multiple EU widget instances in a single sidebar, and try multiple instances across multiple sidebars; i.e., do your best to break it and report any issues.
 
-### Content options
-
- We now show featured images in WooCommerce pages when "Display on blog and archives" is turned off for Themes that support this feature.
-
- To test:
-
-* Activate a theme that supports Content Options, For example Lodestar or Shoreditch.
-* Activate WooCommerce and add a few products.
-* Go to Customizer > Content Options and make sure "Display on blog and archives" under Featured Images is checked.
-* Visit Shop page - the product images should be visible. Visit blog page - the featured images should be visible.
-* Go to Customizer > Content Options and uncheck "Display on blog and archives" under Featured.
-* Visit Shop page - the product images should be visible. Visit blog page - the featured images should not be visible.
-* Deactivate WooCommerce and check if Content Options are working as expected, and there aren't any errors or warnings.
-
-### General
-
-* We fixed a warning that started being shown with the latest releases of PHP.
-
-Start with Jetpack active Sharing active (or any module that outputs OG tags) on PHP 7.2.
-
-* Visit a post without an explicitly set excerpt.
-* Confirm excerpt is set in the og tags in head with no PHP warnings like `Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x`.
-
-### Google Analytics
-
-We fixed a conflict preventing Google Analytics from activating for Premium subscribers.
-
-* Start with a connected Jetpack site with a Premium plan.
-* Try to activate Google Analytics and confirm this works.
-
-### Plans
-
-We fixed the localization of the plans table in the Admin page
+#### Support for core's Removal and Export of personal data.
 
 To test:
 
-* Start with a fresh site and connect it.
-* Switch the language of the site to one that has an acceptable percentage of translated strings.
-* Confirm the plans page shows in that language
+You'll need to start with WordPress 4.9.6
 
+* Enable Jetpack Contact Forms.
+* Create a page and add a Jetpack Contact Form.
+* Submit the form a couple of times with a test email address.
+* Test both of these upcoming tools in core.
+    * Export Personal Data
+    * Remove Personal Data
+* Expect to find that exporting personal data includes a "Feedback" group containing the personal data that you submitted with the test email address. Removing personal data should remove the Feedback posts associated with the test email address.
 
-### Publicize
+#### Privacy page copy updates
 
-When a post transitions to publish, Jetpack used to add Publicize post meta to all posts, whether or not it was a publicize-able post type. We fixed that.
+We updated the copy and content of the Privacy settings area within the Jetpack settings UI. This will now be in sync with the same setting on WordPress.com
 
-Testing instructions:
+To test:
 
-* Setup Jetpack + Publicize
-* Add a new CPT that is not able to be Publicized (e.g. lacking post_type_support('publicize')).
-* Publish a post.
-* Inspect the post meta and expect to see no _publicize_pending present.
+* Visit the Privacy settings page of your Jetpack site (wp-admin).
+* Confirm that the content/copy has been updated, according to the changes in this PR.
+* Confirm that all links work as expected and that the setting still toggles correctly.
+
+#### Cookies & Consent Widget: Default to core's privacy policy when present
+
+When a user site has a Privacy Policy page set (introduced in 4.9.6), we now default to using that privacy policy as a custom policy URL.
+
+To test:
+
+Start testing on WordPress 4.9.6.
+
+* With no privacy policy set in WP core, add a new widget and make sure it defaults to using the "default" policy url.
+* Set a privacy policy in WP Core. Then add a new widget and make sure the policy URL defaults to a custom URL which is pre-populated with the privacy policy page URL set in WP Core.
+
+#### New setting for Banner consent expiration.
+
+To test:
+
+* After adding a EU Banner widget from Appearance -> Widgets, test the new settings, make sure they behave as expected.
+* Enable the Ads module, then click the consent banner. Make sure the personalized-ads-consent cookie is present.
 
 ### Sharing
 
-We removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
-
-Testing instructions:
-
-* Enable sharing and/or like buttons on a site running WooCommerce.
-* Go to a regular page. Confirm sharing is displayed.
-* Add something to cart. Go to cart. Confirm sharing is NOT displayed.
-* Proceed to checkout, again sharing should be hidden.
-
-### Stats
-
-We added a new filter `jetpack_honor_dnt_header_for_stats`, which if enabled would make Jetpack not track stats for visitors with DNT enabled.
+* We added a check for validating the Akismet key before allowing sharing by email.
 
 To test:
 
-* On a connected Jetpack site.
-* Add a code snippet like:
-    ```
-    add_filter( 'jetpack_honor_dnt_header_for_stats', '__return_true' );
-    ```
-* Turn on the Do Not Track on your browser. You can find guidance on how to achieve this here: [Chrome](https://support.google.com/chrome/answer/2790761?co=GENIE.Platform%3DDesktop&hl=en), [Firefox](https://support.mozilla.org/en-US/kb/settings-privacy-browsing-history-do-not-track#w_tracking_3), [Safari](https://support.apple.com/kb/PH21416?locale=en_US), [Edge](https://privacy.microsoft.com/en-us/windows-10-microsoft-edge-and-privacy).
-* Visit the frontend of the site and confirm you don't get a stats entry for your visit.
-
-### WooCommerce Analytics
-
-We fixed broken Remove From Cart links.
-
-To test:
-
-* Start with a Woo site with a Jetpack Professional plan.
-* In Calypso > Settings > Traffic, enable Google Analytics and all its options.
-* On your site, add products to your cart.
-* Go to the cart page.
-* Make sure that all remove from cart icons work, and include the product ID attribute.
+* Start with a Jetpack-connected site.
+* Go to wp-admin > Jetpack > Settings > Sharing > Sharing buttons and make sure sharing buttons are enabled.
+* Go to wp-admin > Plugins and make sure Akismet is activated but do not connect Akismet via Jetpack or with an API key.
+* Check this branch.
+* With the Akismet plugin activated but not connected, expect to not be able to add the email sharing button.
 
 ### WordAds
 
-We added a new shortcode: `[wordad]` for inline placement of Ads in posts and pages.
+We made Ads only show on the main query in the loop.
 
 To test:
 
-* Enable the Ads module.
-* Place a `[wordad]` shortcode in the body of a post.
-* View the post and expect to see an Ad in the post content.
-
-#### ads.txt
-
-* We also added ads.txt support to the Ads module.
-
-To test:
-
-* Start with a connected Jetpack site and a plan that supports WordAds.
-* Activate the Jetpack Ads module if it's not active already.
-* Visit `yoursite/ads.txt`. You should now see a text file.
+* Setup a test Jetpack site and sign up for WordAds
+* Ping @rclations for him to enable your site as WordAds-enabled
+* Enable all of the automatic ad placements in Jetpack > Settings > Traffic. Place 4 ad widgets in a sidebar (for good measure).
+* You should find that 5-6 ads are showing, and the `atatags-` ids show sequential numbers in the source.
 
 **Thank you for all your help!**
