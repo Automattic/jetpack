@@ -51,11 +51,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if( ! empty( $instance['product_post_id'] ) ) {
 				$attrs = array( 'id' => $instance['product_post_id'] );
 			} else {
-				$product_posts = get_posts( [
+				$product_posts = get_posts( array(
 					'numberposts' => 1,
 					'orderby' => 'date',
 					'post_type' => 'jp_pay_product'
-				] );
+				 ) );
 
 				$attrs = array( 'id' => $product_posts[0]->ID );
 			}
@@ -96,11 +96,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $instance Previously saved values from database.
 		 */
 		function form( $instance ) {
-			$product_posts = get_posts( [
+			$product_posts = get_posts( array(
 				'numberposts' => 100,
 				'orderby' => 'date',
 				'post_type' => 'jp_pay_product'
-			] );
+			 ) );
 
 			require( dirname( __FILE__ ) . '/simple-payments/form.php' );
 		}
