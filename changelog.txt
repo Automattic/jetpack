@@ -1,5 +1,50 @@
 == Changelog ==
 
+= 6.1 =
+
+* Release date: May 1, 2018
+* Release post: https://wp.me/p1moTy-7Sj
+
+**Major Enhancements**
+
+* WordAds: Introduced shortcode for inline Ad placement.
+* WordAds: Added support for the ads.txt file.
+
+**Enhancements**
+
+* Dashboard: We improved the styles of status numbers so it doesn't look like floating.
+* JSON API: Added support for Google My Business integration available on WordPress.com.
+* Masterbar: We removed the Next Steps link from the Account sidebar.
+* Publicize: Let the user know that we are going to send emails to subscribers and publicize to the different accounts.
+* Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
+* Shortcodes: Mixcloud shortcode now uses oEmbed.
+* Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
+* Sync: Removed requirement for gzencode.
+* Widgets: always load script via HTTPS for Gravatar Hovercards.
+
+**Improved compatibility**
+
+* Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
+* Sharing: Removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
+
+**Bug fixes**
+
+* Admin Page: We fixed the internationalization of the plans page.
+* Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
+* Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
+* General: Fixed a warning that was being logged due to attempting to use in_array() over a variable that didn't always contain an array.
+* General: Fixed Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x.
+* JSON API: Fixed internationalization on embed endpoint.
+* Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
+* Publicize: Avoid adding Publicize post meta when a post transitions to publish and it is not a publicize-able post type.
+* Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
+* Slideshow: Fixed an invalid argument supplied for foreach() warning.
+* SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
+* SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
+* Sync: Fixed Warning: Invalid argument supplied for foreach().
+* Sync: Fixed Warning: Warning: json_encode(): recursion detected.
+* WooCommerce Analytics: fixed broken Remove From Cart link.
+
 = 6.0 =
 
 * Release date: April 3, 2018
