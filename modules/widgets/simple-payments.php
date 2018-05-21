@@ -17,13 +17,16 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Constructor.
 		 */
 		function __construct() {
-			$widget = array(
-				'classname' => 'simple-payments',
-				'description' => __( 'Add a Simple Payment Button as a Widget.', 'jetpack' ),
-				'customize_selective_refresh' => true,
+			parent::__construct(
+				'simple_payments_widget',
+				/** This filter is documented in modules/widgets/facebook-likebox.php */
+				apply_filters( 'jetpack_widget_name', __( 'Simple Payments', 'jetpack' ) ),
+				array(
+					'classname' => 'simple-payments',
+					'description' => __( 'Add a Simple Payment Button as a Widget.', 'jetpack' ),
+					'customize_selective_refresh' => true,
+				)
 			);
-
-			parent::__construct( 'Jetpack_Simple_Payments_Widget', __( 'Simple Payments', 'jetpack' ), $widget );
 		}
 
 		/**
@@ -37,6 +40,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		function widget( $args, $instance ) {
 			echo $args['before_widget'];
 
+			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$title = apply_filters( 'widget_title', $instance['title'] );
 			if ( ! empty( $title ) ) {
 				echo $args['before_title'] . $title . $args['after_title'];
@@ -63,6 +67,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			echo $args['after_widget'];
 
+			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'simple_payments' );
 		}
 
