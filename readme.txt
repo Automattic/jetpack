@@ -100,9 +100,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: May 22, 2018
 * Release post: https://wp.me/p1moTy-85t
 
-**Major Enhancements**
-
-
 **Enhancements**
 
 * Ads: Added new setting for Banner consent expiration. Added new filter jetpack_disable_eu_cookie_law_widget, which can be used to disable the banner.
@@ -111,8 +108,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Ads: When a user site has a Privacy Policy page set (introduced in 4.9.6), we now default to using that privacy policy as a custom policy URL.
 * GDPR: A new warning is displayed while configuring an instance of the EU Cookie Law widget: "Caution: The default policy URL only covers cookies set by Jetpack. If you're running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement."
 * GDPR: Added Feedback data (i.e., Contact Form Submissions) to the Personal Data exported and/or erased by the latest version of WordPress core.
-
-**Improved compatibility**
 
 **Bug fixes**
 
