@@ -54,7 +54,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$product_posts = get_posts( array(
 					'numberposts' => 1,
 					'orderby' => 'date',
-					'post_type' => 'jp_pay_product'
+					'post_type' => Jetpack_Simple_Payments::$post_type_product
 				 ) );
 
 				$attrs = array( 'id' => $product_posts[0]->ID );
@@ -99,7 +99,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			$product_posts = get_posts( array(
 				'numberposts' => 100,
 				'orderby' => 'date',
-				'post_type' => 'jp_pay_product'
+				'post_type' => Jetpack_Simple_Payments::$post_type_product
 			 ) );
 
 			require( dirname( __FILE__ ) . '/simple-payments/form.php' );
@@ -108,6 +108,12 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	
 	// Register Jetpack_Simple_Payments_Widget widget.
 	function register_widget_jetpack_simple_payments() {
+		// || ! Jetpack::active_plan_supports( 'simple-payment' )
+		// || ! shortcode_exists( Jetpack_Simple_Payments::$shortcode )
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
+
 		register_widget( 'Jetpack_Simple_Payments_Widget' );
 	}
 	add_action( 'widgets_init', 'register_widget_jetpack_simple_payments' );
