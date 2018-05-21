@@ -114,3 +114,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 **Bug fixes**
+
+* We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
