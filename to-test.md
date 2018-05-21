@@ -55,6 +55,18 @@ To test:
 * After adding a EU Banner widget from Appearance -> Widgets, test the new settings, make sure they behave as expected.
 * Enable the Ads module, then click the consent banner. Make sure the personalized-ads-consent cookie is present.
 
+### Sharing
+
+* We added a check for validating the Akismet key before allowing sharing by email.
+
+To test:
+
+* Start with a Jetpack-connected site.
+* Go to wp-admin > Jetpack > Settings > Sharing > Sharing buttons and make sure sharing buttons are enabled.
+* Go to wp-admin > Plugins and make sure Akismet is activated but do not connect Akismet via Jetpack or with an API key.
+* Check this branch.
+* With the Akismet plugin activated but not connected, expect to not be able to add the email sharing button.
+
 ### WordAds
 
 We made Ads only show on the main query in the loop.

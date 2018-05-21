@@ -115,6 +115,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
 * Lazy Images: Fixed a bug where images would disappear when scrolling.
 * Sharing: make sure JS files can be loaded on development sites.
-* Sharing: Added check for validating akismet key before allowing sharing by email.
+* Sharing: Added check for validating Akismet key before allowing sharing by email.
 * WooCommerce Analytics: Fixed PHP warning when attemping to get a list of plugins.
 
