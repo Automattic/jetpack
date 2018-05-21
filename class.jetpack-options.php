@@ -538,6 +538,8 @@ class Jetpack_Options {
 			'jpo_site_type',
 			'jpo_homepage_format',
 			'jpo_contact_page',
+			'jetpack_google_my_business_keyring_id',
+			'jetpack_google_my_business_location_id',
 		);
 	}
 

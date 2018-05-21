@@ -130,6 +130,8 @@ class Jetpack_Sync_Defaults {
 		'mailserver_pass', // Not syncing contents, only the option name
 		'mailserver_port',
 		'wp_page_for_privacy_policy',
+		'jetpack_google_my_business_keyring_id',
+		'jetpack_google_my_business_location_id',
 	);
 
 	public static function get_options_whitelist() {
