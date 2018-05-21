@@ -358,7 +358,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					? 'deactivate_all'
 					: 'activate_all';
 			}
-		} else {
+		} elseif ( 'list' !== $action ) {
 			WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
 			$action = 'list';
 		}
