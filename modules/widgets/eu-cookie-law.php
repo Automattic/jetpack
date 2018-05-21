@@ -22,13 +22,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		public static $cookie_name = 'eucookielaw';
 
 		/**
-		 * EU Cookie Law cookie validity (30 days).
-		 *
-		 * @var int
-		 */
-		public static $cookie_validity = 2592000;
-
-		/**
 		 * Default hide options.
 		 *
 		 * @var array
@@ -101,7 +94,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 					'modules/widgets/eu-cookie-law/eu-cookie-law.js'
 				),
 				array( 'jquery' ),
-				'20170404',
+				'20180522',
 				true
 			);
 		}
@@ -117,6 +110,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			return array(
 				'hide'               => $this->hide_options[0],
 				'hide-timeout'       => 30,
+				'consent-expiration' => 180,
 				'text'               => $this->text_options[0],
 				'customtext'         => '',
 				'color-scheme'       => $this->color_scheme_options[0],
@@ -125,7 +119,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				'custom-policy-url'  => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
 				'policy-link-text'   => esc_html__( 'Cookie Policy', 'jetpack' ),
 				'button'             => esc_html__( 'Close and accept', 'jetpack' ),
-				'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use.', 'jetpack' ),
+				'default-text'       => esc_html__( "Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use. \r\nTo find out more, including how to control cookies, see here:", 'jetpack' ),
 			);
 		}
 
@@ -136,7 +130,30 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
+			/**
+			 * Filters the display of the EU Cookie Law widget.
+			 *
+			 * @since 6.1.1
+			 *
+			 * @param bool true Should the EU Cookie Law widget be disabled. Default to false.
+			 */
+			if ( apply_filters( 'jetpack_disable_eu_cookie_law_widget', false ) ) {
+				return;
+			}
+
 			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			$classes = array();
+			$classes['hide'] = 'hide-on-' . esc_attr( $instance['hide'] );
+			if ( 'negative' === $instance['color-scheme'] ) {
+				$classes['negative'] = 'negative';
+			}
+
+			if ( Jetpack::is_module_active( 'wordads' ) ) {
+				$classes['ads'] = 'ads-active';
+				$classes['hide'] = 'hide-on-button';
+			}
+
 			echo $args['before_widget'];
 			require( dirname( __FILE__ ) . '/eu-cookie-law/widget.php' );
 			echo $args['after_widget'];
@@ -151,6 +168,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 */
 		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
+			if ( Jetpack::is_module_active( 'wordads' ) ) {
+				$instance['hide'] = 'button';
+			}
 
 			wp_enqueue_script(
 				'eu-cookie-law-widget-admin',
@@ -176,14 +196,19 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			$instance = array();
 			$defaults = $this->defaults();
 
-			$instance['hide']         = $this->filter_value( $new_instance['hide'], $this->hide_options );
-			$instance['text']         = $this->filter_value( $new_instance['text'], $this->text_options );
-			$instance['color-scheme'] = $this->filter_value( $new_instance['color-scheme'], $this->color_scheme_options );
-			$instance['policy-url']   = $this->filter_value( $new_instance['policy-url'], $this->policy_url_options );
+			$instance['hide']           = $this->filter_value( $new_instance['hide'], $this->hide_options );
+			$instance['text']           = $this->filter_value( $new_instance['text'], $this->text_options );
+			$instance['color-scheme']   = $this->filter_value( $new_instance['color-scheme'], $this->color_scheme_options );
+			$instance['policy-url']     = $this->filter_value( $new_instance['policy-url'], $this->policy_url_options );
 
 			if ( isset( $new_instance['hide-timeout'] ) ) {
 				// Time can be a value between 3 and 1000 seconds.
 				$instance['hide-timeout'] = min( 1000, max( 3, intval( $new_instance['hide-timeout'] ) ) );
+			}
+
+			if ( isset( $new_instance['consent-expiration'] ) ) {
+				// Time can be a value between 1 and 365 days.
+				$instance['consent-expiration'] = min( 365, max( 1, intval( $new_instance['consent-expiration'] ) ) );
 			}
 
 			if ( isset( $new_instance['customtext'] ) ) {

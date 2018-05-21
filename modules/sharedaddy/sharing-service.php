@@ -689,8 +689,9 @@ function sharing_display( $text = '', $echo = false ) {
 	// Disabled for this post?
 	$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
 
-	if ( !empty( $switched_status ) )
+	if ( !empty( $switched_status ) ) {
 		$show = false;
+	}
 
 	// Private post?
 	$post_status = get_post_status( $post->ID );
@@ -704,6 +705,7 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = true;
 
 	$sharing_content = '';
+	$enabled = false;
 
 	if ( $show ) {
 		/**
@@ -825,10 +827,12 @@ function sharing_display( $text = '', $echo = false ) {
 	 * @module sharedaddy
 	 *
 	 * @since 3.8.0
+	 * @since 6.2.0 Started sending $enabled as a second parameter.
 	 *
 	 * @param string $sharing_content Content markup of the Jetpack sharing links
+	 * @param array  $enabled         Array of Sharing Services currently enabled.
 	 */
-	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content );
+	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content, $enabled );
 
 	if ( $echo )
 		echo $text . $sharing_markup;

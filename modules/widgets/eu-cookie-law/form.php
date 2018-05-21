@@ -1,57 +1,5 @@
 <p>
 	<strong>
-		<?php _ex( 'Hide the banner', 'action', 'jetpack' ); ?>
-	</strong>
-	<ul>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['hide'], 'button' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
-					type="radio"
-					value="button"
-				/>
-				<?php esc_html_e( 'after the user clicks the dismiss button', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['hide'], 'scroll' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
-					type="radio"
-					value="scroll"
-				/>
-				<?php esc_html_e( 'after the user scrolls the page', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['hide'], 'time' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
-					type="radio"
-					value="time"
-				/>
-				<?php esc_html_e( 'after this amount of time', 'jetpack' ); ?>
-			</label>
-			<input
-				max="1000"
-				min="3"
-				name="<?php echo esc_attr( $this->get_field_name( 'hide-timeout' ) ); ?>"
-				style="padding: 3px 5px; width: 3em;"
-				type="number"
-				value="<?php echo esc_attr( $instance['hide-timeout'] ); ?>"
-			/>
-			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
-		</li>
-	</ul>
-</p>
-
-<hr />
-
-<p>
-	<strong>
 		<?php esc_html_e( 'Banner text', 'jetpack' ); ?>
 	</strong>
 	<ul>
@@ -83,38 +31,6 @@
 		name="<?php echo esc_attr( $this->get_field_name( 'customtext' ) ); ?>"
 		placeholder="<?php echo esc_attr( $instance['default-text'] ); ?>"
 	><?php echo esc_html( $instance['customtext'] ); ?></textarea>
-</p>
-
-<hr />
-
-<p>
-	<strong>
-		<?php _e( 'Color scheme', 'jetpack' ); ?>
-	</strong>
-	<ul>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['color-scheme'], 'default' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'color-scheme' ) ); ?>"
-					type="radio"
-					value="default"
-				/>
-				<?php esc_html_e( 'Light', 'jetpack' ); ?>
-			</label>
-		</li>
-		<li>
-			<label>
-				<input
-					<?php checked( $instance['color-scheme'], 'negative' ); ?>
-					name="<?php echo esc_attr( $this->get_field_name( 'color-scheme' ) ); ?>"
-					type="radio"
-					value="negative"
-				/>
-				<?php esc_html_e( 'Dark', 'jetpack' ); ?>
-			</label>
-		</li>
-	</ul>
 </p>
 
 <hr />
@@ -153,12 +69,23 @@
 				type="text"
 				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
 			/>
-			<span class="notice notice-warning" style="display: none;">
+			<span class="notice notice-warning default-policy" style="display: none;">
 				<span style="display: block; margin: .5em 0;">
 					<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
 					<?php esc_html_e( 'The default policy URL only covers cookies set by Jetpack. If you’re running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement.', 'jetpack' ); ?>
 				</span>
 			</span>
+			<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+				<span class="notice notice-warning custom-policy" style="display: none;">
+					<span style="display: block; margin: .5em 0;">
+						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
+						<?php echo sprintf(
+							__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+							esc_url( 'https://jetpack.com/support/ads/#privacy' )
+						); ?>
+					</span>
+				</span>
+			<?php endif; ?>
 		</li>
 	</ul>
 </p>
@@ -192,6 +119,123 @@
 		/>
 	</label>
 </p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php _ex( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['hide'], 'button' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
+					type="radio"
+					value="button"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
+				/>
+				<?php esc_html_e( 'after the user clicks the dismiss button', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['hide'], 'scroll' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
+					type="radio"
+					value="scroll"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
+				/>
+				<?php esc_html_e( 'after the user scrolls the page', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['hide'], 'time' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'hide' ) ); ?>"
+					type="radio"
+					value="time"
+					<?php echo Jetpack::is_module_active( 'wordads' ) ? 'disabled' : ''; ?>
+				/>
+				<?php esc_html_e( 'after this amount of time', 'jetpack' ); ?>
+			</label>
+			<input
+				max="1000"
+				min="3"
+				name="<?php echo esc_attr( $this->get_field_name( 'hide-timeout' ) ); ?>"
+				style="padding: 3px 5px; width: 3em;"
+				type="number"
+				value="<?php echo esc_attr( $instance['hide-timeout'] ); ?>"
+			/>
+			<?php esc_html_e( 'seconds', 'jetpack' ); ?>
+		</li>
+	</ul>
+	<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
+		<span class="notice notice-warning" style="display: block;">
+			<span style="display: block; margin: .5em 0;">
+				<?php esc_html_e( 'Visitors must provide consent by clicking the dismiss button when Jetpack Ads is turned on.', 'jetpack' ); ?>
+			</span>
+		</span>
+	<?php endif; ?>
+</p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php _ex( 'Consent expires after', 'action', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<input
+				max="365"
+				min="1"
+				name="<?php echo esc_attr( $this->get_field_name( 'consent-expiration' ) ); ?>"
+				style="padding: 3px 5px; width: 3.75em;"
+				type="number"
+				value="<?php echo esc_attr( $instance['consent-expiration'] ); ?>"
+			/>
+			<?php esc_html_e( 'days', 'jetpack' ); ?>
+		</li>
+	</ul>
+</p>
+
+<hr />
+
+<p>
+	<strong>
+		<?php _e( 'Color scheme', 'jetpack' ); ?>
+	</strong>
+	<ul>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['color-scheme'], 'default' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'color-scheme' ) ); ?>"
+					type="radio"
+					value="default"
+				/>
+				<?php esc_html_e( 'Light', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['color-scheme'], 'negative' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'color-scheme' ) ); ?>"
+					type="radio"
+					value="negative"
+				/>
+				<?php esc_html_e( 'Dark', 'jetpack' ); ?>
+			</label>
+		</li>
+	</ul>
+</p>
+
+<hr />
 
 <p class="small">
 	<?php esc_html_e( 'It is your own responsibility to ensure that your site complies with the relevant laws.', 'jetpack' ); ?>
