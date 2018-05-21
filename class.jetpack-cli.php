@@ -332,6 +332,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack module list
+	 * wp jetpack module list --format=json
 	 * wp jetpack module activate stats
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
