@@ -302,13 +302,32 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * list          : View all available modules, and their status.
-	 * activate all  : Activate all modules
-	 * deactivate all: Deactivate all modules
+	 * <list|activate|deactivate|toggle>
+	 * : The action to take.
+	 * ---
+	 * default: list
+	 * options:
+	 *  - list
+	 *  - activate
+	 *  - deactivate
+	 *  - toggle
+	 * ---
 	 *
-	 * activate   <module_slug> : Activate a module.
-	 * deactivate <module_slug> : Deactivate a module.
-	 * toggle     <module_slug> : Toggle a module on or off.
+	 * [<module_slug>]
+	 * : The slug of the module to perform an action on.
+	 *
+	 * [--format=<format>]
+	 * : Allows overriding the output of the command when listing modules.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 *  - ids
+	 *  - count
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
@@ -316,11 +335,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack module activate stats
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
-	 *
 	 * wp jetpack module activate all
 	 * wp jetpack module deactivate all
-	 *
-	 * @synopsis <list|activate|deactivate|toggle> [<module_name>]
 	 */
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
@@ -348,16 +364,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		switch ( $action ) {
 			case 'list':
-				WP_CLI::line( __( 'Available Modules:', 'jetpack' ) );
-				$modules = Jetpack::get_available_modules();
+				$modules_list = array();
+				$modules      = Jetpack::get_available_modules();
 				sort( $modules );
-				foreach( $modules as $module_slug ) {
-					if ( 'vaultpress' == $module_slug ) {
+				foreach ( (array) $modules as $module_slug ) {
+					if ( 'vaultpress' === $module_slug ) {
 						continue;
 					}
-					$active = Jetpack::is_module_active( $module_slug ) ? __( 'Active', 'jetpack' ) : __( 'Inactive', 'jetpack' );
-					WP_CLI::line( "\t" . str_pad( $module_slug, 24 ) . $active );
+					$modules_list[] = array(
+						'slug'   => $module_slug,
+						'status' => Jetpack::is_module_active( $module_slug )
+							? __( 'Active', 'jetpack' )
+							: __( 'Inactive', 'jetpack' ),
+					);
 				}
+				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) );
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
