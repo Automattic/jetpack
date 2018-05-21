@@ -340,28 +340,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		if ( ! in_array( $action, array( 'list', 'activate', 'deactivate', 'toggle' ) ) ) {
-			/* translators: %s is a command like "prompt" */
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
-		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
-			if ( isset( $args[1] ) ) {
-				$module_slug = $args[1];
-				if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
-					WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
-				}
-				if ( 'toggle' == $action ) {
-					$action = Jetpack::is_module_active( $module_slug ) ? 'deactivate' : 'activate';
-				}
-				// Bulk actions
-				if ( 'all' == $args[1] ) {
-					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
-				}
-			} else {
-				WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
-				$action = 'list';
+
+		if ( isset( $args[1] ) ) {
+			$module_slug = $args[1];
+			if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
+				/* translators: %s is a module slug like "stats" */
+				WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
 			}
+			if ( 'toggle' === $action ) {
+				$action = Jetpack::is_module_active( $module_slug )
+					? 'deactivate'
+					: 'activate';
+			}
+			if ( 'all' === $args[1] ) {
+				$action = ( 'deactivate' === $action )
+					? 'deactivate_all'
+					: 'activate_all';
+			}
+		} else {
+			WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
+			$action = 'list';
 		}
+
 		switch ( $action ) {
 			case 'list':
 				$modules_list = array();
