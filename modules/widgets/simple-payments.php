@@ -259,6 +259,20 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		}
 
 		/**
+		 * Return an associative array of default values.
+		 *
+		 * These values are used in new widgets.
+		 *
+		 * @return array Default values for the widget options.
+		 */
+		public function defaults() {
+			return array(
+				'title' => '',
+				'product_post_id' => 0,
+			);
+		}
+
+		/**
 		 * Front-end display of widget.
 		 *
 		 * @see WP_Widget::widget()
