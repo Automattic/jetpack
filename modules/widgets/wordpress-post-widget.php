@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';
 require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
 
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
