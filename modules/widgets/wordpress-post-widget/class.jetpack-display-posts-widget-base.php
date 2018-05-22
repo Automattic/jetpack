@@ -47,24 +47,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	}
 
 
-	// FETCH: Must implement
-
-	/**
-	 * @param string $url  The URL to fetch
-	 * @param array  $args Optional. Request arguments.
-	 *
-	 * @return array|WP_Error
-	 */
-	abstract public function wpcom_json_api_get( $url, $args = array() );
-
-	/**
-	 * @param array $service_response
-	 *
-	 * @return array|WP_Error
-	 */
-	abstract public function wpcom_json_api_parse( $service_response );
-
-
 	// DATA STORE: Must implement
 
 	/**
@@ -420,7 +402,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		static $cache = array();
 
 		if ( ! isset( $cache[ $endpoint ] ) ) {
-			$raw_data           = $this->wpcom_json_api_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => $timeout ) );
+			$raw_data           = $this->wp_wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => $timeout ) );
 			$cache[ $endpoint ] = $this->parse_service_response( $raw_data );
 		}
 
@@ -447,7 +429,51 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			);
 		}
 
-		$parsed_data = $this->wpcom_json_api_parse( $service_response );
+		/**
+		 * Validate HTTP response code.
+		 */
+		if ( 200 !== wp_remote_retrieve_response_code( $service_response ) ) {
+			return new WP_Error(
+				'http_error',
+				__( 'An error occurred fetching the remote data.', 'jetpack' ),
+				wp_remote_retrieve_response_message( $service_response )
+			);
+		}
+
+
+		/**
+		 * Extract service response body from the request.
+		 */
+
+		$service_response_body = wp_remote_retrieve_body( $service_response );
+
+
+		/**
+		 * No body has been set in the response. This should be pretty bad.
+		 */
+		if ( ! $service_response_body ) {
+			return new WP_Error(
+				'no_body',
+				__( 'Invalid remote response.', 'jetpack' ),
+				'No body in response.'
+			);
+		}
+
+		/**
+		 * Parse the JSON response from the API. Convert to associative array.
+		 */
+		$parsed_data = json_decode( $service_response_body );
+
+		/**
+		 * If there is a problem with parsing the posts return an empty array.
+		 */
+		if ( is_null( $parsed_data ) ) {
+			return new WP_Error(
+				'no_body',
+				__( 'Invalid remote response.', 'jetpack' ),
+				'Invalid JSON from remote.'
+			);
+		}
 
 		/**
 		 * Check for errors in the parsed body.
@@ -459,7 +485,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				$parsed_data->error
 			);
 		}
-
 
 		/**
 		 * No errors found, return parsed data.
@@ -797,5 +822,19 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		}
 
 		return $errors;
+	}
+
+	/**
+	 * This is just to make method mocks in the unit tests easier.
+	 *
+	 * @param string $url  The URL to fetch
+	 * @param array  $args Optional. Request arguments.
+	 *
+	 * @return array|WP_Error
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function wp_wp_remote_get( $url, $args = array() ) {
+		return wp_remote_get( $url, $args );
 	}
 }
