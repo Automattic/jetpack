@@ -82,7 +82,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
-		if ( $this->is_widget_id_deprecated( $instance['type'] ) ) {
+		// Twitter deprecated `data-widget-id` on 2018-05-25,
+		// with cease support deadline on 2018-07-27.
+		// 1532563200 is 2018-07-26, one day early.
+		 if ( 'widget-id' === $instance['type'] && time() > 1532563200 ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
 				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
@@ -476,16 +479,5 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			</select>
 		</p>
 	<?php
-	}
-
-	/**
-	 * Twitter deprecated `data-widget-id` on 2018-05-25,
-	 * with cease support deadline on 2018-07-27.
-	 */
-	public function is_widget_id_deprecated( $type ) {
-		$today = new DateTime( 'now' );
-		$deadline = new DateTime( '2018-07-26' ); // One day early
-
-		return 'widget-id' === $type && $today >= $deadline;
 	}
 }
