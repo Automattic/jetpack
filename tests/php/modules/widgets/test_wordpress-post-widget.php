@@ -1433,30 +1433,30 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 		             ->setMethods( array(
-			                           'wp_wp_remote_get',
-			                           'parse_service_response',
+			                           'wpcom_json_api_get',
+			                           'wpcom_json_api_parse',
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
 		$mock->expects( $this->at( 0 ) )
-		     ->method( 'wp_wp_remote_get' )
+		     ->method( 'wpcom_json_api_get' )
 		     ->with( $mock->service_url.'first_endpoint', array( 'timeout' => 15 ) )
 		     ->will( $this->returnValue( 'first_endpoint response' ) );
 
 
 		$mock->expects( $this->at( 1 ) )
-		     ->method( 'parse_service_response' )
+		     ->method( 'wpcom_json_api_parse' )
 		     ->with( 'first_endpoint response' )
 		     ->will( $this->returnValue( 'first test' ) );
 
 		$mock->expects( $this->at( 2 ) )
-		     ->method( 'wp_wp_remote_get' )
+		     ->method( 'wpcom_json_api_get' )
 		     ->with( $mock->service_url.'second_endpoint', array( 'timeout' => 15 ) )
 		     ->will( $this->returnValue( 'second_endpoint response' ) );
 
 		$mock->expects( $this->at( 3 ) )
-		      ->method( 'parse_service_response' )
+		      ->method( 'wpcom_json_api_parse' )
 		      ->with( 'second_endpoint response' )
 		      ->will( $this->returnValue( 'second test' ) );
 
@@ -1479,31 +1479,31 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 		             ->setMethods( array(
-			                           'wp_wp_remote_get',
-			                           'parse_service_response',
+			                           'wpcom_json_api_get',
+			                           'wpcom_json_api_parse',
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
 
-		$wp_wp_remote_get_map = array(
+		$wpcom_json_api_get = array(
 			array($mock->service_url.'cache_endpoint_1', array('timeout'=>15), 'cache_endpoint_1_response'),
 			array($mock->service_url.'cache_endpoint_2', array('timeout'=>15), 'cache_endpoint_2_response'),
 		);
 
-		$parse_service_response_map = array(
+		$wpcom_json_api_parse_map = array(
 			array('cache_endpoint_1_response', 'first test'),
 			array('cache_endpoint_2_response', 'second test'),
 		);
 
 
 		$mock->expects( $this->exactly( 2 ) )
-		     ->method( 'wp_wp_remote_get' )
-		     ->will( $this->returnValueMap( $wp_wp_remote_get_map ) );
+		     ->method( 'wpcom_json_api_get' )
+		     ->will( $this->returnValueMap( $wpcom_json_api_get ) );
 
 		$mock->expects( $this->exactly( 2 ) )
-		     ->method( 'parse_service_response' )
-  			 ->will( $this->returnValueMap( $parse_service_response_map ) );
+		     ->method( 'wpcom_json_api_parse' )
+		     ->will( $this->returnValueMap( $wpcom_json_api_parse_map ) );
 
 		$result1 = $mock->fetch_service_endpoint( 'cache_endpoint_1' );
 		$result2 = $mock->fetch_service_endpoint( 'cache_endpoint_2' );
