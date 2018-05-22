@@ -87,11 +87,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Dashboard: Bird’s eye view of your site stats, status, and health.
-2. Safety: Protect your site and data with powerful security services.
-3. Engagement: Social sharing, likes, and related posts.
-4. Analytics: Actionable site stats and traffic insights.
-5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
+1. Themes: Choose from hundreds of customizable, professional themes.
+2. Performance: Free high-speed content delivery network for your images.
+3. Apps: Update your site from any device with the free WordPress apps.
+4. Analytics: Simple and concise site stats and traffic insights.
+5. Sharing: Connect your site to social networks for automated social sharing.
+6. Revenue: Sell products & take payments with simple payment buttons.
+7. Downtime Monitoring: Get notified if and when your site goes down.
+8. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
 
 == Changelog ==
 
@@ -117,4 +120,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: make sure JS files can be loaded on development sites.
 * Sharing: Added check for validating Akismet key before allowing sharing by email.
 * WooCommerce Analytics: Fixed PHP warning when attemping to get a list of plugins.
-
