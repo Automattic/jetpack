@@ -863,10 +863,10 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		return array(
-			'num_items_removed'  => $removed,
-			'num_items_retained' => $retained,
-			'messages'           => $messages,
-			'done'               => count( $post_ids ) < $per_page,
+			'items_removed'  => $removed,
+			'items_retained' => $retained,
+			'messages'       => $messages,
+			'done'           => count( $post_ids ) < $per_page,
 		);
 	}
 
