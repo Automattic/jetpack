@@ -15,6 +15,9 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	 */
 	public static $cron_name = 'jetpack_display_posts_widget_cron_update';
 
+
+	// FETCH
+
 	/**
 	 * @param string $url  The URL to fetch
 	 * @param array  $args Optional. Request arguments.
@@ -83,6 +86,9 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		return $parsed_data;
 	}
 
+
+	// DATA STORE
+
 	/**
 	 * Gets blog data from the cache.
 	 *
@@ -141,6 +147,25 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 			$this->wp_update_option( $option_key, $new_data );
 		}
 	}
+
+
+	// WIDGET API
+
+	public function update( $new_instance, $old_instance ) {
+		$instance = parent::update( $new_instance, $old_instance );
+
+		/**
+		 * Forcefully activate the update cron when saving widget instance.
+		 *
+		 * So we can be sure that it will be running later.
+		 */
+		$this->activate_cron();
+
+		return $instance;
+	}
+
+
+	// CRON
 
 	/**
 	 * Activates widget update cron task.
@@ -271,19 +296,7 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	}
 
 
-
-	public function update( $new_instance, $old_instance ) {
-		$instance = parent::update( $new_instance, $old_instance );
-
-		/**
-		 * Forcefully activate the update cron when saving widget instance.
-		 *
-		 * So we can be sure that it will be running later.
-		 */
-		$this->activate_cron();
-
-		return $instance;
-	}
+	// MOCKABLES
 
 	/**
 	 * This is just to make method mocks in the unit tests easier.
