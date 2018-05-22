@@ -721,6 +721,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'site_keyring':
+			$docs = array(
+				'keyring_id'       => '(int) Keyring ID',
+				'service'          => '(string) The service name',
+				'external_user_id' => '(string) External user id for the service'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 		case 'taxonomy':
 			$docs = array(
 				'name'         => '(string) The taxonomy slug',
