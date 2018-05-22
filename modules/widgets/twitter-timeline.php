@@ -90,6 +90,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				echo $args['before_widget'];
 				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
 				echo '<p>' . esc_html__( "The Twitter Timeline widget can't display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username. Otherwise, delete this widget.", 'jetpack' ) . '</p>';
+				echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
 				echo $args['after_widget'];
 			}
 			return;
@@ -109,6 +110,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		if ( 'widget-id' === $instance['type'] && current_user_can( 'edit_theme_options' ) ) {
 			echo '<p>' . esc_html__( 'As of July 27, 2018, the Twitter Timeline widget will no longer display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username.', 'jetpack' ) . '</p>';
+			echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
 		}
 
 		// Start tag output
