@@ -80,6 +80,8 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 * Update a widget instance.
 	 *
 	 * @param string $site The site to fetch the latest data for.
+	 *
+	 * @return array - the new data
 	 */
 	abstract public function update_instance( $site );
 

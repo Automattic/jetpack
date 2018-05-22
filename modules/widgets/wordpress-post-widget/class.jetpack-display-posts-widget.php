@@ -120,6 +120,8 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	 * Update a widget instance.
 	 *
 	 * @param string $site The site to fetch the latest data for.
+	 *
+	 * @return array - the new data
 	 */
 	public function update_instance( $site ) {
 
@@ -146,6 +148,8 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		else {
 			$this->wp_update_option( $option_key, $new_data );
 		}
+
+		return $new_data;
 	}
 
 
