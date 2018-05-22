@@ -43,7 +43,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 * @since 4.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'style.css', __FILE__ ) );
 	}
 
 
