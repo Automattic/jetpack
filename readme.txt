@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.0
+Stable tag: 6.1
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -87,56 +87,36 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Dashboard: Bird’s eye view of your site stats, status, and health.
-2. Safety: Protect your site and data with powerful security services.
-3. Engagement: Social sharing, likes, and related posts.
-4. Analytics: Actionable site stats and traffic insights.
-5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
+1. Themes: Choose from hundreds of customizable, professional themes.
+2. Performance: Free high-speed content delivery network for your images.
+3. Apps: Update your site from any device with the free WordPress apps.
+4. Analytics: Simple and concise site stats and traffic insights.
+5. Sharing: Connect your site to social networks for automated social sharing.
+6. Revenue: Sell products & take payments with simple payment buttons.
+7. Downtime Monitoring: Get notified if and when your site goes down.
+8. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
 
 == Changelog ==
 
-= 6.1 =
+= 6.1.1 =
 
-* Release date: May 1, 2018
-* Release post: https://wp.me/p1moTy-7Sj
-
-**Major Enhancements**
-
-* WordAds: Introduced shortcode for inline Ad placement.
-* WordAds: Added support for the ads.txt file.
+* Release date: May 22, 2018
+* Release post: https://wp.me/p1moTy-85t
 
 **Enhancements**
 
-* Dashboard: We improved the styles of status numbers so it doesn't look like floating.
-* JSON API: Added support for Google My Business integration available on WordPress.com.
-* Masterbar: We removed the Next Steps link from the Account sidebar.
-* Publicize: Let the user know that we are going to send emails to subscribers and publicize to the different accounts.
-* Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
-* Shortcodes: Mixcloud shortcode now uses oEmbed.
-* Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
-* Sync: Removed requirement for gzencode.
-* Widgets: always load script via HTTPS for Gravatar Hovercards.
-
-**Improved compatibility**
-
-* Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
-* Sharing: Removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
+* Ads: Added new setting for Banner consent expiration. Added new filter jetpack_disable_eu_cookie_law_widget, which can be used to disable the banner.
+* Ads: Added a new personalized-ads-consent cookie for ads-enabled sites.
+* Ads: Added requirement and notice, and button-click opt-in for ads module users.
+* Ads: When a user site has a Privacy Policy page set (introduced in 4.9.6), we now default to using that privacy policy as a custom policy URL.
+* GDPR: A new warning is displayed while configuring an instance of the EU Cookie Law widget: "Caution: The default policy URL only covers cookies set by Jetpack. If you're running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement."
+* GDPR: Added Feedback data (i.e., Contact Form Submissions) to the Personal Data exported and/or erased by the latest version of WordPress core.
 
 **Bug fixes**
 
-* Admin Page: We fixed the internationalization of the plans page.
-* Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
-* Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
-* General: Fixed a warning that was being logged due to attempting to use in_array() over a variable that didn't always contain an array.
-* General: Fixed Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x.
-* JSON API: Fixed internationalization on embed endpoint.
-* Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
-* Publicize: Avoid adding Publicize post meta when a post transitions to publish and it is not a publicize-able post type.
-* Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
-* Slideshow: Fixed an invalid argument supplied for foreach() warning.
-* SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
-* SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
-* Sync: Fixed Warning: Invalid argument supplied for foreach().
-* Sync: Fixed Warning: Warning: json_encode(): recursion detected.
-* WooCommerce Analytics: fixed broken Remove From Cart link.
-
+* Ads: We updated Ads behaviour to not show unless the visitor is on the main query within the loop.
+* General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
+* Lazy Images: Fixed a bug where images would disappear when scrolling.
+* Sharing: make sure JS files can be loaded on development sites.
+* Sharing: Added check for validating Akismet key before allowing sharing by email.
+* WooCommerce Analytics: Fixed PHP warning when attemping to get a list of plugins.

@@ -119,7 +119,7 @@ var jetpackLazyImagesModule = function( $ ) {
 
 		// Add the attributes we want on the finished image.
 		theClone.addClass( 'jetpack-lazy-image--handled' );
-		theClone.attr( 'data-lazy-src', 1 );
+		theClone.attr( 'data-lazy-loaded', 1 );
 		theClone.attr( 'src', src );
 
 		if ( srcset ) {

@@ -1034,6 +1034,174 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Allows calling a WordPress.com API endpoint using the current blog's token.
+	 *
+	 * ## OPTIONS
+	 * --resource=<resource>
+	 * : The resource to call with the current blog's token, where `%d` represents the current blog's ID.
+	 *
+	 * [--api_version=<api_version>]
+	 * : The API version to query against.
+	 *
+	 * [--base_api_path=<base_api_path>]
+	 * : The base API path to query.
+	 * ---
+	 * default: rest
+	 * ---
+	 *
+	 * [--body=<body>]
+	 * : A JSON encoded string representing arguments to send in the body.
+	 *
+	 * [--field=<value>]
+	 * : Any number of arguments that should be passed to the resource.
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack call_api --resource='/sites/%d'
+	 */
+	public function call_api( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$consumed_args = array(
+			'resource',
+			'api_version',
+			'base_api_path',
+			'body',
+			'pretty',
+		);
+
+		// Get args that should be passed to resource.
+		$other_args = array_diff_key( $named_args, array_flip( $consumed_args ) );
+
+		$decoded_body = ! empty( $named_args['body'] )
+			? json_decode( $named_args['body'] )
+			: false;
+
+		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
+			? $named_args['resource']
+			: sprintf( $named_args['resource'], Jetpack_Options::get_option( 'id' ) );
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			$resource_url,
+			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
+			$other_args,
+			empty( $decoded_body ) ? null : $decoded_body,
+			$named_args['base_api_path']
+		);
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an error code, %3$s is an error message. */
+				__( 'Request to %1$s returned an error: (%2$d) %3$s.', 'jetpack' ),
+				$resource_url,
+				$response->get_error_code(),
+				$response->get_error_message()
+			) );
+		}
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an HTTP status code. */
+				__( 'Request to %1$s returned a non-200 response code: %2$d.', 'jetpack' ),
+				$resource_url,
+				wp_remote_retrieve_response_code( $response )
+			) );
+		}
+
+		$output = wp_remote_retrieve_body( $response );
+		if ( isset( $named_args['pretty'] ) ) {
+			$decoded_output = json_decode( $output );
+			if ( $decoded_output ) {
+				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
+			}
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			WP_CLI::log( $output );
+			WP_CLI::halt( 0 );
+		}
+
+		WP_CLI::success( $output );
+	}
+
+	/**
+	 * API wrapper for getting stats from the WordPress.com API for the current site.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--quantity=<quantity>]
+	 * : The number of units to include.
+	 * ---
+	 * default: 30
+	 * ---
+	 *
+	 * [--period=<period>]
+	 * : The unit of time to query stats for.
+	 * ---
+	 * default: day
+	 * options:
+	 *  - day
+	 *  - week
+	 *  - month
+	 *  - year
+	 * ---
+	 *
+	 * [--date=<date>]
+	 * : The latest date to return stats for. Ex. - 2018-01-01.
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack get_stats
+	 */
+	public function get_stats( $args, $named_args ) {
+		$selected_args = array_intersect_key(
+			$named_args,
+			array_flip( array(
+				'quantity',
+				'date',
+			) )
+		);
+
+		// The API expects unit, but period seems to be more correct.
+		$selected_args['unit'] = $named_args['period'];
+
+		$command = sprintf(
+			'jetpack call_api --resource=/sites/%d/stats/%s',
+			Jetpack_Options::get_option( 'id' ),
+			add_query_arg( $selected_args, 'visits' )
+		);
+
+		if ( isset( $named_args['pretty'] ) ) {
+			$command .= ' --pretty';
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			$command .= ' --strip-success';
+		}
+
+		WP_CLI::runcommand(
+			$command,
+			array(
+				'launch' => false, // Use the current process.
+			)
+		);
+	}
+
 	private function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
 		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;

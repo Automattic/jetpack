@@ -416,16 +416,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function update_settings() {
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
+		$input = $this->input();
+		$unfiltered_input = $this->input( false, false );
 		/**
 		 * Filters the settings to be updated on the site.
 		 *
 		 * @module json-api
 		 *
 		 * @since 3.6.0
+		 * @since 6.1.1 Added $unfiltered_input parameter.
 		 *
-		 * @param array $input Associative array of site settings to be updated.
+		 * @param array $input              Associative array of site settings to be updated.
+		 *                                  Cast and filtered based on documentation.
+		 * @param array $unfiltered_input   Associative array of site settings to be updated.
+		 *                                  Neither cast nor filtered. Contains raw input.
 		 */
-		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
+		$input = apply_filters( 'rest_api_update_site_settings', $input, $unfiltered_input );
 
 		$blog_id = get_current_blog_id();
 

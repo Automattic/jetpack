@@ -136,6 +136,10 @@ class Grunion_Contact_Form_Plugin {
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
+		// GDPR: personal data exporter & eraser.
+		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ) );
+		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_personal_data_eraser' ) );
+
 		// Export to CSV feature
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
@@ -735,6 +739,195 @@ class Grunion_Contact_Form_Plugin {
 		return $mapped_fields;
 	}
 
+	/**
+	 * Registers the personal data exporter.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  array $exporters An array of personal data exporters.
+	 *
+	 * @return array $exporters An array of personal data exporters.
+	 */
+	public function register_personal_data_exporter( $exporters ) {
+		$exporters[] = array(
+			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'callback'               => array( $this, 'personal_data_exporter' ),
+		);
+
+		return $exporters;
+	}
+
+	/**
+	 * Registers the personal data eraser.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  array $erasers An array of personal data erasers.
+	 *
+	 * @return array $erasers An array of personal data erasers.
+	 */
+	public function register_personal_data_eraser( $erasers ) {
+		$erasers[] = array(
+			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'callback'             => array( $this, 'personal_data_eraser' ),
+		);
+
+		return $erasers;
+	}
+
+	/**
+	 * Exports personal data.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email  Email address.
+	 * @param  int    $page   Page to export.
+	 *
+	 * @return array  $return Associative array with keys expected by core.
+	 */
+	public function personal_data_exporter( $email, $page = 1 ) {
+		$per_page    = 250;
+		$export_data = array();
+		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+
+		foreach ( $post_ids as $post_id ) {
+			$post_fields = $this->get_parsed_field_contents_of_post( $post_id );
+
+			if ( ! is_array( $post_fields ) || empty( $post_fields['_feedback_subject'] ) ) {
+				continue; // Corrupt data.
+			}
+
+			$post_fields['_feedback_main_comment'] = $this->get_post_content_for_csv_export( $post_id );
+			$post_fields                           = $this->map_parsed_field_contents_of_post_to_field_names( $post_fields );
+
+			if ( ! is_array( $post_fields ) || empty( $post_fields ) ) {
+				continue; // No fields to export.
+			}
+
+			$post_meta   = $this->get_post_meta_for_csv_export( $post_id );
+			$post_meta   = is_array( $post_meta ) ? $post_meta : array();
+
+			$post_export_data = array();
+			$post_data        = array_merge( $post_fields, $post_meta );
+			ksort( $post_data );
+
+			foreach ( $post_data as $post_data_key => $post_data_value ) {
+				$post_export_data[] = array(
+					'name'  => preg_replace( '/^[0-9]+_/', '', $post_data_key ),
+					'value' => $post_data_value,
+				);
+			}
+
+			$export_data[] = array(
+				'group_id'    => 'feedback',
+				'group_label' => __( 'Feedback', 'jetpack' ),
+				'item_id'     => 'feedback-' . $post_id,
+				'data'        => $post_export_data,
+			);
+		}
+
+		return array(
+			'data' => $export_data,
+			'done' => count( $post_ids ) < $per_page,
+		);
+	}
+
+	/**
+	 * Erases personal data.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email Email address.
+	 * @param  int    $page  Page to erase.
+	 *
+	 * @return array         Associative array with keys expected by core.
+	 */
+	public function personal_data_eraser( $email, $page = 1 ) {
+		$per_page = 250;
+		$removed  = 0;
+		$retained = 0;
+		$messages = array();
+		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+
+		foreach ( $post_ids as $post_id ) {
+			if ( wp_delete_post( $post_id, true ) ) {
+				$removed++;
+			} else {
+				$retained++;
+				$messages[] = sprintf(
+					// translators: %d: Post ID.
+					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+					$post_id
+				);
+			}
+		}
+
+		return array(
+			'items_removed'  => $removed,
+			'items_retained' => $retained,
+			'messages'       => $messages,
+			'done'           => count( $post_ids ) < $per_page,
+		);
+	}
+
+	/**
+	 * Queries personal data by email address.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email    Email address.
+	 * @param  int    $per_page Post IDs per page. Default is `250`.
+	 * @param  int    $page     Page to query. Default is `1`.
+	 *
+	 * @return array            An array of post IDs.
+	 */
+	public function personal_data_post_ids_by_email( $email, $per_page = 250, $page = 1 ) {
+		add_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
+
+		$post_ids = get_posts( array(
+			'post_type'        => 'feedback',
+			'post_status'      => 'publish',
+			's'                => 'AUTHOR EMAIL: ' . $email,
+			'sentence'         => true,
+			'order'            => 'ASC',
+			'fields'           => 'ids',
+			'posts_per_page'   => $per_page,
+			'paged'            => $page,
+			'suppress_filters' => false,
+		) );
+
+		remove_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
+
+		return $post_ids;
+	}
+
+	/**
+	 * Filters searches by email address.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $search SQL where clause.
+	 *
+	 * @return array          Filtered SQL where clause.
+	 */
+	public function personal_data_search_filter( $search ) {
+		global $wpdb;
+
+		/*
+		 * Limits search to `post_content` only, and we only match the
+		 * author's email address whenever it's on a line by itself.
+		 * `CHAR(13)` = `\r`, `CHAR(10)` = `\n`
+		 */
+		if ( preg_match( '/AUTHOR EMAIL\: ([^{\s]+)/', $search, $m ) ) {
+			$esc_like_email = esc_sql( $wpdb->esc_like( 'AUTHOR EMAIL: ' . $m[1] ) );
+			$search         = " AND (
+				{$wpdb->posts}.post_content LIKE CONCAT('%', CHAR(13), '{$esc_like_email}', CHAR(13), '%')
+				OR {$wpdb->posts}.post_content LIKE CONCAT('%', CHAR(10), '{$esc_like_email}', CHAR(10), '%')
+			)";
+		}
+
+		return $search;
+	}
 
 	/**
 	 * Prepares feedback post data for CSV export.

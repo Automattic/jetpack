@@ -18,8 +18,8 @@ class WordAds {
 	public $ads = array();
 
 	/**
-	 * The different supported ad types.
-	 * v0.1 - mrec only for now
+	 * Array of supported ad types.
+	 *
 	 * @var array
 	 */
 	public static $ad_tag_ids = array(
@@ -47,6 +47,7 @@ class WordAds {
 
 	/**
 	 * Convenience function for grabbing options from params->options
+	 *
 	 * @param  string $option the option to grab
 	 * @param  mixed  $default (optional)
 	 * @return option or $default if not set
@@ -121,6 +122,7 @@ class WordAds {
 
 	/**
 	 * Check for Jetpack's The_Neverending_Home_Page and use got_infinity
+	 *
 	 * @return boolean true if load came from infinite scroll
 	 *
 	 * @since 4.5.0
@@ -135,9 +137,9 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	private function insert_adcode() {
-		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
-		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_head',              array( $this, 'insert_head_meta' ), 20 );
+		add_action( 'wp_head',              array( $this, 'insert_head_iponweb' ), 30 );
+		add_action( 'wp_enqueue_scripts',   array( $this, 'enqueue_scripts' ) );
 
 		/**
 		 * Filters enabling ads in `the_content` filter
@@ -206,9 +208,10 @@ class WordAds {
 		$pagetype = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id = $this->params->blog_id;
+		$consent = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id };
+			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id, consent: $consent };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -249,8 +252,8 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_ad( $content ) {
-		// Ad JS won't work in XML feeds.
-		if ( is_feed() ) {
+		// Don't insert ads in feeds, or for anything but the main display. (This is required for compatibility with the Publicize module).
+		if ( is_feed() || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
 		}
 		/**
@@ -373,9 +376,11 @@ HTML;
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
 		if ( 'iponweb' == $type ) {
-			$section_id = WORDADS_API_TEST_ID;
+			// Default to mrec
 			$width = 300;
 			$height = 250;
+
+			$section_id = WORDADS_API_TEST_ID;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
@@ -478,18 +483,21 @@ HTML;
 	 * @since 4.7.0
 	 */
 	public function get_house_ad( $unit = 'mrec' ) {
-		if ( ! in_array( $unit, array( 'mrec', 'widesky', 'leaderboard' ) ) ) {
-			$unit = 'mrec';
-		}
 
-		$width  = 300;
-		$height = 250;
-		if ( 'widesky' == $unit ) {
-			$width  = 160;
-			$height = 600;
-		} else if ( 'leaderboard' == $unit ) {
-			$width  = 728;
-			$height = 90;
+		switch ( $unit ) {
+			case 'widesky':
+				$width  = 160;
+				$height = 600;
+				break;
+			case 'leaderboard':
+				$width  = 728;
+				$height = 90;
+				break;
+			case 'mrec':
+			default:
+				$width  = 300;
+				$height = 250;
+				break;
 		}
 
 		return <<<HTML

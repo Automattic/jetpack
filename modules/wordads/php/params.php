@@ -71,16 +71,12 @@ class WordAds_Params {
 	 * @since 4.5.0
 	 */
 	public static function is_cloudflare() {
-		if ( defined( 'WORDADS_CLOUDFLARE' ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			return true;
-		}
-		if ( isset( $_SERVER['HTTP_CF_VISITOR'] ) ) {
+		if (
+			defined( 'WORDADS_CLOUDFLARE' )
+			|| isset( $_SERVER['HTTP_CF_CONNECTING_IP'] )
+			|| isset( $_SERVER['HTTP_CF_IPCOUNTRY'] )
+			|| isset( $_SERVER['HTTP_CF_VISITOR'] )
+		) {
 			return true;
 		}
 
