@@ -40,6 +40,9 @@ function jetpack_require_lib( $slug ) {
 	require_lib_from_dir( $slug, WP_CONTENT_DIR . '/lib' );
 }
 
-function jetpack_require_lib( $slug ) {
-	return jetpack_require_lib( $slug );
+// Function check so we're able to sync it back to Jetpack, since it seems like a very common function name.
+if ( ! function_exists( 'require_lib' ) ) {
+	function require_lib( $slug ) {
+		return jetpack_require_lib( $slug );
+	}
 }
