@@ -174,7 +174,11 @@ class Jetpack_Redirector {
 	 *
 	 * @return string $url Transformed URL
 	 */
-	private static function normalize_url( $url ) {
+	static function normalize_url( $url ) {
+		if ( ! is_string( $url ) ) {
+			return new WP_Error( 'nonstring-redirect-url', 'The URL must be a string' );
+		}
+
 		// Sanitise the URL first rather than trying to normalize a non-URL
 		$url = esc_url_raw( $url );
 		if ( empty( $url ) ) {
@@ -194,7 +198,12 @@ class Jetpack_Redirector {
 
 		// We should have at least a path or query
 		if ( empty( $path ) && empty( $query ) ) {
-			return new WP_Error( 'url-parse-failed', 'The URL contains neither a path nor query string' );
+			return new WP_Error( 'url-no-path-or-query', 'The URL contains neither a path nor query string' );
+		}
+
+		// Paths should always start with a slash
+		if ( ! preg_match( '/^\//', $path ) ) {
+			$path = '/' . $path;
 		}
 
 		// All we want is path and query strings
