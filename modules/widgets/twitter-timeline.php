@@ -312,6 +312,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
+		if ( 'widget-id' === $instance['type'] ) {
+			$instance['widget-id'] = '';
+		}
+
 		$instance['type'] = 'profile';
 		?>
 
