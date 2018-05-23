@@ -150,4 +150,8 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_id, $youtube_id );
 	}
+
+	function test_jetpack_hash_function_is_defined() {
+		$this->assertTrue( function_exists( 'hash' ) );
+	}
 } // end class
