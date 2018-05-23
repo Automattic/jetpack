@@ -11,6 +11,24 @@
  * visible to users at the bottom of single posts and pages.
  *
  * To declare support in your theme, call `add_theme_support( 'geo-location' )`.
+ *
+ * Once you've added theme support, you can rely on the standard HTML output generated in the
+ * the_content_location_display() method of this class.  Or, you can use the "geo_location_display"
+ * filter to generate custom HTML for your particular theme.  Your filter function will receive an
+ * the default HTML as its first argument and an array containing the geo-location information as
+ * its second argument in the following format:
+ *
+ * array(
+ *     'is_public'    => boolean,
+ *     'latitude'     => float,
+ *     'longitude'    => float,
+ *     'label'        => string,
+ *     'is_populated' => boolean
+ * )
+ *
+ * Add your filter with:
+ *
+ * add_filter( 'geo_location_display', 'your_filter_function_name', 10, 2);
  */
 class Jetpack_Geo_Locate {
 	private static $instance;
@@ -269,12 +287,12 @@ class Jetpack_Geo_Locate {
 			return $content;
 		}
 
-		$content .= '<div class="post-geo-location-label geo-chip">';
-		$content .= '<span class="dashicons dashicons-location" style="vertical-align: text-top;"></span> ';
-		$content .= esc_html( $meta_values['label'] );
-		$content .= '</div>';
+		$html = '<div class="post-geo-location-label geo-chip">';
+		$html .= '<span class="dashicons dashicons-location" style="vertical-align: text-top;"></span> ';
+		$html .= esc_html( $meta_values['label'] );
+		$html .= '</div>';
 
-		return $content;
+		return $content . apply_filters( 'geo_location_display', $html, $meta_values );
 	}
 
 	/**
