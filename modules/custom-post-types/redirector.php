@@ -29,7 +29,7 @@ class Jetpack_Redirector {
 	const CACHE_GROUP = 'jetpack-redirect';
 
 	static function init() {
-		register_post_type( self::POST_TYPE, array( 'public' => false ) );
+		register_post_type( self::POST_TYPE, array( 'rewrite' => false ) );
 
 		// hook in early, before the canonical redirect
 		add_filter( 'template_redirect', array( 'Jetpack_Redirector', 'maybe_do_redirect' ), 0 );
