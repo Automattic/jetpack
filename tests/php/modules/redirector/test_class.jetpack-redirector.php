@@ -7,49 +7,6 @@ class WP_Test_Jetpack_Redirector extends WP_UnitTestCase {
 		$this->assertTrue( class_exists( 'Jetpack_Redirector' ) );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
-	function test_redirector_properly_initializes() {
-		$this->assertFalse(
-			post_type_exists( 'jetpack-redirect' ),
-			'CPT should not be registered before init'
-		);
-
-		$this->assertFalse(
-			has_filter( 'template_redirect', array( 'Jetpack_Redirector', 'maybe_do_redirect' ) ),
-			'template_redirect filter should not be hooked before init'
-		);
-
-		do_action( 'init' );
-
-		$this->assertTrue(
-			post_type_exists( 'jetpack-redirect' ),
-			'CPT should be registered after init'
-		);
-
-		$this->assertSame(
-			0,
-			has_filter( 'template_redirect', array( 'Jetpack_Redirector', 'maybe_do_redirect' ) ),
-			'template_redirect filter should be hooked at priority 0 after init'
-		);
-	}
-
-	/**
-	 * @depends test_redirector_properly_initializes
-	 */
-	function test_redirector_properly_initializes_is_isolated() {
-		$this->assertFalse(
-			post_type_exists( 'jetpack-redirect' ),
-			'CPT should not be registered'
-		);
-
-		$this->assertFalse(
-			has_filter( 'template_redirect', array( 'Jetpack_Redirector', 'maybe_do_redirect' ) ),
-			'template_redirect filter should not be hooked'
-		);
-	}
-
 	function test_redirector_normalize_url_invalid_proto_returns_an_error() {
 		$url = Jetpack_Redirector::normalize_url( 'file://something/not/a/url.txt' );
 		$this->assertTrue( $url instanceof WP_Error );
