@@ -91,4 +91,12 @@ class WP_Test_Jetpack_Redirector extends WP_UnitTestCase {
 			Jetpack_Redirector::normalize_url( 'http://example.com/path?k=v&k2=v2&k3' )
 		);
 	}
+
+	function test_redirector_get_url_hash_returns_correct_value() {
+		$this->assertSame(
+			'19452001d96ad33b211e3f7fb7f265f5986a00a61a3211ed024b033a',
+			Jetpack_Redirector::get_url_hash( '/path?k=v&k2=v2&k3' ),
+			'hash did not match expected value -- did the algorithm change?'
+		);
+	}
 }

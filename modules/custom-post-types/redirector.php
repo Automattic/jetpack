@@ -161,7 +161,7 @@ class Jetpack_Redirector {
 		return $redirect_post_id;
 	}
 
-	private static function get_url_hash( $url ) {
+	static function get_url_hash( $url ) {
 		return hash( 'sha224', $url );
 	}
 
