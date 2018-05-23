@@ -37,6 +37,9 @@ for WP_SLUG in 'master' 'latest' 'previous'; do
 	sed -i "s/yourusernamehere/root/" wp-tests-config.php
 	sed -i "s/yourpasswordhere//" wp-tests-config.php
 
+	npm install
+	grunt build
+
 	echo "Done!";
 done
 
