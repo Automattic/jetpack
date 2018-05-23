@@ -1,17 +1,11 @@
 <?php
 
-function jetpack_require_lib( $slug ) {
+function require_lib_from_dir( $slug, $lib_dir ) {
 	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		trigger_error( "Cannot load a library with invalid slug $slug.", E_USER_ERROR );
 		return;
 	}
 	$basename = basename( $slug );
-
-	if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
-		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
-	}
-
-	$lib_dir = WP_CONTENT_DIR . '/lib';
 
 	/**
 	 * Filter the location of the library directory.
@@ -26,6 +20,9 @@ function jetpack_require_lib( $slug ) {
 		"$lib_dir/$slug/0-load.php",
 		"$lib_dir/$slug/$basename.php",
 	);
+	if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+		$choices[] = JETPACK__PLUGIN_DIR . '/_inc/lib';
+	}
 	foreach( $choices as $file_name ) {
 		if ( is_readable( $file_name ) ) {
 			require_once $file_name;
@@ -33,4 +30,16 @@ function jetpack_require_lib( $slug ) {
 		}
 	}
 	trigger_error( "Cannot find a library with slug $slug.", E_USER_ERROR );
+}
+
+function jetpack_require_lib( $slug ) {
+	if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
+		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
+	}
+
+	require_lib_from_dir( $slug, WP_CONTENT_DIR . '/lib' );
+}
+
+function jetpack_require_lib( $slug ) {
+	return jetpack_require_lib( $slug );
 }
