@@ -66,7 +66,7 @@ class Jetpack_AMP_Support {
 			&&
 				function_exists( 'amp_is_canonical' ) // this is really just testing if the plugin exists
 			&&
-				( amp_is_canonical() || isset( $_GET[ amp_get_slug() ] ) );
+				( amp_is_canonical() || isset( $_GET[ amp_get_slug() ] ) || self::has_amp_suffix() );
 
 		/**
 		 * Returns true if the current request should return valid AMP content.
@@ -76,6 +76,11 @@ class Jetpack_AMP_Support {
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
+	}
+
+	static function has_amp_suffix() {
+		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+		return $request_path && substr_compare( $request_path, '/amp/', -4, 5, true );
 	}
 
 	static function filter_available_widgets( $widgets ) {
