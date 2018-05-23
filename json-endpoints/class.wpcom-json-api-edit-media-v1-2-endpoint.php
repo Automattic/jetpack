@@ -2,6 +2,9 @@
 
 jetpack_require_lib( 'class.media' );
 
+const REVISION_HISTORY_MAXIMUM_AMOUNT = 0;
+const WP_ATTACHMENT_IMAGE_ALT = '_wp_attachment_image_alt';
+
 new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
 	'description' => 'Edit a media item.',
 	'group'       => 'media',
@@ -24,15 +27,15 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
 		'artist'      => "(string) Audio Only. Artist metadata for the audio track.",
 		'album'       => "(string) Audio Only. Album metadata for the audio track.",
 		'media'       => "(object) An object file to attach to the post. To upload media, " .
-		                   "the entire request should be multipart/form-data encoded. " .
-		                   "Multiple media items will be displayed in a gallery. Accepts " .
-		                   "jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. " .
-		                   "Audio and Video may also be available. See <code>allowed_file_types</code> " .
-		                   "in the options response of the site endpoint. " .
-		                   "<br /><br /><strong>Example</strong>:<br />" .
+						   "the entire request should be multipart/form-data encoded. " .
+						   "Multiple media items will be displayed in a gallery. Accepts " .
+						   "jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. " .
+						   "Audio and Video may also be available. See <code>allowed_file_types</code> " .
+						   "in the options response of the site endpoint. " .
+						   "<br /><br /><strong>Example</strong>:<br />" .
 						   "<code>curl \<br />--form 'title=Image' \<br />--form 'media=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'attrs'       => "(object) An Object of attributes (`title`, `description` and `caption`) " .
-		                   "are supported to assign to the media uploaded via the `media` or `media_url`",
+						   "are supported to assign to the media uploaded via the `media` or `media_url`",
 		'media_url'   => "(string) An URL of the image to attach to a post.",
 	),
 
@@ -58,9 +61,9 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 		'revision_history' => '(object) An object with `items` and `original` keys. ' .
-		                        '`original` is an object with data about the original image. ' .
-		                        '`items` is an array of snapshots of the previous images of this Media. ' .
-		                        'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
+								'`original` is an object with data about the original image. ' .
+								'`items` is an array of snapshots of the previous images of this Media. ' .
+								'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/446',
@@ -76,12 +79,31 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
 
 class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Media_v1_1_Endpoint {
 	/**
+	 * Return an array of mime_type items allowed when the media file is uploaded.
+	 *
+	 * @return {Array} mime_type array
+	 */
+	static function get_allowed_mime_types( $default_mime_types ) {
+		return array_unique( array_merge( $default_mime_types, array(
+			'application/msword',                                                         // .doc
+			'application/vnd.ms-powerpoint',                                              // .ppt, .pps
+			'application/vnd.ms-excel',                                                   // .xls
+			'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
+			'application/vnd.openxmlformats-officedocument.presentationml.slideshow',     // .ppsx
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',          // .xlsx
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',    // .docx
+			'application/vnd.oasis.opendocument.text',                                    // .odt
+			'application/pdf',                                                            // .pdf
+		) ) );
+	}
+
+	/**
 	 * Update the media post grabbing the post values from
 	 * the `attrs` parameter
 	 *
 	 * @param  {Number} $media_id - post media ID
 	 * @param  {Object} $attrs - `attrs` parameter sent from the client in the request body
-	 * @return bool|WP_Error `WP_Error` on failure. `true` on success.
+	 * @return
 	 */
 	private function update_by_attrs_parameter( $media_id, $attrs ) {
 		$insert = array();
@@ -103,14 +125,18 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			$insert['ID'] = $media_id;
 			$update_action = wp_update_post( (object) $insert );
 			if ( is_wp_error( $update_action ) ) {
-				$update_action;
+				return $update_action;
 			}
 		}
 
 		// Attributes: Alt
 		if ( isset( $attrs['alt'] ) ) {
 			$alt = wp_strip_all_tags( $attrs['alt'], true );
-			update_post_meta( $media_id, Jetpack_Media::$WP_ATTACHMENT_IMAGE_ALT, $alt );
+			$post_update_action = update_post_meta( $media_id, WP_ATTACHMENT_IMAGE_ALT, $alt );
+
+			if ( is_wp_error( $post_update_action ) ) {
+				return $post_update_action;
+			}
 		}
 
 		// Attributes: Artist, Album
@@ -126,11 +152,126 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			// Before updating metadata, ensure that the item is audio
 			$item = $this->get_media_item_v1_1( $media_id );
 			if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
-				wp_update_attachment_metadata( $media_id, $id3_meta );
+				$update_action = wp_update_attachment_metadata( $media_id, $id3_meta );
+				if ( is_wp_error( $update_action ) ) {
+					return $update_action;
+				}
 			}
 		}
 
-		return $update_action;
+		return $post_update_action;
+	}
+
+	/**
+	 * Return an object to be used to store into the revision_history
+	 *
+	 * @param  {Object} $media_item - media post object
+	 * @return {Object} the snapshot object
+	 */
+	private function get_snapshot( $media_item ) {
+		$current_file = get_attached_file( $media_item->ID );
+		$file_paths = pathinfo( $current_file );
+
+		$snapshot = array(
+			'date'             => (string) $this->format_date( $media_item->post_modified_gmt, $media_item->post_modified ),
+			'URL'              => (string) wp_get_attachment_url( $media_item->ID ),
+			'file'             => (string) $file_paths['basename'],
+			'extension'        => (string) $file_paths['extension'],
+			'mime_type'        => (string) $media_item->post_mime_type,
+			'size'             => (int) filesize( $current_file )
+		);
+
+		return (object) $snapshot;
+	}
+
+	/**
+	 * Try to remove the temporal file from the given file array.
+	 *
+	 * @param  {Array} $file_array - Array with data about the temporal file
+	 * @return {Boolean} `true` if the file has been removed.
+	 *                   `false` either the file doesn't exist or it couldn't be removed.
+	 */
+	private function remove_tmp_file( $file_array ) {
+		if ( ! file_exists ( $file_array['tmp_name'] ) ) {
+			return false;
+		}
+		return @unlink( $file_array['tmp_name'] );
+	}
+
+	/**
+	 * Save the given temporal file in a local folder.
+	 *
+	 * @param  {Array} $file_array
+	 * @param  {Number} $media_id
+	 * @return {Array|WP_Error} An array with information about the new file saved or a WP_Error is something went wrong.
+	 */
+	private function save_temporary_file( $file_array, $media_id ) {
+		$tmp_filename = $file_array['tmp_name'];
+
+		if ( ! file_exists( $tmp_filename ) ) {
+			return new WP_Error( 'invalid_input', 'No media provided in input.' );
+		}
+
+		// add additional mime_types through of the `jetpack_supported_media_sideload_types` filter
+		$mime_type_static_filter = array(
+			'WPCOM_JSON_API_Edit_Media_v1_2_Endpoint',
+			'get_allowed_mime_types'
+		);
+
+		add_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
+		if (
+			! $this->is_file_supported_for_sideloading( $tmp_filename ) &&
+			! file_is_displayable_image( $tmp_filename )
+		) {
+			@unlink( $tmp_filename );
+			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
+		}
+		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
+
+		// generate a new file name
+		$tmp_new_filename = Jetpack_Media::generate_new_filename( $media_id, $file_array[ 'name' ] );
+
+		// start to create the parameters to move the temporal file
+		$overrides = array( 'test_form' => false );
+
+		$time = $this->get_time_string_from_guid( $media_id );
+
+		$file_array['name'] = $tmp_new_filename;
+		$file = wp_handle_sideload( $file_array, $overrides, $time );
+
+		$this->remove_tmp_file( $file_array );
+
+		if ( isset( $file['error'] ) ) {
+			return new WP_Error( 'upload_error', $file['error'] );
+		}
+
+		return $file;
+	}
+
+	/**
+	 * File urls use the post date to generate a folder path.
+	 * Post dates can change, so we use the original date used in the guid
+	 * url so edits can remain in the same folder. In the following function
+	 * we capture a string in the format of `YYYY/MM` from the guid.
+	 *
+	 * For example with a guid of
+	 * "http://test.files.wordpress.com/2016/10/test.png" the resulting string
+	 * would be: "2016/10"
+	 *
+	 * @param $media_id
+	 *
+	 * @return string
+	 */
+	private function get_time_string_from_guid( $media_id ) {
+		$time = date( "Y/m", strtotime( current_time( 'mysql' ) ) );
+		if ( $media = get_post( $media_id ) ) {
+			$pattern = '/\/(\d{4}\/\d{2})\//';
+			preg_match( $pattern, $media->guid, $matches );
+			if ( count( $matches ) > 1 ) {
+				$time = $matches[1];
+			}
+		}
+		return $time;
 	}
 
 	/**
@@ -152,7 +293,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		}
 
 		// save the remote image into a tmp file
-		$tmp = download_url( $url );
+		$tmp = download_url( wpcom_get_private_file( $url ) );
 		if ( is_wp_error( $tmp ) ) {
 			return $tmp;
 		}
@@ -163,6 +304,25 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		);
 	}
 
+	/**
+	 * Add a new item into revision_history array.
+	 *
+	 * @param  {Object} $media_item         - media post
+	 * @param  {file} $file               - file recentrly added
+	 * @param  {Boolean} $has_original_media - condition is the original media has been already added
+	 * @return {Boolean} `true` if the item has been added. Otherwise `false`.
+	 */
+	private function register_revision( $media_item, $file, $has_original_media ) {
+		if (
+			is_wp_error( $file ) ||
+			! $has_original_media
+		) {
+			return false;
+		}
+
+		add_post_meta( $media_item->ID, Jetpack_Media::$WP_REVISION_HISTORY, $this->get_snapshot( $media_item ) );
+	}
+
 	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
@@ -171,7 +331,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 
 		$media_item = get_post( $media_id );
 
-		if ( ! $media_item ) {
+		if ( ! $media_item || is_wp_error( $media_item ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 
@@ -186,36 +346,70 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		$input = $this->input( true );
 
 		// images
+		$media_file = $input['media'] ? (array) $input['media'] : null;
 		$media_url = $input['media_url'];
 		$media_attrs = $input['attrs'] ? (array) $input['attrs'] : null;
 
-		if ( isset( $media_url ) ) {
+		if ( isset( $media_url ) || $media_file ) {
 			$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
 
 			if ( ! $user_can_upload_files  ) {
 				return new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
 			}
 
-			// save the temporal file locally 
-			$temporal_file = $this->build_file_array_from_url( $media_id, $media_url );
+			$has_original_media = Jetpack_Media::get_original_media( $media_id );
 
-			$edited_media_item = Jetpack_Media::edit_media_file( $media_id, $temporal_file );
+			if ( ! $has_original_media ) {
+				// The first time that the media is updated
+				// the original media is stored into the revision_history
+				$snapshot = $this->get_snapshot( $media_item );
+				add_post_meta( $media_id, Jetpack_Media::$WP_ORIGINAL_MEDIA, $snapshot, true );
+			}
 
-			if ( is_wp_error( $edited_media_item ) ) {
-				return $edited_media_item;
+			// save the temporal file locally
+			$temporal_file = $media_file ? $media_file : $this->build_file_array_from_url( $media_id, $media_url );
+
+			if ( is_wp_error( $temporal_file ) ) {
+				return $temporal_file;
+			}
+
+			$uploaded_file = $this->save_temporary_file( $temporal_file, $media_id );
+
+			if ( is_wp_error( $uploaded_file ) ) {
+				return $uploaded_file;
+			}
+
+			// revision_history control
+			$this->register_revision( $media_item, $uploaded_file, $has_original_media );
+
+			$uploaded_path = $uploaded_file['file'];
+			$udpated_mime_type = $uploaded_file['type'];
+			$was_updated = update_attached_file( $media_id, $uploaded_path );
+
+			if ( $was_updated ) {
+				$new_metadata = wp_generate_attachment_metadata( $media_id, $uploaded_path );
+				wp_update_attachment_metadata( $media_id, $new_metadata );
+
+				// check maximum amount of revision_history
+				Jetpack_Media::limit_revision_history( $media_id, REVISION_HISTORY_MAXIMUM_AMOUNT );
+
+				wp_update_post( (object) array(
+					'ID'             => $media_id,
+					'post_mime_type' => $udpated_mime_type
+				) );
 			}
 
 			unset( $input['media'] );
 			unset( $input['media_url'] );
 			unset( $input['attrs'] );
+		}
 
-			// update media through of `attrs` value it it's defined
-			if ( $media_attrs ) {
-				$updated_by_attrs = $this->update_by_attrs_parameter( $media_id, $media_attrs );
+		// update media through of `attrs` value it it's defined
+		if ( ( $media_file || isset( $media_url ) ) && $media_attrs ) {
+			$was_updated = $this->update_by_attrs_parameter( $media_id, $media_attrs );
 
-				if ( is_wp_error( $updated_by_attrs ) ) {
-					return $updated_by_attrs;
-				}
+			if ( is_wp_error( $was_updated ) ) {
+				return $was_updated;
 			}
 		}
 
