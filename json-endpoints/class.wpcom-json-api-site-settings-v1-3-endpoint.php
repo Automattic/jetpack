@@ -115,12 +115,14 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 ) );
 
 class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_2_Endpoint {
-	public static $wga_defaults = array(
-		'code'                 => '',
-		'anonymize_ip'         => false,
-		'ec_track_purchases'   => false,
-		'ec_track_add_to_cart' => false
-	);
+	protected function get_defaults() {
+		return array(
+			'code'                 => '',
+			'anonymize_ip'         => false,
+			'ec_track_purchases'   => false,
+			'ec_track_add_to_cart' => false
+		);
+	}
 
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );
