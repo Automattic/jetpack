@@ -54,6 +54,7 @@ branches:
 
 # Clones WordPress and configures our testing environment.
 before_script:
+    - npm install grunt-cli -g
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
