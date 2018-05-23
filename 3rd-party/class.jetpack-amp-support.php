@@ -74,7 +74,7 @@ class Jetpack_AMP_Support {
 				||
 					isset( $_GET[ amp_get_slug() ] )
 				||
-					( version_compare( AMP__VERSION, '1.0', '<' ) && self::has_amp_suffix() )
+					( version_compare( AMP__VERSION, '1.0', '<' ) && self::has_amp_suffix() ) // after AMP 1.0, the amp suffix will no longer be supported
 				);
 
 		/**
