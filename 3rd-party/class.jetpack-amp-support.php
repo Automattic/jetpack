@@ -79,8 +79,8 @@ class Jetpack_AMP_Support {
 	}
 
 	static function has_amp_suffix() {
-		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-		return $request_path && substr_compare( $request_path, '/amp/', -4, 5, true );
+		$request_path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+		return $request_path && preg_match( '#/amp/?$#i', $request_path );
 	}
 
 	static function filter_available_widgets( $widgets ) {
