@@ -96,7 +96,7 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
-		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
@@ -115,12 +115,14 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 ) );
 
 class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_2_Endpoint {
-	public static $wga_defaults = array(
-		'code'                 => '',
-		'anonymize_ip'         => false,
-		'ec_track_purchases'   => false,
-		'ec_track_add_to_cart' => false
-	);
+	protected function get_defaults() {
+		return array(
+			'code'                 => '',
+			'anonymize_ip'         => false,
+			'ec_track_purchases'   => false,
+			'ec_track_add_to_cart' => false
+		);
+	}
 
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );
