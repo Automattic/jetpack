@@ -292,7 +292,7 @@ class Jetpack_Geo_Locate {
 		$html .= esc_html( $meta_values['label'] );
 		$html .= '</div>';
 
-		return $content . apply_filters( 'geo_location_display', $html, $meta_values );
+		return $content . apply_filters( 'jetpack_geo_location_display', $html, $meta_values );
 	}
 
 	/**
