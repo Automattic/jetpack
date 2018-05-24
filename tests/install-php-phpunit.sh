@@ -52,7 +52,7 @@ if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]]; then
     # build PHP5.2
     tail -F $HOME/.phpbrew/build/php-5.2.17/build.log &
     TAIL_PID=$!
-    $HOME/php-utils-bin/phpbrew install --patch ${THIS_DIR}/patches/node.patch --patch ${THIS_DIR}/patches/openssl.patch 5.2 +default +mysql +pdo \
+    $HOME/php-utils-bin/phpbrew install --patch ${THIS_DIR}/patches/node.patch --patch ${THIS_DIR}/patches/openssl.patch 5.2 +default +mysql +pdo +hash \
     +gettext +phar +openssl -- --with-openssl-dir=/usr/include/openssl --enable-spl --with-mysql --with-mysqli=/usr/bin/mysql_config --with-pdo-mysql=/usr
     kill -TERM $TAIL_PID
 
