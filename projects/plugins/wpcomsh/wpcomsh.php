@@ -20,6 +20,7 @@ require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-colors/colors.php' );
+require_once( 'privacy/participating-plugins.php' );
 require_once( 'class.wpcomsh-log.php' );
 
 /**
