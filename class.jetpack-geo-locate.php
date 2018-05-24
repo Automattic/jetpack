@@ -28,7 +28,7 @@
  *
  * Add your filter with:
  *
- * add_filter( 'geo_location_display', 'your_filter_function_name', 10, 2);
+ * add_filter( 'jetpack_geo_location_display', 'your_filter_function_name', 10, 2);
  */
 class Jetpack_Geo_Locate {
 	private static $instance;
