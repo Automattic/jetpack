@@ -305,7 +305,17 @@ class Jetpack_Geo_Locate {
 		$html .= esc_html( $meta_values['label'] );
 		$html .= '</div>';
 
-		return apply_filters( 'jetpack_geo_location_display', $html, $meta_values );
+		/**
+		 * Allow modification or replacement of the default geo-location display HTML.
+		 *
+		 * @module geo-location
+		 *
+		 * @param array $html The default HTML for displaying a geo-location label.
+		 * @param array $geo_data An array containing "latitude", "longitude" and "label".
+		 */
+		$html = apply_filters( 'jetpack_geo_location_display', $html, $meta_values );
+
+		return $html;
 	}
 
 	/**
