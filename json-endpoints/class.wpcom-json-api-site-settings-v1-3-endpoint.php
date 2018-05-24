@@ -1,11 +1,4 @@
 <?php
-/**
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- * @autounit api-v1 site-settings
- */
 
 new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
