@@ -30,6 +30,19 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 		}
 
 		function maybe_add_erasers_info() {
+			if ( ! function_exists( 'get_current_screen' ) ) {
+				return;
+			}
+
+			$screen = get_current_screen();
+			if ( is_null( $screen ) ) {
+				return;
+			}
+
+			if ( 'tools_page_remove_personal_data' !== $screen->id ) {
+				return;
+			}
+
 			$prompt = __(
 	'Please note - this tool only erases the personal data stored by WordPress and
 	participating plugins. It does not delete registered users, nor does it erase
@@ -64,6 +77,19 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 		}
 
 		function maybe_add_exporters_info() {
+			if ( ! function_exists( 'get_current_screen' ) ) {
+				return;
+			}
+
+			$screen = get_current_screen();
+			if ( is_null( $screen ) ) {
+				return;
+			}
+
+			if ( 'tools_page_export_personal_data' !== $screen->id ) {
+				return;
+			}
+
 			$prompt = __(
 	'Please note - this tool only exports the personal data stored by WordPress and
 	participating plugins. It does not export personal data stored by
@@ -98,6 +124,23 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 		}
 
 		function maybe_add_privacy_info() {
+			if ( ! function_exists( 'get_current_screen' ) ) {
+				return;
+			}
+
+			$screen = get_current_screen();
+			if ( is_null( $screen ) ) {
+				return;
+			}
+
+			if ( 'tools' !== $screen->id ) {
+				return;
+			}
+
+			if ( ! isset( $_GET[ 'wp-privacy-policy-guide' ] ) ) {
+				return;
+			}
+
 			$prompt = __(
 	'Please note - this tool only displays privacy policy information provided by
 	WordPress and participating plugins. It does not include privacy policy
