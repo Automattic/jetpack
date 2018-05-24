@@ -276,15 +276,28 @@ class Jetpack_Geo_Locate {
 			return $content;
 		}
 
-		$meta_values = $this->get_meta_values( $this->get_post_id() );
+		return $content . $this->get_location_label();
+	}
+
+	/**
+	 * Get the HTML for displaying a label representing the location associated with the
+	 * supplied post ID.  If no post ID is given, we'll use the global $post variable, if
+	 * it is available.
+	 *
+	 * @param integer|null $post_id
+	 *
+	 * @return string
+	 */
+	public function get_location_label( $post_id = null ) {
+		$meta_values = $this->get_meta_values( $post_id ? $post_id : $this->get_post_id() );
 
 		if ( ! $meta_values['is_public'] ) {
-			return $content;
+			return '';
 		}
 
 		// If the location has not been labeled, do not show the location
 		if ( ! $meta_values['label'] ) {
-			return $content;
+			return '';
 		}
 
 		$html = '<div class="post-geo-location-label geo-chip">';
@@ -292,7 +305,7 @@ class Jetpack_Geo_Locate {
 		$html .= esc_html( $meta_values['label'] );
 		$html .= '</div>';
 
-		return $content . apply_filters( 'jetpack_geo_location_display', $html, $meta_values );
+		return apply_filters( 'jetpack_geo_location_display', $html, $meta_values );
 	}
 
 	/**
