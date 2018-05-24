@@ -6,7 +6,6 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
  * Control your local Jetpack installation.
  */
 class Jetpack_CLI extends WP_CLI_Command {
-
 	// Aesthetics
 	public $green_open  = "\033[32m";
 	public $red_open    = "\033[31m";
@@ -29,6 +28,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php' );
 
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
 
@@ -43,6 +43,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
+		$jetpack_self_test = Jetpack_Debugger::run_self_test(); // Performs the same tests as jetpack.com/support/debug/
+
+		if ( ! $jetpack_self_test || ! wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+			WP_CLI::error( __( 'Jetpack connection status unknown.', 'jetpack' ) );
+		} else if ( 200 == wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
+		} else {
+			WP_CLI::error( __( 'Jetpack connection is broken.', 'jetpack' ) );
+		}
+
+		WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
+		WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
+		WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
+
 		/*
 		 * Are they asking for all data?
 		 *
@@ -50,11 +64,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		 */
 		$all_data = ( isset( $args[0] ) && 'full' == $args[0] ) ? 'full' : false;
 		if ( $all_data ) {
-			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
-			WP_CLI::line( sprintf( __( "The Jetpack Version is %s", 'jetpack' ), JETPACK__VERSION ) );
-			WP_CLI::line( sprintf( __( "The WordPress.com blog_id is %d", 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
-
 			// Heartbeat data
 			WP_CLI::line( "\n" . __( 'Additional data: ', 'jetpack' ) );
 
@@ -86,10 +95,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		} else {
 			// Just the basics
-			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
-			WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
 			WP_CLI::line( "\n" . _x( "View full status with 'wp jetpack status full'", '"wp jetpack status full" is a command - do not translate', 'jetpack' ) );
 		}
 	}
