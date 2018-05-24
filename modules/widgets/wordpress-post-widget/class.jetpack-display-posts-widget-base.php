@@ -13,6 +13,9 @@
  *
  * This would be a bit cleaner with dependency injection, but we already
  * use mocking to test, so it's not a big win.
+ *
+ * That this widget is currently implemented as these two classes
+ * is an implementation detail and should not be depended on :)
  */
 abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	/**
