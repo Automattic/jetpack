@@ -302,62 +302,84 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * list          : View all available modules, and their status.
-	 * activate all  : Activate all modules
-	 * deactivate all: Deactivate all modules
+	 * <list|activate|deactivate|toggle>
+	 * : The action to take.
+	 * ---
+	 * default: list
+	 * options:
+	 *  - list
+	 *  - activate
+	 *  - deactivate
+	 *  - toggle
+	 * ---
 	 *
-	 * activate   <module_slug> : Activate a module.
-	 * deactivate <module_slug> : Deactivate a module.
-	 * toggle     <module_slug> : Toggle a module on or off.
+	 * [<module_slug>]
+	 * : The slug of the module to perform an action on.
+	 *
+	 * [--format=<format>]
+	 * : Allows overriding the output of the command when listing modules.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 *  - ids
+	 *  - count
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack module list
+	 * wp jetpack module list --format=json
 	 * wp jetpack module activate stats
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
-	 *
 	 * wp jetpack module activate all
 	 * wp jetpack module deactivate all
-	 *
-	 * @synopsis <list|activate|deactivate|toggle> [<module_name>]
 	 */
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		if ( ! in_array( $action, array( 'list', 'activate', 'deactivate', 'toggle' ) ) ) {
-			/* translators: %s is a command like "prompt" */
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
-		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
-			if ( isset( $args[1] ) ) {
-				$module_slug = $args[1];
-				if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
-					WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
-				}
-				if ( 'toggle' == $action ) {
-					$action = Jetpack::is_module_active( $module_slug ) ? 'deactivate' : 'activate';
-				}
-				// Bulk actions
-				if ( 'all' == $args[1] ) {
-					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
-				}
-			} else {
-				WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
-				$action = 'list';
+
+		if ( isset( $args[1] ) ) {
+			$module_slug = $args[1];
+			if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
+				/* translators: %s is a module slug like "stats" */
+				WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
 			}
+			if ( 'toggle' === $action ) {
+				$action = Jetpack::is_module_active( $module_slug )
+					? 'deactivate'
+					: 'activate';
+			}
+			if ( 'all' === $args[1] ) {
+				$action = ( 'deactivate' === $action )
+					? 'deactivate_all'
+					: 'activate_all';
+			}
+		} elseif ( 'list' !== $action ) {
+			WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
+			$action = 'list';
 		}
+
 		switch ( $action ) {
 			case 'list':
-				WP_CLI::line( __( 'Available Modules:', 'jetpack' ) );
-				$modules = Jetpack::get_available_modules();
+				$modules_list = array();
+				$modules      = Jetpack::get_available_modules();
 				sort( $modules );
-				foreach( $modules as $module_slug ) {
-					if ( 'vaultpress' == $module_slug ) {
+				foreach ( (array) $modules as $module_slug ) {
+					if ( 'vaultpress' === $module_slug ) {
 						continue;
 					}
-					$active = Jetpack::is_module_active( $module_slug ) ? __( 'Active', 'jetpack' ) : __( 'Inactive', 'jetpack' );
-					WP_CLI::line( "\t" . str_pad( $module_slug, 24 ) . $active );
+					$modules_list[] = array(
+						'slug'   => $module_slug,
+						'status' => Jetpack::is_module_active( $module_slug )
+							? __( 'Active', 'jetpack' )
+							: __( 'Inactive', 'jetpack' ),
+					);
 				}
+				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) );
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
