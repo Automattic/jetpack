@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/geo-location/class.jetpack-geo-location.php';
+
 /**
  * Get the geo-location data associated with the supplied post ID, if it's available
  * and marked as being available for public display.  The returned array will contain
@@ -13,7 +15,7 @@
  * @return array|null
  */
 function jetpack_geo_get_data( $post_id = null) {
-	$geo = Jetpack_Geo_Locate::init();
+	$geo = Jetpack_Geo_Location::init();
 
 	if ( ! $post_id ) {
 		$post_id = $geo->get_post_id();
@@ -59,5 +61,5 @@ function jetpack_geo_display_location( $post_id = null ) {
  * @return string
  */
 function jetpack_geo_get_location( $post_id = null ) {
-	return Jetpack_Geo_Locate::init()->get_location_label( $post_id );
+	return Jetpack_Geo_Location::init()->get_location_label( $post_id );
 }

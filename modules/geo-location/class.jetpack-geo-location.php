@@ -30,12 +30,12 @@
  *
  * add_filter( 'jetpack_geo_location_display', 'your_filter_function_name', 10, 2);
  */
-class Jetpack_Geo_Locate {
+class Jetpack_Geo_Location {
 	private static $instance;
 
 	static public function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Geo_Locate;
+			self::$instance = new Jetpack_Geo_Location;
 		}
 
 		return self::$instance;
@@ -429,4 +429,4 @@ class Jetpack_Geo_Locate {
 	}
 }
 
-Jetpack_Geo_Locate::init();
+Jetpack_Geo_Location::init();
