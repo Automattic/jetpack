@@ -1202,6 +1202,186 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 	}
 
+	/*
+	 * Allows management of publicize connections.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <list|disconnect>
+	 * : The action to perform.
+	 * ---
+	 * options:
+	 *  - list
+	 *  - disconnect
+	 * ---
+	 *
+	 * [<identifier>]
+	 * : The connection ID or service to perform an action on.
+	 *
+	 * [--format=<format>]
+	 * : Allows overriding the output of the command when listing connections.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 *  - ids
+	 *  - count
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack publicize list
+	 * wp jetpack publicize list twitter
+	 * wp --user=1 jetpack publicize list
+	 * wp --user=1 jetpack publicize list twitter
+	 * wp jetpack publicize list 123456
+	 * wp jetpack publicize disconnect 123456
+	 * wp jetpack publicize disconnect all
+	 * wp jetpack publicize disconnect twitter
+	 */
+	public function publicize( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$action        = $args[0];
+		$publicize     = new Publicize();
+		$identifier    = ! empty( $args[1] ) ? $args[1] : false;
+		$services      = array_keys( $publicize->get_services() );
+		$id_is_service = in_array( $identifier, $services, true );
+
+		switch ( $action ) {
+			case 'list':
+				$connections_to_return = array();
+
+				// For the CLI command, let's return all connections when a user isn't specified. This
+				// differs from the logic in the Publicize class.
+				$option_connections = is_user_logged_in()
+					? (array) $publicize->get_all_connections_for_user()
+					: Jetpack_Options::get_option( 'publicize_connections' );
+
+				foreach ( $option_connections as $service_name => $connections ) {
+					foreach ( (array) $connections as $id => $connection ) {
+						$connection['id']        = $id;
+						$connection['service']   = $service_name;
+						$connections_to_return[] = $connection;
+					}
+				}
+
+				if ( $id_is_service && ! empty( $identifier ) && ! empty( $connections_to_return ) ) {
+					$temp_connections      = $connections_to_return;
+					$connections_to_return = array();
+
+					foreach ( $temp_connections as $connection ) {
+						if ( $identifier === $connection['service'] ) {
+							$connections_to_return[] = $connection;
+						}
+					}
+				}
+
+				if ( $identifier && ! $id_is_service && ! empty( $connections_to_return ) ) {
+					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
+				}
+
+				if ( empty( $connections_to_return ) ) {
+					return false;
+				}
+
+				$expected_keys = array(
+					'id',
+					'service',
+					'user_id',
+					'provider',
+					'issued',
+					'expires',
+					'external_id',
+					'external_name',
+					'external_display',
+					'type',
+					'connection_data',
+				);
+
+				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys );
+				break; // list.
+			case 'disconnect':
+				if ( ! $identifier ) {
+					WP_CLI::error( __( 'A connection ID must be passed in order to disconnect.', 'jetpack' ) );
+				}
+
+				// If the connection ID is 'all' then delete all connections. If the connection ID
+				// matches a service, delete all connections for that service.
+				if ( 'all' === $identifier || $id_is_service ) {
+					if ( 'all' === $identifier ) {
+						WP_CLI::log( __( "You're about to delete all publicize connections.", 'jetpack' ) );
+					} else {
+						/* translators: %s is a lowercase string for a social network. */
+						WP_CLI::log( sprintf( __( "You're about to delete all publicize connections to %s.", 'jetpack' ), $identifier ) );
+					}
+
+					jetpack_cli_are_you_sure();
+
+					$connections = array();
+					$service     = $identifier;
+
+					$option_connections = is_user_logged_in()
+						? (array) $publicize->get_all_connections_for_user()
+						: Jetpack_Options::get_option( 'publicize_connections' );
+
+					if ( 'all' === $service ) {
+						foreach ( (array) $option_connections as $service_name => $service_connections ) {
+							foreach ( $service_connections as $id => $connection ) {
+								$connections[ $id ] = $connection;
+							}
+						}
+					} elseif ( ! empty( $option_connections[ $service ] ) ) {
+						$connections = $option_connections[ $service ];
+					}
+
+					if ( ! empty( $connections ) ) {
+						$count    = count( $connections );
+						$progress = \WP_CLI\Utils\make_progress_bar(
+							/* translators: %s is a lowercase string for a social network. */
+							sprintf( __( 'Disconnecting all connections to %s.', 'jetpack' ), $service ),
+							$count
+						);
+
+						foreach ( $connections as $id => $connection ) {
+							if ( false === $publicize->disconnect( false, $id ) ) {
+								WP_CLI::error( sprintf(
+									/* translators: %1$d is a numeric ID and %2$s is a lowercase string for a social network. */
+									__( 'Publicize connection %d could not be disconnected', 'jetpack' ),
+									$id
+								) );
+							}
+
+							$progress->tick();
+						}
+
+						$progress->finish();
+
+						if ( 'all' === $service ) {
+							WP_CLI::success( __( 'All publicize connections were successfully disconnected.', 'jetpack' ) );
+						} else {
+							/* translators: %s is a lowercase string for a social network. */
+							WP_CLI::success( __( 'All publicize connections to %s were successfully disconnected.', 'jetpack' ), $service );
+						}
+					}
+				} else {
+					if ( false !== $publicize->disconnect( false, $identifier ) ) {
+						/* translators: %d is a numeric ID. Example: 1234. */
+						WP_CLI::success( sprintf( __( 'Publicize connection %d has been disconnected.', 'jetpack' ), $identifier ) );
+					} else {
+						/* translators: %d is a numeric ID. Example: 1234. */
+						WP_CLI::error( sprintf( __( 'Publicize connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
+					}
+				}
+				break; // disconnect.
+		}
+	}
+
 	private function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
 		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;

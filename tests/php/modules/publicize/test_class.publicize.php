@@ -7,6 +7,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	private $in_publish_filter = false;
 	private $publicized_post_id = null;
 	private $post;
+	private $original_user = 0;
 
 	public function setUp() {
 		parent::setUp();
@@ -20,6 +21,14 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
+
+		$this->original_user = get_current_user_id();
+	}
+
+	public function tearDown() {
+		wp_set_current_user( $this->original_user );
+
+		parent::tearDown();
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
@@ -55,7 +64,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$this->assertPublicized( false, $this->post );
 	}
-	
+
 	public function test_publicize_does_not_fire_on_post_types_that_do_not_support_it() {
 		$args = array(
 			'public' => true,
@@ -89,7 +98,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->in_publish_filter = $flags['publicize_post'];
 		return $flags;
 	}
-	
+
 	function prevent_publicize_post( $should_publicize, $post ) {
 		return false;
 	}
@@ -133,4 +142,46 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		unregister_post_type( 'pub-post-type-2' );
 	}
 
+	public function test_publicize_get_all_connections_for_user() {
+		$facebook_connection = array(
+			'id_number' => array(
+				'connection_data' => array(
+					'user_id' => 0,
+				)
+			)
+		);
+		$twitter_connection = array(
+			'id_number_2' => array(
+				'connection_data' => array(
+					'user_id' => 1,
+				)
+			)
+		);
+		Jetpack_Options::update_options( array(
+			'publicize_connections' => array(
+				'facebook' => $facebook_connection,
+				'twitter'  => $twitter_connection,
+			)
+		) );
+
+		$publicize = publicize_init();
+
+		// When logged out, assert that blog-level connections are returned.
+		wp_set_current_user( 0 );
+		$this->assertSame( array( 'facebook' => $facebook_connection ), $publicize->get_all_connections_for_user() );
+
+		// When logged in, assert that blog-level connections AND any connections for the current user are returned.
+		wp_set_current_user( 1 );
+		$this->assertSame(
+			array(
+			'facebook' => $facebook_connection,
+			'twitter' => $twitter_connection
+			),
+			$publicize->get_all_connections_for_user()
+		);
+
+		// There are no connections for user 2, so we should only get blog-level connections.
+		wp_set_current_user( 2 );
+		$this->assertSame( array( 'facebook' => $facebook_connection ), $publicize->get_all_connections_for_user() );
+	}
 }
