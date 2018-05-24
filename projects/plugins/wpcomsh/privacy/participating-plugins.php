@@ -44,12 +44,13 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 			}
 
 			$prompt = __(
-	'Please note - this tool only erases the personal data stored by WordPress and
-	participating plugins. It does not delete registered users, nor does it erase
-	personal data stored by non-participating plugins. It is your responsibility
-	to delete registered users as well as personal data stored by non-participating
-	plugins. The following erasers are currently active:'
-	);
+'Please note - this tool only erases the personal data stored by WordPress and
+participating plugins. It does not delete registered users, nor does it erase
+personal data stored by non-participating plugins. It is your responsibility
+to delete registered users as well as personal data stored by non-participating
+plugins. The personal data erased includes only the following items at this
+time:'
+			);
 
 			$erasers = apply_filters( 'wp_privacy_personal_data_erasers', array() );
 			?>
@@ -91,12 +92,12 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 			}
 
 			$prompt = __(
-	'Please note - this tool only exports the personal data stored by WordPress and
-	participating plugins. It does not export personal data stored by
-	non-participating plugins. It is your responsibility to export personal data
-	stored by non-participating plugins separately. The following exporters are
-	currently active:'
-	);
+'Please note - this tool only exports the personal data stored by WordPress and
+participating plugins. It does not export personal data stored by
+non-participating plugins. It is your responsibility to export personal data
+stored by non-participating plugins separately. The personal data exported
+includes only the following items at this time:'
+			);
 
 			$exporters = apply_filters( 'wp_privacy_personal_data_exporters', array() );
 			?>
@@ -142,11 +143,11 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 			}
 
 			$prompt = __(
-	'Please note - this tool only displays privacy policy information provided by
-	WordPress and participating plugins. It does not include privacy policy
-	information for non-participating plugins. It is your responsibility to
-	obtain privacy policy information for non-participating plugins separately.'
-	);
+'Please note - this tool only displays privacy policy information provided by
+WordPress and participating plugins. It does not include privacy policy
+information for non-participating plugins. It is your responsibility to
+obtain privacy policy information for non-participating plugins separately.'
+			);
 			?>
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
