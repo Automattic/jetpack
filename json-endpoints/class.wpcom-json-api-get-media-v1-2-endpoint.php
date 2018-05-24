@@ -1,6 +1,6 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php' );
+jetpack_require_lib( 'class.media' );
 
 new WPCOM_JSON_API_Get_Media_v1_2_Endpoint( array(
 	'description' => 'Get a single media item (by ID).',
@@ -36,9 +36,9 @@ new WPCOM_JSON_API_Get_Media_v1_2_Endpoint( array(
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 		'revision_history' => '(object) An object with `items` and `original` keys. ' .
-		                        '`original` is an object with data about the original image. ' .
-		                        '`items` is an array of snapshots of the previous images of this Media. ' .
-		                        'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
+								'`original` is an object with data about the original image. ' .
+								'`items` is an array of snapshots of the previous images of this Media. ' .
+								'Each item has the `URL`, `file, `extension`, `date`, and `mime_type` fields.'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/media/934',
@@ -58,7 +58,7 @@ class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1
 		}
 
 		$media_item = get_post( $media_id );
-		$response->modified = WPCOM_JSON_API_Date::format_date( $media_item->post_modified_gmt, $media_item->post_modified );
+		$response->modified = (string) $this->format_date( $media_item->post_modified_gmt, $media_item->post_modified );
 
 		// expose `revision_history` object
 		$response->revision_history = (object) array(
@@ -69,3 +69,4 @@ class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1
 		return $response;
 	}
 }
+
