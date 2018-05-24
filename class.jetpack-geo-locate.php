@@ -10,7 +10,7 @@
  * If your theme declares support for "geo-location", you'll also get a small icon and location label
  * visible to users at the bottom of single posts and pages.
  *
- * To declare support in your theme, call `add_theme_support( 'geo-location' )`.
+ * To declare support in your theme, call `add_theme_support( 'jetpack-geo-location' )`.
  *
  * Once you've added theme support, you can rely on the standard HTML output generated in the
  * the_content_location_display() method of this class.  Or, you can use the "geo_location_display"
@@ -63,7 +63,7 @@ class Jetpack_Geo_Locate {
 	 */
 	public function wordpress_init() {
 		// Only render location label after post content, if the theme claims to support "geo-location".
-		if ( $this->current_theme_supports( 'geo-location' ) ) {
+		if ( $this->current_theme_supports( 'jetpack-geo-location' ) ) {
 			add_filter( 'the_content', array( $this, 'the_content_location_display' ), 15, 1 );
 		}
 
