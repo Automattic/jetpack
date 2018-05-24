@@ -1441,6 +1441,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
+		$response['feed_url']    = get_term_feed_link( $taxonomy->term_id, $taxonomy_type );
 
 		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
