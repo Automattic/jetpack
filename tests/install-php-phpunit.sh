@@ -43,14 +43,8 @@ if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]]; then
 	export PATH=$HOME/php-utils-bin:$PATH
 
   # php and phpunit3.6 installs should be cached, only build if they're not there.
-
-# Temporarily defeat the cached 5.2 build
-# See: https://github.com/Automattic/jetpack/pull/9616#issuecomment-391256715
-# TODO: Remove this before merge!
-rm -rf $HOME/.phpbrew
-
   if [ ! -f $PHPBREW_BUILT_CHECK ]; then
-
+    
     # init with known --old to get 5.2 and 5.3
     $HOME/php-utils-bin/phpbrew init
     $HOME/php-utils-bin/phpbrew known --old
