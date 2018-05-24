@@ -46,7 +46,7 @@ class WPCom_Markdown {
 	 *
 	 * @var bool
 	 */
-	public static $is_gutenberg_compatible = true;
+	public static $is_block_editor_compatible = true;
 
 	/**
 	 * Pattern to match Gutenberg Markdown block opening tag exactly:
@@ -140,7 +140,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
-		add_filter( 'after_gutenberg_gets_post_to_edit', array( $this, 'after_gutenberg_gets_post_to_edit' ), 10, 1 );
+		add_filter( 'after_block_editor_gets_post_to_edit', array( $this, 'after_block_editor_gets_post_to_edit' ), 10, 1 );
 		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
 		add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
@@ -161,7 +161,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
-		remove_filter( 'after_gutenberg_gets_post_to_edit', array( $this, 'after_gutenberg_gets_post_to_edit' ), 10 );
+		remove_filter( 'after_block_editor_gets_post_to_edit', array( $this, 'after_block_editor_gets_post_to_edit' ), 10 );
 		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6 );
 		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10 );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
@@ -509,7 +509,7 @@ class WPCom_Markdown {
 			 * Remove the Markdown wrapper from the Markdown block so that it
 			 * renders as HTML text and not the Markdown container element for the reader.
 			 */
-			$text = $this->strip_gutenberg_markdown_wrapper( $post_data['post_content'] );
+			$text = $this->strip_block_editor_markdown_wrapper( $post_data['post_content'] );
 
 			$post_data['post_content'] = $this->transform( $text, array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
@@ -588,7 +588,7 @@ class WPCom_Markdown {
 	 * @param $text string
 	 * @return string
 	 */
-	protected function strip_gutenberg_markdown_wrapper( $text ) {
+	protected function strip_block_editor_markdown_wrapper( $text ) {
 
 		$regex = '{
 
@@ -617,7 +617,7 @@ class WPCom_Markdown {
 
 		$text = preg_replace_callback(
 			$regex,
-			array( &$this, '_strip_gutenberg_markdown_wrapper_callback' ),
+			array( &$this, '_strip_block_editor_markdown_wrapper_callback' ),
 			$text
 		);
 
@@ -635,7 +635,7 @@ class WPCom_Markdown {
 	 * @param $matches array
 	 * @return string
 	 */
-	protected function _strip_gutenberg_markdown_wrapper_callback( $matches ) {
+	protected function _strip_block_editor_markdown_wrapper_callback( $matches ) {
 		$matches[2] = self::markdown_block_fix_angled_brackets( $matches[2] );
 		return $matches[1] . "\n" . $matches[2] . "\n\n" . $matches[3];
 	}
@@ -734,7 +734,7 @@ class WPCom_Markdown {
 	 *
 	 * To meet the spec we are running it before rendering the Markdown in:
 	 *
-	 * _strip_gutenberg_markdown_wrapper_callback
+	 * _strip_block_editor_markdown_wrapper_callback
 	 *
 	 */
 	protected static function markdown_block_fix_angled_brackets( $content ) {
@@ -778,7 +778,7 @@ class WPCom_Markdown {
 	 * @param $post_to_edit
 	 * @return array
 	 */
-	public function after_gutenberg_gets_post_to_edit( $post_to_edit ) {
+	public function after_block_editor_gets_post_to_edit( $post_to_edit ) {
 		if ( is_array( $post_to_edit ) ) {
 			if (
 				isset( $post_to_edit['content'] )
