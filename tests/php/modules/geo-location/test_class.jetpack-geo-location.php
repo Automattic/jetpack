@@ -1,8 +1,8 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-geo-locate.php' );
+require_once( JETPACK__PLUGIN_DIR . '/modules/geo-location/class.jetpack-geo-location.php' );
 
-class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
+class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	const DISABLE_CONSTRUCTOR = true;
 
 	const ENABLE_CONSTRUCTOR = false;
@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	public function tearDown() {
-		Jetpack_Geo_Locate::reset_instance();
+		Jetpack_Geo_Location::reset_instance();
 	}
 
 	public function test_location_display_filter_skipped_when_lacking_theme_support() {
@@ -46,7 +46,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 			self::ENABLE_CONSTRUCTOR
 		);
 
-		$instance->method( 'current_theme_supports' )->with( 'geo-location' )->willReturn( true );
+		$instance->method( 'current_theme_supports' )->with( 'jetpack-geo-location' )->willReturn( true );
 
 		$instance->expects( $this->atLeastOnce() )
 			->method( 'the_content_location_display' );
@@ -280,7 +280,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	}
 
 	private function get_instance() {
-		return Jetpack_Geo_Locate::init();
+		return Jetpack_Geo_Location::init();
 	}
 
 	private function get_instance_with_mock_public_post() {
@@ -341,7 +341,7 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 	/**
 	 * @param string[] $additional_mock_methods
 	 * @param boolean $disable_constructor
-	 * @return Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject
+	 * @return Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function create_mock_instance(
 		$additional_mock_methods = array(),
@@ -352,8 +352,8 @@ class WP_Test_Jetpack_Geo_Locate extends WP_UnitTestCase {
 			$additional_mock_methods
 		);
 
-		/* @var $instance Jetpack_Geo_Locate|PHPUnit_Framework_MockObject_MockObject */
-		$builder = $this->getMockBuilder( Jetpack_Geo_Locate::class )
+		/* @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject */
+		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
 			->setMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
