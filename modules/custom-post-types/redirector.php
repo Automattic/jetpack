@@ -15,10 +15,10 @@
  *
  * Redirects are stored as a custom post type (`jetpack-redirect`) and use the following fields:
  *
- * - post_name for the sha224 hash of the "from" path or URL.
+ * - post_name for the md5 hash of the "from" path or URL.
  *  - we use this column, since it's indexed and queries are super fast.
- *  - we also use an sha224 just to simplify the storage.
- * - post_title to store the non-sha224 version of the "from" path.
+ *  - we also use an md5 just to simplify the storage.
+ * - post_title to store the non-md5 version of the "from" path.
  * - one of either:
  *  - post_parent if we're redirect to a post; or
  *  - post_excerpt if we're redirecting to an alternate URL.
@@ -143,19 +143,20 @@ class Jetpack_Redirector {
 	static function get_redirect_post_id( $url ) {
 		$query = new WP_Query( array(
 			'fields' => 'ids',
+			'name' => self::get_url_hash( $url ),
 			'order' => 'ASC',
 			'orderby' => 'date',
-			'post_name' => self::get_url_hash( $url ),
 			'post_status' => 'publish',
 			'post_type' => self::POST_TYPE,
 			'posts_per_page' => 1,
+			'title' => $url,
 		) );
 
 		return (int) reset( $query->posts );
 	}
 
 	static function get_url_hash( $url ) {
-		return hash( 'sha224', $url );
+		return md5( $url );
 	}
 
 	/**
