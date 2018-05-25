@@ -77,8 +77,8 @@ release: export RELEASE_BUCKET := pressable-misc
 release: build
 	$(if $(shell command -v s3cmd 2> /dev/null),, $(error `s3cmd` not found in $$PATH))
 	@ echo "uploading to s3 $(RELEASE_BUCKET)..."
-	@ s3cmd put --acl-public --guess-mime-type \
-      $(BUILD_DST)/$(BUILD_FILE) s3://$(RELEASE_BUCKET) &>/dev/null
+	@ s3cmd --verbose put --acl-public --guess-mime-type \
+      $(BUILD_DST)/$(BUILD_FILE) s3://$(RELEASE_BUCKET)
 	@ echo "DONE!"
 
 ## clean
