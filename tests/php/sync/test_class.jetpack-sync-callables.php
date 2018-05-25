@@ -734,7 +734,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'support' => 'https://jetpack.com/support'
 			)
 		);
-  		$this->assertEquals( $expected_array, $plugins_action_links );
+
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
 		$this->resetCallableAndConstantTimeouts();
@@ -742,8 +743,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+		
 		// Nothing should have changed since we cache the results.
-		$this->assertEquals( $plugins_action_links, $expected_array );
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
 		activate_plugin('hello.php', '', false, true );
 		$this->resetCallableAndConstantTimeouts();
@@ -751,9 +753,17 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+
 		// Links should have changes now since we activated the plugin.
 		$expected_array['hello.php'] = array( 'not fun' => admin_url( 'not-fun.php' ) );
-		$this->assertEquals( $plugins_action_links, $expected_array );
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
+	}
+
+	function extract_plugins_we_are_testing( $plugins_action_links ) {
+		$only_plugins_we_care_about = array();
+		$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
+		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
+		return $only_plugins_we_care_about;
 	}
 
 	function cause_fatal_error( $actions ) {
