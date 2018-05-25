@@ -850,6 +850,33 @@ class Grunion_Contact_Form_Plugin {
 		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
 		foreach ( $post_ids as $post_id ) {
+			/**
+			 * Filters whether to erase the Feedback post.
+			 *
+			 * @since
+			 *
+			 * @param bool|string  Whether to apply erase the Feedback post (bool).
+			 *                     Custom prevention message (string). Default true.
+			 * @param int $post_id Feedback post ID.
+			 */
+			$prevention_message = apply_filters( 'grunion_contact_form_delete_feedback_post', true, $post_id );
+
+			if ( true !== $prevention_message ) {
+				if ( $prevention_message && is_string( $prevention_message ) ) {
+					$messages[] = esc_html( $prevention_message );
+				} else {
+					$messages[] = sprintf(
+						// translators: %d: Post ID.
+						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+						$post_id
+					);
+				}
+
+				$retained = true;
+
+				continue;
+			}
+
 			if ( wp_delete_post( $post_id, true ) ) {
 				$removed = true;
 			} else {
