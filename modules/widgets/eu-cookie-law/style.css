@@ -11,6 +11,11 @@
 	z-index: 50001;
 }
 
+.widget_eu_cookie_law_widget.widget.top {
+	bottom: auto;
+	top: 1em;
+}
+
 #eu-cookie-law {
 	background-color: #fff;
 	border: 1px solid #dedede;
