@@ -606,7 +606,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			 */
 			apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
 		); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 </div>
@@ -614,10 +614,10 @@ function stats_reports_page( $main_chart_only = false ) {
 <div class="jp-footer">
 	<ul class="jp-footer__links">
 		<li class="jp-footer__link-item">
-			<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
+			<a href="https://jetpack.com" rel="noopener noreferrer" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
 		</li>
 		<li class="jp-footer__link-item">
-			<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
+			<a href="https://wordpress.com/tos/" rel="noopener noreferrer" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
 		</li>
 		<li class="jp-footer__link-item">
 			<a href="<?php echo esc_url( $jetpack_admin_url . '#/privacy' ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( 'Automattic\'s Privacy Policy', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
@@ -823,7 +823,7 @@ function stats_convert_post_title( $matches ) {
 	global $stats_posts;
 	$post_id = $matches[1];
 	if ( isset( $stats_posts[$post_id] ) )
-		return '<a href="' . get_permalink( $post_id ) . '" target="_blank">' . get_the_title( $post_id ) . '</a>';
+		return '<a href="' . get_permalink( $post_id ) . '" rel="noopener noreferrer" target="_blank">' . get_the_title( $post_id ) . '</a>';
 	return $matches[0];
 }
 
@@ -1547,7 +1547,7 @@ function stats_print_wp_remote_error( $get, $url ) {
 	}
 ?>
 	<div class="wrap">
-	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
+	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" rel="noopener noreferrer" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
 	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
@@ -1842,7 +1842,7 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 			);
 		} else {
 			printf(
-				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
+				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" rel="noopener noreferrer" target="_blank"></a>',
 				esc_url( "https://wordpress.com/stats/post/$post_id/" . Jetpack::build_raw_urls( get_home_url() ) ),
 				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
 			);

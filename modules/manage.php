@@ -2,7 +2,7 @@
 /**
  * Module Name: Manage
  * Module Description: Manage all of your sites from a centralized dashboard.
- * Jumpstart Description: Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.
+ * Jumpstart Description: Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" rel="noopener noreferrer" target="_blank">wordpress.com</a>.
  * Sort Order: 1
  * Recommendation Order: 3
  * First Introduced: 3.4
