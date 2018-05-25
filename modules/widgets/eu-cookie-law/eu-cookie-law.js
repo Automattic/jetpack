@@ -4,6 +4,10 @@
 		initialScrollPosition,
 		scrollFunction;
 
+	if ( overlay.hasClass( 'top' ) ) {
+		$( '.widget_eu_cookie_law_widget' ).addClass( 'top' );
+	}
+
 	if ( overlay.hasClass( 'ads-active' ) ) {
 		var adsCookieValue = document.cookie.replace( /(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/, '$1' );
 		if ( '' !== cookieValue && '' !== adsCookieValue ) {

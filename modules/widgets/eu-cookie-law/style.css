@@ -16,6 +16,10 @@
 	top: 1em;
 }
 
+.admin-bar .widget_eu_cookie_law_widget.widget.top {
+	top: 3em;
+}
+
 #eu-cookie-law {
 	background-color: #fff;
 	border: 1px solid #dedede;
