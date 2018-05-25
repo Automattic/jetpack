@@ -22,7 +22,7 @@
 		const canLiveTestText =
 			'<div id="jetpack-live-branches">' +
 			'<h2>Jetpack Live Branches</h2>' +
-			'<p style="height:3em;" ><a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="' + link + '">' + link + '</a></p>' +
+			'<p style="height:3em;" ><a id="jetpack-beta-branch-link" rel="noopener noreferrer" target="_blank" rel="nofollow noopener" href="' + link + '">' + link + '</a></p>' +
 			'<ul>' +
 			'<li class="task-list-item enabled"><input type="checkbox" name="shortlived" checked class="task-list-item-checkbox">Launch a shortlived site</li>' +
 			'<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>' +
