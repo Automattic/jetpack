@@ -450,15 +450,17 @@ class WPCom_Markdown {
 	public function after_wp_tiny_mce() {
 ?>
 <script type="text/javascript">
-tinymce.on( 'AddEditor', function( event ) {
-	event.editor.on( 'BeforeSetContent', function( event ) {
-		var editor = event.target;
-		Object.keys( editor.schema.elements ).forEach( function( key, index ) {
-			editor.schema.elements[ key ].attributes['markdown'] = {};
-			editor.schema.elements[ key ].attributesOrder.push( 'markdown' );
+jQuery( function() {
+	tinymce.on( 'AddEditor', function( event ) {
+		event.editor.on( 'BeforeSetContent', function( event ) {
+			var editor = event.target;
+			Object.keys( editor.schema.elements ).forEach( function( key, index ) {
+				editor.schema.elements[ key ].attributes['markdown'] = {};
+				editor.schema.elements[ key ].attributesOrder.push( 'markdown' );
+			} );
 		} );
-	} );
-}, true );
+	}, true );
+} );
 </script>
 <?php
 	}
