@@ -309,11 +309,11 @@ class Jetpack_Comic {
 			5  => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Comic restored to revision from %s', 'jetpack'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
 			6  => sprintf( __( 'Comic published. <a href="%s">View comic</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
 			7  => esc_html__( 'Comic saved.', 'jetpack' ),
-			8  => sprintf( __( 'Comic submitted. <a target="_blank" href="%s">Preview comic</a>', 'jetpack'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
-			9  => sprintf( __( 'Comic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview comic</a>', 'jetpack' ),
+			8  => sprintf( __( 'Comic submitted. <a rel="noopener noreferrer" target="_blank" href="%s">Preview comic</a>', 'jetpack'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			9  => sprintf( __( 'Comic scheduled for: <strong>%1$s</strong>. <a rel="noopener noreferrer" target="_blank" href="%2$s">Preview comic</a>', 'jetpack' ),
 			// translators: Publish box date format, see http://php.net/date
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
-			10 => sprintf( __( 'Comic draft updated. <a target="_blank" href="%s">Preview comic</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			10 => sprintf( __( 'Comic draft updated. <a rel="noopener noreferrer" target="_blank" href="%s">Preview comic</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
 
 		return $messages;
@@ -521,7 +521,7 @@ function comics_welcome_email( $welcome_email, $blog_id, $user_id, $password, $t
 
 Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-admin/customize.php#title\">setting your comic's title and tagline</a> so your readers know what it's all about.
 
-Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\" target=\"_blank\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\" target=\"_blank\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>
+Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\" rel=\"noopener noreferrer\" target=\"_blank\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\" rel=\"noopener noreferrer\" target=\"_blank\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>
 
 Lots of laughs,
 The WordPress.com Team", 'jetpack' );
