@@ -844,16 +844,16 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public function personal_data_eraser( $email, $page = 1 ) {
 		$per_page = 250;
-		$removed  = 0;
-		$retained = 0;
+		$removed  = false;
+		$retained = false;
 		$messages = array();
 		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
 		foreach ( $post_ids as $post_id ) {
 			if ( wp_delete_post( $post_id, true ) ) {
-				$removed++;
+				$removed = true;
 			} else {
-				$retained++;
+				$retained = true;
 				$messages[] = sprintf(
 					// translators: %d: Post ID.
 					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
