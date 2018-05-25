@@ -13,6 +13,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -146,12 +147,28 @@ class DashBackups extends Component {
 				<QueryVaultPressData />
 				{
 					this.props.isRewindActive
-						? renderCard( {
-							className: 'jp-dash-item__is-active',
-							status: 'is-working',
-							content: __( 'Your site is being backed up in real-time.' ),
-							feature: 'rewind',
-						} )
+						? (
+							<div className="jp-dash-item__interior">
+								{
+									renderCard( {
+										className: 'jp-dash-item__is-active',
+										status: 'is-working',
+										content: __( 'Your site is being backed up in real-time.' ),
+										feature: 'rewind',
+									} )
+								}
+								{
+									<Card
+										key="manage-backups"
+										className="jp-dash-item__manage-in-wpcom"
+										compact
+										href={ `https://dashboard.vaultpress.com/${ this.props.siteRawUrl }/backups/` }
+									>
+										{ __( 'View backup history' ) }
+									</Card>
+								}
+							</div>
+						)
 						: this.getVPContent()
 				}
 			</div>

@@ -10,6 +10,7 @@ import { getPlanClass } from 'lib/plans/constants';
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -173,6 +174,17 @@ class DashScan extends Component {
 											'You will be notified if we find one.' ),
 										feature: 'rewind',
 									} )
+
+								}
+								{
+									<Card
+										key="security-scanning"
+										className="jp-dash-item__manage-in-wpcom"
+										compact
+										href={ `https://dashboard.vaultpress.com/${ this.props.siteRawUrl }/security/` }
+									>
+										{ __( 'View security scan details' ) }
+									</Card>
 								}
 							</div>
 						)
