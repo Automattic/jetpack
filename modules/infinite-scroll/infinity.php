@@ -1541,7 +1541,7 @@ class The_Neverending_Home_Page {
 	 */
 	private function default_footer() {
 		$credits = sprintf(
-			'<a href="https://wordpress.org/" target="_blank" rel="generator">%1$s</a> ',
+			'<a href="https://wordpress.org/" rel="noopener noreferrer" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(

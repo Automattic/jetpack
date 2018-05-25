@@ -205,7 +205,7 @@ abstract class Sharing_Source {
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
+			( true == $this->open_link_in_new ) ? ' rel="noopener noreferrer" target="_blank"' : '',
 			$title,
 			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text

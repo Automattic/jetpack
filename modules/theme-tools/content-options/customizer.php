@@ -227,7 +227,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 
 		$wp_customize->add_control( new Jetpack_Customize_Control_Title( $wp_customize, 'jetpack_content_featured_images_title', array(
 			'section'                  => 'jetpack_content_options',
-			'label'                    => esc_html__( 'Featured Images', 'jetpack' ) . sprintf( '<a href="https://en.support.wordpress.com/featured-images/" class="customize-help-toggle dashicons dashicons-editor-help" title="%1$s" target="_blank"><span class="screen-reader-text">%1$s</span></a>', esc_html__( 'Learn more about Featured Images', 'jetpack' ) ),
+			'label'                    => esc_html__( 'Featured Images', 'jetpack' ) . sprintf( '<a href="https://en.support.wordpress.com/featured-images/" class="customize-help-toggle dashicons dashicons-editor-help" title="%1$s" rel="noopener noreferrer" target="_blank"><span class="screen-reader-text">%1$s</span></a>', esc_html__( 'Learn more about Featured Images', 'jetpack' ) ),
 			'type'                     => 'title',
 			'active_callback'          => 'jetpack_post_thumbnail_supports',
 		) ) );

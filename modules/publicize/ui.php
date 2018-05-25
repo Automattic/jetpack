@@ -149,7 +149,7 @@ class Publicize_UI {
 			}
 			?>
 
-			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
+			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
 
 			<div id="publicize-services-block">
 				<?php
@@ -562,7 +562,7 @@ jQuery( function($) {
 							<strong><?php echo esc_html( $item ); ?></strong>
 						<?php endforeach; ?>
 					</span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php else : ?>
 					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
@@ -771,7 +771,7 @@ jQuery( function($) {
 			<ul class="not-connected">
 				<?php foreach ( $available_services as $service_name => $service ) : ?>
 				<li>
-					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
+					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
 						<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
 					</a>
 				</li>
