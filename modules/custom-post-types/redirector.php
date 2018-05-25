@@ -141,24 +141,17 @@ class Jetpack_Redirector {
 	}
 
 	static function get_redirect_post_id( $url ) {
-		global $wpdb;
-
-		$redirect_post_id = $wpdb->get_var( $wpdb->prepare(
-			"SELECT
-				ID
-				FROM $wpdb->posts
-				WHERE post_type = %s
-				AND post_name = %s
-				LIMIT 1",
-			self::POST_TYPE,
-			self::get_url_hash( $url )
+		$query = new WP_Query( array(
+			'fields' => 'ids',
+			'order' => 'ASC',
+			'orderby' => 'date',
+			'post_name' => self::get_url_hash( $url ),
+			'post_status' => 'publish',
+			'post_type' => self::POST_TYPE,
+			'posts_per_page' => 1,
 		) );
 
-		if ( ! $redirect_post_id ) {
-			$redirect_post_id = 0;
-		}
-
-		return $redirect_post_id;
+		return (int) reset( $query->posts );
 	}
 
 	static function get_url_hash( $url ) {
