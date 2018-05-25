@@ -192,7 +192,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				$service
 			);
 			$html[ $index ] = sprintf(
-				'<a href="%1$s" class="genericon genericon-%2$s" target="_blank"><span class="screen-reader-text">%3$s</span></a>',
+				'<a href="%1$s" class="genericon genericon-%2$s" rel="noopener noreferrer" target="_blank"><span class="screen-reader-text">%3$s</span></a>',
 				esc_attr( $link ),
 				esc_attr( $service ),
 				sprintf( $alt_text, esc_html( $username ), $service_name )

@@ -269,7 +269,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		} else {
 			$base_url = 'https://jetpack.com/support/extra-sidebar-widgets/twitter-timeline-widget/';
 		}
-		return '<a href="' . $base_url . $hash . '" target="_blank">( ? )</a>';
+		return '<a href="' . $base_url . $hash . '" rel="noopener noreferrer" target="_blank">( ? )</a>';
 	}
 
 	/**

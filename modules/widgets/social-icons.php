@@ -275,7 +275,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		?>
 
 		<p>
-			<em><a href="<?php echo esc_url( $support ); ?>" target="_blank">
+			<em><a href="<?php echo esc_url( $support ); ?>" rel="noopener noreferrer" target="_blank">
 				<?php esc_html_e( 'View available icons', 'jetpack' ); ?>
 			</a></em>
 		</p>

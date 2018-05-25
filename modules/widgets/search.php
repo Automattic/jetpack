@@ -587,7 +587,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				</noscript>
 				<?php if ( is_customize_preview() ) : ?>
 					<p class="jetpack-search-filters-help">
-						<a href="https://jetpack.com/support/search/#filters-not-showing-up" target="_blank">
+						<a href="https://jetpack.com/support/search/#filters-not-showing-up" rel="noopener noreferrer" target="_blank">
 							<?php esc_html_e( "Why aren't my filters appearing?", 'jetpack' ); ?>
 						</a>
 					</p>
