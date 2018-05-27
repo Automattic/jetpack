@@ -160,12 +160,12 @@ class DashScan extends Component {
 		}
 
 		return (
-			<div className="jp-dash-item__interior">
+			<div>
 				<QueryVaultPressData />
 				{
 					this.props.isRewindActive
 						? (
-							<div className="jp-dash-item__interior">
+							<div className="jp-dash-item">
 								{
 									renderCard( {
 										className: 'jp-dash-item__is-active',
