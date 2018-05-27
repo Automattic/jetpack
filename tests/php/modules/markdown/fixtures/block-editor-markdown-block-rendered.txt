@@ -1,0 +1,35 @@
+<!-- wp:html -->
+<div>
+    This is an HTML block
+</div>
+
+    # Markdown in an HTML block should not render.
+
+# Markdown in an HTML block should not render.
+<!-- /wp:html -->
+
+<!-- wp:jetpack/markdown-block -->
+
+<h1>Header 1</h1>
+
+<h2>Header 2</h2>
+
+<h3>Header 3</h3>
+
+<h4>Header 4</h4>
+
+<h5>Header 5</h5>
+
+<h6>Header 6</h6>
+
+<strong>double asterisks</strong>
+
+<strong>double underscores</strong>
+
+<div>
+__double underscores__ inside of HTML tags should not render.
+</div>
+
+<!-- /wp:jetpack/markdown-block -->
+
+This is a Classic block

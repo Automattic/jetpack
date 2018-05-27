@@ -30,17 +30,41 @@ Author URI: http://automattic.com/
  * GNU General Public License for more details.
  * **********************************************************************
  */
-
 class WPCom_Markdown {
 
 
-	const POST_OPTION = 'wpcom_publish_posts_with_markdown';
-	const COMMENT_OPTION = 'wpcom_publish_comments_with_markdown';
+	const POST_OPTION       = 'wpcom_publish_posts_with_markdown';
+	const COMMENT_OPTION    = 'wpcom_publish_comments_with_markdown';
 	const POST_TYPE_SUPPORT = 'wpcom-markdown';
-	const IS_MD_META = '_wpcom_is_markdown';
+	const IS_MD_META        = '_wpcom_is_markdown';
 
 	private static $parser;
 	private static $instance;
+
+	/**
+	 * To ensure that Gutenberg has firm validation on compatibility.
+	 *
+	 * @var bool
+	 */
+	public static $is_block_editor_compatible = true;
+
+	/**
+	 * Pattern to match Gutenberg Markdown block opening tag exactly:
+	 *
+	 * <!-- wp:jetpack/markdown-block -->
+	 *
+	 * @var string
+	 */
+	protected static $markdown_block_opening_tag_pattern = '<!--\swp:jetpack\/markdown-block\s-->';
+
+	/**
+	 * Pattern to match Gutenberg Markdown block closing tag exactly:
+	 *
+	 * <!-- /wp:jetpack/markdown-block -->
+	 *
+	 * @var string
+	 */
+	protected static $markdown_block_closing_tag_pattern = '<!--\s/wp:jetpack\/markdown-block\s-->';
 
 	// to ensure that our munged posts over xml-rpc are removed from the cache
 	public $posts_to_uncache = array();
@@ -52,8 +76,9 @@ class WPCom_Markdown {
 	 * @return object WPCom_Markdown instance
 	 */
 	public static function get_instance() {
-		if ( ! self::$instance )
+		if ( ! self::$instance ) {
 			self::$instance = new self();
+		}
 		return self::$instance;
 	}
 
@@ -75,7 +100,7 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * If we're in a bulk edit session, unload so that we don't lose our markdown metadata
+	 * If we're in a bulk edit session, unload so that we don't lose our Markdown metadata
 	 * @return null
 	 */
 	public function maybe_unload_for_bulk_edit() {
@@ -115,6 +140,9 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+		add_filter( 'after_block_editor_gets_post_to_edit', array( $this, 'after_block_editor_gets_post_to_edit' ), 10, 1 );
+		add_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6, 1 );
+		add_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10, 0 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -133,11 +161,14 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
+		remove_filter( 'after_block_editor_gets_post_to_edit', array( $this, 'after_block_editor_gets_post_to_edit' ), 10 );
+		remove_filter( 'the_content', array( $this, 'wpautop_markdown_blocks' ), 6 );
+		remove_filter( 'jetpack_markdown_preserve_pattern', array( $this, 'jetpack_markdown_preserve' ), 10 );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
-		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
-		remove_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
-		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
+		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10 );
+		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10 );
+		remove_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10 );
+		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10 );
 		remove_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
 		remove_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		remove_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
@@ -234,8 +265,9 @@ class WPCom_Markdown {
 	 */
 	public function maybe_remove_kses() {
 		// Filters return true if they existed before you removed them
-		if ( $this->is_posting_enabled() )
+		if ( $this->is_posting_enabled() ) {
 			$this->kses = remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' ) && remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+		}
 	}
 
 	/**
@@ -244,9 +276,9 @@ class WPCom_Markdown {
 	 */
 	public function register_setting() {
 		add_settings_field( self::POST_OPTION, __( 'Markdown', 'jetpack' ), array( $this, 'post_field' ), 'writing' );
-		register_setting( 'writing', self::POST_OPTION, array( $this, 'sanitize_setting') );
+		register_setting( 'writing', self::POST_OPTION, array( $this, 'sanitize_setting' ) );
 		add_settings_field( self::COMMENT_OPTION, __( 'Markdown', 'jetpack' ), array( $this, 'comment_field' ), 'discussion' );
-		register_setting( 'discussion', self::COMMENT_OPTION, array( $this, 'sanitize_setting') );
+		register_setting( 'discussion', self::COMMENT_OPTION, array( $this, 'sanitize_setting' ) );
 	}
 
 	/**
@@ -324,7 +356,7 @@ class WPCom_Markdown {
 
 	/**
 	 * Check if a $post_id has Markdown enabled
-	 * @param  int  $post_id A post ID.
+	 * @param  int $post_id A post ID.
 	 * @return boolean
 	 */
 	public function is_markdown( $post_id ) {
@@ -334,7 +366,7 @@ class WPCom_Markdown {
 	/**
 	 * Set Markdown as enabled on a post_id. We skip over update_postmeta so we
 	 * can sneakily set metadata on post revisions, which we need.
-	 * @param int    $post_id A post ID.
+	 * @param int $post_id A post ID.
 	 * @return bool  The metadata was successfully set.
 	 */
 	protected function set_as_markdown( $post_id ) {
@@ -372,12 +404,14 @@ class WPCom_Markdown {
 	 */
 	protected function get_post_screen_post_type() {
 		global $pagenow;
-		if ( 'post-new.php' === $pagenow )
+		if ( 'post-new.php' === $pagenow ) {
 			return ( isset( $_GET['post_type'] ) ) ? $_GET['post_type'] : 'post';
+		}
 		if ( isset( $_GET['post'] ) ) {
 			$post = get_post( (int) $_GET['post'] );
-			if ( is_object( $post ) && isset( $post->post_type ) )
+			if ( is_object( $post ) && isset( $post->post_type ) ) {
 				return $post->post_type;
+			}
 		}
 		return 'post';
 	}
@@ -385,7 +419,7 @@ class WPCom_Markdown {
 	/**
 	 * Swap post_content and post_content_filtered for editing
 	 * @param  string $content Post content
-	 * @param  int $id         post ID
+	 * @param  int $id post ID
 	 * @return string          Swapped content
 	 */
 	public function edit_post_content( $content, $id ) {
@@ -402,15 +436,16 @@ class WPCom_Markdown {
 	/**
 	 * Swap post_content_filtered and post_content for editing
 	 * @param  string $content Post content_filtered
-	 * @param  int $id         post ID
+	 * @param  int $id post ID
 	 * @return string          Swapped content
 	 */
 	public function edit_post_content_filtered( $content, $id ) {
-		// if markdown was disabled, let's turn this off
+		// if Markdown was disabled, let's turn this off
 		if ( ! $this->is_posting_enabled() && $this->is_markdown( $id ) ) {
 			$post = get_post( $id );
-			if ( $post && ! empty( $post->post_content_filtered ) )
+			if ( $post && ! empty( $post->post_content_filtered ) ) {
 				$content = '';
+			}
 		}
 		return $content;
 	}
@@ -418,16 +453,16 @@ class WPCom_Markdown {
 	/**
 	 * Magic happens here. Markdown is converted and stored on post_content. Original Markdown is stored
 	 * in post_content_filtered so that we can continue editing as Markdown.
-	 * @param  array $post_data  The post data that will be inserted into the DB. Slashed.
-	 * @param  array $postarr    All the stuff that was in $_POST.
+	 * @param  array $post_data The post data that will be inserted into the DB. Slashed.
+	 * @param  array $postarr All the stuff that was in $_POST.
 	 * @return array             $post_data with post_content and post_content_filtered modified
 	 */
 	public function wp_insert_post_data( $post_data, $postarr ) {
 		// $post_data array is slashed!
 		$post_id = isset( $postarr['ID'] ) ? $postarr['ID'] : false;
-		// bail early if markdown is disabled or this post type is unsupported.
+		// bail early if Markdown is disabled or this post type is unsupported.
 		if ( ! $this->is_posting_enabled() || ! post_type_supports( $post_data['post_type'], self::POST_TYPE_SUPPORT ) ) {
-			// it's disabled, but maybe this *was* a markdown post before.
+			// it's disabled, but maybe this *was* a Markdown post before.
 			if ( $this->is_markdown( $post_id ) && ! empty( $post_data['post_content_filtered'] ) ) {
 				$post_data['post_content_filtered'] = '';
 			}
@@ -438,8 +473,27 @@ class WPCom_Markdown {
 		}
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
-		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636)
+		// also prevent quick edit feature from overriding already-saved Markdown (issue https://github.com/Automattic/jetpack/issues/636)
 		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
+
+			/**
+			 * If this is a gutenberg metabox update we can assume that Markdown will be reparsed from
+			 * post_content to post_content_filtered therefore replacing the original Markdown with
+			 * the previously rendered markup. This should only happen when saving from Gutenberg.
+			 *
+			 * todo: a better check may be needed here
+			 *
+			 * We will invert the fields so that the update is successful and the previously saved
+			 * Markdown content remains the source of truth.
+			 */
+			if (
+				isset( $_POST['gutenberg_meta_boxes'] )
+				&& isset( $_GET['classic-editor'] )
+				&& ! isset( $_GET['rest_route'] )
+			) {
+				$post_data['post_content'] = $post_data['post_content_filtered'];
+			}
+
 			/**
 			 * Filter the original post content passed to Markdown.
 			 *
@@ -447,10 +501,17 @@ class WPCom_Markdown {
 			 *
 			 * @since 2.8.0
 			 *
-			 * @param string $post_data['post_content'] Untransformed post content.
+			 * @param string $post_data ['post_content'] Untransformed post content.
 			 */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
-			$post_data['post_content'] = $this->transform( $post_data['post_content'], array( 'id' => $post_id ) );
+
+			/**
+			 * Remove the Markdown wrapper from the Markdown block so that it
+			 * renders as HTML text and not the Markdown container element for the reader.
+			 */
+			$text = $this->strip_block_editor_markdown_wrapper( $post_data['post_content'] );
+
+			$post_data['post_content'] = $this->transform( $text, array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
@@ -462,13 +523,15 @@ class WPCom_Markdown {
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		}
 
-		// set as markdown on the wp_insert_post hook later
-		if ( $post_id )
+		// set as Markdown on the wp_insert_post hook later
+		if ( $post_id ) {
 			$this->monitoring['post'][ $post_id ] = true;
-		else
+		} else {
 			$this->monitoring['content'] = wp_unslash( $post_data['post_content'] );
-		if ( 'revision' === $postarr['post_type'] && $this->is_markdown( $postarr['post_parent'] ) )
+		}
+		if ( 'revision' === $postarr['post_type'] && $this->is_markdown( $postarr['post_parent'] ) ) {
 			$this->monitoring['parent'][ $postarr['post_parent'] ] = true;
+		}
 
 		return $post_data;
 	}
@@ -486,11 +549,11 @@ class WPCom_Markdown {
 			unset( $this->monitoring['content'] );
 			$this->set_as_markdown( $post_id );
 		}
-		if ( isset( $this->monitoring['post'][$post_id] ) ) {
-			unset( $this->monitoring['post'][$post_id] );
+		if ( isset( $this->monitoring['post'][ $post_id ] ) ) {
+			unset( $this->monitoring['post'][ $post_id ] );
 			$this->set_as_markdown( $post_id );
-		} elseif ( isset( $this->monitoring['parent'][$post_parent] ) ) {
-			unset( $this->monitoring['parent'][$post_parent] );
+		} elseif ( isset( $this->monitoring['parent'][ $post_parent ] ) ) {
+			unset( $this->monitoring['parent'][ $post_parent ] );
 			$this->set_as_markdown( $post_id );
 		}
 	}
@@ -510,10 +573,229 @@ class WPCom_Markdown {
 		return 'c-' . substr( md5( $content ), 0, 8 );
 	}
 
+
+	/**
+	 * Strips the pre tags from each jetpack Markdown block.
+	 *
+	 * Regex creates three capture groups in order to exclude the
+	 * <pre class="wp-block-jetpack-markdown-block"></pre>
+	 * wrapper from content:
+	 *
+	 * 1) opening tag
+	 * 2) content
+	 * 4) closing tag
+	 *
+	 * @param $text string
+	 * @return string
+	 */
+	protected function strip_block_editor_markdown_wrapper( $text ) {
+
+		$regex = '{
+
+		(' . self::$markdown_block_opening_tag_pattern . ')
+
+		# match anything after opening tag until first pre tag
+		.*?
+		
+		# match pre tag, allow for other attributes
+		# match class, allow for other classes and
+		# allow for other attributes after class attribute
+		<pre.+?class=.+?wp-block-jetpack-markdown-block.+?>
+
+		# capture all content
+		(.*?)
+
+		# match closing pre tag
+		<\/pre>
+		
+		# match anything after closing pre tag until first closing block
+		.*?
+
+		(' . self::$markdown_block_closing_tag_pattern . ')
+
+		}xsm';
+
+		$text = preg_replace_callback(
+			$regex,
+			array( &$this, '_strip_block_editor_markdown_wrapper_callback' ),
+			$text
+		);
+
+		return $text;
+	}
+
+	/**
+	 * Concatenates the relevant matched results and adds newlines to
+	 * separate the content from the Markdown block tags in order to ensure
+	 * that the Markdown parser does not munge the results.
+	 *
+	 * Restore the left angle brackets of markup tags inside Markdown block,
+	 * before sending to the Markdown parser.
+	 *
+	 * @param $matches array
+	 * @return string
+	 */
+	protected function _strip_block_editor_markdown_wrapper_callback( $matches ) {
+		$matches[2] = self::markdown_block_fix_angled_brackets( $matches[2] );
+		return $matches[1] . "\n" . $matches[2] . "\n\n" . $matches[3];
+	}
+
+	/**
+	 * Gutenberg  substitutes the default content `wpautop` filter if it detects that the content has blocks.
+	 * If the content has blocks will be run through Gutenberg's noop version of `wpautop`, `gutenberg_wpautop`, in
+	 * gutenberg/lib/compat.php
+	 *
+	 * `add_filter( 'the_content', 'gutenberg_wpautop', 8 );`
+	 *
+	 * Markdown places the priority of the `wpautop_markdown_blocks` filter lower than the `gutenberg_wpautop`
+	 * execution. It runs the default content `wpautop` filter on the contents of each Markdown block only so
+	 * that it displays properly in the front of the site.
+	 *
+	 * The only reason we run `wautop` on the content is because the legacy functionality
+	 * treats Markdown spaces as follows:
+	 *
+	 * __bold__
+	 * **bold**
+	 *
+	 * <p>
+	 *   <strong>bold</strong>
+	 *   <br>
+	 *   <strong>bold</strong>
+	 * </p>
+	 *
+	 *
+	 * __bold__
+	 *
+	 * **bold**
+	 *
+	 * <p>
+	 *   <strong>bold</strong>
+	 * </p>
+	 * <p>
+	 *   <strong>bold</strong>
+	 * </p>
+	 *
+	 * This goes against the Markdown spec but is left here for parity. Without it, all spacing is ignored.
+	 * and printed in both cases above as follows:
+	 *
+	 * <strong>bold</strong><strong>bold</strong><strong>bold</strong><strong>bold</strong>
+	 *
+	 * Regex creates three capture groups in order to run wpautop on the content group.
+	 *
+	 * 1) opening tag
+	 * 2) content
+	 * 3) closing tag
+	 *
+	 *
+	 * @param $content
+	 * @return string
+	 */
+	public static function wpautop_markdown_blocks( $content ) {
+
+		$regex = '{
+		
+		(' . self::$markdown_block_opening_tag_pattern . ')
+		
+		# capture all content
+		(.*?)
+		
+		(' . self::$markdown_block_closing_tag_pattern . ')
+		
+		}xsm';
+
+		$content = preg_replace_callback(
+			$regex,
+			array( __CLASS__, '_wpautop_markdown_blocks_callback' ),
+			$content
+		);
+
+		return $content;
+	}
+
+	/**
+	 * Returns content with wpautop'ed Markdown block content
+	 *
+	 * @param $matches array
+	 * @return string
+	 */
+	protected static function _wpautop_markdown_blocks_callback( $matches ) {
+		return $matches[1] . wpautop( $matches[2] ) . $matches[3];
+	}
+
+	/**
+	 * We normally get (&lt;) an encoded < when the markup is coming from Gutenberg.
+	 * The regex here will try to guess if it is an incomplete HTML tag
+	 *
+	 * &lt;bold>Important Text&lt;/bold>
+	 *
+	 * This is a feature of Gutenberg performed by the escapeHTML function in gutenberg/element/serialize.js.
+	 * It is worth noting that this will prevent Markdown from following it's specification:
+	 * Markdown formatting syntax is not processed within block-level HTML tags.
+	 *
+	 * To meet the spec we are running it before rendering the Markdown in:
+	 *
+	 * _strip_block_editor_markdown_wrapper_callback
+	 *
+	 */
+	protected static function markdown_block_fix_angled_brackets( $content ) {
+		return preg_replace( '/&lt;(.*?>)/m', '<$1', $content );
+	}
+
+	/**
+	 * Define custom patterns that won't be processed by Markdown.
+	 *
+	 * @return array The patterns that will be ignored by Markdown.
+	 */
+	public function jetpack_markdown_preserve() {
+
+		$regex_patterns = array();
+		/**
+		 * Preserve all Markdown block comments
+		 * This will also hide the Markdown blocks from the next pattern
+		 */
+		$regex_patterns[] = '{
+		(' . self::$markdown_block_opening_tag_pattern . ')
+		}xsm';
+
+		$regex_patterns[] = '{
+		(' . self::$markdown_block_closing_tag_pattern . ')
+		}xsm';
+
+		/**
+		 * Preserve all Gutenberg blocks and their contents
+		 * This will prevent unnecessary munging of non Markdown content
+		 */
+		$regex_patterns[] = '{
+		(<!--\swp:.+?-->.*?<!--\s\/wp:.+?-->)
+		}xsm';
+
+		return $regex_patterns;
+	}
+
+	/**
+	 * Swap post_content <--> post_content_filtered on Gutenberg post edit
+	 *
+	 * @param $post_to_edit
+	 * @return array
+	 */
+	public function after_block_editor_gets_post_to_edit( $post_to_edit ) {
+		if ( is_array( $post_to_edit ) ) {
+			if (
+				isset( $post_to_edit['content'] )
+				&& isset( $post_to_edit['content']['raw'] )
+				&& isset( $post_to_edit['id'] )
+			) {
+				$post_to_edit['content']['raw'] = $this->edit_post_content( $post_to_edit['content']['raw'], $post_to_edit['id'] );
+			}
+		}
+		return $post_to_edit;
+	}
+
+
 	/**
 	 * Markdown conversion. Some DRYness for repetitive tasks.
-	 * @param  string $text  Content to be run through Markdown
-	 * @param  array  $args  Arguments, with keys:
+	 * @param  string $text Content to be run through Markdown
+	 * @param  array $args Arguments, with keys:
 	 *                       id: provide a string to prefix footnotes with a unique identifier
 	 *                       unslash: when true, expects and returns slashed data
 	 *                       decode_code_blocks: when true, assume that text in fenced code blocks is already
@@ -523,13 +805,14 @@ class WPCom_Markdown {
 	 */
 	public function transform( $text, $args = array() ) {
 		$args = wp_parse_args( $args, array(
-			'id' => false,
-			'unslash' => true,
-			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
+			'id'                 => false,
+			'unslash'            => true,
+			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode,
 		) );
 		// probably need to unslash
-		if ( $args['unslash'] )
+		if ( $args['unslash'] ) {
 			$text = wp_unslash( $text );
+		}
 
 		/**
 		 * Filter the content to be run through Markdown, before it's transformed by Markdown.
@@ -573,8 +856,9 @@ class WPCom_Markdown {
 		$text = apply_filters( 'wpcom_markdown_transform_post', $text, $args );
 
 		// probably need to re-slash
-		if ( $args['unslash'] )
+		if ( $args['unslash'] ) {
 			$text = wp_slash( $text );
+		}
 
 		return $text;
 	}
@@ -582,7 +866,7 @@ class WPCom_Markdown {
 	/**
 	 * Shows Markdown in the Revisions screen, and ensures that post_content_filtered
 	 * is maintained on revisions
-	 * @param  array $fields  Post fields pertinent to revisions
+	 * @param  array $fields Post fields pertinent to revisions
 	 * @return array          Modified array to include post_content_filtered
 	 */
 	public function _wp_post_revision_fields( $fields ) {
@@ -593,8 +877,8 @@ class WPCom_Markdown {
 	/**
 	 * Do some song and dance to keep all post_content and post_content_filtered content
 	 * in the expected place when a post revision is restored.
-	 * @param  int $post_id        The post ID have a restore done to it
-	 * @param  int $revision_id    The revision ID being restored
+	 * @param  int $post_id The post ID have a restore done to it
+	 * @param  int $revision_id The revision ID being restored
 	 * @return null
 	 */
 	public function wp_restore_post_revision( $post_id, $revision_id ) {
@@ -659,7 +943,7 @@ class WPCom_Markdown {
 		include_once( ABSPATH . WPINC . '/class-IXR.php' );
 		$message = new IXR_Message( $HTTP_RAW_POST_DATA );
 		$message->parse();
-		$post_id_position = 'metaWeblog.getPost' === $message->methodName ?  0 : 1;
+		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1;
 		$this->prime_post_cache( $message->params[ $post_id_position ] );
 	}
 
@@ -709,13 +993,13 @@ class WPCom_Markdown {
 
 
 	/**
-	 * We munge the post cache to serve proper markdown content to XML-RPC clients.
+	 * We munge the post cache to serve proper Markdown content to XML-RPC clients.
 	 * Uncache these after the XML-RPC session ends.
 	 * @return null
 	 */
 	public function uncache_munged_posts() {
 		// $this context gets lost in testing sometimes. Weird.
-		foreach( WPCom_Markdown::get_instance()->posts_to_uncache as $post_id ) {
+		foreach ( WPCom_Markdown::get_instance()->posts_to_uncache as $post_id ) {
 			wp_cache_delete( $post_id, 'posts' );
 		}
 	}
@@ -733,8 +1017,8 @@ class WPCom_Markdown {
 
 	/**
 	 * Swaps post_content and post_content_filtered for editing.
-	 * @param  array  $posts     Posts returned by the just-completed query
-	 * @param  object $wp_query  Current WP_Query object
+	 * @param  array $posts Posts returned by the just-completed query
+	 * @param  object $wp_query Current WP_Query object
 	 * @return array             Modified $posts
 	 */
 	public function the_posts( $posts, $wp_query ) {
@@ -751,7 +1035,8 @@ class WPCom_Markdown {
 	/**
 	 * Singleton silence is golden
 	 */
-	private function __construct() {}
+	private function __construct() {
+	}
 }
 
 add_action( 'init', array( WPCom_Markdown::get_instance(), 'load' ) );
