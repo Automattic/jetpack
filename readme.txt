@@ -119,4 +119,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: Fixed scrolling/height for very large contact forms.
 * Related Posts: Made it not try to fetch related posts for an unpublished post.
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
+* Widgets: Removed .widget class from styles since .widget is not used in every theme.
 
