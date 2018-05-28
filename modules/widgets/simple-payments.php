@@ -18,11 +18,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		function __construct() {
 			parent::__construct(
-				'simple_payments_widget',
+				'jetpack_simple_payments_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', __( 'Simple Payments', 'jetpack' ) ),
 				array(
-					'classname' => 'simple-payments',
+					'classname' => 'jetpack-simple-payments',
 					'description' => __( 'Add a Simple Payment Button as a Widget.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				)
@@ -60,7 +60,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				echo $args['before_title'] . $title . $args['after_title'];
 			}
 
-			echo '<div class="simple-payments-content">';
+			echo '<div class="jetpack-simple-payments-content">';
 
 			if( ! empty( $instance['product_post_id'] ) ) {
 				$attrs = array( 'id' => $instance['product_post_id'] );
