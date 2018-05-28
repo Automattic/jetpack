@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
+
 **Improved compatibility**
 
 **Bug fixes**
