@@ -105,6 +105,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Shortcodes: Added Gutenberg block for the [vr] shortcode.
+
 **Enhancements**
 
 * AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
