@@ -116,4 +116,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
+* Shortcodes: Fixed the Facebook shortcode in wp-admin.
 
