@@ -36,14 +36,21 @@ class Jetpack_Simple_Payments {
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ), self::$version );
 	}
+
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 	}
+
 	private function register_shortcode() {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
 	public function init_hook_action() {
+		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
+			add_shortcode( self::$shortcode, array( $this, 'ignore_shortcode' ) );
+			return;
+		}
+
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->register_scripts();
@@ -67,6 +74,33 @@ class Jetpack_Simple_Payments {
 		}
 
 		return Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Used to check whether Simple Payments are enabled for given site.
+	 *
+	 * @return bool True if Simple Payments are enabled, false otherwise.
+	 */
+	function is_enabled_jetpack_simple_payments() {
+		/**
+		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param bool True if Simple Payments should be disabled, false otherwise.
+		 */
+		if ( apply_filters( 'jetpack_disable_simple_payments', false ) ) {
+			return false;
+		}
+
+		// For WPCOM sites
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_blog_sticker' ) ) {
+			$site_id = $this->get_blog_id();
+			return has_blog_sticker( 'premium-plan', $site_id ) || has_blog_sticker( 'business-plan', $site_id );
+		}
+
+		// For all Jetpack sites
+		return Jetpack::is_active() && Jetpack::active_plan_supports( 'simple-payments');
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
@@ -117,6 +151,8 @@ class Jetpack_Simple_Payments {
 
 		return $this->output_shortcode( $data );
 	}
+
+	function ignore_shortcode() { return; }
 
 	function output_shortcode( $data ) {
 		$items = '';
