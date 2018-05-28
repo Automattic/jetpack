@@ -36,16 +36,25 @@ class Jetpack_Redirector {
 	}
 
 	static function maybe_do_redirect() {
-		// Avoid the overhead of running this on every single pageload.
-		// We move the overhead to the 404 page but the trade-off for site performance is worth it.
-		if ( ! is_404() ) {
+		if (
+			// If the feature is disabled by a filter function...
+			! apply_filters( 'jetpack_redirector_enabled', '__return_true' ) ||
+			// ...or cannot be processed for the the current request...
+			is_admin() || ! is_404() || empty( $_SERVER['REQUEST_URI'] )
+		) {
+			// Do nothing
 			return;
 		}
 
-		$url = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+		$url = sanitize_text_field( wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) );
+
+		if ( empty( $url ) ) {
+			// The URL was malformed. Do nothing.
+			return;
+		}
 
 		if ( ! empty( $_SERVER['QUERY_STRING'] ) ) {
-			$url .= '?' . $_SERVER['QUERY_STRING'];
+			$url .= '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 		}
 
 		$request_path = apply_filters( 'jetpack_redirector_request_path', $url );
@@ -56,7 +65,7 @@ class Jetpack_Redirector {
 
 		$redirect_uri = self::get_redirect_uri( $request_path );
 
-		if ( empty( $redirect_uri ) ) {
+		if ( empty( $redirect_uri ) || wp_validate_redirect( $redirect_uri ) !== $redirect_uri ) {
 			return;
 		}
 
