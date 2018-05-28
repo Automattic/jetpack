@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
 * Contact Form: Fixed scrolling/height for very large contact forms.
+* Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
 * Related Posts: Made it not try to fetch related posts for an unpublished post.
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
 * Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
