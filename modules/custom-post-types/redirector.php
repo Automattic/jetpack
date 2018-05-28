@@ -144,6 +144,7 @@ class Jetpack_Redirector {
 		$query = new WP_Query( array(
 			'fields' => 'ids',
 			'name' => self::get_url_hash( $url ),
+			'no_found_rows' => true,
 			'order' => 'ASC',
 			'orderby' => 'date',
 			'post_status' => 'publish',
