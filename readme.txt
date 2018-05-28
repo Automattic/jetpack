@@ -112,3 +112,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 **Bug fixes**
+
+* Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
+
