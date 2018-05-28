@@ -99,7 +99,7 @@ class RelatedPostsComponent extends React.Component {
 									onChange={ this.handleShowThumbnailsToggleChange }>
 									<span className="jp-form-toggle-explanation">
 										{
-											__( 'Use a large and visually striking layout' )
+											__( 'Show a thumbnail image where available' )
 										}
 									</span>
 						</CompactFormToggle>

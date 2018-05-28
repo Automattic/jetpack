@@ -191,7 +191,7 @@ class Jetpack_Related_Posts_Customize {
 				),
 				'show_thumbnails'     => array(
 					'label'        => esc_html__( 'Show thumbnails', 'jetpack' ),
-					'description'  => esc_html__( 'Use a large and visually striking layout.', 'jetpack' ),
+					'description'  => esc_html__( 'Show a thumbnail image where available.', 'jetpack' ),
 					'control_type' => 'checkbox',
 					'default'      => 1,
 					'setting_type' => 'option',

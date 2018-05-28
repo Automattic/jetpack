@@ -1644,7 +1644,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'related-posts',
 			),
 			'show_thumbnails' => array(
-				'description'       => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+				'description'       => esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

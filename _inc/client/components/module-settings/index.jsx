@@ -117,7 +117,7 @@ export class RelatedPostsSettings extends React.Component {
 						{ ...this.props } />
 					<ModuleSettingCheckbox
 						name={ 'show_thumbnails' }
-						label={ __( 'Use a large and visually striking layout' ) }
+						label={ __( 'Show a thumbnail image where available' ) }
 						{ ...this.props } />
 					<div className="jp-related-posts-settings__preview-label">{ __( 'Preview', { context: 'Noun, a header for a preview block in a configuration screen.' } ) }</div>
 					<Card>
