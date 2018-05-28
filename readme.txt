@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
+* Contact Form: Fixed scrolling/height for very large contact forms.
 * Related Posts: Made it not try to fetch related posts for an unpublished post.
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
 
