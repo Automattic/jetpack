@@ -28,8 +28,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
-			parent::__construct( 'Jetpack_Simple_Payments_Widget', __( 'Simple Payments', 'jetpack' ), $widget );
-
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
