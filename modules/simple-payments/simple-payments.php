@@ -27,7 +27,7 @@ class Jetpack_Simple_Payments {
 		return self::$instance;
 	}
 
-	private function register_scripts() {
+	private function register_scripts_and_styles() {
 		/**
 		 * Paypal heavily discourages putting that script in your own server:
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
@@ -35,6 +35,7 @@ class Jetpack_Simple_Payments {
 		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ), self::$version );
+		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 
 	private function register_init_hook() {
@@ -53,7 +54,7 @@ class Jetpack_Simple_Payments {
 
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		$this->register_scripts();
+		$this->register_scripts_and_styles();
 		$this->register_shortcode();
 		$this->setup_cpts();
 
@@ -134,11 +135,13 @@ class Jetpack_Simple_Payments {
 		);
 
 		$data['id'] = $attrs['id'];
+
+		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueue' ) ) {
+			wp_enqueue_style( 'jetpack-simple-payments' );
+		}
+
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
-		}
-		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
-			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 		}
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
@@ -249,7 +252,7 @@ class Jetpack_Simple_Payments {
 			'read_private_posts'    => 'read_private_posts',
 		);
 		$order_args = array(
-			'label'                 => esc_html__( 'Order', 'jetpack' ),
+			'label'                 => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack' ),
 			'description'           => esc_html__( 'Simple Payments orders', 'jetpack' ),
 			'supports'              => array( 'custom-fields', 'excerpt' ),
 			'hierarchical'          => false,
