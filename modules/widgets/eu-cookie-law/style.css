@@ -42,6 +42,14 @@
 }
 
 /**
+ * Using a highly-specific rule to make sure that certain form styles
+ * will be reset
+ */
+#eu-cookie-law form {
+	margin-bottom: 0;
+}
+
+/**
  * Using a highly-specific rule to make sure that all button styles
  * will be reset
  */
