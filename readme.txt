@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
 * Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
 * Tiled Galleries: use Photon if active when a Tiled Gallery links to media file.
 
