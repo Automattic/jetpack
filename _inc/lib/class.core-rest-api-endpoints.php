@@ -852,7 +852,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error(
 				'invalid_param',
 				esc_html__( 'Invalid Parameter', 'jetpack' ),
-				array( 'status' => 404 )
+				array( 'status' => 400 )
 			);
 		}
 
@@ -861,7 +861,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error(
 				'new_owner_not_admin',
 				esc_html__( 'New owner is not admin', 'jetpack' ),
-				array( 'status' => 404 )
+				array( 'status' => 400 )
 			);
 		}
 
@@ -869,7 +869,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error(
 				'new_owner_is_current_user',
 				esc_html__( 'New owner is same as current user', 'jetpack' ),
-				array( 'status' => 404 )
+				array( 'status' => 400 )
 			);
 		}
 
@@ -877,7 +877,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error(
 				'new_owner_not_connected',
 				esc_htmp__( 'New owner is not connected', 'jetpack' ),
-				array( 'status' => 404 )
+				array( 'status' => 400 )
 			);
 		}
 

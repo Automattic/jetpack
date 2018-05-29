@@ -993,11 +993,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Attempt owner change with bad user
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
-		$this->assertResponseStatus( 404, $response );
+		$this->assertResponseStatus( 400, $response );
 
 		// Attempt owner change to same user
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
-		$this->assertResponseStatus( 404, $response );
+		$this->assertResponseStatus( 400, $response );
 
 		// Create another user
 		$new_owner = $this->create_and_get_user( 'administrator' );
