@@ -13,6 +13,33 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	 * Display a Simple Payment Button as a Widget.
 	 */
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
+		private static $currencie_symbols = array(
+			'USD' => '$',
+			'GBP' => '&#163;',
+			'JPY' => '&#165;',
+			'BRL' => 'R$',
+			'EUR' => '&#8364;',
+			'NZD' => 'NZ$',
+			'AUD' => 'A$',
+			'CAD' => 'C$',
+			'INR' => '₹',
+			'ILS' => '₪',
+			'RUB' => '₽',
+			'MXN' => 'MX$',
+			'SEK' => 'Skr',
+			'HUF' => 'Ft',
+			'CHF' => 'CHF',
+			'CZK' => 'Kč',
+			'DKK' => 'Dkr',
+			'HKD' => 'HK$',
+			'NOK' => 'Kr',
+			'PHP' => '₱',
+			'PLN' => 'PLN',
+			'SGD' => 'S$',
+			'TWD' => 'NT$',
+			'THB' => '฿',
+		);
+
 		/**
 		 * Constructor.
 		 */
@@ -28,6 +55,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
+<<<<<<< HEAD
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
@@ -35,6 +63,13 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 		function enqueue_style() {
 			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
+=======
+			if ( is_customize_preview() ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
+
+				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
+			}
+>>>>>>> Widgets: allows users to create a new SP button from the customizer
 		}
 
 		/**
@@ -44,11 +79,36 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @return array Default values for the widget options.
 		 */
-		public function defaults() {
+		private function defaults() {
 			return array(
 				'title' => '',
 				'product_post_id' => 0,
+				'form_product_title' => '',
+				'form_product_description' => '',
+				'form_product_image' => '',
+				'form_product_currency' => '',
+				'form_product_price' => '',
+				'form_product_multiple' => '',
+				'form_product_email' => '',
 			);
+		}
+
+		/**
+		 * Adds a nonce for customizing menus.
+		 *
+		 * @param array $nonces Array of nonces.
+		 * @return array $nonces Modified array of nonces.
+		 */
+		function filter_nonces( $nonces ) {
+			$nonces['customize-jetpack-simple-payments'] = wp_create_nonce( 'customize-jetpack-simple-payments' );
+			return $nonces;
+		}
+
+		function admin_enqueue_styles_and_scripts( $hook_suffix ){
+				wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
+
+				wp_enqueue_media();
+				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 		}
 
 		/**
