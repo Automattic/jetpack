@@ -522,6 +522,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'slug'        => '(string)',
 				'description' => '(HTML)',
 				'post_count'  => '(int)',
+				'feed_url'    => '(string)',
 				'meta'        => '(object)',
 			);
 			if ( 'category' === $type['type'] ) {
