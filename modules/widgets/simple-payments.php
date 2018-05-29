@@ -69,6 +69,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 		}
 
+		}
+
 		/**
 		 * Return an associative array of default values.
 		 *
