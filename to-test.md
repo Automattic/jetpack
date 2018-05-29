@@ -136,4 +136,12 @@ Also, we fixed the positioning for themes that set a specific margin for forms.
 * Enable the cookie widget.
 * Verify the margins are consistent within the widget. Previously the vertical alignment was not balanced.
 
+We added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+
+To test:
+
+* Add a Cookies & Consent Widget.
+* Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
+ 
+
 **Thank you for all your help!**
