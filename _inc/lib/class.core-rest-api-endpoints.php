@@ -876,7 +876,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! Jetpack::is_user_connected( $new_owner_id ) ) {
 			return new WP_Error(
 				'new_owner_not_connected',
-				esc_htmp__( 'New owner is not connected', 'jetpack' ),
+				esc_html__( 'New owner is not connected', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 		}
