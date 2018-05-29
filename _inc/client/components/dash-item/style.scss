@@ -59,6 +59,10 @@
 .jp-dash-item__description {
 	margin: 0;
 	font-size: rem( 14px );
+	max-width: calc( 100% - 18px ); // For the support icon
+	max-width: -moz-calc( 100% - 18px );
+	max-width: -webkit-calc( 100% - 18px );
+	max-width: -o-calc( 100% - 18p );
 }
 
 .jp-dash-item .dops-section-header {
