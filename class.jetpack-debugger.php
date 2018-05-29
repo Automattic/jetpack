@@ -60,6 +60,21 @@ class Jetpack_Debugger {
 		}
 	}
 
+	public static function run_self_test() {
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+
+		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		return $response;
+
+	}
+
 	public static function jetpack_debug_display_handler() {
 		if ( ! current_user_can( 'manage_options' ) )
 			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
@@ -192,20 +207,13 @@ class Jetpack_Debugger {
 		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
 		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
 
-		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+		$tests['SELF']['result'] = self::run_self_test();
 
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
-
-		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
-		$tests['SELF']['result'] = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 		if ( is_wp_error( $tests['SELF']['result'] ) && 0 == strpos( $tests['SELF']['result']->get_error_message(), 'Operation timed out' ) ){
 			$tests['SELF']['fail_message'] = esc_html__( 'Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server.', 'jetpack' );
 		} else {
 			$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
 		}
-
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
 
 		?>
 		<div class="wrap">
