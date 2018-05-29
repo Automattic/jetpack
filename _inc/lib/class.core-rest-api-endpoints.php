@@ -857,7 +857,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		$new_owner_id = $request['owner'];
-		if ( ! user_can( $new_owner_id, 'jetpack_admin_page' ) ) {
+		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
 				esc_html__( 'New owner is not admin', 'jetpack' ),

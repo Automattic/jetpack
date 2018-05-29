@@ -1000,8 +1000,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 404, $response );
 
 		// Create another user
-		$new_owner = $this->create_and_get_user();
-		$new_owner->add_cap( 'jetpack_admin_page' );
+		$new_owner = $this->create_and_get_user( 'administrator' );
 		Jetpack_Options::update_option( 'user_tokens', array( $new_owner->ID => "honey.badger.$new_owner->ID" ) );
 
 		// Change owner to valid user
