@@ -142,6 +142,17 @@ To test:
 
 * Add a Cookies & Consent Widget.
 * Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
+
+#### Twitter Timeline Widget
+
+Usage of Widget Ids for the Twitter Timeline Widget is being deprecated. This is because Twitter is deprecating Widget IDs in July 2018.
+
+To test: 
+
+* Before checking out this feature, if you have the chance, with Jetpack 6.1.1, try to add a Twitter Timeline of type `widget-id` to a sidebar (the only way to create a Twitter Widget right now is at https://twitter.com/settings/widgets/new: create a widget, edit it, and copy the ID from the URL).
+* After updating to this 6.2 Beta again, make sure that the widget will display a deprecation notice, only visible to admins.
+* In the Customizer or in the Widgets dashboard, make sure there is no "Widget Type" selector anymore.
  
 
 **Thank you for all your help!**
+
