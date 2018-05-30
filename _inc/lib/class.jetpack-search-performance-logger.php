@@ -23,7 +23,9 @@ class Jetpack_Search_Performance_Logger {
 		add_action( 'pre_get_posts', array( $this, 'begin_log_query' ), 10, 1 );
 		add_action( 'did_jetpack_search_query', array( $this, 'log_jetpack_search_query' ) );
 		add_filter( 'found_posts', array( $this, 'log_mysql_query' ), 10, 2 );
-		add_action( 'wp_footer', array( $this, 'print_stats' ) );
+		if ( Jetpack::is_module_active( 'stats' ) ) {
+			add_action( 'wp_footer', array( $this, 'print_stats' ) );
+		}
 	}
 
 	public function begin_log_query( $query  ) {
