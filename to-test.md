@@ -1,6 +1,6 @@
 ## 6.2
 
-### Advanced Mobile Pages
+### AMP
 
 We now allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
 
