@@ -142,6 +142,9 @@ class DashBackups extends Component {
 			);
 		}
 
+		const data = get( this.props.vaultPressData, 'data', '' );
+		const siteId = data && data.siteId;
+
 		return (
 			<div>
 				<QueryVaultPressData />
@@ -162,7 +165,7 @@ class DashBackups extends Component {
 										key="manage-backups"
 										className="jp-dash-item__manage-in-wpcom"
 										compact
-										href={ `https://dashboard.vaultpress.com/${ this.props.siteRawUrl }/backups/` }
+										href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
 									>
 										{ __( 'View backup history' ) }
 									</Card>

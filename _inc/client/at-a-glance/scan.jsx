@@ -159,6 +159,9 @@ class DashScan extends Component {
 			} );
 		}
 
+		const data = get( this.props.vaultPressData, 'data', '' );
+		const siteId = data && data.siteId;
+
 		return (
 			<div>
 				<QueryVaultPressData />
@@ -181,7 +184,7 @@ class DashScan extends Component {
 										key="security-scanning"
 										className="jp-dash-item__manage-in-wpcom"
 										compact
-										href={ `https://dashboard.vaultpress.com/${ this.props.siteRawUrl }/security/` }
+										href={ `https://dashboard.vaultpress.com/${ siteId }/security/` }
 									>
 										{ __( 'View security scan details' ) }
 									</Card>
