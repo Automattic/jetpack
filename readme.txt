@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.1
+Stable tag: 6.1.1
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,25 +98,33 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.1.1 =
+= 6.2 =
 
-* Release date: May 22, 2018
-* Release post: https://wp.me/p1moTy-85t
+* Release date: June 5, 2018
+* Release post: https://wp.me/p1moTy-88v
+
+**Major Enhancements**
+
+* Shortcodes: Added Gutenberg block for the [vr] shortcode.
 
 **Enhancements**
 
-* Ads: Added new setting for Banner consent expiration. Added new filter jetpack_disable_eu_cookie_law_widget, which can be used to disable the banner.
-* Ads: Added a new personalized-ads-consent cookie for ads-enabled sites.
-* Ads: Added requirement and notice, and button-click opt-in for ads module users.
-* Ads: When a user site has a Privacy Policy page set (introduced in 4.9.6), we now default to using that privacy policy as a custom policy URL.
-* GDPR: A new warning is displayed while configuring an instance of the EU Cookie Law widget: "Caution: The default policy URL only covers cookies set by Jetpack. If you're running other plugins, custom cookies, or third-party tracking technologies, you should create and link to your own cookie statement."
-* GDPR: Added Feedback data (i.e., Contact Form Submissions) to the Personal Data exported and/or erased by the latest version of WordPress core.
+* AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
+* Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
+* Cookies & Consent Widget: Added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+* Tiled Galleries: use Photon if active when a Tiled Gallery links to media file.
+
+**Improved compatibility**
 
 **Bug fixes**
 
-* Ads: We updated Ads behaviour to not show unless the visitor is on the main query within the loop.
-* General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
-* Lazy Images: Fixed a bug where images would disappear when scrolling.
-* Sharing: make sure JS files can be loaded on development sites.
-* Sharing: Added check for validating Akismet key before allowing sharing by email.
-* WooCommerce Analytics: Fixed PHP warning when attemping to get a list of plugins.
+* Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
+* Contact Form: Fixed scrolling/height for very large contact forms.
+* Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
+* Related Posts: Made it not try to fetch related posts for an unpublished post.
+* Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
+* Shortcodes: Fixed the Facebook shortcode in wp-admin.
+* Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
+* Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
+* Widgets: Deprecated the use of Widget Ids in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
+
