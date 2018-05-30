@@ -18,6 +18,17 @@ tests/php/files/jetpack-150x150.jpg
 yarn-error.log
 /modules/**/*/*block.js
 
+## Things for docker-composer
+/docker/data/mysql/*
+!/docker/data/mysql/.gitkeep
+/docker/logs/*
+!/docker/logs/.gitkeep
+/docker/.env
+/docker/wordpress-develop/*
+!/docker/wordpress-develop/.gitkeep
+/docker/wordpress/*
+!/docker/wordpress/.gitkeep
+
 ## Things we will need in release branches
 /_inc/build
 /modules/**/*.min.css
@@ -26,14 +37,3 @@ yarn-error.log
 _inc/jetpack-strings.php
 /modules/**/*/block.js
 
-## Things for docker-composer
-/docker/data/mysql/*
-!/docker/data/mysql/.gitkeep
-/docker/logs/*
-!/docker/logs/.gitkeep
-/docker/.env
-
-/docker/wordpress-develop/*
-!/docker/wordpress-develop/.gitkeep
-/docker/wordpress/*
-!/docker/wordpress/.gitkeep
