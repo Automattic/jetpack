@@ -23,6 +23,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-terms.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-plugins.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-full-sync.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-stats.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-protect.php';
 
 class Jetpack_Sync_Modules {
 
@@ -37,6 +38,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Users',
 		'Jetpack_Sync_Module_Posts',
 		'Jetpack_Sync_Module_Import',
+		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Updates',
 		'Jetpack_Sync_Module_Attachments',
