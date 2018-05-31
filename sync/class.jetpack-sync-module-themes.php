@@ -278,9 +278,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details ) {
-		l( 'CHECK UPGRESADER!' );
-		l( $details );
-		l( $upgrader->theme_info() );
 		if ( ! isset( $details['type'] ) ||
 		     'theme' !== $details['type'] ||
 		     is_wp_error( $upgrader->skin->result ) ||
