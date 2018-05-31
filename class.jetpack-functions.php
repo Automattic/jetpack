@@ -1268,7 +1268,7 @@ abstract class Jetpack_Functions {
 	}
 
 	static function translate_current_user_to_role() {
-		foreach ( self::$capability_translations as $role => $cap ) {
+		foreach ( Jetpack::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
 			}
@@ -1278,7 +1278,7 @@ abstract class Jetpack_Functions {
 	}
 
 	static function translate_user_to_role( $user ) {
-		foreach ( self::$capability_translations as $role => $cap ) {
+		foreach ( Jetpack::$capability_translations as $role => $cap ) {
 			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
 				return $role;
 			}
@@ -1288,11 +1288,11 @@ abstract class Jetpack_Functions {
 	}
 
 	static function translate_role_to_cap( $role ) {
-		if ( ! isset( self::$capability_translations[$role] ) ) {
+		if ( ! isset( Jetpack::$capability_translations[$role] ) ) {
 			return false;
 		}
 
-		return self::$capability_translations[$role];
+		return Jetpack::$capability_translations[$role];
 	}
 
 	/**
