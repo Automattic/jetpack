@@ -34,7 +34,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		}
 
 		function enqueue_style() {
-			wp_enqueue_style( 'simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
+			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
 		}
 
 		/**

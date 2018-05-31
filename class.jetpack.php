@@ -59,7 +59,7 @@ class Jetpack {
 		'eu-cookie-law-style',
 		'flickr-widget-style',
 		'jetpack-search-widget',
-		'simple-payments-widget-style',
+		'jetpack-simple-payments-widget-style',
 	);
 
 	/**
