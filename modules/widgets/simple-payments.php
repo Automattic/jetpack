@@ -55,21 +55,12 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
-<<<<<<< HEAD
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
-		}
-
-		function enqueue_style() {
-			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
-=======
 			if ( is_customize_preview() ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
 
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
+				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-add-new', array( $this, 'ajax_add_new_payment_button' ) );
 			}
->>>>>>> Widgets: allows users to create a new SP button from the customizer
 		}
 
 		/**
@@ -83,9 +74,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			return array(
 				'title' => '',
 				'product_post_id' => 0,
+				'form_action' => '',
+				'form_product_id' => 0,
 				'form_product_title' => '',
 				'form_product_description' => '',
-				'form_product_image' => '',
+				'form_product_image_id' => 0,
 				'form_product_currency' => '',
 				'form_product_price' => '',
 				'form_product_multiple' => '',
@@ -111,6 +104,39 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 		}
 
+		public function ajax_add_new_payment_button() {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
+				wp_send_json_error( 'bad_nonce', 400 );
+			}
+			if ( ! current_user_can( 'customize' ) ) {
+				wp_send_json_error( 'customize_not_allowed', 403 );
+			}
+			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
+				wp_send_json_error( 'missing_params', 400 );
+			}
+			$params = wp_unslash( $_POST['params'] );
+
+			$product_id = wp_insert_post( array(
+				'ID' => 0,
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+				'post_title' => $params['title'],
+				'post_content' => $params['description'],
+				'_thumbnail_id' => isset( $params['image_id'] ) ? $params['image_id'] : -1,
+				'meta_input' => array(
+					'spay_currency' => $params['currency'],
+					'spay_price' => $params['price'],
+					'spay_multiple' => isset( $params['multiple'] ) ? intval( $params['multiple'] ) : 0,
+					'spay_email' => is_email( $params['email'] ),
+				),
+			) );
+
+			wp_send_json_success( [
+				'product_post_id' => $product_id,
+				'product_post_title' => $params['title'],
+			] );
+		}
+
 		/**
 		 * Front-end display of widget.
 		 *
@@ -120,25 +146,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		function widget( $args, $instance ) {
-			if( ! empty( $instance['product_post_id'] ) ) {
-				$attrs = array( 'id' => $instance['product_post_id'] );
-			} else {
-				$product_posts = get_posts( array(
-					'numberposts' => 1,
-					'orderby' => 'date',
-					'post_type' => Jetpack_Simple_Payments::$post_type_product
-				 ) );
-
-				$attrs = array( 'id' => $product_posts[0]->ID );
-			}
-
-			$jsp = Jetpack_Simple_Payments::getInstance();
-
-			$simple_payments_button = $jsp->parse_shortcode( $attrs );
-
-			if ( is_null( $simple_payments_button ) && ! is_customize_preview() ) {
-				return;
-			}
+			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			echo $args['before_widget'];
 
@@ -150,7 +158,24 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			echo '<div class="jetpack-simple-payments-content">';
 
-			echo $simple_payments_button;
+			if( ! empty( $instance['form_action'] ) && is_customize_preview() ) {
+				require( dirname( __FILE__ ) . '/simple-payments/widget.php' );
+			} else {
+				if( ! empty( $instance['product_post_id'] ) ) {
+					$attrs = array( 'id' => $instance['product_post_id'] );
+				} else {
+					$product_posts = get_posts( array(
+						'numberposts' => 1,
+						'orderby' => 'date',
+						'post_type' => Jetpack_Simple_Payments::$post_type_product
+					 ) );
+	
+					$attrs = array( 'id' => $product_posts[0]->ID );
+				}
+
+				$jsp = Jetpack_Simple_Payments::getInstance();
+				echo $jsp->parse_shortcode( $attrs );
+			}
 
 			echo '</div><!--simple-payments-->';
 
@@ -171,9 +196,70 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @return array Updated safe values to be saved.
 		 */
 		function update( $new_instance, $old_instance ) {
+			error_log('> update');
+			$new_instance = wp_parse_args( $new_instance, $this->defaults() );
+			$old_instance = wp_parse_args( $old_instance, $this->defaults() );
+
+			error_log(print_r($new_instance, true));
+			error_log(print_r($old_instance, true));
+
+			$widget_title = ! empty( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : $old_instance['title'];
+			$product_id = ( int ) $new_instance['product_post_id'];
+			$form_action = ! empty( $new_instance['form_action'] ) ? sanitize_text_field( $new_instance['form_action'] ) : $old_instance['form_action'];
+			$form_product_id = ( int ) $new_instance['form_product_id'];
+			$form_product_title = sanitize_text_field( $new_instance['form_product_title'] );
+			$form_product_description = sanitize_text_field( $new_instance['form_product_description'] );
+			$form_product_image_id = (int) $new_instance['form_product_image_id'];
+			$form_product_currency = sanitize_text_field( $new_instance['form_product_currency'] );
+			$form_product_price = sanitize_text_field( $new_instance['form_product_price'] );
+			$form_product_multiple = sanitize_text_field( $new_instance['form_product_multiple'] );
+			$form_product_email = sanitize_text_field( $new_instance['form_product_email'] );
+
+			if ( strcmp( $new_instance['form_action'], $old_instance['form_action'] ) !== 0 ) {
+				switch ( $new_instance['form_action' ] ) {
+					case 'edit': //load the form with existing values
+						error_log('>> edit');
+						// $product_id = ! empty( $product_id ) ?: ( int ) $old_instance['product_post_id'];
+						// $product_post = get_post( $product_id );
+						// if( ! empty( $product_post ) ) {
+						// 	$widget_title = ! empty( $widget_title ) ?: $old_instance['widget_title'];
+						// 	$form_product_title = get_the_title( $product_post );
+						// 	$form_product_description = $product_post->post_content;
+						// 	$form_product_image = get_post_thumbnail_id( $product_id, 'full' );
+						// 	$form_product_currency = get_post_meta( $product_id, 'spay_currency', true );
+						// 	$form_product_price = get_post_meta( $product_id, 'spay_price', true );
+						// 	$form_product_multiple = get_post_meta( $product_id, 'spay_multiple', true ) || '0';
+						// 	$form_product_email = get_post_meta( $product_id, 'spay_email', true );
+						// }
+						break;
+					case 'clear': //clear form
+						error_log('>> clear form');
+						$form_action = '';
+						$form_product_id = 0;
+						$form_product_title = '';
+						$form_product_description = '';
+						$form_product_image_id = 0;
+						$form_product_currency = '';
+						$form_product_price = '';
+						$form_product_multiple = '';
+						$form_product_email = '';
+						break;
+				}
+			}
+
+
 			return array(
-				'title' => ! empty( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '',
-				'product_post_id' => (int) $new_instance['product_post_id'],
+				'title' => $widget_title,
+				'product_post_id' => $product_id,
+				'form_action' => $form_action,
+				'form_product_id' => $form_product_id,
+				'form_product_title' => $form_product_title,
+				'form_product_description' => $form_product_description,
+				'form_product_image_id' => $form_product_image_id,
+				'form_product_currency' => $form_product_currency,
+				'form_product_price' => $form_product_price,
+				'form_product_multiple' => $form_product_multiple,
+				'form_product_email' => $form_product_email,
 			);
 		}
 
