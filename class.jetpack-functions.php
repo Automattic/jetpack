@@ -279,8 +279,8 @@ abstract class Jetpack_Functions {
 		}
 
 		// get available features
-		foreach ( self::get_available_modules() as $module_slug ) {
-			$module = self::get_module( $module_slug );
+		foreach ( Jetpack::get_available_modules() as $module_slug ) {
+			$module = Jetpack::get_module( $module_slug );
 			if ( ! isset( $module ) || ! is_array( $module ) ) {
 				continue;
 			}
