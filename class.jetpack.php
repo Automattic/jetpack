@@ -3150,22 +3150,6 @@ p {
 		return $return;
 	}
 
-	private static function get_site_user_count() {
-		global $wpdb;
-
-		if ( function_exists( 'wp_is_large_network' ) ) {
-			if ( wp_is_large_network( 'users' ) ) {
-				return -1; // Not a real value but should tell us that we are dealing with a large network.
-			}
-		}
-		if ( false === ( $user_count = get_transient( 'jetpack_site_user_count' ) ) ) {
-			// It wasn't there, so regenerate the data and save the transient
-			$user_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
-			set_transient( 'jetpack_site_user_count', $user_count, DAY_IN_SECONDS );
-		}
-		return $user_count;
-	}
-
 	/* Admin Pages */
 
 	function admin_init() {
@@ -4365,12 +4349,6 @@ p {
 		return $raw ? $url : esc_url( $url );
 	}
 
-	public static function admin_url( $args = null ) {
-		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
-		$url = add_query_arg( $args, admin_url( 'admin.php' ) );
-		return $url;
-	}
-
 	public static function nonce_url_no_esc( $actionurl, $action = -1, $name = '_wpnonce' ) {
 		$actionurl = str_replace( '&amp;', '&', $actionurl );
 		return add_query_arg( $name, wp_create_nonce( $action ), $actionurl );
@@ -4759,16 +4737,6 @@ p {
 	}
 
 	/**
-	 * Returns the Jetpack XML-RPC API
-	 *
-	 * @return string
-	 */
-	public static function xmlrpc_api_url() {
-		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
-		return untrailingslashit( $base ) . '/xmlrpc.php';
-	}
-
-	/**
 	 * Creates two secret tokens and the end of life timestamp for them.
 	 *
 	 * Note these tokens are unique per call, NOT static per site for connecting.
@@ -4841,39 +4809,6 @@ p {
 		_deprecated_function( __METHOD__, 'jetpack-5.4' );
 		return Jetpack::get_max_execution_time();
 	}
-
-	/**
-	 * Builds the timeout limit for queries talking with the wpcom servers.
-	 *
-	 * Based on local php max_execution_time in php.ini
-	 *
-	 * @since 5.4
-	 * @return int
-	 **/
-	public static function get_max_execution_time() {
-		$timeout = (int) ini_get( 'max_execution_time' );
-
-		// Ensure exec time set in php.ini
-		if ( ! $timeout ) {
-			$timeout = 30;
-		}
-		return $timeout;
-	}
-
-	/**
-	 * Sets a minimum request timeout, and returns the current timeout
-	 *
-	 * @since 5.4
-	 **/
-	public static function set_min_time_limit( $min_timeout ) {
-		$timeout = self::get_max_execution_time();
-		if ( $timeout < $min_timeout ) {
-			$timeout = $min_timeout;
-			set_time_limit( $timeout );
-		}
-		return $timeout;
-	}
-
 
 	/**
 	 * Takes the response from the Jetpack register new site endpoint and
@@ -6084,28 +6019,6 @@ p {
 		}
 
 		return $tag;
-	}
-
-	/**
-	 * Loads a view file from the views
-	 *
-	 * Data passed in with the $data parameter will be available in the
-	 * template file as $data['value']
-	 *
-	 * @param string $template - Template file to load
-	 * @param array $data - Any data to pass along to the template
-	 * @return boolean - If template file was found
-	 **/
-	public function load_view( $template, $data = array() ) {
-		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
-
-		if( file_exists( $views_dir . $template ) ) {
-			require_once( $views_dir . $template );
-			return true;
-		}
-
-		error_log( "Jetpack: Unable to find view file $views_dir$template" );
-		return false;
 	}
 
 	/**

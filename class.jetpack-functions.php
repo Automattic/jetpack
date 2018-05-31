@@ -11,6 +11,12 @@
  */
 abstract class Jetpack_Functions {
 
+	public static function admin_url( $args = null ) {
+		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
+		$url = add_query_arg( $args, admin_url( 'admin.php' ) );
+		return $url;
+	}
+
 	/**
 	 * Converts any url in a stylesheet, to the correct absolute url.
 	 *
@@ -289,6 +295,24 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Builds the timeout limit for queries talking with the wpcom servers.
+	 *
+	 * Based on local php max_execution_time in php.ini
+	 *
+	 * @since 5.4
+	 * @return int
+	 **/
+	public static function get_max_execution_time() {
+		$timeout = (int) ini_get( 'max_execution_time' );
+
+		// Ensure exec time set in php.ini
+		if ( ! $timeout ) {
+			$timeout = 30;
+		}
+		return $timeout;
+	}
+
+	/**
 	 * Gets and parses additional plugin data to send with the heartbeat data
 	 *
 	 * @since 3.8.1
@@ -391,6 +415,22 @@ abstract class Jetpack_Functions {
 		}
 
 		return $locale->facebook_locale;
+	}
+
+	private static function get_site_user_count() {
+		global $wpdb;
+
+		if ( function_exists( 'wp_is_large_network' ) ) {
+			if ( wp_is_large_network( 'users' ) ) {
+				return -1; // Not a real value but should tell us that we are dealing with a large network.
+			}
+		}
+		if ( false === ( $user_count = get_transient( 'jetpack_site_user_count' ) ) ) {
+			// It wasn't there, so regenerate the data and save the transient
+			$user_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities'" );
+			set_transient( 'jetpack_site_user_count', $user_count, DAY_IN_SECONDS );
+		}
+		return $user_count;
 	}
 
 	/**
@@ -549,6 +589,28 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Loads a view file from the views
+	 *
+	 * Data passed in with the $data parameter will be available in the
+	 * template file as $data['value']
+	 *
+	 * @param string $template - Template file to load
+	 * @param array $data - Any data to pass along to the template
+	 * @return boolean - If template file was found
+	 **/
+	public function load_view( $template, $data = array() ) {
+		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
+
+		if( file_exists( $views_dir . $template ) ) {
+			require_once( $views_dir . $template );
+			return true;
+		}
+
+		error_log( "Jetpack: Unable to find view file $views_dir$template" );
+		return false;
+	}
+
+	/**
 	 * Network Name.
 	 */
 	static function network_name( $option = null ) {
@@ -625,6 +687,20 @@ abstract class Jetpack_Functions {
 		return $url;
 	}
 
+	/**
+	 * Sets a minimum request timeout, and returns the current timeout
+	 *
+	 * @since 5.4
+	 **/
+	public static function set_min_time_limit( $min_timeout ) {
+		$timeout = self::get_max_execution_time();
+		if ( $timeout < $min_timeout ) {
+			$timeout = $min_timeout;
+			set_time_limit( $timeout );
+		}
+		return $timeout;
+	}
+
 	public static function staticize_subdomain( $url ) {
 
 		// Extract hostname from URL
@@ -661,4 +737,13 @@ abstract class Jetpack_Functions {
 		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
 	}
 
+	/**
+	 * Returns the Jetpack XML-RPC API
+	 *
+	 * @return string
+	 */
+	public static function xmlrpc_api_url() {
+		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
+		return untrailingslashit( $base ) . '/xmlrpc.php';
+	}
 }
