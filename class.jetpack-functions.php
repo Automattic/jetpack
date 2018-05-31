@@ -400,6 +400,39 @@ abstract class Jetpack_Functions {
 		return apply_filters( 'jetpack_content_width', $content_width );
 	}
 
+
+		/**
+		 * Like core's get_file_data implementation, but caches the result.
+		 */
+		public static function get_file_data( $file, $headers ) {
+			//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
+			$file_name = basename( $file );
+
+			$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
+
+			$file_data_option = get_transient( $cache_key );
+
+			if ( false === $file_data_option ) {
+				$file_data_option = array();
+			}
+
+			$key           = md5( $file_name . serialize( $headers ) );
+			$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+
+			// If we don't need to refresh the cache, and already have the value, short-circuit!
+			if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
+				return $file_data_option[ $key ];
+			}
+
+			$data = get_file_data( $file, $headers );
+
+			$file_data_option[ $key ] = $data;
+
+			set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
+
+			return $data;
+		}
+
 	/**
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
