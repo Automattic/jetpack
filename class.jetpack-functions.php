@@ -340,6 +340,34 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Get the wpcom user data of the current|specified connected user.
+	 */
+	public static function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$transient_key = "jetpack_connected_user_data_$user_id";
+
+		if ( $cached_user_data = get_transient( $transient_key ) ) {
+			return $cached_user_data;
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => $user_id,
+		) );
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get the wpcom email of the current|specified connected user.
 	 */
 	public static function get_connected_user_email( $user_id = null ) {
@@ -584,6 +612,43 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Returns an array of all PHP files in the specified absolute path.
+	 * Equivalent to glob( "$absolute_path/*.php" ).
+	 *
+	 * @param string $absolute_path The absolute path of the directory to search.
+	 * @return array Array of absolute paths to the PHP files.
+	 */
+	public static function glob_php( $absolute_path ) {
+		if ( function_exists( 'glob' ) ) {
+			return glob( "$absolute_path/*.php" );
+		}
+
+		$absolute_path = untrailingslashit( $absolute_path );
+		$files = array();
+		if ( ! $dir = @opendir( $absolute_path ) ) {
+			return $files;
+		}
+
+		while ( false !== $file = readdir( $dir ) ) {
+			if ( '.' == substr( $file, 0, 1 ) || '.php' != substr( $file, -4 ) ) {
+				continue;
+			}
+
+			$file = "$absolute_path/$file";
+
+			if ( ! is_file( $file ) ) {
+				continue;
+			}
+
+			$files[] = $file;
+		}
+
+		closedir( $dir );
+
+		return $files;
+	}
+
+	/**
 	 * Checks if Akismet is active and working.
 	 *
 	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
@@ -817,6 +882,18 @@ abstract class Jetpack_Functions {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
+	 */
+	public static function is_user_connected( $user_id = false ) {
+		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
 	/**
