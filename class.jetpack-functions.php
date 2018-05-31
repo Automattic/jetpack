@@ -77,7 +77,7 @@ class Jetpack_Functions {
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || ! self::validate_sync_error_idc_option() ) {
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || ! Jetpack::validate_sync_error_idc_option() ) {
 			return false;
 		}
 
@@ -225,7 +225,7 @@ class Jetpack_Functions {
 		}
 
 		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && self::validate_sync_error_idc_option() ) {
+		if ( ! $is_staging && Jetpack::validate_sync_error_idc_option() ) {
 			$is_staging = true;
 		}
 
