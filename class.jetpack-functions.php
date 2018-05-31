@@ -208,6 +208,42 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Get a list of activated modules as an array of module slugs.
+	 */
+	public static function get_active_modules() {
+		$active = Jetpack_Options::get_option( 'active_modules' );
+
+		if ( ! is_array( $active ) ) {
+			$active = array();
+		}
+
+		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
+			$active[] = 'vaultpress';
+		} else {
+			$active = array_diff( $active, array( 'vaultpress' ) );
+		}
+
+		//If protect is active on the main site of a multisite, it should be active on all sites.
+		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+			$active[] = 'protect';
+		}
+
+		/**
+		 * Allow filtering of the active modules.
+		 *
+		 * Gives theme and plugin developers the power to alter the modules that
+		 * are activated on the fly.
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $active Array of active module slugs.
+		 */
+		$active = apply_filters( 'jetpack_active_modules', $active );
+
+		return array_unique( $active );
+	}
+
+	/**
 	 * Get the plan that this Jetpack site is currently using
 	 *
 	 * @uses get_option()
@@ -860,6 +896,22 @@ abstract class Jetpack_Functions {
 			'jetpack_development_version',
 			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
+	}
+
+	/**
+	 * Check whether or not a Jetpack module is active.
+	 *
+	 * @param string $module The slug of a Jetpack module.
+	 * @return bool
+	 *
+	 * @static
+	 */
+	public static function is_module_active( $module ) {
+		return in_array( $module, self::get_active_modules() );
+	}
+
+	public static function is_module( $module ) {
+		return ! empty( $module ) && ! validate_file( $module, Jetpack::get_available_modules() );
 	}
 
 	/**
