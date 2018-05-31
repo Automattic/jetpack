@@ -552,7 +552,7 @@ abstract class Jetpack_Functions {
 			$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
 			$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
 		} else {
-			$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
+			$mod['module_tags'] = array( Jetpack::translate_module_tag( 'Other' ) );
 		}
 
 		if ( $mod['plan_classes'] ) {
@@ -566,7 +566,7 @@ abstract class Jetpack_Functions {
 			$mod['feature'] = explode( ',', $mod['feature'] );
 			$mod['feature'] = array_map( 'trim', $mod['feature'] );
 		} else {
-			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
+			$mod['feature'] = array( Jetpack::translate_module_tag( 'Other' ) );
 		}
 
 		/**
