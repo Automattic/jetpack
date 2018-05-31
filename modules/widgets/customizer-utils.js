@@ -1,4 +1,4 @@
-/* global wp, gapi, FB, twttr */
+/* global wp, gapi, FB, twttr, PaypalExpressCheckout */
 
 /**
  * Utilities to work with widgets in Customizer.
@@ -59,6 +59,12 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					} else if ( wp.isJetpackWidgetPlaced( placement, 'eu_cookie_law_widget' ) ) {
 						// Refresh EU Cookie Law
 						placement.container.fadeIn();
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
+						// Refresh Simple Payments Widget
+						try {
+							const buttonId = $( '.jetpack-simple-payments-button', placement.container ).attr( 'id' ).replace( '_button', '' );
+							PaypalExpressCheckout.renderButton( null, null, buttonId, null );
+						} catch ( e ) {}
 					}
 				}
 			} );
@@ -70,10 +76,12 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					// Refresh Twitter timeline iframe, since it has to be re-built.
 					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length ) {
 						placement.partial.refresh();
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
+						// Refresh Simple Payments Widget
+						placement.partial.refresh();
 					}
 				}
 			} );
 		}
-	});
-
-})(jQuery);
+	} );
+} )( jQuery );
