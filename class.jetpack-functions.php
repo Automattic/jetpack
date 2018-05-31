@@ -460,6 +460,39 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Implemented since there is no core is multi network function
+	 * Right now there is no way to tell if we which network is the dominant network on the system
+	 *
+	 * @since  3.3
+	 * @return boolean
+	 */
+	public static function is_multi_network() {
+		global  $wpdb;
+
+		// if we don't have a multi site setup no need to do any more
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" );
+		if ( $num_sites > 1 ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Return true if we are with multi-site or multi-network false if we are dealing with single site.
+	 *
+	 * @param  string  $option
+	 * @return boolean
+	 */
+	public function is_multisite( $option ) {
+		return (string) (bool) is_multisite();
+	}
+
+	/**
 	 * Checks whether a specific plugin is active.
 	 *
 	 * We don't want to store these in a static variable, in case
@@ -492,6 +525,21 @@ abstract class Jetpack_Functions {
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
+	}
+
+	/**
+	 * Get back if the current site is single user site.
+	 *
+	 * @return bool
+	 */
+	public static function is_single_user_site() {
+		global $wpdb;
+
+		if ( false === ( $some_users = get_transient( 'jetpack_is_single_user' ) ) ) {
+			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
+			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+		}
+		return 1 === (int) $some_users;
 	}
 
 	/**
