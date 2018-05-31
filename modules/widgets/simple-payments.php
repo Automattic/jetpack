@@ -27,6 +27,14 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 					'customize_selective_refresh' => true,
 				)
 			);
+
+			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+			}
+		}
+
+		function enqueue_style() {
+			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
 		}
 
 		/**
@@ -121,7 +129,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			require( dirname( __FILE__ ) . '/simple-payments/form.php' );
 		}
 	}
-	
+
 	// Register Jetpack_Simple_Payments_Widget widget.
 	function register_widget_jetpack_simple_payments() {
 		// || ! Jetpack::active_plan_supports( 'simple-payment' )
