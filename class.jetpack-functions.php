@@ -584,6 +584,32 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
+	 * Checks if Akismet is active and working.
+	 *
+	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
+	 * that implied usage of methods present since more recent version.
+	 * See https://github.com/Automattic/jetpack/pull/9585
+	 *
+	 * @since  5.1.0
+	 *
+	 * @return bool True = Akismet available. False = Aksimet not available.
+	 */
+	public static function is_akismet_active() {
+		if ( method_exists( 'Akismet' , 'http_post' ) ) {
+			$akismet_key = Akismet::get_api_key();
+			if ( ! $akismet_key ) {
+				return false;
+			}
+			$akismet_key_state = Akismet::verify_key( $akismet_key );
+			if ( 'invalid' === $akismet_key_state || 'failed' === $akismet_key_state ) {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Is Jetpack in development (offline) mode?
 	 */
 	public static function is_development_mode() {
@@ -609,29 +635,22 @@ abstract class Jetpack_Functions {
 	}
 
 	/**
-	 * Checks if Akismet is active and working.
-	 *
-	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
-	 * that implied usage of methods present since more recent version.
-	 * See https://github.com/Automattic/jetpack/pull/9585
-	 *
-	 * @since  5.1.0
-	 *
-	 * @return bool True = Akismet available. False = Aksimet not available.
+	 * Whether Jetpack's version maps to a public release, or a development version.
 	 */
-	public static function is_akismet_active() {
-		if ( method_exists( 'Akismet' , 'http_post' ) ) {
-			$akismet_key = Akismet::get_api_key();
-			if ( ! $akismet_key ) {
-				return false;
-			}
-			$akismet_key_state = Akismet::verify_key( $akismet_key );
-			if ( 'invalid' === $akismet_key_state || 'failed' === $akismet_key_state ) {
-				return false;
-			}
-			return true;
-		}
-		return false;
+	public static function is_development_version() {
+		/**
+		 * Allows filtering whether this is a development version of Jetpack.
+		 *
+		 * This filter is especially useful for tests.
+		 *
+		 * @since 4.3.0
+		 *
+		 * @param bool $development_version Is this a develoment version of Jetpack?
+		 */
+		return (bool) apply_filters(
+			'jetpack_development_version',
+			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
+		);
 	}
 
 	/**

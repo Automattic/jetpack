@@ -1261,25 +1261,6 @@ class Jetpack extends Jetpack_Functions {
 	}
 
 	/**
-	 * Whether Jetpack's version maps to a public release, or a development version.
-	 */
-	public static function is_development_version() {
-		/**
-		 * Allows filtering whether this is a development version of Jetpack.
-		 *
-		 * This filter is especially useful for tests.
-		 *
-		 * @since 4.3.0
-		 *
-		 * @param bool $development_version Is this a develoment version of Jetpack?
-		 */
-		return (bool) apply_filters(
-			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
-		);
-	}
-
-	/**
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
 	public static function is_user_connected( $user_id = false ) {
