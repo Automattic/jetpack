@@ -693,7 +693,7 @@ abstract class Jetpack_Functions {
 	 * @since 5.4
 	 **/
 	public static function set_min_time_limit( $min_timeout ) {
-		$timeout = self::get_max_execution_time();
+		$timeout = Jetpack::get_max_execution_time();
 		if ( $timeout < $min_timeout ) {
 			$timeout = $min_timeout;
 			set_time_limit( $timeout );
