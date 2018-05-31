@@ -236,7 +236,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 		fclose( $file_pointer );
-		
+
 		$theme_data = array(
 			'name' => $theme->get('Name'),
 			'version' => $theme->get('Version'),
@@ -277,7 +277,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		do_action( 'jetpack_deleted_theme', $slug, $theme_data );
 	}
 
-	public function check_upgrader( $upgrader, $details) {
+	public function check_upgrader( $upgrader, $details ) {
 		if ( ! isset( $details['type'] ) ||
 		     'theme' !== $details['type'] ||
 		     is_wp_error( $upgrader->skin->result ) ||
@@ -311,6 +311,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		if ( 'update' === $details['action'] ) {
 			$themes = array();
+
+			if ( empty( $details['themes'] ) && isset ( $details['theme'] ) ) {
+				$details['themes'] = array( $details['theme'] );
+			}
+
 			foreach ( $details['themes'] as $theme_slug ) {
 				$theme = wp_get_theme( $theme_slug );
 
