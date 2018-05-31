@@ -283,7 +283,7 @@ class Jetpack_Functions {
 	public static function get_master_user_email() {
 		$master_user_id = Jetpack_Options::get_option( 'master_user' );
 		if ( $master_user_id ) {
-			return self::get_connected_user_email( $master_user_id );
+			return Jetpack::get_connected_user_email( $master_user_id );
 		}
 		return '';
 	}
