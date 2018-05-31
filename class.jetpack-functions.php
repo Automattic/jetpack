@@ -7,9 +7,9 @@
  *
  * If you need to use any of the methods here just use them likes
  * Jetpack::method_name() for using it statically.
- * Jetpack::init()->method_name for using it from an instance.
+ * Jetpack::init()->method_name() for using it from an instance.
  */
-class Jetpack_Functions {
+abstract class Jetpack_Functions {
 
 	/**
 	 * Converts any url in a stylesheet, to the correct absolute url.
