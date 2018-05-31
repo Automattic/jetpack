@@ -426,7 +426,7 @@ class Jetpack_Functions {
 	 * there are switch_to_blog() calls involved.
 	 */
 	public static function is_plugin_active( $plugin = 'jetpack/jetpack.php' ) {
-		return in_array( $plugin, self::get_active_plugins() );
+		return in_array( $plugin, Jetpack::get_active_plugins() );
 	}
 
 	/**
