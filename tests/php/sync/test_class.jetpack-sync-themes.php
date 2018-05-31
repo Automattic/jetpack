@@ -246,7 +246,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'itek', $event_data->args[0] );
 	}
 
-	public function test_update_theme_sync() {
+	public function test_update_themes_sync() {
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
@@ -271,6 +271,27 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'Twenty Sixteen', $themes['twentysixteen']['name'] );
 		$this->assertEquals( 'https://wordpress.org/themes/twentysixteen/', $themes['twentysixteen']['uri'] );
 		$this->assertEquals( 'twentysixteen', $themes['twentysixteen']['stylesheet'] );
+	}
+
+	public function test_update_theme_sync() {
+		$dummy_details = array(
+			'type' => 'theme',
+			'action' => 'update',
+			'theme' => 'twentyseventeen'
+		);
+
+		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
+		do_action( 'upgrader_process_complete', new Dummy_Sync_Test_WP_Upgrader(), $dummy_details );
+
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
+		$themes = $event_data->args[0];
+
+		//Not testing versions since they are subject to change
+		$this->assertEquals( 'Twenty Seventeen', $themes['twentyseventeen']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentyseventeen/', $themes['twentyseventeen']['uri'] );
+		$this->assertEquals( 'twentyseventeen', $themes['twentyseventeen']['stylesheet'] );
 	}
 
 	public function test_widgets_changes_get_synced() {
