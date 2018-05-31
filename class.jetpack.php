@@ -7098,18 +7098,33 @@ p {
 	}
 
 	/**
-	 * Checks if Akismet is active and working.
-	 * 
+	 * Checks if Akismet is active.
+	 *
 	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
 	 * that implied usage of methods present since more recent version.
 	 * See https://github.com/Automattic/jetpack/pull/9585
 	 *
 	 * @since  5.1.0
-	 * 
+	 *
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
 		if ( method_exists( 'Akismet' , 'http_post' ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if Akismet is active and functional.
+	 * Because sometimes checking if the Akismet plugin is active is not enough.
+	 *
+	 * @since  6.2.0
+	 *
+	 * @return bool True = Akismet available and functional. False = Aksimet not available and functional.
+	 */
+	public static function is_akismet_active_and_has_valid_key() {
+		if ( self::is_akismet_active() ) {
 			$akismet_key = Akismet::get_api_key();
 			if ( ! $akismet_key ) {
 				return false;
