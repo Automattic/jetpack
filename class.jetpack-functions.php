@@ -583,7 +583,7 @@ abstract class Jetpack_Functions {
 		if ( $mod['module_tags'] ) {
 			$mod['module_tags'] = explode( ',', $mod['module_tags'] );
 			$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
-			$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
+			$mod['module_tags'] = array_map( array( 'Jetpack', 'translate_module_tag' ), $mod['module_tags'] );
 		} else {
 			$mod['module_tags'] = array( Jetpack::translate_module_tag( 'Other' ) );
 		}
