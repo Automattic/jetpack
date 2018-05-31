@@ -2,10 +2,12 @@
 
 /**
  * Class Jetpack_Constants
- * This class is not meant to be used directly
- * but the Jetpack class inherits from it for clarity's sanitize_key
  *
- * If you need to use any of the methods here just use them likes
+ * This class is not meant to be used directly.
+ * It's used by the Jetpack class to inherit from it for clarity's sake.
+ *
+ * If you need to use any of the methods here just use them like:
+ *
  * Jetpack::method_name() for using it statically.
  * Jetpack::init()->method_name() for using it from an instance.
  */
