@@ -3621,34 +3621,6 @@ p {
 		return $url;
 	}
 
-	static function translate_current_user_to_role() {
-		foreach ( self::$capability_translations as $role => $cap ) {
-			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
-				return $role;
-			}
-		}
-
-		return false;
-	}
-
-	static function translate_user_to_role( $user ) {
-		foreach ( self::$capability_translations as $role => $cap ) {
-			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
-				return $role;
-			}
-		}
-
-		return false;
-    }
-
-	static function translate_role_to_cap( $role ) {
-		if ( ! isset( self::$capability_translations[$role] ) ) {
-			return false;
-		}
-
-		return self::$capability_translations[$role];
-	}
-
 	static function sign_role( $role, $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			$user_id = (int) get_current_user_id();

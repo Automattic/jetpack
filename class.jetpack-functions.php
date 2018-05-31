@@ -907,7 +907,7 @@ abstract class Jetpack_Functions {
 	 * @static
 	 */
 	public static function is_module_active( $module ) {
-		return in_array( $module, self::get_active_modules() );
+		return in_array( $module, Jetpack::get_active_modules() );
 	}
 
 	public static function is_module( $module ) {
@@ -1265,6 +1265,34 @@ abstract class Jetpack_Functions {
 		srand(); // this resets everything that relies on this, like array_rand() and shuffle()
 
 		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
+	}
+
+	static function translate_current_user_to_role() {
+		foreach ( self::$capability_translations as $role => $cap ) {
+			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
+				return $role;
+			}
+		}
+
+		return false;
+	}
+
+	static function translate_user_to_role( $user ) {
+		foreach ( self::$capability_translations as $role => $cap ) {
+			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
+				return $role;
+			}
+		}
+
+		return false;
+	}
+
+	static function translate_role_to_cap( $role ) {
+		if ( ! isset( self::$capability_translations[$role] ) ) {
+			return false;
+		}
+
+		return self::$capability_translations[$role];
 	}
 
 	/**
