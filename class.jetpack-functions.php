@@ -99,12 +99,68 @@ class Jetpack_Functions {
 	}
 
 	/**
+	 * Gets current user IP address.
+	 *
+	 * @param  bool $check_all_headers Check all headers? Default is `false`.
+	 *
+	 * @return string                  Current user IP address.
+	 */
+	public static function current_user_ip( $check_all_headers = false ) {
+		if ( $check_all_headers ) {
+			foreach ( array(
+				'HTTP_CF_CONNECTING_IP',
+				'HTTP_CLIENT_IP',
+				'HTTP_X_FORWARDED_FOR',
+				'HTTP_X_FORWARDED',
+				'HTTP_X_CLUSTER_CLIENT_IP',
+				'HTTP_FORWARDED_FOR',
+				'HTTP_FORWARDED',
+				'HTTP_VIA',
+			) as $key ) {
+				if ( ! empty( $_SERVER[ $key ] ) ) {
+					return $_SERVER[ $key ];
+				}
+			}
+		}
+
+		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+	}
+
+	function current_user_is_connection_owner() {
+		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
+	}
+
+	/**
 	 * Determines whether the current theme supports featured images or not.
 	 * @return string ( '1' | '0' )
 	 */
 	public static function featured_images_enabled() {
 		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
+	}
+
+	/**
+	 * Gets all plugins currently active in values, regardless of whether they're
+	 * traditionally activated or network activated.
+	 *
+	 * @todo Store the result in core's object cache maybe?
+	 */
+	public static function get_active_plugins() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+
+		return array_unique( $active_plugins );
 	}
 
 	/**
@@ -125,6 +181,24 @@ class Jetpack_Functions {
 			'default' => $default,
 			'force_default' => $force_display,
 		) );
+	}
+
+	/**
+	 * Get the wpcom email of the current|specified connected user.
+	 */
+	public static function get_connected_user_email( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => $user_id,
+		) );
+		$xml->query( 'wpcom.getUserEmail' );
+		if ( ! $xml->isError() ) {
+			return $xml->getResponse();
+		}
+		return false;
 	}
 
 	/**
@@ -201,6 +275,17 @@ class Jetpack_Functions {
 		}
 
 		return $locale;
+	}
+
+	/**
+	 * Get the wpcom email of the master user.
+	 */
+	public static function get_master_user_email() {
+		$master_user_id = Jetpack_Options::get_option( 'master_user' );
+		if ( $master_user_id ) {
+			return self::get_connected_user_email( $master_user_id );
+		}
+		return '';
 	}
 
 	/**
