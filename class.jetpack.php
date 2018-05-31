@@ -1026,67 +1026,6 @@ class Jetpack extends Jetpack_Functions {
 	}
 
 	/**
-	 * Guess locale from language code.
-	 *
-	 * @param string $lang Language code.
-	 * @return string|bool
-	 */
-	function guess_locale_from_lang( $lang ) {
-		if ( 'en' === $lang || 'en_US' === $lang || ! $lang ) {
-			return 'en_US';
-		}
-
-		if ( ! class_exists( 'GP_Locales' ) ) {
-			if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				return false;
-			}
-
-			require JETPACK__GLOTPRESS_LOCALES_PATH;
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// WP.com: get_locale() returns 'it'
-			$locale = GP_Locales::by_slug( $lang );
-		} else {
-			// Jetpack: get_locale() returns 'it_IT';
-			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
-		}
-
-		if ( ! $locale ) {
-			return false;
-		}
-
-		if ( empty( $locale->facebook_locale ) ) {
-			if ( empty( $locale->wp_locale ) ) {
-				return false;
-			} else {
-				// Facebook SDK is smart enough to fall back to en_US if a
-				// locale isn't supported. Since supported Facebook locales
-				// can fall out of sync, we'll attempt to use the known
-				// wp_locale value and rely on said fallback.
-				return $locale->wp_locale;
-			}
-		}
-
-		return $locale->facebook_locale;
-	}
-
-	/**
-	 * Get the locale.
-	 *
-	 * @return string|bool
-	 */
-	function get_locale() {
-		$locale = $this->guess_locale_from_lang( get_locale() );
-
-		if ( ! $locale ) {
-			$locale = 'en_US';
-		}
-
-		return $locale;
-	}
-
-	/**
 	 * Device Pixels support
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
@@ -1094,70 +1033,6 @@ class Jetpack extends Jetpack_Functions {
 		if ( Jetpack::is_active() && ! Jetpack_AMP_Support::is_amp_request() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
-	}
-
-	/**
-	 * Return the network_site_url so that .com knows what network this site is a part of.
-	 * @param  bool $option
-	 * @return string
-	 */
-	public function jetpack_main_network_site_option( $option ) {
-		return network_site_url();
-	}
-	/**
-	 * Network Name.
-	 */
-	static function network_name( $option = null ) {
-		global $current_site;
-		return $current_site->site_name;
-	}
-	/**
-	 * Does the network allow new user and site registrations.
-	 * @return string
-	 */
-	static function network_allow_new_registrations( $option = null ) {
-		return ( in_array( get_site_option( 'registration' ), array('none', 'user', 'blog', 'all' ) ) ? get_site_option( 'registration') : 'none' );
-	}
-	/**
-	 * Does the network allow admins to add new users.
-	 * @return boolian
-	 */
-	static function network_add_new_users( $option = null ) {
-		return (bool) get_site_option( 'add_new_users' );
-	}
-	/**
-	 * File upload psace left per site in MB.
-	 *  -1 means NO LIMIT.
-	 * @return number
-	 */
-	static function network_site_upload_space( $option = null ) {
-		// value in MB
-		return ( get_site_option( 'upload_space_check_disabled' ) ? -1 : get_space_allowed() );
-	}
-
-	/**
-	 * Network allowed file types.
-	 * @return string
-	 */
-	static function network_upload_file_types( $option = null ) {
-		return get_site_option( 'upload_filetypes', 'jpg jpeg png gif' );
-	}
-
-	/**
-	 * Maximum file upload size set by the network.
-	 * @return number
-	 */
-	static function network_max_upload_file_size( $option = null ) {
-		// value in KB
-		return get_site_option( 'fileupload_maxk', 300 );
-	}
-
-	/**
-	 * Lets us know if a site allows admins to manage the network.
-	 * @return array
-	 */
-	static function network_enable_administration_menus( $option = null ) {
-		return get_site_option( 'menu_items' );
 	}
 
 	/**
@@ -1319,44 +1194,6 @@ class Jetpack extends Jetpack_Functions {
 			return 1;
 		}
 		return 0;
-	}
-
-	/**
-	 * Finds out if a site is using a version control system.
-	 * @return string ( '1' | '0' )
-	 **/
-	public static function is_version_controlled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Functions::is_version_controlled' );
-		return (string) (int) Jetpack_Sync_Functions::is_version_controlled();
-	}
-
-	/**
-	 * Determines whether the current theme supports featured images or not.
-	 * @return string ( '1' | '0' )
-	 */
-	public static function featured_images_enabled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
-	}
-
-	/**
-	 * Wrapper for core's get_avatar_url().  This one is deprecated.
-	 *
-	 * @deprecated 4.7 use get_avatar_url instead.
-	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
-	 * @param int $size Size of the avatar image
-	 * @param string $default URL to a default image to use if no avatar is available
-	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
-	 *
-	 * @return array
-	 */
-	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.7', 'get_avatar_url' );
-		return get_avatar_url( $id_or_email, array(
-			'size' => $size,
-			'default' => $default,
-			'force_default' => $force_display,
-		) );
 	}
 
 	/**
@@ -5936,42 +5773,6 @@ p {
 		}
 	}
 
-	public static function staticize_subdomain( $url ) {
-
-		// Extract hostname from URL
-		$host = parse_url( $url, PHP_URL_HOST );
-
-		// Explode hostname on '.'
-		$exploded_host = explode( '.', $host );
-
-		// Retrieve the name and TLD
-		if ( count( $exploded_host ) > 1 ) {
-			$name = $exploded_host[ count( $exploded_host ) - 2 ];
-			$tld = $exploded_host[ count( $exploded_host ) - 1 ];
-			// Rebuild domain excluding subdomains
-			$domain = $name . '.' . $tld;
-		} else {
-			$domain = $host;
-		}
-		// Array of Automattic domains
-		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
-
-		// Return $url if not an Automattic domain
-		if ( ! in_array( $domain, $domain_whitelist ) ) {
-			return $url;
-		}
-
-		if ( is_ssl() ) {
-			return preg_replace( '|https?://[^/]++/|', 'https://s-ssl.wordpress.com/', $url );
-		}
-
-		srand( crc32( basename( $url ) ) );
-		$static_counter = rand( 0, 2 );
-		srand(); // this resets everything that relies on this, like array_rand() and shuffle()
-
-		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
-	}
-
 /* JSON API Authorization */
 
 	/**
@@ -6246,6 +6047,59 @@ p {
 		 * @param bool $default Whether the site is opted in to IDC mitigation.
 		 */
 		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
+	}
+
+	/**
+	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
+	 *
+	 * @since 4.4.0
+	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
+	 *
+	 * @return bool
+	 */
+	public static function validate_sync_error_idc_option() {
+		$is_valid = false;
+
+		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
+		if ( false === $idc_allowed ) {
+			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
+			if ( 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+				$json = json_decode( wp_remote_retrieve_body( $response ) );
+				$idc_allowed = isset( $json, $json->result ) && $json->result ? '1' : '0';
+				$transient_duration = HOUR_IN_SECONDS;
+			} else {
+				// If the request failed for some reason, then assume IDC is allowed and set shorter transient.
+				$idc_allowed = '1';
+				$transient_duration = 5 * MINUTE_IN_SECONDS;
+			}
+
+			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );
+		}
+
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
+			$local_options = self::get_sync_error_idc_option();
+			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+				$is_valid = true;
+			}
+		}
+
+		/**
+		 * Filters whether the sync_error_idc option is valid.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param bool $is_valid If the sync_error_idc is valid or not.
+		 */
+		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
+
+		if ( ! $idc_allowed || ( ! $is_valid && $sync_error ) ) {
+			// Since the option exists, and did not validate, delete it
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+		}
+
+		return $is_valid;
 	}
 
 	/**
@@ -6629,21 +6483,6 @@ p {
 		return $filtered_data;
 	}
 
-
-	/*
-	 * This method is used to organize all options that can be reset
-	 * without disconnecting Jetpack.
-	 *
-	 * It is used in class.jetpack-cli.php to reset options
-	 *
-	 * @since 5.4.0 Logic moved to Jetpack_Options class. Method left in Jetpack class for backwards compat.
-	 *
-	 * @return array of options to delete.
-	 */
-	public static function get_jetpack_options_for_reset() {
-		return Jetpack_Options::get_options_for_reset();
-	}
-
 	/**
 	 * Check if an option of a Jetpack module has been updated.
 	 *
@@ -6674,20 +6513,6 @@ p {
 			$jetpack->do_stats( 'server_side' );
 		}
 
-	}
-
-	/*
-	 * Strip http:// or https:// from a url, replaces forward slash with ::,
-	 * so we can bring them directly to their site in calypso.
-	 *
-	 * @param string | url
-	 * @return string | url without the guff
-	 */
-	public static function build_raw_urls( $url ) {
-		$strip_http = '/.*?:\/\//i';
-		$url = preg_replace( $strip_http, '', $url  );
-		$url = str_replace( '/', '::', $url );
-		return $url;
 	}
 
 	/**
@@ -6809,17 +6634,6 @@ p {
 
 		</footer>
 		<?php
-	}
-
-	/**
-	 * Return string containing the Jetpack logo.
-	 *
-	 * @since 3.9.0
-	 *
-	 * @return string
-	 */
-	public static function get_jp_emblem() {
-		return '<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 32 32"><path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/></svg>';
 	}
 
 	/*
