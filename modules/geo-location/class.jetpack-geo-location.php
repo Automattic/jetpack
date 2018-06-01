@@ -63,7 +63,7 @@ class Jetpack_Geo_Location {
 	 */
 	public function wordpress_init() {
 		// Only render location label after post content, if the theme claims to support "geo-location".
-		if ( $this->current_theme_supports( 'jetpack-geo-location' ) ) {
+		if ( current_theme_supports( 'jetpack-geo-location' ) ) {
 			add_filter( 'the_content', array( $this, 'the_content_location_display' ), 15, 1 );
 		}
 
@@ -142,7 +142,7 @@ class Jetpack_Geo_Location {
 	 * a single post.
 	 */
 	public function wp_head() {
-		if ( ! $this->is_single() ) {
+		if ( ! is_single() ) {
 			return;
 		}
 
@@ -188,7 +188,7 @@ class Jetpack_Geo_Location {
 	 * @return string
 	 */
 	public function the_content_microformat( $content ) {
-		if ( $this->is_feed() || $this->is_currently_excerpt_filter() ) {
+		if ( is_feed() || $this->is_currently_excerpt_filter() ) {
 			return $content;
 		}
 
@@ -270,12 +270,12 @@ class Jetpack_Geo_Location {
 	 * If we're rendering a single post and public geo-location data is available for it,
 	 * include the human-friendly location label in the output.
 	 *
-	 * @param string $html
+	 * @param string $content
 	 *
 	 * @return string
 	 */
 	public function the_content_location_display( $content ) {
-		if ( ! $this->is_single() ) {
+		if ( ! is_single() ) {
 			return $content;
 		}
 
@@ -386,34 +386,6 @@ class Jetpack_Geo_Location {
 		}
 
 		return get_post_meta( $post_id, 'geo_' . $meta_field_name, true );
-	}
-
-	/**
-	 * Simple wrapper for testing purposes.
-	 *
-	 * @return bool
-	 */
-	public function is_single() {
-		return is_single();
-	}
-
-	/**
-	 * Simple wrapper for testing purposes.
-	 *
-	 * @return bool
-	 */
-	public function is_feed() {
-		return is_feed();
-	}
-
-	/**
-	 * Simple wrapper for testing purposes.
-	 *
-	 * @param string $feature
-	 * @return bool
-	 */
-	public function current_theme_supports( $feature ) {
-		return current_theme_supports( $feature );
 	}
 
 	/**
