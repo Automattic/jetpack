@@ -180,6 +180,9 @@ class Jetpack_Geo_Location {
 	 * Append public meta values in the Geo microformat (https://en.wikipedia.org/wiki/Geo_(microformat)
 	 * to the supplied content.
 	 *
+	 * Note that we cannot render the microformat in the context of an excerpt because tags are stripped
+	 * in that context, making our microformat data visible.
+	 *
 	 * @param string $content
 	 *
 	 * @return string
@@ -416,6 +419,10 @@ class Jetpack_Geo_Location {
 	/**
 	 * Check to see if the current filter is the get_the_excerpt filter.
 	 *
+	 * Just checking current_filter() here is not adequate because current_filter() only looks
+	 * at the last element in the $wp_current_filter array.  In the context of rendering an
+	 * excerpt, however, both get_the_excerpt and the_content are present in that array.
+	 * 
 	 * @return bool
 	 */
 	public function is_currently_excerpt_filter() {
