@@ -91,7 +91,7 @@ class Jetpack_Sync_Queue {
 
 	// lag is the difference in time between the age of the oldest item
 	// (aka first or frontmost item) and the current time
-	function lag( $now = null) {
+	function lag( $now = null ) {
 		global $wpdb;
 
 		$first_item_name = $wpdb->get_var( $wpdb->prepare(
