@@ -151,9 +151,9 @@ class Grunion_Contact_Form_Plugin {
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type( 'feedback', array(
 			'labels'            => array(
-				'name'               => __( 'Feedback', 'jetpack' ),
-				'singular_name'      => __( 'Feedback', 'jetpack' ),
-				'search_items'       => __( 'Search Feedback', 'jetpack' ),
+				'name'               => __( 'Jetpack Feedback', 'jetpack' ),
+				'singular_name'      => __( 'Jetpack Feedback', 'jetpack' ),
+				'search_items'       => __( 'Search Jetpack Feedback', 'jetpack' ),
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
 			),
