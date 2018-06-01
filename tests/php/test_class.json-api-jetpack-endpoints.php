@@ -37,6 +37,11 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
+		if ( ! is_running_external_http_group() ) {
+			$this->markTestSkipped(
+				'Use --group=external-http to run this test'
+			);
+		}
 
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 			'description'     => 'Update a Plugin on your Jetpack Site',
