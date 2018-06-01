@@ -128,6 +128,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
+	 * @requires PHP 5.3.2
 	 */
 	public function test_get_term_feed_url_pretty_permalinks() {
 		global $blog_id;
@@ -158,6 +159,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
+	 * @requires PHP 5.3.2
 	 */
 	public function test_get_term_feed_url_ugly_permalinks() {
 		global $blog_id;
