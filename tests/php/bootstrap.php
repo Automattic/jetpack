@@ -90,7 +90,7 @@ function _manually_install_woocommerce() {
 }
 
 // If we are running the uninstall tests don't load jepack.
-if ( ! ( is_running_uninstall_group() ) ) {
+if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
@@ -100,15 +100,15 @@ if ( ! ( is_running_uninstall_group() ) ) {
 require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.
-if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! is_running_uninstall_group() ) {
+if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
 }
 
 // Load attachment helper methods.
 require dirname( __FILE__ ) . '/attachment_test_case.php';
 
-function is_running_uninstall_group() {
-	global $argv;
+function in_running_uninstall_group() {
+	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
 
