@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_queue_lag() {
 		/* @var $queue Jetpack_Sync_Queue|\PHPUnit\Framework\MockObject\MockObject */
-		$queue = $this->getMockBuilder( Jetpack_Sync_Queue::class )
+		$queue = $this->getMockBuilder( 'Jetpack_Sync_Queue' )
 			->setMethods( array( 'generate_option_name_timestamp' ) )
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
