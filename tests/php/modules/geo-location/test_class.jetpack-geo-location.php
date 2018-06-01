@@ -1,6 +1,6 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . '/modules/geo-location/class.jetpack-geo-location.php' );
+require_once JETPACK__PLUGIN_DIR . '/modules/geo-location/class.jetpack-geo-location.php';
 
 class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	const DISABLE_CONSTRUCTOR = true;
@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	public function setUp() {
 		global $post;
 
-		$post = new stdClass();
+		$post     = new stdClass();
 		$post->ID = 1;
 	}
 
@@ -107,8 +107,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'is_populated', $meta_values );
 
 		$this->assertTrue( $meta_values['is_public'] );
-		$this->assertEquals( (float) self::MOCK_LAT , $meta_values['latitude'] );
-		$this->assertEquals( (float) self::MOCK_LONG , $meta_values['longitude'] );
+		$this->assertEquals( (float) self::MOCK_LAT, $meta_values['latitude'] );
+		$this->assertEquals( (float) self::MOCK_LONG, $meta_values['longitude'] );
 		$this->assertEquals( self::MOCK_ADDRESS, $meta_values['label'] );
 		$this->assertTrue( $meta_values['is_populated'] );
 	}
@@ -126,8 +126,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->rss_item();
 		$output = ob_get_clean();
 
-		$this->assertNotContains( self::MOCK_LAT, $output);
-		$this->assertNotContains( self::MOCK_LONG, $output);
+		$this->assertNotContains( self::MOCK_LAT, $output );
+		$this->assertNotContains( self::MOCK_LONG, $output );
 	}
 
 	public function test_rss_item_does_render_public_post() {
@@ -137,8 +137,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->rss_item();
 		$output = ob_get_clean();
 
-		$this->assertContains( self::MOCK_LAT, $output);
-		$this->assertContains( self::MOCK_LONG, $output);
+		$this->assertContains( self::MOCK_LAT, $output );
+		$this->assertContains( self::MOCK_LONG, $output );
 	}
 
 	public function test_rss_item_does_escape_malicious_post() {
@@ -178,8 +178,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertContains( self::MOCK_LAT, $output);
-		$this->assertContains( self::MOCK_LONG, $output);
+		$this->assertContains( self::MOCK_LAT, $output );
+		$this->assertContains( self::MOCK_LONG, $output );
 	}
 
 	public function test_wp_head_escapes_malicious_meta_values() {
@@ -201,7 +201,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_feed' )->willReturn( true );
 
-		$this->assertEquals( 'Original content',  $instance->the_content_microformat( 'Original content' ) );
+		$this->assertEquals( 'Original content', $instance->the_content_microformat( 'Original content' ) );
 	}
 
 	public function test_the_content_microformat_aborts_when_meta_values_are_private() {
@@ -209,7 +209,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$this->assertEquals( 'Original content',  $instance->the_content_microformat( 'Original content' ) );
+		$this->assertEquals( 'Original content', $instance->the_content_microformat( 'Original content' ) );
 	}
 
 	public function test_the_content_microformat_appends_microformat_when_meta_values_are_public() {
@@ -217,13 +217,13 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$modifiedContent = $instance->the_content_microformat( 'Original content' );
+		$modified_content = $instance->the_content_microformat( 'Original content' );
 
-		$this->assertStringStartsWith( 'Original content', $modifiedContent);
-		$this->assertContains( self::MOCK_LAT, $modifiedContent);
-		$this->assertContains( self::MOCK_LONG, $modifiedContent);
-		$this->assertContains( '<span class="latitude">', $modifiedContent);
-		$this->assertContains( '<span class="longitude">', $modifiedContent);
+		$this->assertStringStartsWith( 'Original content', $modified_content );
+		$this->assertContains( self::MOCK_LAT, $modified_content );
+		$this->assertContains( self::MOCK_LONG, $modified_content );
+		$this->assertContains( '<span class="latitude">', $modified_content );
+		$this->assertContains( '<span class="longitude">', $modified_content );
 	}
 
 	public function test_the_content_microformat_escapes_malicious_meta_values() {
@@ -231,12 +231,12 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_feed' )->willReturn( false );
 
-		$modifiedContent = $instance->the_content_microformat( 'Original content' );
+		$modified_content = $instance->the_content_microformat( 'Original content' );
 
-		$this->assertStringStartsWith( 'Original content', $modifiedContent);
-		$this->assertNotContains( '<attack>', $modifiedContent );
-		$this->assertContains( '&lt;', $modifiedContent );
-		$this->assertContains( '&gt;', $modifiedContent );
+		$this->assertStringStartsWith( 'Original content', $modified_content );
+		$this->assertNotContains( '<attack>', $modified_content );
+		$this->assertContains( '&lt;', $modified_content );
+		$this->assertContains( '&gt;', $modified_content );
 	}
 
 	public function test_the_content_location_display_aborts_when_is_not_single() {
@@ -244,7 +244,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_single' )->willReturn( false );
 
-		$this->assertEquals( 'Original content',  $instance->the_content_location_display( 'Original content' ) );
+		$this->assertEquals( 'Original content', $instance->the_content_location_display( 'Original content' ) );
 	}
 
 	public function test_the_content_location_display_aborts_when_meta_values_are_private() {
@@ -252,7 +252,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_single' )->willReturn( true );
 
-		$this->assertEquals( 'Original content',  $instance->the_content_location_display( 'Original content' ) );
+		$this->assertEquals( 'Original content', $instance->the_content_location_display( 'Original content' ) );
 	}
 
 	public function test_the_content_location_display_appends_microformat_when_meta_values_are_public() {
@@ -260,10 +260,10 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_single' )->willReturn( true );
 
-		$modifiedContent = $instance->the_content_location_display( 'Original content' );
+		$modified_content = $instance->the_content_location_display( 'Original content' );
 
-		$this->assertStringStartsWith( 'Original content', $modifiedContent);
-		$this->assertContains( self::MOCK_ADDRESS, $modifiedContent);
+		$this->assertStringStartsWith( 'Original content', $modified_content );
+		$this->assertContains( self::MOCK_ADDRESS, $modified_content );
 	}
 
 	public function test_the_content_location_display_escapes_malicious_meta_values() {
@@ -271,12 +271,12 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		$instance->method( 'is_single' )->willReturn( true );
 
-		$modifiedContent = $instance->the_content_location_display( 'Original content' );
+		$modified_content = $instance->the_content_location_display( 'Original content' );
 
-		$this->assertStringStartsWith( 'Original content', $modifiedContent);
-		$this->assertNotContains( '<attack>', $modifiedContent );
-		$this->assertContains( '&lt;', $modifiedContent );
-		$this->assertContains( '&gt;', $modifiedContent );
+		$this->assertStringStartsWith( 'Original content', $modified_content );
+		$this->assertNotContains( '<attack>', $modified_content );
+		$this->assertContains( '&lt;', $modified_content );
+		$this->assertContains( '&gt;', $modified_content );
 	}
 
 	private function get_instance() {
@@ -287,16 +287,16 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
-	         ->will(
-	         	$this->returnValueMap(
-	         	    array(
-	         	    	array( 1, 'public', '1' ),
-		                array( 1, 'latitude', self::MOCK_LAT ),
-		                array( 1, 'longitude',  self::MOCK_LONG ),
-		                array( 1, 'address', self::MOCK_ADDRESS )
-	                )
-	            )
-	         );
+			->will(
+				$this->returnValueMap(
+					array(
+						array( 1, 'public', '1' ),
+						array( 1, 'latitude', self::MOCK_LAT ),
+						array( 1, 'longitude', self::MOCK_LONG ),
+						array( 1, 'address', self::MOCK_ADDRESS ),
+					)
+				)
+			);
 
 		return $instance;
 	}
@@ -305,17 +305,17 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance( array( 'get_meta_values' ) );
 
 		$instance->method( 'get_meta_values' )
-	         ->will(
-		         $this->returnValue(
-			         array(
-				         'is_public'    => true,
-				         'latitude'     => '<attack>',
-				         'longitude'    => '<attack>',
-				         'label'        => '<attack>',
-				         'is_populated' => true,
-			         )
-		         )
-	         );
+			->will(
+				$this->returnValue(
+					array(
+						'is_public'    => true,
+						'latitude'     => '<attack>',
+						'longitude'    => '<attack>',
+						'label'        => '<attack>',
+						'is_populated' => true,
+					)
+				)
+			);
 
 		return $instance;
 	}
@@ -324,23 +324,23 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
-	         ->will(
-		         $this->returnValueMap(
-			         array(
-				         array( 1, 'public', '0' ),
-				         array( 1, 'latitude', self::MOCK_LAT ),
-				         array( 1, 'longitude', self::MOCK_LONG ),
-				         array( 1, 'address', self::MOCK_ADDRESS )
-			         )
-		         )
-	         );
+			->will(
+				$this->returnValueMap(
+					array(
+						array( 1, 'public', '0' ),
+						array( 1, 'latitude', self::MOCK_LAT ),
+						array( 1, 'longitude', self::MOCK_LONG ),
+						array( 1, 'address', self::MOCK_ADDRESS ),
+					)
+				)
+			);
 
 		return $instance;
 	}
 
 	/**
 	 * @param string[] $additional_mock_methods
-	 * @param boolean $disable_constructor
+	 * @param boolean  $disable_constructor
 	 * @return Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function create_mock_instance(
@@ -360,6 +360,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			$builder->disableOriginalConstructor();
 		}
 
-        return $builder->getMock();
+		return $builder->getMock();
 	}
 }
