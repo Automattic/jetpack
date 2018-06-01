@@ -60,17 +60,17 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$queue->expects( $this->at( 0 ) )
 			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '1527862857.091832' ) );
+			->will( $this->returnValue( '1.5' ) );
 
 		$queue->expects( $this->at( 1 ) )
 			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '1527862860.092171' ) );
+			->will( $this->returnValue( '3.0' ) );
 
 		$queue->reset();
 		$queue->add( 'foo' );
 		$queue->add( 'bar' );
 
-		$this->assertEquals( 6, intval( $queue->lag( 1527862863.0946 ) ) );
+		$this->assertEquals( 6, intval( $queue->lag( 7.5 ) ) );
 	}
 
 	function test_checkout_queue_items() {
