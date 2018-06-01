@@ -37,12 +37,6 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
-		if ( ! is_running_external_http_group() ) {
-			$this->markTestSkipped(
-				'Use --group=external-http to run this test'
-			);
-		}
-
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 			'description'     => 'Update a Plugin on your Jetpack Site',
 			'group'           => 'plugins',
@@ -128,7 +122,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
-	 * @requires PHP 5.3.2
+	 * @requires PHP 5.3
 	 */
 	public function test_get_term_feed_url_pretty_permalinks() {
 		global $blog_id;
@@ -159,7 +153,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
-	 * @requires PHP 5.3.2
+	 * @requires PHP 5.3
 	 */
 	public function test_get_term_feed_url_ugly_permalinks() {
 		global $blog_id;
@@ -189,6 +183,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 	/**
 	 * @author tonykova
 	 * @covers Jetpack_API_Plugins_Install_Endpoint
+	 * @group external-http
 	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
