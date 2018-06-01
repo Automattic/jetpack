@@ -116,7 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* Widgets: Deprecated the use of Widget Ids in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
+* Widgets: Deprecated the use of Widget IDs in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
 
 **Bug fixes**
 
