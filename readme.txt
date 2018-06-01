@@ -116,6 +116,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Widgets: Deprecated the use of Widget Ids in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
+
 **Bug fixes**
 
 * Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
@@ -126,5 +128,4 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
 * Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
 * Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
-* Widgets: Deprecated the use of Widget Ids in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
 
