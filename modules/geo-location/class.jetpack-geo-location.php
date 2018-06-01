@@ -33,9 +33,9 @@
 class Jetpack_Geo_Location {
 	private static $instance;
 
-	static public function init() {
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Geo_Location;
+			self::$instance = new Jetpack_Geo_Location();
 		}
 
 		return self::$instance;
@@ -44,7 +44,7 @@ class Jetpack_Geo_Location {
 	/**
 	 * This is mostly just used for testing purposes.
 	 */
-	static public function reset_instance() {
+	public static function reset_instance() {
 		self::$instance = null;
 	}
 
@@ -141,7 +141,7 @@ class Jetpack_Geo_Location {
 	 * Render geo.position and ICBM meta tags with public geo meta values when rendering
 	 * a single post.
 	 */
-	function wp_head() {
+	public function wp_head() {
 		if ( ! $this->is_single() ) {
 			return;
 		}
@@ -152,7 +152,7 @@ class Jetpack_Geo_Location {
 			return;
 		}
 
-		echo  "\n<!-- Jetpack Geo-location Tags -->\n";
+		echo "\n<!-- Jetpack Geo-location Tags -->\n";
 
 		if ( $meta_values['label'] ) {
 			printf(
@@ -173,7 +173,7 @@ class Jetpack_Geo_Location {
 			esc_attr( $meta_values['longitude'] )
 		);
 
-		echo  "\n<!-- End Jetpack Geo-location Tags -->\n";
+		echo "\n<!-- End Jetpack Geo-location Tags -->\n";
 	}
 
 	/**
@@ -275,7 +275,7 @@ class Jetpack_Geo_Location {
 	 * @return string
 	 */
 	public function the_content_location_display( $content ) {
-		if (! $this->is_single() ) {
+		if ( ! $this->is_single() ) {
 			return $content;
 		}
 
@@ -298,12 +298,12 @@ class Jetpack_Geo_Location {
 			return '';
 		}
 
-		// If the location has not been labeled, do not show the location
+		// If the location has not been labeled, do not show the location.
 		if ( ! $meta_values['label'] ) {
 			return '';
 		}
 
-		$html = '<div class="post-geo-location-label geo-chip">';
+		$html  = '<div class="post-geo-location-label geo-chip">';
 		$html .= '<span class="dashicons dashicons-location" style="vertical-align: text-top;"></span> ';
 		$html .= esc_html( $meta_values['label'] );
 		$html .= '</div>';
@@ -332,7 +332,7 @@ class Jetpack_Geo_Location {
 	public function get_post_id() {
 		global $post;
 
-		if ( ! isset( $post) || ! $post || ! is_object( $post ) || ! isset( $post->ID ) ) {
+		if ( ! isset( $post ) || ! $post || ! is_object( $post ) || ! isset( $post->ID ) ) {
 			return null;
 		}
 
@@ -376,7 +376,7 @@ class Jetpack_Geo_Location {
 	 * location in the code and to assist in mocking during testing.
 	 *
 	 * @param integer $post_id
-	 * @param string $meta_field_name
+	 * @param string  $meta_field_name
 	 *
 	 * @return mixed
 	 */
@@ -422,7 +422,7 @@ class Jetpack_Geo_Location {
 	 * Just checking current_filter() here is not adequate because current_filter() only looks
 	 * at the last element in the $wp_current_filter array.  In the context of rendering an
 	 * excerpt, however, both get_the_excerpt and the_content are present in that array.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function is_currently_excerpt_filter() {
@@ -432,7 +432,7 @@ class Jetpack_Geo_Location {
 
 		$current_filters = (array) $GLOBALS['wp_current_filter'];
 
-		return in_array( 'get_the_excerpt', $current_filters );
+		return in_array( 'get_the_excerpt', $current_filters, true );
 	}
 }
 
