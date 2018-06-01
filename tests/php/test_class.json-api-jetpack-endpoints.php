@@ -20,6 +20,12 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		parent::setUp();
 
+		if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
+			// Loading the API breaks in 5.2.x due to `const` declarations, and
+			// this will still happen even though all tests are skipped (why?)
+			return;
+		}
+
 		$this->set_globals();
 
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
