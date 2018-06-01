@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
 * Related Posts: Made it not try to fetch related posts for an unpublished post.
 * Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
+* Sharing: Fixed the way we check if akismet is active and has a valid key by caching the result of the verification.
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
 * Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
 * Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
