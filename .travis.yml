@@ -48,6 +48,15 @@ branches:
     - master-stable
     - /^branch-.*$/
     - /^feature\/.*$/
+before_install:
+    - |
+        if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+          TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
+        fi
+        git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '(\.md$|\.txt$|\.yml$)|(\.txt$)|(^(docs|docker|))/' || {
+          echo "Only non-testable files were updated, bailing from running unit tests."
+          exit
+        }
 
 # Git clone depth
 # By default Travis CI clones repositories to a depth of 50 commits
