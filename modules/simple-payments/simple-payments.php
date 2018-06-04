@@ -1,4 +1,7 @@
 <?php
+
+require_once( dirname( __FILE__ ) . '/money-format.php' );
+
 /*
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
@@ -27,14 +30,15 @@ class Jetpack_Simple_Payments {
 		return self::$instance;
 	}
 
-	private function register_scripts() {
+	private function enqueue_scripts_and_styles() {
 		/**
 		 * Paypal heavily discourages putting that script in your own server:
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
 		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
-		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
+		wp_enqueue_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ), self::$version );
+		wp_enqueue_style( 'simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
@@ -46,7 +50,6 @@ class Jetpack_Simple_Payments {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		$this->register_scripts();
 		$this->register_shortcode();
 		$this->setup_cpts();
 
@@ -100,12 +103,8 @@ class Jetpack_Simple_Payments {
 		);
 
 		$data['id'] = $attrs['id'];
-		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
-			wp_enqueue_script( 'paypal-express-checkout' );
-		}
-		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
-			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ), array( 'dashicons' ) );
-		}
+
+		$this->enqueue_scripts_and_styles();
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
 			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
@@ -151,10 +150,8 @@ class Jetpack_Simple_Payments {
 	}
 
 	function format_price( $formatted_price, $price, $currency, $all_data ) {
-		if ( $formatted_price ) {
-			return $formatted_price;
-		}
-		return "$price $currency";
+		// TODO: remove $formatted_price entirely
+		return Jetpack_Money_Format::format_price( $currency, $price );
 	}
 
 	/**
@@ -213,7 +210,7 @@ class Jetpack_Simple_Payments {
 			'read_private_posts'    => 'read_private_posts',
 		);
 		$order_args = array(
-			'label'                 => esc_html__( 'Order', 'jetpack' ),
+			'label'                 => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack' ),
 			'description'           => esc_html__( 'Simple Payments orders', 'jetpack' ),
 			'supports'              => array( 'custom-fields', 'excerpt' ),
 			'hierarchical'          => false,

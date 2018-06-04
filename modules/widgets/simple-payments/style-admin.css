@@ -1,0 +1,193 @@
+.widget-content .simple-payments,
+.widget-content .simple-payments-form {
+	clear: both;
+}
+
+.widget-content .simple-payments-form .cost label {
+	display: block;
+}
+
+.widget-content .simple-payments-image-fieldset {
+	position: relative;
+	width: 100%;
+}
+
+.widget-content .simple-payments-image-fieldset .placeholder {
+	border: 1px dashed #b4b9be;
+	box-sizing: border-box;
+	cursor: pointer;
+	line-height: 20px;
+	padding: 9px 0;
+	position: relative;
+	text-align: center;
+	width: 100%;
+	margin: 4px 0 1em;
+}
+
+.widget-content .simple-payments-image {
+	max-width: 100%;
+	margin-top: 4px;
+	position: relative;
+	text-align: center;
+}
+
+.widget-content .simple-payments-image img {
+	max-width: 100%;
+	box-sizing: border-box;
+	border: 1px dashed #b4b9be;
+	padding: 4px;
+	height: auto;
+	cursor: pointer;
+}
+
+.widget-content .simple-payments-image img:hover {
+	border-style: solid;
+}
+
+.widget-content .simple-payments-form .field-currency {
+	display: inline-block;
+	vertical-align: top;
+	width: 28%;
+}
+
+.widget-content .simple-payments-remove-image,
+.widget-content .simple-payments-remove-image:hover,
+.widget-content .simple-payments-remove-image:focus,
+.widget-content .simple-payments-remove-image:active
+{
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	height: 28px;
+	width: 28px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	outline: 0;
+}
+
+.widget-content .simple-payments-remove-image:before {
+	font-family: Dashicons;
+	content: "\f158";
+	display: inline-block;
+	speak: none;
+	font-size: 24pt;
+	color: #a00;
+}
+
+.widget-content .simple-payments-remove-image:hover:before,
+.widget-content .simple-payments-remove-image:focus:before {
+	color: #dc3232;
+}
+
+
+.widget-content .simple-payments-image:hover .simple-payments-remove-image {
+	display: block;
+}
+
+.widget-content .simple-payments-form .field-price {
+	display: inline-block;
+	line-height: 20px;
+	width: 70%;
+}
+
+/* Product list */
+
+.widget-content .simple-payments-add-product,
+.widget-content .simple-payments-back-product-list
+{
+	margin: 1em 0;
+	float: right;
+}
+
+.widget-content .simple-payments-product-count {
+	text-transform: uppercase;
+}
+
+.widget-content .simple-payments-products {
+	border-bottom: 1px solid #e5e5e5;
+	max-height: 350px;
+	overflow: auto;
+	clear: both;
+}
+
+.widget-content .simple-payments-products li {
+	border-top: 1px solid #e5e5e5;
+	margin-bottom: 0;
+	padding: 0;
+}
+
+.widget-content .simple-payments-products li:hover {
+	background-color: #f7f7f7;
+}
+
+.widget-content .simple-payments-products li:after,
+.widget-content .simple-payments-products li label:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.widget-content .simple-payments-products li:hover .simple-payments-edit-product {
+	display: block;
+}
+
+.widget-content .simple-payments-products .product-info {
+	float: left;
+	line-height: 2;
+	margin-left: 12px;
+	margin-right: 12px;
+}
+
+.widget-content .simple-payments-products .image img {
+	float: right;
+	height: auto;
+	width: 80px;
+}
+
+.widget-content .simple-payments-products label {
+	display: block;
+	padding: 8px 0;
+}
+
+.widget-content .simple-payments-products input[type="radio"] {
+	display: none;
+}
+
+.widget-content .simple-payments-products input[type="radio"]:checked + label {
+	background-color: #ddf6ff;
+}
+
+.widget-content .simple-payments-edit-product,
+.widget-content .simple-payments-edit-product:hover,
+.widget-content .simple-payments-edit-product:focus,
+.widget-content .simple-payments-edit-product:active
+{
+	display: none;
+	margin-right: 8px;
+	cursor: pointer;
+	height: 24px;
+	width: 24px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	outline: 0;
+}
+
+.widget-content .simple-payments-edit-product:before {
+	font-family: Dashicons;
+	content: "\f464"; /* Pencil */
+	display: inline-block;
+	speak: none;
+	font-size: 20pt;
+	color: #0073aa;
+}
+
+.widget-content .simple-payments-edit-product:hover:before,
+.widget-content .simple-payments-edit-product:focus:before {
+	color: #00a0d2;
+}

@@ -1,0 +1,29 @@
+.widget .jetpack-simple-payments-product {
+    display: block;
+    max-width: 620px;
+    margin: 0 auto;
+}
+.widget .jetpack-simple-payments-image {
+    padding-top: 0;
+    box-sizing: content-box;
+}
+.widget .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .jetpack-simple-payments-image img.size-full {
+    left: 0;
+    position: static;
+    top: 0;
+    transform: none;
+    width: auto;
+}
+.widget .jetpack-simple-payments-image {
+    border: 0;
+}
+.widget .jetpack-simple-payments-image img {
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.widget .jetpack-simple-payments-details {
+    max-width: 620px;
+    padding: 0;
+}
+.widget .jetpack-simple-payments-product-image + .jetpack-simple-payments-details {
+    padding: 0;
+}
