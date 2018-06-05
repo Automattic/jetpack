@@ -160,7 +160,7 @@ class DashScan extends Component {
 		}
 
 		const data = get( this.props.vaultPressData, 'data', '' );
-		const siteId = data && data.siteId;
+		const siteId = data && data.site_id;
 
 		return (
 			<div>
