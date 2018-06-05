@@ -63,7 +63,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
-				'lon'     => null
+				'lon'     => null,
+				'apikey_error' => null,
 			);
 		}
 
@@ -99,18 +100,17 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$showmap = $instance['showmap'];
 
-				/** This action is documented in modules/widgets/contact-info.php */
-				if ( $showmap && $this->has_good_map( $instance ) ) {
-					/**
-					 * Set a Google Maps API Key.
-					 *
-					 * @since 4.1.0
-					 *
-					 * @param string $api_key Google Maps API Key
-					 */
-					$api_key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
-					echo $this->build_map( $instance['address'], $api_key );
+				if ( $showmap && empty( $instance['apikey'] ) && wp_get_current_user() ) {
+					if ( current_user_can( 'edit_theme_options' ) ) {
+						echo '<div style="color:red;">' . esc_html__( 'Please add a valid Google MAPS API. (This message is only shown to Administators)', 'jetpack' ) . '</div>';
+					}
 				}
+
+				if ( $showmap && $this->has_good_map( $instance ) ) {
+
+					echo $this->build_map( $instance['address'], $this->get_google_api_key( $instance ) );
+				}
+
 
 				$map_link = $this->build_map_link( $instance['address'] );
 
@@ -164,77 +164,108 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 *
 		 * @return array
 		 */
-		function update( $new_instance, $old_instance ) {
-			$update_lat_lon = false;
-			if (
-				! isset( $old_instance['address'] ) ||
-				$this->urlencode_address( $old_instance['address'] ) != $this->urlencode_address( $new_instance['address'] )
-			) {
-				$update_lat_lon = true;
-			}
+			function update( $new_instance, $old_instance ) {
+				$instance            = array();
+				$instance['title']   = wp_kses( $new_instance['title'], array() );
+				$instance['address'] = wp_kses( $new_instance['address'], array() );
+				$instance['phone']   = wp_kses( $new_instance['phone'], array() );
+				$instance['email']   = wp_kses( $new_instance['email'], array() );
+				$instance['hours']   = wp_kses( $new_instance['hours'], array() );
+				$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
+				$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
+				$instance['lon']     = isset( $old_instance['lon'] ) ? floatval( $old_instance['lon'] ) : 0;
 
-			$instance            = array();
-			$instance['title']   = wp_kses( $new_instance['title'], array() );
-			$instance['address'] = wp_kses( $new_instance['address'], array() );
-			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
-			$instance['email']   = wp_kses( $new_instance['email'], array() );
-			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
-			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
-			$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
-			$instance['lon']     = isset( $old_instance['lon'] ) ? floatval( $old_instance['lon'] ) : 0;
+				if ( $this->recalcualte_log_and_lat( $new_instance, $old_instance ) ) {
+						// Get the lat/lon of the user specified address.
+					$address = $this->urlencode_address( $instance['address'] );
+					$path    = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
 
-			if ( ! $instance['lat'] || ! $instance['lon'] ) {
-				$update_lat_lon = true;
-			}
+					if ( ! empty( $key ) ) {
+						$path = add_query_arg( 'key', $this->get_google_api_key( $instance ), $path );
+					}
+					$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
+					if ( ! $json ) {
+						// The read failed :(
+						esc_html_e( "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.", 'jetpack' );
+						die();
+					}
 
-			if ( $instance['address'] && $update_lat_lon ) {
+					$json_obj = json_decode( $json );
 
-				// Get the lat/lon of the user specified address.
-				$address = $this->urlencode_address( $instance['address'] );
-				$path    = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
-				/** This action is documented in modules/widgets/contact-info.php */
-				$key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
+					if ( isset( $json_obj->error_message ) ) {
+						$instance['lat'] = "0";
+						$instance['lon'] = "0";
+						$instance['showmap'] = ( ! isset( $new_instance['showmap'] ) ) ? 0 : intval( $new_instance['showmap'] );
+						$instance['apikey_error'] = $json_obj->status;
+						return $instance;
+					}
 
-				if ( ! empty( $key ) ) {
-					$path = add_query_arg( 'key', $key, $path );
+
+					if ( "ZERO_RESULTS" == $json_obj->status ) {
+						// The address supplied does not have a matching lat / lon.
+						// No map is available.
+						$instance['lat'] = "0";
+						$instance['lon'] = "0";
+					} else {
+						$loc = isset( $json_obj->results[0]->geometry->location )
+						? $json_obj->results[0]->geometry->location :
+						(object) array( 'lat' => 0, 'lng' => 0 );
+
+						$lat = floatval( $loc->lat );
+						$lon = floatval( $loc->lng );
+
+						$instance['lat'] = "$lat";
+						$instance['lon'] = "$lon";
+					}
 				}
-				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
+				$instance['showmap'] = ( ! isset( $new_instance['showmap'] ) ) ? 0 : intval( $new_instance['showmap'] );
 
-				if ( ! $json ) {
-					// The read failed :(
-					esc_html_e( "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.", 'jetpack' );
-					die();
-				}
-
-				$json_obj = json_decode( $json );
-
-				if ( "ZERO_RESULTS" == $json_obj->status ) {
-					// The address supplied does not have a matching lat / lon.
-					// No map is available.
-					$instance['lat'] = "0";
-					$instance['lon'] = "0";
-				}
-				else {
-
-					$loc = $json_obj->results[0]->geometry->location;
-
-					$lat = floatval( $loc->lat );
-					$lon = floatval( $loc->lng );
-
-					$instance['lat'] = "$lat";
-					$instance['lon'] = "$lon";
-				}
-			}
-
-			if ( ! isset( $new_instance['showmap'] ) ) {
-				$instance['showmap'] = 0;
-			}
-			else {
-				$instance['showmap'] = intval( $new_instance['showmap'] );
-			}
-
-			return $instance;
+				return $instance;
 		}
+
+		function recalcualte_log_and_lat( $new_instance, $old_instance ) {
+			if ( ! $new_instance['showmap'] ) {
+				return false;
+			}
+
+			if ( empty( $new_instance['address'] ) ) {
+				return false;
+			}
+
+			if ( empty( $new_instance['apikey'] ) ) {
+				return false;
+			}
+
+			// New api keys
+			if ( $new_instance['apikey'] !== $old_instance['apikey'] ) {
+				return true;
+			}
+
+			// new Address
+			if ( $this->urlencode_address( $old_instance['address'] ) !== $this->urlencode_address( $new_instance['address'] ) ) {
+				return true;
+			}
+
+			// these values are set to nothing.
+			if ( empty( $old_instance['lat'] ) || empty( $old_instance['lon'] ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+
+		function get_google_api_key( $instance ) {
+			/**
+			 * Set a Google Maps API Key.
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param string $api_key Google Maps API Key
+			 */
+			return apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
+		}
+
 
 
 		/**
@@ -245,6 +276,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * @return void
 		 */
 		function form( $instance ) {
+
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			wp_enqueue_script(
 				'contact-info-admin',
@@ -265,14 +297,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', 'jetpack' ); ?></label>
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'address' ) ); ?>"><?php echo esc_textarea( $instance['address'] ); ?></textarea>
-				<?php
-				if ( $this->has_good_map( $instance ) ) {
-					?>
+
 					<input class="jp-contact-info-showmap" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
 					<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 					<?php
-				}
-				else {
+				if( ! $this->has_good_map( $instance ) ) {
 					?>
 					<span class="error-message"><?php _e( 'Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?', 'jetpack' ); ?></span>
 					<input id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="<?php echo( intval( $instance['showmap'] ) ); ?>" type="hidden" />
@@ -286,6 +315,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					<?php _e( 'Google Maps API Key', 'jetpack' ); ?>
 					<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['apikey'] ); ?>" />
 					<br />
+
+					<?php if ( $instance[ 'apikey_error' ] ) { ?>
+					<span class="error-message"><?php echo $this->get_api_key_error( $instance['apikey_error'] ); ?></span>
+					<br />
+					<?php } ?>
 					<small><?php printf( wp_kses( __( 'Google now requires an API key to use their maps on your site. <a href="%s">See our documentation</a> for instructions on acquiring a key.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ), 'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/' ); ?></small>
 				</label>
 			</p>
@@ -306,6 +340,14 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			</p>
 
 			<?php
+		}
+
+		function get_api_key_error( $status ) {
+			switch ( $status ) {
+				case 'OVER_QUERY_LIMIT':
+					default:
+					return esc_html__( 'You have exceeded your daily request quota for this API. Please enter a valid API KEY', 'jetpack' );
+			}
 		}
 
 
@@ -366,7 +408,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function has_good_map( $instance ) {
 			// The lat and lon of an address that could not be plotted will have values of 0 and 0.
-			return ! ( "0" == $instance['lat'] && "0" == $instance['lon'] );
+			return ! ( "0" == $instance['lat'] && "0" == $instance['lon'] ) && $this->get_google_api_key( $instance );
 		}
 
 	}
