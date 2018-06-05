@@ -1250,6 +1250,9 @@
 
 .form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
   right: 8px; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 /* Card */
 .dops-card {
   display: block;
@@ -1364,6 +1367,9 @@ a.dops-card:focus {
   margin-left: 0.5rem; }
   .section-header__actions .button:last-child {
     margin-left: 0; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 @keyframes appear {
   0% {
     opacity: 0; }
@@ -1643,6 +1649,9 @@ a.dops-notice__action {
 
 .dops-plan-icon__business .dops-plan-icon__business-4 {
   fill: #005082; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 .dops-banner.dops-card {
   border-right: 3px solid;
   display: -ms-flexbox;
@@ -1856,6 +1865,9 @@ a.dops-notice__action {
   margin-right: 0.5rem;
   top: 0.125rem;
   position: relative; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 .jp-support-info {
   position: absolute;
   top: 1.6875rem;
@@ -2036,6 +2048,9 @@ button.dops-foldable-card__action {
   display: none; }
   .dops-foldable-card.is-expanded .dops-foldable-card__summary_expanded {
     display: inline-block; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 .form-input-validation {
   color: #4ab866;
   position: relative;
@@ -2116,6 +2131,9 @@ button.dops-foldable-card__action {
       left: calc( 100% + 1px); }
     .dops-clipboard-button-input .dops-clipboard-button:focus::before {
       left: calc( 100% + 3px); }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 /* This hack is used to prevent the body from scrolling when the modal is showing */
 body.dops-modal-showing {
   overflow: hidden; }
@@ -2279,6 +2297,9 @@ https://github.com/thoughtbot/bourbon
 .dops-tooltip__hr {
   margin: 8px 0;
   background: #87a6bc; }
+#jp-plugin-container {
+  min-height: 100vh; }
+
 .dops-chart {
   position: relative;
   box-sizing: border-box;

@@ -116,6 +116,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Widgets: Deprecated the use of Widget IDs in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
+
 **Bug fixes**
 
 * Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
@@ -123,8 +125,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
 * Related Posts: Made it not try to fetch related posts for an unpublished post.
 * Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
+* Sharing: Fixed the way we check if akismet is active and has a valid key by caching the result of the verification.
 * Shortcodes: Fixed the Facebook shortcode in wp-admin.
 * Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
 * Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
-* Widgets: Deprecated the use of Widget Ids in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
 

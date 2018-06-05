@@ -580,8 +580,10 @@ class Jetpack {
 
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
-			Jetpack_Search_Performance_Logger::init();
+			if ( Jetpack::is_module_active( 'stats' ) && Jetpack::is_module_active( 'search' ) ) {
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
+				Jetpack_Search_Performance_Logger::init();
+			}
 		}
 
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
@@ -7099,13 +7101,13 @@ p {
 
 	/**
 	 * Checks if Akismet is active and working.
-	 * 
+	 *
 	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
 	 * that implied usage of methods present since more recent version.
 	 * See https://github.com/Automattic/jetpack/pull/9585
 	 *
 	 * @since  5.1.0
-	 * 
+	 *
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
@@ -7114,11 +7116,20 @@ p {
 			if ( ! $akismet_key ) {
 				return false;
 			}
-			$akismet_key_state = Akismet::verify_key( $akismet_key );
-			if ( 'invalid' === $akismet_key_state || 'failed' === $akismet_key_state ) {
-				return false;
+			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
+
+			// We cache the result of the Akismet key verification for ten minutes.
+			if ( in_array( $cached_key_verification, array( 'valid', 'invalid' ) ) ) {
+				$akismet_key_state = $cached_key_verification;
+			} else {
+				$akismet_key_state = Akismet::verify_key( $akismet_key );
+				if ( 'failed' === $akismet_key_state ) {
+					return false;
+				}
+				set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
 			}
-			return true;
+
+			return ( 'valid' === $akismet_key_state );
 		}
 		return false;
 	}
