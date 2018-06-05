@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import ExternalLink from 'components/external-link';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
@@ -20,7 +20,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 class RelatedPostsComponent extends React.Component {
-    /**
+	/**
 	 * Get options for initial state.
 	 *
 	 * @returns {{show_headline: Boolean, show_thumbnails: Boolean}} Initial state object.
@@ -50,6 +50,10 @@ class RelatedPostsComponent extends React.Component {
 
 	handleShowThumbnailsToggleChange = () => {
 		this.updateOptions( 'show_thumbnails' );
+	};
+
+	trackConfigureClick = () => {
+		analytics.tracks.recordJetpackClick( 'configure-related-posts' );
 	};
 
 	render() {
@@ -103,16 +107,6 @@ class RelatedPostsComponent extends React.Component {
 										}
 									</span>
 						</CompactFormToggle>
-						{
-							__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
-								components: {
-									span: <span className="jp-form-setting-explanation" />,
-									ExternalLink: <ExternalLink
-										className="jp-module-settings__external-link"
-										href={ this.props.configureUrl } />
-								}
-							} )
-						}
 						<FormLabel className="jp-form-label-wide">
 							{ __( 'Preview', { context: 'A header for a preview area in the configuration screen.' } ) }
 						</FormLabel>
@@ -162,6 +156,13 @@ class RelatedPostsComponent extends React.Component {
 						</Card>
 					</FormFieldset>
 				</SettingsGroup>
+				{
+					! this.props.isUnavailableInDevMode( 'related-posts' ) && (
+						<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>
+							{ __( 'Configure related posts in the Customizer' ) }
+						</Card>
+					)
+				}
 			</SettingsCard>
 		);
 	}
