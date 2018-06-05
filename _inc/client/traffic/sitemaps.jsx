@@ -44,7 +44,7 @@ export class Sitemaps extends React.Component {
 					hasChild
 					module={ { module: 'sitemaps' } }
 					support={ {
-						text: __( 'Automatically generates the files required for search engines to index your site.' ),
+						text: __( 'Jetpack will generate two different sitemaps for you: a sitemap listing all your public posts and pages, and a News sitemap built specifically for Google News.' ),
 						link: 'https://jetpack.com/support/sitemaps/',
 					} }
 					>
@@ -54,7 +54,7 @@ export class Sitemaps extends React.Component {
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }>
-						{ __( 'Generate XML sitemaps' ) }
+						{ __( 'Generate XML sitemaps that help search engines to index your site' ) }
 					</ModuleToggle>
 					{
 						this.props.isSiteVisibleToSearchEngines
