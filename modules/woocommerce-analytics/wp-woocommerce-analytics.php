@@ -55,7 +55,7 @@ class Jetpack_WooCommerce_Analytics {
 		 *
 		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
 		 */
-		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
 			return false;
 		}
 

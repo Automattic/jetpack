@@ -4,6 +4,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	private $action_handler;
 	private $plugin_info = array();
+	private $plugins = array();
 
 	public function name() {
 		return 'plugins';
@@ -16,6 +17,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
+		add_filter( 'upgrader_pre_install', array( $this, 'populate_plugins' ), 10, 1 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_completion' ), 10, 2 );
 		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
 		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
@@ -30,7 +32,10 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
 	}
-
+	public function populate_plugins( $response ) {
+		$this->plugins = get_plugins();
+		return $response;
+	}
 	public function on_upgrader_completion( $upgrader, $details ) {
 		if ( ! isset( $details['type'] ) ) {
 			return;
@@ -114,8 +119,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	private function get_plugin_info( $slug ) {
-		$plugins = get_plugins();
-		return isset( $plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug), $plugins[ $slug ] ): array( 'slug' => $slug );
+		$plugins = get_plugins(); // Get the most up to date info
+		if ( isset( $plugins[ $slug ] ) ) {
+			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
+		};
+		// Try grabbing the info from before the update 
+		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ): array( 'slug' => $slug );
 	}
 
 	private function get_errors( $skin ) {

@@ -269,6 +269,7 @@ function stats_render_footer( $data ) {
 </script>
 
 END;
+	print $stats_footer;
 }
 
 function stats_render_amp_footer( $data ) {

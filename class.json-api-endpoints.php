@@ -522,6 +522,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'slug'        => '(string)',
 				'description' => '(HTML)',
 				'post_count'  => '(int)',
+				'feed_url'    => '(string)',
 				'meta'        => '(object)',
 			);
 			if ( 'category' === $type['type'] ) {
@@ -718,6 +719,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'genericon'        => '(string) The Genericon unicode character for the custom style sharing button icon',
 				'preview_smart'    => '(string) An HTML snippet of a rendered sharing button smart preview',
 				'preview_smart_js' => '(string) An HTML snippet of the page-wide initialization scripts used for rendering the sharing button smart preview'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+		case 'site_keyring':
+			$docs = array(
+				'keyring_id'       => '(int) Keyring ID',
+				'service'          => '(string) The service name',
+				'external_user_id' => '(string) External user id for the service'
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -1433,6 +1442,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
+		$response['feed_url']    = get_term_feed_link( $taxonomy->term_id, $taxonomy_type );
 
 		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;

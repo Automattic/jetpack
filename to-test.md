@@ -1,124 +1,158 @@
-## 6.1
+## 6.2
 
-### Admin Page
+### AMP
 
-#### GDPR
-
-We added "Privacy Information" links to each Jetpack module/feature card.
+We now allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
 
 To test:
 
-* Enable all Jetpack functionality on a Professional plan from the debug page in Jetpack: `/wp-admin/admin.php?page=jetpack_modules`.
-* Go to the Jetpack Dashboard Admin Page and check all of the icons in each module/feature to ensure they are working properly. In the case of "Privacy Information" links that aren't supposed to be working yet, please just review the URL itself and report any problems.
-* Repeat for every module/feature on the Jetpack Settings page too.
+* Install amp-wp from Automattic/amp-wp master branch.
+* Activate AMP in your site's plugins list
+* To test Legacy AMP, add `?amp=1` to any post URL, e.g. http://example.com/2018/03/23/a-post/?amp=1.
+* Expect to see that all Jetpack features work (or be hidden if broken) in this mode.
+* To text Canonical AMP:
+    * Use this code snippet. This will set the home page to use "canonical amp", which the the preferred way of using AMP after 1.0:
+        ```
+	function add_amp_theme_support() {
+	    add_theme_support( 'amp' );
+	}
 
-### Content options
+	add_action( 'plugins_loaded', 'add_amp_theme_support' );
+        ```
+    * Expect all Jetpack features to work (or be hidden if broken) in this mode.
+    * Now try using various Jetpack features and make sure they don't break validation (or simply break).
+ 
 
- We now show featured images in WooCommerce pages when "Display on blog and archives" is turned off for Themes that support this feature.
+#### Screenshots
 
- To test:
+##### Legacy AMP
 
-* Activate a theme that supports Content Options, For example Lodestar or Shoreditch.
-* Activate WooCommerce and add a few products.
-* Go to Customizer > Content Options and make sure "Display on blog and archives" under Featured Images is checked.
-* Visit Shop page - the product images should be visible. Visit blog page - the featured images should be visible.
-* Go to Customizer > Content Options and uncheck "Display on blog and archives" under Featured.
-* Visit Shop page - the product images should be visible. Visit blog page - the featured images should not be visible.
-* Deactivate WooCommerce and check if Content Options are working as expected, and there aren't any errors or warnings.
+| Before  | After |
+| ------------- | ------------- |
+| <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png"><img src="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1" style="max-width:50%;"></a>  | <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png"><img src="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1 1" style="max-width:100%;"></a>  |
 
-### General
+##### Canonical AMP
 
-* We fixed a warning that started being shown with the latest releases of PHP.
+| Before  | After |
+| ------------- | ------------- |
+| ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad](https://user-images.githubusercontent.com/51896/40073029-8be896f6-582a-11e8-81e5-9cbb6f9c8435.png) | ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad 1](https://user-images.githubusercontent.com/51896/40073045-986d9a34-582a-11e8-9213-2b5a8e4481bc.png) |
 
-Start with Jetpack active Sharing active (or any module that outputs OG tags) on PHP 7.2.
+### Contact Form
 
-* Visit a post without an explicitly set excerpt.
-* Confirm excerpt is set in the og tags in head with no PHP warnings like `Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x`.
+We fixed scrolling/height for very large contact forms.
 
-### Google Analytics
+* With Firefox
+* Insert this shortcode in the html editor
+    ```
+    [contact-form][contact-field label="Name" type="name" required="1"][contact-field label="Email" type="email" required="1"][contact-field label="Website" type="url"][contact-field label="Message" type="textarea"][contact-field label="date" type="date"][contact-field label="multiple" type="checkbox-multiple" options="hi,one,two"][contact-field label="whatever" type="textarea"][contact-field label="Keep going..." type="text"][contact-field label="check" type="checkbox"][contact-field label="drop" type="select" options="whatever,yo,ma"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][/contact-form]
+    ```
+* Switch back to visual.
+* Click to edit the form
+* Expect to be able to scroll all the way down.
 
-We fixed a conflict preventing Google Analytics from activating for Premium subscribers.
 
-* Start with a connected Jetpack site with a Premium plan.
-* Try to activate Google Analytics and confirm this works.
+### Content Options
 
-### Plans
-
-We fixed the localization of the plans table in the Admin page
+We now exclude CPTs like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option.
 
 To test:
 
-* Start with a fresh site and connect it.
-* Switch the language of the site to one that has an acceptable percentage of translated strings.
-* Confirm the plans page shows in that language
+* Check a CPT archive page and check if you have the option to switch between content and excerpt (you shouldn't be able to).
+* Check a Post archive page and check if you have the option to switch between content and excerpt (you should be able to).
 
+### Shortcodes
 
-### Publicize
+We fixed the Facebook shortcode in wp-admin.
 
-When a post transitions to publish, Jetpack used to add Publicize post meta to all posts, whether or not it was a publicize-able post type. We fixed that.
+To Test:
 
-Testing instructions:
+* Paste a facebook post link in wp-admin editor, like https://www.facebook.com/WordPresscom/posts/10154113693553980
+* You should see an facebook embed in the post editor.
+* Make sure selective refresh still works for the facebook widget in the customizer.
 
-* Setup Jetpack + Publicize
-* Add a new CPT that is not able to be Publicized (e.g. lacking post_type_support('publicize')).
-* Publish a post.
-* Inspect the post meta and expect to see no _publicize_pending present.
+We also added a Gutenberg block for the `[vr]` shortcode.
+
+To test:
+
+* Install Gutenberg
+* Edit a post in Gutenberg
+* Add a "VR Image" block to any post
+* Paste in the URL of any 360' image, e.g. https://en-blog.files.wordpress.com/2016/12/regents_park.jpg
+* Save the post.
+* Visit the post and expect to be able to navigate the 360 image.
+
+### Related Posts
+
+We stopped attempting to fetch related posts for unpublished posts.
+
+* Open the Javascript console
+* Write a draft with Gutenberg. 
+* Confirm that there's no failing request in the background receiving a HTTP status 400 as response.
 
 ### Sharing
 
-We removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
+Fixed an issue that resulted in wrong URLs for sharing via WhatsApp.
 
-Testing instructions:
+* Add the WhatsApp sharing button
+* Attempt to share a post via WhatsApp
+* Confirm that the URL that you get in the message is working properly by visiting it.
 
-* Enable sharing and/or like buttons on a site running WooCommerce.
-* Go to a regular page. Confirm sharing is displayed.
-* Add something to cart. Go to cart. Confirm sharing is NOT displayed.
-* Proceed to checkout, again sharing should be hidden.
+### Tiled Galleries
 
-### Stats
-
-We added a new filter `jetpack_honor_dnt_header_for_stats`, which if enabled would make Jetpack not track stats for visitors with DNT enabled.
+We now use Photon if active when a Tiled Gallery links to media file.
 
 To test:
 
-* On a connected Jetpack site.
-* Add a code snippet like:
-    ```
-    add_filter( 'jetpack_honor_dnt_header_for_stats', '__return_true' );
-    ```
-* Turn on the Do Not Track on your browser. You can find guidance on how to achieve this here: [Chrome](https://support.google.com/chrome/answer/2790761?co=GENIE.Platform%3DDesktop&hl=en), [Firefox](https://support.mozilla.org/en-US/kb/settings-privacy-browsing-history-do-not-track#w_tracking_3), [Safari](https://support.apple.com/kb/PH21416?locale=en_US), [Edge](https://privacy.microsoft.com/en-us/windows-10-microsoft-edge-and-privacy).
-* Visit the frontend of the site and confirm you don't get a stats entry for your visit.
+* Create a Gallery with the link set to Media File.
+* Disable Carousel (via the old modules page `page=jetpack_module`).
+* View page and see the URL.
 
-### WooCommerce Analytics
+### Widget visibility
 
-We fixed broken Remove From Cart links.
+We fixed some styling issues for Microsoft Edge.
 
 To test:
 
-* Start with a Woo site with a Jetpack Professional plan.
-* In Calypso > Settings > Traffic, enable Google Analytics and all its options.
-* On your site, add products to your cart.
-* Go to the cart page.
-* Make sure that all remove from cart icons work, and include the product ID attribute.
+* In MS Edge, open wp-admin/widgets.php and look at a widget's Visibility settings.
+* Open wp-admin/widgets.php, click "Manage with Live Preview" to open the Customizer, and look at a widget's Visibility settings.
+* Expect to see the red crosses align properly vertically.
 
-### WordAds
+### Widgets
 
-We added a new shortcode: `[wordad]` for inline placement of Ads in posts and pages.
+#### Cookies and Consent Widget
 
-To test:
-
-* Enable the Ads module.
-* Place a `[wordad]` shortcode in the body of a post.
-* View the post and expect to see an Ad in the post content.
-
-#### ads.txt
-
-* We also added ads.txt support to the Ads module.
+The `.widget` CSS class used for targetting the Cookies and Consent widget was removed since .widget is not used in every theme.
 
 To test:
 
-* Start with a connected Jetpack site and a plan that supports WordAds.
-* Activate the Jetpack Ads module if it's not active already.
-* Visit `yoursite/ads.txt`. You should now see a text file.
+* Apply one of the themes that don't use the `.widget` class like Graphene or Kahuna.
+* Add the Cookie & Consent Widget to the footer widget area.
+* View the site from the front-end. 
+* Expect the banner to always float at the bottom of the viewport when scrolling down.
+
+Also, we fixed the positioning for themes that set a specific margin for forms.
+
+* Install and activate Storefront theme.
+* Enable the cookie widget.
+* Verify the margins are consistent within the widget. Previously the vertical alignment was not balanced.
+
+We added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+
+To test:
+
+* Add a Cookies & Consent Widget.
+* Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
+
+#### Twitter Timeline Widget
+
+Usage of Widget Ids for the Twitter Timeline Widget is being deprecated. This is because Twitter is deprecating Widget IDs in July 2018.
+
+To test: 
+
+* Before checking out this feature, if you have the chance, with Jetpack 6.1.1, try to add a Twitter Timeline of type `widget-id` to a sidebar (the only way to create a Twitter Widget right now is at https://twitter.com/settings/widgets/new: create a widget, edit it, and copy the ID from the URL).
+* After updating to this 6.2 Beta again, make sure that the widget will display a deprecation notice, only visible to admins.
+* In the Customizer or in the Widgets dashboard, make sure there is no "Widget Type" selector anymore.
+ 
 
 **Thank you for all your help!**
+

@@ -6,7 +6,6 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
  * Control your local Jetpack installation.
  */
 class Jetpack_CLI extends WP_CLI_Command {
-
 	// Aesthetics
 	public $green_open  = "\033[32m";
 	public $red_open    = "\033[31m";
@@ -29,8 +28,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php' );
 
-		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
+		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
 
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
@@ -43,6 +43,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
+		$jetpack_self_test = Jetpack_Debugger::run_self_test(); // Performs the same tests as jetpack.com/support/debug/
+
+		if ( ! $jetpack_self_test || ! wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+			WP_CLI::error( __( 'Jetpack connection status unknown.', 'jetpack' ) );
+		} else if ( 200 == wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
+		} else {
+			WP_CLI::error( __( 'Jetpack connection is broken.', 'jetpack' ) );
+		}
+
+		WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
+		WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
+		WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
+
 		/*
 		 * Are they asking for all data?
 		 *
@@ -50,11 +64,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		 */
 		$all_data = ( isset( $args[0] ) && 'full' == $args[0] ) ? 'full' : false;
 		if ( $all_data ) {
-			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
-			WP_CLI::line( sprintf( __( "The Jetpack Version is %s", 'jetpack' ), JETPACK__VERSION ) );
-			WP_CLI::line( sprintf( __( "The WordPress.com blog_id is %d", 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
-
 			// Heartbeat data
 			WP_CLI::line( "\n" . __( 'Additional data: ', 'jetpack' ) );
 
@@ -86,10 +95,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		} else {
 			// Just the basics
-			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
-			WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-			WP_CLI::line( sprintf( __( 'The WordPress.com account for the primary connection is %s', 'jetpack' ), $master_user_email ) );
 			WP_CLI::line( "\n" . _x( "View full status with 'wp jetpack status full'", '"wp jetpack status full" is a command - do not translate', 'jetpack' ) );
 		}
 	}
@@ -302,62 +307,84 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * list          : View all available modules, and their status.
-	 * activate all  : Activate all modules
-	 * deactivate all: Deactivate all modules
+	 * <list|activate|deactivate|toggle>
+	 * : The action to take.
+	 * ---
+	 * default: list
+	 * options:
+	 *  - list
+	 *  - activate
+	 *  - deactivate
+	 *  - toggle
+	 * ---
 	 *
-	 * activate   <module_slug> : Activate a module.
-	 * deactivate <module_slug> : Deactivate a module.
-	 * toggle     <module_slug> : Toggle a module on or off.
+	 * [<module_slug>]
+	 * : The slug of the module to perform an action on.
+	 *
+	 * [--format=<format>]
+	 * : Allows overriding the output of the command when listing modules.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 *  - ids
+	 *  - count
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack module list
+	 * wp jetpack module list --format=json
 	 * wp jetpack module activate stats
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
-	 *
 	 * wp jetpack module activate all
 	 * wp jetpack module deactivate all
-	 *
-	 * @synopsis <list|activate|deactivate|toggle> [<module_name>]
 	 */
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		if ( ! in_array( $action, array( 'list', 'activate', 'deactivate', 'toggle' ) ) ) {
-			/* translators: %s is a command like "prompt" */
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
-		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
-			if ( isset( $args[1] ) ) {
-				$module_slug = $args[1];
-				if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
-					WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
-				}
-				if ( 'toggle' == $action ) {
-					$action = Jetpack::is_module_active( $module_slug ) ? 'deactivate' : 'activate';
-				}
-				// Bulk actions
-				if ( 'all' == $args[1] ) {
-					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
-				}
-			} else {
-				WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
-				$action = 'list';
+
+		if ( isset( $args[1] ) ) {
+			$module_slug = $args[1];
+			if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
+				/* translators: %s is a module slug like "stats" */
+				WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
 			}
+			if ( 'toggle' === $action ) {
+				$action = Jetpack::is_module_active( $module_slug )
+					? 'deactivate'
+					: 'activate';
+			}
+			if ( 'all' === $args[1] ) {
+				$action = ( 'deactivate' === $action )
+					? 'deactivate_all'
+					: 'activate_all';
+			}
+		} elseif ( 'list' !== $action ) {
+			WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
+			$action = 'list';
 		}
+
 		switch ( $action ) {
 			case 'list':
-				WP_CLI::line( __( 'Available Modules:', 'jetpack' ) );
-				$modules = Jetpack::get_available_modules();
+				$modules_list = array();
+				$modules      = Jetpack::get_available_modules();
 				sort( $modules );
-				foreach( $modules as $module_slug ) {
-					if ( 'vaultpress' == $module_slug ) {
+				foreach ( (array) $modules as $module_slug ) {
+					if ( 'vaultpress' === $module_slug ) {
 						continue;
 					}
-					$active = Jetpack::is_module_active( $module_slug ) ? __( 'Active', 'jetpack' ) : __( 'Inactive', 'jetpack' );
-					WP_CLI::line( "\t" . str_pad( $module_slug, 24 ) . $active );
+					$modules_list[] = array(
+						'slug'   => $module_slug,
+						'status' => Jetpack::is_module_active( $module_slug )
+							? __( 'Active', 'jetpack' )
+							: __( 'Inactive', 'jetpack' ),
+					);
 				}
+				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) );
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
@@ -1031,6 +1058,354 @@ class Jetpack_CLI extends WP_CLI_Command {
 		} else {
 			/* translators: %d is a user ID */
 			WP_CLI::success( sprintf( __( 'Authorized %d.', 'jetpack' ), $current_user_id ) );
+		}
+	}
+
+	/**
+	 * Allows calling a WordPress.com API endpoint using the current blog's token.
+	 *
+	 * ## OPTIONS
+	 * --resource=<resource>
+	 * : The resource to call with the current blog's token, where `%d` represents the current blog's ID.
+	 *
+	 * [--api_version=<api_version>]
+	 * : The API version to query against.
+	 *
+	 * [--base_api_path=<base_api_path>]
+	 * : The base API path to query.
+	 * ---
+	 * default: rest
+	 * ---
+	 *
+	 * [--body=<body>]
+	 * : A JSON encoded string representing arguments to send in the body.
+	 *
+	 * [--field=<value>]
+	 * : Any number of arguments that should be passed to the resource.
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack call_api --resource='/sites/%d'
+	 */
+	public function call_api( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$consumed_args = array(
+			'resource',
+			'api_version',
+			'base_api_path',
+			'body',
+			'pretty',
+		);
+
+		// Get args that should be passed to resource.
+		$other_args = array_diff_key( $named_args, array_flip( $consumed_args ) );
+
+		$decoded_body = ! empty( $named_args['body'] )
+			? json_decode( $named_args['body'] )
+			: false;
+
+		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
+			? $named_args['resource']
+			: sprintf( $named_args['resource'], Jetpack_Options::get_option( 'id' ) );
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			$resource_url,
+			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
+			$other_args,
+			empty( $decoded_body ) ? null : $decoded_body,
+			$named_args['base_api_path']
+		);
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an error code, %3$s is an error message. */
+				__( 'Request to %1$s returned an error: (%2$d) %3$s.', 'jetpack' ),
+				$resource_url,
+				$response->get_error_code(),
+				$response->get_error_message()
+			) );
+		}
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			WP_CLI::error( sprintf(
+				/* translators: %1$s is an endpoint route (ex. /sites/123456), %2$d is an HTTP status code. */
+				__( 'Request to %1$s returned a non-200 response code: %2$d.', 'jetpack' ),
+				$resource_url,
+				wp_remote_retrieve_response_code( $response )
+			) );
+		}
+
+		$output = wp_remote_retrieve_body( $response );
+		if ( isset( $named_args['pretty'] ) ) {
+			$decoded_output = json_decode( $output );
+			if ( $decoded_output ) {
+				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
+			}
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			WP_CLI::log( $output );
+			WP_CLI::halt( 0 );
+		}
+
+		WP_CLI::success( $output );
+	}
+
+	/**
+	 * API wrapper for getting stats from the WordPress.com API for the current site.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--quantity=<quantity>]
+	 * : The number of units to include.
+	 * ---
+	 * default: 30
+	 * ---
+	 *
+	 * [--period=<period>]
+	 * : The unit of time to query stats for.
+	 * ---
+	 * default: day
+	 * options:
+	 *  - day
+	 *  - week
+	 *  - month
+	 *  - year
+	 * ---
+	 *
+	 * [--date=<date>]
+	 * : The latest date to return stats for. Ex. - 2018-01-01.
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack get_stats
+	 */
+	public function get_stats( $args, $named_args ) {
+		$selected_args = array_intersect_key(
+			$named_args,
+			array_flip( array(
+				'quantity',
+				'date',
+			) )
+		);
+
+		// The API expects unit, but period seems to be more correct.
+		$selected_args['unit'] = $named_args['period'];
+
+		$command = sprintf(
+			'jetpack call_api --resource=/sites/%d/stats/%s',
+			Jetpack_Options::get_option( 'id' ),
+			add_query_arg( $selected_args, 'visits' )
+		);
+
+		if ( isset( $named_args['pretty'] ) ) {
+			$command .= ' --pretty';
+		}
+
+		if ( isset( $named_args['strip-success'] ) ) {
+			$command .= ' --strip-success';
+		}
+
+		WP_CLI::runcommand(
+			$command,
+			array(
+				'launch' => false, // Use the current process.
+			)
+		);
+	}
+
+	/*
+	 * Allows management of publicize connections.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <list|disconnect>
+	 * : The action to perform.
+	 * ---
+	 * options:
+	 *  - list
+	 *  - disconnect
+	 * ---
+	 *
+	 * [<identifier>]
+	 * : The connection ID or service to perform an action on.
+	 *
+	 * [--format=<format>]
+	 * : Allows overriding the output of the command when listing connections.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 *  - ids
+	 *  - count
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack publicize list
+	 * wp jetpack publicize list twitter
+	 * wp --user=1 jetpack publicize list
+	 * wp --user=1 jetpack publicize list twitter
+	 * wp jetpack publicize list 123456
+	 * wp jetpack publicize disconnect 123456
+	 * wp jetpack publicize disconnect all
+	 * wp jetpack publicize disconnect twitter
+	 */
+	public function publicize( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$action        = $args[0];
+		$publicize     = new Publicize();
+		$identifier    = ! empty( $args[1] ) ? $args[1] : false;
+		$services      = array_keys( $publicize->get_services() );
+		$id_is_service = in_array( $identifier, $services, true );
+
+		switch ( $action ) {
+			case 'list':
+				$connections_to_return = array();
+
+				// For the CLI command, let's return all connections when a user isn't specified. This
+				// differs from the logic in the Publicize class.
+				$option_connections = is_user_logged_in()
+					? (array) $publicize->get_all_connections_for_user()
+					: Jetpack_Options::get_option( 'publicize_connections' );
+
+				foreach ( $option_connections as $service_name => $connections ) {
+					foreach ( (array) $connections as $id => $connection ) {
+						$connection['id']        = $id;
+						$connection['service']   = $service_name;
+						$connections_to_return[] = $connection;
+					}
+				}
+
+				if ( $id_is_service && ! empty( $identifier ) && ! empty( $connections_to_return ) ) {
+					$temp_connections      = $connections_to_return;
+					$connections_to_return = array();
+
+					foreach ( $temp_connections as $connection ) {
+						if ( $identifier === $connection['service'] ) {
+							$connections_to_return[] = $connection;
+						}
+					}
+				}
+
+				if ( $identifier && ! $id_is_service && ! empty( $connections_to_return ) ) {
+					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
+				}
+
+				if ( empty( $connections_to_return ) ) {
+					return false;
+				}
+
+				$expected_keys = array(
+					'id',
+					'service',
+					'user_id',
+					'provider',
+					'issued',
+					'expires',
+					'external_id',
+					'external_name',
+					'external_display',
+					'type',
+					'connection_data',
+				);
+
+				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys );
+				break; // list.
+			case 'disconnect':
+				if ( ! $identifier ) {
+					WP_CLI::error( __( 'A connection ID must be passed in order to disconnect.', 'jetpack' ) );
+				}
+
+				// If the connection ID is 'all' then delete all connections. If the connection ID
+				// matches a service, delete all connections for that service.
+				if ( 'all' === $identifier || $id_is_service ) {
+					if ( 'all' === $identifier ) {
+						WP_CLI::log( __( "You're about to delete all publicize connections.", 'jetpack' ) );
+					} else {
+						/* translators: %s is a lowercase string for a social network. */
+						WP_CLI::log( sprintf( __( "You're about to delete all publicize connections to %s.", 'jetpack' ), $identifier ) );
+					}
+
+					jetpack_cli_are_you_sure();
+
+					$connections = array();
+					$service     = $identifier;
+
+					$option_connections = is_user_logged_in()
+						? (array) $publicize->get_all_connections_for_user()
+						: Jetpack_Options::get_option( 'publicize_connections' );
+
+					if ( 'all' === $service ) {
+						foreach ( (array) $option_connections as $service_name => $service_connections ) {
+							foreach ( $service_connections as $id => $connection ) {
+								$connections[ $id ] = $connection;
+							}
+						}
+					} elseif ( ! empty( $option_connections[ $service ] ) ) {
+						$connections = $option_connections[ $service ];
+					}
+
+					if ( ! empty( $connections ) ) {
+						$count    = count( $connections );
+						$progress = \WP_CLI\Utils\make_progress_bar(
+							/* translators: %s is a lowercase string for a social network. */
+							sprintf( __( 'Disconnecting all connections to %s.', 'jetpack' ), $service ),
+							$count
+						);
+
+						foreach ( $connections as $id => $connection ) {
+							if ( false === $publicize->disconnect( false, $id ) ) {
+								WP_CLI::error( sprintf(
+									/* translators: %1$d is a numeric ID and %2$s is a lowercase string for a social network. */
+									__( 'Publicize connection %d could not be disconnected', 'jetpack' ),
+									$id
+								) );
+							}
+
+							$progress->tick();
+						}
+
+						$progress->finish();
+
+						if ( 'all' === $service ) {
+							WP_CLI::success( __( 'All publicize connections were successfully disconnected.', 'jetpack' ) );
+						} else {
+							/* translators: %s is a lowercase string for a social network. */
+							WP_CLI::success( __( 'All publicize connections to %s were successfully disconnected.', 'jetpack' ), $service );
+						}
+					}
+				} else {
+					if ( false !== $publicize->disconnect( false, $identifier ) ) {
+						/* translators: %d is a numeric ID. Example: 1234. */
+						WP_CLI::success( sprintf( __( 'Publicize connection %d has been disconnected.', 'jetpack' ), $identifier ) );
+					} else {
+						/* translators: %d is a numeric ID. Example: 1234. */
+						WP_CLI::error( sprintf( __( 'Publicize connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
+					}
+				}
+				break; // disconnect.
 		}
 	}
 

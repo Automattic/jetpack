@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.0
+Stable tag: 6.1.1
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -87,56 +87,46 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Dashboard: Bird’s eye view of your site stats, status, and health.
-2. Safety: Protect your site and data with powerful security services.
-3. Engagement: Social sharing, likes, and related posts.
-4. Analytics: Actionable site stats and traffic insights.
-5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
+1. Themes: Choose from hundreds of customizable, professional themes.
+2. Performance: Free high-speed content delivery network for your images.
+3. Apps: Update your site from any device with the free WordPress apps.
+4. Analytics: Simple and concise site stats and traffic insights.
+5. Sharing: Connect your site to social networks for automated social sharing.
+6. Revenue: Sell products & take payments with simple payment buttons.
+7. Downtime Monitoring: Get notified if and when your site goes down.
+8. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
 
 == Changelog ==
 
-= 6.1 =
+= 6.2 =
 
-* Release date: May 1, 2018
-* Release post: https://wp.me/p1moTy-7Sj
+* Release date: June 5, 2018
+* Release post: https://wp.me/p1moTy-88v
 
 **Major Enhancements**
 
-* WordAds: Introduced shortcode for inline Ad placement.
-* WordAds: Added support for the ads.txt file.
+* Shortcodes: Added Gutenberg block for the [vr] shortcode.
 
 **Enhancements**
 
-* Dashboard: We improved the styles of status numbers so it doesn't look like floating.
-* JSON API: Added support for Google My Business integration available on WordPress.com.
-* Masterbar: We removed the Next Steps link from the Account sidebar.
-* Publicize: Let the user know that we are going to send emails to subscribers and publicize to the different accounts.
-* Settings: Added  "Privacy Information" links to each Jetpack module/feature card.
-* Shortcodes: Mixcloud shortcode now uses oEmbed.
-* Stats: Added a new filter jetpack_honor_dnt_header_for_stats, which if enabled would not track stats for visitors with DNT enabled.
-* Sync: Removed requirement for gzencode.
-* Widgets: always load script via HTTPS for Gravatar Hovercards.
+* AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
+* Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
+* Cookies & Consent Widget: Added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+* Tiled Galleries: use Photon if active when a Tiled Gallery links to media file.
 
 **Improved compatibility**
 
-* Social Icons Widget: Improved support on screen reader text for themes that do not provide support out of the box.
-* Sharing: Removed the sharing and like display functionality from Cart, Checkout, and Account WooCommerce pages.
+* Widgets: Deprecated the use of Widget IDs in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
 
 **Bug fixes**
 
-* Admin Page: We fixed the internationalization of the plans page.
-* Ads: We fixed a problem that impeded Premium Plan customers to activate Google Analytics.
-* Auto Updates: We fixed a warning being thrown due to a bad concatenation of strings.
-* General: Fixed a warning that was being logged due to attempting to use in_array() over a variable that didn't always contain an array.
-* General: Fixed Warning: count(): Parameter must be an array or an object that implements Countable showing on PHP 7.x.
-* JSON API: Fixed internationalization on embed endpoint.
-* Theme Tools: Show featured images in WooCommerce pages when Display on blog and archives is turned off for Themes that support this feature.
-* Publicize: Avoid adding Publicize post meta when a post transitions to publish and it is not a publicize-able post type.
-* Settings: Fixed the icon representing the minimum plan needed for SEO and Google Analytics features.
-* Slideshow: Fixed an invalid argument supplied for foreach() warning.
-* SSO: We fixed the name of a filter which contained a typo before. The filter is now named: `jetpack_sso_auth_cookie_expiration`.
-* SSO: Fixed some cases where we were not handling secure cookies for sites running over https.
-* Sync: Fixed Warning: Invalid argument supplied for foreach().
-* Sync: Fixed Warning: Warning: json_encode(): recursion detected.
-* WooCommerce Analytics: fixed broken Remove From Cart link.
+* Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
+* Contact Form: Fixed scrolling/height for very large contact forms.
+* Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
+* Related Posts: Made it not try to fetch related posts for an unpublished post.
+* Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
+* Sharing: Fixed the way we check if akismet is active and has a valid key by caching the result of the verification.
+* Shortcodes: Fixed the Facebook shortcode in wp-admin.
+* Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
+* Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
 

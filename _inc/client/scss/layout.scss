@@ -89,3 +89,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 		@warn "ERROR in breakpoint( #{ $size } ): Please wrap the breakpoint $size in parenthesis. You can use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
 	}
 }
+
+#jp-plugin-container {
+	min-height: 100vh;
+}
