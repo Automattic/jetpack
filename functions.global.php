@@ -17,6 +17,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Set the admin language, based on user language.
+ *
+ * @since 4.5.0
+ *
+ * @return string
+ *
+ * @todo Remove this function when WordPress 4.8 is released
+ * and replace `jetpack_get_user_locale()` in this file with `get_user_locale()`.
+ */
+function jetpack_get_user_locale() {
+	$locale = get_locale();
+
+	if ( function_exists( 'get_user_locale' ) ) {
+		$locale = get_user_locale();
+	}
+
+	return $locale;
+}
+
+/**
  * Determine if this site is an Atomic site or not looking first at the 'at_options' option.
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
