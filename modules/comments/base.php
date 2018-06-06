@@ -17,7 +17,7 @@ class Highlander_Comments_Base {
 	protected function setup_globals() {}
 
 	/**
-	 * Setup actions for methods in this class
+	 * Setup actions for methods in this class	
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_actions() {
@@ -46,20 +46,22 @@ class Highlander_Comments_Base {
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
 	function is_highlander_comment_post() {
-		if ( empty( $_POST['hc_post_as'] ) ) {
+		$hc_post_as = filter_input( INPUT_POST, 'hc_post_as' );
+
+		if ( empty( $hc_post_as ) ) {
 			return false;
 		}
 
 		if ( func_num_args() ) {
 			foreach ( func_get_args() as $id_source ) {
-				if ( $id_source === $_POST['hc_post_as'] ) {
+				if ( $id_source === $hc_post_as ) {
 					return $id_source;
 				}
 			}
 			return false;
 		}
 
-		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources ) ? $_POST['hc_post_as'] : false;
+		return is_string( $hc_post_as ) && in_array( $hc_post_as, $this->id_sources ) ? $hc_post_as : false;
 	}
 
 	/**
@@ -157,16 +159,20 @@ class Highlander_Comments_Base {
 		$comment_author_email = '';
 		$comment_author_url   = '';
 
-		if ( isset( $_COOKIE['comment_author_' . COOKIEHASH] ) ) {
-			$comment_author = $_COOKIE['comment_author_' . COOKIEHASH];
+		$cookie_comment_author		 = filter_input( INPUT_COOKIE, 'comment_author' . COOKIEHASH );
+		$cookie_comment_author_email = filter_input( INPUT_COOKIE, 'comment_author_email' . COOKIEHASH );
+		$cookie_comment_author_url	 = filter_input( INPUT_COOKIE, 'comment_author_url' . COOKIEHASH );
+
+		if ( isset( $cookie_comment_author ) ) {
+			$comment_author = $cookie_comment_author;
 		}
 
-		if ( isset( $_COOKIE['comment_author_email_' . COOKIEHASH] ) ) {
-			$comment_author_email = $_COOKIE['comment_author_email_' . COOKIEHASH];
+		if ( isset( $cookie_comment_author_email ) ) {
+			$comment_author_email = $cookie_comment_author_email;
 		}
 
-		if ( isset( $_COOKIE['comment_author_url_' . COOKIEHASH] ) ) {
-			$comment_author_url = $_COOKIE['comment_author_url_' . COOKIEHASH];
+		if ( isset( $cookie_comment_author_email ) ) {
+			$comment_author_url = $cookie_comment_author_url;
 		}
 
 		if ( is_user_logged_in() ) {
@@ -182,7 +188,7 @@ class Highlander_Comments_Base {
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
 	 *
 	 * @since JetpackComments (1.4)
-	 * @return If no
+	 * @return If no$_COOKIE
 	 */
 	function allow_logged_out_user_to_comment_as_external() {
 		if ( !$this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
@@ -208,7 +214,8 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if user is not logged in or not a post request
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || !is_user_logged_in() ) {
+		$request_method = filter_input( INPUT_SERVER, 'REQUEST_METHOD' );
+		if ( 'POST' != strtoupper( $request_method ) || !is_user_logged_in() ) {
 			return $comment_data;
 		}
 
@@ -226,19 +233,22 @@ class Highlander_Comments_Base {
 		}
 
 		if ( get_option( 'require_name_email' ) ) {
-			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
+			$email = filter_input( INPUT_POST, 'email', FILTER_VALIDATE_EMAIL );
+			$author = filter_input( INPUT_POST, 'author' );
+			if ( 6 > strlen( $$email ) || empty( $author ) ) {
 				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ) );
-			} elseif ( ! is_email( $_POST['email'] ) ) {
+			} elseif ( ! is_email( $$email ) ) {
 				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ) );
 			}
 		}
 
 		$author_change = false;
 		foreach ( array( 'comment_author' => 'author', 'comment_author_email' => 'email', 'comment_author_url' => 'url' ) as $comment_field => $post_field ) {
-			if ( $comment_data[$comment_field] != $_POST[$post_field] && 'url' != $post_field ) {
+			$super_post_field = filter_input( INPUT_POST, $post_field );
+			if ( $comment_data[$comment_field] != $super_post_field && 'url' != $post_field ) {
 				$author_change = true;
 			}
-			$comment_data[$comment_field] = $_POST[$post_field];
+			$comment_data[$comment_field] = $super_post_field;
 		}
 
 		// Mark as guest comment if name or email were changed
