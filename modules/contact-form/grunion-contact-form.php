@@ -436,7 +436,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.1-alpha
+		 * @since 6.2
 		 *
 		 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
 		 */
@@ -2081,7 +2081,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since 6.1
+			 * @since 6.2
 			 *
 			 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
 			 */
