@@ -14,7 +14,7 @@
 		//show form
 		root.find( '.jetpack-simple-payments-form' ).show();
 		//focus on first field
-		root.find( '.jetpack-simple-payments-form-product-title').focus();
+		root.find( '.jetpack-simple-payments-form-product-title' ).focus();
 	}
 
 	function hideForm() {
