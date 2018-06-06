@@ -15,7 +15,7 @@ function AtD_ignore_call() {
 	check_admin_referer( 'atd_ignore' );
 
 	$ignores = explode( ',', AtD_get_setting( $user->ID, 'AtD_ignored_phrases') );
-	array_push( $ignores, $_GET['phrase'] );
+	array_push( $ignores, filter_input( INPUT_GET, 'phrase' ) );
 
 	$ignores = array_filter( array_map( 'strip_tags', $ignores ) );
 
@@ -33,8 +33,10 @@ function AtD_process_unignore_update() {
 
 	if ( ! AtD_is_allowed() )
 		return;
-
-	if ( ! isset( $_POST['AtD_ignored_phrases'] ) )
+	
+	$atd_ignored_phrases = filter_input( INPUT_POST, 'AtD_ignored_phrases' );
+	
+	if ( ! isset( $atd_ignored_phrases ) )
 		return;
 
         $user = wp_get_current_user();
@@ -42,7 +44,7 @@ function AtD_process_unignore_update() {
         if ( ! $user || $user->ID == 0 )
                 return;
 
-	$ignores = array_filter( array_map( 'strip_tags', explode( ',', $_POST['AtD_ignored_phrases'] ) ) );
+	$ignores = array_filter( array_map( 'strip_tags', explode( ',', $atd_ignored_phrases ) ) );
         AtD_update_setting( $user->ID, 'AtD_ignored_phrases', join( ',', $ignores ) );
 }
 

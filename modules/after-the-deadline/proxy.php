@@ -65,12 +65,12 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
  *  This function is called as an action handler to admin-ajax.php
  */
 function AtD_redirect_call() {
-	if ( $_SERVER['REQUEST_METHOD'] === 'POST' )
+	if ( filter_input( INPUT_SERVER, 'REQUEST_METHOD' ) === 'POST' )
 		$postText = trim(  file_get_contents( 'php://input' )  );
 
 	check_admin_referer( 'proxy_atd' );
 
-	$url = $_GET['url'];
+	$url = filter_input( INPUT_GET, 'url', FILTER_VALIDATE_URL );
 	/**
 	 * Change the AtD service domain.
 	 *
