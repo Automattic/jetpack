@@ -61,6 +61,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-add-new', array( $this, 'ajax_add_new_payment_button' ) );
 			}
+
+			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+			}
 		}
 
 		/**
@@ -95,6 +99,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		function filter_nonces( $nonces ) {
 			$nonces['customize-jetpack-simple-payments'] = wp_create_nonce( 'customize-jetpack-simple-payments' );
 			return $nonces;
+		}
+
+		function enqueue_style() {
+			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
 		}
 
 		function admin_enqueue_styles_and_scripts(){
