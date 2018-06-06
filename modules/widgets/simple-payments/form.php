@@ -43,6 +43,12 @@
 		id="<?php echo $this->get_field_id('form_product_id'); ?>"
 		name="<?php echo $this->get_field_name('form_product_id'); ?>"
 		class="jetpack-simple-payments-form-product-id" />
+	<input
+		type="hidden"
+		id="<?php echo esc_attr( $this->get_field_id( 'form_product_image_id' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'form_product_image_id' ) ); ?>"
+		value="<?php echo esc_attr( $instance['form_product_image_id'] ); ?>"
+		class="jetpack-simple-payments-form-image-id" />
 	<p>
 		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_title' ) ); ?>"><?php esc_html_e( 'What is this payment for?' ); ?></label>
 		<input
@@ -55,22 +61,16 @@
 		<small><?php _e( 'For example: event tickets, charitable donations, training courses, coaching fees, etc.' ); ?></small>
 	</p>
 	<div class="jetpack-simple-payments-image-fieldset">
+		<?php
+			$image_id = has_post_thumbnail( $instance['form_product_id'] ) ? get_post_thumbnail_id( $instance['form_product_id'] ) : $instance['form_product_image_id'];
+			$image_src = '';
+			if ( ! empty( $image_id) ) {
+				$image_src = esc_url( wp_get_attachment_image_url( $image_id, 'full' ) );
+			}
+		?>
 		<label><?php esc_html_e( 'Product image' ); ?></label>
-		<div class="placeholder" <?php if ( has_post_thumbnail( $instance['form_product_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
-		<div class="jetpack-simple-payments-image">
-			<?php
-				$image_id = has_post_thumbnail( $instance['form_product_id'] ) ? get_post_thumbnail_id( $instance['form_product_id'] ) : $instance['form_product_image_id'];
-				$image_src = '';
-				if ( ! empty( $image_id) ) {
-					$image_src = esc_url( wp_get_attachment_image_url( $image_id, 'full' ) );
-				}
-			?>
-			<input
-				type="hidden"
-				id="<?php echo esc_attr( $this->get_field_id( 'form_product_image_id' ) ); ?>"
-				name="<?php echo esc_attr( $this->get_field_name( 'form_product_image_id' ) ); ?>"
-				value="<?php echo esc_attr( $instance['form_product_image_id'] ); ?>"
-				class="jetpack-simple-payments-form-image-id" />
+		<div class="placeholder" <?php if ( ! empty( $image_id ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
+		<div class="jetpack-simple-payments-image" <?php if ( empty( $image_id ) ) echo 'style="display:none;"'; ?>>
 			<img src="<?php echo $image_src; ?>" />
 			<button class="button jetpack-simple-payments-remove-image"><?php esc_html_e( 'Remove image' ); ?></button>
 		</div>

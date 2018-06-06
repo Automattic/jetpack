@@ -97,7 +97,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			return $nonces;
 		}
 
-		function admin_enqueue_styles_and_scripts( $hook_suffix ){
+		function admin_enqueue_styles_and_scripts(){
 				wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
 
 				wp_enqueue_media();
@@ -108,13 +108,25 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
+
 			if ( ! current_user_can( 'customize' ) ) {
 				wp_send_json_error( 'customize_not_allowed', 403 );
 			}
+
+			$post_type_object = get_post_type_object( Jetpack_Simple_Payments::$post_type_product );
+			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+				wp_send_json_error( 'insufficient_post_permissions', 403 );
+			}
+
 			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
 				wp_send_json_error( 'missing_params', 400 );
 			}
+
 			$params = wp_unslash( $_POST['params'] );
+			$illegal_params = array_diff( array_keys( $params ), array( 'title', 'description', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
+			if ( ! empty( $illegal_params ) ) {
+				wp_send_json_error( 'illegal_params', 400 );
+			}
 
 			$product_id = wp_insert_post( array(
 				'ID' => 0,
@@ -196,12 +208,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @return array Updated safe values to be saved.
 		 */
 		function update( $new_instance, $old_instance ) {
-			error_log('> update');
 			$new_instance = wp_parse_args( $new_instance, $this->defaults() );
 			$old_instance = wp_parse_args( $old_instance, $this->defaults() );
-
-			error_log(print_r($new_instance, true));
-			error_log(print_r($old_instance, true));
 
 			$widget_title = ! empty( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : $old_instance['title'];
 			$product_id = ( int ) $new_instance['product_post_id'];
@@ -218,7 +226,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( strcmp( $new_instance['form_action'], $old_instance['form_action'] ) !== 0 ) {
 				switch ( $new_instance['form_action' ] ) {
 					case 'edit': //load the form with existing values
-						error_log('>> edit');
 						// $product_id = ! empty( $product_id ) ?: ( int ) $old_instance['product_post_id'];
 						// $product_post = get_post( $product_id );
 						// if( ! empty( $product_post ) ) {
@@ -233,7 +240,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 						// }
 						break;
 					case 'clear': //clear form
-						error_log('>> clear form');
 						$form_action = '';
 						$form_product_id = 0;
 						$form_product_title = '';

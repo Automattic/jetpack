@@ -13,6 +13,8 @@
 		root.find( '.jetpack-simple-payments-edit-product' ).attr( 'disabled', 'disabled' );
 		//show form
 		root.find( '.jetpack-simple-payments-form' ).show();
+		//focus on first field
+		root.find( '.jetpack-simple-payments-form-product-title').focus();
 	}
 
 	function hideForm() {
@@ -108,7 +110,6 @@
 
 			mediaFrame.on( 'select', function() {
 				var selection = mediaFrame.state().get( 'selection' ).first().toJSON();
-				console.log(selection);
 				//hide placeholder
 				root.find( '.jetpack-simple-payments-image-fieldset .placeholder' ).hide();
 
@@ -117,11 +118,29 @@
 					.attr( 'src', selection.url )
 					.show();
 
+				//show image and remove button
+				root.find( '.jetpack-simple-payments-image' ).show();
+
 				//set hidden field for the selective refresh
 				root.find( '.jetpack-simple-payments-form-image-id' ).val( selection.id ).change();
 			} );
 
 			mediaFrame.open();
+		} );
+
+		//Remove Image
+		$( document.body ).on( 'click', '.jetpack-simple-payments-remove-image', function( event ) {
+			event.preventDefault();
+			var root = getWidgetRoot.apply( this );
+
+			//show placeholder
+			root.find( '.jetpack-simple-payments-image-fieldset .placeholder' ).show();
+
+			//hide image and remove button
+			root.find( '.jetpack-simple-payments-image' ).hide();
+
+			//set hidden field for the selective refresh
+			root.find( '.jetpack-simple-payments-form-image-id' ).val( '' ).change();
 		} );
 	} );
 }( wp.customize, wp, jQuery ) );
