@@ -157,7 +157,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		$parsed = parse_url( $url );
+		$parsed = wp_parse_url( $url );
 		if ( !isset( $parsed['host'] ) ) {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
 		}

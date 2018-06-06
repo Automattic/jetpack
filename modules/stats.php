@@ -202,7 +202,7 @@ function stats_build_view_data() {
 	$blog = Jetpack_Options::get_option( 'id' );
 	$tz = get_option( 'gmt_offset' );
 	$v = 'ext';
-	$blog_url = parse_url( site_url() );
+	$blog_url = wp_parse_url( site_url() );
 	$srv = $blog_url['host'];
 	$j = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 	if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
@@ -468,7 +468,7 @@ function stats_reports_load() {
 	add_action( 'admin_print_styles', 'stats_reports_css' );
 
 	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) {
-		$parsed = parse_url( admin_url() );
+		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
 		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
 	}
@@ -524,7 +524,7 @@ function stats_reports_css() {
  * @return void
  */
 function stats_js_remove_stnojs_cookie() {
-	$parsed = parse_url( admin_url() );
+	$parsed = wp_parse_url( admin_url() );
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -1034,7 +1034,7 @@ function stats_update_blog() {
  * @return string
  */
 function stats_get_blog() {
-	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
+	$home = wp_parse_url( trailingslashit( get_option( 'home' ) ) );
 	$blog = array(
 		'host'                => $home['host'],
 		'path'                => $home['path'],

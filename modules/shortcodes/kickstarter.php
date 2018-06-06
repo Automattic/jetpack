@@ -24,7 +24,7 @@ function jetpack_kickstarter_shortcode( $atts ) {
 	}
 
 	$url = esc_url_raw( $atts['url'] );
-	if ( ! preg_match( '#^(www\.)?kickstarter\.com$#i', parse_url( $url, PHP_URL_HOST ) ) ) {
+	if ( ! preg_match( '#^(www\.)?kickstarter\.com$#i', wp_parse_url( $url, PHP_URL_HOST ) ) ) {
 		return '<!-- Invalid Kickstarter URL -->';
 	}
 

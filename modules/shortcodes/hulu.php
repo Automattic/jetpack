@@ -108,7 +108,7 @@ function jetpack_hulu_shortcode( $atts ) {
 
 				// Pull out id from embed url (from oembed API)
 				$embed_url_params = array();
-				parse_str( parse_url( $json->embed_url, PHP_URL_QUERY ), $embed_url_params );
+				parse_str( wp_parse_url( $json->embed_url, PHP_URL_QUERY ), $embed_url_params );
 
 				if ( isset( $embed_url_params['eid'] ) ) {
 					$id = $embed_url_params['eid'];
@@ -208,7 +208,7 @@ function wpcom_shortcodereverse_huluhelper( $attrs ) {
 	$attrs = wpcom_shortcodereverse_parseattr( $attrs );
 
 	$src_attributes = array();
-	parse_str( parse_url( $attrs['src'], PHP_URL_QUERY ), $src_attributes );
+	parse_str( wp_parse_url( $attrs['src'], PHP_URL_QUERY ), $src_attributes );
 
 	$attrs = array_merge( $attrs, $src_attributes );
 

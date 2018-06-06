@@ -202,7 +202,7 @@ function jetpack_lytro_shortcode_url_to_atts( $url ) {
 		$atts['photo']    = $matches[3];
 	}
 
-	$url = parse_url( $url );
+	$url = wp_parse_url( $url );
 	if ( isset( $url['query'] ) ) {
 		parse_str( $url['query'], $qargs );
 

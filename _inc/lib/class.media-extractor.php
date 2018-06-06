@@ -206,7 +206,7 @@ class Jetpack_Media_Meta_Extractor {
 			if ( preg_match_all( '#(?:^|\s|"|\')(https?://([^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))))#', $content, $matches ) ) {
 
 				foreach ( $matches[1] as $link_raw ) {
-					$url = parse_url( $link_raw );
+					$url = wp_parse_url( $link_raw );
 
 					// Data URI links
 					if ( isset( $url['scheme'] ) && 'data' === $url['scheme'] )
@@ -286,7 +286,7 @@ class Jetpack_Media_Meta_Extractor {
 				$embeds = array();
 
 				foreach ( $matches[1] as $link_raw ) {
-					$url = parse_url( $link_raw );
+					$url = wp_parse_url( $link_raw );
 
 					list( $proto, $link_all_but_proto ) = explode( '://', $link_raw );
 
@@ -402,11 +402,11 @@ class Jetpack_Media_Meta_Extractor {
 		if ( !empty( $from_html ) ) {
 			$srcs = wp_list_pluck( $from_html, 'src' );
 			foreach( $srcs as $image_url ) {
-				if ( ( $src = parse_url( $image_url ) ) && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
+				if ( ( $src = wp_parse_url( $image_url ) ) && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
 					// Rebuild the URL without the query string
 					$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
 				} elseif ( $length = strpos( $image_url, '?' ) ) {
-					// If parse_url() didn't work, strip off the query string the old fashioned way
+					// If wp_parse_url() didn't work, strip off the query string the old fashioned way
 					$queryless = substr( $image_url, 0, $length );
 				} else {
 					// Failing that, there was no spoon! Err ... query string!

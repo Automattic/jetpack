@@ -132,7 +132,7 @@ class Jetpack_Client {
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
 		) );
 
-		$host = parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		// If we have a JETPACK__WPCOM_JSON_API_HOST_HEADER set, then let's use
 		// that, otherwise, let's fallback to the standard.

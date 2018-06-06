@@ -25,7 +25,7 @@ function pinterest_embed_handler( $matches, $attr, $url ) {
     $script_src = '//assets.pinterest.com/js/pinit.js';
 	wp_enqueue_script( 'pinterest-embed', $script_src, array(), false, true );
 
-	$path = parse_url( $url, PHP_URL_PATH );
+	$path = wp_parse_url( $url, PHP_URL_PATH );
 	if ( 0 === strpos( $path, '/pin/' ) ) {
 		$embed_type = 'embedPin';
 	} elseif ( preg_match( '#^/([^/]+)/?$#', $path ) ) {

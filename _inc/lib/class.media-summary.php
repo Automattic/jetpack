@@ -127,7 +127,7 @@ class Jetpack_Media_Summary {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
-								$poster_url_parts = parse_url( $poster_image );
+								$poster_url_parts = wp_parse_url( $poster_image );
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						}
@@ -158,12 +158,12 @@ class Jetpack_Media_Summary {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
-								$poster_url_parts = parse_url( $poster_image );
+								$poster_url_parts = wp_parse_url( $poster_image );
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						} else if ( false !== strpos( $embed, 'dailymotion' ) ) {
 							$return['image'] = str_replace( 'dailymotion.com/video/','dailymotion.com/thumbnail/video/', $embed );
-							$return['image'] = parse_url( $return['image'], PHP_URL_SCHEME ) === null ? 'http://' . $return['image'] : $return['image'];
+							$return['image'] = wp_parse_url( $return['image'], PHP_URL_SCHEME ) === null ? 'http://' . $return['image'] : $return['image'];
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
 

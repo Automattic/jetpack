@@ -199,7 +199,7 @@ add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
 
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	$parsed_url = @parse_url( $image_url );
+	$parsed_url = @wp_parse_url( $image_url );
 
 	if ( ! $parsed_url )
 		return $args;
@@ -257,21 +257,21 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 }
 
 /**
- * A wrapper for PHP's parse_url, prepending assumed scheme for network path
+ * A wrapper for PHP's wp_parse_url, prepending assumed scheme for network path
  * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
  *
  * @see http://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
  *
  * @param string $url The URL to parse
  * @param integer $component Retrieve specific URL component
- * @return mixed Result of parse_url
+ * @return mixed Result of wp_parse_url
  */
 function jetpack_photon_parse_url( $url, $component = -1 ) {
 	if ( 0 === strpos( $url, '//' ) ) {
 		$url = ( is_ssl() ? 'https:' : 'http:' ) . $url;
 	}
 
-	return parse_url( $url, $component );
+	return wp_parse_url( $url, $component );
 }
 
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );

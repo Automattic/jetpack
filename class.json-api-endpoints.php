@@ -1862,7 +1862,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return false;
 
 		// if we didn't get a URL, let's bail
-		$parsed = @parse_url( $url );
+		$parsed = @wp_parse_url( $url );
 		if ( empty( $parsed ) )
 			return false;
 
@@ -1880,7 +1880,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// emulate a $_FILES entry
 		$file_array = array(
-			'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
+			'name' => basename( wp_parse_url( $url, PHP_URL_PATH ) ),
 			'tmp_name' => $tmp,
 		);
 

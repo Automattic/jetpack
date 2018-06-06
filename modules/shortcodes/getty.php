@@ -58,7 +58,7 @@ function getty_add_oembed_endpoint_caller( $provider ) {
 
 		// Only include caller for non-private sites
 		if ( ! function_exists( 'is_private_blog' ) || ! is_private_blog() ) {
-			$host = parse_url( get_bloginfo( 'url' ), PHP_URL_HOST );
+			$host = wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST );
 		}
 
 		// Fall back to WordPress.com
@@ -66,7 +66,7 @@ function getty_add_oembed_endpoint_caller( $provider ) {
 			$host = 'wordpress.com';
 		}
 	} else {
-		$host = parse_url( get_home_url(), PHP_URL_HOST );
+		$host = wp_parse_url( get_home_url(), PHP_URL_HOST );
 	}
 
 	return add_query_arg( 'caller', $host, $provider );
