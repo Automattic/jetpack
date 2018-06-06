@@ -507,9 +507,12 @@ class Jetpack_Carousel {
 		 * @since 1.6.0
 		 */
 		do_action('jp_carousel_check_blog_user_privileges');
+		
+		$request_id = filter_input( INPUT_REQUEST, 'id' );
+		$request_offset = filter_input( INPUT_REQUEST, 'offset' );
 
-		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
-		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
+		$attachment_id = ( isset( $request_id ) ) ? (int) $request_id : 0;
+		$offset        = ( isset( $request_offset ) ) ? (int) $request_offset : 0;
 
 		if ( ! $attachment_id ) {
 			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
@@ -550,13 +553,15 @@ class Jetpack_Carousel {
 	function post_attachment_comment() {
 		if ( ! headers_sent() )
 			header('Content-type: text/javascript');
+		
+		$post_nonce = filter_input( INPUT_POST, 'nonce' );
 
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce($_POST['nonce'], 'carousel_nonce') )
+		if ( empty( $post_nonce ) || ! wp_verify_nonce($post_nonce, 'carousel_nonce') )
 			die( json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 
-		$_blog_id = (int) $_POST['blog_id'];
-		$_post_id = (int) $_POST['id'];
-		$comment = $_POST['comment'];
+		$_blog_id	 = filter_input( INPUT_POST, 'blog_id', FILTER_VALIDATE_INT );
+		$_post_id	 = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
+		$comment	 = filter_input( INPUT_POST, 'comment', FILTER_VALIDATE_INT );
 
 		if ( empty( $_blog_id ) )
 			die( json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
@@ -591,9 +596,10 @@ class Jetpack_Carousel {
 				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
 		} else {
 			$user_id      = 0;
-			$display_name = $_POST['author'];
-			$email        = $_POST['email'];
-			$url          = $_POST['url'];
+			$display_name = filter_input( INPUT_POST, 'author' );
+			$email = filter_input( INPUT_POST, 'email', FILTER_VALIDATE_EMAIL );
+			$url = filter_input( INPUT_POST, 'url', FILTER_VALIDATE_URL );
+
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) )
