@@ -21,10 +21,9 @@ cache:
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 
-# Test WP trunk/master and two latest versions on minimum (5.3).
-# Test WP latest two versions (4.5, 4.3) on most popular (5.5, 5.6).
-# Test WP latest stable (4.5) on other supported PHP (5.3, 5.4).
-# Test WP trunk/master on edge platforms (7.0, PHP nightly).
+# Test WP trunk/master and two latest versions on minimum (5.2).
+# Test WP latest two versions (4.5, 4.3) on most popular (5.6, 7.0).
+# Test WP trunk/master on edge platforms (PHP 7.2).
 
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
@@ -36,12 +35,9 @@ matrix:
   - env: WP_TRAVISCI="yarn test-gui"
   - php: "7.0"
     env: "SWITCH_TO_PHP=5.2"
-  - php: "5.3"
     dist: precise
-  - php: "5.5"
   - php: "5.6"
   - php: "7.0"
-  - php: "7.1"
   - php: "7.2"
 
 # whitelist branches for the "push" build check.
