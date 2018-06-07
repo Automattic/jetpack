@@ -48,7 +48,7 @@
 			if ( '' === locationObject.search ) {
 				return pathname + '?' + args;
 			} else {
-				return pathname + locationObject.search + '&' + args;
+				return pathname + (locationObject.search + '&' + args).replace(/utm_.*?(&|$)/g,'');
 			}
 		},
 
