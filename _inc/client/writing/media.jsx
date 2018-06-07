@@ -65,8 +65,7 @@ class Media extends React.Component {
 			return null;
 		}
 
-		const carousel = this.props.module( 'carousel' ),
-			isCarouselActive = this.props.getOptionValue( 'carousel' ),
+		const isCarouselActive = this.props.getOptionValue( 'carousel' ),
 			videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
@@ -80,6 +79,16 @@ class Media extends React.Component {
 					link: 'https://jetpack.com/support/carousel',
 				} }
 				>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Images' ) }
+				</FormLegend>
+				<p>
+					{ __(
+						'Create full-screen carousel slideshows for the images in your ' +
+							'posts and pages. Carousel galleries are mobile-friendly and ' +
+							'encourage site visitors to interact with your photos.'
+					) }
+				</p>
 				<ModuleToggle
 					slug="carousel"
 					activated={ isCarouselActive }
@@ -88,7 +97,7 @@ class Media extends React.Component {
 					>
 					<span className="jp-form-toggle-explanation">
 						{
-							carousel.description
+							__( 'Display images in a full-screen carousel gallery' )
 						}
 					</span>
 				</ModuleToggle>
@@ -96,16 +105,24 @@ class Media extends React.Component {
 					<CompactFormToggle
 						checked={ this.state.carousel_display_exif }
 						disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] ) }
-						onChange={ this.handleCarouselDisplayExifChange }>
+						onChange={ this.handleCarouselDisplayExifChange }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
-								__( 'Show photo metadata (Exif) in carousel, when available' )
+								__( 'Show photo Exif metadata in carousel (when available)' )
 							}
 						</span>
 					</CompactFormToggle>
+					<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __(
+									'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
+								) }
+							</p>
+					</FormFieldset>
 					<FormLabel>
 						<FormLegend className="jp-form-label-wide">
-							{ __( 'Color scheme' ) }
+							{ __( 'Carousel color scheme' ) }
 						</FormLegend>
 						<FormSelect
 							name={ 'carousel_background_color' }
@@ -128,6 +145,14 @@ class Media extends React.Component {
 					link: 'https://jetpack.com/support/videopress/',
 				} }
 				>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Video' ) }
+				</FormLegend>
+				<p> { __(
+					'Make the content you publish more engaging with high-resolution video. ' +
+						'With Jetpack Video you can customize your media player and deliver ' +
+						'high-speed, ad-free, and unbranded videos to your visitors.'
+				) } </p>
 				<ModuleToggle
 					slug="videopress"
 					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
@@ -137,7 +162,7 @@ class Media extends React.Component {
 					>
 					<span className="jp-form-toggle-explanation">
 						{
-							videoPress.description
+							__( 'Enable high-speed, ad-free video player' )
 						}
 					</span>
 				</ModuleToggle>
