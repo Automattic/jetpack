@@ -208,7 +208,9 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function site_tag() {
-		$site_tag = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' );
+		$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM  ) ?
+            trim( get_option( 'twitter_via' ) ) :
+            Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' );
 		if ( empty( $site_tag ) ) {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				return 'wordpressdotcom';
