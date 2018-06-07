@@ -13,7 +13,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	 * Display a Simple Payment Button as a Widget.
 	 */
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
-		private static $currencie_symbols = array(
+		// https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+		private static $supported_currency_list = array(
 			'USD' => '$',
 			'GBP' => '&#163;',
 			'JPY' => '&#165;',

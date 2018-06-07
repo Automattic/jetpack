@@ -89,7 +89,7 @@
 			class="field-currency widefat jetpack-simple-payments-form-product-currency"
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_currency' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
-			<?php foreach( Jetpack_Simple_Payments_Widget::$currencie_symbols as $code => $currency ) {?>
+			<?php foreach( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {?>
 				<option value="<?php echo esc_attr( $code ) ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
 					<?php esc_html_e( $code . ' ' . $currency ) ?>
 				</option>
