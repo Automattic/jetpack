@@ -151,7 +151,7 @@ class Media extends React.Component {
 				<p> { __(
 					'Make the content you publish more engaging with high-resolution video. ' +
 						'With Jetpack Video you can customize your media player and deliver ' +
-						'high-speed, ad-free, and unbranded videos to your visitors.'
+						'high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!'
 				) } </p>
 				<ModuleToggle
 					slug="videopress"
