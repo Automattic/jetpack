@@ -1,12 +1,5 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * Not yet synced - but it should be :)
- *
- * @hide-in-jetpack
- */
+
 /**
  * Activate a widget on a site.
  *
