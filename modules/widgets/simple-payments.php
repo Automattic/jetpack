@@ -235,18 +235,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( strcmp( $new_instance['form_action'], $old_instance['form_action'] ) !== 0 ) {
 				switch ( $new_instance['form_action' ] ) {
 					case 'edit': //load the form with existing values
-						// $product_id = ! empty( $product_id ) ?: ( int ) $old_instance['product_post_id'];
-						// $product_post = get_post( $product_id );
-						// if( ! empty( $product_post ) ) {
-						// 	$widget_title = ! empty( $widget_title ) ?: $old_instance['widget_title'];
-						// 	$form_product_title = get_the_title( $product_post );
-						// 	$form_product_description = $product_post->post_content;
-						// 	$form_product_image = get_post_thumbnail_id( $product_id, 'full' );
-						// 	$form_product_currency = get_post_meta( $product_id, 'spay_currency', true );
-						// 	$form_product_price = get_post_meta( $product_id, 'spay_price', true );
-						// 	$form_product_multiple = get_post_meta( $product_id, 'spay_multiple', true ) || '0';
-						// 	$form_product_email = get_post_meta( $product_id, 'spay_email', true );
-						// }
 						break;
 					case 'clear': //clear form
 						$form_action = '';
