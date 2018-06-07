@@ -14,6 +14,10 @@
 
 include dirname( __FILE__ ) . '/markdown/easy-markdown.php';
 
+if ( function_exists( 'register_block_type' ) ) {
+	include dirname( __FILE__ ) . '/markdown/class-jetpack-markdown-block.php';
+}
+
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.
  * We don't just remove the register_setting call there because the checkbox is
