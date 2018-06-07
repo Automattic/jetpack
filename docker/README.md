@@ -55,7 +55,7 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 
 ### Quick install WordPress
 
-You can to just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
+You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
 yarn docker:install
