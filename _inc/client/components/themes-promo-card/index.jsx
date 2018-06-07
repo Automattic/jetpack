@@ -58,14 +58,12 @@ class ThemesPromoCard extends React.Component {
 					</div>
 
 					<div className="jp-apps-card__description">
-						<h3 className="jp-apps-card__header">{ __( 'Introducing Unlimited Themes' ) }</h3>
+						<h3 className="jp-apps-card__header">{ __( 'Introducing Premium Themes' ) }</h3>
 						{ __(
-							'{{subhead}}Only with Jetpack Professional{{/subhead}}' +
-							'{{p}}Protect your site and work with Jetpack Professional: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}' +
-							'{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}',
+							'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
+							"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
 							{
 								components: {
-									subhead: <p className="jp-apps-card__promo_subhead" />,
 									p: <p className="jp-apps-card__paragraph" />
 								}
 							}
