@@ -307,11 +307,10 @@ class Nova_Restaurant {
 	 * Change ‘Enter Title Here’ text for the Menu Item.
 	 */
 	function change_default_title( $title ) {
-		$screen = get_current_screen();
-
-		if ( self::MENU_ITEM_POST_TYPE == $screen->post_type )
+		if ( self::MENU_ITEM_POST_TYPE == get_post_type() ) {
 			/* translators: this is about a food menu */
 			$title = esc_html__( "Enter the menu item's name here", 'jetpack' );
+		}
 
 		return $title;
 	}

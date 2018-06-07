@@ -364,10 +364,9 @@ class Jetpack_Testimonial {
 	 * Change ‘Enter Title Here’ text for the Testimonial.
 	 */
 	function change_default_title( $title ) {
-		$screen = get_current_screen();
-
-		if ( self::CUSTOM_POST_TYPE == $screen->post_type )
+		if ( self::CUSTOM_POST_TYPE == get_post_type() ) {
 			$title = esc_html__( "Enter the customer's name here", 'jetpack' );
+		}
 
 		return $title;
 	}
