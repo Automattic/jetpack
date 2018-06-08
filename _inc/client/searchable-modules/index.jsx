@@ -112,10 +112,7 @@ class ActiveCard extends Component {
 				<SettingsGroup
 					disableInDevMode={ devMode }
 					module={ { module: m.module } }
-					support={ {
-						text: m.long_description,
-						link: m.learn_more_button,
-					} }
+					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>
