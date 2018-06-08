@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.1.1
+Stable tag: 6.2
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,35 +98,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.2 =
+= 6.2.1 =
 
-* Release date: June 5, 2018
-* Release post: https://wp.me/p1moTy-88v
+* Release date: June 8, 2018
+* Release post: https://wp.me/p1moTy-8am
 
-**Major Enhancements**
-
-* Shortcodes: Added Gutenberg block for the [vr] shortcode.
-
-**Enhancements**
-
-* AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
-* Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
-* Cookies & Consent Widget: Added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
-* Tiled Galleries: use Photon if active when a Tiled Gallery links to media file.
-
-**Improved compatibility**
-
-* Widgets: Deprecated the use of Widget IDs in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
 
 **Bug fixes**
 
-* Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form. 
-* Contact Form: Fixed scrolling/height for very large contact forms.
-* Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
-* Related Posts: Made it not try to fetch related posts for an unpublished post.
-* Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
-* Sharing: Fixed the way we check if akismet is active and has a valid key by caching the result of the verification.
-* Shortcodes: Fixed the Facebook shortcode in wp-admin.
-* Widget Visibility: Widget Visibility: Fixed styling for MS Edge.
-* Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
-
+* AMP: We fixed the rendering of the stats pixel for legacy, non-paired, non-canonical AMP pages.
+* Shortcodes: Fixed a fatal coming form the VR shortcode when using the Gutenberg editor in the frontend.
