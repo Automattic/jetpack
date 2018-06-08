@@ -106,4 +106,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* AMP: We fixed the rendering of the stats pixel for legacy, non-paired, non-canonical AMP pages.
 * Shortcodes: Fixed a fatal coming form the VR shortcode when using the Gutenberg editor in the frontend.
