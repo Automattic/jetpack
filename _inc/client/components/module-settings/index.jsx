@@ -113,7 +113,7 @@ export class RelatedPostsSettings extends React.Component {
 					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
-						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
+						label={ __( 'Highlight related content with a header' ) }
 						{ ...this.props } />
 					<ModuleSettingCheckbox
 						name={ 'show_thumbnails' }

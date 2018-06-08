@@ -93,7 +93,7 @@ class RelatedPostsComponent extends React.Component {
 									onChange={ this.handleShowHeadlineToggleChange }>
 									<span className="jp-form-toggle-explanation">
 										{
-											__( 'Separate related content from blog posts with a header.' )
+											__( 'Highlight related content with a header' )
 										}
 									</span>
 						</CompactFormToggle>
