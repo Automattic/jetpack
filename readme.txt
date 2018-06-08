@@ -105,3 +105,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 
 **Bug fixes**
+
+* Shortcodes: Fixed a fatal coming form the VR shortcode when using the Gutenberg editor in the frontend.
