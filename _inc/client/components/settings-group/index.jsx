@@ -42,7 +42,7 @@ export const SettingsGroup = props => {
 			} ) }>
 				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
 				{
-					props.support.text && props.support.link &&
+					props.support.link &&
 						<SupportInfo
 							module={ module }
 							{ ...props.support }

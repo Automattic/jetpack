@@ -135,7 +135,7 @@ export class DashItem extends Component {
 				<Card className="jp-dash-item__card" href={ this.props.href }>
 					<div className="jp-dash-item__content">
 						{
-							this.props.support.text && this.props.support.link &&
+							this.props.support.link &&
 								<SupportInfo
 									module={ module }
 									{ ...this.props.support }
