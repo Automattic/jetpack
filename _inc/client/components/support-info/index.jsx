@@ -64,11 +64,8 @@ export default class SupportInfo extends Component {
 	}
 
 	render() {
-		const module = this.getModule();
-		let { text, link, privacyLink } = this.props;
-
-		text = text || module.long_description || '';
-		link = link || module.learn_more_button || '';
+		const { text, link } = this.props;
+		let { privacyLink } = this.props;
 
 		if ( ! privacyLink && link ) {
 			privacyLink = link + '#privacy';
