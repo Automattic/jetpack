@@ -109,7 +109,7 @@ If you're not familiar with PHP Unit Testing, you can also check [this tutorial]
 
 ## Unit-testing the JS Admin Page
 
-You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code.
+You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code and the modules Javascript code.
 
 Standing on your jetpack directory, run
 
@@ -117,6 +117,7 @@ Standing on your jetpack directory, run
 $ yarn
 $ yarn test-client
 $ yarn test-gui
+$ yarn test-modules
 ```
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards

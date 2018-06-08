@@ -42,7 +42,8 @@
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
-    "precommit": "node bin/pre-commit-hook.js"
+    "precommit": "node bin/pre-commit-hook.js",
+    "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",

@@ -31,26 +31,34 @@ mocha.suite.beforeAll( boot.before );
 mocha.suite.afterAll( boot.after );
 
 if ( program.args.length ) {
-
 	// Test interface components
-	if ( 1 === program.args.length && 'gui' === program.args[0] ) {
+	if ( 1 === program.args.length ) {
 		// Don't load styles for testing
-		require.extensions['.scss'] = () => false;
-		require.extensions['.css'] = require.extensions['.scss'];
+		require.extensions[ '.scss' ] = () => false;
+		require.extensions[ '.css' ] = require.extensions[ '.scss' ];
 
 		// Define a dom so we can have window and all else
-		require('jsdom-global')();
+		require( 'jsdom-global' )();
 
 		window.Initial_State = {
 			userData: {},
 			dismissedNotices: {}
 		};
-		mocha.addFile( '_inc/client/test/main.js' );
 
-		glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
-			mocha.addFile( file );
-		});
+		switch ( program.args[ 0 ] ) {
+			case 'gui':
+				mocha.addFile( '_inc/client/test/main.js' );
 
+				glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
+			case 'modules':
+				glob.sync( 'modules/**/test-*.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
+		}
 	} else {
 		program.args.forEach( function( file ) {
 			mocha.addFile( file );
@@ -59,7 +67,7 @@ if ( program.args.length ) {
 } else {
 	glob.sync( '_inc/client/state/**/test/*.js' ).forEach( file => {
 		mocha.addFile( file );
-	});
+	} );
 }
 
 mocha.run( function( failures ) {
