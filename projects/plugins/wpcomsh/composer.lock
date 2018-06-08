@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "935338b4cc12c40591681cf3a7f0d830",
+    "content-hash": "472a10fa112f6d7d65ac627a2847cdd6",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v1.2.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "d7aa21adf1bdfe67238733a750609096cdc33ece"
+                "reference": "27a4329cf3063179068c7cf887d9ff5e86a3a4db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d7aa21adf1bdfe67238733a750609096cdc33ece",
-                "reference": "d7aa21adf1bdfe67238733a750609096cdc33ece",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/27a4329cf3063179068c7cf887d9ff5e86a3a4db",
+                "reference": "27a4329cf3063179068c7cf887d9ff5e86a3a4db",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-05-18T21:13:39+00:00"
+            "time": "2018-06-07T16:14:05+00:00"
         },
         {
             "name": "automattic/custom-fonts",
