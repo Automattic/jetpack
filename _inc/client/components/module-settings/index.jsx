@@ -77,7 +77,7 @@ export class RelatedPostsSettings extends React.Component {
 			<div className="jp-related-posts-preview">
 				{
 					show_headline
-						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A header for a block of related posts.' } ) }</div>
+						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A heading for a block of related posts.' } ) }</div>
 						: ''
 				}
 				{
@@ -113,7 +113,7 @@ export class RelatedPostsSettings extends React.Component {
 					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
-						label={ __( 'Highlight related content with a header' ) }
+						label={ __( 'Highlight related content with a heading' ) }
 						{ ...this.props } />
 					<ModuleSettingCheckbox
 						name={ 'show_thumbnails' }
