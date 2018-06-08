@@ -1,18 +1,18 @@
 #!/usr/bin/env node
+
 require( 'babel-register' )( {
-        ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
+	ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
 } );
 
 const program = require( 'commander' ),
 	glob = require( 'glob' ),
 	Mocha = require( 'mocha' ),
-	path = require( 'path' ),
 	boot = require( './boot-test' );
 
 program
-	.usage( '[options] [files]' )
-	.option( '-R, --reporter <name>', 'specify the reporter to use', 'spec' )
-	.option( '-g, --grep <pattern>', 'only run tests matching <pattern>' );
+    .usage( '[options] [files]' )
+    .option( '-R, --reporter <name>', 'specify the reporter to use', 'spec' )
+    .option( '-g, --grep <pattern>', 'only run tests matching <pattern>' );
 
 program.name = 'runner';
 
