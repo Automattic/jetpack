@@ -12,6 +12,11 @@ class Jetpack_AMP_Support {
 			return;
 		}
 
+		// enable stats
+		if ( Jetpack::is_module_active( 'stats' ) ) {
+			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
+		}
+
 		// carousel
 		add_filter( 'jp_carousel_maybe_disable', '__return_true' );
 
@@ -113,6 +118,18 @@ class Jetpack_AMP_Support {
 
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 );
+	}
+
+	/**
+	 * Add Jetpack stats pixel.
+	 *
+	 * @since 6.2.1
+	 */
+	static function add_stats_pixel() {
+		if ( ! has_action( 'wp_footer', 'stats_footer' ) ) {
+			return;
+		}
+		stats_render_amp_footer( stats_build_view_data() );
 	}
 
 	/**
