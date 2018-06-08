@@ -60,16 +60,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		function widget( $args, $instance ) {
-			echo $args['before_widget'];
-
-			/** This filter is documented in core/src/wp-includes/default-widgets.php */
-			$title = apply_filters( 'widget_title', $instance['title'] );
-			if ( ! empty( $title ) ) {
-				echo $args['before_title'] . $title . $args['after_title'];
-			}
-
-			echo '<div class="jetpack-simple-payments-content">';
-
 			if( ! empty( $instance['product_post_id'] ) ) {
 				$attrs = array( 'id' => $instance['product_post_id'] );
 			} else {
@@ -83,7 +73,24 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			$jsp = Jetpack_Simple_Payments::getInstance();
-			echo $jsp->parse_shortcode( $attrs );
+
+			$simple_payments_button = $jsp->parse_shortcode( $attrs );
+
+			if ( is_null( $simple_payments_button ) && ! is_customize_preview() ) {
+				return;
+			}
+
+			echo $args['before_widget'];
+
+			/** This filter is documented in core/src/wp-includes/default-widgets.php */
+			$title = apply_filters( 'widget_title', $instance['title'] );
+			if ( ! empty( $title ) ) {
+				echo $args['before_title'] . $title . $args['after_title'];
+			}
+
+			echo '<div class="jetpack-simple-payments-content">';
+
+			echo $simple_payments_button;
 
 			echo '</div><!--simple-payments-->';
 
