@@ -1,5 +1,37 @@
 == Changelog ==
 
+= 6.2 =
+
+* Release date: June 5, 2018
+* Release post: https://wp.me/p1moTy-88v
+
+**Major Enhancements**
+
+* Shortcodes: Added Gutenberg block for the [vr] shortcode.
+
+**Enhancements**
+
+* AMP: Allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
+* Content Options: We now exclude Custom Post Types like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option in the customizer.
+* Cookies & Consent Widget: Added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+* Tiled Galleries: use Photon if active when a Tiled Gallery links to media file.
+
+**Improved compatibility**
+
+* Widgets: Deprecated the use of Widget IDs in the Twitter Timeline Widget given that Twitter deprecates Widget IDs on July, 27th 2018.
+
+**Bug fixes**
+
+* Contact Form: Fixed an issue with undefined variables and a warning being logged when submitting the Contact Form.
+* Contact Form: Fixed scrolling/height for very large contact forms.
+* Widgets: Fixed Cookies & Consent Widget's bottom margin for themes that set a specific margin for forms.
+* Related Posts: Made it not try to fetch related posts for an unpublished post.
+* Sharing: Fixed an issue that resulted in wrong URLs for sharing on WhatsApp.
+* Sharing: Fixed the way we check if Akismet is active and has a valid key by caching the result of the verification.
+* Shortcodes: Fixed the Facebook shortcode in wp-admin.
+* Widget Visibility: Fixed styling for MS Edge.
+* Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
+
 = 6.1.1 =
 
 * Release date: May 22, 2018
