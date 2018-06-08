@@ -51,7 +51,7 @@ class AppsCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
 					<div className="jp-apps-card__top">
-						<img src={ imagePath + '/get-apps.svg' } alt="" />
+						<img src={ imagePath + 'get-apps.svg' } alt="" />
 					</div>
 
 					<div className="jp-apps-card__description">

@@ -50,7 +50,7 @@ class ThemesPromoCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
 					<div className="jp-apps-card__top">
-						<img src={ imagePath + '/themes.svg' } alt="Premium Themes" />
+						<img src={ imagePath + 'themes.svg' } alt={ __( ' Premium Themes' ) } />
 					</div>
 
 					<div className="jp-apps-card__description">
