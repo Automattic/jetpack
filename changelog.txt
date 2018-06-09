@@ -1,5 +1,16 @@
 == Changelog ==
 
+= 6.2.1 =
+
+* Release date: June 8, 2018
+* Release post: https://wp.me/p1moTy-8am
+
+
+**Bug fixes**
+
+* AMP: We fixed the rendering of the stats pixel for legacy, non-paired, non-canonical AMP pages.
+* Shortcodes: Fixed a fatal coming form the VR shortcode when using the Gutenberg editor in the frontend.
+
 = 6.2 =
 
 * Release date: June 5, 2018
