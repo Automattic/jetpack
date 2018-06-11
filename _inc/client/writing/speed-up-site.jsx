@@ -53,7 +53,6 @@ const SpeedUpSite = moduleSettingsForm(
 							disableInDevMode
 							module={ photon }
 							support={ {
-								text: __( 'Hosts your image files on the global WordPress.com servers.' ),
 								link: 'https://jetpack.com/support/photon/',
 							} }
 							>
@@ -85,7 +84,6 @@ const SpeedUpSite = moduleSettingsForm(
 							hasChild
 							module={ lazyImages }
 							support={ {
-								text: __( "Delays the loading of images until they are visible in the visitor's browser." ),
 								link: 'https://jetpack.com/support/lazy-images/',
 							} }
 							>
