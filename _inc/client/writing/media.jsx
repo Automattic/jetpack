@@ -74,8 +74,6 @@ class Media extends React.Component {
 				hasChild
 				module={ { module: 'carousel' } }
 				support={ {
-					text: __( 'Replaces the standard WordPress galleries with a ' +
-						'full-screen photo browsing experience, including comments and EXIF metadata.' ),
 					link: 'https://jetpack.com/support/carousel',
 				} }
 				>
@@ -141,7 +139,6 @@ class Media extends React.Component {
 				disableInDevMode
 				module={ videoPress }
 				support={ {
-					text: __( 'Hosts your video files on the global WordPress.com servers.' ),
 					link: 'https://jetpack.com/support/videopress/',
 				} }
 				>
