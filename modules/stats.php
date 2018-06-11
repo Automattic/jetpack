@@ -500,7 +500,7 @@ function stats_reports_css() {
 }
 
 #jp-stats-wrap {
-	max-width: 720px;
+	max-width: 1040px;
 	margin: 0 auto;
 	overflow: hidden;
 }
