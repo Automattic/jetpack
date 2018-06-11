@@ -96,7 +96,7 @@ export default class SupportInfo extends Component {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Privacy Information' ) }
+							{ __( 'Privacy information' ) }
 						</ExternalLink>
 					</span>
 				</InfoPopover>
