@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
@@ -34,6 +35,11 @@ export class Sitemaps extends React.Component {
 			sitemap_url = get( sitemaps, [ 'extra', 'sitemap_url' ], '' ),
 			news_sitemap_url = get( sitemaps, [ 'extra', 'news_sitemap_url' ], '' );
 
+		const searchEngineVisibilityClasses = classNames( {
+			'jp-form-setting-explanation': true,
+			'is-warning': ! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' )
+		} );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -44,48 +50,64 @@ export class Sitemaps extends React.Component {
 					hasChild
 					module={ { module: 'sitemaps' } }
 					support={ {
-						text: __( 'Jetpack will generate two different sitemap files for you: a sitemap listing all your public posts and pages, and a News sitemap built specifically for Google News.' ),
 						link: 'https://jetpack.com/support/sitemaps/',
 					} }
-					>
-					{
-						this.props.getOptionValue( 'sitemaps' ) && (
-							<p className="jp-form-setting-explanation">
-								{ __(
-									'Sitemaps are files that search engines like Google or ' +
-										'Bing use to index your website and can help get you ' +
-										'discovered and rank higher. When this feature is enabled, ' +
-										'Jetpack will create these files for you and update them ' +
-										'automatically whenever you add new content to your site.'
-									) }
-							</p>
-						)
-					}
+				>
+					<p>
+						{ __(
+							'Sitemaps are files that search engines like Google or Bing use ' +
+								'to index your website and can help get you discovered and ' +
+								'rank higher. When this feature is enabled, Jetpack will create ' +
+								'these files for you and update them automatically whenever you ' +
+								'add new content to your site.'
+							) }
+					</p>
 					<ModuleToggle
 						slug="sitemaps"
 						compact
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
-						toggleModule={ this.props.toggleModuleNow }>
-						{ __( 'Generate XML sitemaps that help search engines to index your site' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						{ __( 'Generate XML sitemaps' ) }
 					</ModuleToggle>
 					{
 						this.props.isSiteVisibleToSearchEngines
 							? this.props.getOptionValue( 'sitemaps' ) && (
 								<FormFieldset>
 									<p className="jp-form-setting-explanation">
-										<ExternalLink onClick={ this.trackSitemapUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+										Your sitemap is automatically sent to all major search engines for indexing.
 										<br />
-										<ExternalLink onClick={ this.trackSitemapNewsUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+										<ExternalLink
+											onClick={ this.trackSitemapUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ sitemap_url }
+										>
+											{ sitemap_url }
+										</ExternalLink>
+										<br />
+										<ExternalLink
+											onClick={ this.trackSitemapNewsUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ news_sitemap_url }
+										>
+											{ news_sitemap_url }
+										</ExternalLink>
 									</p>
 								</FormFieldset>
 							)
 							: (
 								<FormFieldset>
-										<p className="jp-form-setting-explanation">
+										<p className={ searchEngineVisibilityClasses }>
 											{
 												__(
-													'Your site is not currently accessible to search engines. You might have "Search Engine Visibility" disabled in your {{a}}Reading Settings{{/a}}.',
+													'Your site is not currently accessible to search engines. ' +
+														'You might have "Search Engine Visibility" disabled in ' +
+														'your {{a}}Reading Settings{{/a}}.',
 													{
 														components: {
 															a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
