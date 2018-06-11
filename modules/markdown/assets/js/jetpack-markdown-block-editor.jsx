@@ -3,17 +3,17 @@
 /**
  * External dependencies
  */
-import commonmark from 'commonmark';
 import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
+import MarkdownPreview from './components/markdown-preview';
+
 const { __ } = window.wp.i18n;
 
 const {
 	Component,
-	RawHTML
 } = window.wp.element;
 
 const {
@@ -27,9 +27,6 @@ const {
 
 const PANEL_EDITOR = 'editor';
 const PANEL_PREVIEW = 'preview';
-
-const markdownReader = new commonmark.Parser();
-const markdownWritter = new commonmark.HtmlRenderer();
 
 class JetpackMarkdownBlockEditor extends Component {
 	constructor() {
@@ -73,15 +70,7 @@ class JetpackMarkdownBlockEditor extends Component {
 					/>;
 
 				case PANEL_PREVIEW:
-					let content = '';
-					if ( source ) {
-						// Creates a tree of nodes from the Markdown source
-						const parsedMarkdown = markdownReader.parse( attributes.source );
-
-						// Converts the tree of nodes to HTML
-						content = markdownWritter.render( parsedMarkdown );
-					}
-					return <RawHTML>{ content }</RawHTML>;
+					return <MarkdownPreview source={ source } />;
 			}
 		};
 
