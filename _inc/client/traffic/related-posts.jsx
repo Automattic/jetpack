@@ -69,7 +69,6 @@ class RelatedPostsComponent extends React.Component {
 					disableInDevMode
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
-						text: __( 'Automatically displays similar content at the end of each post.' ),
 						link: 'https://jetpack.com/support/related-posts/',
 					} }
 					>
