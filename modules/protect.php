@@ -58,7 +58,7 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_form', array ( $this, 'check_login_ability' ), 100 );
+		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
