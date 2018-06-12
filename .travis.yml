@@ -31,8 +31,6 @@ cache:
 matrix:
   include:
   - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
 
 # whitelist branches for the "push" build check.
 branches:
