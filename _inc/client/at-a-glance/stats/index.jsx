@@ -292,7 +292,7 @@ export class DashStats extends Component {
 		return this.props.isModuleAvailable && (
 			<div>
 				<QueryStatsData range={ this.props.activeTab } />
-				<DashSectionHeader label={ __( 'Site Stats' ) }>
+				<DashSectionHeader label={ __( 'Fear, Uncertainty and Doubt' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
 				<Card className={ 'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' ) }>
