@@ -30,6 +30,8 @@ class WPCOM_JSON_API {
 	public $trapped_error = null;
 	public $did_output = false;
 
+	public $extra_headers = array();
+
 	/**
 	 * @return WPCOM_JSON_API instance
 	 */
@@ -165,7 +167,7 @@ class WPCOM_JSON_API {
 			 * @since 3.1.0
 			 */
 			do_action( 'wpcom_json_api_options' );
-			return $this->output( 200, '', 'plain/text' );
+			return $this->output( 200, '', 'text/plain' );
 		}
 
 		if ( is_wp_error( $initialization ) ) {
@@ -289,17 +291,18 @@ class WPCOM_JSON_API {
 			 * @param string help.
 			 */
 			do_action( 'wpcom_json_api_output', 'help' );
+			$proxied = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG )
 						$docs[] = call_user_func( array( $matching_endpoint[0], 'generate_documentation' ) );
 				}
 				return $this->output( 200, $docs );
 			} else {
 				status_header( 200 );
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG )
 						call_user_func( array( $matching_endpoint[0], 'document' ) );
 				}
 			}
@@ -324,7 +327,7 @@ class WPCOM_JSON_API {
 		$output_status_code = $this->output_status_code;
 		$this->set_output_status_code();
 
-		return $this->output( $output_status_code, $response );
+		return $this->output( $output_status_code, $response, 'application/json', $this->extra_headers );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
@@ -349,7 +352,7 @@ class WPCOM_JSON_API {
 		$this->output_status_code = $code;
 	}
 
-	function output( $status_code, $response = null, $content_type = 'application/json' ) {
+	function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
 		// In case output() was called before the callback returned
 		if ( $this->did_output ) {
 			if ( $this->exit )
@@ -369,6 +372,9 @@ class WPCOM_JSON_API {
 		if ( 'text/plain' === $content_type ) {
 			status_header( (int) $status_code );
 			header( 'Content-Type: text/plain' );
+			foreach( $extra as $key => $value ) {
+				header( "$key: $value" );
+			}
 			echo $response;
 			if ( $this->exit ) {
 				exit;
@@ -380,14 +386,20 @@ class WPCOM_JSON_API {
 		$response = $this->filter_fields( $response );
 
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
+			$headers = array(
+				array(
+					'name' => 'Content-Type',
+					'value' => $content_type,
+				)
+			);
+			
+			foreach( $extra as $key => $value ) {
+				$headers[] = array( 'name' => $key, 'value' => $value );
+			}
+
 			$response = array(
 				'code' => (int) $status_code,
-				'headers' => array(
-					array(
-						'name' => 'Content-Type',
-						'value' => $content_type,
-					),
-				),
+				'headers' => $headers,
 				'body' => $response,
 			);
 			$status_code = 200;
@@ -425,8 +437,9 @@ class WPCOM_JSON_API {
 
 		$status_code = $error->get_error_data();
 
-		if ( is_array( $status_code ) )
+		if ( is_array( $status_code ) ) {
 			$status_code = $status_code['status_code'];
+		}
 
 		if ( !$status_code ) {
 			$status_code = 400;
@@ -435,6 +448,11 @@ class WPCOM_JSON_API {
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
 		);
+		
+		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
+			$response['data'] = $additional_data;
+		}		
+
 		return array(
 			'status_code' => $status_code,
 			'errors' => $response
@@ -442,11 +460,6 @@ class WPCOM_JSON_API {
 	}
 
 	function output_error( $error ) {
-		if ( function_exists( 'bump_stats_extra' ) ) {
-			$client_id = ! empty( $this->token_details['client_id'] ) ? $this->token_details['client_id'] : 0;
-			bump_stats_extra( 'rest-api-errors', $client_id );
-		}
-
 		$error_response = $this->serializable_error( $error );
 
 		return $this->output( $error_response[ 'status_code'], $error_response['errors'] );
@@ -489,7 +502,11 @@ class WPCOM_JSON_API {
 
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
-						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
+						if ( is_object( $response[ $key_to_filter ] ) ) {
+							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
+						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
+							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
+						}
 					} elseif ( is_array( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
 					}
@@ -587,40 +604,29 @@ class WPCOM_JSON_API {
 		return '';
 	}
 
-	function get_avatar_url( $email, $avatar_size = 96 ) {
-		add_filter( 'pre_option_show_avatars', '__return_true', 999 );
-		$_SERVER['HTTPS'] = 'off';
-
-		$avatar_img_element = get_avatar( $email, $avatar_size, '' );
-
-		if ( !$avatar_img_element || is_wp_error( $avatar_img_element ) ) {
-			$return = '';
-		} elseif ( !preg_match( '#src=([\'"])?(.*?)(?(1)\\1|\s)#', $avatar_img_element, $matches ) ) {
-			$return = '';
+	function get_avatar_url( $email, $avatar_size = null ) {
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			return null === $avatar_size
+				? wpcom_get_avatar_url( $email )
+				: wpcom_get_avatar_url( $email, $avatar_size );
 		} else {
-			$return = esc_url_raw( htmlspecialchars_decode( $matches[2] ) );
+			return null === $avatar_size
+				? get_avatar_url( $email )
+				: get_avatar_url( $email, $avatar_size );
 		}
-
-		remove_filter( 'pre_option_show_avatars', '__return_true', 999 );
-		if ( '--UNset--' === $this->_server_https ) {
-			unset( $_SERVER['HTTPS'] );
-		} else {
-			$_SERVER['HTTPS'] = $this->_server_https;
-		}
-
-		return $return;
 	}
 
 	/**
-	 * Traps `wp_die()` calls and outputs a JSON response instead.
+	 * traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *
-	 * @param string|null $error_code.  Call with string to start the trapping.  Call with null to stop.
+	 * @param string|null $error_code  Call with string to start the trapping.  Call with null to stop.
+	 * @param int         $http_status  HTTP status code, 400 by default.
 	 */
-	function trap_wp_die( $error_code = null ) {
-		// Stop trapping
+	function trap_wp_die( $error_code = null, $http_status = 400 ) {
 		if ( is_null( $error_code ) ) {
 			$this->trapped_error = null;
+			// Stop trapping
 			remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
 			return;
 		}
@@ -636,13 +642,12 @@ class WPCOM_JSON_API {
 			}
 		}
 
-		// Start trapping
 		$this->trapped_error = array(
-			'status'  => 500,
+			'status'  => $http_status,
 			'code'    => $error_code,
 			'message' => '',
 		);
-
+		// Start trapping
 		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
 	}
 
@@ -651,29 +656,34 @@ class WPCOM_JSON_API {
 	}
 
 	function wp_die_handler( $message, $title = '', $args = array() ) {
+		// Allow wp_die calls to override HTTP status code...
 		$args = wp_parse_args( $args, array(
-			'response' => 500,
+			'response' => $this->trapped_error['status'],
 		) );
+
+		// ... unless it's 500 ( see http://wp.me/pMz3w-5VV )
+		if ( (int) $args['response'] !== 500 ) {
+			$this->trapped_error['status'] = $args['response'];
+		}
 
 		if ( $title ) {
 			$message = "$title: $message";
 		}
 
-		switch ( $this->trapped_error['code'] ) {
-		case 'comment_failure' :
-			if ( did_action( 'comment_duplicate_trigger' ) ) {
-				$this->trapped_error['code'] = 'comment_duplicate';
-			} else if ( did_action( 'comment_flood_trigger' ) ) {
-				$this->trapped_error['code'] = 'comment_flood';
-			}
-			break;
-		}
-
-		$this->trapped_error['status']  = $args['response'];
 		$this->trapped_error['message'] = wp_kses( $message, array() );
 
+		switch ( $this->trapped_error['code'] ) {
+			case 'comment_failure' :
+				if ( did_action( 'comment_duplicate_trigger' ) ) {
+					$this->trapped_error['code'] = 'comment_duplicate';
+				} else if ( did_action( 'comment_flood_trigger' ) ) {
+					$this->trapped_error['code'] = 'comment_flood';
+				}
+				break;
+		}
+
 		// We still want to exit so that code execution stops where it should.
-		// Attach the JSON output to WordPress' shutdown handler
+		// Attach the JSON output to the WordPress shutdown handler
 		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
 		exit;
 	}

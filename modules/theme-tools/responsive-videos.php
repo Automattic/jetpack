@@ -20,6 +20,9 @@ function jetpack_responsive_videos_init() {
 
 	/* Wrap videos in Buddypress */
 	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
+
+	/* Wrap Slideshare shortcodes */
+	add_filter( 'jetpack_slideshare_shortcode', 'jetpack_responsive_videos_embed_html' );
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 
@@ -33,10 +36,22 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
+	// The customizer video widget wraps videos with a class of wp-video
+	// mejs as of 4.9 apparently resizes videos too which causes issues
+	// skip the video if it is wrapped in wp-video.
+	$video_widget_wrapper = 'class="wp-video"';
+
+	$mejs_wrapped = strpos( $html, $video_widget_wrapper );
+
+	// If this is a video widget wrapped by mejs, return the html.
+	if ( false !== $mejs_wrapped ) {
+		return $html;
+	}
+
 	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG ) {
-		wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( 'responsive-videos/responsive-videos.js', __FILE__ ), array( 'jquery' ), '1.2', true );
+		wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( 'responsive-videos/responsive-videos.js', __FILE__ ), array( 'jquery' ), '1.3', true );
 	} else {
-		wp_enqueue_script( 'jetpack-responsive-videos-min-script', plugins_url( 'responsive-videos/responsive-videos.min.js', __FILE__ ), array( 'jquery' ), '1.2', true );
+		wp_enqueue_script( 'jetpack-responsive-videos-min-script', plugins_url( 'responsive-videos/responsive-videos.min.js', __FILE__ ), array( 'jquery' ), '1.3', true );
 	}
 
 	// Enqueue CSS to ensure compatibility with all themes
@@ -46,11 +61,11 @@ function jetpack_responsive_videos_embed_html( $html ) {
 }
 
 /**
- * Check if oEmbed is a `$video_patterns` provider video before wrapping.
+ * Check if oEmbed is YouTube or Vimeo before wrapping.
  *
  * @return string
  */
-function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
+function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 		return $html;
 	}

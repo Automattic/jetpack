@@ -22,12 +22,19 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
+	}
+
+	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '5.3', '<' ) ) {
+			delete_option( 'jetpack_connection_banner_ab' );
+		}
 	}
 
 	/**
 	 * Checks whether the connection banner A/B test should be ran.
 	 *
-	 * @since 4.4.0
+	 * @since 5.3.0
 	 *
 	 * @param null $now
 	 *
@@ -38,8 +45,8 @@ class Jetpack_Connection_Banner {
 		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
 
 		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
-		// for the 15th of December 2016.
-		$expiration = gmmktime( 0, 0, 0, 12, 15, 2016 );
+		// for the October 5th, 2017.
+		$expiration = gmmktime( 0, 0, 0, 10, 5, 2017 );
 
 		return $expiration >= $now;
 	}
@@ -47,33 +54,59 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Gets the value for which connection banner to show, and initializes if not set.
 	 *
-	 * @since 4.4.0
+	 * @since 5.3.0
 	 *
 	 * @return int
 	 */
 	static function get_random_connection_banner_value() {
-		$random_connection_banner = Jetpack_Options::get_option( 'connection_banner_ab' );
+		$random_connection_banner = get_option( 'jetpack_connection_banner_ab' );
 		if ( ! $random_connection_banner ) {
 			$random_connection_banner = mt_rand( 1, 2 );
-			Jetpack_Options::update_option( 'connection_banner_ab', $random_connection_banner );
+			update_option( 'jetpack_connection_banner_ab', $random_connection_banner );
 		}
 
 		return $random_connection_banner;
 	}
 
 	/**
-	 * Will initialize hooks to display the new and legacy connection banners if the current user can
+	 * Given a string for the the banner was added, and an int that represents the slide to
+	 * a URL for, this function returns a connection URL with a from parameter that will
+	 * support split testing.
+	 *
+	 * @param string     $jp_version_banner_added A short version of when the banner was added. Ex. 44
+	 * @param string|int $slide_num               The index of the slide, 1-indexed.
+	 * @return string
+	 */
+	function build_connect_url_for_slide( $jp_version_banner_added, $slide_num ) {
+		global $current_screen;
+		$url = Jetpack::init()->build_connect_url(
+			true,
+			false,
+			sprintf( 'banner-%s-slide-%s-%s', $jp_version_banner_added, $slide_num, $current_screen->base )
+		);
+		return add_query_arg( 'auth_approved', 'true', $url );
+	}
+
+	/**
+	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
 	 * This method should not be called if the site is connected to WordPress.com or if the site is in development mode.
 	 *
 	 * @since 4.4.0
+	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
+	 * @since 5.3.0 Running another split test between 4.4 banner and a new one in 5.3.
 	 *
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+		// Kill if banner has been dismissed
+		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
+			return;
+		}
+
 		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base ) {
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
 			return;
 		}
 
@@ -82,17 +115,22 @@ class Jetpack_Connection_Banner {
 		}
 
 		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
-			add_action( 'admin_notices', array( $this, 'render_banner' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
+			add_action( 'admin_notices', array( $this, 'render_banner_b' ) );
 		} else {
-			add_action( 'admin_notices', array( $this, 'render_legacy_banner' ) );
-
+			add_action( 'admin_notices', array( $this, 'render_banner' ) );
 		}
 
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
+		}
+
+		// Only fires immediately after plugin activation
+		if ( get_transient( 'activated_jetpack' ) ) {
+			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+			delete_transient( 'activated_jetpack' );
 		}
 	}
 
@@ -104,93 +142,43 @@ class Jetpack_Connection_Banner {
 	function enqueue_banner_scripts() {
 		wp_enqueue_script(
 			'jetpack-connection-banner-js',
-			plugins_url( '_inc/jetpack-connection-banner.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-connection-banner.min.js',
+				'_inc/jetpack-connection-banner.js'
+			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
 		);
-	}
 
-	/**
-	 * Returns a URL that will dismiss allow the current user to dismiss the connection banner.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return string
-	 */
-	function get_dismiss_and_deactivate_url() {
-		return wp_nonce_url(
-			Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ),
-			'jetpack-deactivate'
+		wp_localize_script(
+			'jetpack-connection-banner-js',
+			'jp_banner',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
+			)
 		);
 	}
 
 	/**
-	 * Renders the legacy connection banner.
-	 */
-	function render_legacy_banner() {
-		$legacy_banner_from = self::check_ab_test_not_expired()
-			? 'banner-legacy'
-			: 'banner';
-		?>
-		<div id="message" class="updated jp-banner">
-			<a
-				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-				class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-
-			</a>
-			<div class="jp-banner__description-container">
-				<h2 class="jp-banner__header"><?php esc_html_e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
-				<p class="jp-banner__description">
-					<?php
-					esc_html_e(
-						'Please connect to or create a WordPress.com account to enable Jetpack, including
-								powerful security, traffic, and customization services.',
-						'jetpack'
-					);
-					?>
-				</p>
-				<p class="jp-banner__button-container">
-					<a
-						href="<?php echo Jetpack::init()->build_connect_url( false, false, $legacy_banner_from ) ?>"
-						class="button button-primary">
-						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-					</a>
-					<a
-						href="<?php echo Jetpack::admin_url( 'admin.php?page=jetpack' ) ?>"
-						class="button"
-						title="<?php
-						esc_attr_e(
-							'Learn about the benefits you receive when you connect Jetpack to WordPress.com',
-							'jetpack'
-						);
-						?> ">
-						<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
-					</a>
-				</p>
-			</div>
-		</div>
-	<?php }
-
-	/**
-	 * Renders the new connection banner.
+	 * Renders the new connection banner as of 4.4.0.
 	 *
 	 * @since 4.4.0
 	 */
 	function render_banner() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
-				<a
-					href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-					class="notice-dismiss"
+				<span
+					class="notice-dismiss connection-banner-dismiss"
 					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</a>
+				</span>
 
 				<div class="jp-wpcom-connect__vertical-nav">
 					<div class="jp-wpcom-connect__vertical-nav-container">
 						<div class="vertical-menu__feature-item jp-feature-intro vertical-menu__feature-item-is-selected">
 							<div class="vertical-menu__feature-item-icon">
-								<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 1 20 20" version="1.1"><path d="M14.4 11.3L10.5 18.1 10.5 8.7 13.7 9.5C14.5 9.7 14.9 10.6 14.4 11.3L14.4 11.3ZM9.6 13.3L6.5 12.5C5.7 12.3 5.3 11.4 5.7 10.7L9.6 3.9 9.6 13.3ZM10 1C4.5 1 0 5.5 0 11 0 16.5 4.5 21 10 21 15.5 21 20 16.5 20 11 20 5.5 15.5 1 10 1L10 1Z" /></svg>
+								<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" version="1.1"><path d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M11,14H6l5-10V14z M13,20V10h5L13,20z"/></svg>
 							</div>
 							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Welcome to Jetpack', 'jetpack' ); ?></span>
 						</div>
@@ -205,6 +193,12 @@ class Jetpack_Connection_Banner {
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 1 16 20" version="1.1"><defs><polygon points="16 10 16 0 0 0 0 10 0 20 16 20"/></defs><g stroke="none" stroke-width="1" transform="translate(0.000000, 1.000000)"><mask fill="white"/><path d="M9 13.7L9 16 7 16 7 13.7C6.4 13.4 6 12.7 6 12 6 10.9 6.9 10 8 10 9.1 10 10 10.9 10 12 10 12.7 9.6 13.4 9 13.7L9 13.7ZM5 5C5 3.3 6.3 2 8 2 9.7 2 11 3.3 11 5L11 6 5 6 5 5ZM14 6L13 6 13 5C13 2.2 10.8 0 8 0 5.2 0 3 2.2 3 5L3 6 2 6C0.9 6 0 6.9 0 8L0 18C0 19.1 0.9 20 2 20L14 20C15.1 20 16 19.1 16 18L16 8C16 6.9 15.1 6 14 6L14 6Z" mask="url(#mask-2)"/></g></svg>
 							</div>
 							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Site Security', 'jetpack' ); ?></span>
+						</div>
+						<div class="vertical-menu__feature-item">
+							<div class="vertical-menu__feature-item-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="20" height="20"/><g><path d="M4 6c-1.105 0-2 .895-2 2v12c0 1.1.9 2 2 2h12c1.105 0 2-.895 2-2H4V6zm16-4H8c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h12c1.105 0 2-.895 2-2V4c0-1.105-.895-2-2-2zm-5 14H8V9h7v7zm5 0h-3V9h3v7zm0-9H8V4h12v3z"/></g></svg>
+							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Professional Themes', 'jetpack' ); ?></span>
 						</div>
 						<div class="vertical-menu__feature-item">
 							<div class="vertical-menu__feature-item-icon">
@@ -232,15 +226,12 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 						<h2><?php esc_html_e( 'Jetpack simplifies site security, customization, and management.', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="103" viewBox="686 84 100 103" version="1.1">
-								<g id="secondary-simple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(686.000000, 84.000000)">
-									<path d="M50.42 0.72C23.4 0.72 1.49 22.52 1.49 49.4 1.49 53.25 1.96 57 2.81 60.59 4.19 60.97 5.65 61.1 7.08 61.01 18.59 60.28 26.74 51.61 34.36 44.02 34.57 43.82 37.97 40.43 37.97 40.43L41.91 44.36C41.09 45.79 40.14 47.12 39.12 48.39L44.38 53.63 19.19 78.69 20.1 79.59 15.83 83.83C24.69 92.64 36.91 98.08 50.42 98.08 77.43 98.08 99.34 76.29 99.34 49.4 99.34 22.52 77.43 0.72 50.42 0.72" id="Fill-1" fill="#8CC258"/>
-									<path d="M61.93 14.55L65.95 18.51 63.92 22.21C63.92 22.21 57.89 22.43 57.57 22.29 57.24 22.16 55.7 18.94 56.01 18.48 56.32 18.02 60.98 14.61 60.98 14.61L61.93 14.55" id="Fill-2" fill="#FFFFFF"/>
-									<path d="M47.35 26.31L32.52 41.07 40.21 48.72 59.33 29.69 55.97 26.35 55.93 26.31C53.56 23.95 49.72 23.95 47.35 26.31" id="Fill-3" fill="#498E0B"/>
-									<path d="M87.32 4.76C85.69 4.76 84.36 6.08 84.36 7.71L84.36 9.57 77.37 13.06C73.73 14.88 70.64 17.58 68.33 20.88L65.32 17.89 65.32 17.89 62.97 20.23C62.09 21.11 60.66 21.11 59.78 20.23L58.83 19.29C58.38 18.84 58.38 18.1 58.83 17.65L61.94 14.56C61.94 14.55 61.93 14.55 61.93 14.55L61.93 14.55 61.92 14.55C60.16 13.13 57.58 13.24 55.94 14.87L50.18 20.59 56 26.38C51.92 27.32 48.47 30.04 46.62 33.81L40.59 46.12C35.73 47.94 31.84 51.87 30.16 56.93L25.36 71.42 24.37 71.91C19.13 74.5 14.88 78.73 12.27 83.95L8.55 91.41 5.72 90.72C4.55 90.44 3.37 91.15 3.09 92.32L0.61 102.48 5.42 97.7 5.42 97.7 38.81 64.47C39.67 65.05 40.58 65.56 41.54 65.99L54.79 71.95C51.27 72.52 47.88 73.79 44.83 75.71L37.81 80.12 35.87 78.18C35.09 77.41 33.83 77.41 33.05 78.18L25.87 85.33 31.79 83.9 31.79 83.9 53.65 78.62 58.85 77.37C59.9 77.1 60.79 76.58 61.48 75.9 63.56 73.83 63.81 70.26 61.48 67.94L48.55 55.07 52.56 52.06 68.23 52.06 68.23 52.06 68.32 52.06C69.1 52.06 69.79 51.68 70.21 51.1 70.22 51.09 70.23 51.08 70.24 51.07L70.23 51.07C70.51 50.69 70.67 50.22 70.67 49.72L70.67 47.5C70.67 46.78 70.09 46.2 69.37 46.2L67.14 46.2C65.84 46.2 64.79 47.25 64.79 48.54L64.79 49.27 60.31 47.8C59.82 47.63 59.32 47.49 58.81 47.36L60.54 46.06C63.39 43.92 65.07 40.57 65.09 37.02L65.11 31.29 91.77 4.76 87.32 4.76" id="Fill-4" fill="#234705"/>
-								</g>
-							</svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/jetpack-welcome.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
+									'jetpack'
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
@@ -271,10 +262,13 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 1 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
@@ -294,8 +288,12 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-two">
 						<h2><?php esc_html_e( 'Detailed stats and traffic tools to help your site grow', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="687 83 100 100" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(687.000000, 83.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><path d="M45.5 63L55.5 63 55.5 28 45.5 28 45.5 63ZM60.5 63L70.5 63 70.5 35.5 60.5 35.5 60.5 63ZM30.5 63L40.5 63 40.5 45.5 30.5 45.5 30.5 63ZM28 73L73 73 73 68 28 68 28 73Z" fill="#FFFFFF"/></g></svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/stats-people.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+								esc_attr_e(
+									'Get clear and concise stats and analytics about your visitors',
+								 'jetpack'
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -319,15 +317,18 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Professional Plan customers get access to advanced SEO tools as well as unlimited surveys and polls.',
+								'Professional Plan customers get access to advanced SEO tools.',
 								'jetpack'
 							);
 							?>
 						</p>
-									
+
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2' ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 2 ) ); ?>" class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -339,8 +340,12 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three">
 						<h2><?php esc_html_e( 'Multiple security tools to give you peace of mind', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="2 3 100 100" version="1.1"><defs><polygon points="36 22.5 36 0 0 0 0 22.5 0 45 36 45"/></defs><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(2.000000, 3.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><g transform="translate(32.000000, 25.000000)"><mask fill="white"/><path d="M20.3 30.9L20.3 36 15.8 36 15.8 30.9C14.4 30.1 13.5 28.7 13.5 27 13.5 24.5 15.5 22.5 18 22.5 20.5 22.5 22.5 24.5 22.5 27 22.5 28.7 21.6 30.1 20.3 30.9L20.3 30.9ZM11.3 11.2C11.3 7.5 14.3 4.5 18 4.5 21.7 4.5 24.8 7.5 24.8 11.2L24.8 13.5 11.3 13.5 11.3 11.2ZM31.5 13.5L29.3 13.5 29.3 11.2C29.3 5 24.2 0 18 0 11.8 0 6.8 5 6.8 11.2L6.8 13.5 4.5 13.5C2 13.5 0 15.5 0 18L0 40.5C0 43 2 45 4.5 45L31.5 45C34 45 36 43 36 40.5L36 18C36 15.5 34 13.5 31.5 13.5L31.5 13.5Z" fill="#FFFFFF" mask="url(#mask-2)"/></g></g></svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security',
+									'jetpack'
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
@@ -371,10 +376,13 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 3 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -382,12 +390,71 @@ class Jetpack_Connection_Banner {
 						</p>
 					</div> <!-- end slide 3 -->
 
+					<!-- slide 3A: themes -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three-a">
+						<h2><?php esc_html_e( 'Hundreds of beautiful themes to choose from', 'jetpack' ) ?></h2>
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/customize-theme.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience',
+									'jetpack'
+								); ?>" height="auto" width="250" />
+						</div>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Jetpack reduces complexity and makes this previously difficult process a breeze. Browse hundreds of themes in our showcase, or search by theme, name, style, color, or type.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Preview, install, and activate with one-click, then use our suite of design tools to make it look just as you need it to.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', '3a' ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+							</a>
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 3A -->
+
+
 					<!-- slide 4: Performance -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
 						<h2><?php esc_html_e( 'Faster site speeds through the WordPress.com CDN', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="2 3 100 100" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(2.000000, 3.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><path d="M41.5 32.5L41.5 46.7 48.3 39.3 59.2 51.4 60.7 49.7C62.4 47.8 65.6 47.8 67.3 49.7L68.5 51 68.5 32.5 41.5 32.5ZM73 32.5L73 59.5C73 62 71 64 68.5 64L41.5 64C39 64 37 62 37 59.5L37 32.5C37 30 39 28 41.5 28L68.5 28C71 28 73 30 73 32.5L73 32.5ZM32.5 68.5L64 68.5 64 68.5C64 71 62 73 59.5 73L32.5 73C30 73 28 71 28 68.5L28 41.5C28 39 30 37 32.5 37L32.5 37 32.5 68.5ZM57.3 40.4C57.3 38.5 58.8 37 60.6 37 62.5 37 64 38.5 64 40.4 64 42.2 62.5 43.8 60.6 43.8 58.8 43.8 57.3 42.2 57.3 40.4L57.3 40.4Z" fill="#FFFFFF"/></g></svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/cloud-based.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Jetpack automatically optimizes and speeds up images using the global WordPress.com Content Delivery Network (CDN)',
+									'jetpack'
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -402,15 +469,18 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Use of our CDN is unlimited and scales with your site for free. You can also use it for your theme images and files to further speed up your site.',
+								'Use of our CDN is unlimited and scales with your site for free. You can also use it for your theme images to further speed up your site.',
 								'jetpack'
 							);
 							?>
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-4' ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 4 ) ); ?>" class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -422,8 +492,12 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-five">
 						<h2><?php esc_html_e( 'Free WordPress apps to manage your site(s) from any device', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="2 3 100 100" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(2.000000, 3.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><path d="M36.5 66.3L63.5 66.3 63.5 34.8 36.5 34.8 36.5 66.3ZM47.8 70.8L52.3 70.8 52.3 68.5 47.8 68.5 47.8 70.8ZM63.5 28L36.5 28C34 28 32 30 32 32.5L32 68.5C32 71 34 73 36.5 73L63.5 73C66 73 68 71 68 68.5L68 32.5C68 30 66 28 63.5 28L63.5 28Z" fill="#FFFFFF"/></g></svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/apps.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Our mobile and desktop apps are free and available to you on Apple or Android devices once Jetpack is connected to WordPress.com',
+									'jetpack'
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -445,8 +519,11 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-5' ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 5 ) ); ?>" class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -458,8 +535,12 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-six">
 						<h2><?php esc_html_e( 'More Jetpack features our users love', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="2 3 100 100" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(2.000000, 3.000000)"><circle fill="#3D596D" cx="50" cy="50" r="50"/><path d="M55.3 51.4L58.4 48.4C59.7 49.1 61.2 49.5 62.9 49.5 68.5 49.5 73 45 73 39.4 73 37.7 72.6 36.2 71.9 34.9L64 42.8 59.5 38.3 67.4 30.4C66 29.7 64.5 29.3 62.9 29.3 57.3 29.3 52.8 33.8 52.8 39.4 52.8 41 53.2 42.5 53.9 43.9L30.3 67.5 34.8 72 50.2 56.6C54.4 60.9 58.9 65 63.6 68.9L66.8 71.4 70.2 68.1 67.6 64.9C63.8 60.1 59.7 55.6 55.3 51.4M28 36C28 32.6 29.8 29.1 32.5 27 32.5 28.9 34.1 31.5 37 31.5 40.7 31.5 43.8 34.5 43.8 38.3 43.8 39.1 43.6 39.9 43.3 40.7 44.9 42 46.6 43.4 48.2 44.8L43.5 49.5C42.1 47.8 40.8 46.2 39.5 44.5 38.7 44.8 37.9 45 37 45 32 45 28 41 28 36" fill="#FFFFFF"/></g></svg>
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/customize-theme-2.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+									esc_attr_e(
+										'Jetpack includes other features that help you customize your site',
+									'jetpack'
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -482,16 +563,437 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-6' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 6 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 						</p>
 					</div> <!-- end slide 6 -->
 				</div>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Renders a split-test banner as of 5.3.0.
+	 *
+	 * @since 5.3.0
+	 */
+	function render_banner_b() { ?>
+		<div id="message" class="updated jp-wpcom-connect__container">
+			<div class="jp-wpcom-connect__inner-container">
+				<span
+					class="notice-dismiss connection-banner-dismiss"
+					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
+				</span>
+
+				<div class="jp-wpcom-connect__vertical-nav">
+					<div class="jp-wpcom-connect__vertical-nav-container">
+						<div class="vertical-menu__feature-item jp-feature-intro vertical-menu__feature-item-is-selected">
+							<div class="vertical-menu__feature-item-icon">
+								<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" version="1.1"><path d="M14.4 11.3L10.5 18.1 10.5 8.7 13.7 9.5C14.5 9.7 14.9 10.6 14.4 11.3L14.4 11.3ZM9.6 13.3L6.5 12.5C5.7 12.3 5.3 11.4 5.7 10.7L9.6 3.9 9.6 13.3ZM10 1C4.5 1 0 5.5 0 11 0 16.5 4.5 21 10 21 15.5 21 20 16.5 20 11 20 5.5 15.5 1 10 1L10 1Z" /></svg>
+							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Welcome to Jetpack', 'jetpack' ); ?></span>
+						</div>
+						<div class="vertical-menu__feature-item">
+							<div class="vertical-menu__feature-item-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 2 20 20" version="1.1"><path d="M6 4L6 10.3 9 7 13.9 12.4 14.5 11.7C15.3 10.8 16.7 10.8 17.5 11.7L18 12.2 18 4 6 4ZM20 4L20 16C20 17.1 19.1 18 18 18L6 18C4.9 18 4 17.1 4 16L4 4C4 2.9 4.9 2 6 2L18 2C19.1 2 20 2.9 20 4L20 4ZM2 20L16 20 16 20C16 21.1 15.1 22 14 22L2 22C0.9 22 0 21.1 0 20L0 8C0 6.9 0.9 6 2 6L2 6 2 20ZM13 7.5C13 6.7 13.7 6 14.5 6 15.3 6 16 6.7 16 7.5 16 8.3 15.3 9 14.5 9 13.7 9 13 8.3 13 7.5L13 7.5Z" /></svg>
+							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Create Your Site', 'jetpack' ); ?></span>
+						</div>
+						<div class="vertical-menu__feature-item">
+							<div class="vertical-menu__feature-item-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 2 20 20" version="1.1"><path d="M7.8 17.6L12.2 17.6 12.2 2 7.8 2 7.8 17.6ZM14.4 17.6L18.9 17.6 18.9 5.3 14.4 5.3 14.4 17.6ZM1.1 17.6L5.6 17.6 5.6 9.8 1.1 9.8 1.1 17.6ZM0 22L20 22 20 19.8 0 19.8 0 22Z" /></svg>
+							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Make It Successful', 'jetpack' ); ?></span>
+						</div>
+						<div class="vertical-menu__feature-item">
+							<div class="vertical-menu__feature-item-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 1 16 20" version="1.1"><defs><polygon points="16 10 16 0 0 0 0 10 0 20 16 20"/></defs><g stroke="none" stroke-width="1" transform="translate(0.000000, 1.000000)"><mask fill="white"/><path d="M9 13.7L9 16 7 16 7 13.7C6.4 13.4 6 12.7 6 12 6 10.9 6.9 10 8 10 9.1 10 10 10.9 10 12 10 12.7 9.6 13.4 9 13.7L9 13.7ZM5 5C5 3.3 6.3 2 8 2 9.7 2 11 3.3 11 5L11 6 5 6 5 5ZM14 6L13 6 13 5C13 2.2 10.8 0 8 0 5.2 0 3 2.2 3 5L3 6 2 6C0.9 6 0 6.9 0 8L0 18C0 19.1 0.9 20 2 20L14 20C15.1 20 16 19.1 16 18L16 8C16 6.9 15.1 6 14 6L14 6Z" mask="url(#mask-2)"/></g></svg>
+							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Keep It Safe', 'jetpack' ); ?></span>
+						</div>
+					</div>
+				</div>
+				<div class="jp-wpcom-connect__content-container">
+
+					<!-- slide 1: intro -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
+						<h2><?php esc_html_e( 'Welcome to Jetpack', 'jetpack' ) ?></h2>
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/jetpack-welcome.svg', JETPACK__PLUGIN_FILE ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
+						</div>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Jetpack is the best way to experience WordPress, whether your site is brand new or already well established.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'You get themes and tools to design your site, marketing services to make it successful, and state-of-the-art security.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Connect to WordPress.com (free) to get started.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 1 ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+							</a>
+							<a
+								href="#"
+								class="dops-button next-feature"
+								title="<?php
+								esc_attr_e(
+									'Start tour to Learn about the benefits you receive when you connect Jetpack to WordPress.com',
+									'jetpack'
+								);
+								?>">
+								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 1 -->
+
+					<!-- slide 2: design -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-two">
+						<h2><?php esc_html_e( 'Code-Free Design and Publishing', 'jetpack' ) ?></h2>
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/customize-theme.svg', JETPACK__PLUGIN_FILE ); ?>" alt="Customization tools and widgets help you make your site look great without writing any code" height="auto" width="225" />
+						</div>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Jetpack gives you access to more than 100 free and 200 premium WordPress themes.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Customization tools and widgets help you make your site look great without writing any code, and our CDN speeds up your images.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Publish with ease using WordPress.com or the official WordPress mobile apps.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 2 ) ); ?>" class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+							</a>
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 2 -->
+
+					<!-- slide 3: marketing -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three">
+						<h2><?php esc_html_e( 'Get The Traffic You Deserve', 'jetpack' ) ?></h2>
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/stats-people.svg', JETPACK__PLUGIN_FILE ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="265" />
+						</div>
+
+						<p>
+							<?php
+							esc_html_e(
+								'A site without traffic is like a car without gas. Jetpack helps you fill up so that you can achieve your goals.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Kickstart your marketing with social media automation tools, related content, email subscriptions, and sharing tools.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'You also get clear and concise stats and analytics about your visitors.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 3 ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+							</a>
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 3 -->
+
+					<!-- slide 4: security -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
+						<h2><?php esc_html_e( 'Make Sure Your Site Is Always Online', 'jetpack' ) ?></h2>
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<img src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
+						</div>
+
+						<p>
+							<?php
+							esc_html_e(  'Jetpack checks your site every few minutes, and if it\'s offline we\'ll notify you instantly.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(  'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(  'Paying customers also benefit from automated backups, malware scans, and priority support.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 4 ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 4 -->
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders the full-screen connection prompt.  Only shown once and on plugin activation.
+	 */
+	function render_connect_prompt_full_screen() {
+		?>
+		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
+
+			<img
+				class="jetpack-logo"
+				src="<?php echo plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ); ?>"
+				alt="<?php
+					esc_attr_e(
+						'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
+						'jetpack'
+				); ?>"
+			/>
+
+			<div class="jp-connect-full__dismiss">
+				<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
+			</div>
+
+			<div class="jp-connect-full__step-header">
+				<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'The ideal way to experience WordPress', 'jetpack' ) ?></h2>
+				<h3 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Hassle-free design, marketing, and security — all in one place.', 'jetpack' ) ?></h3>
+			</div>
+			<p class="jp-connect-full__tos-blurb">
+				<?php jetpack_render_tos_blurb(); ?>
+			</p>
+
+			<p class="jp-connect-full__button-container">
+				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
+					<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+				</a>
+			</p>
+
+			<p class="jp-connect-full__dismiss-paragraph">
+				<a><?php echo esc_html_x( 'not now', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack' ); ?></a>
+			</p>
+
+			<div class="jp-connect-full__slide">
+				<div class="jp-connect-full__slide-card">
+					<h4><?php esc_html_e( 'Design & Customization', 'jetpack' ); ?></h4>
+					<p><?php
+						esc_html_e(
+							'Design: Choose from hundreds of website theme designs and customize your site further with feature-rich widgets.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Optimize: Upload images and videos directly to our powerful servers that present your media with lightning speed.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Publish: Post on the go from any device using the WordPress apps for iOS, Android, Windows, Linux, and OSX.',
+							'jetpack'
+						);
+					?></p>
+				</div>
+				<div class="jp-connect-full__slide-card illustration">
+					<img
+						src="<?php echo plugins_url( 'images/jetpack-design.svg', JETPACK__PLUGIN_FILE ); ?>"
+						alt="<?php esc_attr_e( 'Design & Customization', 'jetpack' ); ?>"
+					/>
+				</div>
+			</div>
+			<div class="jp-connect-full__slide">
+				<div class="jp-connect-full__slide-card illustration">
+					<img
+						src="<?php echo plugins_url( 'images/jetpack-performance.svg', JETPACK__PLUGIN_FILE ); ?>"
+						alt="<?php esc_attr_e( 'Marketing & Performance', 'jetpack' ); ?>"
+					/>
+				</div>
+				<div class="jp-connect-full__slide-card">
+					<h4><?php esc_html_e( 'Marketing & Performance', 'jetpack' ); ?></h4>
+					<p><?php
+						esc_html_e(
+							'Promote: Spread the word about your website by connecting to all major social media channels and plan ahead with automated scheduled posting.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Measure: Keep track of your site’s performance with real-time stats—see where visitors are coming from and what they’re searching for.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Earn: Generate revenue with the WordPress.com ad program and accept payment for goods and services via PayPal.',
+							'jetpack'
+						);
+					?></p>
+				</div>
+			</div>
+			<div class="jp-connect-full__slide">
+				<div class="jp-connect-full__slide-card">
+					<h4><?php esc_html_e( 'Security & Backups', 'jetpack' ); ?></h4>
+					<p><?php
+						esc_html_e(
+							'Monitor: Get instant alerts if your site goes down via email and push notifications.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Protect: Have peace of mind with around the clock protection against brute force attacks, spam, and malware.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Backup & Restore: Rest assured with real-time site backups and easy roll-back site restores.',
+							'jetpack'
+						);
+					?></p>
+				</div>
+				<div class="jp-connect-full__slide-card illustration">
+					<img
+						src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>"
+						alt="<?php esc_attr_e( 'Security & Backups', 'jetpack' ); ?>"
+					/>
+				</div>
+			</div>
+
+			
+			<img
+				class="support-characters"
+				src="<?php echo plugins_url( 'images/characters.svg', JETPACK__PLUGIN_FILE ); ?>"
+				alt="<?php
+					esc_attr_e(
+						'Jetpack help personnel',
+						'jetpack'
+				); ?>"
+			/>
+			<div class="jp-connect-full__step-support">
+				<h2>At your service whenever you need help</h2>
+				<h3>
+					<?php esc_html_e( 'If you need help at any step of the way we’re happy to chat with you!', 'jetpack' ); ?>
+				</h3>
+			</div>
+
+			<p class="jp-connect-full__button-container">
+				<a href="https://jetpack.com/contact-support/" class="dops-button">
+					<?php esc_html_e( 'Chat with us', 'jetpack' ); ?>
+				</a>
+				<a href="https://jetpack.com/support" class="dops-button">
+					<?php esc_html_e( 'Search our support site', 'jetpack' ); ?>
+				</a>
+			</p>
+			<div class="jp-connect-full__step-header bottom">
+				<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Get started today', 'jetpack' ) ?></h2>
+				<h3 class="jp-connect-full__step-header-title">
+					<?php esc_html_e( 'Connect to, or create, a WordPress.com account to start using Jetpack, and activate our powerful security, traffic and customization services.', 'jetpack' ) ?>
+				</h3>
+			</div>
+			<p class="jp-connect-full__tos-blurb">
+				<?php jetpack_render_tos_blurb(); ?>
+			</p>
+			<p class="jp-connect-full__button-container">
+				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
+					<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+				</a>
+			</p>
+		</div></div>
 		<?php
 	}
 

@@ -10,7 +10,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 	add_action( 'widgets_init', 'jetpack_contact_info_widget_init' );
 
 	/**
-	 * Makes a custom Widget for displaying Resturant Location, Hours and Contact Info available.
+	 * Makes a custom Widget for displaying Restaurant Location/Map, Hours, and Contact Info available.
 	 *
 	 * @package WordPress
 	 */
@@ -22,13 +22,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function __construct() {
 			$widget_ops = array(
 				'classname' => 'widget_contact_info',
-				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' ),
+				'description' => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			);
 			parent::__construct(
 				'widget_contact_info',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
-				apply_filters( 'jetpack_widget_name', __( 'Contact Info', 'jetpack' ) ),
+				apply_filters( 'jetpack_widget_name', __( 'Contact Info & Map', 'jetpack' ) ),
 				$widget_ops
 			);
 			$this->alt_option_name = 'widget_contact_info';
@@ -59,6 +59,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
 				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
 				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
+				'email'   => null,
 				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
@@ -92,6 +93,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 */
 			do_action( 'jetpack_contact_info_widget_start' );
 
+			echo '<div itemscope itemtype="http://schema.org/LocalBusiness">';
+
 			if ( '' != $instance['address'] ) {
 
 				$showmap = $instance['showmap'];
@@ -111,21 +114,30 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$map_link = $this->build_map_link( $instance['address'] );
 
-				echo '<div class="confit-address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
+				echo '<div class="confit-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
 			}
 
 			if ( '' != $instance['phone'] ) {
 				if ( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></div>";
+					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></span></div>";
 				}
 				else {
-					echo '<div class="confit-phone">' . esc_html( $instance['phone'] ) . '</div>';
+					echo '<div class="confit-phone"><span itemprop="telephone">' . esc_html( $instance['phone'] ) . '</span></div>';
 				}
 			}
 
-			if ( '' != $instance['hours'] ) {
-				echo '<div class="confit-hours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
+			if ( is_email( trim( $instance['email'] ) ) ) {
+				printf(
+					'<div class="confit-email"><a href="mailto:%1$s">%1$s</a></div>',
+					esc_html( $instance['email'] )
+				);
 			}
+
+			if ( '' != $instance['hours'] ) {
+				echo '<div class="confit-hours" itemprop="openingHours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
+			}
+
+			echo '</div>';
 
 			/**
 			 * Fires at the end of Contact Info widget.
@@ -165,6 +177,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance['title']   = wp_kses( $new_instance['title'], array() );
 			$instance['address'] = wp_kses( $new_instance['address'], array() );
 			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
+			$instance['email']   = wp_kses( $new_instance['email'], array() );
 			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
 			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
 			$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
@@ -233,7 +246,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			wp_enqueue_script( 'contact-info-admin', plugins_url( 'contact-info/contact-info-admin.js', __FILE__ ), array( 'jquery' ), 20160727 );
+			wp_enqueue_script(
+				'contact-info-admin',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
+					'modules/widgets/contact-info/contact-info-admin.js'
+				),
+				array( 'jquery' ),
+				20160727
+			);
 
 			?>
 			<p>
@@ -272,6 +293,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['phone'] ); ?>" />
+			</p>
+
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Email Address:', 'jetpack' ); ?></label>
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['email'] ); ?>" />
 			</p>
 
 			<p>

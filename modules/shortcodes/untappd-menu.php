@@ -41,7 +41,7 @@ class Jetpack_Untappd {
 		// We're going to clean the user input.
 		$atts = array_map( 'absint', $atts );
 
-		if ( $atts['location'] < 1 || $atts['theme'] < 1 ){
+		if ( $atts['location'] < 1 || $atts['theme'] < 1 ) {
 			return;
 		}
 

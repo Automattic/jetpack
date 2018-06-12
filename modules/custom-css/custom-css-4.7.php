@@ -59,11 +59,46 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		wp_register_style( 'jetpack-codemirror',      plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
-		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
+		$deps = array();
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			// If Core < 4.9
+			$deps[] = 'jetpack-codemirror';
+		}
+		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), $deps, '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array( 'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
+		$deps = array( 'customize-controls', 'underscore' );
+		$src  = Jetpack::get_file_url_for_environment(
+			'_inc/build/custom-css/custom-css/js/core-customizer-css.core-4.9.min.js',
+			'modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js'
+		);
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			// If Core < 4.9
+			$deps[] = 'jetpack-codemirror';
+			$src = Jetpack::get_file_url_for_environment(
+				'_inc/build/custom-css/custom-css/js/core-customizer-css.min.js',
+				'modules/custom-css/custom-css/js/core-customizer-css.js'
+			);
+		}
+		wp_register_script( 'jetpack-customizer-css', $src, $deps, JETPACK__VERSION, true );
 
-		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
+		wp_register_script(
+			'jetpack-customizer-css-preview',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
+				'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
+			),
+			array( 'customize-selective-refresh' ),
+			JETPACK__VERSION,
+			true
+		);
+
+		remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
+		remove_action( 'wp_head', 'wp_custom_css_cb', 101 );
+		add_action( 'wp_head', array( __CLASS__, 'wp_custom_css_cb' ), 101 );
+
+		if ( isset( $_GET['custom-css'] ) ) {
+			self::print_linked_custom_css();
+		}
 	}
 
 	/**
@@ -71,6 +106,16 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function customize_preview_init() {
 		add_filter( 'wp_get_custom_css', array( __CLASS__, 'customize_preview_wp_get_custom_css' ) );
+	}
+
+	/**
+	 * Print the current Custom CSS. This is for linking instead of printing directly.
+	 */
+	public static function print_linked_custom_css() {
+		header( 'Content-type: text/css' );
+		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
+		echo wp_get_custom_css();
+		exit;
 	}
 
 	/**
@@ -119,6 +164,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_safe_redirect( self::customizer_link( array(
 			'return_url' => wp_get_referer(),
 		) ) );
+		exit;
 	}
 
 	/**
@@ -131,6 +177,11 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return array $fields Modified array to include post_content_filtered.
 	 */
 	public static function _wp_post_revision_fields( $fields, $post ) {
+		// None of the fields in $post are required to be passed in this filter.
+		if ( ! isset( $post['post_type'], $post['ID'] ) ) {
+			return $fields;
+		}
+
 		// If we're passed in a revision, go get the main post instead.
 		if ( 'revision' === $post['post_type'] ) {
 			$main_post_id = wp_is_post_revision( $post['ID'] );
@@ -151,6 +202,24 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function get_css_post( $stylesheet = '' ) {
 		return wp_get_custom_css_post( $stylesheet );
+	}
+
+	/**
+	 * Override Core's `wp_custom_css_cb` method to provide linking to custom css.
+	 */
+	public static function wp_custom_css_cb() {
+		$styles = wp_get_custom_css();
+		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) :
+			// Add a cache buster to the url.
+			$url = home_url( '/' );
+			$url = add_query_arg( 'custom-css', substr( md5( $styles ), -10 ), $url );
+			?>
+			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( $url ); ?>" />
+		<?php elseif ( $styles || is_customize_preview() ) : ?>
+			<style type="text/css" id="wp-custom-css">
+				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
+			</style>
+		<?php endif;
 	}
 
 	/**
@@ -306,7 +375,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
-				__( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', 'jetpack' ),
+				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ),
 				wp_get_theme()->Name,
 				intval( $GLOBALS['content_width'] )
 			);
@@ -634,12 +703,24 @@ class Jetpack_Custom_CSS_Enhancements {
 		 * CONTROLS.
 		 */
 
-		// Overwrite the Core Control.
+		// Overwrite or Tweak the Core Control.
 		$core_custom_css = $wp_customize->get_control( 'custom_css' );
 		if ( $core_custom_css ) {
-			$wp_customize->remove_control( 'custom_css' );
-			$core_custom_css->type = 'jetpackCss';
-			$wp_customize->add_control( $core_custom_css );
+			if ( $core_custom_css instanceof WP_Customize_Code_Editor_Control ) {
+				// In WP 4.9, we let the Core CodeMirror control keep running the show, but hook into it to tweak stuff.
+				$types = array(
+					'default' => 'text/css',
+					'less'    => 'text/x-less',
+					'sass'    => 'text/x-scss',
+				);
+				$preprocessor = $wp_customize->get_setting( 'jetpack_custom_css[preprocessor]' )->value();
+				if ( isset( $types[ $preprocessor ] ) ) {
+					$core_custom_css->code_type = $types[ $preprocessor ];
+				}
+			} else {
+				// Core < 4.9 Fallback
+				$core_custom_css->type = 'jetpackCss';
+			}
 		}
 
 		$wp_customize->selective_refresh->add_partial( 'custom_css', array(

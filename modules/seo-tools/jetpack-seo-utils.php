@@ -22,13 +22,26 @@ class Jetpack_SEO_Utils {
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
 	public static function is_enabled_jetpack_seo( $site_id = 0 ) {
+		/**
+		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
+		 *
+		 * @module seo-tools
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param bool True if SEO Tools should be disabled, false otherwise.
+		 */
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return false;
+		}
+
 		if ( function_exists( 'has_blog_sticker' ) ) {
 			// For WPCOM sites
 			if ( empty( $site_id ) ) {
 				$site_id = get_current_blog_id();
 			}
 
-			return has_blog_sticker( 'unlimited-premium-themes', $site_id );
+			return has_blog_sticker( 'business-plan', $site_id );
 		}
 
 		// For all Jetpack sites

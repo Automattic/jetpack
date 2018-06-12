@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Carousel
- * Module Description: Transform image galleries into gorgeous, full-screen slideshows.
+ * Module Description: Display images and galleries in a gorgeous, full-screen browsing experience
  * Jumpstart Description: Brings your photos and images to life as full-size, easily navigable galleries.
  * Sort Order: 22
  * Recommendation Order: 12

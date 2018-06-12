@@ -21,16 +21,13 @@ describe( 'ConnectButton', () => {
 		isSiteConnected   : false,
 		isDisconnecting   : false,
 		isLinked          : false,
-		isUnlinking       : false
+		isUnlinking       : false,
+		asLink			  :	false
 	};
 
 	describe( 'Initially', () => {
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
-
-		it( 'queries URL to connect', () => {
-			expect( wrapper.find( 'QueryConnectUrl' ) ).to.exist;
-		} );
 
 		it( 'renders a button to connect or link', () => {
 			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
@@ -67,15 +64,15 @@ describe( 'ConnectButton', () => {
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'does not link to a URL', () => {
-			expect( wrapper.find( 'Button' ).props().href ).to.not.exist;
+			expect( wrapper.find( 'a.jp-jetpack-unlink__button' ).first().props().href ).to.not.exist;
 		} );
 
 		it( 'has an onClick method', () => {
-			expect( wrapper.find( 'Button' ).props().onClick ).to.exist;
+			expect( wrapper.find( 'a.jp-jetpack-unlink__button' ).first().props().onClick ).to.exist;
 		} );
 
 		it( 'when clicked, unlinkUser() is called once', () => {
-			wrapper.find( 'Button' ).simulate( 'click' );
+			wrapper.find( 'a.jp-jetpack-unlink__button' ).first().simulate( 'click' );
 			expect( unlinkUser.calledOnce ).to.be.true;
 		} );
 
@@ -111,24 +108,24 @@ describe( 'ConnectButton', () => {
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'does not link to a URL', () => {
-			expect( wrapper.find( 'Button' ).props().href ).to.not.exist;
+			expect( wrapper.find( 'a' ).props().href ).to.not.exist;
 		} );
 
-		it( 'when clicked, disconnectSite() is called once', () => {
+		it( 'when clicked, handleOpenModal() is called once', () => {
 
-			const disconnectSite = sinon.spy();
+			const handleOpenModal = sinon.spy();
 
 			class ConnectButtonMock extends ConnectButton {
 				constructor( props ) {
 					super( props );
-					this.disconnectSite = disconnectSite;
+					this.handleOpenModal = handleOpenModal;
 				}
 			}
 
 			const wrapper = shallow( <ConnectButtonMock { ...testProps } /> );
 
-			wrapper.find( 'Button' ).simulate( 'click' );
-			expect( disconnectSite.calledOnce ).to.be.true;
+			wrapper.find( 'a' ).simulate( 'click' );
+			expect( handleOpenModal.calledOnce ).to.be.true;
 
 		} );
 

@@ -10,7 +10,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	function init_listeners( $callable ) {
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
-		add_action( 'jetpack_sync_save_term', $callable, 10, 4 );
+		add_action( 'jetpack_sync_save_term', $callable );
+		add_action( 'jetpack_sync_add_term', $callable );
 		add_action( 'delete_term', $callable, 10, 4 );
 		add_action( 'set_object_terms', $callable, 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
@@ -73,8 +74,22 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			$term_object = get_term_by( 'id', $term_id, $taxonomy );
 		}
 
+		$current_filter = current_filter();
+
+		if ( 'created_term' === $current_filter ) {
+			/**
+			 * Fires when the client needs to add a new term
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param object the Term object
+			 */
+			do_action( 'jetpack_sync_add_term', $term_object );
+			return;
+		}
+
 		/**
-		 * Fires when the client needs to sync a new term
+		 * Fires when the client needs to update a term
 		 *
 		 * @since 4.2.0
 		 *

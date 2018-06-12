@@ -1,31 +1,51 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	getModules
-} from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
+import DashItem from 'components/dash-item';
 
-const DashMonitor = React.createClass( {
-	getContent: function() {
-		const labelName = __( 'Downtime Monitoring' );
+class DashMonitor extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
 
-		if ( this.props.isModuleActivated( 'monitor' ) ) {
+	getContent() {
+		const labelName = __( 'Downtime monitoring' );
+
+		const support = {
+			text: __( 'Jetpack’s downtime monitor will keep tabs on your site, and alert you the moment that downtime is detected.' ),
+			link: 'https://jetpack.com/support/monitor/',
+		};
+
+		const activateAndTrack = () => {
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_module_toggle',
+				{
+					module: 'monitor',
+					toggled: 'on'
+				}
+			);
+
+			this.props.updateOptions( { monitor: true } );
+		};
+
+		if ( this.props.getOptionValue( 'monitor' ) ) {
 			return (
 				<DashItem
 					label={ labelName }
 					module="monitor"
+					support={ support }
 					status="is-working"
 				>
 					<p className="jp-dash-item__description">{ __( 'Jetpack is monitoring your site. If we think your site is down, you will receive an email.' ) }</p>
@@ -37,53 +57,32 @@ const DashMonitor = React.createClass( {
 			<DashItem
 				label={ labelName }
 				module="monitor"
+				support={ support }
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">
 					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
-						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
-							components: {
-								a: <a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' )
+							: __( '{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes down.', {
+								components: {
+									a: <a href="javascript:void(0)" onClick={ activateAndTrack } />
+								}
 							}
-						} )
+						)
 					}
 				</p>
 			</DashItem>
 		);
-	},
-
-	render: function() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'monitor' ) ) {
-			return null;
-		}
-
-		return (
-			<div>
-				{ this.getContent() }
-			</div>
-		);
 	}
-} );
 
-DashMonitor.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired
-};
+	render() {
+		return this.props.isModuleAvailable && this.getContent();
+	}
+}
 
 export default connect(
-	( state ) => {
-		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isDevMode: isDevMode( state ),
-			moduleList: getModules( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateMonitor: () => {
-				return dispatch( activateModule( 'monitor' ) );
-			}
-		};
-	}
+	state => ( {
+		isDevMode: isDevMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'monitor' ),
+	} )
 )( DashMonitor );

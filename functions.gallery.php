@@ -26,6 +26,26 @@ class Jetpack_Gallery_Settings {
 			add_action( 'wp_enqueue_media', array( $this, 'wp_enqueue_media' ) );
 			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		}
+		// Add Slideshow and Galleries functionality to core's media gallery widget.
+		add_filter( 'widget_media_gallery_instance_schema', array( $this, 'core_media_widget_compat' ) );
+	}
+
+	/**
+	 * Updates the schema of the core gallery widget so we can save the
+	 * fields that we add to Gallery Widgets, like `type` and `conditions`
+	 *
+	 * @param $schema The current schema for the core gallery widget
+	 *
+	 * @return array  the updated schema
+	 */
+	public function core_media_widget_compat( $schema ) {
+		$schema['type'] = array(
+			'type' => 'string',
+			'enum' => array_keys( $this->gallery_types ),
+			'description' => __( 'Type of gallery.', 'jetpack' ),
+			'default' => 'default',
+		);
+		return $schema;
 	}
 
 	/**
@@ -37,7 +57,12 @@ class Jetpack_Gallery_Settings {
 			 * This only happens if we're not in Jetpack, but on WPCOM instead.
 			 * This is the correct path for WPCOM.
 			 */
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( 'gallery-settings/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
+			wp_register_script(
+				'jetpack-gallery-settings',
+				Jetpack::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				array( 'media-views' ),
+				'20121225'
+			);
 		}
 
 		wp_enqueue_script( 'jetpack-gallery-settings' );

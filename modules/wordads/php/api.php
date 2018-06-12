@@ -44,6 +44,24 @@ class WordAds_API {
 	}
 
 	/**
+	 * Returns the ads.txt content needed to run WordAds.
+	 * @return array string contents of the ads.txt file.
+	 *
+	 * @since 6.1.0
+	 */
+	public static function get_wordads_ads_txt() {
+		$endpoint = sprintf( '/sites/%d/wordads/ads-txt', Jetpack::get_option( 'id' ) );
+		$wordads_status_response = $response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint );
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'api_error', __( 'Error connecting to API.', 'jetpack' ), $response );
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		$ads_txt = str_replace( '\\n', PHP_EOL, $body->adstxt );
+		return $ads_txt;
+	}
+
+	/**
 	 * Returns status of WordAds approval.
 	 * @return boolean true if site is WordAds approved
 	 *

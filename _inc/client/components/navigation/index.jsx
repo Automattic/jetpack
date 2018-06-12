@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import { translate as __ } from 'i18n-calypso';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -17,66 +17,64 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
-export const Navigation = React.createClass( {
-	render: function() {
+export class Navigation extends React.Component {
+	trackNavClick = target => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: target
+		} );
+	};
+
+	trackDashboardClick = () => {
+		this.trackNavClick( 'dashboard' );
+	};
+
+	trackPlansClick = () => {
+		this.trackNavClick( 'dashboard' );
+	};
+
+	render() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#/dashboard"
+						onClick={ this.trackDashboardClick }
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#/apps"
-						selected={ this.props.route.path === '/apps' }>
-						{ __( 'Apps', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
 						path="#/plans"
+						onClick={ this.trackPlansClick }
 						selected={ this.props.route.path === '/plans' }>
 						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);
 		} else {
-			let dashboard = '';
-			if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
-				dashboard = (
+			navTabs = (
+				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#/dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
-				);
-			} else if ( ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) ) {
-				this.props.route.path = '/apps';
-				this.props.route.name = 'Apps';
-			}
-			navTabs = (
-				<NavTabs selectedText={ this.props.route.name }>
-					{ dashboard }
-					<NavItem
-						path="#/apps"
-						selected={ this.props.route.path === '/apps' }>
-						{ __( 'Apps', { context: 'Navigation item.' } ) }
-					</NavItem>
 				</NavTabs>
 			);
 		}
 		return (
-			<div className='dops-navigation'>
+			<div id="jp-navigation" className="dops-navigation">
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navTabs }
 				</SectionNav>
 			</div>
 		);
 	}
-} );
+}
 
 Navigation.propTypes = {
-	route: React.PropTypes.object.isRequired
+	route: PropTypes.object.isRequired
 };
 
 export default connect(

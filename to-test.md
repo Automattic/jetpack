@@ -1,80 +1,158 @@
-## 4.4
+## 6.2
 
-Jetpack 4.4 is packed with new things and improvements for your favorite modules! We're looking forward to getting your feedback on the following things:
+### AMP
 
-### SEO Tools
+We now allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
 
-Jetpack 4.4 tightens the links between Jetpack and WordPress.com, and now allows site owners using our [Jetpack Professional Plan](https://jetpack.com/features/) to manage SEO options from the WordPress.com interface.
+To test:
 
-To get started, go to Jetpack > Settings > Appearance and enable the SEO Tools module. Then, [go to Settings > SEO on WordPress.com](https://wordpress.com/settings/seo) in the WordPress.com dashboard. After you've picked your site, you should see a number of options on that page. Make sure they can be saved, and are applied on your Jetpack site.
+* Install amp-wp from Automattic/amp-wp master branch.
+* Activate AMP in your site's plugins list
+* To test Legacy AMP, add `?amp=1` to any post URL, e.g. http://example.com/2018/03/23/a-post/?amp=1.
+* Expect to see that all Jetpack features work (or be hidden if broken) in this mode.
+* To text Canonical AMP:
+    * Use this code snippet. This will set the home page to use "canonical amp", which the the preferred way of using AMP after 1.0:
+        ```
+	function add_amp_theme_support() {
+	    add_theme_support( 'amp' );
+	}
 
-You can learn more about the different options [here](https://en.blog.wordpress.com/2016/10/03/attract-more-visitors-to-your-business-site-with-our-advanced-seo-tools/).
+	add_action( 'plugins_loaded', 'add_amp_theme_support' );
+        ```
+    * Expect all Jetpack features to work (or be hidden if broken) in this mode.
+    * Now try using various Jetpack features and make sure they don't break validation (or simply break).
+ 
 
-### VideoPress
+#### Screenshots
 
-**VideoPress, our Premium video offering, has been completely redesigned to be fully integrated into your Media Library.** It's now easier to upload videos and insert them into your posts and pages.
-We've also improved our Open Graph Meta Tags to make sure VideoPress videos can be embedded in your Facebook Posts.
+##### Legacy AMP
 
-To test this feature, you'll need to use [Jetpack Premium or Jetpack Professional](https://jetpack.com/features/) on your site. If you've purchased one of the upgrades, you'll be able to activate the VideoPress module under Jetpack > Settings > Writing.
+| Before  | After |
+| ------------- | ------------- |
+| <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png"><img src="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1" style="max-width:50%;"></a>  | <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png"><img src="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1 1" style="max-width:100%;"></a>  |
 
-![VideoPress upgrade](https://cloud.githubusercontent.com/assets/5528445/20008893/b296c05c-a278-11e6-89af-f086aac100fe.png)
+##### Canonical AMP
 
-Once the module is active, you can try the following:
+| Before  | After |
+| ------------- | ------------- |
+| ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad](https://user-images.githubusercontent.com/51896/40073029-8be896f6-582a-11e8-81e5-9cbb6f9c8435.png) | ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad 1](https://user-images.githubusercontent.com/51896/40073045-986d9a34-582a-11e8-9213-2b5a8e4481bc.png) |
 
-1. Head over to Media > Library or Media > Add New, and try to upload a new video to your site. It should be uploaded to VideoPress right away.
-2. Try uploading a video from your post editor, under Add Media.
-3. A few minutes after the upload, the video's meta data should be updated (as transcoding finishes), and you can view and edit that meta data from the edit media page in the Media Library.
-4. You should be able to insert those videos into any post or page.
+### Contact Form
+
+We fixed scrolling/height for very large contact forms.
+
+* With Firefox
+* Insert this shortcode in the html editor
+    ```
+    [contact-form][contact-field label="Name" type="name" required="1"][contact-field label="Email" type="email" required="1"][contact-field label="Website" type="url"][contact-field label="Message" type="textarea"][contact-field label="date" type="date"][contact-field label="multiple" type="checkbox-multiple" options="hi,one,two"][contact-field label="whatever" type="textarea"][contact-field label="Keep going..." type="text"][contact-field label="check" type="checkbox"][contact-field label="drop" type="select" options="whatever,yo,ma"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][/contact-form]
+    ```
+* Switch back to visual.
+* Click to edit the form
+* Expect to be able to scroll all the way down.
+
+
+### Content Options
+
+We now exclude CPTs like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option.
+
+To test:
+
+* Check a CPT archive page and check if you have the option to switch between content and excerpt (you shouldn't be able to).
+* Check a Post archive page and check if you have the option to switch between content and excerpt (you should be able to).
 
 ### Shortcodes
 
-**You can now embed Pinterest Boards, Profiles, and individual Pins in all your posts and pages.** To test this, paste a Pinterest URL on its own line, and it should transform into an embed in your editor as well as on your site.
+We fixed the Facebook shortcode in wp-admin.
+
+To Test:
+
+* Paste a facebook post link in wp-admin editor, like https://www.facebook.com/WordPresscom/posts/10154113693553980
+* You should see an facebook embed in the post editor.
+* Make sure selective refresh still works for the facebook widget in the customizer.
+
+We also added a Gutenberg block for the `[vr]` shortcode.
+
+To test:
+
+* Install Gutenberg
+* Edit a post in Gutenberg
+* Add a "VR Image" block to any post
+* Paste in the URL of any 360' image, e.g. https://en-blog.files.wordpress.com/2016/12/regents_park.jpg
+* Save the post.
+* Visit the post and expect to be able to navigate the 360 image.
+
+### Related Posts
+
+We stopped attempting to fetch related posts for unpublished posts.
+
+* Open the Javascript console
+* Write a draft with Gutenberg. 
+* Confirm that there's no failing request in the background receiving a HTTP status 400 as response.
+
+### Sharing
+
+Fixed an issue that resulted in wrong URLs for sharing via WhatsApp.
+
+* Add the WhatsApp sharing button
+* Attempt to share a post via WhatsApp
+* Confirm that the URL that you get in the message is working properly by visiting it.
+
+### Tiled Galleries
+
+We now use Photon if active when a Tiled Gallery links to media file.
+
+To test:
+
+* Create a Gallery with the link set to Media File.
+* Disable Carousel (via the old modules page `page=jetpack_module`).
+* View page and see the URL.
+
+### Widget visibility
+
+We fixed some styling issues for Microsoft Edge.
+
+To test:
+
+* In MS Edge, open wp-admin/widgets.php and look at a widget's Visibility settings.
+* Open wp-admin/widgets.php, click "Manage with Live Preview" to open the Customizer, and look at a widget's Visibility settings.
+* Expect to see the red crosses align properly vertically.
 
 ### Widgets
 
-We've added 2 new widgets to Jetpack:
+#### Cookies and Consent Widget
 
-**Google Translate**
+The `.widget` CSS class used for targetting the Cookies and Consent widget was removed since .widget is not used in every theme.
 
-The Google Translate Widget adds an option for your readers to translate your site on the fly into any language. To test it, enable the widget and pick a language in the dropdown while viewing any page on your site.
+To test:
 
-**My Community**
+* Apply one of the themes that don't use the `.widget` class like Graphene or Kahuna.
+* Add the Cookie & Consent Widget to the footer widget area.
+* View the site from the front-end. 
+* Expect the banner to always float at the bottom of the viewport when scrolling down.
 
-The My Community Widget allows you to show users who have recently interacted with your site. You can learn more about it [here](http://en.support.wordpress.com/widgets/my-community/). Add the widget to your site, and make sure it works as expected!
+Also, we fixed the positioning for themes that set a specific margin for forms.
 
-### Publicize / Subscriptions
+* Install and activate Storefront theme.
+* Enable the cookie widget.
+* Verify the margins are consistent within the widget. Previously the vertical alignment was not balanced.
 
-We've made changes to improve the way both Publicize and Subscription emails were triggered whenever a post is published. To test this, try publishing posts, either by publishing them directly or by scheduling them.
+We added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
 
-We would also invite you to test the Publicize feature for Custom Post Types that support it, like Portfolios [or your own Post Types](https://jetpack.com/support/publicize/#custom-post-types).
+To test:
 
-### JITM & new plugin banners
+* Add a Cookies & Consent Widget.
+* Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
 
-We've made 2 changes to help new Jetpack users discover the plugin and its features, and help them get familiar with the different options.
+#### Twitter Timeline Widget
 
-To test the first change, disconnect Jetpack from your WordPress.com account thanks to the link at the bottom of the Jetpack menu. Once you've done that, head to the Plugins menu, deactivate the plugin, and then reactivate it. You should see a new banner at the top of the Plugins page, inviting you to connect to WordPress.com.
+Usage of Widget Ids for the Twitter Timeline Widget is being deprecated. This is because Twitter is deprecating Widget IDs in July 2018.
 
-Do not hesitate to go through the whole connection flow again as we've also made some improvements there.
+To test: 
 
-We've also added messages in different parts of the dashboard, depending on what Jetpack modules you use:
-
-- If you don't use Akismet, you should see a message in the Comments menu.
-- If you don't use VaultPress, you should see a message after publishing a post, at the top of the post editor.
-- If you don't use VaultPress, you should see a message under Dashboard > Updates.
-
-Once you dismiss one message, all other messages should disappear.
-
-Try clicking on each notice, and make sure the link works whether you're logged in to WordPress.com or not.
-
-### Admin Interface for non-admins
-
-1. Enable the Stats module, and disable the Protect module
-2. Access the Jetpack menu from a non-admin account. Make sure the user only sees what's relevant to their role, with no broken elements in the interface.
-3. Log back in as an admin, go to Jetpack > Settings > Engagement > Site Stats, and grant that other user access to your stats.
-4. Log back in with the other user. They should now have access to Stats.
-5. Log back in as an admin, disable Stats and enable Protect.
-6. Log back in one last time as the other user. The interface should still work.
-
-During your tests, we'd encourage you to keep your browser console open, and check for any errors in the console and the network tabs.
+* Before checking out this feature, if you have the chance, with Jetpack 6.1.1, try to add a Twitter Timeline of type `widget-id` to a sidebar (the only way to create a Twitter Widget right now is at https://twitter.com/settings/widgets/new: create a widget, edit it, and copy the ID from the URL).
+* After updating to this 6.2 Beta again, make sure that the widget will display a deprecation notice, only visible to admins.
+* In the Customizer or in the Widgets dashboard, make sure there is no "Widget Type" selector anymore.
+ 
 
 **Thank you for all your help!**
+

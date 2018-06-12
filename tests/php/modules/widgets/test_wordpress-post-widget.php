@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 
 		$this->assertEquals( array( 'remote_error' ), $result->get_error_codes() );
-		$this->assertEquals( array( 'We cannot display information for this blog.' ), $result->get_error_messages() );
+		$this->assertEquals( array( 'It looks like the WordPress site URL is incorrectly configured. Please check it in your widget settings.' ), $result->get_error_messages() );
 		$this->assertEquals( 'test error', $result->get_error_data() );
 
 	}

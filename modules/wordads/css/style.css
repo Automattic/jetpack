@@ -44,11 +44,6 @@
 	box-shadow: none !important;
 }
 
-.wpa-about:hover, .wa_infobox a:hover {
-	text-decoration: underline !important;	/* !important necessary, since themes override this routinely */
-	color: #444;
-}
-
 /* ad unit wrapper */
 .wpa .u>div {	/* @todo: deprecate wpdvert */
 	display: block;

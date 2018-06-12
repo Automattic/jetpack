@@ -9,6 +9,13 @@
 		font-weight: 400;
 		border-bottom: 1px lighten( $gray, 30% ) solid;
 	}
+
+	.jp-banner__tos-blurb {
+		font-size: rem( 11px );
+		color: $gray-dark;
+		padding-top: 5px;
+		margin-bottom: 30px;
+	}
 }
 
 .jp-jetpack-connect__cta {
@@ -17,6 +24,8 @@
 	}
 	.jp-jetpack-connect__description {
 		padding: 0 0 rem( 16px );
+		margin-top: 20px;
+		margin-bottom: 10px;
 	}
 }
 

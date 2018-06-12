@@ -184,6 +184,8 @@ body.highlander-dark h3.sd-title:before {
 	margin: 0 5px 5px 0;
 	padding: 0;
 }
+/* Add more pading on touch devices */
+.jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
 
 /* Text + icon & Official */
 .sd-social-icon-text .sd-content ul li a span,
@@ -446,7 +448,7 @@ body .sd-content ul li.share-custom a.share-icon span
 	margin-left: 0;
 	padding: 0 0 0 19px;
 	display: inline-block;
-	height: 16px;
+	height: 21px;
 	line-height: 16px;
 }
 

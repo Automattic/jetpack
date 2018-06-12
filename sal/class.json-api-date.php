@@ -52,4 +52,37 @@ class WPCOM_JSON_API_Date {
 
 		return (string) gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
 	}
+
+	/**
+	 * Returns ISO 8601 formatted duration interval: P0DT1H10M0S
+	 *
+	 * @param string $time Duration in minutes or hours.
+	 *
+	 * @return null|string
+	 */
+	static function format_duration( $time ) {
+		$timestamp = strtotime( $time, 0 );
+
+		// Bail early if we don't recognize a date.
+		if ( empty( $timestamp ) ) {
+			return;
+		}
+
+		$days = floor( $timestamp / 86400 );
+		$timestamp = $timestamp % 86400;
+
+		$hours = floor( $timestamp / 3600 );
+		$timestamp = $timestamp % 3600;
+
+		$minutes = floor( $timestamp / 60 );
+		$timestamp = $timestamp % 60;
+
+		return (string) sprintf(
+			'P%dDT%dH%dM%dS',
+			$days,
+			$hours,
+			$minutes,
+			$timestamp
+		);
+	}
 }

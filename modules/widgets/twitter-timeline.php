@@ -63,7 +63,13 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	public function admin_scripts( $hook ) {
 		// This is still 'widgets.php' when managing widgets via the Customizer.
 		if ( 'widgets.php' === $hook ) {
-			wp_enqueue_script( 'twitter-timeline-admin', plugins_url( 'twitter-timeline-admin.js', __FILE__ ) );
+			wp_enqueue_script(
+				'twitter-timeline-admin',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/twitter-timeline-admin.min.js',
+					'modules/widgets/twitter-timeline-admin.js'
+				)
+			);
 		}
 	}
 
@@ -76,13 +82,35 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
+		// Twitter deprecated `data-widget-id` on 2018-05-25,
+		// with cease support deadline on 2018-07-27.
+		// 1532563200 is 2018-07-26, one day early.
+		 if ( 'widget-id' === $instance['type'] && time() > 1532563200 ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo $args['before_widget'];
+				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
+				echo '<p>' . esc_html__( "The Twitter Timeline widget can't display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username. Otherwise, delete this widget.", 'jetpack' ) . '</p>';
+				echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
+				echo $args['after_widget'];
+			}
+			return;
+		}
+
 		$instance['lang'] = substr( strtoupper( get_locale() ), 0, 2 );
 
 		echo $args['before_widget'];
 
-		if ( isset( $instance['title'] ) ) {
-			/** This filter is documented in core/src/wp-includes/default-widgets.php */
-			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+		$title = apply_filters( 'widget_title', $title );
+		if ( ! empty( $title ) ) {
+			echo $args['before_title'] . $title . $args['after_title'];
+		}
+
+		if ( 'widget-id' === $instance['type'] && current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . esc_html__( 'As of July 27, 2018, the Twitter Timeline widget will no longer display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username.', 'jetpack' ) . '</p>';
+			echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
 		}
 
 		// Start tag output
@@ -105,6 +133,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			}
 		}
 
+		/** This filter is documented in modules/shortcodes/tweet.php */
+		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
+		if ( ! empty( $partner ) ) {
+			echo ' data-partner="' . esc_attr( $partner ) . '"';
+		}
+
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
@@ -120,6 +154,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				echo ' data-widget-id="' . esc_attr( $widget_id ) . '"';
 				break;
 		}
+		echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
 
 		// End tag output
 		echo '>';
@@ -180,7 +215,18 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$tweet_limit = (int) $new_instance['tweet-limit'];
-		$instance['tweet-limit'] = ( $tweet_limit ? $tweet_limit : null );
+		if ( $tweet_limit ) {
+			$instance['tweet-limit'] = min( max( $tweet_limit, 1 ), 20 );
+			/**
+			 * A timeline with a specified limit is expanded to the height of those Tweets.
+			 * The specified height value no longer applies, so reject the height value
+			 * when a valid limit is set: a widget attempting to save both limit 5 and
+			 * height 400 would be saved with just limit 5.
+			 */
+			$instance['height'] = '';
+		} else {
+			$instance['tweet-limit'] = null;
+		}
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
@@ -204,10 +250,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		}
 
-		$instance['type'] = 'widget-id';
-		if ( in_array( $new_instance['type'], array( 'widget-id', 'profile' ) ) ) {
-			$instance['type'] = $new_instance['type'];
-		}
+		$instance['type'] = 'profile';
 
 		$instance['theme'] = 'light';
 		if ( in_array( $new_instance['theme'], array( 'light', 'dark' ) ) ) {
@@ -219,7 +262,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'noheader',
 			'nofooter',
 			'noborders',
-			'transparent'
+			'transparent',
+			'noscrollbar',
 		);
 		if ( isset( $new_instance['chrome'] ) ) {
 			foreach ( $new_instance['chrome'] as $chrome ) {
@@ -246,7 +290,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *
@@ -257,6 +301,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'title'        => esc_html__( 'Follow me on Twitter', 'jetpack' ),
 			'width'        => '',
 			'height'       => '400',
+			'type'         => 'profile',
 			'widget-id'    => '',
 			'link-color'   => '#f96e5b',
 			'border-color' => '#e8e8e8',
@@ -267,16 +312,11 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
-		if ( empty( $instance['type'] ) ) {
-			// Decide the correct widget type.  If this is a pre-existing
-			// widget with a numeric widget ID, then the type should be
-			// 'widget-id', otherwise it should be 'profile'.
-			if ( ! empty( $instance['widget-id'] ) && is_numeric( $instance['widget-id'] ) ) {
-				$instance['type'] = 'widget-id';
-			} else {
-				$instance['type'] = 'profile';
-			}
+		if ( 'widget-id' === $instance['type'] ) {
+			$instance['widget-id'] = '';
 		}
+
+		$instance['type'] = 'profile';
 		?>
 
 		<p>
@@ -320,7 +360,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>">
-				<?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?>
+				<?php esc_html_e( '# of Tweets Shown (1 to 20):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
@@ -331,39 +371,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 		</p>
 
-		<p class="jetpack-twitter-timeline-widget-type-container">
-			<label for="<?php echo $this->get_field_id( 'type' ); ?>">
-				<?php esc_html_e( 'Widget Type:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#widget-type' ); ?>
-			</label>
-			<select
-				name="<?php echo $this->get_field_name( 'type' ); ?>"
-				id="<?php echo $this->get_field_id( 'type' ); ?>"
-				class="jetpack-twitter-timeline-widget-type widefat"
-			>
-				<option value="profile"<?php selected( $instance['type'], 'profile' ); ?>>
-					<?php esc_html_e( 'Profile', 'jetpack' ); ?>
-				</option>
-				<option value="widget-id"<?php selected( $instance['type'], 'widget-id' ); ?>>
-					<?php esc_html_e( 'Widget ID', 'jetpack' ); ?>
-				</option>
-			</select>
-		</p>
-
 		<p class="jetpack-twitter-timeline-widget-id-container">
-			<label
-				for="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				data-widget-type="widget-id"
-				<?php echo ( 'widget-id' === $instance['type'] ? '' : 'style="display: none;"' ); ?>
-			>
-				<?php esc_html_e( 'Widget ID:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#widget-id' ); ?>
-			</label>
-			<label
-				for="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				data-widget-type="profile"
-				<?php echo ( 'profile' === $instance['type'] ? '' : 'style="display: none;"' ); ?>
-			>
+			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>">
 				<?php esc_html_e( 'Twitter Username:', 'jetpack' ); ?>
 				<?php echo $this->get_docs_link( '#twitter-username' ); ?>
 			</label>
@@ -409,6 +418,16 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 			<label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>">
 				<?php esc_html_e( 'No Borders', 'jetpack' ); ?>
+			</label>
+			<br />
+			<input
+				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
+				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
+				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				value="noscrollbar"
+			/>
+			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input

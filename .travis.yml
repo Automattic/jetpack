@@ -3,6 +3,9 @@
 # Tell Travis CI we're using PHP
 language: php
 
+# Tell Travis CI which distro to use
+dist: trusty
+
 # Setup a global environemnt and overide as needed
 env:
   global:
@@ -10,50 +13,32 @@ env:
 
 cache:
   directories:
-    - ~/.yarn
-    - ~/.nvm
+   - $HOME/.composer/cache/files
+   - $HOME/.cache/yarn
+   - $HOME/.phpbrew
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 
 # Test WP trunk/master and two latest versions on minimum (5.2).
-# Test WP latest two versions (4.5, 4.3) on most popular (5.5, 5.6).
-# Test WP latest stable (4.5) on other supported PHP (5.3, 5.4).
-# Test WP trunk/master on edge platforms (7.0, hhvm, PHP nightly).
+# Test WP latest two versions (4.5, 4.3) on most popular (5.6, 7.0).
+# Test WP trunk/master on edge platforms (PHP 7.2).
 
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
 matrix:
   include:
-  - php: "5.6"
-    env: WP_TRAVISCI="yarn run test-client && yarn run test-gui"
-  - php: "5.2"
-  - php: "5.3"
-  - php: "5.5"
+  - env: WP_TRAVISCI="yarn lint"
+  - env: WP_TRAVISCI="yarn test-client"
+  - env: WP_TRAVISCI="yarn test-gui"
+  - php: "7.0"
+    env: "SWITCH_TO_PHP=5.2"
+    dist: precise
   - php: "5.6"
   - php: "7.0"
-#
-#  - php: hhvm
-#    env: WP_VERSION=master
-#    sudo: required
-#    dist: trusty
-#    group: edge
-#    addons:
-#      apt:
-#        packages:
-#        - mysql-server-5.6
-#        - mysql-client-core-5.6
-#        - mysql-client-5.6
-
-#
-# Allow failure tests did not prove that useful, but we might bring them back
-# so leaving this here as a reminder
-#
-#  allow_failures:
-#  - php: "hhvm"
-#  - php: "nightly"
+  - php: "7.2"
 
 # whitelist branches for the "push" build check.
 branches:
@@ -61,25 +46,39 @@ branches:
     - master
     - master-stable
     - /^branch-.*$/
+    - /^feature\/.*$/
 
 # Clones WordPress and configures our testing environment.
 before_script:
     - phpenv config-rm xdebug.ini
-    - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
-    - nvm install 6
-    - nvm use 6
+    - export PATH="$HOME/.composer/vendor/bin:$PATH"
+    - |
+        set -e
+        source ./tests/install-php-phpunit.sh
+        set +e
+    - nvm install 8
+    - nvm use 8 
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
 script:
+    - echo "Running with the following versions:"
+    - php -v
+    - phpunit --version
     - ./tests/run-travis.sh
 
 sudo: false
 
 notifications:
+   webhooks:
+     urls:
+       - https://betadownload.jetpack.me/travis.php
+     on_success: always # Beta builder needs notifications for successful builds
    email:
+     on_success: never # default: change
+     recipients:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
        - jeremy@automattic.com
@@ -90,6 +89,7 @@ notifications:
        - allendav@automattic.com
        - beau@automattic.com
        - kraft@automattic.com
+       - oscar@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 

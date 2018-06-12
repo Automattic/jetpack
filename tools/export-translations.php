@@ -85,14 +85,36 @@ $map = array();
 foreach ( $available_sets as $set ) {
 	$s = strtolower( str_replace( '-', '_', $set->locale ) );
 
+	$suffix = '';
+
+	if ( 'default' !== $set->slug ) {
+		// Setting up a suffix for locales that have an additional slug, like Informal Deutsch
+		$suffix = '_' . $set->slug;
+		$s .= $suffix;
+	}
+
+	echo PHP_EOL;
+
 	if ( GP_Locales::exists( $set->locale ) ) {
 		$locale = GP_Locales::by_slug( $set->locale );
 
-		$map[$set->locale] = $locale->wp_locale;
+		if ( empty( $locale->wp_locale ) ) {
+			echo "Warning: missing wp_locale, using slug {$locale->slug}{$suffix} instead for "
+				. $set->slug . ' '
+				. $locale->english_name
+				. PHP_EOL;
+			$map[ $set->locale . $suffix ] = $locale->slug . $suffix;
+		} else {
+			echo "Using wp_locale {$locale->wp_locale}{$suffix} for "
+				. $set->slug . ' '
+				. $locale->english_name
+				. PHP_EOL;
+			$map[ $set->locale . $suffix ] = $locale->wp_locale . $suffix;
+		}
 		continue;
 	}
 
-	echo "ERROR: not found locale {$set->locale}\n";
+	echo "Warning: not found locale {$set->slug} {$set->locale}, trying to match current sets..." . PHP_EOL;
 
 	// source's 'ja' matches Jetpack's 'ja'
 	if ( isset( $current_sets[$s] ) ) {
@@ -112,21 +134,29 @@ foreach ( $available_sets as $set ) {
 		}
 	}
 
+	echo "No entire or partial match, setting {$set->locale}{$suffix} as new locale." . PHP_EOL;
+
 	// New locale
-	$map[$set->locale] = $set->locale;
+	$map[ $set->locale . $suffix ] = $set->locale . $suffix;
 }
 
 // Get all the PO files
 foreach ( $available_sets as $id => $set ) {
-	if ( ! isset ( $map[$set->locale] ) ) {
-		echo "UNKNOWN LOCALE: {$set->locale}\n";
+	$full_locale = $set->locale;
+
+	if ( 'default' !== $set->slug ) {
+		$full_locale .= '_' . $set->slug;
+	}
+
+	if ( ! isset ( $map[ $full_locale ] ) ) {
+		echo "UNKNOWN LOCALE: {$full_locale}\n";
 		continue;
 	}
 
-	$output_file = "{$temp_file_path}/jetpack-{$map[$set->locale]}.po";
+	$output_file = "{$temp_file_path}/jetpack-{$map[$full_locale]}.po";
 	$input_url   = sprintf( '%s/%s/%s/export-translations?format=po', $source_url, $set->locale, $set->slug );
 	$exec        = sprintf( 'curl -s -o %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
-	echo "Downloading $input_url\n";
+	echo "Downloading $input_url to" . PHP_EOL . $output_file . PHP_EOL;
 	exec( $exec );
 }
 

@@ -17,7 +17,10 @@
 		erroredAction = false;
 
 	// Initialize Tracks and bump stats.
-	analytics.initialize( tracksUser.userid, tracksUser.username );
+	if ( 'undefined' !== typeof analytics ) {
+		analytics.initialize( tracksUser.userid, tracksUser.username );
+	}
+
 	if ( tracksEvent.isAdmin ) {
 		trackAndBumpMCStats( 'notice_view' );
 	} else {
@@ -213,7 +216,7 @@
 			extraProps = {};
 		}
 
-		if ( eventName && eventName.length ) {
+		if ( eventName && eventName.length && 'undefined' !== typeof analytics && analytics.tracks && analytics.mc ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;

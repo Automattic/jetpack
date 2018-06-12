@@ -14,10 +14,12 @@ import {
 	isNoticeDismissed as _isNoticeDismissed,
 	dismissJetpackNotice
 } from 'state/jetpack-notices';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
-const FeedbackDashRequest = React.createClass( {
-	displayName: 'FeedbackDashRequest',
-	renderContent: function() {
+class FeedbackDashRequest extends React.Component {
+	static displayName = 'FeedbackDashRequest';
+
+	renderContent = () => {
 		if ( this.props.isDismissed( 'feedback_dash_request' ) ) {
 			return;
 		}
@@ -31,14 +33,14 @@ const FeedbackDashRequest = React.createClass( {
 					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
 					<NoticeAction
-						href="https://jetpack.com/contact-support/"
+						href={ JETPACK_CONTACT_SUPPORT }
 					>
 						{ __( 'Let us know!' ) }
 					</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);
-	},
+	};
 
 	render() {
 		return (
@@ -47,7 +49,7 @@ const FeedbackDashRequest = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

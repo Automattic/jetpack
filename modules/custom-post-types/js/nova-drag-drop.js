@@ -9,6 +9,7 @@
 		dragMenus();
 		addNonce();
 		addSubmitButton();
+		changeToPost();
 	}
 
 	function dragMenus() {
@@ -41,6 +42,10 @@
 
 	function addNonce() {
 		$('#posts-filter').append('<input type="hidden" name="' + _novaDragDrop.nonceName + '" value="' + _novaDragDrop.nonce + '" />');
+	}
+
+	function changeToPost() {
+		$( '#posts-filter' ).attr( 'method', 'post' );
 	}
 
 	// do it

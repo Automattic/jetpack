@@ -13,7 +13,7 @@ import { isFetchingAkismetData, fetchAkismetData } from 'state/at-a-glance';
 class QueryAkismetData extends Component {
 	componentWillMount() {
 		if ( ! this.props.fetchingAkismetData ) {
-			this.props.fetchAkismetData()
+			this.props.fetchAkismetData();
 		}
 	}
 

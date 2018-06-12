@@ -10,7 +10,7 @@ function jetpack_facebook_likebox_init() {
 }
 
 /**
- * Facebook Page Plugin (formely known as the Like Box)
+ * Facebook Page Plugin (formerly known as the Like Box)
  * Display a Facebook Page Plugin as a widget (replaces the old like box plugin)
  * https://developers.facebook.com/docs/plugins/page-plugin
  */
@@ -148,38 +148,40 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		?>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
 				<?php _e( 'Title', 'jetpack' ); ?>
-				<input type="text" name="<?php echo $this->get_field_name( 'title' ); ?>" id="<?php echo $this->get_field_id( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" />
+				<input type="text" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" />
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'href' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'href' ) ); ?>">
 				<?php _e( 'Facebook Page URL', 'jetpack' ); ?>
-				<input type="text" name="<?php echo $this->get_field_name( 'href' ); ?>" id="<?php echo $this->get_field_id( 'href' ); ?>" value="<?php echo esc_url( $like_args['href'] ); ?>" class="widefat" />
+				<input type="text" name="<?php echo esc_attr( $this->get_field_name( 'href' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'href' ) ); ?>" value="<?php echo esc_url( $like_args['href'] ); ?>" class="widefat" />
 				<br />
 				<small><?php _e( 'The widget only works with Facebook Pages.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
-				<?php _e( 'Width', 'jetpack' ); ?>
-				<input type="number" class="smalltext" min="1" max="999" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />px
+			<label for="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>">
+				<?php _e( 'Width in pixels', 'jetpack' ); ?>
+				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_width ); ?>" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />
+				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_width ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_width ); ?></small>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
-				<?php _e( 'Height', 'jetpack' ); ?>
-				<input type="number" class="smalltext" min="1" max="999" maxlength="3" name="<?php echo $this->get_field_name( 'height' ); ?>" id="<?php echo $this->get_field_id( 'height' ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="text-align: center;" />px
+			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>">
+				<?php _e( 'Height in pixels', 'jetpack' ); ?>
+				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_height ); ?>" max="<?php echo esc_attr( $this->max_height ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="text-align: center;" />
+				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_height ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_height ); ?></small>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_faces' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_faces' ); ?>" id="<?php echo $this->get_field_id( 'show_faces' ); ?>" <?php checked( $like_args['show_faces'] ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_faces' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_faces' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'show_faces' ) ); ?>" <?php checked( $like_args['show_faces'] ); ?> />
 				<?php _e( 'Show Faces', 'jetpack' ); ?>
 				<br />
 				<small><?php _e( 'Show profile photos in the plugin.', 'jetpack' ); ?></small>
@@ -187,8 +189,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'stream' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'stream' ); ?>" id="<?php echo $this->get_field_id( 'stream' ); ?>" <?php checked( $like_args['stream'] ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'stream' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>" <?php checked( $like_args['stream'] ); ?> />
 				<?php _e( 'Show Stream', 'jetpack' ); ?>
 				<br />
 				<small><?php _e( 'Show Page Posts.', 'jetpack' ); ?></small>
@@ -196,8 +198,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'cover' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'cover' ); ?>" id="<?php echo $this->get_field_id( 'cover' ); ?>" <?php checked( $like_args['cover'] ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'cover' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'cover' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'cover' ) ); ?>" <?php checked( $like_args['cover'] ); ?> />
 				<?php _e( 'Show Cover Photo', 'jetpack' ); ?>
 				<br />
 			</label>
@@ -262,14 +264,17 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	}
 
 	function is_valid_facebook_url( $url ) {
-		return ( FALSE !== strpos( $url, 'facebook.com' ) ) ? TRUE : FALSE;
+		return ( false !== strpos( $url, 'facebook.com' ) ) ? true : false;
 	}
 
 	function normalize_int_value( $value, $default = 0, $max = 0, $min = 0 ) {
 		$value = (int) $value;
 
-		if ( $max < $value || $min > $value )
-			$value = $default;
+		if ( $value > $max ) {
+			$value = $max;
+		} else if ( $value < $min ) {
+			$value = $min;
+		}
 
 		return (int) $value;
 	}
@@ -288,7 +293,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 */
 	function guess_locale_from_lang( $lang ) {
 		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
-		Jetpack::$instance->get_locale_from_lang( $lang );
+		Jetpack::$instance->guess_locale_from_lang( $lang );
 	}
 
 	/**
@@ -299,5 +304,3 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		Jetpack::$instance->get_locale();
 	}
 }
-
-// END

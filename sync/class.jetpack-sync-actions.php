@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
+
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
  * when to send, when to perform a full sync, etc.
@@ -22,13 +24,8 @@ class Jetpack_Sync_Actions {
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
-			wp_clear_scheduled_hook( 'jetpack_sync_cron' );
-			wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+			self::clear_sync_cron_jobs();
 		}
-
-		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
-
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
@@ -53,9 +50,8 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
-		
-		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
+		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 	}
 
 	static function add_sender_shutdown() {
@@ -90,8 +86,10 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
+		         && ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
+		         && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+		       || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function sync_via_cron_allowed() {
@@ -113,7 +111,8 @@ class Jetpack_Sync_Actions {
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
+	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
@@ -121,8 +120,10 @@ class Jetpack_Sync_Actions {
 			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 			'queue'     => $queue_id,       // sync or full_sync
-			'home'      => get_home_url(),  // Send home url option to check for Identity Crisis server-side
-			'siteurl'   => get_site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'home'      => Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
+			'siteurl'   => Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'cd'        => sprintf( '%.4f', $checkout_duration),   // Time spent retrieving queue items from the DB
+			'pd'        => sprintf( '%.4f', $preprocess_duration), // Time spent converting queue items into data to send
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -135,6 +136,15 @@ class Jetpack_Sync_Actions {
 		}
 
 		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
+
+		/**
+		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
+		 *
+		 * @since 4.7.0
+		 *
+		 * @param array $query_args associative array of query parameters.
+		 */
+		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
@@ -177,16 +187,21 @@ class Jetpack_Sync_Actions {
 		return $response;
 	}
 
-	static function do_initial_sync( $new_version = null, $old_version = null ) {
+	static function do_initial_sync() {
+		// Lets not sync if we are not suppose to.
+		if ( ! self::sync_allowed() ) {
+			return false;
+		}
+
 		$initial_sync_config = array(
-			'options' => true,
-			'network_options' => true,
-			'functions' => true,
-			'constants' => true,
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => array( get_current_user_id() ),
 		);
 
-		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
-			$initial_sync_config['users'] = 'initial';
+		if ( is_multisite() ) {
+			$initial_sync_config['network_options'] = true;
 		}
 
 		self::do_full_sync( $initial_sync_config );
@@ -197,8 +212,15 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
+		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+
+		if ( ! $full_sync_module ) {
+			return false;
+		}
+
 		self::initialize_listener();
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
+
+		$full_sync_module->start( $modules );
 
 		return true;
 	}
@@ -208,49 +230,41 @@ class Jetpack_Sync_Actions {
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display' => sprintf(
-					esc_html__( 'Every %d minutes', 'jetpack' ),
-					self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60
+					esc_html( _n( 'Every minute', 'Every %d minutes', intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 ), 'jetpack' ) ),
+					intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 )
 				)
 			);
 		}
 		return $schedules;
 	}
 
-	// try to send actions until we run out of things to send,
-	// or have to wait more than 15s before sending again,
-	// or we hit a lock or some other sending issue
 	static function do_cron_sync() {
-		if ( ! self::sync_allowed() ) {
-			return;
-		}
-
-		self::initialize_sender();
-
-		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
-
-			if ( $next_sync_time ) {
-				$delay = $next_sync_time - time() + 1;
-				if ( $delay > 15 ) {
-					break;
-				} elseif ( $delay > 0 ) {
-					sleep( $delay );
-				}
-			}
-
-			$result = self::$sender->do_sync();
-		} while ( $result );
+		self::do_cron_sync_by_type( 'sync' );
 	}
 
 	static function do_cron_full_sync() {
-		if ( ! self::sync_allowed() ) {
+		self::do_cron_sync_by_type( 'full_sync' );
+	}
+
+	/**
+	 * Try to send actions until we run out of things to send,
+	 * or have to wait more than 15s before sending again,
+	 * or we hit a lock or some other sending issue
+	 *
+	 * @param string $type Sync type. Can be `sync` or `full_sync`.
+	 */
+	static function do_cron_sync_by_type( $type ) {
+		if ( ! self::sync_allowed() || ( 'sync' !== $type && 'full_sync' !== $type ) ) {
 			return;
 		}
 
 		self::initialize_sender();
 
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+
 		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+			$next_sync_time = self::$sender->get_next_sync_time( $type );
 
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
@@ -261,8 +275,8 @@ class Jetpack_Sync_Actions {
 				}
 			}
 
-			$result = self::$sender->do_full_sync();
-		} while ( $result );
+			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function initialize_listener() {
@@ -275,7 +289,33 @@ class Jetpack_Sync_Actions {
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
+	}
+
+	static function initialize_woocommerce() {
+		if ( false === class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+	}
+
+	static function add_woocommerce_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
+	}
+
+	static function initialize_wp_super_cache() {
+		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
+			return;
+		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+	}
+
+	static function add_wp_super_cache_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WP_Super_Cache';
+		return $sync_modules;
 	}
 
 	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
@@ -290,28 +330,53 @@ class Jetpack_Sync_Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
+	static function get_start_time_offset( $schedule = '', $hook = '' ) {
+		$start_time_offset =  is_multisite()
+			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
+			: 0;
+
+		/**
+		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
+		 * cron jobs across multiple sites in a network.
+		 *
+		 * @since 4.5
+		 *
+		 * @param int    $start_time_offset
+		 * @param string $hook
+		 * @param string $schedule
+		 */
+		return intval( apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
+		) );
+	}
+
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
 			return;
 		}
 		$schedule = self::sanitize_filtered_sync_cron_schedule( $schedule );
 
+		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		} else if ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
-			wp_schedule_event( time(), $schedule, $hook );
+			wp_schedule_event( $start_time, $schedule, $hook );
 		}
 	}
 
-	static function init_sync_cron_jobs() {
-		// Add a custom "every minute" cron schedule
-		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
+	static function clear_sync_cron_jobs() {
+		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
+		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+	}
 
-		// cron hooks
-		add_action( 'jetpack_sync_full', array( __CLASS__, 'do_full_sync' ), 10, 1 );
+	static function init_sync_cron_jobs() {
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );
@@ -337,22 +402,63 @@ class Jetpack_Sync_Actions {
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 
-	static function cleanup_on_upgrade() {
+	static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
+
+		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
+		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
+			require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+			self::clear_sync_cron_jobs();
+			Jetpack_Sync_Settings::update_settings( array(
+				'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content
+			) );
+		}
+	}
+
+	static function get_sync_status() {
+		self::initialize_sender();
+
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$queue       = self::$sender->get_sync_queue();
+		$full_queue  = self::$sender->get_full_sync_queue();
+		$cron_timestamps = array_keys( _get_cron_array() );
+		$next_cron = $cron_timestamps[0] - time();
+
+		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
+		return array_merge(
+			$full_sync_status,
+			array(
+				'cron_size'             => count( $cron_timestamps ),
+				'next_cron'             => $next_cron,
+				'queue_size'            => $queue->size(),
+				'queue_lag'             => $queue->lag(),
+				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'       => $full_queue->size(),
+				'full_queue_lag'        => $full_queue->lag(),
+				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+			)
+		);
 	}
 }
 
-/**
- * If the site is using alternate cron, we need to init the listener and sender before cron
- * runs. So, we init at a priority of 9.
- *
- * If the site is using a regular cron job, we init at a priority of 90 which gives plugins a chance
- * to add filters before we initialize.
+// Check for WooCommerce support
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
+// Check for WP Super Cache
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_super_cache' ), 5 );
+
+/*
+ * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
+ * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
+
+
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ) );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
+add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+

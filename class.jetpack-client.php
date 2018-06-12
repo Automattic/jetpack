@@ -268,16 +268,23 @@ class Jetpack_Client {
 	}
 
 	/**
-	 * Query the WordPress.com REST API using the blog token
+	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param string  $path
-	 * @param string  $version
-	 * @param array   $args
-	 * @param string  $body
-	 * @return array|WP_Error $response Data.
+	 * @param  string $path             REST API path.
+	 * @param  string $version          REST API version. Default is `2`.
+	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param  string $body             Body passed to {@see WP_Http}. Default is `null`.
+	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 *
+	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */
-	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null ) {
-		$filtered_args = array_intersect_key( $args, array(
+	public static function wpcom_json_api_request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom' ) {
+		$base_api_path = trim( $base_api_path, '/' );
+		$version       = ltrim( $version, 'v' );
+		$path          = ltrim( $path, '/' );
+
+		$args = array_intersect_key( $args, array(
+			'headers'     => 'array',
 			'method'      => 'string',
 			'timeout'     => 'int',
 			'redirection' => 'int',
@@ -286,27 +293,52 @@ class Jetpack_Client {
 			'sslverify'   => 'boolean',
 		) );
 
-		/**
-		 * Determines whether Jetpack can send outbound https requests to the WPCOM api.
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param bool $proto Defaults to true.
-		 */
-		$proto = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
+		$args['user_id'] = get_current_user_id();
+		$args['method']  = isset( $args['method'] ) ? strtoupper( $args['method'] ) : 'GET';
+		$args['url']     = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $path );
+
+		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
+			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
+
+		if ( isset( $body ) && ! is_string( $body ) ) {
+			$body = wp_json_encode( $body );
+		}
+
+		return self::remote_request( $args, $body );
+	}
+
+	/**
+	 * Query the WordPress.com REST API using the blog token
+	 *
+	 * @param string  $path
+	 * @param string  $version
+	 * @param array   $args
+	 * @param string  $body
+	 * @param string  $base_api_path
+	 * @return array|WP_Error $response Data.
+	 */
+	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null, $base_api_path = 'rest' ) {
+		$filtered_args = array_intersect_key( $args, array(
+			'headers'     => 'array',
+			'method'      => 'string',
+			'timeout'     => 'int',
+			'redirection' => 'int',
+			'stream'      => 'boolean',
+			'filename'    => 'string',
+			'sslverify'   => 'boolean',
+		) );
 
 		// unprecedingslashit
 		$_path = preg_replace( '/^\//', '', $path );
 
 		// Use GET by default whereas `remote_request` uses POST
-		if ( isset( $filtered_args['method'] ) && strtoupper( $filtered_args['method'] === 'POST' ) ) {
-			$request_method = 'POST';
-		} else {
-			$request_method = 'GET';
-		}
+		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
+
+		$url = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $_path );
 
 		$validated_args = array_merge( $filtered_args, array(
-			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path ),
+			'url'     => $url,
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 			'method'  => $request_method,
 		) );
@@ -345,5 +377,23 @@ class Jetpack_Client {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Gets protocol string.
+	 *
+	 * @return string `https` (if possible), else `http`.
+	 */
+	public static function protocol() {
+		/**
+		 * Determines whether Jetpack can send outbound https requests to the WPCOM api.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param bool $proto Defaults to true.
+		 */
+		$https = apply_filters( 'jetpack_can_make_outbound_https', true );
+
+		return $https ? 'https' : 'http';
 	}
 }

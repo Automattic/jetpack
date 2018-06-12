@@ -133,12 +133,6 @@ class VideoPress_XMLRPC {
 		// update the meta to tell us that we're processing or complete
 		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
 
-		// Get the attached file and if there isn't one, then let's update it with the one from the server.
-		$file = get_attached_file( $id );
-		if ( ! $file && is_string( $info['original'] ) ) {
-			videopress_download_video( $info['original'], $id );
-		}
-
 		return true;
 	}
 
@@ -155,18 +149,21 @@ class VideoPress_XMLRPC {
 			return false;
 		}
 
+		// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
+		$poster = apply_filters( 'jetpack_photon_url', $poster, array( 'ssl' => 1 ), 'https' );
+
+		$meta = wp_get_attachment_metadata( $post_id );
+		$meta['videopress']['poster'] = $poster;
+		wp_update_attachment_metadata( $post_id, $meta );
+
 		// Update the poster in the VideoPress info.
 		$thumbnail_id = videopress_download_poster_image( $poster, $post_id );
 
-		if ( !is_int( $thumbnail_id ) ) {
+		if ( ! is_int( $thumbnail_id ) ) {
 			return false;
 		}
 
 		update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
-		$meta = wp_get_attachment_metadata( $post_id );
-
-		$meta['videopress']['poster'] = $poster;
-		wp_update_attachment_metadata( $post_id, $meta );
 
 		return true;
 	}

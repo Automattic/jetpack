@@ -88,4 +88,15 @@ $GLOBALS['csstidy']['all_properties']['text-overflow'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['zoom'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['pointer-events'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['font-feature-settings'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-kerning'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-language-override'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-synthesis'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-alternates'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-caps'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-east-asian'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-ligatures'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-numeric'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-position'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variation-settings'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['line-height-step'] = 'CSS3.0';
 

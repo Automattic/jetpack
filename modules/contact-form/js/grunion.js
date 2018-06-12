@@ -481,7 +481,7 @@ FB.ContactForm = (function() {
 		}
 	}
 	function validateEmails( emails ) {
-		// Field is allwed to be empty :)
+		// Field is allowed to be empty :)
 		if ( 0 === emails.length ) {
 			return true;
 		}

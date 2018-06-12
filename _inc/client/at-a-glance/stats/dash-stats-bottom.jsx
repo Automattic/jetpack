@@ -1,17 +1,19 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
-const DashStatsBottom = React.createClass( {
-	statsBottom: function() {
+class DashStatsBottom extends Component {
+	statsBottom() {
 		let generalStats;
 		if ( 'object' === typeof this.props.statsData.general ) {
 			generalStats = this.props.statsData.general.stats;
@@ -22,7 +24,7 @@ const DashStatsBottom = React.createClass( {
 				views_today: '-',
 				views_best_day: '-',
 				views_best_day_total: '-'
-			}
+			};
 		}
 		return [
 			{
@@ -37,10 +39,13 @@ const DashStatsBottom = React.createClass( {
 				}
 			}
 		];
-	},
+	}
 
-	render: function() {
-		const s = this.statsBottom()[0];
+	render() {
+		const s = this.statsBottom()[ 0 ];
+		const trackViewDetailedStats = () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ),
+			trackViewWpcomStats = () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' );
+
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -52,8 +57,9 @@ const DashStatsBottom = React.createClass( {
 					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">
 						{
-							'-' === s.bestDay.count ? '-' :
-							__( '%(number)s View', '%(number)s Views',
+							'-' === s.bestDay.count
+							? '-'
+							: __( '%(number)s View', '%(number)s Views',
 								{
 									count: s.bestDay.count,
 									args: {
@@ -92,30 +98,61 @@ const DashStatsBottom = React.createClass( {
 				<div className="jp-at-a-glance__stats-cta-description">
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					{ __( '{{button}}View Old Stats{{/button}}', {
+					{ __( '{{button}}View detailed stats{{/button}}', {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_view_old_stats_click', {} ) }
+									onClick={ trackViewDetailedStats }
 									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 								/>
 						}
 					} ) }
-					{ __( '{{button}}View More Stats on WordPress.com {{/button}}', {
-						components: {
-							button:
-								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
-									className="is-primary"
-									href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
-								/>
-						}
-					} ) }
+					{
+						this.props.isLinked && (
+							__( '{{button}}View more stats on WordPress.com {{/button}}', {
+								components: {
+									button:
+										<Button
+											onClick={ trackViewWpcomStats }
+											className="is-primary"
+											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
+										/>
+								}
+							} )
+						)
+					}
 				</div>
 			</div>
+			{
+				! this.props.isLinked && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
+					>
+						{
+							__( 'Connect your account to WordPress.com to view more stats' )
+						}
+					</Card>
+				)
+			}
 		</div>
 		);
 	}
-} );
+}
+
+DashStatsBottom.propTypes = {
+	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
+	statsData: PropTypes.object.isRequired,
+	isLinked: PropTypes.bool.isRequired
+};
+
+DashStatsBottom.defaultProps = {
+	siteRawUrl: '',
+	siteAdminUrl: '',
+	statsData: {},
+	isLinked: false
+};
 
 export default DashStatsBottom;

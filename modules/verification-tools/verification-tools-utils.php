@@ -5,8 +5,8 @@
  * This file will be included in module-extras.php.
  */
 
-function jetpack_verification_validate( $verification_services_codes ) {
-	foreach ( $verification_services_codes as $key => &$code ) {
+function jetpack_verification_validate( &$verification_services_codes ) {
+	foreach ( $verification_services_codes as $key => $code ) {
 		// Parse html meta tags if present
 		if ( stripos( $code, 'meta' ) )
 			$code = jetpack_verification_get_code( $code );
@@ -27,6 +27,8 @@ function jetpack_verification_validate( $verification_services_codes ) {
 		 * @param string $code Verification service code provided in field in the Tools menu.
 		 */
 		do_action( 'jetpack_site_verification_validate', $key, $code );
+
+		$verification_services_codes[ $key ] = $code;
 	}
 	return $verification_services_codes;
 }

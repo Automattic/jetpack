@@ -9,23 +9,15 @@ class Jetpack_Slideshow_Shortcode {
 	function __construct() {
 		global $shortcode_tags;
 
-		$needs_scripts = false;
-
 		// Only if the slideshow shortcode has not already been defined.
 		if ( ! array_key_exists( 'slideshow', $shortcode_tags ) ) {
 			add_shortcode( 'slideshow', array( $this, 'shortcode_callback' ) );
-			$needs_scripts = true;
 		}
 
 		// Only if the gallery shortcode has not been redefined.
 		if ( isset( $shortcode_tags['gallery'] ) && 'gallery_shortcode' === $shortcode_tags['gallery'] ) {
 			add_filter( 'post_gallery', array( $this, 'post_gallery' ), 1002, 2 );
 			add_filter( 'jetpack_gallery_types', array( $this, 'add_gallery_type' ), 10 );
-			$needs_scripts = true;
-		}
-
-		if ( $needs_scripts ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_scripts' ), 1 );
 		}
 
 		/**
@@ -115,14 +107,14 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	function shortcode_callback( $attr ) {
-		global $post;
+		$post_id = get_the_ID();
 
 		$attr = shortcode_atts(
 			array(
 				'trans'     => 'fade',
 				'order'     => 'ASC',
 				'orderby'   => 'menu_order ID',
-				'id'        => $post->ID,
+				'id'        => $post_id,
 				'include'   => '',
 				'exclude'   => '',
 				'autostart' => true,
@@ -148,15 +140,16 @@ class Jetpack_Slideshow_Shortcode {
 
 		$attachments = get_posts(
 			array(
-				'post_status'    => 'inherit',
-				'post_type'      => 'attachment',
-				'post_mime_type' => 'image',
-				'posts_per_page' => - 1,
-				'post_parent'    => $post_parent,
-				'order'          => $attr['order'],
-				'orderby'        => $attr['orderby'],
-				'include'        => $attr['include'],
-				'exclude'        => $attr['exclude'],
+				'post_status'      => 'inherit',
+				'post_type'        => 'attachment',
+				'post_mime_type'   => 'image',
+				'posts_per_page'   => - 1,
+				'post_parent'      => $post_parent,
+				'order'            => $attr['order'],
+				'orderby'          => $attr['orderby'],
+				'include'          => $attr['include'],
+				'exclude'          => $attr['exclude'],
+				'suppress_filters' => false,
 			)
 		);
 
@@ -208,7 +201,7 @@ class Jetpack_Slideshow_Shortcode {
 		if ( is_feed() ) {
 			return sprintf(
 				'<a href="%s">%s</a>',
-				esc_url( get_permalink( $post->ID ) . '#' . $gallery_instance . '-slideshow' ),
+				esc_url( get_permalink( $post_id ) . '#' . $gallery_instance . '-slideshow' ),
 				esc_html__( 'Click to view slideshow.', 'jetpack' )
 			);
 		}
@@ -273,31 +266,20 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	/**
-	 * Infinite Scroll needs the scripts to be present at all times
-	 */
-	function maybe_enqueue_scripts() {
-		if ( is_home() && current_theme_supports( 'infinite-scroll' ) ) {
-			$this->enqueue_scripts();
-		}
-	}
-
-	/**
 	 * Actually enqueues the scripts and styles.
 	 */
 	function enqueue_scripts() {
-		static $enqueued = false;
 
-		if ( $enqueued ) {
-			return;
-		}
-
-		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.js', __FILE__ ), array( 'jquery' ), '2.9999.8', true );
-		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20121214.1', true );
-		if ( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/rtl/slideshow-shortcode-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
-		}
+		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
+		wp_enqueue_script(
+			'jetpack-slideshow',
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
+			array( 'jquery-cycle' ),
+			'20160119.1',
+			true
+		);
+		wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
+		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
 		wp_localize_script(
 			'jetpack-slideshow',
@@ -308,23 +290,22 @@ class Jetpack_Slideshow_Shortcode {
 			 * @module shortcodes
 			 *
 			 * @since 2.1.0
+			 * @since 4.7.0 Added the `speed` option to the array of options.
 			 *
 			 * @param array $args
 			 * - string - spinner - URL of the spinner image.
+			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
 			 */
-			apply_filters(
-				'jetpack_js_slideshow_settings', array(
-					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				)
-			)
+			apply_filters( 'jetpack_js_slideshow_settings', array(
+				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+				'speed'   => '4000',
+			) )
 		);
-
-		$enqueued = true;
 	}
 
 	public static function init() {
-		$gallery = new Jetpack_Slideshow_Shortcode;
+		new Jetpack_Slideshow_Shortcode;
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Slideshow_Shortcode', 'init' ) );
+Jetpack_Slideshow_Shortcode::init();

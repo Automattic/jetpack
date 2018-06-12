@@ -23,6 +23,7 @@ class Jetpack_Sync_Settings {
 		'max_enqueue_full_sync'   => true,
 		'max_queue_size_full_sync'=> true,
 		'sync_via_cron'           => true,
+		'cron_sync_time_limit'    => true,
 	);
 
 	static $is_importing;
@@ -69,10 +70,10 @@ class Jetpack_Sync_Settings {
 				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
 				break;
 			case 'post_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::$post_meta_whitelist;
+				$default_array_value = Jetpack_Sync_Defaults::get_post_meta_whitelist();
 				break;
 			case 'comment_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;
+				$default_array_value = Jetpack_Sync_Defaults::get_comment_meta_whitelist();
 				break;
 		}
 
@@ -161,7 +162,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_syncing() {
-		return (bool) self::$is_syncing;
+		return (bool) self::$is_syncing || ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
 	}
 
 	static function set_is_syncing( $is_syncing ) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Related Posts
+ * Module Name: Related posts
  * Module Description: Increase page views by showing related content to your visitors.
  * Jumpstart Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
  * First Introduced: 2.9
@@ -34,7 +34,6 @@ class Jetpack_RelatedPosts_Module {
 	 * Register actions and filters
 	 *
 	 * @uses add_action, add_filter
-	 * @return null
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
@@ -54,6 +53,11 @@ class Jetpack_RelatedPosts_Module {
 			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
+		}
+
+		// Load Customizer controls.
+		if ( class_exists( 'WP_Customize_Manager' ) ) {
+			require_once 'related-posts/class.related-posts-customize.php';
 		}
 	}
 

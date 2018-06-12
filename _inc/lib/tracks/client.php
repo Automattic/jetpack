@@ -114,6 +114,12 @@ function jetpack_tracks_get_identity( $user_id ) {
  * @return bool true for success | \WP_Error if the event pixel could not be fired
  */
 function jetpack_tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+
+	// We don't want to track user events during unit tests/CI runs.
+	if ( $user instanceof WP_User && 'wptests_capabilities' === $user->cap_key ) {
+		return false;
+	}
+
 	$event_obj = jetpack_tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
 
 	if ( is_wp_error( $event_obj->error ) ) {

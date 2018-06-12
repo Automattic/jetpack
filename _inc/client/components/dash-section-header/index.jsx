@@ -1,30 +1,38 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
-export default React.createClass( {
-	displayName: 'DashSectionHeader',
+export class DashSectionHeader extends React.Component {
+	static displayName = 'DashSectionHeader';
 
-	propTypes: {
-		label: React.PropTypes.string.isRequired,
-		settingsPath: React.PropTypes.string,
-		externalLinkPath: React.PropTypes.string,
-		externalLink: React.PropTypes.string,
-		externalLinkClick: React.PropTypes.func
-	},
+	static propTypes = {
+		label: PropTypes.string.isRequired,
+		settingsPath: PropTypes.string,
+		externalLinkPath: PropTypes.string,
+		externalLink: PropTypes.string,
+		externalLinkClick: PropTypes.func,
+	};
 
-	getDefaultProps() {
-		return {
-			label: '',
-			settingsPath: '',
-			externalLinkPath: '',
-			externalLink: ''
-		};
-	},
+	static defaultProps = {
+		label: '',
+		settingsPath: '',
+		externalLinkPath: '',
+		externalLink: ''
+	};
+
+	trackCogClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'settings-cog',
+			group: 'security',
+			page: 'aag'
+		} );
+	};
 
 	render() {
 		let settingsIcon;
@@ -42,7 +50,7 @@ export default React.createClass( {
 					<span className="screen-reader-text">
 						{ __( 'Settings', { context: 'Noun. Displayed to screen readers.' } ) }
 					</span>
-					<Gridicon icon="cog" size={ 16 } />
+					<Gridicon onClick={ this.trackCogClick } icon="cog" size={ 16 } />
 				</a>
 			);
 		}
@@ -80,4 +88,6 @@ export default React.createClass( {
 			</div>
 		);
 	}
-} );
+}
+
+export default DashSectionHeader;

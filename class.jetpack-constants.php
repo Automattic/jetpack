@@ -31,6 +31,17 @@ class Jetpack_Constants {
 			? true
 			: defined( $name );
 	}
+	/**
+	 * Checks if a "constant" has been set in Jetpack_Constants
+	 * and has the value of true
+	 *
+	 * @param $name string The name of the constant
+	 *
+	 * @return bool
+	 */
+	public static function is_true( $name ) {
+		return self::is_defined( $name) && self::get_constant( $name );
+	}
 
 	/**
 	 * Attempts to retrieve the "constant" from Jetpack_Constants, and if it hasn't been set,

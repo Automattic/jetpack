@@ -9,6 +9,9 @@
 			</div>
 			<div class="jetpack-install-container">
 				<p class="submit"><a href="<?php echo esc_url( $data['url'] ); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+				<p class="jetpack-install-blurb">
+					<?php jetpack_render_tos_blurb(); ?>
+				</p>
 			</div>
 		</div>
 	</div>

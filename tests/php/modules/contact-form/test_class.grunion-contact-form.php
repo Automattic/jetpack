@@ -86,7 +86,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved
 		$submission = $feedback[0];
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertEquals( 'john@example.com', $email['to'][0] );
+		$this->assertEquals( '"john" <john@example.com>', $email['to'][0] );
 		$this->assertContains( 'IP Address: 127.0.0.1', $email['message'] );
 	}
 
@@ -323,15 +323,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
-		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form = new Grunion_Contact_Form( array( 'to' => '"john" <john@example.com>', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$form->process_submission();
 	}
 
 	public function pre_test_process_submission_sends_correct_single_email( $args ){
-		$this->assertContains( 'john@example.com', $args['to'] );
+		$this->assertContains( '"john" <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
-
-		$this->assertContains( "<br /><br />\n", $args['message'], 'lines should be separated by newline characters' );
 
 		$expected = '<b>Name:</b> John Doe<br /><br />';
 		$expected .= '<b>Dropdown:</b> First option<br /><br />';
@@ -367,7 +365,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	public function pre_test_process_submission_sends_correct_multiple_email( $args ){
-		$this->assertEquals( array( 'john@example.com','jane@example.com'), $args['to'] );
+		$this->assertEquals( array( '"john" <john@example.com>','"jane" <jane@example.com>'), $args['to'] );
 	}
 
 	/**
@@ -528,6 +526,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form::parse_contact_field
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
+		global $wp_version;
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
@@ -535,7 +534,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// The expected string has some quotes escaped, since we want to make
 		// sure we don't output anything harmful
-		$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+
+		if ( version_compare( $wp_version, '4.9-alpha', '>') ){
+			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]", $html );
+		} else {
+			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+		}
 	}
 
 
@@ -979,6 +983,93 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
+	}
+
+	/**
+	 * @author jaswrks
+	 * @covers Grunion_Contact_Form::personal_data_exporter
+	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 */
+	public function test_personal_data_exporter() {
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'email'    => 'john@example.com',
+			'dropdown' => 'First option',
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
+		) );
+
+		for ( $i = 1; $i <= 2; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"john" <john@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+					[contact-field label="Dropdown" type="select" options="First option,Second option,Third option"/]
+					[contact-field label="Radio" type="radio" options="First option,Second option,Third option"/]
+					[contact-field label="Text" type="text"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$posts  = get_posts( array( 'post_type' => 'feedback' ) );
+		$export = $this->plugin->personal_data_exporter( 'john@example.com' );
+
+		$this->assertSame( 2, count( $posts ), 'posts count matches' );
+		$this->assertSame( 2, count( $export['data'] ), 'export[data] count matches' );
+
+		foreach ( $export['data'] as $data ) {
+			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
+			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
+			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
+			$this->assertSame( 6, count( $data['data'] ), 'has total expected data keys' );
+		}
+	}
+
+	/**
+	 * @author jaswrks
+	 * @covers Grunion_Contact_Form::personal_data_eraser
+	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 */
+	public function test_personal_data_eraser() {
+		$this->add_field_values( array(
+			'name'  => 'John Doe',
+			'email' => 'john@example.com',
+		) );
+
+		for ( $i = 1; $i <= 2; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"john" <john@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 2, count( $posts ), 'posts count matches before erasing' );
+
+		$this->plugin->personal_data_eraser( 'john@example.com' );
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 0, count( $posts ), 'posts count matches after erasing' );
 	}
 
 } // end class

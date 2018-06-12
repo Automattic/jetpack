@@ -19,6 +19,7 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 import { fetchModules } from 'state/modules';
+import { fetchSettings } from 'state/settings';
 
 export const jumpStartActivate = () => {
 	return ( dispatch ) => {
@@ -34,8 +35,9 @@ export const jumpStartActivate = () => {
 			} );
 			analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_submit', {} );
 			dispatch( removeNotice( 'jumpstart-activate' ) );
-			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate' } ) );
+			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate', duration: 2000 } ) );
 			dispatch( fetchModules() );
+			dispatch( fetchSettings() );
 		} ).catch( error => {
 			dispatch( {
 				type: JUMPSTART_ACTIVATE_FAIL,
@@ -52,8 +54,8 @@ export const jumpStartActivate = () => {
 				{ id: 'jumpstart-activate' }
 			) );
 		} );
-	}
-}
+	};
+};
 
 const history = createHistory();
 
@@ -75,5 +77,5 @@ export const jumpStartSkip = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};

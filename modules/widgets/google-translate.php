@@ -12,8 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Google_Translate_Widget extends WP_Widget {
+class Jetpack_Google_Translate_Widget extends WP_Widget {
 	static $instance = null;
+
+	/**
+	 * Default widget title.
+	 *
+	 * @var string $default_title
+	 */
+	var $default_title;
 
 	/**
 	 * Register widget with WordPress.
@@ -24,22 +31,51 @@ class Google_Translate_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google Translate', 'jetpack' ) ),
 			array(
-				'description' => __( 'Automatic translation of your site content', 'jetpack' ),
+				'description' => __( 'Provide your readers with the option to translate your site into their preferred language.', 'jetpack' ),
 				'customize_selective_refresh' => true
 			)
 		);
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		$this->default_title = esc_html__( 'Translate', 'jetpack' );
 	}
 
 	/**
 	 * Enqueue frontend JS scripts.
 	 */
 	public function enqueue_scripts() {
-		wp_register_script( 'google-translate-init', plugins_url( 'google-translate/google-translate.js', __FILE__ ) );
+		wp_register_script(
+			'google-translate-init',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/widgets/google-translate/google-translate.min.js',
+				'modules/widgets/google-translate/google-translate.js'
+			)
+		);
 		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', array( 'google-translate-init' ) );
 		// Admin bar is also displayed on top of the site which causes google translate bar to hide beneath.
+		// Overwrite position of body.admin-bar
 		// This is a hack to show google translate bar a bit lower.
-		wp_add_inline_style( 'admin-bar', '.goog-te-banner-frame { top:32px !important }' );
+		$lowerTranslateBar = '
+			.admin-bar {
+				position: inherit !important;
+				top: auto !important;
+			}
+			.admin-bar .goog-te-banner-frame {
+				top: 32px !important
+			}
+			@media screen and (max-width: 782px) {
+				.admin-bar .goog-te-banner-frame {
+					top: 46px !important;
+				}
+			}
+			@media screen and (max-width: 480px) {
+				.admin-bar .goog-te-banner-frame {
+					position: absolute;
+				}
+			}
+		';
+		wp_add_inline_style( 'admin-bar', $lowerTranslateBar );
+		wp_add_inline_style( 'wpcom-admin-bar', $lowerTranslateBar );
 	}
 
 	/**
@@ -53,12 +89,56 @@ class Google_Translate_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
-			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
+			$instance = wp_parse_args( $instance, array(
+				'title' => $this->default_title,
+			) );
+
+			/**
+			 * Filter the layout of the Google Translate Widget.
+			 *
+			 * 3 different integers are accepted.
+			 * 	0 for the vertical layout.
+			 * 	1 for the horizontal layout.
+			 * 	2 for the dropdown only.
+			 *
+			 * @see https://translate.google.com/manager/website/
+			 *
+			 * @module widgets
+			 *
+			 * @since 5.5.0
+			 *
+			 * @param string $layout layout of the Google Translate Widget.
+			 */
+			$button_layout = apply_filters( 'jetpack_google_translate_widget_layout', 0 );
+
+			if (
+				! is_int( $button_layout )
+				|| 0 > $button_layout
+				|| 2 < $button_layout
+			) {
+				$button_layout = 0;
+			}
+
+			wp_localize_script(
+				'google-translate-init',
+				'_wp_google_translate_widget',
+				array(
+					'lang'   => get_locale(),
+					'layout' => intval( $button_layout ),
+				)
+			);
 			wp_enqueue_script( 'google-translate-init' );
 			wp_enqueue_script( 'google-translate' );
 
-			/** This filter is documented in core/src/wp-includes/default-widgets.php */
-			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$title = $instance['title'];
+
+			if ( ! isset( $title ) ) {
+				$title = $this->default_title;
+			}
+
+			/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
+			$title = apply_filters( 'widget_title', $title );
+
 			echo $args['before_widget'];
 			if ( ! empty( $title ) ) {
 				echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
@@ -79,10 +159,9 @@ class Google_Translate_Widget extends WP_Widget {
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		if ( isset( $instance['title'] ) ) {
-			$title = $instance['title'];
-		} else {
-			$title = '';
+		$title = isset( $instance['title'] ) ? $instance['title'] : false;
+		if ( false === $title ) {
+			$title = $this->default_title;
 		}
 		?>
 <p>
@@ -104,7 +183,10 @@ class Google_Translate_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['title'] = wp_kses( $new_instance['title'], array() );
+		if ( $instance['title'] === $this->default_title ) {
+			$instance['title'] = false; // Store as false in case of language change
+		}
 		return $instance;
 	}
 
@@ -114,6 +196,6 @@ class Google_Translate_Widget extends WP_Widget {
  * Register the widget for use in Appearance -> Widgets.
  */
 function jetpack_google_translate_widget_init() {
-	register_widget( 'Google_Translate_Widget' );
+	register_widget( 'Jetpack_Google_Translate_Widget' );
 }
 add_action( 'widgets_init', 'jetpack_google_translate_widget_init' );

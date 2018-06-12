@@ -16,6 +16,8 @@ class Jetpack_Tiled_Gallery {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
+
+
 	}
 
 	public function tiles_enabled() {
@@ -68,7 +70,7 @@ class Jetpack_Tiled_Gallery {
 
 		if ( !empty( $include ) ) {
 			$include = preg_replace( '/[^0-9,]+/', '', $include );
-			$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
+			$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false) );
 
 			$attachments = array();
 			foreach ( $_attachments as $key => $val ) {
@@ -81,20 +83,24 @@ class Jetpack_Tiled_Gallery {
 			$attachments = array();
 		} elseif ( !empty( $exclude ) ) {
 			$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
-			$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
+			$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false) );
 		} else {
-			$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
+			$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false ) );
 		}
 		return $attachments;
 	}
 
 	public static function default_scripts_and_styles() {
-		wp_enqueue_script( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.js', __FILE__ ), array( 'jquery' ) );
-		if( is_rtl() ) {
-			wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/rtl/tiled-gallery-rtl.css', __FILE__ ), array(), '2012-09-21' );
-		} else {
-			wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2012-09-21' );
-		}
+		wp_enqueue_script(
+			'tiled-gallery',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/tiled-gallery/tiled-gallery/tiled-gallery.min.js',
+				'modules/tiled-gallery/tiled-gallery/tiled-gallery.js'
+			),
+			array( 'jquery' )
+		);
+		wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2012-09-21' );
+		wp_style_add_data( 'tiled-gallery', 'rtl', 'replace' );
 	}
 
 	public function gallery_shortcode( $val, $atts ) {

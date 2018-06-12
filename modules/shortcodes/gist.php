@@ -54,7 +54,13 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		return '<!-- Invalid Gist ID -->';
 	}
 
-	wp_enqueue_script( 'jetpack-gist-embed', plugins_url( 'js/gist.js', __FILE__ ), array( 'jquery' ), false, true );
+	wp_enqueue_script(
+		'jetpack-gist-embed',
+		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
+		array( 'jquery' ),
+		false,
+		true
+	);
 
 	if ( false !== strpos( $id, '#file-' ) ) {
 		// URL points to a specific file in the gist

@@ -19,7 +19,7 @@ The data is being made available to the **Admin Page** by means of the WordPress
 
 Jetpack extends the Core API adding some specific methods for several jetpack-related actions exclusively, like activating or deactivating jetpack modules or updating any of the modules options.
 
-You may find additional reference for the Jetpack's HTTP API on the [rest-api.md](../../rest-api.md) file.
+You may find additional reference for the Jetpack's HTTP API on the [rest-api.md](../../docs/rest-api.md) file.
 
 ##### REST API Authentication
 
@@ -96,7 +96,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getApiRootUrl( state )**
 * **getConnectUrl( state )**
 * **getCurrentVersion( state )**
-* **getHappinessGravatarIds( state )**
 * **getInitialStateStatsData( state )**
 * **getJetpackNotices( state )**
 * **getJetpackStateNoticesErrorCode( state )**
@@ -113,7 +112,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getPluginUpdates( state )**
 * **getProtectCount( state )**
 * **getSearchTerm( state )**
-* **getSettingName( state, name )**
 * **getSettings( state )**
 * **getSiteAdminUrl( state )**
 * **getSiteConnectionStatus( state )**
@@ -127,8 +125,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUserWpComEmail( state )**
 * **getUserWpComLogin( state )**
 * **getUsername( state )**
-* **getVaultPressData( state )**
-* **getVaultPressScanThreatCount( state )**
 
 ### Available action creators (thunks)
 
@@ -150,7 +146,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **fetchSiteData()**
 * **fetchStatsData( range )**
 * **fetchUserConnectionData()**
-* **fetchVaultPressData()**
 * **filterSearch( term )**
 * **jumpStartActivate()**
 * **jumpStartSkip()**

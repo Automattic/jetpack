@@ -65,6 +65,10 @@ echo "Done!"
 echo "Purging paths included in .svnignore"
 # check .svnignore
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
+	# We want to commit changes to to-test.md as well as the testing tips.
+	if [ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]; then
+		continue;
+	fi
 	rm -rf $JETPACK_TMP_DIR_2/$file
 done
 echo "Done!"

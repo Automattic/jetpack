@@ -18,10 +18,14 @@ import {
 	dismissJetpackActionNotice
 } from 'state/jetpack-notices';
 
-const DismissableNotices = React.createClass( {
-	displayName: 'DismissableNotices',
+class DismissableNotices extends React.Component {
+	static displayName = 'DismissableNotices';
 
-	renderNotices: function() {
+	dismissJetpackActionNotice = () => {
+		this.props.dismissJetpackActionNotice( this.props.jetpackNotices );
+	};
+
+	renderNotices = () => {
 		const notices = this.props.jetpackNotices;
 
 		switch ( notices ) {
@@ -32,14 +36,14 @@ const DismissableNotices = React.createClass( {
 				return (
 					<div>
 						<SimpleNotice
-							onDismissClick={ this.props.dismissJetpackActionNotice.bind( null, notices ) }
+							onDismissClick={ this.dismissJetpackActionNotice }
 						>
 							{ __( 'You have successfully disconnected Jetpack' ) }
 							<br />
 							{
 								__( 'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.', {
 									components: {
-										a: <a href="https://jetpack.com/survey-disconnected/" target="_blank"/>
+										a: <a href="https://jetpack.com/survey-disconnected/" target="_blank" rel="noopener noreferrer" />
 									}
 								} )
 							}
@@ -50,16 +54,16 @@ const DismissableNotices = React.createClass( {
 			default:
 				return false;
 		}
-	},
+	};
 
 	render() {
 		return (
 			<div>
 				{ this.renderNotices() }
 			</div>
-		)
+		);
 	}
-} );
+}
 
 export default connect(
 	state => {

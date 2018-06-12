@@ -42,7 +42,12 @@ function jetpack_verification_print_meta() {
 		$ver_output = "<!-- Jetpack Site Verification Tags -->\n";
 		foreach ( jetpack_verification_services() as $name => $service ) {
 			if ( is_array( $service ) && !empty( $verification_services_codes["$name"] ) ) {
-				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_services_codes["$name"] ) );
+				if ( preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $verification_services_codes["$name"], $matches ) ) {
+					$verification_code = $matches[2];
+				} else {
+					$verification_code = $verification_services_codes["$name"];
+				}
+				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_code ) );
 				/**
 				 * Filter the meta tag template used for all verification tools.
 				 *
@@ -146,7 +151,7 @@ function jetpack_verification_tool_box() {
 	$last = array_pop( $list );
 
 	if ( current_user_can( 'manage_options' ) ) {
-		echo '<div class="jp-verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
+		echo '<div class="jp-verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" rel="noopener noreferrer" target="_blank">(?)</a></h3>';
 		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' , 'jetpack' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' , 'jetpack' ) . ' ' . $last . '.</p>';
 		jetpack_verification_options_form();
 		echo '</div>';

@@ -153,46 +153,6 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 }
 
 /**
- * Downloads and sets a file to the given attachment.
- *
- * @param string $url
- * @param int $attachment_id
- * @return bool|WP_Error
- */
-function videopress_download_video( $url, $attachment_id ) {
-
-	if ( ! $attachment = get_post( $attachment_id ) )  {
-		return new WP_Error( 'invalid_attachment', __( 'Could not find video attachment', 'jetpack' ) );
-	}
-
-	$tmpfile   = download_url( $url );
-
-	$remote_file_path = parse_url( $url, PHP_URL_PATH );
-
-	$file_name =  pathinfo( $remote_file_path, PATHINFO_FILENAME ) . '.' . pathinfo( $remote_file_path, PATHINFO_EXTENSION );
-
-	$time = date( 'YYYY/MM', strtotime( $attachment->post_date ) );
-
-	if ( ! ( ( $uploads = wp_upload_dir( $time ) ) && false === $uploads['error'] ) ) {
-		return new WP_Error( 'video_save_failed', __( 'Could not save video', 'jetpack' ) );
-	}
-
-	$unique_filename = wp_unique_filename( $uploads['path'], $file_name );
-
-	$save_path = $uploads['path'] . DIRECTORY_SEPARATOR . $unique_filename;
-
-	if ( ! @ copy( $tmpfile, $save_path ) ) {
-		return new WP_Error( 'video_save_failed', __( 'Could not save video', 'jetpack' ) );
-	}
-
-	unlink( $tmpfile );
-
-	update_attached_file( $attachment_id, $save_path );
-
-	return true;
-}
-
-/**
  * Creates a local media library item of a remote VideoPress video.
  *
  * @param $guid
@@ -545,4 +505,183 @@ function videopress_make_media_upload_path( $blog_id ) {
 		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new',
 		$blog_id
 	);
+}
+
+/**
+ * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
+ * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
+ *
+ * @param int $blog_id Blog ID.
+ * @param int $post_id Post ID.
+ * @return bool|stdClass
+ */
+function video_get_info_by_blogpostid( $blog_id, $post_id ) {
+	$post = get_post( $post_id );
+
+	$video_info = new stdClass();
+	$video_info->post_id = $post_id;
+	$video_info->blog_id = $blog_id;
+	$video_info->guid = null;
+	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
+
+	if ( is_wp_error( $post ) ) {
+		return $video_info;
+	}
+
+	if ( 'video/videopress' !== $post->post_mime_type ) {
+		return $video_info;
+	}
+
+	// Since this is a VideoPress post, lt's fill out the rest of the object.
+	$video_info->guid = get_post_meta( $post_id, 'videopress_guid', true );
+
+	if ( videopress_is_finished_processing( $post_id ) ) {
+		$video_info->finish_date_gmt = date( 'Y-m-d H:i:s' );
+	}
+
+	return $video_info;
+}
+
+
+/**
+ * Check that a VideoPress video format has finished processing.
+ *
+ * This uses the info object, because that is what the WPCOM endpoint
+ * uses, however we don't have a complete info object in the same way
+ * WPCOM does, so we pull the meta information out of the post
+ * options instead.
+ *
+ * Note: This mimics the WPCOM function of the same name and helps the media
+ * API endpoint add all needed VideoPress data.
+ *
+ * @param stdClass $info
+ * @param string $format
+ * @return bool
+ */
+function video_format_done( $info, $format ) {
+
+	// Avoids notice when a non-videopress item is found.
+	if ( ! is_object( $info ) ) {
+		return false;
+	}
+
+	$post_id = $info->post_id;
+
+	if ( get_post_mime_type( $post_id ) !== 'video/videopress' ) {
+		return false;
+	}
+
+	$post = get_post( $post_id );
+
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	$meta = wp_get_attachment_metadata( $post->ID );
+
+	switch ( $format ) {
+		case 'fmt_hd':
+			return isset( $meta['videopress']['files']['hd']['mp4'] );
+			break;
+
+		case 'fmt_dvd':
+			return isset( $meta['videopress']['files']['dvd']['mp4'] );
+			break;
+
+		case 'fmt_std':
+			return isset( $meta['videopress']['files']['std']['mp4'] );
+			break;
+
+		case 'fmt_ogg':
+			return isset( $meta['videopress']['files']['std']['ogg'] );
+			break;
+	}
+
+	return false;
+}
+
+/**
+ * Get the image URL for the given VideoPress GUID
+ *
+ * We look up by GUID, because that is what WPCOM does and this needs to be
+ * parameter compatible with that.
+ *
+ * Note: This mimics the WPCOM function of the same name and helps the media
+ * API endpoint add all needed VideoPress data.
+ *
+ * @param string $guid
+ * @param string $format
+ * @return string
+ */
+function video_image_url_by_guid( $guid, $format ) {
+
+	$post = video_get_post_by_guid( $guid );
+
+	if ( is_wp_error( $post ) ) {
+		return null;
+	}
+
+	$meta = wp_get_attachment_metadata( $post->ID );
+
+	// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
+	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'], array( 'ssl' => 1 ), 'https' );
+
+	return $poster;
+}
+
+/**
+ * Using a GUID, find a post.
+ *
+ * @param string $guid
+ * @return WP_Post
+ */
+function video_get_post_by_guid( $guid ) {
+	$args = array(
+		'post_type' 	 => 'attachment',
+		'post_mime_type' => 'video/videopress',
+		'post_status' 	 => 'inherit',
+		'meta_query' 	 => array(
+			array(
+				'key' 	  => 'videopress_guid',
+				'value'   => $guid,
+				'compare' => '=',
+			)
+		)
+	);
+
+	$query = new WP_Query( $args );
+
+	$post = $query->next_post();
+
+	return $post;
+}
+
+/**
+ * From the given VideoPress post_id, return back the appropriate attachment URL.
+ *
+ * When the MP4 hasn't been processed yet or this is not a VideoPress video, this will return null.
+ *
+ * @param int $post_id
+ * @return string|null
+ */
+function videopress_get_attachment_url( $post_id ) {
+
+	// We only handle VideoPress attachments.
+	if ( get_post_mime_type( $post_id ) !== 'video/videopress' ) {
+		return null;
+	}
+
+	$meta = wp_get_attachment_metadata( $post_id );
+
+	if ( ! isset( $meta['videopress']['files']['hd']['mp4'] ) ) {
+		// Use the original file as the url if it isn't transcoded yet.
+		if ( isset( $meta['original'] ) ) {
+			return $meta['original'];
+		}
+
+		// Otherwise, there isn't much we can do.
+		return null;
+	}
+
+	return $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
 }

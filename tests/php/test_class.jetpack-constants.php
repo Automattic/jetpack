@@ -1,7 +1,8 @@
 <?php
 
 class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::$set_constants = array();
 	}
 
@@ -84,5 +85,16 @@ class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
 		Jetpack_Constants::clear_single_constant( 'TEST' );
 
 		$this->assertEmpty( Jetpack_Constants::$set_constants );
+	}
+
+	// Jetpack_Constant::is_true
+	function test_jetpack_constants_is_true_method() {
+		$this->assertFalse( Jetpack_Constants::is_true( 'FOO' ), 'unset constant returns true' );
+		Jetpack_Constants::set_constant( 'FOO', false );
+
+		$this->assertFalse( Jetpack_Constants::is_true( 'FOO' ), 'false constant returns true' );
+		Jetpack_Constants::set_constant( 'FOO', true );
+
+		$this->assertTrue( Jetpack_Constants::is_true( 'FOO' ), 'true constant returns false');
 	}
 }

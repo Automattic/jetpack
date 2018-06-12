@@ -12,7 +12,7 @@ mysql -u root -e "CREATE DATABASE wordpress_tests;"
 
 CURRENT_DIR=$(pwd)
 
-for WP_SLUG in 'latest' 'previous'; do
+for WP_SLUG in 'master' 'latest' 'previous'; do
 	echo "Preparing $WP_SLUG WordPress...";
 
 	cd $CURRENT_DIR/..

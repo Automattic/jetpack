@@ -37,6 +37,7 @@ class Jetpack_JSON_API_Themes_New_Endpoint extends Jetpack_JSON_API_Themes_Endpo
 			if ( ! $local_file ) {
 				return new WP_Error( 'local-file-does-not-exist' );
 			}
+			jetpack_require_lib( 'class.jetpack-automatic-install-skin' );
 			$skin      = new Jetpack_Automatic_Install_Skin();
 			$upgrader  = new Theme_Upgrader( $skin );
 

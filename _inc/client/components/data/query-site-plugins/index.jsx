@@ -13,17 +13,17 @@ import {
 	isFetchingPluginsData
 } from 'state/site/plugins';
 
-export const QuerySitePlugins = React.createClass( {
+export class QuerySitePlugins extends React.Component {
 	componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();
 		}
-	},
+	}
 
 	render() {
 		return null;
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -34,6 +34,6 @@ export default connect(
 	( dispatch ) => {
 		return {
 			fetchPluginsData: () => dispatch( fetchPluginsData() )
-		}
+		};
 	}
 )( QuerySitePlugins );

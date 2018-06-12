@@ -96,6 +96,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			fx: this.transition,
 			prev: this.controls.prev,
 			next: this.controls.next,
+			timeout: jetpackSlideshowSettings.speed,
 			slideExpr: '.slideshow-slide',
 			onPrevNextEvent: function() {
 				return self.onCyclePrevNextClick_.apply( self, arguments );
