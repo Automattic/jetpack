@@ -2,14 +2,6 @@
 	.jp-dash-item__content a {
 		font-style: italic;
 	}
-	.dops-section-header__card-badge .dops-button {
-		background: none;
-		border-bottom-width: 1px;
-
-		&:hover {
-			background: $white;
-		}
-	}
 	.dops-section-header__actions {
 		.form-toggle__label {
 			position: relative;
