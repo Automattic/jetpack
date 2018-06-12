@@ -825,7 +825,7 @@ class Jetpack_Protect_Module {
 	 */
 	function set_transient( $transient, $value, $expiration ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( self::get_main_blog_id() );
+			switch_to_blog( $this->get_main_blog_id() );
 			$return = set_transient( $transient, $value, $expiration );
 			restore_current_blog();
 
@@ -845,7 +845,7 @@ class Jetpack_Protect_Module {
 	 */
 	function delete_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( self::get_main_blog_id() );
+			switch_to_blog( $this->get_main_blog_id() );
 			$return = delete_transient( $transient );
 			restore_current_blog();
 
@@ -865,7 +865,7 @@ class Jetpack_Protect_Module {
 	 */
 	function get_transient( $transient ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( self::get_main_blog_id() );
+			switch_to_blog( $this->get_main_blog_id() );
 			$return = get_transient( $transient );
 			restore_current_blog();
 
