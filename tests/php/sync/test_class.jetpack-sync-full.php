@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
-	function setUp() {
+	public function setUp() {
 		parent::setUp();
 		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
 	}
@@ -123,6 +123,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		wp_update_post( $post );
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -169,10 +171,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_users() {
-		for ( $i = 0; $i < 10; $i += 1 ) {
+		$first_user_id = $this->factory->user->create();
+		for ( $i = 0; $i < 9; $i += 1 ) {
 			$user_id = $this->factory->user->create();
 		}
 
+		update_user_meta( $user_id, 'locale', 'en_GB' );
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
@@ -180,13 +184,15 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
-		$users = get_users();
 		// 10 + 1 = 1 users gets always created.
-
-
 		$this->assertEquals( 11, $this->server_replica_storage->user_count() );
 		$user = $this->server_replica_storage->get_user( $user_id );
 		$this->assertEquals( get_allowed_mime_types( $user_id ), $this->server_replica_storage->get_allowed_mime_types( $user_id ) );
+
+		if ( function_exists( 'get_user_locale' ) ) {
+			$this->assertEquals( get_user_locale( $user_id ), $this->server_replica_storage->get_user_locale( $user_id ) );
+			$this->assertNull( $this->server_replica_storage->get_user_locale( $first_user_id ) );
+		}
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}
@@ -273,7 +279,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_constants() {
 		define( 'TEST_SYNC_ALL_CONSTANTS', 'foo' );
 
-		Jetpack_Sync_Modules::get_module( "constants" )->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'TEST_SYNC_ALL_CONSTANTS' );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
+
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -285,6 +294,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
+	}
+
+	function test_full_sync_constants_updates_checksums() {
+		define( 'FOO_SYNC_ALL_CONSTANTS', 'foo' );
+		$this->resetCallableAndConstantTimeouts();
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'FOO_SYNC_ALL_CONSTANTS' );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+		$this->server_event_storage->reset();
+		// Do Sync shouldn't send anything becuase the checksums are up to date.
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_constant' );
+		$this->assertTrue( empty( $events ) );
 	}
 
 	function test_full_sync_sends_all_functions() {
@@ -302,8 +332,31 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}
 
+	function test_full_sync_sends_all_functions_inverse() {
+		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->server_replica_storage->reset();
+		$this->server_event_storage->reset();
+
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
+		$this->assertTrue( empty( $events ) );
+
+	}
+
 	function test_full_sync_sends_all_options() {
-		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		delete_option( 'non_existant' );
+		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz' );
@@ -314,19 +367,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
+		$synced_options_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_options' );
+		$this->assertEquals(  sizeof( $synced_options_event->args ), 2, 'Size of synced options not as expected' );
+		$this->assertEquals( 'foo', $synced_options_event->args['my_option'] );
+		$this->assertEquals( 'bar', $synced_options_event->args['my_prefix_value'] );
+		
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 	}
 
 	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
@@ -661,7 +722,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// reset the data before the full sync
 		$this->sender->reset_data();
-
 	}
 
 	function test_full_sync_status_should_be_not_started_after_reset() {
@@ -1073,14 +1133,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
 		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array( 
-			'options' => true, 
-			'network_options' => true,
+			'options' => true,
 			'functions' => true, 
 			'constants' => true, 
-			'users' => 'initial'
+			'users' => array( $current_user->ID )
 		);
+
+		if ( is_multisite() ) {
+			$expected_sync_config['network_options'] = true;
+		}
 
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(

@@ -12,6 +12,7 @@ require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
@@ -30,10 +31,12 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_event_storage;
 
 	public function setUp() {
-		parent::setUp();
 
+		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
+
+		parent::setUp();
 
 		$this->setSyncClientDefaults();
 
@@ -52,11 +55,24 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->server_event_storage->init();
 	}
 
+	public function tearDown() {
+		parent::tearDown();
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+	}
+
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
 		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
+		// don't sync callables or constants every time - slows down tests
+		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
+	}
+
+	protected function resetCallableAndConstantTimeouts() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
 	}
 
 	public function test_pass() {
@@ -95,6 +111,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
 		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
+	}
+
+	function pre_http_request_success() {
+		return array( 'body' => json_encode( array( 'success' => true ) ) );
 	}
 }
 

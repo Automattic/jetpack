@@ -55,8 +55,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_initalize_Jetpack_Sync_Action_on_init() {
-		// prioroty should be set to 11 so that Plugins by default (10) initialize the whitelist_filter before.
-		$this->assertEquals( 90, has_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ) ) );
+		// prioroty should be set so that plugins can set their own filers initialize the whitelist_filter before.
+		// Priority is set earlier now plugins_loaded but we plugins should still be able to set whitelist_filters by
+		// using the plugins_loaded action.
+
+		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ) ) );
 	}
 
 	public function test_sync_default_options() {
@@ -124,7 +127,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'comment_whitelist'                    => 'pineapple',
 			'comment_max_links'                    => 99,
 			'moderation_keys'                      => 'pineapple',
-			'wga'                                  => 'pineapple',
+			'jetpack_wga'                          => 'pineapple',
 			'disabled_likes'                       => 'pineapple',
 			'disabled_reblogs'                     => 'pineapple',
 			'jetpack_comment_likes_enabled'        => 'pineapple',
@@ -135,9 +138,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_activated'                    => 'pineapple',
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
+			'jetpack_autoupdate_plugins_translations' => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
 			'jetpack_autoupdate_themes_translations' => 'pineapple',
 			'jetpack_autoupdate_core'              => 'pineapple',
+			'jetpack_autoupdate_translations'      => 'pineapple',
 			'carousel_background_color'            => 'pineapple',
 			'carousel_display_exif'                => 'pineapple',
 			'jetpack_portfolio'                    => 'pineapple',
@@ -155,7 +160,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'post_by_email_address'                => 'pineapple',
 			'jetpack_protect_key'                  => 'pineapple',
 			'jetpack_protect_global_whitelist'     => 'pineapple',
-			'sharing_services'                     => 'pineapple',
 			'jetpack_sso_require_two_step'         => 'pineapple',
 			'jetpack_relatedposts'                 => 'pineapple',
 			'verification_services_codes'          => 'pineapple',
@@ -164,6 +168,27 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'uninstall_plugins'                    => 'banana',
 			'advanced_seo_front_page_description'  => 'banana', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+			'jetpack_api_cache_enabled'            => '1',
+			'sidebars_widgets'                     => array( 'array_version' => 3 ),
+			'start_of_week'                        => '0',
+			'blacklist_keys'                       => '',
+			'posts_per_page'                       => '1',
+			'posts_per_rss'                        => '1',
+			'show_on_front'                        => '0',
+			'ping_sites'                           => false,
+			'uploads_use_yearmonth_folders'        => '0',
+			'date_format'                          => '0',
+			'time_format'                          => '0',
+			'admin_email'                          => 'banana@example.org',
+			'new_admin_email'                      => 'banana@example.net',
+			'default_email_category'               => '2',
+			'default_role'                         => 'contributor',
+			'page_for_posts'                       => '2',
+			'mailserver_url'                       => 'pineapple.example.com',
+			'mailserver_login'                     => '',
+			'mailserver_pass'                      => '',
+			'mailserver_port'                      => 1,
+			'wp_page_for_privacy_policy'           => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -171,7 +196,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$whitelist = $this->options_module->get_options_whitelist();
 
-		// update all the opyions.
+		// update all the options.
 		foreach ( $options as $option_name => $value ) {
 			update_option( $option_name, $value );
 		}
@@ -190,17 +215,63 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
+	public function test_sync_default_contentless_options() {
+		$this->setSyncClientDefaults();
+		// Check that these values exist in the contentless options list
+		$options = array(
+			'mailserver_login' => 'pineapple',
+			'mailserver_pass'  => 'pineapple',
+		);
+
+		$contentless_options = $this->options_module->get_options_contentless();
+
+		// Update all the options.
+		foreach ( $options as $option_name => $value ) {
+			update_option( $option_name, $value );
+		}
+
+		$this->sender->do_sync();
+
+		$option_keys = array_keys( $options );
+		foreach ( $option_keys as $option_name ) {
+			$this->assertOptionIsSynced( $option_name, '' );
+		}
+		$contentless_options_difference = array_diff( $contentless_options, $option_keys );
+		// Are we testing all the options
+		$unique_contentless_options = array_unique( $contentless_options );
+
+		$this->assertEquals(
+			count( $unique_contentless_options ),
+			count( $contentless_options ),
+			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
+		);
+		$this->assertTrue(
+			empty( $contentless_options_difference ),
+			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
+		);
+	}
+
+	public function test_add_whitelisted_option_on_init_89() {
+		add_action( 'init', array( $this, 'add_option_on_89' ), 89 );
+		do_action( 'init' );
+
+		$whitelist = $this->options_module->get_options_whitelist();
+
+		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
+	}
+
 	function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
 	}
 
-	function add_fiter_on_init() {
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
-	}
-
 	public function add_jetpack_options_whitelist_filter( $options ) {
 		$options[] = 'foo_option_bar';
-
 		return $options;
+	}
+
+
+
+	function add_option_on_89() {
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}
 }

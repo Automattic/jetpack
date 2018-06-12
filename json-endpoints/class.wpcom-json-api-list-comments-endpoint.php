@@ -9,6 +9,10 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 	);
 
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
+		if ( ! is_array( $output ) ) {
+			$output = array();
+		}
+
 		$output[] = $object->comment_ID;
 	}
 
@@ -56,6 +60,35 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 
 	}
 }
+
+new WPCOM_JSON_API_List_Comments_Endpoint( array(
+	'description' => 'Get a list of recent comments.',
+	'group'       => 'comments',
+	'stat'        => 'comments',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/comments/',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments/?number=2'
+) );
+
+new WPCOM_JSON_API_List_Comments_Endpoint( array(
+	'description' => 'Get a list of recent comments on a post.',
+	'group'       => 'comments',
+	'stat'        => 'posts:1:replies',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d/replies/',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7/replies/?number=2'
+) );
 
 // @todo permissions
 class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
@@ -144,7 +177,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			}
 			break;
 		default :
-			if ( !current_user_can( 'moderate_comments' ) ) {
+			if ( ! current_user_can( 'edit_posts' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot read non-approved comments', 403 );
 			}
 			if ( 'unapproved' === $args['status'] ) {

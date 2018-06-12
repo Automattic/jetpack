@@ -32,12 +32,22 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if ( false !== strpos( $url, 'video.php' ) || false !== strpos( $url, '/videos/' ) ) {
 		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
-		$embed = sprintf( '<fb:post href="%s"></fb:post>', esc_url( $url ) );
+		$width = 552; // As of 01/2017, the default width of Facebook embeds when no width attribute provided
+
+		global $content_width;
+		if ( isset( $content_width ) ) {
+			$width = min( $width, $content_width );
+		}
+
+		$embed = sprintf( '<fb:post href="%s" data-width="%s"></fb:post>', esc_url( $url ), esc_attr( $width ) );
 	}
 
 	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
-		return $embed . wp_scripts()->do_items( array( 'jetpack-facebook-embed' ) );
+		ob_start();
+		wp_scripts()->do_items( array( 'jetpack-facebook-embed' ) );
+		$scripts = ob_get_clean();
+		return $embed . $scripts;
 	} else {
 		wp_enqueue_script( 'jetpack-facebook-embed' );
 		return $embed;

@@ -15,7 +15,7 @@ import StaticWarning from 'components/jetpack-notices/static-warning';
 window.staticHtml = Server.renderToStaticMarkup(
 		<div>
 			<Provider store={ store }>
-				  <StaticMain />
+				<StaticMain />
 			</Provider>
 		</div>
 	);
@@ -36,17 +36,17 @@ window.versionNotice = Server.renderToStaticMarkup(
 
 window.ieNotice = Server.renderToStaticMarkup(
 		<Provider store={ store }>
-			<div id="ie-legacy-notice" style={{ display: 'none' }}>
-				<StaticWarning  />
+			<div id="ie-legacy-notice" style={ { display: 'none' } }>
+				<StaticWarning />
 			</div>
 		</Provider>
 	);
 
 window.ieNotice = window.ieNotice +
-	"<script type=\"text/javascript\">\n" +
-	"/*@cc_on\n" +
-	"if ( @_jscript_version <= 10) {\n" +
+	'<script type="text/javascript">\n' +
+	'/*@cc_on\n' +
+	'if ( @_jscript_version <= 10) {\n' +
 	"jQuery( '#ie-legacy-notice' ).show();\n" +
-	"}\n" +
-	"@*/\n" +
-	"</script>";
+	'}\n' +
+	'@*/\n' +
+	'</script>';

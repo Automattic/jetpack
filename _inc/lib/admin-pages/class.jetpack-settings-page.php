@@ -8,7 +8,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
 
-	function add_page_actions( $hook ) {} // There are no page specific actions to attach to the menu
+	function add_page_actions( $hook ) {}
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
@@ -24,45 +24,59 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		// If static.html isn't there, there's nothing else we can do.
 		if ( false === $static_html ) {
-			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			echo '<p>';
+			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
+			echo '<code>yarn distclean && yarn build</code>';
+			echo '</p>';
 			return;
 		}
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$version_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+		$version_notice = $rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
 		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You have JavaScript disabled', 'jetpack' ) ),
+			esc_html__( 'You have JavaScript disabled', 'jetpack' ),
 			$noscript_notice
 		);
 		$noscript_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ),
 			$noscript_notice
 		);
 
 		$version_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You are using an outdated version of WordPress', 'jetpack' ) ),
+			esc_html__( 'You are using an outdated version of WordPress', 'jetpack' ),
 			$version_notice
 		);
 		$version_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ),
 			$version_notice
+		);
+
+		$rest_api_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'WordPress REST API is disabled', 'jetpack' ) ),
+			$rest_api_notice
+		);
+		$rest_api_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Enable WordPress REST API to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$rest_api_notice
 		);
 
 		$ie_notice = str_replace(
 			'#HEADER_TEXT#',
-			esc_html( __( 'You are using an unsupported browser version.', 'jetpack' ) ),
+			esc_html__( 'You are using an unsupported browser version.', 'jetpack' ),
 			$ie_notice
 		);
 		$ie_notice = str_replace(
 			'#TEXT#',
-			esc_html( __( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ) ),
+			esc_html__( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ),
 			$ie_notice
 		);
 
@@ -72,6 +86,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		if ( $this->is_wp_version_too_old() ) {
 			echo $version_notice;
+		}
+		if ( ! $this->is_rest_api_enabled() ) {
+			echo $rest_api_notice;
 		}
 		echo $noscript_notice;
 		echo $ie_notice;
@@ -162,6 +179,11 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
+		wp_enqueue_script(
+			'jetpack-admin-js',
+			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
 	}
 }

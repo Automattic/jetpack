@@ -7,7 +7,10 @@ import {
 	isUpdatingModuleOption,
 	getModules,
 	getModule,
-	isModuleActivated
+	isModuleActivated,
+	getModuleOverride,
+	isModuleForcedActive,
+	isModuleForcedInactive,
 } from '../reducer';
 
 let state = {
@@ -16,7 +19,8 @@ let state = {
 			items: {
 				'module-a': {
 					module: 'module-a',
-					activated: false
+					activated: false,
+					override: 'active',
 				},
 				'module-b': {
 					module: 'module-b',
@@ -25,8 +29,14 @@ let state = {
 						c: {
 							currentValue: 2
 						}
-					}
-				}
+					},
+					override: 'inactive',
+				},
+				'module-c': {
+					module: 'module-c',
+					activated: false,
+					override: false,
+				},
 			},
 			requests: {
 				fetchingModulesList: true,
@@ -102,6 +112,40 @@ describe( 'items selectors', () => {
 			const stateIn = state;
 			const output = isModuleActivated( stateIn, 'module-a' );
 			expect( output ).to.eql( stateIn.jetpack.modules.items[ 'module-a' ].activated );
+		} );
+	} );
+
+	describe( '#getModuleOverride',  () => {
+		it( 'should return active when module forced on', () => {
+			expect( getModuleOverride( state, 'module-a' ) ).to.eql( 'active' );
+		} );
+
+		it( 'should return inactive when module forced off', () => {
+			expect( getModuleOverride( state, 'module-b' ) ).to.eql( 'inactive' );
+		} );
+
+		it( 'should return false when module not overriden', () => {
+			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#isModuleForcedActive',  () => {
+		it( 'should return true when module forced on', () => {
+			expect( isModuleForcedActive( state, 'module-a' ) ).to.be.true;
+		} );
+
+		it( 'should return false when module not overriden', () => {
+			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#isModuleForcedInactive',  () => {
+		it( 'should return true when module forced off', () => {
+			expect( isModuleForcedInactive( state, 'module-b' ) ).to.be.true;
+		} );
+
+		it( 'should return false when module not overriden', () => {
+			expect( isModuleForcedInactive( state, 'module-c' ) ).to.be.false;
 		} );
 	} );
 } );

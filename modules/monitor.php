@@ -2,13 +2,14 @@
 /**
  * Module Name: Monitor
  * Module Description: Receive immediate notifications if your site goes down, 24/7.
+ * Jumpstart Description: Receive immediate notifications if your site goes down, 24/7.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Security
+ * Feature: Security, Jumpstart
  * Additional Search Queries: monitor, uptime, downtime, monitoring
  */
 
@@ -45,12 +46,13 @@ class Jetpack_Monitor {
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
 			Jetpack::state( 'message', 'module_configured' );
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
+			exit;
 		}
 	}
 
 	public function jetpack_configuration_screen() {
 		?>
-		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Downtime Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
 		<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
 		<div class="narrow">
 		<?php if ( Jetpack::is_user_connected() && current_user_can( 'manage_options' ) ) : ?>
@@ -66,7 +68,7 @@ class Jetpack_Monitor {
 						</th>
 						<td>
 							<label for="receive_jetpack_monitor_notification">
-									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( $this->user_receives_notifications() ); ?> />
+									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( self::user_receives_notifications() ); ?> />
 								<span><?php _e( 'Receive Monitor Email Notifications.' , 'jetpack'); ?></span>
 							</label>
 							<p class="description"><?php printf( __( 'Emails will be sent to %s (<a href="%s">Edit</a>)', 'jetpack' ), $user_email, 'https://wordpress.com/settings/account/'); ?></p>
@@ -121,7 +123,7 @@ class Jetpack_Monitor {
 	 *
 	 * @return boolean|WP_Error
 	 */
-	public function user_receives_notifications( $die_on_error = true ) {
+	static function user_receives_notifications( $die_on_error = true ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()

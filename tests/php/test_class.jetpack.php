@@ -11,7 +11,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	static $activated_modules = array();
 	static $deactivated_modules = array();
 
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::clear_constants();
 	}
 
@@ -206,9 +207,9 @@ EXPECTED;
 		Jetpack::dns_prefetch( 'https://example2.com' );
 
 		$expected = "\r\n" .
-		            "<link rel='dns-prefetch' href='//example1.com'>\r\n" .
-		            "<link rel='dns-prefetch' href='//example2.com'>\r\n" .
-		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
+		            "<link rel='dns-prefetch' href='//example1.com'/>\r\n" .
+		            "<link rel='dns-prefetch' href='//example2.com'/>\r\n" .
+		            "<link rel='dns-prefetch' href='//example3.com'/>\r\n";
 
 		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
 	}
@@ -320,14 +321,6 @@ EXPECTED;
 		} else {
 			$this->assertTrue( Jetpack::sync_idc_optin() );
 		}
-	}
-
-	function test_idc_optin_false_when_sunrise() {
-		Jetpack_Constants::set_constant( 'SUNRISE', true );
-
-		$this->assertFalse( Jetpack::sync_idc_optin() );
-
-		Jetpack_Constants::clear_constants();
 	}
 
 	function test_idc_optin_filter_overrides_development_version() {
@@ -497,6 +490,18 @@ EXPECTED;
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
+	function test_is_development_mode_filter() {
+		add_filter( 'jetpack_development_mode', '__return_true' );
+		$this->assertTrue( Jetpack::is_development_mode() );
+		remove_filter( 'jetpack_development_mode', '__return_true' );
+	}
+
+	function test_is_development_mode_bool() {
+		add_filter( 'jetpack_development_mode', '__return_zero' );
+		$this->assertFalse( Jetpack::is_development_mode() );
+		remove_filter( 'jetpack_development_mode', '__return_zero' );
+	}
+
 	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
 		$original_home    = get_option( 'home' );
 		$original_siteurl = get_option( 'siteurl' );
@@ -571,6 +576,168 @@ EXPECTED;
 		$url = '123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+	}
+
+	/**
+	 * The generate_secrets method should return and store the secret.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_stores_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should return the same secret after calling generate several times.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_does_not_regenerate_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+		$secret2 = Jetpack::generate_secrets( 'name' );
+		$secret3 = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, $secret2 );
+		$this->assertEquals( $secret, $secret3 );
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should work with filters on wp_generate_password.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_filters() {
+		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+	}
+
+	/**
+	 * The generate_secrets method should work with long strings.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_long_strings() {
+		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+	}
+
+	/**
+	 * The get_secrets method should return an error for unknown secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_unknown_secrets() {
+		Jetpack::generate_secrets( 'name' );
+		$unknown_action = Jetpack::get_secrets( 'unknown', get_current_user_id() );
+		$unknown_user_id = Jetpack::get_secrets( 'name', 5 );
+
+		$this->assertInstanceOf( 'WP_Error', $unknown_action );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_action->errors );
+		$this->assertInstanceOf( 'WP_Error', $unknown_user_id );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_user_id->errors );
+	}
+
+	/**
+	 * The get_secrets method should return an error for expired secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_expired_secrets() {
+		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
+		$expired = Jetpack::get_secrets( 'name', get_current_user_id() );
+		$this->assertInstanceOf( 'WP_Error', $expired );
+		$this->assertArrayHasKey( 'verify_secrets_expired', $expired->errors );
+	}
+
+	/**
+	 * Parse the referer on plugin activation and record the activation source
+	 * - featured plugins page
+	 * - popular plugins page
+	 * - search (with query)
+	 * - plugins list
+	 * - other
+	 */
+	function test_get_activation_source() {
+		$plugins_url = admin_url( 'plugins.php' );
+		$plugin_install_url = admin_url( 'plugin-install.php' );
+		$unknown_url = admin_url( 'unknown.php' );
+
+		$this->assertEquals( array( 'list', null ), Jetpack::get_activation_source( $plugins_url . '?plugin_status=all&paged=1&s' ) );
+		$this->assertEquals( array( 'featured', null ), Jetpack::get_activation_source( $plugin_install_url ) );
+		$this->assertEquals( array( 'popular', null ), Jetpack::get_activation_source( $plugin_install_url . '?tab=popular' ) );
+		$this->assertEquals( array( 'recommended', null ), Jetpack::get_activation_source( $plugin_install_url . '?tab=recommended' ) );
+		$this->assertEquals( array( 'favorites', null ), Jetpack::get_activation_source( $plugin_install_url . '?tab=favorites' ) );
+		$this->assertEquals( array( 'search-term', 'jetpack' ), Jetpack::get_activation_source( $plugin_install_url . '?s=jetpack&tab=search&type=term' ) );
+		$this->assertEquals( array( 'search-author', 'foo' ), Jetpack::get_activation_source( $plugin_install_url . '?s=foo&tab=search&type=author' ) );
+		$this->assertEquals( array( 'search-tag', 'social' ), Jetpack::get_activation_source( $plugin_install_url . '?s=social&tab=search&type=tag' ) );
+		$this->assertEquals( array( 'unknown', null ), Jetpack::get_activation_source( $unknown_url ) );
+	}
+
+	/**
+	 * @author ebinnion
+	 * @dataProvider get_file_url_for_environment_data_provider
+	 */
+	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
+		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
+		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
+
+		$this->assertContains( $$expected, $file_url );
+		$this->assertNotContains( $$not_expected, $file_url );
+	}
+
+	function get_file_url_for_environment_data_provider() {
+		return array(
+			'script-debug-true' => array(
+				'_inc/build/shortcodes/js/instagram.js',
+				'modules/shortcodes/js/instagram.js',
+				true,
+				'non_min_path',
+				'min_path'
+			),
+			'script-debug-false' => array(
+				'_inc/build/shortcodes/js/instagram.js',
+				'modules/shortcodes/js/instagram.js',
+				false,
+				'min_path',
+				'non_min_path'
+			),
+		);
+	}
+
+	static function __cyrillic_salt( $password ) {
+		return 'ленка' . $password . 'пенка';
+	}
+
+	static function __kanji_salt( $password ) {
+		return '強熊' . $password . '清珠';
+	}
+
+	static function __multiply_filter( $password ) {
+		for ( $i = 0; $i < 10; $i++ ) {
+			$password .= $password;
+		}
+		return $password;
 	}
 
 	function __return_string_1() {

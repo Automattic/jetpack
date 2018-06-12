@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 
@@ -11,6 +12,7 @@ import includes from 'lodash/includes';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_SET_INITIAL_STATE,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -22,7 +24,8 @@ import {
 	DISCONNECT_SITE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
-	UNLINK_USER_SUCCESS
+	UNLINK_USER_SUCCESS,
+	MOCK_SWITCH_USER_PERMISSIONS
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
@@ -40,9 +43,10 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
+			return get( action, 'initialState.connectUrl', state );
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
-
 		default:
 			return state;
 	}
@@ -54,8 +58,11 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 			return assign( {}, state, action.userConnectionData );
 
 		case UNLINK_USER_SUCCESS:
-			let currentUser = assign( {}, state.currentUser, { isConnected: false } );
+			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
+
+		case MOCK_SWITCH_USER_PERMISSIONS:
+			return merge( {}, state, action.initialState );
 
 		default:
 			return state;
@@ -125,14 +132,28 @@ export function getSiteConnectionStatus( state ) {
 }
 
 /**
+ * Checks if the site is connected to WordPress.com. Unlike getSiteConnectionStatus, this one returns only a boolean.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
+ */
+export function isSiteConnected( state ) {
+	if ( ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) ||
+		true === state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
  * Returns an object with information about the Dev Mode.
  *
  * @param  {Object}      state Global state tree
  * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
  */
 export function getSiteDevMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive'] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode'] );
+	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive' ] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode' ] );
 	}
 	return false;
 }

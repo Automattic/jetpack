@@ -388,6 +388,23 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 	}
 
+	// todo: test this out to make sure it works as expected.
+	public function delete_batch_metadata( $type, $object_ids, $meta_key ) {
+		global $wpdb;
+
+		$table = _get_meta_table( $type );
+		if ( ! $table ) {
+			return false;
+		}
+		$column = sanitize_key($type . '_id' );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE $column IN (%s) && meta_key = %s", implode( ',', $object_ids ),  $meta_key ) );
+
+		// if we don't have an object ID what do we do - invalidate ALL meta?
+		foreach ( $object_ids as $object_id ) {
+			wp_cache_delete( $object_id, $type . '_meta' );
+		}
+	}
+
 	// constants
 	public function get_constant( $constant ) {
 		$value = get_option( 'jetpack_constant_' . $constant );
@@ -530,12 +547,15 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		if ( is_array( $tt_ids ) && ! empty( $tt_ids ) ) {
+			// escape
+			$tt_ids_sanitized = array_map( 'intval', $tt_ids );
+
 			$taxonomies = array();
-			foreach ( $tt_ids as $tt_id ) {
+			foreach ( $tt_ids_sanitized as $tt_id ) {
 				$term                            = get_term_by( 'term_taxonomy_id', $tt_id );
 				$taxonomies[ $term->taxonomy ][] = $tt_id;
 			}
-			$in_tt_ids = "'" . implode( "', '", $tt_ids ) . "'";
+			$in_tt_ids = implode( ", ", $tt_ids_sanitized );
 
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
@@ -545,9 +565,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			 * @param int $object_id Object ID.
 			 * @param array $tt_ids An array of term taxonomy IDs.
 			 */
-			do_action( 'delete_term_relationships', $object_id, $tt_ids );
+			do_action( 'delete_term_relationships', $object_id, $tt_ids_sanitized );
 			$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_tt_ids)", $object_id ) );
 			foreach ( $taxonomies as $taxonomy => $taxonomy_tt_ids ) {
+				$this->ensure_taxonomy( $taxonomy );
 				wp_cache_delete( $object_id, $taxonomy . '_relationships' );
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
@@ -582,6 +603,18 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function delete_user( $user_id ) {
 		$this->invalid_call();
+	}
+
+	public function upsert_user_locale( $user_id, $local ) {
+		$this->invalid_call();
+	}
+
+	public function delete_user_locale( $user_id ) {
+		$this->invalid_call();
+	}
+
+	public function get_user_locale( $user_id ) {
+		return jetpack_get_user_locale( $user_id );
 	}
 
 	public function get_allowed_mime_types( $user_id ) {
@@ -620,7 +653,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				$where_sql    = Jetpack_Sync_Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-				
+
 				if ( empty( $columns ) ) {
 					$columns  = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
 				}

@@ -15,10 +15,19 @@ class Jetpack_Admin {
 	private $jetpack;
 
 	static function init() {
+		if( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
+			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
+		}
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Admin;
 		}
 		return self::$instance;
+	}
+
+	static function add_no_store_header( $headers ) {
+		$headers['Cache-Control'] .= ', no-store';
+		return $headers;
 	}
 
 	private function __construct() {
@@ -60,12 +69,13 @@ class Jetpack_Admin {
 	// presentation like description, name, configuration url, etc.
 	function get_modules() {
 		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
-		$available_modules = $this->jetpack->get_available_modules();
-		$active_modules    = $this->jetpack->get_active_modules();
+		$available_modules = Jetpack::get_available_modules();
+		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
 		$jetpack_active = Jetpack::is_active() || Jetpack::is_development_mode();
+		$overrides = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
-			if ( $module_array = $this->jetpack->get_module( $module ) ) {
+			if ( $module_array = Jetpack::get_module( $module ) ) {
 				/**
 				 * Filters each module's short description.
 				 *
@@ -91,6 +101,7 @@ class Jetpack_Admin {
 				$module_array['available']         = self::is_module_available( $module_array );
 				$module_array['short_description'] = $short_desc_trunc;
 				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
+				$module_array['override']          = $overrides->get_module_override( $module );
 
 				ob_start();
 				/**
@@ -184,7 +195,11 @@ class Jetpack_Admin {
 		if ( Jetpack::is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
-			return Jetpack::is_active();
+			if ( ! Jetpack::is_active() ) {
+				return false;
+			}
+
+			return Jetpack::active_plan_supports( $module['module'] );
 		}
 	}
 
@@ -236,6 +251,7 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_debugger() {
+		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}

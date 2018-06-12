@@ -19,7 +19,7 @@ abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @param Jetpack_IXR_Client $xmlrpc
 	 */
-	public function __construct( $xmlrpc ) {
+	public function __construct( $xmlrpc = null ) {
 		$this->xmlrpc = $xmlrpc;
 	}
 

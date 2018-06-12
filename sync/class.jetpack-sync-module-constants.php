@@ -10,12 +10,6 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return 'constants';
 	}
 
-	private $constants_whitelist;
-
-	public function set_defaults() {
-		$this->constants_whitelist = Jetpack_Sync_Defaults::$default_constants_whitelist;
-	}
-
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_constant', $callable, 10, 2 );
 	}
@@ -41,7 +35,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	}
 
 	function get_constants_whitelist() {
-		return $this->constants_whitelist;
+		return Jetpack_Sync_Defaults::get_constants_whitelist();
 	}
 
 	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -103,9 +97,10 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	// public so that we don't have to store an option for each constant
 	function get_all_constants() {
+		$constants_whitelist = $this->get_constants_whitelist();
 		return array_combine(
-			$this->constants_whitelist,
-			array_map( array( $this, 'get_constant' ), $this->constants_whitelist )
+			$constants_whitelist,
+			array_map( array( $this, 'get_constant' ), $constants_whitelist )
 		);
 	}
 
@@ -117,9 +112,14 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function expand_constants( $args ) {
 		if ( $args[0] ) {
-			return $this->get_all_constants();
+			$constants = $this->get_all_constants();
+			$constants_checksums = array();
+			foreach ( $constants as $name => $value ) {
+				$constants_checksums[ $name ] = $this->get_check_sum( $value );
+			}
+			update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
+			return $constants;
 		}
-
 		return $args;
 	}
 }

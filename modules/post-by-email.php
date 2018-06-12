@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Module Name: Post by Email
- * Module Description: Publish posts by sending an email.
+ * Module Name: Post by email
+ * Module Description: Publish posts by sending an email
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
@@ -173,7 +173,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	/**
-	 * Backend function to abstract the xmlrpc function calls to wpcom.
+	 * Back end function to abstract the xmlrpc function calls to wpcom.
 	 *
 	 * @param $endpoint
 	 * @param $error_message

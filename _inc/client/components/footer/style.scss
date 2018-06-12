@@ -1,9 +1,9 @@
 .jp-footer {
 	text-align: center;
-	margin: rem( 16px ) 0 rem( 64px );
+	margin: rem( 16px ) 0 rem( 32px );
 
 	@include breakpoint( "<1040px" ) {
-		margin: rem( 32px ) 0 rem( 48px );
+		margin: rem( 32px ) 0 rem( 24px );
 	}
 	@include breakpoint( "<660px" ) {
 		margin: rem( 24px ) 0 rem( 16px );

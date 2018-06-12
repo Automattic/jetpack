@@ -27,8 +27,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions
-		if ( $this->is_wp_version_too_old() ) {
+		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
+		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
@@ -42,7 +42,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
-	 * Otherwise and only if user is allowed to see the Jetpack Admin, the Dashboard sub-link is added but pointed to Apps tab.
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
@@ -51,10 +50,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
-			if ( current_user_can( 'jetpack_manage_modules' ) || Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/dashboard' ) );
-			} elseif ( current_user_can( 'jetpack_admin_page' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/apps' ) );
+			if ( current_user_can( 'jetpack_admin_page' ) ) {
+				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
 			}
 		}
 	}
@@ -65,9 +62,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
+		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
-			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/settings' ) );
+			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
 	}
 
@@ -139,27 +136,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( false === $static_html ) {
 
 			// If we still have nothing, display an error
-			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			echo '<p>';
+			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
+			echo '<code>yarn distclean && yarn build</code>';
+			echo '</p>';
 		} else {
 
 			// We got the static.html so let's display it
 			echo $static_html;
 		}
-	}
-
-	function get_i18n_data() {
-
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_locale() . '.json';
-
-		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
-			$locale_data = @file_get_contents( $i18n_json );
-			if ( $locale_data ) {
-				return $locale_data;
-			}
-		}
-
-		// Return empty if we have nothing to return so it doesn't fail when parsed in JS
-		return '{}';
 	}
 
 	/**
@@ -198,26 +183,30 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 
-		if ( ! $is_dev_mode ) {
+		if ( ! $is_dev_mode && Jetpack::is_active() ) {
 			// Required for Analytics
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$localeSlug = explode( '_', get_locale() );
-		$localeSlug = $localeSlug[0];
-
-		// Collecting roles that can view site stats
+		// Collecting roles that can view site stats.
 		$stats_roles = array();
 		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
-		foreach( get_editable_roles() as $slug => $role ) {
+
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+		foreach ( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
 				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
 			);
 		}
 
-		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
-		$modules = $response->get_data();
+		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+		$moduleListEndpoint = new Jetpack_Core_API_Module_List_Endpoint();
+		$modules = $moduleListEndpoint->get_modules();
 
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
@@ -226,6 +215,23 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			$modules[ $slug ]['description'] = html_entity_decode( $data['description'] );
 			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
 			$modules[ $slug ]['long_description'] = html_entity_decode( $data['long_description'] );
+		}
+
+		// Get last post, to build the link to Customizer in the Related Posts module.
+		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
+		$last_post = isset( $last_post[0] ) && $last_post[0] instanceof WP_Post
+			? get_permalink( $last_post[0]->ID )
+			: get_home_url();
+
+		// Get information about current theme.
+		$current_theme = wp_get_theme();
+
+		// Get all themes that Infinite Scroll provides support for natively.
+		$inf_scr_support_themes = array();
+		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes' ) as $path ) {
+			if ( is_readable( $path ) ) {
+				$inf_scr_support_themes[] = basename( $path, '.php' );
+			}
 		}
 
 		// Add objects to be passed to the initial state of the app
@@ -245,10 +251,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isPublic'	=> '1' == get_option( 'blog_public' ),
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
 			),
+			'connectUrl' => Jetpack::init()->build_connect_url( true, false, false ),
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
-			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
@@ -263,55 +269,59 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
-			'settingNames' => array(
-				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
-			),
+			'settings' => $this->get_flattened_settings( $modules ),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
-			'locale' => $this->get_i18n_data(),
-			'localeSlug' => $localeSlug,
+			'siteData' => array(
+				'icon' => has_site_icon()
+					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
+					: '',
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
+				/**
+				 * Whether promotions are visible or not.
+				 *
+				 * @since 4.8.0
+				 *
+				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
+				 */
+				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
+				'isAtomicSite' => jetpack_is_atomic_site(),
+				'plan' => Jetpack::get_active_plan(),
+			),
+			'themeData' => array(
+				'name'      => $current_theme->get( 'Name' ),
+				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
+				'support'   => array(
+					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes ),
+				),
+			),
+			'locale' => Jetpack::get_i18n_data_json(),
+			'localeSlug' => join( '-', explode( '_', jetpack_get_user_locale() ) ),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
+			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'lastPostUrl' => esc_url( $last_post ),
 		) );
 	}
-}
 
-/*
- * List of happiness Gravatar IDs
- *
- * @todo move to functions.global.php when available
- * @since 4.1.0
- * @return array
- */
-function jetpack_get_happiness_gravatar_ids() {
-	return array(
-		'623f42e878dbd146ddb30ebfafa1375b',
-		'561be467af56cefa58e02782b7ac7510',
-		'd8ad409290a6ae7b60f128a0b9a0c1c5',
-		'790618302648bd80fa8a55497dfd8ac8',
-		'6e238edcb0664c975ccb9e8e80abb307',
-		'4e6c84eeab0a1338838a9a1e84629c1a',
-		'9d4b77080c699629e846d3637b3a661c',
-		'4626de7797aada973c1fb22dfe0e5109',
-		'190cf13c9cd358521085af13615382d5',
-		'f7006d10e9f7dd7bea89a001a2a2fd59',
-		'16acbc88e7aa65104ed289d736cb9698',
-		'4d5ad4219c6f676ea1e7d40d2e8860e8',
-		'e301f7d01b09e7578fdfc1b1ec1bc08d',
-		'42f4c73f5337486e199f6e3b3910f168',
-		'e7b26de48e76498cff880abca1eed8da',
-		'764fb02aaae2ff64c0625c763d82b74e',
-		'4988305772319fb9bc8fce0a7acb3aa1',
-		'5d8695c4b81592f1255721d2644627ca',
-		'0e2249a7de3404bc6d5207a45e911187',
-	);
+	/**
+	 * Returns an array of modules and settings both as first class members of the object.
+	 *
+	 * @param array $modules the result of an API request to get all modules.
+	 *
+	 * @return array flattened settings with modules.
+	 */
+	function get_flattened_settings( $modules ) {
+		$core_api_endpoint = new Jetpack_Core_API_Data();
+		$settings = $core_api_endpoint->get_all_options();
+		return $settings->data;
+	}
 }
 
 /*
@@ -347,32 +357,6 @@ function jetpack_show_jumpstart() {
 	return true;
 }
 
-/*
- * Gather data about the master user.
- *
- * @since 4.1.0
- *
- * @return array
- */
-function jetpack_master_user_data() {
-	$masterID = Jetpack_Options::get_option( 'master_user' );
-	if ( ! get_user_by( 'id', $masterID ) ) {
-		return false;
-	}
-
-	$jetpack_user = get_userdata( $masterID );
-	$wpcom_user   = Jetpack::get_connected_user_data( $jetpack_user->ID );
-	$gravatar     = get_avatar( $jetpack_user->ID, 40 );
-
-	$master_user_data = array(
-		'jetpackUser' => $jetpack_user,
-		'wpcomUser'   => $wpcom_user,
-		'gravatar'    => $gravatar,
-	);
-
-	return $master_user_data;
-}
-
 /**
  * Gather data about the current user.
  *
@@ -381,19 +365,19 @@ function jetpack_master_user_data() {
  * @return array
  */
 function jetpack_current_user_data() {
-	global $current_user;
+	$current_user = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
-	// Add connected user gravatar to the returned dotcom_data
-	$avatar_data = Jetpack::get_avatar_url( $dotcom_data[ 'email' ] );
-	$dotcom_data[ 'avatar'] = $avatar_data[ 0 ];
+	// Add connected user gravatar to the returned dotcom_data.
+	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'], array( 'size' => 64, 'default' => 'mysteryman' ) );
 
 	$current_user_data = array(
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
+		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
@@ -402,6 +386,7 @@ function jetpack_current_user_data() {
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
 			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
 			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
 			'manage_plugins'	 => current_user_can( 'install_plugins' )

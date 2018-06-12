@@ -16,21 +16,22 @@ import {
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription
 } from 'state/jetpack-notices';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import UpgradeNoticeContent from 'components/upgrade-notice-content';
+import { getSiteAdminUrl } from 'state/initial-state';
 
-const JetpackStateNotices = React.createClass( {
-	displayName: 'JetpackStateNotices',
-	getInitialState: function() {
-		return { showNotice: true };
-	},
+class JetpackStateNotices extends React.Component {
+	static displayName = 'JetpackStateNotices';
+	state = { showNotice: true };
 
 	/**
 	 * Only need to hide.  They will not appear on next page load.
 	 */
-	dismissJetpackStateNotice: function() {
+	dismissJetpackStateNotice = () => {
 		this.setState( { showNotice: false } );
-	},
+	};
 
-	getErrorFromKey: function( key ) {
+	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message = '';
 
@@ -43,8 +44,8 @@ const JetpackStateNotices = React.createClass( {
 					'{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" />,
-							p: <p/>
+							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" rel="noopener noreferrer" />,
+							p: <p />
 						}
 					}
 				);
@@ -146,22 +147,23 @@ const JetpackStateNotices = React.createClass( {
 			return (
 				<div>
 					{ message }
-					<br/>
+					<br />
 					{ errorDesc }
 				</div>
-			)
+			);
 		}
 
 		return (
 			<div>
 				{ message }
 			</div>
-		)
-	},
+		);
+	};
 
-	getMessageFromKey: function( key ) {
-		let message = '';
-		let status = 'is-info';
+	getMessageFromKey = key => {
+		let message = '',
+			status = 'is-info',
+			action;
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
@@ -188,17 +190,29 @@ const JetpackStateNotices = React.createClass( {
 				message = __( "You're fueled up and ready to go." );
 				status = 'is-success';
 				break;
+			case 'protect_misconfigured_ip' :
+				message = __( 'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.' );
+				status = 'is-info';
+				action = (
+					<NoticeAction
+						href="https://jetpack.com/support/security/troubleshooting-protect/"
+					>
+						{ __( 'Learn More' ) }
+					</NoticeAction>
+				);
+				break;
 
 			default:
 				message = key;
 		}
 
-		return [ message, status ];
-	},
+		return [ message, status, action ];
+	};
 
-	renderContent: function() {
-		let status = 'is-info';
-		let noticeText = '';
+	renderContent = () => {
+		let status = 'is-info',
+			noticeText = '',
+			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
 			message = this.props.jetpackStateNoticesMessageCode;
 
@@ -213,21 +227,32 @@ const JetpackStateNotices = React.createClass( {
 			}
 		}
 
+		// Show custom message for upgraded Jetpack
+		const currentVersion = this.props.currentVersion;
+		const versionForUpgradeNotice = /(5\.8).*/;
+		if ( 'modules_activated' === message && currentVersion.match( versionForUpgradeNotice ) ) {
+			return (
+				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } adminUrl={ this.props.adminUrl } />
+			);
+		}
+
 		if ( message ) {
 			const messageData = this.getMessageFromKey( message );
-			noticeText = messageData[0];
-			status = messageData[1];
+			noticeText = messageData[ 0 ];
+			status = messageData[ 1 ];
+			action = messageData[ 2 ];
 		}
 
 		return (
 			<SimpleNotice
 				status={ status }
 				onDismissClick={ this.dismissJetpackStateNotice }
+				text={ noticeText }
 			>
-				{ noticeText }
+				{ action }
 			</SimpleNotice>
 		);
-	},
+	};
 
 	render() {
 		return (
@@ -236,7 +261,7 @@ const JetpackStateNotices = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -244,7 +269,8 @@ export default connect(
 			currentVersion: getCurrentVersion( state ),
 			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
-			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state )
+			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
+			adminUrl: getSiteAdminUrl( state ),
 		};
 	}
 )( JetpackStateNotices );

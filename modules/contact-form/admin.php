@@ -26,7 +26,9 @@ function grunion_media_button( ) {
 add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 
 function grunion_display_form_view() {
-	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
+	if ( current_user_can( 'edit_posts' ) ) {
+		require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
+	}
 	exit;
 }
 
@@ -37,7 +39,7 @@ function grunion_admin_css() {
 	if ( is_null( $current_screen ) ) {
 		return;
 	}
-	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) ) {
+	if ( 'edit-feedback' !== $current_screen->id ) {
 		return;
 	}
 
@@ -242,7 +244,7 @@ add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
 function grunion_admin_view_tabs( $views ) {
 	global $current_screen;
 	if ( 'edit-feedback' != $current_screen->id )
-		return $actions;
+		return $views;
 
 	unset( $views['publish'] );
 
@@ -507,6 +509,10 @@ function grunion_sort_objects( $a, $b ) {
 function grunion_ajax_shortcode() {
 	check_ajax_referer( 'grunion_shortcode' );
 
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		die( '-1' );
+	}
+
 	$attributes = array();
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
@@ -549,6 +555,12 @@ function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;
 
 	check_ajax_referer( 'grunion_shortcode_to_json' );
+
+	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', $_POST['post_id'] ) ) {
+		die( '-1' );
+	} elseif ( ! current_user_can( 'edit_posts' ) ) {
+		die( '-1' );
+	}
 
 	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
 		die( '-1' );
@@ -696,7 +708,7 @@ function grunion_ajax_spam() {
 			 */
 			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
 
-			wp_mail( $to, $subject, $message, $headers );
+			Grunion_Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 	} elseif( $_POST['make_it'] == 'publish' ) {
 		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
@@ -771,15 +783,6 @@ function grunion_ajax_spam() {
 	exit;
 }
 
-add_action( 'omnisearch_add_providers', 'grunion_omnisearch_add_providers' );
-function grunion_omnisearch_add_providers() {
-	// Feedback uses capability_type 'page'
-	if ( current_user_can( 'edit_pages' ) ) {
-		require_once( GRUNION_PLUGIN_DIR . '/grunion-omnisearch.php' );
-		new Jetpack_Omnisearch_Grunion;
-	}
-}
-
 /**
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  */
@@ -796,7 +799,14 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the scripts that handle the spam check event.
-	wp_register_script( 'grunion-admin', plugin_dir_url( __FILE__ ) . 'js/grunion-admin.js', array( 'jquery' ) );
+	wp_register_script(
+		'grunion-admin',
+		Jetpack::get_file_url_for_environment(
+			'_inc/build/contact-form/js/grunion-admin.min.js',
+			'modules/contact-form/js/grunion-admin.js'
+		),
+		array( 'jquery' )
+	);
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );
@@ -863,7 +873,7 @@ function grunion_recheck_queue() {
 		if ( $is_spam ) {
 			wp_update_post( array( 'ID' => $feedback->ID, 'post_status' => 'spam' ) );
 			/** This action is already documented in modules/contact-form/admin.php */
-			do_action( 'contact_form_akismet', 'spam', $akismet_values );
+			do_action( 'contact_form_akismet', 'spam', $meta );
 		}
 	}
 

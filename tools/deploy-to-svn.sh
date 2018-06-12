@@ -40,7 +40,7 @@ git checkout $TARGET
 rm -rf $JETPACK_SVN_DIR
 
 echo "Checking out SVN shallowly to $JETPACK_SVN_DIR"
-svn -q checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
+svn -q checkout https://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
 echo "Done!"
 
 cd $JETPACK_SVN_DIR

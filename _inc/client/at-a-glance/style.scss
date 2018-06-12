@@ -8,6 +8,16 @@
 	padding: 0;
 }
 
+.jp-at-a-glance__stats-empty {
+	text-align: center;
+	margin-bottom: 0;
+
+	p {
+		font-size: rem( 14px );
+		color: $gray-text-min;
+	}
+}
+
 .jp-at-a-glance__stats-inactive {
 	padding: rem( 16px );
 
@@ -210,9 +220,11 @@
 	color: $gray;
 	text-decoration: underline;
 
-	&.is-current {
-		font-weight: 600;
-		text-decoration: none;
+	&.is-current,
+	&:visited.is-current,
+	&:focus.is-current {
+		color: #23282d;
+		text-decoration:none;
 	}
 }
 
@@ -233,6 +245,7 @@
 .jp-at-a-glance__left,
 .jp-at-a-glance__right {
 	display: flex;
+	min-width: 0;
 
 	@include breakpoint( ">660px" ) {
 		flex-basis: 50%;
@@ -244,6 +257,7 @@
 
 	> div, // Sorry. not sure how to class this. Thanks, React.
 	.jp-dash-item {
+		min-width: 0; // weird fix for overflowing items
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
@@ -257,12 +271,22 @@
 		}
 		.dops-card.is-compact {
 			flex-grow: 0;
+			a.dops-notice__action {
+				margin-left: 0;
+				padding-left: 0;
+				@include breakpoint( "<480px" ) {
+					text-transform: none;
+				}
+			}
 		}
 	}
 	.jp-dash-item__card {
 		display: flex;
-		align-items: flex-end;
 	}
+}
+
+.jp-search-config-aag {
+	width: 100%;
 }
 
 .jp-at-a-glance__left {
@@ -280,4 +304,128 @@
 
 .dops-chart__tooltip .tip-arrow {
 	display: none;
+}
+
+// Connection Settings
+.jp-connection-type {
+	.jp-dash-item__card {
+		align-items: flex-start;
+	}
+}
+.jp-connection-settings__info {
+	display: flex;
+}
+
+.jp-connection-settings__actions {
+	margin: 1em 0 0;
+
+	a {
+		cursor: pointer;
+	}
+}
+
+.jp-connection-settings__text {
+	width: 70%;
+	margin-left: rem( 16px );
+	word-break: break-word;
+}
+.jp-connection-settings__info {
+	.gridicon {
+		opacity: .6;
+	}
+	.gridicon,
+	.jp-connection-settings__site-icon {
+		background: #c8d7e1;
+		color: #fff;
+		min-width: rem( 64px );
+	}
+	.jp-connection-settings__gravatar {
+		display: inline-block;
+		min-width: rem( 64px );
+		background: $gray;
+		border-radius: 50%;
+		margin-bottom: 0;
+	}
+}
+
+.jp-connection-settings__username {
+	font-weight: 600;
+}
+
+.jp-connection-settings__email {
+	color: $gray;
+	font-size: rem( 13px );
+	font-style: italic;
+	font-weight: 400;
+}
+
+.jp-connection-settings__modal.dops-modal {
+	max-width: 450px;
+}
+
+.jp-connection-settings__modal-body {
+	margin: 0;
+	padding: rem( 24px ) rem( 32px );
+	font-size: rem( 14px );
+	color: $blue-dark-text;
+	text-align: center;
+
+	h2 {
+		margin: rem( 32px ) 0 rem( 24px );
+		font-size: rem( 32px );
+		font-weight: 300;
+		color: $blue-dark-text;
+	}
+
+	h4 {
+		margin: rem( 16px ) rem( 24px ) 0;
+		font-size: rem( 16px );
+		font-weight: 400;
+		line-height: 1.5em;
+		color: $blue-heading;
+	}
+
+	p {
+		font-size: rem( 14px );
+	}
+
+	ul {
+		margin: rem( 24px ) 0 rem( 36px );
+		color: $blue-text;
+	}
+
+	li {
+		position: relative;
+		display: block;
+		margin: 0;
+		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
+		border-bottom: 1px solid lighten( $gray, 25% );
+		text-align: left;
+
+		&:first-of-type {
+			border-top: 1px solid lighten( $gray, 25% );
+		}
+	}
+
+	.gridicon {
+		position: absolute;
+		left: rem( 16px );
+		top: rem( 16px );
+		vertical-align: text-bottom;
+		color: $blue-text;
+	}
+}
+
+.jp-connection-settings__modal-cancel {
+	margin-right: 1em;
+}
+
+.jp-connection-settings__modal-more a {
+	color: $blue-wordpress;
+	text-decoration: underline;
+}
+
+.jp-dash-item__manage-in-wpcom {
+	margin-top: 1px;
+	width: 100%;
 }

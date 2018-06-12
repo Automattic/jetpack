@@ -32,8 +32,8 @@ export const fetchSiteConnectionStatus = () => {
 				siteConnected: siteConnected
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchConnectUrl = () => {
 	return ( dispatch ) => {
@@ -51,8 +51,8 @@ export const fetchConnectUrl = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchUserConnectionData = () => {
 	return ( dispatch ) => {
@@ -70,8 +70,8 @@ export const fetchUserConnectionData = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const disconnectSite = () => {
 	return ( dispatch ) => {
@@ -85,6 +85,8 @@ export const disconnectSite = () => {
 				disconnectingSite: disconnectingSite
 			} );
 			dispatch( removeNotice( 'disconnect-jetpack' ) );
+		} ).then( () => {
+			dispatch( fetchConnectUrl() );
 		} ).catch( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
@@ -101,8 +103,8 @@ export const disconnectSite = () => {
 				{ id: 'disconnect-jetpack' }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export const unlinkUser = () => {
 	return ( dispatch ) => {
@@ -116,7 +118,7 @@ export const unlinkUser = () => {
 				userUnlinked: userUnlinked
 			} );
 			dispatch( removeNotice( 'unlink-user' ) );
-			dispatch( createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), { id: 'unlink-user' } ) );
+			dispatch( createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), { id: 'unlink-user', duration: 2000 } ) );
 		} ).catch( error => {
 			dispatch( {
 				type: UNLINK_USER_FAIL,
@@ -133,5 +135,5 @@ export const unlinkUser = () => {
 				{ id: 'unlink-user' }
 			) );
 		} );
-	}
-}
+	};
+};

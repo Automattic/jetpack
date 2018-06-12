@@ -3,7 +3,8 @@ import { expect } from 'chai';
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
-	initialRequestsState
+	initialRequestsState,
+	getModuleOptionValidValues
 } from '../reducer';
 
 describe( 'items reducer', () => {
@@ -26,17 +27,47 @@ describe( 'items reducer', () => {
 				}
 			}
 		},
+		'module-c': {
+			module: 'module-c',
+			activated: true,
+			options: {
+				color: {
+					currentValue: 'black',
+					enum: [ 'black', 'red', 'fuchsia' ],
+					enum_labels: {
+						black: 'Make it black.',
+						red: 'Make it red.',
+						fuchsia: 'Make it fuchsia, whatever that is.'
+					}
+				}
+			}
+		},
 	};
 
-	describe( '#modulesFetch', () => {
-		it( 'should replace .items with the modules list', () => {
+	describe( 'upon module list receive', () => {
+		let stateOut, action;
+
+		before( () => {
 			const stateIn = {}
-			const action = {
+			action = {
 				type: 'JETPACK_MODULES_LIST_RECEIVE',
 				modules: modules
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.modules ).length );
+			stateOut = itemsReducer( stateIn, action );
+		} );
+
+		describe( '#modulesFetch', () => {
+			it( 'should replace .items with the modules list', () => {
+				expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.modules ).length );
+			} );
+		} );
+
+		describe( '#getModuleOptionValidValues', () => {
+			it( 'should report valid values from the result data', () => {
+				let state = { jetpack: { modules: { items: stateOut } } };
+				expect( getModuleOptionValidValues( state, 'module-c', 'color' ) )
+					.to.equal( modules['module-c'].options.color.enum_labels );
+			} );
 		} );
 	} );
 

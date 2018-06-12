@@ -6,7 +6,10 @@
  */
 class Jetpack_Media_Summary {
 
+	private static $cache = array();
+
 	static function get( $post_id, $blog_id = 0, $args = array() ) {
+
 		$defaults = array(
 			'max_words' => 16,
 			'max_chars' => 256,
@@ -19,6 +22,11 @@ class Jetpack_Media_Summary {
 			$switched = true;
 		} else {
 			$blog_id = get_current_blog_id();
+		}
+
+		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}";
+		if ( isset( self::$cache[ $cache_key ] ) ) {
+			return self::$cache[ $cache_key ];
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
@@ -46,7 +54,7 @@ class Jetpack_Media_Summary {
 		);
 
 		if ( empty( $post->post_password ) ) {
-			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'] );
+			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'] , $post);
 			$return['count']['word'] = self::get_word_count( $post->post_content );
 			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
 			$return['count']['link'] = self::get_link_count( $post->post_content );
@@ -242,6 +250,8 @@ class Jetpack_Media_Summary {
 		 */
 		$return = apply_filters( 'jetpack_media_summary_output', $return, $post_id );
 
+		self::$cache[ $cache_key ] = $return;
+
 		return $return;
 	}
 
@@ -288,22 +298,42 @@ class Jetpack_Media_Summary {
 		);
 	}
 
-	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256 ) {
+	/**
+	 * Retrieve an excerpt for the post summary.
+	 *
+	 * This function works around a suspected problem with Core. If resolved, this function should be simplified.
+	 * @link https://github.com/Automattic/jetpack/pull/8510
+	 * @link https://core.trac.wordpress.org/ticket/42814
+	 *
+	 * @param  string  $post_content The post's content.
+	 * @param  string  $post_excerpt The post's excerpt. Empty if none was explicitly set.
+	 * @param  int     $max_words Maximum number of words for the excerpt. Used on wp.com. Default 16.
+	 * @param  int     $max_chars Maximum characters in the excerpt. Used on wp.com. Default 256.
+	 * @param  WP_Post $requested_post The post object.
+	 * @return string Post excerpt.
+	 **/
+	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $requested_post = null ) {
+		global $post;
+		$original_post = $post; // Saving the global for later use.
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
-				'text'           => $post_content,
-				'excerpt_only'   => true,
-				'show_read_more' => false,
-				'max_words'      => $max_words,
-				'max_chars'      => $max_chars,
+				'text'                => $post_content,
+				'excerpt_only'        => true,
+				'show_read_more'      => false,
+				'max_words'           => $max_words,
+				'max_chars'           => $max_chars,
 				'read_more_threshold' => 25,
 			) ) );
-		} else {
-
+		} elseif ( $requested_post instanceof WP_Post ) {
+			$post = $requested_post; // setup_postdata does not set the global.
+			setup_postdata( $post );
 			/** This filter is documented in core/src/wp-includes/post-template.php */
-			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
+			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt, $post );
+			$post         = $original_post; // wp_reset_postdata uses the $post global.
+			wp_reset_postdata();
 			return self::clean_text( $post_excerpt );
 		}
+		return '';
 	}
 
 	static function get_word_count( $post_content ) {

@@ -1,5 +1,38 @@
 <?php
 
+new WPCOM_JSON_API_Update_User_Endpoint( array(
+	'description' => 'Deletes or removes a user of a site.',
+	'group'       => 'users',
+	'stat'        => 'users:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/users/%d/delete',
+	'path_labels' => array(
+		'$site'       => '(int|string) The site ID or domain.',
+		'$user_ID'    => '(int) The user\'s ID'
+	),
+
+	'request_format' => array(
+		'reassign' => '(int) An optional id of a user to reassign posts to.',
+	),
+
+	'response_format' => array(
+		'success' => '(bool) Was the deletion of user successful?',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+
+	'example_response' => '
+	{
+		"success": true
+	}'
+) );
+
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	function callback( $path = '', $blog_id = 0, $user_id = 0 ) {

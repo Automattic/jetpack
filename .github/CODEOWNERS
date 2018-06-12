@@ -1,0 +1,18 @@
+############################################
+# Please fire off a PR to this file to own #
+#  or disavow any section of the codebase. #
+############################################
+
+# Catch-all owners, the Jetpack Pit Crew
+* @automattic/jetpack
+
+# Individual Modules:
+/modules/contact-form/    @georgestephanis
+/modules/custom-css/      @georgestephanis
+/modules/search/          @Automattic/jetpack-search
+
+# Other bits of the Codebase
+/class.jetpack-debugger.php @kraftbj
+docs/ @jeherve
+/_inc/lib/jetpack-wpes-query-builder/ @gibrown
+/class.jetpack-jitm.php @withinboredom

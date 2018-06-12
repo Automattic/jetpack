@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This class wraps a WP_Post and proxies any undefined attributes
  * and methods to the wrapped class. We need to do this because at present
@@ -52,7 +52,7 @@ abstract class SAL_Post {
 	abstract public function is_following();
 	abstract public function get_global_id();
 	abstract public function get_geo();
-	
+
 	public function get_menu_order() {
 		return (int) $this->post->menu_order;
 	}
@@ -123,12 +123,12 @@ abstract class SAL_Post {
 		foreach ( (array) has_meta( $this->post->ID ) as $meta ) {
 			// Don't expose protected fields.
 			$meta_key = $meta['meta_key'];
-			
+
 			$show = !( WPCOM_JSON_API_Metadata::is_internal_only( $meta_key ) )
 				&&
-					( 
-						WPCOM_JSON_API_Metadata::is_public( $meta_key ) 
-					|| 
+					(
+						WPCOM_JSON_API_Metadata::is_public( $meta_key )
+					||
 						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
 					);
 
@@ -163,6 +163,12 @@ abstract class SAL_Post {
 				'likes'   => (string) $this->get_post_link( 'likes/' ),
 			),
 		);
+
+		$amp_permalink = get_post_meta( $this->post->ID, '_jetpack_amp_permalink', true );
+
+		if ( ! empty( $amp_permalink ) ) {
+			$meta->links->amp = (string) $amp_permalink;
+		}
 
 		// add autosave link if a more recent autosave exists
 		if ( 'edit' === $this->context ) {
@@ -282,12 +288,12 @@ abstract class SAL_Post {
 		$metadata = wp_get_attachment_metadata( $attachment->ID );
 
 		$result = array(
-			'ID'		=> (int) $attachment->ID,
-			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
-			'guid'		=> (string) $attachment->guid,
-			'mime_type'	=> (string) $attachment->post_mime_type,
-			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
-			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+			'ID'        => (int) $attachment->ID,
+			'URL'       => (string) wp_get_attachment_url( $attachment->ID ),
+			'guid'      => (string) $attachment->guid,
+			'mime_type' => (string) $attachment->post_mime_type,
+			'width'     => (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
 		if ( isset( $metadata['duration'] ) ) {
@@ -468,7 +474,7 @@ abstract class SAL_Post {
 		// TODO factor this out
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
-			$site_id     = $active_blog->get_id();
+			$site_id     = $active_blog->blog_id;
 			$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 		} else {
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
@@ -497,7 +503,7 @@ abstract class SAL_Post {
 
 	protected function get_avatar_url( $email, $avatar_size = 96 ) {
 		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
-		if ( !$avatar_url || is_wp_error( $avatar_url ) ) {
+		if ( ! $avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
 		}
 

@@ -15,27 +15,35 @@ class Jetpack_Client_Server {
 		$role              = Jetpack::translate_current_user_to_role();
 		$redirect          = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
-		$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
+		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
+			JetpackTracking::record_user_event( 'jpc_client_authorize_fail', array(
+				'error_code' => $result->get_error_code(),
+				'error_message' => $result->get_error_message()
+			) );
+		} else {
+			/**
+			 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param int Jetpack Blog ID.
+			 */
+			do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 		}
 
 		if ( wp_validate_redirect( $redirect ) ) {
-			$this->wp_safe_redirect( $redirect );
+			// Exit happens below in $this->do_exit()
+			wp_safe_redirect( $redirect );
 		} else {
-			$this->wp_safe_redirect( Jetpack::admin_url() );
+			// Exit happens below in $this->do_exit()
+			wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		/**
-		 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param int Jetpack Blog ID.
-		 */
-		do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
+		JetpackTracking::record_user_event( 'jpc_client_authorize_success' );
 
 		$this->do_exit();
 	}
@@ -56,7 +64,7 @@ class Jetpack_Client_Server {
 			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 
 			//track unique connection
-			$jetpack = $this->get_jetpack();;
+			$jetpack = $this->get_jetpack();
 
 			$jetpack->stat( 'connections', 'unique-connection' );
 			$jetpack->do_stats( 'server_side' );
@@ -122,23 +130,25 @@ class Jetpack_Client_Server {
 			return 'linked';
 		}
 
-		$redirect_on_activation_error = ( 'client' === $data['auth_type'] ) ? true : false;
-		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-			Jetpack::delete_active_modules();
+		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token
+		Jetpack::invalidate_onboarding_token();
 
-			Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error );
-		} else {
-			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
-		}
+		// If redirect_uri is SSO, ensure SSO module is enabled
+		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
-		// Since this is a fresh connection, be sure to clear out IDC options
-		Jetpack_IDC::clear_all_idc_options();
+		/** This filter is documented in class.jetpack-cli.php */
+		$jetpack_start_enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
 
-		// Start nonce cleaner
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		$activate_sso = (
+			isset( $redirect_options['action'] ) &&
+			'jetpack-sso' === $redirect_options['action'] &&
+			$jetpack_start_enable_sso
+		);
 
-		Jetpack::state( 'message', 'authorized' );
+		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
+
+		Jetpack::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
+
 		return 'authorized';
 	}
 
@@ -186,12 +196,17 @@ class Jetpack_Client_Server {
 				'redirect' => $redirect ? urlencode( $redirect ) : false,
 			), menu_page_url( 'jetpack', false ) );
 
+		// inject identity for analytics
+		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
 			'grant_type' => 'authorization_code',
 			'code' => $data['code'],
 			'redirect_uri' => $redirect_uri,
+			'_ui' => $tracks_identity['_ui'],
+			'_ut' => $tracks_identity['_ut'],
 		);
 
 		$args = array(
@@ -267,14 +282,6 @@ class Jetpack_Client_Server {
 
 	public function get_jetpack() {
 		return Jetpack::init();
-	}
-
-	public function check_admin_referer( $action ) {
-		return check_admin_referer( $action );
-	}
-
-	public function wp_safe_redirect( $redirect ) {
-		return wp_safe_redirect( $redirect );
 	}
 
 	public function do_exit() {

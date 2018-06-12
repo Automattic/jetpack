@@ -142,8 +142,12 @@
 	$( document ).ready( function() {
 		var tiledGalleries = new TiledGalleryCollection();
 
-		$( 'body' ).on( 'post-load', function() {
-			tiledGalleries.findAndSetupNewGalleries();
+		$( 'body' ).on( 'post-load', function( e, maybeResize ) {
+			if ( 'string' === typeof maybeResize && 'resize' === maybeResize ) {
+				tiledGalleries.resizeAll();
+			} else {
+				tiledGalleries.findAndSetupNewGalleries();
+			}
 		} );
 		$( document ).on( 'page-rendered.wpcom-newdash', function() {
 			tiledGalleries.findAndSetupNewGalleries();

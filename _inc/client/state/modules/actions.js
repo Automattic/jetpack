@@ -23,24 +23,11 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
-	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
-
-export const setUnsavedOptionFlag = () => {
-	return ( {
-		type: JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG
-	} );
-}
-
-export const clearUnsavedOptionFlag = () => {
-	return ( {
-		type: JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
-	} );
-}
+import some from 'lodash/some';
 
 export const fetchModules = () => {
 	return ( dispatch ) => {
@@ -59,8 +46,8 @@ export const fetchModules = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchModule = () => {
 	return ( dispatch ) => {
@@ -79,10 +66,10 @@ export const fetchModule = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
-export const activateModule = ( slug ) => {
+export const activateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
@@ -112,8 +99,11 @@ export const activateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 2000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -133,10 +123,10 @@ export const activateModule = ( slug ) => {
 				{ id: 'module-toggle' }
 			) );
 		} );
-	}
-}
+	};
+};
 
-export const deactivateModule = ( slug ) => {
+export const deactivateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
@@ -166,8 +156,11 @@ export const deactivateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 2000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
@@ -187,10 +180,12 @@ export const deactivateModule = ( slug ) => {
 				{ id: 'module-toggle' }
 			) );
 		} );
-	}
-}
+	};
+};
 
-export const updateModuleOptions = ( slug, newOptionValues ) => {
+export const updateModuleOptions = ( module, newOptionValues ) => {
+	const slug = module.module;
+
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
@@ -223,7 +218,7 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-setting-${ slug }` }
+				{ id: `module-setting-${ slug }`, duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -245,8 +240,8 @@ export const updateModuleOptions = ( slug, newOptionValues ) => {
 				{ id: `module-setting-${ slug }` }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export const regeneratePostByEmailAddress = () => {
 	const slug = 'post-by-email';
@@ -288,7 +283,7 @@ export const regeneratePostByEmailAddress = () => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-setting-${ slug }` }
+				{ id: `module-setting-${ slug }`, duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -310,8 +305,8 @@ export const regeneratePostByEmailAddress = () => {
 				{ id: `module-setting-${ slug }` }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export function maybeHideNavMenuItem( module, values ) {
 	switch ( module ) {
@@ -332,5 +327,13 @@ export function maybeHideNavMenuItem( module, values ) {
 			break;
 		default :
 			return false;
+	}
+}
+
+export function maybeReloadAfterAction( newOptionValue ) {
+	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio'	];
+
+	if ( some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValue ) ) {
+		window.location.reload();
 	}
 }

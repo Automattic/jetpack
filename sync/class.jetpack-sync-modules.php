@@ -7,6 +7,7 @@
 
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-posts.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-import.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-comments.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
@@ -15,13 +16,14 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-network-options.p
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-menus.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-attachments.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-meta.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-terms.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-plugins.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-protect.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-full-sync.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-stats.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-protect.php';
 
 class Jetpack_Sync_Modules {
 
@@ -32,14 +34,16 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Network_Options',
 		'Jetpack_Sync_Module_Terms',
 		'Jetpack_Sync_Module_Themes',
+		'Jetpack_Sync_Module_Menus',
 		'Jetpack_Sync_Module_Users',
 		'Jetpack_Sync_Module_Posts',
+		'Jetpack_Sync_Module_Import',
+		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Updates',
 		'Jetpack_Sync_Module_Attachments',
 		'Jetpack_Sync_Module_Meta',
 		'Jetpack_Sync_Module_Plugins',
-		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Full_Sync',
 		'Jetpack_Sync_Module_Stats',
 	);
@@ -80,13 +84,21 @@ class Jetpack_Sync_Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 
-		return array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );
+		$modules = array_map( array( 'Jetpack_Sync_Modules', 'load_module' ), $modules );
+
+		return array_map( array( 'Jetpack_Sync_Modules', 'set_module_defaults' ), $modules );
 	}
 
-	static function initialize_module( $module_name ) {
-		$module = new $module_name;
-		$module->set_defaults();
+	static function load_module( $module_name ) {
+		return new $module_name;
+	}
 
+	static function set_module_defaults( $module ) {
+		$module->set_defaults();
+		if ( method_exists( $module, 'set_late_default' ) ) {
+			add_action( 'init', array( $module, 'set_late_default' ), 90 );
+		}
 		return $module;
 	}
+
 }

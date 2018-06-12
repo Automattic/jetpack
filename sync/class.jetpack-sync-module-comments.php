@@ -22,6 +22,12 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'spammed_comment', $callable );
 		add_action( 'trashed_post_comments', $callable, 10, 2 );
 		add_action( 'untrash_post_comments', $callable );
+		add_action( 'comment_approved_to_unapproved', $callable );
+		add_action( 'comment_unapproved_to_approved', $callable );
+		add_action( 'jetpack_modified_comment_contents', $callable, 10, 2 );
+		add_action( 'untrashed_comment', $callable, 10, 2 );
+		add_action( 'unspammed_comment', $callable, 10, 2 );
+		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
@@ -32,6 +38,39 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				add_action( $comment_action_name, $callable, 10, 2 );
 			}
 		}
+
+		// listen for meta changes
+		$this->init_listeners_for_meta_type( 'comment', $callable );
+		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
+	}
+
+	public function handle_comment_contents_modification( $new_comment, $old_comment, $new_comment_with_slashes ) {
+		$content_fields = array(
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'comment_content',
+		);
+		$changes = array();
+		foreach ( $content_fields as $field ) {
+			if ( $new_comment_with_slashes[$field] != $old_comment[$field] ) {
+				$changes[$field] = array( $new_comment[$field], $old_comment[$field] );
+			}
+		}
+
+		if ( ! empty( $changes ) ) {
+			/**
+			 * Signals to the sync listener that this comment's contents were modified and a sync action
+			 * reflecting the change(s) to the content should be sent
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param int $new_comment['comment_ID'] ID of comment whose content was modified
+			 * @param mixed $changes Array of changed comment fields with before and after values
+			 */
+			do_action( 'jetpack_modified_comment_contents', $new_comment['comment_ID'], $changes );
+		}
+		return $new_comment;
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -64,7 +103,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->comments";
-		
+
 		if ( $where_sql = $this->get_where_sql( $config ) ) {
 			$query .= ' WHERE ' . $where_sql;
 		}
@@ -77,7 +116,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	private function get_where_sql( $config ) {
 		if ( is_array( $config ) ) {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
-		} 
+		}
 
 		return null;
 	}
@@ -125,6 +164,15 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return $comment;
 	}
 
+	// Comment Meta
+	function is_whitelisted_comment_meta( $meta_key ) {
+		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
+	}
+
+	function filter_meta( $args ) {
+		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
+	}
+
 	public function expand_comment_ids( $args ) {
 		$comment_ids = $args[0];
 		$comments    = get_comments( array(
@@ -134,7 +182,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment' ),
+			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
 		);
 	}
 }

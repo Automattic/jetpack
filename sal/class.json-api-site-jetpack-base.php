@@ -1,6 +1,4 @@
 <?php
-
-
 require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
 
 abstract class Abstract_Jetpack_Site extends SAL_Site {
@@ -10,9 +8,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function get_theme_support( $feature_name );
 
-	abstract protected function get_jetpack_version();
+	abstract protected function get_mock_option( $name );
 
-	abstract protected function get_updates();
+	abstract public function get_jetpack_version();
+
+	abstract public function get_updates();
 
 	abstract protected function main_network_site();
 
@@ -22,14 +22,21 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function is_main_network();
 
-	abstract protected function is_multi_site();
-
 	abstract protected function is_version_controlled();
 
 	abstract protected function file_system_write_access();
 
 	function before_render() {
 	}
+
+	protected function wp_memory_limit() {
+		return $this->get_constant( 'WP_MEMORY_LIMIT' );
+	}
+
+	protected function wp_max_memory_limit() {
+		return $this->get_constant( 'WP_MAX_MEMORY_LIMIT' );
+	}
+
 
 	function after_render( &$response ) {
 		// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network
@@ -60,11 +67,13 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 		$options['software_version'] = (string) $this->wp_version();
 		$options['max_upload_size']  = $this->max_upload_size();
+		$options['wp_memory_limit']  = $this->wp_memory_limit();
+		$options['wp_max_memory_limit']  = $this->wp_max_memory_limit();
 
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site
 		$options['is_multi_network'] = (bool) $this->is_main_network();
-		$options['is_multi_site']    = (bool) $this->is_multi_site();
+		$options['is_multi_site']    = (bool) $this->is_multisite();
 
 		$file_mod_disabled_reasons = array_keys( array_filter( array(
 			'automatic_updater_disabled'      => (bool) $this->get_constant( 'AUTOMATIC_UPDATER_DISABLED' ),
@@ -91,14 +100,6 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		return false; // this may change for VIP Go sites, which sync using Jetpack
 	}
 
-	function is_multisite() {
-		return (bool) is_multisite();
-	}
-
-	function is_single_user_site() {
-		return (bool) Jetpack::is_single_user_site();
-	}
-
 	function featured_images_enabled() {
 		return $this->current_theme_supports( 'post-thumbnails' );
 	}
@@ -119,6 +120,32 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		return $supported_formats;
 	}
 
+	function get_icon() {
+		$icon_id = get_option( 'site_icon' );
+		if ( empty( $icon_id ) ) {
+			$icon_id = Jetpack_Options::get_option( 'site_icon_id' );
+		}
+
+		if ( empty( $icon_id ) ) {
+			return null;
+		}
+
+		$icon = array_filter( array(
+			'img' => wp_get_attachment_image_url( $icon_id, 'full' ),
+			'ico' => wp_get_attachment_image_url( $icon_id, array( 16, 16 ) )
+		) );
+
+		if ( empty( $icon ) ) {
+			return null;
+		}
+
+		if ( current_user_can( 'edit_posts', $icon_id ) ) {
+			$icon['media_id'] = (int) $icon_id;
+		}
+
+		return $icon;
+	}
+
 	/**
 	 * Private methods
 	 **/
@@ -132,6 +159,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			}
 		}
 
+		return false;
+	}
+
+	// For Jetpack sites this will always return false
+	protected function is_a8c_publication( $post_id ) {
 		return false;
 	}
 }

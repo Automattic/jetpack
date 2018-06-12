@@ -13,13 +13,7 @@
  *  VaultPress (stub)
  */
 function vaultpress_jetpack_load_more_link() {
-	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-		$vaultpress_url = 'http://vaultpress.com/jetpack-ms/';
-	} else {
-		$vaultpress_url = 'http://vaultpress.com/jetpack/';
-	}
-
-	echo $vaultpress_url;
+	echo 'https://help.vaultpress.com/get-to-know/';
 }
 add_filter( 'jetpack_learn_more_button_vaultpress', 'vaultpress_jetpack_load_more_link' );
 
@@ -312,7 +306,7 @@ add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_b
 
 function jetpack_carousel_more_info() { ?>
 	<?php esc_html_e(
-		'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will
+		'With Carousel active, any standard WordPress galleries or single images you have embedded in posts or pages will
 		launch a full-screen photo browsing experience with comments and EXIF metadata.'
 		, 'jetpack' ); ?>
 <?php
@@ -334,6 +328,23 @@ function jetpack_custom_css_more_info() { ?>
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
+
+
+/**
+ * Masterbar
+ */
+function jetpack_masterbar_more_link() {
+	echo 'https://jetpack.com/support/masterbar/';
+}
+add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link' );
+
+function jetpack_masterbar_more_info() {
+	esc_html_e(
+		"Quickly access your Stats, Notifications, Posts and more on WordPress.com. " .
+		"The Toolbar is displayed for any user on the site that is connected to WordPress.com."
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );
 
 /**
  * Mobile Theme
@@ -393,11 +404,28 @@ add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
 function jetpack_photon_more_info() {
 	esc_html_e(
-		"Your images are automatically optimized for different display resolutions to serve the best
-		possible image quality. We also cache and serve them from our fast, global network (CDN)."
+		'Jetpack will optimize your images and serve them from the server location nearest
+		to your visitors. Using our global content delivery network will boost the loading speed of your site.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
+
+/**
+ * Lazy Images
+ */
+function jetpack_lazy_images_more_link() {
+	echo 'https://jetpack.com/support/lazy-images/';
+}
+add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
+
+function jetpack_lazy_images_more_info() {
+	esc_html_e(
+		'Improve your site\'s speed by only loading images visible on the screen.
+		New images will load just before they scroll into view. This prevents viewers
+		from having to download all the images on a page all at once, even ones they can\'t see.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_info' );
 
 /**
  * Tiled Galleries
@@ -430,23 +458,6 @@ function jetpack_likes_more_info() { ?>
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
-
-/**
- * Omnisearch
- */
-function jetpack_omnisearch_more_link() {
-	echo 'https://jetpack.com/support/omnisearch/';
-}
-add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
-
-function jetpack_omnisearch_more_info() {
-	esc_html_e(
-		'A search to rule them all: search once, get results from everything! Omnisearch supports searching posts,
-		pages, comments, media, and plugins and plays nice with other plugins by letting other providers offer
-		results as well.'
-		, 'jetpack' );
-}
-add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_info' );
 
 /**
  * Widget Visibility
@@ -549,7 +560,7 @@ add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
  * Site Verification Tools
  */
 function jetpack_verification_tools_more_link() {
-	echo 'https://support.wordpress.com/webmaster-tools/';
+	echo 'https://jetpack.com/support/site-verification-tools/';
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 
@@ -565,13 +576,13 @@ add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification
  * SEO Tools
  */
 function jetpack_seo_tools_more_link() {
-	echo 'https://support.wordpress.com/seo-tools/';
+	echo 'https://jetpack.com/support/seo-tools/';
 }
 add_action( 'jetpack_learn_more_button_seo-tools', 'jetpack_seo_tools_more_link' );
 
 function jetpack_seo_tools_more_info() {
 	esc_html_e(
-		'Adds tools to enhance your site\'s content for better results on search engines and social media.'
+		'Better results on search engines and social media.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_seo-tools', 'jetpack_seo_tools_more_info' );
@@ -625,3 +636,49 @@ function jetpack_xml_sitemap_more_info() {
 }
 add_action( 'jetpack_module_more_info_sitemaps', 'jetpack_xml_sitemap_more_info' );
 // XML Sitemap: STOP
+
+/**
+ * WordAds
+ */
+function jetpack_wordads_more_link() {
+	echo 'https://wordads.co/';
+}
+add_action( 'jetpack_learn_more_button_wordads', 'jetpack_wordads_more_link' );
+
+function jetpack_wordads_more_info() {
+	esc_html_e(
+		'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_wordads', 'jetpack_wordads_more_info' );
+// WordAds: STOP
+
+/**
+ * Google Analytics
+ */
+function jetpack_google_analytics_more_link() {
+	echo 'https://jetpack.com/support/google-analytics';
+}
+add_action( 'jetpack_learn_more_button_google-analytics', 'jetpack_google_analytics_more_link' );
+
+function jetpack_google_analytics_more_info() {
+	esc_html_e(
+		'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );
+
+/**
+ * WooCommerce Analytics
+ */
+function jetpack_woocommerce_analytics_more_link() {
+	echo 'https://jetpack.com/support/';
+}
+add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
+
+function jetpack_woocommerce_analytics_more_info() {
+	esc_html_e(
+		'Enhanced analytics for WooCommerce and Jetpack users.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_info' );

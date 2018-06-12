@@ -46,7 +46,7 @@ class Tonesque {
 			$content_url = content_url();
 			$_image_url  = set_url_scheme( $image_url );
 			if ( wp_startswith( $_image_url, $content_url ) ) {
-				$_image_path = str_replace( $content_url, ABSPATH . 'wp-content', $_image_url );
+				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
 				if ( file_exists( $_image_path ) ) {
 					$filetype = wp_check_filetype( $_image_path );
 					$ext = $filetype['ext'];
@@ -61,7 +61,7 @@ class Tonesque {
 			if ( empty( $data ) ) {
 				$response = wp_remote_get( $image_url );
 				if ( is_wp_error( $response ) ) {
-					return $response;
+					return false;
 				}
 				$data = wp_remote_retrieve_body( $response );
 			}

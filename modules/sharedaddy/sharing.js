@@ -19,22 +19,17 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				}
 
 				requests = {
-					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
-					linkedin: [
-							'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=updateLinkedInCount&url=' +
-							encodeURIComponent( url )
-					],
-					// Pinterest, like LinkedIn, handles share counts for both http and https
+					// Pinterest handles share counts for both http and https
 					pinterest: [
 						window.location.protocol +
-							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
-							encodeURIComponent( url )
+						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
+						encodeURIComponent( url )
 					],
 					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
 					facebook: [
 						window.location.protocol +
-							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-							encodeURIComponent( url )
+						'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
+						encodeURIComponent( url )
 					]
 				};
 
@@ -85,11 +80,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ permalink ], data[ url ].share.share_count );
 			}
 		},
-		update_linkedin_count : function( data ) {
-			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
-				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
-			}
-		},
 		update_pinterest_count : function( data ) {
 			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
 				WPCOMSharing.inject_share_count( 'sharing-pinterest-' + WPCOM_sharing_counts[ data.url ], data.count );
@@ -114,10 +104,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		}
 	};
 }
-
-var updateLinkedInCount = function( data ) {
-	WPCOMSharing.update_linkedin_count( data );
-};
 
 (function($){
 	var $body, $sharing_email;
@@ -267,6 +253,8 @@ var updateLinkedInCount = function( data ) {
 				} );
 				$more_sharing_buttons.data( 'timer', false );
 			} );
+		} else {
+			$( document.body ).addClass( 'jp-sharing-input-touch' );
 		}
 
 		$( document ).click(function() {
@@ -345,6 +333,10 @@ var updateLinkedInCount = function( data ) {
 			// Email button
 			$( 'a.share-email', this ).on( 'click', function() {
 				var url = $( this ).attr( 'href' );
+				var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
+				if ( url.indexOf( currentDomain ) !== 0 ) {
+					return true;
+				}
 
 				if ( $sharing_email.is( ':visible' ) ) {
 					$sharing_email.slideUp( 200 );
@@ -357,7 +349,7 @@ var updateLinkedInCount = function( data ) {
 					$( '#sharing_email form a.sharing_cancel' ).show();
 
 					// Reset reCATPCHA if exists.
-					if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset ) {
+					if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset && window.___grecaptcha_cfg.count ) {
 						grecaptcha.reset();
 					}
 
@@ -378,6 +370,8 @@ var updateLinkedInCount = function( data ) {
 					// Submit validation
 					$( '#sharing_email input[type=submit]' ).unbind( 'click' ).click( function() {
 						var form = $( this ).parents( 'form' );
+						var source_email_input = form.find( 'input[name=source_email]' );
+						var target_email_input = form.find( 'input[name=target_email]' );
 
 						// Disable buttons + enable loading icon
 						$( this ).prop( 'disabled', true );
@@ -387,12 +381,12 @@ var updateLinkedInCount = function( data ) {
 						$( '#sharing_email .errors' ).hide();
 						$( '#sharing_email .error' ).removeClass( 'error' );
 
-						if ( ! $( '#sharing_email input[name=source_email]' ).share_is_email() ) {
-							$( '#sharing_email input[name=source_email]' ).addClass( 'error' );
+						if ( ! source_email_input.share_is_email() ) {
+							source_email_input.addClass( 'error' );
 						}
 
-						if ( ! $( '#sharing_email input[name=target_email]' ).share_is_email() ) {
-							$( '#sharing_email input[name=target_email]' ).addClass( 'error' );
+						if ( ! target_email_input.share_is_email() ) {
+							target_email_input.addClass( 'error' );
 						}
 
 						if ( $( '#sharing_email .error' ).length === 0 ) {

@@ -45,6 +45,7 @@ class VideoPress_AJAX {
 
 		$args = array(
 			'method' => 'POST',
+			// 'sslverify' => false,
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
@@ -62,10 +63,7 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		$title = sanitize_title( basename( $_POST['filename'] ) );
-
 		$response['upload_action_url'] = videopress_make_media_upload_path( $options['shadow_blog_id'] );
-		$response['upload_media_id']   = videopress_create_new_media_item( $title );
 
 		wp_send_json_success( $response );
 	}
@@ -84,7 +82,7 @@ class VideoPress_AJAX {
 		$post_id = (int) $_POST['post_id'];
 
 		if ( ! videopress_update_meta_data( $post_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it..', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack' ) ) );
 			return;
 		}
 

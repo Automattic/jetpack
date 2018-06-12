@@ -4,28 +4,43 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
+import includes from 'lodash/includes';
+import some from 'lodash/some';
+import filter from 'lodash/filter';
+import mapValues from 'lodash/mapValues';
 
 /**
  * Internal dependencies
  */
 import {
+	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
 	JETPACK_SETTINGS_FETCH_FAIL,
 	JETPACK_SETTING_UPDATE,
 	JETPACK_SETTING_UPDATE_SUCCESS,
-	JETPACK_SETTING_UPDATE_FAIL
+	JETPACK_SETTING_UPDATE_FAIL,
+	JETPACK_SETTINGS_UPDATE,
+	JETPACK_SETTINGS_UPDATE_SUCCESS,
+	JETPACK_SETTINGS_UPDATE_FAIL,
+	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
+	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
+			return assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
-			let key = Object.keys( action.updatedOption )[0];
+			const key = Object.keys( action.updatedOption )[ 0 ];
 			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ]
 			} );
+		case JETPACK_SETTINGS_UPDATE_SUCCESS:
+			return assign( {}, state, action.updatedOptions );
 		default:
 			return state;
 	}
@@ -33,7 +48,7 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	updatingSetting: {}
+	settingsSent: {}
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
@@ -49,14 +64,28 @@ export const requests = ( state = initialRequestsState, action ) => {
 			} );
 
 		case JETPACK_SETTING_UPDATE:
-			return assign( {}, state, {
-				updatingSetting: true
+		case JETPACK_SETTINGS_UPDATE:
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, () => true )
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
-			return assign( {}, state, {
-				updatingSetting: false
+		case JETPACK_SETTINGS_UPDATE_FAIL:
+		case JETPACK_SETTINGS_UPDATE_SUCCESS:
+			return merge( {}, state, {
+				settingsSent: mapValues( action.updatedOptions, () => false )
 			} );
+		default:
+			return state;
+	}
+};
+
+export const unsavedSettingsFlag = ( state = false, action ) => {
+	switch ( action.type ) {
+		case JETPACK_SETTINGS_SET_UNSAVED_FLAG:
+			return true;
+		case JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG:
+			return false;
 		default:
 			return state;
 	}
@@ -64,7 +93,8 @@ export const requests = ( state = initialRequestsState, action ) => {
 
 export const reducer = combineReducers( {
 	items,
-	requests
+	requests,
+	unsavedSettingsFlag
 } );
 
 /**
@@ -77,6 +107,20 @@ export function getSettings( state ) {
 }
 
 /**
+ * Returns a value of a certain setting
+ * @param  {Object} state      Global state tree
+ * @param  {String} key        Name of setting or module option to return.
+ * @param  {String} moduleName If present, it will check if the module is active before returning it.
+ * @return {undefined|*}       Settings value or undefined if a module was specified and it wasn't active.
+ */
+export function getSetting( state, key, moduleName = '' ) {
+	if ( '' !== moduleName && ! get( state.jetpack.settings.items, moduleName, false ) ) {
+		return undefined;
+	}
+	return get( state.jetpack.settings.items, key, undefined );
+}
+
+/**
  * Returns true if currently requesting settings lists or false
  * otherwise.
  *
@@ -84,17 +128,21 @@ export function getSettings( state ) {
  * @return {Boolean}       Whether settings are being requested
  */
 export function isFetchingSettingsList( state ) {
-	return !!state.jetpack.settings.requests.fetchingSettingsList;
+	return !! state.jetpack.settings.requests.fetchingSettingsList;
 }
 
 /**
  * Returns true if we are currently making a request to update a setting's option
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether option is being updated on the setting
+ * @param  {Object}        state    Global state tree
+ * @param  {String|Array} settings Single or multiple settings to check if they're being saved or not.
+ * @return {Boolean}                Whether option is being updated on the setting
  */
-export function isUpdatingSetting( state ) {
-	return state.jetpack.settings.requests.updatingSetting;
+export function isUpdatingSetting( state, settings = '' ) {
+	if ( 'object' === typeof settings ) {
+		return some( filter( state.jetpack.settings.requests.settingsSent, ( item, key ) => includes( settings, key ) ), item => item );
+	}
+	return state.jetpack.settings.requests.settingsSent[ settings ];
 }
 
 /**
@@ -118,11 +166,37 @@ export function toggleSetting( state, name ) {
 }
 
 /**
- * Returns the slug of a general setting.
+ * Returns true if there are unsaved settings.
  * @param  {Object}  state Global state tree
- * @param  {String}  name  A setting's name
- * @return {String}       The setting name
+ * @return {Boolean}  Whether there are unsaved settings
  */
-export function getSettingName( state, name ) {
-	return get( state.jetpack.initialState.settingNames, [ name ] );
+export function areThereUnsavedSettings( state ) {
+	return get( state.jetpack.settings, 'unsavedSettingsFlag', false );
+}
+
+/**
+ * Returns true if apps card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}  Whether the card has been dismissed
+ */
+export function appsCardDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_app_card', false );
+}
+
+/**
+ * Returns true if Empty Stats card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether the card has been dismissed
+ */
+export function emptyStatsCardDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
+}
+
+/**
+ * Returns true if a new plan has been purchased.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether a new plan has been purchased.
+ */
+export function showWelcomeForNewPlan( state ) {
+	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
 }

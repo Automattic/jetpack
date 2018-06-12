@@ -35,22 +35,9 @@ describe( 'Navigation', () => {
 			expect( wrapper.find( 'NavTabs' ) ).to.exist;
 		} );
 
-		it( 'renders 1 NavItem component', () => {
+		it( 'renders 2 NavItem components', () => {
 			expect( wrapper.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
-
-		it( 'renders only one tab: Apps', () => {
-			expect( wrapper.find( 'NavItem' ).children().text() ).to.be.equal( 'Apps' );
-		} );
-
-		it( 'does not have At a Glance as selectedText', () => {
-			expect( wrapper.find( 'NavTabs' ).props().selectedText ).to.not.equal( 'At a Glance' );
-		} );
-
-		it( 'has Apps as selectedText, despite having At a Glance initially', () => {
-			expect( wrapper.find( 'NavTabs' ).props().selectedText ).to.be.equal( 'Apps' );
-		} );
-
 	} );
 
 	describe( "User can't view Stats or manage modules but Protect is active", () => {
@@ -59,12 +46,12 @@ describe( 'Navigation', () => {
 
 		const wrapperProtect = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 2 NavItem components', () => {
-			expect( wrapperProtect.find( 'NavItem' ) ).to.have.length( 2 );
+		it( 'renders 1 NavItem components', () => {
+			expect( wrapperProtect.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
 
-		it( 'renders tabs with At a Glance, Apps', () => {
-			expect( wrapperProtect.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Apps' );
+		it( 'renders tabs with At a Glance', () => {
+			expect( wrapperProtect.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance' );
 		} );
 
 	} );
@@ -79,12 +66,12 @@ describe( 'Navigation', () => {
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 3 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 3 );
+		it( 'renders 2 NavItem components', () => {
+			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 2 );
 		} );
 
-		it( 'renders tabs with At a Glance, Apps, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Apps,Plans' );
+		it( 'renders tabs with At a Glance, Plans', () => {
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Plans' );
 		} );
 
 	} );

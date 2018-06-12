@@ -1,10 +1,21 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
+
+new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint( array (
+	'description' => 'Get a list of taxonomies associated with a post type.',
+	'group'       => 'taxonomy',
+	'stat'        => 'sites:X:post-types:X:taxonomies',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-types/%s/taxonomies',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$post_type' => '(string) Post type',
+	),
+	'response_format' => array(
+		'found'      => '(int) The number of taxonomies found',
+		'taxonomies' => '(array:taxonomy) A list of available taxonomies',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/post-types/post/taxonomies'
+) );
 
 class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 	static $taxonomy_keys_to_include = array(
@@ -28,12 +39,7 @@ class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_E
 			$this->load_theme_functions();
 		}
 
-		/** This filter is documented in jetpack/json-endpoints/class.wpcom-json-api-list-post-types-endpoint.php */
-		if ( apply_filters( 'rest_api_localize_response', false ) ) {
-			// API localization occurs after the initial taxonomies have been
-			// registered, so re-register if localizing response
-			create_initial_taxonomies();
-		}
+		$this->localize_initial_taxonomies( $post_type );
 
 		$args = $this->query_args();
 
@@ -67,5 +73,26 @@ class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_E
 			'found'      => count( $formatted_taxonomy_objects ),
 			'taxonomies' => $formatted_taxonomy_objects,
 		);
+	}
+
+	protected function localize_initial_taxonomies( $post_type ) {
+		/** This filter is documented in jetpack/json-endpoints/class.wpcom-json-api-list-post-types-endpoint.php */
+		if ( ! apply_filters( 'rest_api_localize_response', false ) ) {
+			return;
+		}
+
+		// Since recreating initial taxonomies will restore the default post
+		// types to which they are associated, save post type's taxonomies in
+		// case it was customized via `register_taxonomy_for_object_type`
+		$post_type_taxonomies = get_object_taxonomies( $post_type );
+
+		// API localization occurs after the initial taxonomies have been
+		// registered, so re-register if localizing response
+		create_initial_taxonomies();
+
+		// Restore registered taxonomies for post type
+		foreach ( $post_type_taxonomies as $taxonomy ) {
+			register_taxonomy_for_object_type( $taxonomy, $post_type );
+		}
 	}
 }

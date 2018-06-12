@@ -18,10 +18,6 @@
 	margin: 0;
 }
 
-div.jp-relatedposts .jp-relatedposts-headline em:after {
-	content: ":";
-}
-
 #page .entry-content div.sharedaddy h3,
 #page .entry-summary div.sharedaddy h3,
 #page .entry-content h3.sd-title,
@@ -138,6 +134,9 @@ img[id*="botd"] {
 }
 
 /* Authors Widget */
+.widget.widget_authors li > ul {
+	margin-left: 0;
+}
 
 .widget_authors li {
 	margin-bottom: 9px;
@@ -145,10 +144,6 @@ img[id*="botd"] {
 
 .widget_authors li:last-child {
 	margin-bottom: 0;
-}
-
-.widget_authors img {
-	margin-right: 5px;
 }
 
 /* Contact Info Widget */

@@ -1,639 +1,533 @@
 <?php
 /**
- * Generate sitemap files in base XML as well as popular namespace extensions.
+ * Generate sitemap files in base XML as well as some namespace extensions.
  *
- * @author Automattic
+ * This module generates two different base sitemaps.
+ *
+ * 1. sitemap.xml
+ *    The basic sitemap is updated regularly by wp-cron. It is stored in the
+ *    database and retrieved when requested. This sitemap aims to include canonical
+ *    URLs for all published content and abide by the sitemap spec. This is the root
+ *    of a tree of sitemap and sitemap index xml files, depending on the number of URLs.
+ *
+ *    By default the sitemap contains published posts of type 'post' and 'page', as
+ *    well as the home url. To include other post types use the 'jetpack_sitemap_post_types'
+ *    filter.
+ *
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
+ * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
+ * @link https://developers.google.com/webmasters/videosearch/sitemaps Video sitemap extension.
+ *
+ * 2. news-sitemap.xml
+ *    The news sitemap is generated on the fly when requested. It does not aim for
+ *    completeness, instead including at most 1000 of the most recent published posts
+ *    from the previous 2 days, per the news-sitemap spec.
+ *
+ * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 News sitemap extension.
+ *
+ * @package Jetpack
+ * @since 3.9.0
+ * @since 4.8.0 Remove 1000 post limit.
+ * @author Automattic
  */
 
+require_once dirname( __FILE__ ) . '/sitemap-constants.php';
+require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
+require_once dirname( __FILE__ ) . '/sitemap-stylist.php';
+require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
+require_once dirname( __FILE__ ) . '/sitemap-finder.php';
+require_once dirname( __FILE__ ) . '/sitemap-builder.php';
 
-/**
- * Convert a MySQL datetime string to an ISO 8601 string.
- *
- * @module sitemaps
- *
- * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
- *
- * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS.
- *
- * @return string ISO 8601 UTC datetime string formatted as YYYY-MM-DDThh:mm:ssTZD where timezone offset is always +00:00.
- */
-function jetpack_w3cdate_from_mysql( $mysql_date ) {
-	return str_replace( ' ', 'T', $mysql_date ) . '+00:00';
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
 }
 
 /**
- * Get the maximum comment_date_gmt value for approved comments for the given post_id.
+ * Governs the generation, storage, and serving of sitemaps.
  *
- * @module sitemaps
- *
- * @param int $post_id Post identifier.
- *
- * @return string datetime MySQL value or null if no comment found.
+ * @since 4.8.0
  */
-function jetpack_get_approved_comments_max_datetime( $post_id ) {
-	global $wpdb;
-
-	return $wpdb->get_var( $wpdb->prepare( "SELECT MAX(comment_date_gmt) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type=''", $post_id ) );
-}
-
-/**
- * Return the content type used to serve a Sitemap XML file.
- * Uses text/xml by default, possibly overridden by jetpack_sitemap_content_type filter.
- *
- * @module sitemaps
- *
- * @return string Internet media type for the sitemap XML.
- */
-function jetpack_sitemap_content_type() {
-	/**
-	 * Filter the content type used to serve the XML sitemap file.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $content_type By default, it's 'text/xml'.
-	 */
-	return apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
-}
-
-/**
- * Write an XML tag.
- *
- * @module sitemaps
- *
- * @param array $data Information to write an XML tag.
- */
-function jetpack_print_sitemap_item( $data ) {
-	jetpack_print_xml_tag( array( 'url' => $data ) );
-}
-
-/**
- * Write an opening tag and its matching closing tag.
- *
- * @module sitemaps
- *
- * @param array $array Information to write a tag, opening and closing it.
- */
-function jetpack_print_xml_tag( $array ) {
-	foreach ( $array as $key => $value ) {
-		if ( is_array( $value ) ) {
-			echo "<$key>";
-			jetpack_print_xml_tag( $value );
-			echo "</$key>";
-		} else {
-			echo "<$key>" . esc_html( $value ) . "</$key>";
-		}
-	}
-}
-
-/**
- * Convert an array to a SimpleXML child of the passed tree.
- *
- * @module sitemaps
- *
- * @param array $data array containing element value pairs, including other arrays, for XML contruction.
- * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children.
- *
- * @return SimpleXMLElement full tree with new children mapped from array.
- */
-function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
-	$doc_namespaces = $tree->getDocNamespaces();
-
-	foreach ( $data as $key => $value ) {
-		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
-		$namespace = null;
-		if ( false !== strpos( $key, ':' ) && 'image' != $key ) {
-			list( $namespace_prefix, $key ) = explode( ':', $key );
-			if ( isset( $doc_namespaces[ $namespace_prefix ] ) ) {
-				$namespace = $doc_namespaces[ $namespace_prefix ];
-			}
-		}
-
-		if ( 'image' != $key ) {
-			if ( is_array( $value ) ) {
-				$child = $tree->addChild( $key, null, $namespace );
-				jetpack_sitemap_array_to_simplexml( $value, $child );
-			} else {
-				$tree->addChild( $key, esc_html( $value ), $namespace );
-			}
-		} elseif ( is_array( $value ) ) {
-			foreach ( $value as $image ) {
-				$child = $tree->addChild( $key, null, $namespace );
-				jetpack_sitemap_array_to_simplexml( $image, $child );
-			}
-		}
-	}
-
-	return $tree;
-}
-
-/**
- * Define an array of attribute value pairs for use inside the root element of an XML document.
- * Intended for mapping namespace and namespace URI values.
- * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces.
- *
- * @module sitemaps
- *
- * @return array array of attribute value pairs passed through the jetpack_sitemap_ns filter
- */
-function jetpack_sitemap_namespaces() {
-	/**
-	 * Filter the attribute value pairs used for namespace and namespace URI mappings.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $namespaces Associative array with namespaces and namespace URIs.
-	 */
-	return apply_filters( 'jetpack_sitemap_ns', array(
-		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
-		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
-		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-		// Mobile namespace from http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		'xmlns:mobile'       => 'http://www.google.com/schemas/sitemap-mobile/1.0',
-		'xmlns:image'        => 'http://www.google.com/schemas/sitemap-image/1.1',
-	) );
-}
-
-/**
- * Start sitemap XML document, writing its heading and <urlset> tag with namespaces.
- *
- * @module sitemaps
- *
- * @param $charset string Charset for current XML document.
- *
- * @return string
- */
-function jetpack_sitemap_initstr( $charset ) {
-	global $wp_rewrite;
-	// URL to XSLT
-	if ( $wp_rewrite->using_index_permalinks() ) {
-		$xsl = home_url( '/index.php/sitemap.xsl' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$xsl = home_url( '/sitemap.xsl' );
-	} else {
-		$xsl = home_url( '/?jetpack-sitemap-xsl=true' );
-	}
-
-	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
-	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
-	$initstr .= '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
-	$initstr .= '<urlset';
-	foreach ( jetpack_sitemap_namespaces() as $attribute => $value ) {
-		$initstr .= ' ' . esc_html( $attribute ) . '="' . esc_attr( $value ) . '"';
-	}
-	$initstr .= ' />';
-
-	return $initstr;
-}
-
-/**
- * Load XSLT for sitemap.
- *
- * @module sitemaps
- *
- * @param string $type XSLT to load.
- */
-function jetpack_load_xsl( $type = '' ) {
-
-	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
-
-	$xsl = get_transient( $transient_xsl );
-
-	if ( $xsl ) {
-		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
-		echo $xsl;
-		die();
-	}
-
-	// Populate $xsl. Use $type.
-	include_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-xsl.php';
-
-	if ( ! empty( $xsl ) ) {
-		set_transient( $transient_xsl, $xsl, DAY_IN_SECONDS );
-		echo $xsl;
-	}
-
-	die();
-}
-
-/**
- * Responds with an XSLT to stylize sitemap.
- *
- * @module sitemaps
- */
-function jetpack_print_sitemap_xsl() {
-	jetpack_load_xsl();
-}
-
-/**
- * Responds with an XSLT to stylize news sitemap.
- *
- * @module sitemaps
- */
-function jetpack_print_news_sitemap_xsl() {
-	jetpack_load_xsl( 'news' );
-}
-
-/**
- * Print an XML sitemap conforming to the Sitemaps.org protocol.
- * Outputs an XML list of up to the latest 1000 posts.
- *
- * @module sitemaps
- *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
- */
-function jetpack_print_sitemap() {
-	global $wpdb, $post;
-
-	$xml = get_transient( 'jetpack_sitemap' );
-
-	if ( $xml ) {
-		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
-		echo $xml;
-		die();
-	}
-
-	// Compatibility with PHP 5.3 and older
-	if ( ! defined( 'ENT_XML1' ) ) {
-		define( 'ENT_XML1', 16 );
-	}
+class Jetpack_Sitemap_Manager {
 
 	/**
-	 * Filter the post types that will be included in sitemap.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $post_types Array of post types.
+	 * @see Jetpack_Sitemap_Librarian
+	 * @since 4.8.0
+	 * @var Jetpack_Sitemap_Librarian $librarian Librarian object for storing and retrieving sitemap data.
 	 */
-	$post_types    = apply_filters( 'jetpack_sitemap_post_types', array( 'post', 'page' ) );
+	private $librarian;
 
-	$post_types_in = array();
-	foreach ( (array) $post_types as $post_type ) {
-		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
-	}
-	$post_types_in = join( ",", $post_types_in );
+	/**
+	 * @see Jetpack_Sitemap_Logger
+	 * @since 4.8.0
+	 * @var Jetpack_Sitemap_Logger $logger Logger object for reporting debug messages.
+	 */
+	private $logger;
 
-	// use direct query instead because get_posts was acting too heavy for our needs
-	//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
-	$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
-	if ( empty( $posts ) ) {
-		status_header( 404 );
-	}
-	header( 'Content-Type: ' . jetpack_sitemap_content_type() );
-	$initstr = jetpack_sitemap_initstr( get_bloginfo( 'charset' ) );
-	$tree    = simplexml_load_string( $initstr );
-	// If we did not get a valid string, force UTF-8 and try again.
-	if ( false === $tree ) {
-		$initstr = jetpack_sitemap_initstr( 'UTF-8' );
-		$tree    = simplexml_load_string( $initstr );
-	}
+	/**
+	 * @see Jetpack_Sitemap_Finder
+	 * @since 4.8.0
+	 * @var Jetpack_Sitemap_Finder $finder Finder object for dealing with sitemap URIs.
+	 */
+	private $finder;
 
-	unset( $initstr );
-	$latest_mod = '';
-	foreach ( $posts as $post ) {
-		setup_postdata( $post );
+	/**
+	 * Construct a new Jetpack_Sitemap_Manager.
+	 *
+	 * @access public
+	 * @since 4.8.0
+	 */
+	public function __construct() {
+		$this->librarian = new Jetpack_Sitemap_Librarian();
+		$this->finder = new Jetpack_Sitemap_Finder();
 
-		/**
-		 * Filter condition to allow skipping specific posts in sitemap.
-		 *
-		 * @module sitemaps
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param bool $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
+		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			$this->logger = new Jetpack_Sitemap_Logger();
+		}
+
+		// Add callback for sitemap URL handler.
+		add_action(
+			'init',
+			array( $this, 'callback_action_catch_sitemap_urls' ),
+			defined( 'IS_WPCOM' ) && IS_WPCOM ? 100 : 10
+		);
+
+		// Add generator to wp_cron task list.
+		$this->schedule_sitemap_generation();
+
+		// Add sitemap to robots.txt.
+		add_action(
+			'do_robotstxt',
+			array( $this, 'callback_action_do_robotstxt' ),
+			20
+		);
+
+		// The news sitemap is cached; here we add a callback to
+		// flush the cached news sitemap when a post is published.
+		add_action(
+			'publish_post',
+			array( $this, 'callback_action_flush_news_sitemap_cache' ),
+			10
+		);
+
+		// In case we need to purge all sitemaps, we do this.
+		add_action(
+			'jetpack_sitemaps_purge_data',
+			array( $this, 'callback_action_purge_data' )
+		);
+
+		/*
+		 * Module parameters are stored as options in the database.
+		 * This allows us to avoid having to process all of init
+		 * before serving the sitemap data. The following actions
+		 * process and store these filters.
 		 */
-		if ( apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
-			continue;
-		}
 
-		$post_latest_mod = null;
-		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
+		// Process filters and store location string for sitemap.
+		add_action(
+			'init',
+			array( $this, 'callback_action_filter_sitemap_location' ),
+			999
+		);
 
-		// If this post is configured to be the site home, skip since it's added separately later
-		if ( untrailingslashit( get_permalink( $post->ID ) ) == untrailingslashit( get_option( 'home' ) ) ) {
-			continue;
-		}
-
-		// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		$url['mobile:mobile'] = '';
-
-		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
-		// These attachments were produced with batch SQL earlier in the script
-		if ( ! post_password_required( $post->ID ) ) {
-
-			$media = array();
-			$methods = array(
-				'from_thumbnail'  => false,
-				'from_slideshow'  => false,
-				'from_gallery'    => false,
-				'from_attachment' => false,
-				'from_html'       => false,
-			);
-			foreach ( $methods as $method => $value ) {
-				$methods[ $method ] = true;
-				$images_collected = Jetpack_PostImages::get_images( $post->ID, $methods );
-				if ( is_array( $images_collected ) ) {
-					$media = array_merge( $media, $images_collected );
-				}
-				$methods[ $method ] = false;
-			}
-
-			$images = array();
-
-			foreach ( $media as $item ) {
-				if ( ! isset( $item['type'] ) || 'image' != $item['type'] ) {
-					continue;
-				}
-				$one_image = array();
-
-				if ( isset( $item['src'] ) ) {
-					// Make all image links absolute
-					$check_url = parse_url( $item['src'] );
-					if( empty( $check_url['scheme'] ) && empty( $check_url['host'] ) ){
-						$item['src'] = network_site_url( $item['src'] );
-					}
-					$one_image['image:loc'] = esc_url( $item['src'] );
-					$one_image['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
-				}
-
-				$images[] = $one_image;
-			}
-
-			if ( ! empty( $images ) ) {
-				$url['image:image'] = $images;
-			}
-		}
-
-		if ( $post->post_modified_gmt && $post->post_modified_gmt != '0000-00-00 00:00:00' ) {
-			$post_latest_mod = $post->post_modified_gmt;
-		}
-		if ( $post->comment_count > 0 ) {
-			// last modified based on last comment
-			$latest_comment_datetime = jetpack_get_approved_comments_max_datetime( $post->ID );
-			if ( ! empty( $latest_comment_datetime ) ) {
-				if ( is_null( $post_latest_mod ) || $latest_comment_datetime > $post_latest_mod ) {
-					$post_latest_mod = $latest_comment_datetime;
-				}
-			}
-			unset( $latest_comment_datetime );
-		}
-		if ( ! empty( $post_latest_mod ) ) {
-			$latest_mod     = max( $latest_mod, $post_latest_mod );
-			$url['lastmod'] = jetpack_w3cdate_from_mysql( $post_latest_mod );
-		}
-		unset( $post_latest_mod );
-		if ( $post->post_type == 'page' ) {
-			$url['changefreq'] = 'weekly';
-			$url['priority']   = '0.6'; // set page priority above default priority of 0.5
-		} else {
-			$url['changefreq'] = 'monthly';
-		}
-		/**
-		 * Filter associative array with data to build <url> node and its descendants for current post.
-		 *
-		 * @module sitemaps
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param array $url Data to build parent and children nodes for current post.
-		 * @param int $post_id Current post ID.
-		 */
-		$url_node = apply_filters( 'jetpack_sitemap_url', $url, $post->ID );
-		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
-		unset( $url );
-	}
-	wp_reset_postdata();
-	$blog_home = array(
-		'loc'        => esc_url( get_option( 'home' ) ),
-		'changefreq' => 'daily',
-		'priority'   => '1.0'
-	);
-	if ( ! empty( $latest_mod ) ) {
-		$blog_home['lastmod'] = jetpack_w3cdate_from_mysql( $latest_mod );
-		header( 'Last-Modified:' . mysql2date( 'D, d M Y H:i:s', $latest_mod, 0 ) . ' GMT' );
-	}
-	/**
-	 * Filter associative array with data to build <url> node and its descendants for site home.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $blog_home Data to build parent and children nodes for site home.
-	 */
-	$url_node = apply_filters( 'jetpack_sitemap_url_home', $blog_home );
-	jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
-	unset( $blog_home );
-
-	/**
-	 * Filter data before rendering it as XML.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param SimpleXMLElement $tree Data tree for sitemap.
-	 * @param string $latest_mod Date of last modification.
-	 */
-	$tree = apply_filters( 'jetpack_print_sitemap', $tree, $latest_mod );
-
-	$xml = $tree->asXML();
-	unset( $tree );
-	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_sitemap', $xml, DAY_IN_SECONDS );
-		echo $xml;
-	}
-
-	die();
-}
-
-/**
- * Prints the news XML sitemap conforming to the Sitemaps.org protocol.
- * Outputs an XML list of up to 1000 posts published in the last 2 days.
- *
- * @module sitemaps
- *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
- */
-function jetpack_print_news_sitemap() {
-
-	$xml = get_transient( 'jetpack_news_sitemap' );
-
-	if ( $xml ) {
-		header( 'Content-Type: application/xml' );
-		echo $xml;
-		die();
-	}
-
-	global $wpdb, $post;
-
-	/**
-	 * Filter post types to be included in news sitemap.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param array $post_types Array with post types to include in news sitemap.
-	 */
-	$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array( 'post' ) );
-	if ( empty( $post_types ) ) {
 		return;
 	}
 
-	$post_types_in = array();
-	foreach ( $post_types as $post_type ) {
-		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
+	/**
+	 * Echo a raw string of given content-type.
+	 *
+	 * @access private
+	 * @since 4.8.0
+	 *
+	 * @param string $the_content_type The content type to be served.
+	 * @param string $the_content The string to be echoed.
+	 */
+	private function serve_raw_and_die( $the_content_type, $the_content ) {
+		header( 'Content-Type: ' . $the_content_type . '; charset=UTF-8' );
+
+		global $wp_query;
+		$wp_query->is_feed = true;
+		set_query_var( 'feed', 'sitemap' );
+
+		if ( '' === $the_content ) {
+			wp_die(
+				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
+				esc_html__( 'Sitemaps', 'jetpack' ),
+				array(
+					'response' => 404,
+				)
+			);
+		}
+
+		echo $the_content;
+
+		die();
 	}
-	$post_types_in_string = implode( ', ', $post_types_in );
 
 	/**
-	 * Filter limit of entries to include in news sitemap.
+	 * Callback to intercept sitemap url requests and serve sitemap files.
 	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param int $count Number of entries to include in news sitemap.
+	 * @access public
+	 * @since 4.8.0
 	 */
-	$limit        = apply_filters( 'jetpack_sitemap_news_sitemap_count', 1000 );
-	$cur_datetime = current_time( 'mysql', true );
+	public function callback_action_catch_sitemap_urls() {
+		// Regular expressions for sitemap URL routing.
+		$regex = array(
+			'master'        => '/^sitemap\.xml$/',
+			'sitemap'       => '/^sitemap-[1-9][0-9]*\.xml$/',
+			'index'         => '/^sitemap-index-[1-9][0-9]*\.xml$/',
+			'sitemap-style' => '/^sitemap\.xsl$/',
+			'index-style'   => '/^sitemap-index\.xsl$/',
+			'image'         => '/^image-sitemap-[1-9][0-9]*\.xml$/',
+			'image-index'   => '/^image-sitemap-index-[1-9][0-9]*\.xml$/',
+			'image-style'   => '/^image-sitemap\.xsl$/',
+			'video'         => '/^video-sitemap-[1-9][0-9]*\.xml$/',
+			'video-index'   => '/^video-sitemap-index-[1-9][0-9]*\.xml$/',
+			'video-style'   => '/^video-sitemap\.xsl$/',
+			'news'          => '/^news-sitemap\.xml$/',
+			'news-style'    => '/^news-sitemap\.xsl$/',
+		);
 
-	$query = $wpdb->prepare( "
-		SELECT p.ID, p.post_title, p.post_type, p.post_date, p.post_name, p.post_date_gmt, GROUP_CONCAT(t.name SEPARATOR ', ') AS keywords
-		FROM
-			$wpdb->posts AS p LEFT JOIN $wpdb->term_relationships AS r ON p.ID = r.object_id
-			LEFT JOIN $wpdb->term_taxonomy AS tt ON r.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = 'post_tag'
-			LEFT JOIN $wpdb->terms AS t ON tt.term_id = t.term_id
-		WHERE
-			post_status='publish' AND post_type IN ( {$post_types_in_string} ) AND post_date_gmt > (%s - INTERVAL 2 DAY)
-		GROUP BY p.ID
-		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
+		// The raw path(+query) of the requested URI.
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: Input var okay.
+			$raw_uri = sanitize_text_field(
+				wp_unslash( $_SERVER['REQUEST_URI'] ) // WPCS: Input var okay.
+			);
+		} else {
+			$raw_uri = '';
+		}
 
-	// URL to XSLT
-	$xsl = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
+		$request = $this->finder->recognize_sitemap_uri( $raw_uri );
 
-	// Unless it's zh-cn for Simplified Chinese or zh-tw for Traditional Chinese,
-	// trim national variety so an ISO 639 language code as required by Google.
-	$language_code = strtolower( get_locale() );
-	if ( in_array( $language_code, array( 'zh_tw', 'zh_cn' ) ) ) {
-		$language_code = str_replace( '_', '-', $language_code );
-	} else {
-		$language_code = preg_replace( '/(_.*)$/i', '', $language_code );
-	}
-
-	header( 'Content-Type: application/xml' );
-	ob_start();
-	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-	echo '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
-	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
-	?>
-	<!-- generator="jetpack" -->
-	<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
-	        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-	        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-	        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-		>
-		<?php
-		$posts = $wpdb->get_results( $query );
-		foreach ( $posts as $post ):
-			setup_postdata( $post );
+		if ( isset( $request['sitemap_name'] ) ) {
 
 			/**
-			 * Filter condition to allow skipping specific posts in news sitemap.
+			 * Filter the content type used to serve the sitemap XML files.
 			 *
 			 * @module sitemaps
 			 *
 			 * @since 3.9.0
 			 *
-			 * @param bool $skip Current boolean. False by default, so no post is skipped.
-			 * @param WP_POST $post Current post object.
+			 * @param string $xml_content_type By default, it's 'text/xml'.
 			 */
-			if ( apply_filters( 'jetpack_sitemap_news_skip_post', false, $post ) ) {
-				continue;
+			$xml_content_type = apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
+
+			// Catch master sitemap xml.
+			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+						JP_MASTER_SITEMAP_TYPE
+					)
+				);
 			}
 
-			$GLOBALS['post']                       = $post;
-			$url                                   = array();
-			$url['loc']                            = get_permalink( $post->ID );
-			$news                                  = array();
-			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
-			$news['news:publication']['news:language'] = $language_code;
-			$news['news:publication_date'] = jetpack_w3cdate_from_mysql( $post->post_date_gmt );
-			$news['news:title']            = get_the_title_rss();
-			if ( $post->keywords ) {
-				$news['news:keywords'] = html_entity_decode( ent2ncr( $post->keywords ), ENT_HTML5 );
-			}
-			$url['news:news'] = $news;
-
-			// Add image to sitemap
-			$post_thumbnail = Jetpack_PostImages::get_image( $post->ID );
-			if ( isset( $post_thumbnail['src'] ) ) {
-				// Make all news image links absolute
-				$check_url = parse_url( $post_thumbnail['src'] );
-				if( empty( $check_url['scheme'] ) && empty( $check_url['host'] ) ){
-					$post_thumbnail['src'] = network_site_url( $post_thumbnail['src'] );
-				}
-				$url['image:image'] = array( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
+			// Catch sitemap xml.
+			if ( preg_match( $regex['sitemap'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_PAGE_SITEMAP_TYPE
+					)
+				);
 			}
 
-			/**
-			 * Filter associative array with data to build <url> node and its descendants for current post in news sitemap.
-			 *
-			 * @module sitemaps
-			 *
-			 * @since 3.9.0
-			 *
-			 * @param array $url Data to build parent and children nodes for current post.
-			 * @param int $post_id Current post ID.
-			 */
-			$url = apply_filters( 'jetpack_sitemap_news_sitemap_item', $url, $post );
-
-			if ( empty( $url ) ) {
-				continue;
+			// Catch sitemap index xml.
+			if ( preg_match( $regex['index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_PAGE_SITEMAP_INDEX_TYPE
+					)
+				);
 			}
 
-			jetpack_print_sitemap_item( $url );
-		endforeach;
-		wp_reset_postdata();
-		?>
-	</urlset>
-	<?php
-	$xml = ob_get_contents();
-	ob_end_clean();
-	if ( ! empty( $xml ) ) {
-		set_transient( 'jetpack_news_sitemap', $xml, DAY_IN_SECONDS );
-		echo $xml;
+			// Catch sitemap xsl.
+			if ( preg_match( $regex['sitemap-style'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::sitemap_xsl()
+				);
+			}
+
+			// Catch sitemap index xsl.
+			if ( preg_match( $regex['index-style'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::sitemap_index_xsl()
+				);
+			}
+
+			// Catch image sitemap xml.
+			if ( preg_match( $regex['image'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_IMAGE_SITEMAP_TYPE
+					)
+				);
+			}
+
+			// Catch image sitemap index xml.
+			if ( preg_match( $regex['image-index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_IMAGE_SITEMAP_INDEX_TYPE
+					)
+				);
+			}
+
+			// Catch image sitemap xsl.
+			if ( preg_match( $regex['image-style'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::image_sitemap_xsl()
+				);
+			}
+
+			// Catch video sitemap xml.
+			if ( preg_match( $regex['video'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_VIDEO_SITEMAP_TYPE
+					)
+				);
+			}
+
+			// Catch video sitemap index xml.
+			if ( preg_match( $regex['video-index'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$this->librarian->get_sitemap_text(
+						$request['sitemap_name'],
+						JP_VIDEO_SITEMAP_INDEX_TYPE
+					)
+				);
+			}
+
+			// Catch video sitemap xsl.
+			if ( preg_match( $regex['video-style'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::video_sitemap_xsl()
+				);
+			}
+
+			// Catch news sitemap xml.
+			if ( preg_match( $regex['news'], $request['sitemap_name'] ) ) {
+				$sitemap_builder = new Jetpack_Sitemap_Builder();
+				$this->serve_raw_and_die(
+					$xml_content_type,
+					$sitemap_builder->news_sitemap_xml()
+				);
+			}
+
+			// Catch news sitemap xsl.
+			if ( preg_match( $regex['news-style'], $request['sitemap_name'] ) ) {
+				$this->serve_raw_and_die(
+					'application/xml',
+					Jetpack_Sitemap_Stylist::news_sitemap_xsl()
+				);
+			}
+		}
+
+		// URL did not match any sitemap patterns.
+		return;
 	}
 
-	die();
-}
+	/**
+	 * Callback for adding sitemap-interval to the list of schedules.
+	 *
+	 * @access public
+	 * @since 4.8.0
+	 *
+	 * @param array $schedules The array of WP_Cron schedules.
+	 *
+	 * @return array The updated array of WP_Cron schedules.
+	 */
+	public function callback_add_sitemap_schedule( $schedules ) {
+		$schedules['sitemap-interval'] = array(
+			'interval' => JP_SITEMAP_INTERVAL,
+			'display'  => __( 'Sitemap Interval', 'jetpack' ),
+		);
+		return $schedules;
+	}
+
+	/**
+	 * Add actions to schedule sitemap generation.
+	 * Should only be called once, in the constructor.
+	 *
+	 * @access private
+	 * @since 4.8.0
+	 */
+	private function schedule_sitemap_generation() {
+		// Add cron schedule.
+		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) );
+
+		$sitemap_builder = new Jetpack_Sitemap_Builder();
+
+		add_action(
+			'jp_sitemap_cron_hook',
+			array( $sitemap_builder, 'update_sitemap' )
+		);
+
+		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			wp_schedule_event(
+				time(),
+				'sitemap-interval',
+				'jp_sitemap_cron_hook'
+			);
+		}
+
+		return;
+	}
+
+	/**
+	 * Callback to add sitemap to robots.txt.
+	 *
+	 * @access public
+	 * @since 4.8.0
+	 */
+	public function callback_action_do_robotstxt() {
+
+		/**
+		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 3.9.0
+		 *
+		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
+		 */
+		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
+
+		if ( true === $discover_sitemap ) {
+			$sitemap_url      = $this->finder->construct_sitemap_url( 'sitemap.xml' );
+			echo 'Sitemap: ' . esc_url( $sitemap_url ) . "\n";
+		}
+
+		/**
+		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 3.9.0
+		 *
+		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
+		 */
+		$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
+
+		if ( true === $discover_news_sitemap ) {
+			$news_sitemap_url = $this->finder->construct_sitemap_url( 'news-sitemap.xml' );
+			echo 'Sitemap: ' . esc_url( $news_sitemap_url ) . "\n";
+		}
+
+		return;
+	}
+
+	/**
+	 * Callback to delete the news sitemap cache.
+	 *
+	 * @access public
+	 * @since 4.8.0
+	 */
+	public function callback_action_flush_news_sitemap_cache() {
+		delete_transient( 'jetpack_news_sitemap_xml' );
+	}
+
+	/**
+	 * Callback for resetting stored sitemap data.
+	 *
+	 * @access public
+	 * @since 5.3.0
+	 */
+	public function callback_action_purge_data() {
+		$this->callback_action_flush_news_sitemap_cache();
+		$this->librarian->delete_all_stored_sitemap_data();
+	}
+
+	/**
+	 * Callback to set the sitemap location.
+	 *
+	 * @access public
+	 * @since 4.8.0
+	 */
+	public function callback_action_filter_sitemap_location() {
+		update_option(
+			'jetpack_sitemap_location',
+			/**
+			 * Additional path for sitemap URIs. Default value is empty.
+			 *
+			 * This string is any additional path fragment you want included between
+			 * the home URL and the sitemap filenames. Exactly how this fragment is
+			 * interpreted depends on your permalink settings. For example:
+			 *
+			 *   Pretty permalinks:
+			 *     home_url() . jetpack_sitemap_location . '/sitemap.xml'
+			 *
+			 *   Plain ("ugly") permalinks:
+			 *     home_url() . jetpack_sitemap_location . '/?jetpack-sitemap=sitemap.xml'
+			 *
+			 *   PATHINFO permalinks:
+			 *     home_url() . '/index.php' . jetpack_sitemap_location . '/sitemap.xml'
+			 *
+			 * where 'sitemap.xml' is the name of a specific sitemap file.
+			 * The value of this filter must be a valid path fragment per RFC 3986;
+			 * in particular it must either be empty or begin with a '/'.
+			 * Also take care that any restrictions on sitemap location imposed by
+			 * the sitemap protocol are satisfied.
+			 *
+			 * The result of this filter is stored in an option, 'jetpack_sitemap_location';
+			 * that option is what gets read when the sitemap location is needed.
+			 * This way we don't have to wait for init to finish before building sitemaps.
+			 *
+			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
+			 * @link http://www.sitemaps.org/ The sitemap protocol
+			 *
+			 * @since 4.8.0
+			 */
+			apply_filters(
+				'jetpack_sitemap_location',
+				''
+			)
+		);
+
+		return;
+	}
+
+} // End Jetpack_Sitemap_Manager class.
+
+new Jetpack_Sitemap_Manager();
 
 /**
  * Absolute URL of the current blog's sitemap.
  *
  * @module sitemaps
  *
+ * @since  3.9.0
+ * @since  4.8.1 Code uses method found in Jetpack_Sitemap_Finder::construct_sitemap_url in 4.8.0.
+ *                It has been moved here to avoid fatal errors with other plugins that were expecting to find this function.
+ *
+ * @param string $filename Sitemap file name. Defaults to 'sitemap.xml', the initial sitemaps page.
+ *
  * @return string Sitemap URL.
  */
-function jetpack_sitemap_uri() {
+function jetpack_sitemap_uri( $filename = 'sitemap.xml' ) {
 	global $wp_rewrite;
 
+	$location = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_sitemap_location', '' );
+
 	if ( $wp_rewrite->using_index_permalinks() ) {
-		$sitemap_url = home_url( '/index.php/sitemap.xml' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$sitemap_url = home_url( '/sitemap.xml' );
+		$sitemap_url = home_url( '/index.php' . $location . '/' . $filename );
+	} elseif ( $wp_rewrite->using_permalinks() ) {
+		$sitemap_url = home_url( $location . '/' . $filename );
 	} else {
-		$sitemap_url = home_url( '/?jetpack-sitemap=true' );
+		$sitemap_url = home_url( $location . '/?jetpack-sitemap=' . $filename );
 	}
 
 	/**
@@ -647,146 +541,3 @@ function jetpack_sitemap_uri() {
 	 */
 	return apply_filters( 'jetpack_sitemap_location', $sitemap_url );
 }
-
-/**
- * Absolute URL of the current blog's news sitemap.
- *
- * @module sitemaps
- */
-function jetpack_news_sitemap_uri() {
-	global $wp_rewrite;
-
-	if ( $wp_rewrite->using_index_permalinks() ) {
-		$news_sitemap_url = home_url( '/index.php/news-sitemap.xml' );
-	} else if ( $wp_rewrite->using_permalinks() ) {
-		$news_sitemap_url = home_url( '/news-sitemap.xml' );
-	} else {
-		$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
-	}
-
-	/**
-	 * Filter news sitemap URL relative to home URL.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $news_sitemap_url News sitemap URL.
-	 */
-	return apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
-}
-
-/**
- * Output the default sitemap URL.
- *
- * @module sitemaps
- */
-function jetpack_sitemap_discovery() {
-	echo 'Sitemap: ' . esc_url( jetpack_sitemap_uri() ) . PHP_EOL;
-}
-
-/**
- * Output the news sitemap URL.
- *
- * @module sitemaps
- */
-function jetpack_news_sitemap_discovery() {
-	echo 'Sitemap: ' . esc_url( jetpack_news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
-}
-
-/**
- * Clear the sitemap cache when a sitemap action has changed.
- *
- * @module sitemaps
- *
- * @param int $post_id unique post identifier. not used.
- */
-function jetpack_sitemap_handle_update( $post_id ) {
-	delete_transient( 'jetpack_sitemap' );
-	delete_transient( 'jetpack_news_sitemap' );
-}
-
-/**
- * Clear sitemap cache when an entry changes. Make sitemaps discoverable to robots. Render sitemaps.
- *
- * @module sitemaps
- */
-function jetpack_sitemap_initialize() {
-	add_action( 'publish_post', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'publish_page', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
-	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
-
-	/**
-	 * Filter whether to make the default sitemap discoverable to robots or not.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
-	 */
-	$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
-	if ( $discover_sitemap ) {
-		add_action( 'do_robotstxt', 'jetpack_sitemap_discovery', 5, 0 );
-
-		if ( get_option( 'permalink_structure' ) ) {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
-			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
-		} else {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/?jetpack-sitemap=true' ) );
-			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
-		}
-
-		// Sitemap XML
-		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
-			// run later so things like custom post types have been registered
-			add_action( 'init', 'jetpack_print_sitemap', 999 );
-		}
-
-		// XSLT for sitemap
-		if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap-xsl'] ) && 'true' == $_GET['jetpack-sitemap-xsl'] ) ) {
-			add_action( 'init', 'jetpack_print_sitemap_xsl' );
-		}
-	}
-
-	/**
-	 * Filter whether to make the news sitemap discoverable to robots or not.
-	 *
-	 * @module sitemaps
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
-	 */
-	$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
-	if ( $discover_news_sitemap ) {
-		add_action( 'do_robotstxt', 'jetpack_news_sitemap_discovery', 5, 0 );
-
-		if ( get_option( 'permalink_structure' ) ) {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
-			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
-		} else {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/?jetpack-news-sitemap=true' ) );
-			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
-		}
-
-		// News Sitemap XML
-		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
-			// run later so things like custom post types have been registered
-			add_action( 'init', 'jetpack_print_news_sitemap', 999 );
-		}
-
-		// XSLT for sitemap
-		if ( preg_match( '#(/news-sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap-xsl'] ) && 'true' == $_GET['jetpack-news-sitemap-xsl'] ) ) {
-			add_action( 'init', 'jetpack_print_news_sitemap_xsl' );
-		}
-	}
-}
-
-// Initialize sitemaps once themes can filter the initialization.
-add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );

@@ -1,135 +1,110 @@
-/* global jitmL10n, jQuery */
+jQuery( document ).ready( function( $ ) {
+	var templates = {
+		'default': function( envelope ) {
+			var html = '<div class="jitm-card jitm-banner ' + (
+					envelope.CTA.message ? 'has-call-to-action' : ''
+				) + ' is-upgrade-premium ' + envelope.content.classes + '" data-stats_url="' + envelope.jitm_stats_url + '">';
+			html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
+			html += '<div class="jitm-banner__content">';
+			html += '<div class="jitm-banner__info">';
+			html += '<div class="jitm-banner__title">' + envelope.content.message + '</div>';
+			if ( envelope.content.description && envelope.content.description !== '' ) {
+				html += '<div class="jitm-banner__description">' + envelope.content.description;
+				if ( envelope.content.list.length > 0 ) {
+					html += '<ul class="banner__list">';
+					for ( var i = 0; i < envelope.content.list.length; i++ ) {
 
-(function($, jitmL10n) {
+						var text = envelope.content.list[ i ].item;
 
-	///////////////////////////////////////
-	// INIT
-	///////////////////////////////////////
+						if ( envelope.content.list[ i ].url ) {
+							text = '<a href="' + envelope.content.list[ i ].url + '" target="_blank" rel="noopener noreferrer" data-module="' + envelope.feature_class + '" data-jptracks-name="nudge_item_click" data-jptracks-prop="jitm-' + envelope.id + '">' +
+								text + '</a>';
+						}
 
-	var data;
+						html += '<li>' +
+							'<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g>' +
+							'<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' +
+							text +
+							'</li>';
+					}
+				}
+				html += '</div>';
+			}
+			html += '</div>';
+			if ( envelope.CTA.message ) {
+				html += '<div class="jitm-banner__action">';
+				html += '<a href="' + envelope.url + '" target="' + ( envelope.CTA.newWindow === false ? '_self' : '_blank') + '" rel="noopener noreferrer" title="' + envelope.CTA.message + '" data-module="' + envelope.feature_class + '" type="button" class="jitm-button is-compact ' + ( envelope.CTA.primary ? 'is-primary' : '' ) + ' jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '">' + envelope.CTA.message + '</a>';
+				html += '</div>';
+			}
+			html += '<a href="#" data-module="' + envelope.feature_class + '" class="jitm-banner__dismiss"></a>';
+			html += '</div>';
+			html += '</div>';
 
-	$(document).ready(function () {
+			return $( html );
+		}
+	};
 
-		data = {
-			'action'            :   'jitm_ajax',
-			'jitmNonce'         :   jitmL10n.jitm_nonce,
-			'photon'            :   jitmL10n.photon_msgs,
-			'manage'            :   jitmL10n.manage_msgs,
-			'stats'             :   jitmL10n.stats_msgs,
-			'jitm_stats_url'    :   jitmL10n.jitm_stats_url,
-			'enabledModules'    :   []
+	var setJITMContent = function( $el, response, redirect ) {
+		var template;
+
+		var render = function( $my_template ) {
+			return function( e ) {
+				e.preventDefault();
+
+				$my_template.hide();
+
+				$.ajax( {
+					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
+					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
+					data: {
+						id: response.id,
+						feature_class: response.feature_class
+					}
+				} );
+			};
 		};
 
-		initEvents();
+		template = response.template;
 
-	});
+		// if we don't have a template for this version, just use the default template
+		if ( ! template || ! templates[ template ] ) {
+			template = 'default';
+		}
 
-	///////////////////////////////////////
-	// FUNCTIONS
-	///////////////////////////////////////
+		response.url = response.url + '&redirect=' + redirect;
 
-	function initEvents() {
+		var $template = templates[ template ]( response );
+		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
-		var module_slug, success_msg, fail_msg, hide_msg,
-			$body = $( 'body' );
+		$el.replaceWith( $template );
 
-		// On dismiss of JITM admin notice
-		$body.on( 'click', '.jp-jitm .dismiss', function() {
-			var $self = $( this );
+		// Add to Jetpack notices within the Jetpack settings app.
+		$template.prependTo( $( '#jp-admin-notices' ) );
+	};
 
-			// hide the notice
-			$self.closest( '.jp-jitm' ).hide();
+	$( '.jetpack-jitm-message' ).each( function() {
+		var $el = $( this );
 
-			// ajax request to save dismiss and never show again
-			data.jitmActionToTake = 'dismiss';
-			module_slug = $self.data( 'module' );
-			data.jitmModule = module_slug;
+		var message_path = $el.data( 'message-path' );
+		var query = $el.data( 'query' );
+		var redirect = $el.data( 'redirect' );
 
-			$.post( jitmL10n.ajaxurl, data, function ( response ) {
-				if ( true === response.success ) {
-					//console.log('successfully dismissed for ever')
-				}
-			});
-		});
-
-		$body.on( 'click', '.jp-jitm .activate', function() {
-
-			var $self = $( this ),
-				$jitm = $self.closest( '.jp-jitm' );
-			$jitm.find( '.button' ).addClass( 'hide' );
-			$jitm.find( '.j-spinner' ).toggleClass( 'hide' );
-			data.jitmActionToTake = 'activate';
-
-			// get the module we're working with using the data-module attribute
-			module_slug = $self.data( 'module' );
-			// Check if there's a custom success message, otherwise use default.
-			success_msg = $self.data( 'module-success' ) ? $self.data( 'module-success' ) : data[module_slug].success;
-			fail_msg = data[module_slug].fail;
-
-			data.jitmModule = module_slug;
-
-			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-			$.post( jitmL10n.ajaxurl, data, function ( response ) {
-				// If there's no response, something bad happened
-				if ( true === response.success ) {
-					var $msg = $jitm.find( '.msg' );
-					$msg.html( success_msg );
-					$jitm.find( '.j-spinner' ).add( '#jetpack-wordpressdotcom' ).toggleClass( 'hide' );
-					if ( 'manage' !== data.jitmModule ) {
-						hide_msg = setTimeout( function () {
-							$jitm.hide( 'slow' );
-						}, 5000 );
-					}
-					$jitm.find( '.show-after-enable.hide' ).removeClass( 'hide' );
-					data.enabledModules.push( module_slug );
-				} else {
-					$jitm.html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
-				}
-			});
-
-		});
-
-		$body.on( 'click', '.jp-jitm .launch', function() {
-			var $jitm = $(this).closest( '.jp-jitm' );
-
-			if ( $jitm.data( 'stats_url' ) ) {
-				data.jitm_stats_url = $jitm.data( 'stats_url' );
-				new Image().src = data.jitm_stats_url;
+		$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
+			message_path: message_path,
+			query: query,
+			_wpnonce: $el.data( 'nonce' )
+		} ).then( function( response ) {
+			if ( 'object' === typeof response && response['1'] ) {
+				response = [ response['1'] ];
 			}
 
-			data.jitmModule = $jitm.data( 'track' ) ? $jitm.data( 'track' ) : $(this).data( 'module' );
-			data.jitmActionToTake = 'launch';
-			// ajax request to save click in stat
-			$.post( jitmL10n.ajaxurl, data );
+			// properly handle the case of an empty array or no content set
+			if ( 0 === response.length || ! response[ 0 ].content ) {
+				return;
+			}
+
+			// for now, always take the first response
+			setJITMContent( $el, response[ 0 ], redirect );
 		} );
-
-		$body.on( 'click', '#jetpack-wordpressdotcom', function() {
-			//Log user heads to wordpress.com/plugins
-			new Image().src = data.jitm_stats_url;
-		});
-
-		// Display Photon JITM after user started uploading an image.
-		if ( $( '#tmpl-jitm-photon' ).length > 0 ) {
-			wp.Uploader.queue.on( 'add', function ( e ) {
-				if ( -1 === $.inArray( 'photon', data.enabledModules ) ) {
-					if ( 'image' === e.attributes.type ) {
-						var jitmTemplate = wp.template( 'jitm-photon' ),
-							$menu = wp.media.frame.$el.find( '.media-menu' ),
-							$jitm;
-						if ( $menu.length > 0 && 0 === $menu.find( '.jp-jitm' ).length ) {
-							$jitm = $menu.append( jitmTemplate() ).find( '.jp-jitm' );
-
-							// JITM is visible to user, track it.
-							data.jitmActionToTake = 'viewed';
-							data.jitmModule = $jitm.data( 'track' );
-							$.post( jitmL10n.ajaxurl, data );
-						}
-					} else {
-						$( '.media-menu' ).find( '.jp-jitm' ).remove();
-					}
-				}
-			} );
-		}
-	}
-
-})(jQuery, jitmL10n);
+	} );
+} );

@@ -18,6 +18,12 @@ class Jetpack_Debugger {
 		}
 	}
 
+	private static function what_jetpack_plan() {
+		$plan = Jetpack::get_active_plan();
+		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
+		return 'JetpackPlan' . $plan;
+	}
+
 	static function seconds_to_time( $seconds ) {
 		$units = array(
 			"week"   => 7*24*3600,
@@ -41,6 +47,32 @@ class Jetpack_Debugger {
 
 	public static function jetpack_increase_timeout() {
 		return 30; // seconds
+	}
+
+	public static function disconnect_and_redirect() {
+		$can_disconnect = isset( $_GET['disconnect'] ) && $_GET['disconnect'] && isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' );
+		if ( $can_disconnect ) {
+			if ( Jetpack::is_active() ) {
+				Jetpack::disconnect();
+				wp_safe_redirect( Jetpack::admin_url() );
+				exit;
+			}
+		}
+	}
+
+	public static function run_self_test() {
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+
+		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		return $response;
+
 	}
 
 	public static function jetpack_debug_display_handler() {
@@ -80,6 +112,7 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+		$debug_info .= "\r\n" . esc_html( "PLAN: " . self::what_jetpack_plan() );
 
 		$debug_info .= "\r\n";
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
@@ -105,6 +138,17 @@ class Jetpack_Debugger {
 
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
 		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
+
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
+		$idc_urls = array(
+			'home'       => Jetpack_Sync_Functions::home_url(),
+			'siteurl'    => Jetpack_Sync_Functions::site_url(),
+			'WP_HOME'    => Jetpack_Constants::is_defined( 'WP_HOME' ) ? Jetpack_Constants::get_constant( 'WP_HOME' ) : '',
+			'WP_SITEURL' => Jetpack_Constants::is_defined( 'WP_SITEURL' ) ? Jetpack_Constants::get_constant( 'WP_SITEURL' ) : '',
+		);
+		$debug_info .= "\r\n". esc_html( sprintf(  'Sync IDC URLs: %s', json_encode( $idc_urls ) ) );
+		$debug_info .= "\r\n". esc_html( sprintf(  'Sync error IDC option: %s', json_encode( Jetpack_Options::get_option( 'sync_error_idc' ) ) ) );
+		$debug_info .= "\r\n". esc_html( sprintf(  'Sync IDC Optin: %s', (string) Jetpack::sync_idc_optin() ) );
 
 		$debug_info .= "\r\n";
 
@@ -163,61 +207,59 @@ class Jetpack_Debugger {
 		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
 		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
 
-		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
+		$tests['SELF']['result'] = self::run_self_test();
 
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
-
-		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
-		$tests['SELF']['result'] = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 		if ( is_wp_error( $tests['SELF']['result'] ) && 0 == strpos( $tests['SELF']['result']->get_error_message(), 'Operation timed out' ) ){
 			$tests['SELF']['fail_message'] = esc_html__( 'Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server.', 'jetpack' );
 		} else {
 			$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
 		}
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
-			<h3><?php _e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
-			<div class="jetpack-debug-test-container">
-			<?php
-			ob_start();
-			foreach ( $tests as $test_name => $test_info ) :
-				if ( 'PASS' !== $test_info['result'] && ( is_wp_error( $test_info['result'] ) ||
-					false == ( $response_code = wp_remote_retrieve_response_code( $test_info['result'] ) )  ||
-					'200' != $response_code ) ) {
-					$debug_info .= $test_name . ": FAIL\r\n";
-					?>
-					<div class="jetpack-test-error">
-						<p>
-							<a class="jetpack-test-heading" href="#"><?php echo $test_info['fail_message']; ?>
-							<span class="noticon noticon-collapse"></span>
-							</a>
-						</p>
+			<?php if ( isset( $can_disconnect ) && $can_disconnect ) : ?>
+				<div id="message" class="updated notice notice-success is-dismissible"><p><?php esc_html_e( 'This site was successfully disconnected.', 'jetpack' ) ?> <a href="<?php echo esc_url( Jetpack::admin_url() ); ?>"><?php esc_html_e( 'Go to connection screen.', 'jetpack' ); ?></a></p>
+					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'jetpack' ); ?></span></button></div>
+			<?php else: ?>
+				<h3><?php _e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
+				<div class="jetpack-debug-test-container">
+					<?php
+					ob_start();
+					foreach ( $tests as $test_name => $test_info ) :
+						if ( 'PASS' !== $test_info['result'] && ( is_wp_error( $test_info['result'] ) ||
+								false == ( $response_code = wp_remote_retrieve_response_code( $test_info['result'] ) )  ||
+								'200' != $response_code ) ) {
+							$debug_info .= $test_name . ": FAIL\r\n";
+							?>
+							<div class="jetpack-test-error">
+							<p>
+								<a class="jetpack-test-heading" href="#"><?php echo $test_info['fail_message']; ?>
+									<span class="noticon noticon-collapse"></span>
+								</a>
+							</p>
 						<pre class="jetpack-test-details"><?php echo esc_html( $test_name ); ?>:
-	<?php echo esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) ); ?></pre>
-					</div><?php
-				} else {
-					$debug_info .= $test_name . ": PASS\r\n";
-				}
-				$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) );
-				?>
-			<?php endforeach;
-			$html = ob_get_clean();
+							<?php echo esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) ); ?></pre>
+							</div><?php
+						} else {
+							$debug_info .= $test_name . ": PASS\r\n";
+						}
+						$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) );
+						?>
+					<?php endforeach;
+					$html = ob_get_clean();
 
-			if ( '' == trim( $html ) ) {
-				echo '<div class="jetpack-tests-succed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
-			}
-			else {
-				echo '<h3>' . esc_html__( 'There seems to be a problem with your site’s ability to communicate with Jetpack!', 'jetpack' ) . '</h3>';
-				echo $html;
-			}
-			$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info ."\r\n";
-			?>
-			</div>
+					if ( '' == trim( $html ) ) {
+						echo '<div class="jetpack-tests-succed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
+					} else {
+						echo '<h3>' . esc_html__( 'There seems to be a problem with your site’s ability to communicate with Jetpack!', 'jetpack' ) . '</h3>';
+						echo $html;
+					}
+					$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info ."\r\n";
+					?>
+				</div>
+			<?php endif; ?>
+
 			<div class="entry-content">
 				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
 				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
@@ -230,6 +272,7 @@ class Jetpack_Debugger {
 							$default_theme = wp_get_theme( WP_DEFAULT_THEME );
 
 							if ( $default_theme->exists() ) {
+								/* translators: %s is the name of a theme */
 								echo esc_html( sprintf( __( "If your problem isn't known or caused by a plugin, try activating %s (the default WordPress theme).", 'jetpack' ), $default_theme->get( 'Name' ) ) );
 							} else {
 								esc_html_e( "If your problem isn't known or caused by a plugin, try activating the default WordPress theme.", 'jetpack' );
@@ -243,6 +286,24 @@ class Jetpack_Debugger {
 							<li>- <?php esc_html_e( "If you get a 404 message, contact your web host. Their security may block XMLRPC.", 'jetpack' ); ?></li>
 						</ul>
 					</li>
+					<?php if ( current_user_can( 'jetpack_disconnect' ) && Jetpack::is_active() ) : ?>
+						<li>
+							<strong><em><?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?></em></strong>
+							<?php
+							echo wp_kses(
+								sprintf(
+									__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
+									wp_nonce_url(
+										Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'disconnect' => true ) ),
+										'jp_disconnect',
+										'nonce'
+									)
+								),
+								array( 'a' => array( 'href'  => array(), 'class' => array() ) )
+							);
+							?>
+						</li>
+					<?php endif; ?>
 				</ol>
 				<?php if ( self::is_jetpack_support_open() ): ?>
 				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
@@ -251,7 +312,12 @@ class Jetpack_Debugger {
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
-						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+						<h3><?php esc_html_e( 'More details about your Jetpack settings', 'jetpack' ); ?></h3>
+						<p><?php printf(
+							/* translators: %s is an e-mail address */
+							__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
+							esc_html( Jetpack::get_master_user_email() )
+						); ?></p>
 					</div>
 				<?php else : ?>
 					<div id="dev-mode-details">
@@ -261,6 +327,16 @@ class Jetpack_Debugger {
 						); ?></p>
 					</div>
 				<?php endif; ?>
+				<?php if (
+					current_user_can( 'jetpack_manage_modules' )
+					&& ( Jetpack::is_development_mode() || Jetpack::is_active() )
+				) {
+					printf(
+						'<p><a href="%1$s">%2$s</a></p>',
+						Jetpack::admin_url( 'page=jetpack_modules' ),
+						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+					);
+				} ?>
 			</div>
 			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
 			<?php if ( self::is_jetpack_support_open() ): ?>
@@ -286,6 +362,41 @@ class Jetpack_Debugger {
 							$subject_line
 						);
 					?>
+					<div id="category_div" class="formbox">
+						<label class="h" for="category"><?php esc_html_e( 'What do you need help with?', 'jetpack' ); ?></label>
+						<ul>
+						<?php
+						/**
+						 * Set up an array of ticket categories.
+						 * (reasons why a user would contact us.)
+						 */
+						$categories = array(
+							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com.", 'jetpack' ),
+							'Billing'    => esc_html__( 'I have an issue with a current plan.', 'jetpack' ),
+							'Presales'   => esc_html__( 'I have questions about buying a plan.', 'jetpack' ),
+							'Backups'    => esc_html__( 'I need help with backing up my site.', 'jetpack' ),
+							'Restores'   => esc_html__( 'I have a problem restoring my site.', 'jetpack' ),
+							'Security'   => esc_html__( 'I have security concerns / my site is hacked.', 'jetpack' ),
+							'Priority'   => esc_html__( "My site is down / I can't access my site.", 'jetpack' ),
+							/* translators: Last item in a list of reasons to contact Jetpack support. */
+							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
+						);
+
+						foreach ( $categories as $value => $label ) { ?>
+							<li><label for="<?php echo esc_attr( $value ); ?>">
+								<input
+									id="<?php echo esc_attr( $value ); ?>"
+									name="category"
+									type="radio"
+									value="<?php echo esc_attr( $value ); ?>"
+									<?php checked( esc_attr( $value ), 'Other' ); ?>
+								/>
+								<?php echo esc_html( $label ); ?>
+							</label></li>
+						<?php } ?>
+						</ul>
+					</div>
+
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
@@ -298,7 +409,7 @@ class Jetpack_Debugger {
 					</div>
 
 					<div id="email_div" class="formbox">
-						<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
+						<label class="h" for="your_email"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
 						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack'); ?>" size="40">
 					</div>
@@ -323,6 +434,7 @@ class Jetpack_Debugger {
 				</form>
 			<?php endif; ?>
 		</div> <!-- contact-message, hidden by default. -->
+		<hr />
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
 			<div id="debug_info_div" style="display:none">
 			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
@@ -455,6 +567,10 @@ class Jetpack_Debugger {
 
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
 				font-size: 12px;
+			}
+
+			#category_div ul li {
+				list-style-type: none;
 			}
 
 		</style>

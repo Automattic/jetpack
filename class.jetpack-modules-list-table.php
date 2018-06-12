@@ -31,19 +31,28 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		wp_register_script(
 			'models.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.models.min.js',
+				'_inc/jetpack-modules.models.js'
+			),
 			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.views.min.js',
+				'_inc/jetpack-modules.views.js'
+			),
 			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.min.js',
+				'_inc/jetpack-modules.js'
+			),
 			array(
 				'views.jetpack-modules',
 				'models.jetpack-modules',
@@ -82,10 +91,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<# var i = 0;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined ) return; #>
+				if ( item === undefined ) return;
+				if ( 'manage' == item.module && item.activated ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
+						<# if ( 'videopress' !== item.module ) { #>
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
+						<# } #>
 					</th>
 					<td class='name column-name'>
 						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
@@ -93,9 +105,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module && item.available && 'videopress' !== item.module ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<# } else if ( item.available ) { #>
+						<# } else if ( item.available && 'videopress' !== item.module ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						</div>
@@ -163,17 +175,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		return array_filter( $modules, array( $this, 'is_module_displayed' ) );
 	}
 
-	static function is_module_available( $module ) {
-		if ( ! is_array( $module ) || empty( $module ) )
-			return false;
-
-		if ( Jetpack::is_development_mode() ) {
-			return ! ( $module['requires_connection'] );
-		} else {
-			return Jetpack::is_active();
-		}
-	}
-
 	static function is_module_displayed( $module ) {
 		// Handle module tag based filtering.
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
@@ -220,8 +221,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $item['activated'] )  )
 			$row_class .= ' active';
 
-		if ( ! $this->is_module_available( $item ) )
+		if ( ! Jetpack_Admin::is_module_available( $item ) ) {
 			$row_class .= ' unavailable';
+		}
 
 		echo '<tr class="jetpack-module' . esc_attr( $row_class ) . '" id="' . esc_attr( $item['module'] ) . '">';
 		$this->single_row_columns( $item );
@@ -233,7 +235,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	function column_cb( $item ) {
-		if ( ! $this->is_module_available( $item ) )
+		if ( ! Jetpack_Admin::is_module_available( $item ) )
 			return '';
 
 		return sprintf( '<input type="checkbox" name="modules[]" value="%s" />', $item['module'] );
@@ -262,7 +264,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$actions['configure'] = $item['configurable'];
 		}
 
-		if ( empty( $item['activated'] ) && $this->is_module_available( $item ) ) {
+		if ( empty( $item['activated'] ) && Jetpack_Admin::is_module_available( $item ) ) {
 			$url = wp_nonce_url(
 				Jetpack::admin_url( array(
 					'page'   => 'jetpack',

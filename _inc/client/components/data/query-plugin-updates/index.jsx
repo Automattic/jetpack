@@ -13,7 +13,7 @@ import { isFetchingPluginUpdates, fetchPluginUpdates } from 'state/at-a-glance';
 class QueryPluginUpdates extends Component {
 	componentWillMount() {
 		if ( ! this.props.fetchingPluginUpdates ) {
-			this.props.fetchPluginUpdates()
+			this.props.fetchPluginUpdates();
 		}
 	}
 

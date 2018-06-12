@@ -11,20 +11,8 @@ define( 'JETPACK_GOOGLEPLUS_EMBED_REGEX', '#^https?://plus\.(sandbox\.)?google\.
 wp_embed_register_handler( 'googleplus', JETPACK_GOOGLEPLUS_EMBED_REGEX, 'jetpack_googleplus_embed_handler' );
 
 function jetpack_googleplus_embed_handler( $matches, $attr, $url ) {
-	static $did_script;
-
-	if ( ! $did_script ) {
-		$did_script = true;
-		add_action( 'wp_footer', 'jetpack_googleplus_add_script' );
-	}
-
+	wp_enqueue_script( 'jetpack-gplus-api', 'https://apis.google.com/js/platform.js', array(), null, true );
 	return sprintf( '<div class="g-post" data-href="%s"></div>', esc_url( $url ) );
-}
-
-function jetpack_googleplus_add_script() {
-	?>
-	<script src="https://apis.google.com/js/plusone.js"></script>
-	<?php
 }
 
 add_shortcode( 'googleplus', 'jetpack_googleplus_shortcode_handler' );

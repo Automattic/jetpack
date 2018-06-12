@@ -9,6 +9,11 @@ function twentysixteen_jetpack_setup() {
 	 * Add theme support for Responsive Videos.
 	 */
 	add_theme_support( 'jetpack-responsive-videos' );
+
+	/**
+	 * Add theme support for geo-location.
+	 */
+	add_theme_support( 'jetpack-geo-location' );
 }
 add_action( 'after_setup_theme', 'twentysixteen_jetpack_setup' );
 
@@ -49,3 +54,19 @@ function twentysixteen_remove_share() {
 	}
 }
 add_action( 'loop_start', 'twentysixteen_remove_share' );
+
+function twentysixteen_jetpack_lazy_images_compat() {
+	if ( ! function_exists( 'wp_add_inline_script' ) ) {
+		return;
+	}
+
+	// Since TwentySixteen outdents when window is resized, let's trigger a window resize
+	// every time we lazy load an image on the TwentySixteen theme.
+	wp_add_inline_script(
+		'jetpack-lazy-images',
+		"jQuery( document.body ).on( 'jetpack-lazy-loaded-image', function () { jQuery( window ).trigger( 'resize' ); } );"
+	);
+}
+
+// Priority needs to be 11 here so that we have already enqueued jetpack-lazy-images.
+add_action( 'wp_enqueue_scripts', 'twentysixteen_jetpack_lazy_images_compat', 11 );

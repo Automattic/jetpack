@@ -9,66 +9,26 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import {
-	StatsSettings,
-	RelatedPostsSettings,
-	CommentsSettings,
 	LikesSettings,
-	SubscriptionsSettings,
-	ProtectSettings,
 	MonitorSettings,
-	SingleSignOnSettings,
-	MinilevenSettings,
-	CarouselSettings,
-	InfiniteScrollSettings,
-	TiledGallerySettings,
-	PostByEmailSettings,
-	CustomContentTypesSettings,
-	AfterTheDeadlineSettings,
-	MarkdownSettings,
-	VerificationToolsSettings,
-	SitemapsSettings,
-	VideoPressSettings
+	VideoPressSettings,
+	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
-
 import {
 	getSiteAdminUrl,
+	getSiteRawUrl
 } from 'state/initial-state';
 
-const AllModuleSettingsComponent = React.createClass( {
+class AllModuleSettingsComponent extends React.Component {
 	render() {
-		let { module } = this.props;
+		const { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
 				return ( <VideoPressSettings module={ module } /> );
-			case 'omnisearch':
-				return (
-					<div>
-						<span className="jp-form-setting-explanation">{ this.props.module.long_description }</span>
-						<br/>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
-					</div>
-				);
-			case 'post-by-email':
-				return ( <PostByEmailSettings module={ module }  /> );
-			case 'custom-content-types':
-				return ( <CustomContentTypesSettings module={ module }  /> );
-			case 'after-the-deadline':
-				return ( <AfterTheDeadlineSettings module={ module }  /> );
-			case 'markdown':
-				return ( <MarkdownSettings module={ module }  /> );
-			case 'tiled-gallery':
-				return ( <TiledGallerySettings module={ module }  /> );
-			case 'minileven':
-				return ( <MinilevenSettings module={ module }  /> );
-			case 'carousel':
-				return ( <CarouselSettings module={ module }  /> );
-			case 'infinite-scroll':
-				return ( <InfiniteScrollSettings module={ module }  /> );
-			case 'protect':
-				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
-				return ( <MonitorSettings module={ module }  /> );
+				module.raw_url = this.props.siteRawUrl;
+				return ( <MonitorSettings module={ module } /> );
 			case 'scan':
 				return '' === module.configure_url ? (
 					<div>
@@ -85,13 +45,11 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your Security Scans' ) }</ExternalLink>
 					</div>
 				);
-			case 'sso':
-				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
 				if ( '' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'Your Jetpack plan doesn’t include SEO tools. You must upgrade to Jetpack Professional to use SEO tools.' ) }
+							{ __( 'Make sure your site is easily found on search engines with SEO tools for your content and social posts.' ) }
 						</div>
 					);
 				} else if ( 'checking' === module.configure_url ) {
@@ -99,37 +57,48 @@ const AllModuleSettingsComponent = React.createClass( {
 				} else if ( 'inactive' === module.configure_url ) {
 					return (
 						<div>
-							{ __( 'You have the Professional plan! Activate this module to use the advanced SEO tools.' ) }
-						</div>
-					);
-				} else {
-					return (
-						<div>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+							{ __( 'Activate this module to use the advanced SEO tools.' ) }
 						</div>
 					);
 				}
-			case 'stats':
-				return ( <StatsSettings module={ module }  /> );
-			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module }  /> );
-			case 'comments':
-				return ( <CommentsSettings module={ module }  /> );
-			case 'subscriptions':
-				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'likes':
-				return ( <LikesSettings module={ module }  /> );
-			case 'verification-tools':
-				return ( <VerificationToolsSettings module={ module }  /> );
-			case 'sitemaps':
-				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+				return ( <LikesSettings module={ module } /> );
+			case 'wordads':
+				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __(
+								'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +
+								' WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will ' +
+								'normally show slightly different totals for your visits, views, etc.',
+								{
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/day/' + this.props.siteRawUrl } />
+									}
+								}
+							) }
+						</div>
+					);
+				}
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
 			case 'shortlinks':
 			case 'shortcodes':
-			case 'photon':
 			case 'widget-visibility':
+			case 'masterbar':
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
@@ -138,10 +107,9 @@ const AllModuleSettingsComponent = React.createClass( {
 				return '' === module.configure_url ? (
 					<div>
 						{
-							module.module === 'akismet' ?
-								__( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.' )
-								:
-								__( 'Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.' )
+							module.module === 'akismet'
+								? __( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.' )
+								: __( 'Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.' )
 						}
 					</div>
 				) : (
@@ -183,12 +151,13 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 		}
 	}
-} );
+}
 
 export const AllModuleSettings = connect(
 	( state ) => {
 		return {
-			adminUrl: getSiteAdminUrl( state )
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
 		};
 	}
 )( AllModuleSettingsComponent );

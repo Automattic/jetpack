@@ -1,161 +1,197 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
  */
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
-} from 'state/modules';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import {
-	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
-	getVaultPressData as _getVaultPressData
+	getVaultPressScanThreatCount,
+	getVaultPressData
 } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
+import { isFetchingSiteData } from 'state/site';
+import DashItem from 'components/dash-item';
+import isArray from 'lodash/isArray';
+import get from 'lodash/get';
 
-const DashScan = React.createClass( {
-	getContent: function() {
-		const labelName = __( 'Malware Scanning' ),
-			hasSitePlan = false !== this.props.sitePlan,
-			vpData = this.props.vaultPressData,
-			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
+/**
+ * Displays a card for Security Scan based on the props given.
+ *
+ * @param   {object} props Settings to render the card.
+ * @returns {object}       Security Scan card
+ */
+const renderCard = ( props ) => (
+	<DashItem
+		label={ __( 'Security Scanning' ) }
+		module={ props.feature || 'scan' }
+		support={ {
+			text: __( 'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.' ),
+			link: 'https://jetpack.com/support/security/',
+		} }
+		className={ props.className || '' }
+		status={ props.status || '' }
+		pro={ true }
+	>
+		{
+			isArray( props.content )
+				? props.content
+				: <p className="jp-dash-item__description">{ props.content }</p>
+		}
+	</DashItem>
+);
 
-		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
-			if ( vpData === 'N/A' ) {
-				return (
-					<DashItem label={ labelName }>
-						<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
-					</DashItem>
-				);
+class DashScan extends Component {
+	static propTypes = {
+		siteRawUrl: PropTypes.string.isRequired,
+
+		// Connected props
+		vaultPressData: PropTypes.any.isRequired,
+		scanThreats: PropTypes.any.isRequired,
+		sitePlan: PropTypes.object.isRequired,
+		isDevMode: PropTypes.bool.isRequired,
+		isPluginInstalled: PropTypes.bool.isRequired,
+		fetchingSiteData: PropTypes.bool.isRequired
+	};
+
+	static defaultProps = {
+		siteRawUrl: '',
+		vaultPressData: '',
+		scanThreats: 0,
+		sitePlan: '',
+		isDevMode: false,
+		isPluginInstalled: false,
+		fetchingSiteData: false
+	};
+
+	getVPContent() {
+		const {
+			sitePlan,
+			siteRawUrl,
+			fetchingSiteData,
+		} = this.props;
+		const hasSitePlan = false !== sitePlan;
+		const vpData = this.props.vaultPressData;
+		const scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
+
+		if ( this.props.getOptionValue( 'vaultpress' ) ) {
+			if ( 'N/A' === vpData ) {
+				return renderCard( {
+					status: '',
+					content: __( 'Loading…' )
+				} );
 			}
 
-			// Check for threats
-			const threats = this.props.scanThreats;
-			if ( threats !== 0 ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="scan"
-						status="is-error"
-						statusText={ __( 'Threats found' ) }
-						pro={ true } >
-						<h3>{
-							__(
-								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
-								{
+			if ( scanEnabled ) {
+				// Check for threats
+				const threats = this.props.scanThreats;
+				if ( threats !== 0 ) {
+					return renderCard( {
+						content: [
+							<h3>{
+								__( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 									count: threats,
-									args: {
-										number: numberFormat( threats )
-									}
+									args: { number: numberFormat( threats ) }
 								} )
-						}</h3>
-						<p className="jp-dash-item__description">
-							{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
-							<br/>
-							{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
-						</p>
-					</DashItem>
-				);
-			}
+							}</h3>,
+							<p className="jp-dash-item__description">
+								{__( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } )}
+								<br />
+								{__( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } )}
+							</p>
+						]
+					} );
+				}
 
-			// All good
-			if ( vpData.code === 'success' ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="scan"
-						status="is-working"
-						pro={ true } >
-						<p className="jp-dash-item__description">
-							{ __( "No threats found, you're good to go!" ) }
-						</p>
-					</DashItem>
-				);
+				// All good
+				if ( vpData.code === 'success' ) {
+					return renderCard( {
+						status: 'is-working',
+						content: __( "No threats found, you're good to go!" )
+					} );
+				}
 			}
 		}
 
-		const upgradeOrActivateText = () => {
-			if ( hasSitePlan ) {
-				return (
-					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
-						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
-						}
-					} )
-				);
-			} else {
-				return (
-					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
-						components: {
-							a: <a href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } target="_blank" />
-						}
-					} )
-				);
-			}
-		};
+		if ( fetchingSiteData ) {
+			return renderCard( {
+				status: '',
+				content: __( 'Loading…' )
+			} );
+		}
 
-		return (
-			<DashItem
-				label={ labelName }
-				module="scan"
-				className="jp-dash-item__is-inactive"
-				status={ hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive' }
-				pro={ true } >
-				<p className="jp-dash-item__description">
-					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
-							upgradeOrActivateText()
+		const inactiveOrUninstalled = this.props.isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled';
+		const planClass = getPlanClass( get( sitePlan, 'product_slug', '' ) );
+		const hasPremium = 'is-premium-plan' === planClass;
+		const hasBusiness = 'is-business-plan' === planClass;
+
+		return renderCard( {
+			className: 'jp-dash-item__is-inactive',
+			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
+			content: ( hasPremium || hasBusiness || scanEnabled )
+				? __( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
+					components: {
+						a: <a href="https://wordpress.com/plugins/vaultpress" target="_blank" rel="noopener noreferrer" />
 					}
-				</p>
-			</DashItem>
-		);
-	},
+				} )
+				: __( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
+					components: {
+						a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + siteRawUrl } target="_blank" rel="noopener noreferrer" />
+					}
+				} )
+		} );
+	}
 
-	render: function() {
+	render() {
+		if ( this.props.isDevMode ) {
+			return renderCard( {
+				className: 'jp-dash-item__is-inactive',
+				content: __( 'Unavailable in Dev Mode.' )
+			} );
+		}
+
 		return (
-			<div>
+			<div className="jp-dash-item__interior">
 				<QueryVaultPressData />
-				{ this.getContent() }
+				{
+					this.props.isRewindActive
+						? (
+							<div className="jp-dash-item__interior">
+								{
+									renderCard( {
+										className: 'jp-dash-item__is-active',
+										status: 'is-working',
+										content: __( 'We are making sure your site stays free of security threats.' + ' ' +
+											'You will be notified if we find one.' ),
+										feature: 'rewind',
+									} )
+								}
+							</div>
+						)
+						: this.getVPContent()
+				}
 			</div>
 		);
 	}
-} );
-
-DashScan.propTypes = {
-	vaultPressData: React.PropTypes.any.isRequired,
-	scanThreats: React.PropTypes.any.isRequired,
-	isDevMode: React.PropTypes.bool.isRequired,
-	siteRawUrl: React.PropTypes.string.isRequired,
-	sitePlan: React.PropTypes.object.isRequired
 }
 
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			vaultPressData: _getVaultPressData( state ),
-			scanThreats: _getVaultPressScanThreatCount( state ),
+			vaultPressData: getVaultPressData( state ),
+			scanThreats: getVaultPressScanThreatCount( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateModule: ( slug ) => {
-				return dispatch( activateModule( slug ) );
-			}
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
 )( DashScan );

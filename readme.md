@@ -1,140 +1,66 @@
 # Jetpack
 
-[![License](https://poser.pugx.org/automattic/jetpack/license.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
+[![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Code Climate](https://codeclimate.com/github/Automattic/jetpack/badges/gpa.svg)](https://codeclimate.com/github/Automattic/jetpack)
+[![Build Status](https://travis-ci.org/Automattic/jetpack.svg?branch=master)](https://travis-ci.org/Automattic/jetpack)
 
-[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
+[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
-For more information, check out [jetpack.com](http://jetpack.com/).
-
-## Get Started
-
-To install the Jetpack plugin on your site, [follow the instructions on this page](http://jetpack.com/install/).
+For more information, check out [jetpack.com](https://jetpack.com/).
 
 ## Get Help
 
-Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](http://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](http://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#postform).
+Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](https://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](https://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#new-post).
 
-## Installation from  git repo
+## Get Started
 
-The `master-stable` branch of this repo contains an stable version with every JS and CSS file pre-built.
+To install the Jetpack plugin on your site, [follow the instructions on this page](https://jetpack.com/install/).
 
-CD into your Plugins directory
+### Installation From Git Repo
 
-```
-$ git clone git@github.com:Automattic/jetpack.git
-$ cd jetpack
-$ git checkout master-stable
-```
+To use this plugin on your own site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
+
+### Installation from the Jetpack Beta plugin
+
+If you cannot build the Jetpack plugin yourself, you can rely on [the Jetpack Beta plugin](https://github.com/Automattic/jetpack-beta/archive/master.zip) to install pre-built versions of Jetpack for you. To use the plugin, follow the instructions here:
+1. Go to Plugins > Add New in your dashboard.
+2. Install the Jetpack plugin.
+3. Go to Plugins > Add New > Upload Plugin.
+4. Upload and activate [this plugin](https://github.com/Automattic/jetpack-beta/archive/master.zip).
+5. Go to Jetpack > Beta and pick the version of Jetpack you would like to run on your site.
+
 
 ## Contribute
 
 Developers of all levels can help — whether you can barely recognize a filter (or don’t know what that means) or you’ve already authored your own plugins, there are ways for you to pitch in. Blast off:
 
-- [Join our Jetpack Beta program](http://jetpack.com/beta/).
-- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](http://jetpack.com/contribute/#bugs).
-- [Translate Jetpack in your language](https://translate.wordpress.org/projects/wp-plugins/jetpack).
-- [Write and submit patches](https://github.com/Automattic/jetpack/blob/master/.github/CONTRIBUTING.md#write-and-submit-a-patch).
+- [Join our Jetpack Beta program](./docs/testing/beta-testing.md).
+- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
+- [Translate Jetpack in your language](./docs/translations.md).
+- [Write and submit patches](./.github/CONTRIBUTING.md#write-and-submit-a-patch).
 
-### Development workflow
+To clarify these expectations, Jetpack has adopted the code of conduct defined by the Contributor Covenant. It can be read in full [here](CODE-OF-CONDUCT.md).
 
-The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
+## Security
 
-**Recommended Environment**
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 
-* Node 6.x
-* npm 3.8.x
-* yarn 0.16.1
+## License
 
-#### A note on Node versions used for the build tasks
+Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
 
-We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).
+## Monitor Our Activity On This Repository
 
-We recommend usage of [nvm](https://www.npmjs.com/package/nvm) for managing different Node versions on the same environment.
-
-**Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
-run this command before building again. Otherwise you may experience errors on the command line while trying to build.
-
-```
-$ yarn distclean
-```
-
-**Start Development**
-
-1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
-2. Clone this repository inside your Plugins directory.
-
-	```
-	$ git clone https://github.com/Automattic/jetpack.git
-	$ cd jetpack
-	```
-
-3. Install [yarn](https://www.npmjs.com/package/yarn) package.
-    ```
-    npm install -g yarn@0.16.1
-    ```
-
-4. Make sure the Jetpack plugin is active and run
-
-	```
-	$ yarn build
-	```
-
-	This will install npm dependencies and then build the files.
-
-5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
-
-#### Development build
-
-The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `npm install` before it.
-
-```
-$ yarn build
-```
-
-#### Development build with changes monitoring (watch)
-
-You can ran a watch process which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`.
-
-Before running the watch process you may need to `npm install` the npm dependencies first if you didn't do it already.
-
-```
-$ yarn
-$ yarn watch
-```
-
-#### Production build
-
-The production build will generate minified files without duplicated code (resulting from dependencies) and also will generate the matching sourcemap files and language files.
-
-```
-$ yarn build-production
-```
-
-#### Unit-testing the JS Admin Page
-
-You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code.
-
-Standing on your jetpack directory, run
-
-```
-$ yarn
-$ yarn test-client
-```
-
-## Monitor our activity on this repository
-
-[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/automattic/jetpack/metrics)
+[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/Automattic/jetpack/metrics/throughput)
 
 ## Team
 
-The Jetpack Pit Crew is comprised of @dereksmart, @samhotchkiss, @zinigor, @eliorivero, and @rcoll.
+The Jetpack Pit Crew is comprised of @briancolinger, @dereksmart, @eliorivero, @georgestephanis, @oskosk, @rcoll, @samhotchkiss, @singerb, @thingalon, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@georgestephanis, @jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @ebinnion, @enejb, @eoigal, @gibrown, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, @seejacobscott, @davoraltman, @lamdayap, @rachelsquirrel, @scarstocea, @stefmattana, @jamilabreu, @cena, @v18, @bikedorkjon, @drpottex, @gregwp, @annezazuu, @danjjohnson, and @mbhthompson.
+Our _awesome_ happiness engineers are @aheckler, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @codestor4, @csonnek, @danjjohnson, @dericleeyy, @gaurav1984, @gsmumbo, @htdat, @jamilabreu, @jeherve, @jenhooks, @joeboydston, @joendotcom, @kraftbj, @lschuyler, @macmanx2,  @madhattermattic, @mbhthompson, @mzakariya, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @sageWebster, @snowmads, @stefmattana, and @tmmbecker.
 
-Interested in working on awesome open-source code all day? [Join us](http://automattic.com/work-with-us/)!
+Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!
