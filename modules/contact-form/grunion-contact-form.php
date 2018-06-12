@@ -152,10 +152,11 @@ class Grunion_Contact_Form_Plugin {
 		register_post_type( 'feedback', array(
 			'labels'            => array(
 				'name'               => __( 'Jetpack Feedback', 'jetpack' ),
-				'singular_name'      => __( 'Jetpack Feedback', 'jetpack' ),
-				'search_items'       => __( 'Search Jetpack Feedback', 'jetpack' ),
+				'singular_name'      => __( 'Feedback', 'jetpack' ),
+				'search_items'       => __( 'Search Feedback', 'jetpack' ),
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
+				'menu_name'          => __( 'Feedback' )
 			),
 			'menu_icon'         	=> 'dashicons-feedback',
 			'show_ui'           	=> TRUE,
