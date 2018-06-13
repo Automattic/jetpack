@@ -1,4 +1,4 @@
-/* global jQuery */
+/* global jQuery, jpSimplePaymentsStrings */
 /* eslint no-var: 0, quote-props: 0 */
 
 ( function( api, wp, $ ) {
@@ -226,6 +226,10 @@
 	function deleteProduct( widgetForm ) {
 		return function( event ) {
 			event.preventDefault();
+
+			if ( ! confirm( jpSimplePaymentsStrings.deleteConfirmation ) ) {
+				return;
+			}
 
 			var formProductId = parseInt( widgetForm.find( '.jetpack-simple-payments-form-product-id' ).val(), 10 );
 			if ( ! formProductId ) {

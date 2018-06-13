@@ -113,6 +113,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 				wp_enqueue_media();
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
+				wp_localize_script( 'jetpack-simple-payments-widget-customizer', 'jpSimplePaymentsStrings', array(
+					'deleteConfirmation' => __( 'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.', 'jetpack' )
+				) );
 		}
 
 		public function ajax_save_payment_button() {
