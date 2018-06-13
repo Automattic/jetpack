@@ -1,9 +1,8 @@
 <div class='jetpack-simple-payments-wrapper'>
 	<div class='jetpack-simple-payments-product'>
-		<div class='jetpack-simple-payments-product-image'>
-			<?php $image_id = has_post_thumbnail( $instance['form_product_id'] ) ? get_post_thumbnail_id( $instance['form_product_id'] ) : $instance['form_product_image_id']; ?>
+		<div class='jetpack-simple-payments-product-image' <?php if ( empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>>
 			<div class='jetpack-simple-payments-image'>
-				<?php echo wp_get_attachment_image( $image_id, 'full' ) ?>
+				<?php echo wp_get_attachment_image( $instance['form_product_image_id'], 'full' ) ?>
 			</div>
 		</div>
 		<div class='jetpack-simple-payments-details'>

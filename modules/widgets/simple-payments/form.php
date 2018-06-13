@@ -24,7 +24,7 @@
 <?php } ?>
 <p>
 	<div class="alignleft">
-		<button class="button jetpack-simple-payments-edit-product"><?php esc_html_e( 'Edit' ); ?></button>
+		<button class="button jetpack-simple-payments-edit-product"><?php esc_html_e( 'Edit Selected' ); ?></button>
 	</div>
 	<div class="alignright">
 		<button class="button jetpack-simple-payments-add-product"><?php esc_html_e( 'Add New' ); ?></button>
@@ -37,11 +37,13 @@
 		type="hidden"
 		id="<?php echo $this->get_field_id('form_action'); ?>"
 		name="<?php echo $this->get_field_name('form_action'); ?>"
+		value="<?php echo esc_attr( $instance['form_action'] ); ?>"
 		class="jetpack-simple-payments-form-action" />
 	<input
 		type="hidden"
 		id="<?php echo $this->get_field_id('form_product_id'); ?>"
 		name="<?php echo $this->get_field_name('form_product_id'); ?>"
+		value="<?php echo esc_attr( $instance['form_product_id'] ); ?>"
 		class="jetpack-simple-payments-form-product-id" />
 	<input
 		type="hidden"
@@ -49,6 +51,12 @@
 		name="<?php echo esc_attr( $this->get_field_name( 'form_product_image_id' ) ); ?>"
 		value="<?php echo esc_attr( $instance['form_product_image_id'] ); ?>"
 		class="jetpack-simple-payments-form-image-id" />
+	<input
+		type="hidden"
+		id="<?php echo esc_attr( $this->get_field_id( 'form_product_image_src' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'form_product_image_src' ) ); ?>"
+		value="<?php echo esc_attr( $instance['form_product_image_src'] ); ?>"
+		class="jetpack-simple-payments-form-image-src" />
 	<p>
 		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_title' ) ); ?>"><?php esc_html_e( 'What is this payment for?' ); ?></label>
 		<input
@@ -61,17 +69,10 @@
 		<small><?php _e( 'For example: event tickets, charitable donations, training courses, coaching fees, etc.' ); ?></small>
 	</p>
 	<div class="jetpack-simple-payments-image-fieldset">
-		<?php
-			$image_id = has_post_thumbnail( $instance['form_product_id'] ) ? get_post_thumbnail_id( $instance['form_product_id'] ) : $instance['form_product_image_id'];
-			$image_src = '';
-			if ( ! empty( $image_id) ) {
-				$image_src = esc_url( wp_get_attachment_image_url( $image_id, 'full' ) );
-			}
-		?>
 		<label><?php esc_html_e( 'Product image' ); ?></label>
-		<div class="placeholder" <?php if ( ! empty( $image_id ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
-		<div class="jetpack-simple-payments-image" <?php if ( empty( $image_id ) ) echo 'style="display:none;"'; ?>>
-			<img src="<?php echo $image_src; ?>" />
+		<div class="placeholder" <?php if ( ! empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
+		<div class="jetpack-simple-payments-image" <?php if ( empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>>
+			<img src="<?php echo esc_url( $instance['form_product_image_src'] ); ?>" />
 			<button class="button jetpack-simple-payments-remove-image"><?php esc_html_e( 'Remove image' ); ?></button>
 		</div>
 	</div>
@@ -108,7 +109,8 @@
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_multiple' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_multiple' ) ); ?>"
 			type="checkbox"
-			value=<?php checked( $instance['form_product_multiple'], '1' ); ?>/>
+			value="1"
+			<?php checked( $instance['form_product_multiple'], '1' ); ?> />
 		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_multiple' ) ); ?>"><?php esc_html_e( 'Allow people to buy more than one item at a time.' ); ?></label>
 	</p>
 	<p>

@@ -60,7 +60,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
 
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
-				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-add-new', array( $this, 'ajax_add_new_payment_button' ) );
+				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
+				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
 			}
 
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
@@ -84,6 +85,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'form_product_title' => '',
 				'form_product_description' => '',
 				'form_product_image_id' => 0,
+				'form_product_image_src' => '',
 				'form_product_currency' => '',
 				'form_product_price' => '',
 				'form_product_multiple' => '',
@@ -113,7 +115,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 		}
 
-		public function ajax_add_new_payment_button() {
+		public function ajax_save_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
@@ -132,30 +134,75 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			$params = wp_unslash( $_POST['params'] );
-			$illegal_params = array_diff( array_keys( $params ), array( 'title', 'description', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
+			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
 			if ( ! empty( $illegal_params ) ) {
 				wp_send_json_error( 'illegal_params', 400 );
 			}
 
-			$product_id = wp_insert_post( array(
-				'ID' => 0,
+			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
+
+			$product_post = array(
+				'ID' => $product_post_id,
 				'post_type' => Jetpack_Simple_Payments::$post_type_product,
 				'post_status' => 'publish',
-				'post_title' => $params['title'],
-				'post_content' => $params['description'],
-				'_thumbnail_id' => isset( $params['image_id'] ) ? $params['image_id'] : -1,
+				'post_title' => $params['post_title'],
+				'post_content' => $params['post_content'],
+				'_thumbnail_id' => ! empty( $params['image_id'] ) ? $params['image_id'] : -1,
 				'meta_input' => array(
 					'spay_currency' => $params['currency'],
 					'spay_price' => $params['price'],
 					'spay_multiple' => isset( $params['multiple'] ) ? intval( $params['multiple'] ) : 0,
 					'spay_email' => is_email( $params['email'] ),
 				),
-			) );
+			);
+
+			if ( empty( $product_post_id ) ) {
+				$product_post_id = wp_insert_post( $product_post );
+			} else {
+				$product_post_id = wp_update_post( $product_post );
+			}
+
+			if ( ! $product_post_id || is_wp_error( $product_post_id ) ) {
+				wp_send_json_error( $product_post_id );
+			}
 
 			wp_send_json_success( [
-				'product_post_id' => $product_id,
-				'product_post_title' => $params['title'],
+				'product_post_id' => $product_post_id,
+				'product_post_title' => $params['post_title'],
 			] );
+		}
+
+		public function ajax_delete_payment_button() {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
+				wp_send_json_error( 'bad_nonce', 400 );
+			}
+
+			if ( ! current_user_can( 'customize' ) ) {
+				wp_send_json_error( 'customize_not_allowed', 403 );
+			}
+
+			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
+				wp_send_json_error( 'missing_params', 400 );
+			}
+
+			$params = wp_unslash( $_POST['params'] );
+			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
+			if ( ! empty( $illegal_params ) ) {
+				wp_send_json_error( 'illegal_params', 400 );
+			}
+
+			$product_id = ( int ) $params['product_post_id'];
+			$product_post = get_post( $product_id );
+
+			$return = array( 'status' => $product_post->post_status );
+
+			wp_delete_post( $product_id, true );
+			$status = get_post_status( $product_id );
+			if ( false === $status ) {
+				$return['status'] = 'deleted';
+			}
+
+			wp_send_json_success( $return );
 		}
 
 		/**
@@ -179,16 +226,17 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			echo '<div class="jetpack-simple-payments-content">';
 
-			if( ! empty( $instance['form_action'] ) && is_customize_preview() ) {
+			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ) ) && is_customize_preview() ) {
 				require( dirname( __FILE__ ) . '/simple-payments/widget.php' );
 			} else {
-				if( ! empty( $instance['product_post_id'] ) ) {
+				if ( ! empty( $instance['product_post_id'] ) ) {
 					$attrs = array( 'id' => $instance['product_post_id'] );
 				} else {
 					$product_posts = get_posts( array(
 						'numberposts' => 1,
 						'orderby' => 'date',
-						'post_type' => Jetpack_Simple_Payments::$post_type_product
+						'post_type' => Jetpack_Simple_Payments::$post_type_product,
+						'post_status' => 'publish',
 					 ) );
 	
 					$attrs = array( 'id' => $product_posts[0]->ID );
@@ -207,6 +255,48 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		}
 
 		/**
+		 * Gets the latests field value from either the old instance or the new instance.
+		 *
+		 * @param array $mixed Array of values for the new form instance.
+		 * @param array $mixed Array of values for the old form instance.
+		 * @return mixed $mixed Field value.
+		 */
+		private function get_latest_field_value( $new_instance, $old_instance, $field) {
+			return ! empty( $new_instance[ $field ] )
+				? sanitize_text_field( $new_instance[ $field ] )
+				: $old_instance[ $field ];
+		}
+
+		/**
+		 * Gets the product fields from the product post. If no post found
+		 * it returns the default values.
+		 *
+		 * @param int Product Post ID.
+		 * @return array $fields Product Fields from the Product Post.
+		 */
+		private function get_product_from_post( $product_post_id ) {
+			$product_post = get_post( $product_post_id );
+			$form_product_id = $product_post_id;
+			if( ! empty( $product_post ) ) {
+				$form_product_image_id = get_post_thumbnail_id( $product_post_id );
+
+				return array(
+					'form_product_id' => $form_product_id,
+					'form_product_title' => get_the_title( $product_post ),
+					'form_product_description' => $product_post->post_content,
+					'form_product_image_id' => $form_product_image_id,
+					'form_product_image_src' => wp_get_attachment_image_url( $form_product_image_id, 'thumbnail' ),
+					'form_product_currency' => get_post_meta( $product_post_id, 'spay_currency', true ),
+					'form_product_price' => get_post_meta( $product_post_id, 'spay_price', true ),
+					'form_product_multiple' => get_post_meta( $product_post_id, 'spay_multiple', true ) || '0',
+					'form_product_email' => get_post_meta( $product_post_id, 'spay_email', true ),
+				);
+			}
+
+			return $this->defaults();
+		}
+
+		/**
 		 * Sanitize widget form values as they are saved.
 		 *
 		 * @see WP_Widget::update()
@@ -220,50 +310,34 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			$new_instance = wp_parse_args( $new_instance, $this->defaults() );
 			$old_instance = wp_parse_args( $old_instance, $this->defaults() );
 
-			$widget_title = ! empty( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : $old_instance['title'];
-			$product_id = ( int ) $new_instance['product_post_id'];
-			$form_action = ! empty( $new_instance['form_action'] ) ? sanitize_text_field( $new_instance['form_action'] ) : $old_instance['form_action'];
-			$form_product_id = ( int ) $new_instance['form_product_id'];
-			$form_product_title = sanitize_text_field( $new_instance['form_product_title'] );
-			$form_product_description = sanitize_text_field( $new_instance['form_product_description'] );
-			$form_product_image_id = (int) $new_instance['form_product_image_id'];
-			$form_product_currency = sanitize_text_field( $new_instance['form_product_currency'] );
-			$form_product_price = sanitize_text_field( $new_instance['form_product_price'] );
-			$form_product_multiple = sanitize_text_field( $new_instance['form_product_multiple'] );
-			$form_product_email = sanitize_text_field( $new_instance['form_product_email'] );
+			$required_widget_props = array(
+				'title' => $this->get_latest_field_value( $new_instance, $old_instance, 'title' ),
+				'product_post_id' => $this->get_latest_field_value( $new_instance, $old_instance, 'product_post_id' ),
+				'form_action' => $this->get_latest_field_value( $new_instance, $old_instance, 'form_action' ),
+			);
 
 			if ( strcmp( $new_instance['form_action'], $old_instance['form_action'] ) !== 0 ) {
-				switch ( $new_instance['form_action' ] ) {
-					case 'edit': //load the form with existing values
-						break;
-					case 'clear': //clear form
-						$form_action = '';
-						$form_product_id = 0;
-						$form_product_title = '';
-						$form_product_description = '';
-						$form_product_image_id = 0;
-						$form_product_currency = '';
-						$form_product_price = '';
-						$form_product_multiple = '';
-						$form_product_email = '';
-						break;
+				if ( $new_instance['form_action'] == 'edit' ) {
+					return array_merge( $this->get_product_from_post( ( int ) $old_instance['product_post_id'] ), $required_widget_props );
+				}
+
+				if ( $new_instance['form_action'] == 'clear' ) {
+					return array_merge( $this->defaults(), $required_widget_props );
 				}
 			}
 
-
-			return array(
-				'title' => $widget_title,
-				'product_post_id' => $product_id,
-				'form_action' => $form_action,
-				'form_product_id' => $form_product_id,
-				'form_product_title' => $form_product_title,
-				'form_product_description' => $form_product_description,
+			$form_product_image_id = (int) $new_instance['form_product_image_id'];
+			return array_merge( $required_widget_props, array(
+				'form_product_id' => ( int ) $new_instance['form_product_id'],
+				'form_product_title' => sanitize_text_field( $new_instance['form_product_title'] ),
+				'form_product_description' => sanitize_text_field( $new_instance['form_product_description'] ),
 				'form_product_image_id' => $form_product_image_id,
-				'form_product_currency' => $form_product_currency,
-				'form_product_price' => $form_product_price,
-				'form_product_multiple' => $form_product_multiple,
-				'form_product_email' => $form_product_email,
-			);
+				'form_product_image_src' => wp_get_attachment_image_url( $form_product_image_id, 'thumbnail' ),
+				'form_product_currency' => sanitize_text_field( $new_instance['form_product_currency'] ),
+				'form_product_price' => sanitize_text_field( $new_instance['form_product_price'] ),
+				'form_product_multiple' => sanitize_text_field( $new_instance['form_product_multiple'] ),
+				'form_product_email' => sanitize_text_field( $new_instance['form_product_email'] ),
+			) );
 		}
 
 		/**
@@ -279,7 +353,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			$product_posts = get_posts( array(
 				'numberposts' => 100,
 				'orderby' => 'date',
-				'post_type' => Jetpack_Simple_Payments::$post_type_product
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
 			 ) );
 
 			require( dirname( __FILE__ ) . '/simple-payments/form.php' );
@@ -288,8 +363,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 	// Register Jetpack_Simple_Payments_Widget widget.
 	function register_widget_jetpack_simple_payments() {
-		// || ! Jetpack::active_plan_supports( 'simple-payment' )
-		// || ! shortcode_exists( Jetpack_Simple_Payments::$shortcode )
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
