@@ -212,51 +212,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_send_json_success( $return );
 		}
 
-		public function ajax_add_new_payment_button() {
-			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
-				wp_send_json_error( 'bad_nonce', 400 );
-			}
-
-			if ( ! current_user_can( 'customize' ) ) {
-				wp_send_json_error( 'customize_not_allowed', 403 );
-			}
-
-			$post_type_object = get_post_type_object( Jetpack_Simple_Payments::$post_type_product );
-			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
-				wp_send_json_error( 'insufficient_post_permissions', 403 );
-			}
-
-			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
-				wp_send_json_error( 'missing_params', 400 );
-			}
-
-			$params = wp_unslash( $_POST['params'] );
-			$illegal_params = array_diff( array_keys( $params ), array( 'title', 'description', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
-			if ( ! empty( $illegal_params ) ) {
-				wp_send_json_error( 'illegal_params', 400 );
-			}
-
-			$product_id = wp_insert_post( array(
-				'ID' => 0,
-				'post_type' => Jetpack_Simple_Payments::$post_type_product,
-				'post_status' => 'publish',
-				'post_title' => $params['title'],
-				'post_content' => $params['description'],
-				'_thumbnail_id' => isset( $params['image_id'] ) ? $params['image_id'] : -1,
-				'meta_input' => array(
-					'spay_currency' => $params['currency'],
-					'spay_price' => $params['price'],
-					'spay_multiple' => isset( $params['multiple'] ) ? intval( $params['multiple'] ) : 0,
-					'spay_email' => is_email( $params['email'] ),
-				),
-			) );
-
-			wp_send_json_success( [
-				'product_post_id' => $product_id,
-				'product_post_title' => $params['title'],
-			] );
-		}
-
 		/**
 		 * Front-end display of widget.
 		 *
