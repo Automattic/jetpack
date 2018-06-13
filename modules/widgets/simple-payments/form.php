@@ -69,13 +69,6 @@
 		<small><?php _e( 'For example: event tickets, charitable donations, training courses, coaching fees, etc.' ); ?></small>
 	</p>
 	<div class="jetpack-simple-payments-image-fieldset">
-		<?php
-			$image_id = has_post_thumbnail( $instance['form_product_id'] ) ? get_post_thumbnail_id( $instance['form_product_id'] ) : $instance['form_product_image_id'];
-			$image_src = '';
-			if ( ! empty( $image_id) ) {
-				$image_src = esc_url( wp_get_attachment_image_url( $image_id, 'full' ) );
-			}
-		?>
 		<label><?php esc_html_e( 'Product image' ); ?></label>
 		<div class="placeholder" <?php if ( ! empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
 		<div class="jetpack-simple-payments-image" <?php if ( empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>>

@@ -67,10 +67,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
-
-			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
-			}
 		}
 
 		/**
@@ -214,7 +210,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_send_json_success( $return );
 		}
 
-		public function ajax_add_new_payment_button() {
+		public function ajax_save_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
@@ -233,30 +229,75 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			$params = wp_unslash( $_POST['params'] );
-			$illegal_params = array_diff( array_keys( $params ), array( 'title', 'description', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
+			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
 			if ( ! empty( $illegal_params ) ) {
 				wp_send_json_error( 'illegal_params', 400 );
 			}
 
-			$product_id = wp_insert_post( array(
-				'ID' => 0,
+			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
+
+			$product_post = array(
+				'ID' => $product_post_id,
 				'post_type' => Jetpack_Simple_Payments::$post_type_product,
 				'post_status' => 'publish',
-				'post_title' => $params['title'],
-				'post_content' => $params['description'],
-				'_thumbnail_id' => isset( $params['image_id'] ) ? $params['image_id'] : -1,
+				'post_title' => $params['post_title'],
+				'post_content' => $params['post_content'],
+				'_thumbnail_id' => ! empty( $params['image_id'] ) ? $params['image_id'] : -1,
 				'meta_input' => array(
 					'spay_currency' => $params['currency'],
 					'spay_price' => $params['price'],
 					'spay_multiple' => isset( $params['multiple'] ) ? intval( $params['multiple'] ) : 0,
 					'spay_email' => is_email( $params['email'] ),
 				),
-			) );
+			);
+
+			if ( empty( $product_post_id ) ) {
+				$product_post_id = wp_insert_post( $product_post );
+			} else {
+				$product_post_id = wp_update_post( $product_post );
+			}
+
+			if ( ! $product_post_id || is_wp_error( $product_post_id ) ) {
+				wp_send_json_error( $product_post_id );
+			}
 
 			wp_send_json_success( [
-				'product_post_id' => $product_id,
-				'product_post_title' => $params['title'],
+				'product_post_id' => $product_post_id,
+				'product_post_title' => $params['post_title'],
 			] );
+		}
+
+		public function ajax_delete_payment_button() {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
+				wp_send_json_error( 'bad_nonce', 400 );
+			}
+
+			if ( ! current_user_can( 'customize' ) ) {
+				wp_send_json_error( 'customize_not_allowed', 403 );
+			}
+
+			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
+				wp_send_json_error( 'missing_params', 400 );
+			}
+
+			$params = wp_unslash( $_POST['params'] );
+			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
+			if ( ! empty( $illegal_params ) ) {
+				wp_send_json_error( 'illegal_params', 400 );
+			}
+
+			$product_id = ( int ) $params['product_post_id'];
+			$product_post = get_post( $product_id );
+
+			$return = array( 'status' => $product_post->post_status );
+
+			wp_delete_post( $product_id, true );
+			$status = get_post_status( $product_id );
+			if ( false === $status ) {
+				$return['status'] = 'deleted';
+			}
+
+			wp_send_json_success( $return );
 		}
 
 		/**
@@ -383,7 +424,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				if ( $new_instance['form_action'] == 'clear' ) {
 					return array_merge( $this->defaults(), $required_widget_props );
 				}
-			}
 
 			$form_product_image_id = (int) $new_instance['form_product_image_id'];
 
