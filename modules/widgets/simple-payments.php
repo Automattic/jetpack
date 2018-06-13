@@ -243,7 +243,12 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				}
 
 				$jsp = Jetpack_Simple_Payments::getInstance();
-				echo $jsp->parse_shortcode( $attrs );
+				$simple_payments_button = $jsp->parse_shortcode( $attrs );
+				if ( is_null( $simple_payments_button ) && ! is_customize_preview() ) {
+					return;
+				}
+
+				echo $simple_payments_button;
 			}
 
 			echo '</div><!--simple-payments-->';
