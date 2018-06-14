@@ -59,7 +59,7 @@ before_script:
         source ./tests/install-php-phpunit.sh
         set +e
     - nvm install 8
-    - nvm use 8 
+    - nvm use 8
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
@@ -68,6 +68,7 @@ script:
     - php -v
     - phpunit --version
     - ./tests/run-travis.sh
+    - yarn danger ci
 
 sudo: false
 
