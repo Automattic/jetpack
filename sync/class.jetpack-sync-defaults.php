@@ -130,6 +130,12 @@ class Jetpack_Sync_Defaults {
 		'mailserver_pass', // Not syncing contents, only the option name
 		'mailserver_port',
 		'wp_page_for_privacy_policy',
+		'enable_header_ad',
+		'wordads_second_belowpost',
+		'wordads_display_front_page',
+		'wordads_display_post',
+		'wordads_display_page',
+		'wordads_display_archive',
 	);
 
 	public static function get_options_whitelist() {
