@@ -33,6 +33,7 @@ matrix:
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
   - env: WP_TRAVISCI="yarn test-gui"
+  - env: WP_TRAVISCI="yarn danger ci"
   - php: "7.0"
     env: "SWITCH_TO_PHP=5.2"
     dist: precise
@@ -59,7 +60,7 @@ before_script:
         source ./tests/install-php-phpunit.sh
         set +e
     - nvm install 8
-    - nvm use 8 
+    - nvm use 8
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
