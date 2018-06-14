@@ -8,7 +8,7 @@
 
 For more information, check out [jetpack.com](https://jetpack.com/).
 
-## Get Help
+## Get Helps
 
 Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](https://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](https://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#new-post).
 
