@@ -1556,13 +1556,12 @@ class Jetpack {
 		// Manually mapping WordPress.com features to Jetpack module slugs
 		foreach ( $plan['features']['active'] as $wpcom_feature ) {
 			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack';
-
-				// WordAds are supported for this site
-				if ( 'wordads' === $feature ) {
-					return true;
-				}
-				break;
+				case 'wordads-jetpack':
+					// WordAds are supported for this site
+					if ( 'wordads' === $feature ) {
+						return true;
+					}
+					break;
 			}
 		}
 
