@@ -378,7 +378,7 @@ function wp_cache_manager_error_checks() {
 	}
 
 	if ( ! $is_nginx && function_exists( "is_main_site" ) && true == is_main_site() ) {
-	if ( isset( $htaccess_path ) ) {
+	if ( ! isset( $htaccess_path ) ) {
 		$home_path = trailingslashit( get_home_path() );
 	} else {
 		$home_path = $htaccess_path;
