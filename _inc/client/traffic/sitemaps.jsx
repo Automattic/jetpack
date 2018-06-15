@@ -56,10 +56,10 @@ export class Sitemaps extends React.Component {
 					<p>
 						{ __(
 							'Sitemaps are files that search engines like Google or Bing use ' +
-								'to index your website and can help get you discovered and ' +
-								'rank higher. When this feature is enabled, Jetpack will create ' +
-								'these files for you and update them automatically whenever you ' +
-								'add new content to your site.'
+								'to index your website. They can help improve your ranking in ' +
+								'search results. When you enable this feature, Jetpack will ' +
+								'create sitemaps for you and update them automatically when ' +
+								'the content on your site changes.'
 							) }
 					</p>
 					<ModuleToggle
@@ -76,7 +76,10 @@ export class Sitemaps extends React.Component {
 							? this.props.getOptionValue( 'sitemaps' ) && (
 								<FormFieldset>
 									<p className="jp-form-setting-explanation">
-										Your sitemap is automatically sent to all major search engines for indexing.
+										{ __(
+											'Good news: Jetpack is sending your sitemap automatically ' +
+												'to all major search engines for indexing.'
+										) }
 										<br />
 										<ExternalLink
 											onClick={ this.trackSitemapUrl }
@@ -105,9 +108,10 @@ export class Sitemaps extends React.Component {
 										<p className={ searchEngineVisibilityClasses }>
 											{
 												__(
-													'Your site is not currently accessible to search engines. ' +
-														'You might have "Search Engine Visibility" disabled in ' +
-														'your {{a}}Reading Settings{{/a}}.',
+													"Search engines can't access your site at the moment. " +
+														"If you'd like to make your site accessible, check " +
+														'your {{a}}Reading settings{{/a}} and switch ' +
+														'"Search Engine Visibility" on.',
 													{
 														components: {
 															a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
