@@ -189,6 +189,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'mailserver_pass'                      => '',
 			'mailserver_port'                      => 1,
 			'wp_page_for_privacy_policy'           => false,
+			'enable_header_ad'                     => '1',
+			'wordads_second_belowpost'             => '1',
+			'wordads_display_front_page'           => '1',
+			'wordads_display_post'                 => '1',
+			'wordads_display_page'                 => '1',
+			'wordads_display_archive'              => '1',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
