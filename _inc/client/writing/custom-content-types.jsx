@@ -65,11 +65,22 @@ export class CustomContentTypes extends React.Component {
 					hasChild
 					module={ module }
 					support={ {
-						text: __( 'Adds the Testimonial custom post type, allowing you to collect, organize, ' +
-							'and display testimonials on your site.' ),
 						link: 'https://jetpack.com/support/custom-content-types/',
 					} }
 					>
+					<p>
+						{ __(
+							'Add {{testimonialLink}}testimonials{{/testimonialLink}} to ' +
+								'your website to attract new customers. If your theme doesn’t ' +
+								'support Jetpack Testimonials, you can still use a simple ' +
+								'shortcode to display them on your site.',
+							{
+								components: {
+									testimonialLink: this.linkIfActiveCPT( 'testimonial' )
+								}
+							}
+						) }
+					</p>
 					<CompactFormToggle
 						checked={ this.state.testimonial }
 						disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || disabledByOverride }
@@ -84,15 +95,7 @@ export class CustomContentTypes extends React.Component {
 					</CompactFormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
-							{
-								__( 'Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).',
-									{
-										components: {
-											testimonialLink: this.linkIfActiveCPT( 'testimonial' )
-										}
-									}
-								)
-							}
+							{ __( 'Testimonials shortcode: [testimonials]' ) }
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
@@ -100,10 +103,22 @@ export class CustomContentTypes extends React.Component {
 					hasChild
 					module={ module }
 					support={ {
-						text: __( 'Adds the Portfolio custom post type, allowing you to manage and showcase projects on your site.' ),
 						link: 'https://jetpack.com/support/custom-content-types/',
 					} }
 					>
+					<p>
+						{ __(
+							'Use {{portfolioLink}}portfolios{{/portfolioLink}} on your ' +
+								'site to showcase your best work. If your theme doesn’t support ' +
+								'Jetpack Portfolios, you can still use a simple shortcode to ' +
+								'display them on your site.',
+							{
+								components: {
+									portfolioLink: this.linkIfActiveCPT( 'portfolio' )
+								}
+							}
+						) }
+					</p>
 					<CompactFormToggle
 						checked={ this.state.portfolio }
 						disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || disabledByOverride }
@@ -119,13 +134,7 @@ export class CustomContentTypes extends React.Component {
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{
-								__( 'Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolio] ).',
-									{
-										components: {
-											portfolioLink: this.linkIfActiveCPT( 'portfolio' )
-										}
-									}
-								)
+								__( 'Portfolios shortcode: [portfolio]' )
 							}
 						</p>
 					</FormFieldset>
