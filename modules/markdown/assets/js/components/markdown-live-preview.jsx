@@ -52,6 +52,16 @@ const setupMarkdownParser = function() {
 		const token = tokens[ idx ];
 		return `<code>${ token.markup }${ escape( token.content ) }${ token.markup }</code>`;
 	};
+	// Adds `#`s to the beginning of the heading content
+	markdownIt.renderer.rules.heading_open = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		const inline_token = tokens[ idx + 1 ];
+		const text_token = inline_token.children[ 0 ];
+		if ( text_token ) {
+			text_token.content = ` ${ text_token.content }`;
+		}
+		return `<${ token.tag }>${ token.markup }`;
+	};
 };
 
 const renderHTML = function( source ) {
