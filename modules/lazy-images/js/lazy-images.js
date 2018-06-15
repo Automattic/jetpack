@@ -17,6 +17,9 @@ var jetpackLazyImagesModule = function( $ ) {
 
 		// Lazy load images that are brought in from Infinite Scroll
 		$( 'body' ).bind( 'post-load', lazy_load_init );
+
+		// Add event to provide optional compatibility for other code.
+		$( 'body' ).bind( 'jetpack-lazy-images-load', lazy_load_init );
 	} );
 
 	function lazy_load_init() {
