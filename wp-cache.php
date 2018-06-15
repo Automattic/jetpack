@@ -3337,7 +3337,30 @@ function wpsc_get_htaccess_info() {
 
 	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
-	$gziprules .= "<IfModule mod_headers.c>\n  Header set Vary \"Accept-Encoding, Cookie\"\n  Header set Cache-Control 'max-age=3, must-revalidate'\n</IfModule>\n";
+	if ( defined( 'WPSC_VARY_HEADER' ) ) {
+		if ( WPSC_VARY_HEADER != '' ) {
+			$vary_header = WPSC_VARY_HEADER;
+		}
+	} else {
+		$vary_header = 'Accept-Encoding, Cookie';
+	}
+	if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) ) {
+		if ( WPSC_CACHE_CONTROL_HEADER != '' ) {
+			$cache_control_header = WPSC_CACHE_CONTROL_HEADER;
+		}
+	} else {
+		$cache_control_header = 'max-age=3, must-revalidate';
+	}
+	$headers_text = "";
+	if ( $vary_header != '' ) {
+		$headers_text .= "  Header set Vary '$vary_header'\n";
+	}
+	if ( $cache_control_header != '' ) {
+		$headers_text .= "  Header set Cache-Control '$cache_control_header'\n";
+	}
+	if ( $headers_text != '' ) {
+		$gziprules .= "<IfModule mod_headers.c>\n$headers_text</IfModule>\n";
+	}
 	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A3\n</IfModule>\n";
 	$gziprules .= "Options -Indexes\n";
 	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "home_root_lc" => $home_root_lc, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );

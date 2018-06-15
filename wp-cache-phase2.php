@@ -162,8 +162,20 @@ function wp_cache_serve_cache_file() {
 			if ( isset( $wp_cache_disable_utf8 ) == false || $wp_cache_disable_utf8 == 0 )
 				header( "Content-type: text/html; charset=UTF-8" );
 
-			header( "Vary: Accept-Encoding, Cookie" );
-			header( "Cache-Control: max-age=3, must-revalidate" );
+			if ( defined( 'WPSC_VARY_HEADER' ) ) {
+				if ( WPSC_VARY_HEADER != '' ) {
+					header( "Vary: " . WPSC_VARY_HEADER );
+				}
+			} else {
+				header( "Vary: Accept-Encoding, Cookie" );
+			}
+			if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) ) {
+				if ( WPSC_CACHE_CONTROL_HEADER != '' ) {
+					header( "Cache-Control: " . WPSC_CACHE_CONTROL_HEADER );
+				}
+			} else {
+				header( "Cache-Control: max-age=3, must-revalidate" );
+			}
 			$size = function_exists( 'mb_strlen' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
 			if ( $wp_cache_gzip_encoding ) {
 				if ( isset( $wpsc_served_header ) && $wpsc_served_header ) {
@@ -1155,7 +1167,13 @@ function wp_cache_phase2() {
 		$super_cache_enabled = false;
 	}
 
-	header( 'Vary: ' . ( $wp_cache_gzip_encoding ? 'Accept-Encoding, ' : '' ) . 'Cookie' );
+	if ( defined( 'WPSC_VARY_HEADER' ) ) {
+		if ( WPSC_VARY_HEADER != '' ) {
+			header( 'Vary: ' . WPSC_VARY_HEADER );
+		}
+	} else {
+		header( 'Vary: Accept-Encoding, Cookie' );
+	}
 
 	ob_start( 'wp_cache_ob_callback' );
 	wp_cache_debug( 'Created output buffer', 4 );
@@ -1973,6 +1991,18 @@ function wp_cache_get_ob(&$buffer) {
 			$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
 		}
 	} else {
+		if ( defined( 'WPSC_VARY_HEADER' ) ) {
+			if ( WPSC_VARY_HEADER != '' ) {
+				$vary_header = WPSC_VARY_HEADER;
+			} else {
+				$vary_header = '';
+			}
+		} else {
+			$vary_header = 'Accept-Encoding, Cookie';
+		}
+		if ( $vary_header ) {
+			$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: ' . $vary_header;
+		}
 		if ( $gz || $wp_cache_gzip_encoding ) {
 			wp_cache_debug( 'Gzipping buffer.', 5 );
 			wp_cache_add_to_buffer( $buffer, "Compression = gzip" );
@@ -1980,7 +2010,6 @@ function wp_cache_get_ob(&$buffer) {
 			$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
 
 			$wp_cache_meta[ 'headers' ][ 'Content-Encoding' ] = 'Content-Encoding: ' . $wp_cache_gzip_encoding;
-			$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
 			// Return uncompressed data & store compressed for later use
 			if ( $fr ) {
 				wp_cache_debug( 'Writing gzipped buffer to wp-cache cache file.', 5 );
@@ -1990,7 +2019,6 @@ function wp_cache_get_ob(&$buffer) {
 				$added_cache = 1;
 			}
 		} else { // no compression
-			$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: Cookie';
 			if ( $cache_enabled && $wp_cache_object_cache ) {
 				wp_cache_set( $oc_key, $buffer, 'supercache', $cache_max_time );
 				$added_cache = 1;
@@ -2078,7 +2106,18 @@ function wp_cache_get_ob(&$buffer) {
 	if ( !headers_sent() && $wp_cache_gzip_encoding && $gzdata) {
 		wp_cache_debug( 'Writing gzip content headers. Sending buffer to browser', 5 );
 		header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
-		header( 'Vary: Accept-Encoding, Cookie' );
+		if ( defined( 'WPSC_VARY_HEADER' ) ) {
+			if ( WPSC_VARY_HEADER != '' ) {
+				$vary_header = WPSC_VARY_HEADER;
+			} else {
+				$vary_header = '';
+			}
+		} else {
+			$vary_header = 'Accept-Encoding, Cookie';
+		}
+		if ( $vary_header ) {
+			header( 'Vary: ' . $vary_header );
+		}
 		header( 'Content-Length: ' . $gzsize );
 		return $gzdata;
 	} else {
@@ -2405,7 +2444,18 @@ function wp_cache_shutdown_callback() {
 		if( !isset( $wp_cache_meta[ 'dynamic' ] ) && $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta[ 'headers' ] ) ) {
 			wp_cache_debug( 'Sending gzip headers.', 2 );
 			$wp_cache_meta[ 'headers' ][ 'Content-Encoding' ] = 'Content-Encoding: ' . $wp_cache_gzip_encoding;
-			$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
+			if ( defined( 'WPSC_VARY_HEADER' ) ) {
+				if ( WPSC_VARY_HEADER != '' ) {
+					$vary_header = WPSC_VARY_HEADER;
+				} else {
+					$vary_header = '';
+				}
+			} else {
+				$vary_header = 'Accept-Encoding, Cookie';
+			}
+			if ( $vary_header ) {
+				$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: ' . $vary_header;
+			}
 		}
 
 		$serial = '<?php die(); ?>' . json_encode( $wp_cache_meta );
