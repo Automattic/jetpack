@@ -384,7 +384,7 @@ EOT;
 		$ui_settings = sprintf(
 			$ui_settings_template,
 			checked( $options['show_headline'], true, false ),
-			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+			esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
 			esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 			checked( $options['show_date'], true, false ),
