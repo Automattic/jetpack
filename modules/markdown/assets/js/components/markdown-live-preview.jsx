@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+import endsWith from 'lodash/endsWith';
 import escape from 'lodash/escape';
 import MarkdownIt from 'markdown-it';
 
@@ -66,8 +67,29 @@ const setupMarkdownParser = function() {
 
 const renderHTML = function( source ) {
 	if ( source ) {
-		return markdownIt.render( source );
+		return markdownIt.render( source )
+		// The MarkdownIt renderer adds new lines after each paragraph/heading
+		// tag. This affects the restoration of the caret position, so we need
+		// to remove them
+			.split( /\n/ ).join( '' )
+			.trim();
 	}
+};
+
+const stripTrailingNewLines = function( text ) {
+	if ( text ) {
+		return text.replace( /\n{1,2}$/, '' );
+	}
+};
+
+const sourceIsEmpty = function( source ) {
+	return ! source || '' === source.trim();
+};
+
+const ignoreLastInput = function( source ) {
+	return endsWith( source, ' ' ) ||
+	endsWith( source, ' ' ) ||
+	endsWith( source, '\n' );
 };
 
 const emitChange = function( evt ) {
@@ -75,12 +97,27 @@ const emitChange = function( evt ) {
 		return;
 	}
 
-	const source = this.htmlEl.innerText;
+	// We need to delete the last two new lines added by the browser for the
+	// last node in the component's content. This behaviour interferes with
+	// headings parsing.
+	const source = stripTrailingNewLines( this.htmlEl.innerText );
+
+	// if there's no source, we don't need to parse anything
+	if ( sourceIsEmpty( source ) ) {
+		return;
+	}
+
+	// commonmark doesn't allow trailing spaces in paragraphs, so if we've
+	// added a space, calling markdownIt now will remove it
+	if ( ignoreLastInput( source ) ) {
+		return;
+	}
 
 	this.setState( { restoreCaretPosition: null } );
 
 	if ( source ) {
 		const html = renderHTML( source );
+
 		this.setState( {
 			html,
 			restoreCaretPosition: saveCaretPosition( this.htmlEl )
@@ -129,6 +166,7 @@ export default class MarkdownLivePreview extends React.Component {
 	}
 
 	componentDidUpdate() {
+		// once the component has be rendered, we can restore the caret position
 		if ( this.state.restoreCaretPosition ) {
 			this.state.restoreCaretPosition();
 		}
