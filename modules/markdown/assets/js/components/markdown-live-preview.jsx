@@ -17,6 +17,22 @@ const markdownIt = new MarkdownIt( 'zero' ).enable( [
 	'backticks',
 ] );
 
+// Redefines the rules applied by the parser to render each token.  This adds
+// to each token's content, the delimiter the user used (which the parser
+// obviously removes in the resulting HTML)
+const setupMarkdownParser = function() {
+	// Adds `_` or `*` to the beginning of the em tag
+	markdownIt.renderer.rules.em_open = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		return `<em>${ token.markup }`;
+	};
+	// Adds `_` or `*` to the end of the em tag
+	markdownIt.renderer.rules.em_close = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		return `${ token.markup }</em>`;
+	};
+};
+
 const renderHTML = function( source ) {
 	if ( source ) {
 		return markdownIt.render( source );
@@ -51,6 +67,8 @@ export default class MarkdownLivePreview extends React.Component {
 
 	constructor() {
 		super();
+
+		setupMarkdownParser();
 
 		this.state = {
 			html: __( 'Write your _Markdown_ **here**...' ),
