@@ -3,6 +3,10 @@
 	clear: both;
 }
 
+.widget-content .jetpack-simple-payments-form .invalid {
+	border: 1px solid #dc3232;
+}
+
 .widget-content .jetpack-simple-payments-form .cost label {
 	display: block;
 }

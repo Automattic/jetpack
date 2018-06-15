@@ -144,6 +144,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( 'illegal_params', 400 );
 			}
 
+			$errors = $this->validate_ajax_params( $params );
+			if( is_wp_error( $errors ) ){
+				wp_send_json_error( $errors );
+			}
+
 			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
 
 			$product_post = array(
@@ -171,10 +176,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( $product_post_id );
 			}
 
-			wp_send_json_success( [
+			wp_send_json_success( array(
 				'product_post_id' => $product_post_id,
 				'product_post_title' => $params['post_title'],
-			] );
+			 ) );
 		}
 
 		public function ajax_delete_payment_button() {
@@ -300,6 +305,28 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_send_json_success( $return );
 		}
 
+		public function validate_ajax_params( $params ) {
+			$errors = new WP_Error();
+
+			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
+			if ( ! empty( $illegal_params ) ) {
+				$errors.add( 'illegal_params' );
+			}
+
+			if ( empty( $params['post_title'] ) ) {
+				$errors->add( 'post_title', __( 'People need to know what they\'re paying for! Please add a brief title.' ) );
+			}
+
+			if ( empty( $params['price'] ) || intval( $params['price'] ) > 0 ) {
+				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.' ) );
+			}
+
+			if ( empty( $params['email'] ) || ! is_email( $params['email'] ) ) {
+				$errors->add( 'email', __( 'We want to make sure payments reach you, so please add an email address.' ) );
+			}
+
+			return $errors;
+		}
 		/**
 		 * Front-end display of widget.
 		 *
