@@ -9,6 +9,7 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import MarkdownPreview from './components/markdown-preview';
+import MarkdownLivePreview from './components/markdown-live-preview';
 
 const { __ } = window.wp.i18n;
 
@@ -21,8 +22,7 @@ const {
 } = window.wp.components;
 
 const {
-	BlockControls,
-	PlainText
+	BlockControls
 } = window.wp.editor;
 
 const PANEL_EDITOR = 'editor';
@@ -41,8 +41,8 @@ class JetpackMarkdownBlockEditor extends Component {
 		};
 	}
 
-	updateSource( source ) {
-		this.props.setAttributes( { source } );
+	updateSource( evt ) {
+		this.props.setAttributes( { source: evt.target.value } );
 	}
 
 	showEditor() {
@@ -62,11 +62,11 @@ class JetpackMarkdownBlockEditor extends Component {
 
 			switch ( this.state.activePanel ) {
 				case PANEL_EDITOR:
-					return <PlainText
+					return <MarkdownLivePreview
 						className={ className }
 						onChange={ this.updateSource }
 						aria-label={ __( 'Markdown' ) }
-						value={ attributes.source }
+						source={ attributes.source }
 					/>;
 
 				case PANEL_PREVIEW:
