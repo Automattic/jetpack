@@ -37,6 +37,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return $instance;
 		}
 
+		// Don't trigger sync action if this is an ajax request, because Customizer makes them during preview before saving changes
+		if ( is_ajax() ) {
+			return $instance;
+		}
+
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,

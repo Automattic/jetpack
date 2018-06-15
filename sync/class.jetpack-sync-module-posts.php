@@ -372,6 +372,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 'customize_changeset' == $post->post_type ) {
 			$post_content = json_decode( $post->post_content, true );
 			foreach ( $post_content as $key => $value ) {
+				//Skip if it isn't a widget
+				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
+					continue;
+				}
 				// Change key from "widget_archives[2]" to "archives-2"
 				$key = str_replace( 'widget_', '', $key );
 				$key = str_replace( '[', '-', $key );
@@ -383,7 +387,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 						'name'    => $wp_registered_widgets[ $key ]['name'],
 						'id'      => $key,
 						'title'   => $value['value']['title'],
-						'is_save' => true,
 					);
 					do_action( 'jetpack_widget_edited', $widget_data );
 				}
