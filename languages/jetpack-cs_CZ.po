@@ -6571,7 +6571,7 @@ msgid "Require Two-Step Authentication"
 msgstr "Vyžadovat dvoufázové ověřování"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Jednotné přihlašování"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7663,7 +7663,7 @@ msgstr ""
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Jednotné přihlašování"
 
 #: modules/module-headings.php:164

@@ -8393,7 +8393,7 @@ msgid "Require Two-Step Authentication"
 msgstr "A autenticación en dous pasos é obrigatoria"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Acceso Único"
 
 #: modules/shortcodes/wufoo.php:31
@@ -9377,7 +9377,7 @@ msgstr "Permíteche acceder cun só clic a todos os teus sitios con Jetpack usan
 
 #: modules/module-headings.php:189
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Acceso Único"
 
 #: modules/module-headings.php:179

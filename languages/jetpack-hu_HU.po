@@ -6567,7 +6567,7 @@ msgid "Require Two-Step Authentication"
 msgstr "Kétlépcsős hitelesítés"
 
 #: modules/sso.php:207
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Egyszerűsített bejelentkezés"
 
 #: modules/shortcodes/wufoo.php:31
@@ -7658,7 +7658,7 @@ msgstr "Lehetővé teszi, hogy minden Jetpackot bekapcsolt és csatlakoztatott h
 
 #: modules/module-headings.php:174
 msgctxt "Module Name"
-msgid "Single Sign On"
+msgid "Secure Sign On"
 msgstr "Egyszeri bejelentkezés"
 
 #: modules/module-headings.php:164
