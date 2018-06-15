@@ -11,7 +11,7 @@
 var PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',
 	messageCssClassName: 'jetpack-simple-payments-purchase-message',
-
+	spayOrderId: null,
 	wpRestAPIHost: 'https://public-api.wordpress.com',
 	wpRestAPIVersion: '/wpcom/v2',
 
@@ -162,14 +162,16 @@ var PaypalExpressCheckout = {
 								return reject( new Error( 'server_error' ) );
 							}
 
+							PaypalExpressCheckout.spayOrderId = paymentResponse.order_id;
 							resolve( paymentResponse.id );
 						} )
 						.fail( function( paymentError ) {
 							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
 							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
 
-							var code = paymentError.responseJSON && paymentError.responseJSON.code ?
-								paymentError.responseJSON.code : 'server_error';
+							var code = paymentError.responseJSON && paymentError.responseJSON.code
+								? paymentError.responseJSON.code
+								: 'server_error';
 
 							reject( new Error( code ) );
 						} );
@@ -180,8 +182,10 @@ var PaypalExpressCheckout = {
 				var payload = {
 					buttonId: buttonId,
 					payerId: onAuthData.payerID,
-					env: env
+					env: env,
+					spayOrderId: PaypalExpressCheckout.spayOrderId,
 				};
+
 				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
 						.done( function( authResponse ) {
