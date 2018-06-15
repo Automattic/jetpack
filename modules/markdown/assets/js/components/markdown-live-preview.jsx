@@ -1,10 +1,27 @@
 /* global React:true */
 
+/**
+ * External dependencies
+ */
+import MarkdownIt from 'markdown-it';
+
 const {
 	createElement
 } = window.wp.element;
 
 const { __ } = window.wp.i18n;
+
+const markdownIt = new MarkdownIt( 'zero' ).enable( [
+	'heading',
+	'emphasis',
+	'backticks',
+] );
+
+const renderHTML = function( source ) {
+	if ( source ) {
+		return markdownIt.render( source );
+	}
+};
 
 const emitChange = function( evt ) {
 	if ( ! this.htmlEl ) {
@@ -12,6 +29,11 @@ const emitChange = function( evt ) {
 	}
 
 	const source = this.htmlEl.innerText;
+
+	if ( source ) {
+		const html = renderHTML( source );
+		this.setState( { html } );
+	}
 
 	if ( this.props.onChange ) {
 		// Clone event with Object.assign to avoid

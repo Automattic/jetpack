@@ -3,15 +3,14 @@
 /**
  * External dependencies
  */
-import commonmark from 'commonmark';
+import MarkdownIt from 'markdown-it';
 
 const {
 	Component,
 	RawHTML
 } = window.wp.element;
 
-const markdownReader = new commonmark.Parser();
-const markdownWritter = new commonmark.HtmlRenderer();
+const markdownIt = new MarkdownIt();
 
 class MarkdownPreview extends Component {
 
@@ -20,11 +19,8 @@ class MarkdownPreview extends Component {
 		let content = '';
 
 		if ( source ) {
-			// Creates a tree of nodes from the Markdown source
-			const parsedMarkdown = markdownReader.parse( source );
-
-			// Converts the tree of nodes to HTML
-			content = markdownWritter.render( parsedMarkdown );
+			// converts the markdown source to HTML
+			content = markdownIt.render( source );
 		}
 		return <RawHTML>{ content }</RawHTML>;
 	}
