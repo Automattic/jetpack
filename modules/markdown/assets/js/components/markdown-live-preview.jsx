@@ -31,6 +31,16 @@ const setupMarkdownParser = function() {
 		const token = tokens[ idx ];
 		return `${ token.markup }</em>`;
 	};
+	// Adds `__` or `**` to the beginning of the strong tag
+	markdownIt.renderer.rules.strong_open = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		return `<strong>${ token.markup }`;
+	};
+	// Adds `__` or `**` to the end of the strong tag
+	markdownIt.renderer.rules.strong_close = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		return `${ token.markup }</strong>`;
+	};
 };
 
 const renderHTML = function( source ) {
