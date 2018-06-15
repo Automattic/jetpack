@@ -6,6 +6,11 @@
 import escape from 'lodash/escape';
 import MarkdownIt from 'markdown-it';
 
+/**
+ * Internal dependencies
+ */
+import { saveCaretPosition } from '../utils/caret-management';
+
 const {
 	createElement
 } = window.wp.element;
@@ -62,9 +67,14 @@ const emitChange = function( evt ) {
 
 	const source = this.htmlEl.innerText;
 
+	this.setState( { restoreCaretPosition: null } );
+
 	if ( source ) {
 		const html = renderHTML( source );
-		this.setState( { html } );
+		this.setState( {
+			html,
+			restoreCaretPosition: saveCaretPosition( this.htmlEl )
+		} );
 	}
 
 	if ( this.props.onChange ) {
@@ -106,6 +116,12 @@ export default class MarkdownLivePreview extends React.Component {
 			},
 			this.props.children
 		);
+	}
+
+	componentDidUpdate() {
+		if ( this.state.restoreCaretPosition ) {
+			this.state.restoreCaretPosition();
+		}
 	}
 
 }
