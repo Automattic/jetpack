@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+import escape from 'lodash/escape';
 import MarkdownIt from 'markdown-it';
 
 const {
@@ -40,6 +41,11 @@ const setupMarkdownParser = function() {
 	markdownIt.renderer.rules.strong_close = function( tokens, idx ) {
 		const token = tokens[ idx ];
 		return `${ token.markup }</strong>`;
+	};
+	// Wraps inline code tokens with ```
+	markdownIt.renderer.rules.code_inline = function( tokens, idx ) {
+		const token = tokens[ idx ];
+		return `<code>${ token.markup }${ escape( token.content ) }${ token.markup }</code>`;
 	};
 };
 
