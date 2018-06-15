@@ -136,15 +136,19 @@ const emitChange = function( evt ) {
 	}
 };
 
+const placeholderSource = __( 'Write your _Markdown_ **here**...' );
+
 export default class MarkdownLivePreview extends React.Component {
 
-	constructor() {
+	constructor( props ) {
 		super();
+
+		const { source } = props;
 
 		setupMarkdownParser();
 
 		this.state = {
-			html: __( 'Write your _Markdown_ **here**...' ),
+			html: renderHTML( source || placeholderSource ),
 		};
 	}
 
@@ -171,5 +175,4 @@ export default class MarkdownLivePreview extends React.Component {
 			this.state.restoreCaretPosition();
 		}
 	}
-
 }
