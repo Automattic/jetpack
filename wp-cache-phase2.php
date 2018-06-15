@@ -1062,11 +1062,15 @@ function wp_cache_setting( $field, $value ) {
 
 function wp_cache_replace_line( $old, $new, $my_file ) {
 	if ( @is_file( $my_file ) == false ) {
-		set_transient( 'wpsc_config_error', 'config_file_missing', 10 );
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'wpsc_config_error', 'config_file_missing', 10 );
+		}
 		return false;
 	}
 	if (!is_writeable_ACLSafe($my_file)) {
-		set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
+		}
 		trigger_error( "Error: file $my_file is not writable." );
 		return false;
 	}
@@ -1082,7 +1086,9 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		} else {
 			$c++;
 			if ( $c > 100 ) {
-				set_transient( 'wpsc_config_error', 'config_file_not_loaded', 10 );
+				if ( function_exists( 'set_transient' ) ) {
+					set_transient( 'wpsc_config_error', 'config_file_not_loaded', 10 );
+				}
 				trigger_error( "wp_cache_replace_line: Error  - file $my_file could not be loaded." );
 				return false;
 			}
@@ -1097,7 +1103,9 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 
 	$fd = fopen( $my_file, 'w' );
 	if ( ! $fd ) {
-		set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
+		}
 		trigger_error( "wp_cache_replace_line: Error  - could not write to $my_file" );
 		return false;
 	}
