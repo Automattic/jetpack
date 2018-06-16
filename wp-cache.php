@@ -2315,7 +2315,7 @@ function wpsc_config_file_notices() {
 			$msg = sprintf( __( 'Error: Configuration file %s could not be loaded. Please reload the page.' ), $wp_cache_config_file );
 			break;
 		case 'config_file_missing':
-			$msg = sprintf( __( 'Error: Configuration file %s s missing. Please reload the page.' ), $wp_cache_config_file );
+			$msg = sprintf( __( 'Error: Configuration file %s is missing. Please reload the page.' ), $wp_cache_config_file );
 			break;
 
 	}
