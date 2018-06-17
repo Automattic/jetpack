@@ -87,9 +87,7 @@ const sourceIsEmpty = function( source ) {
 };
 
 const ignoreLastInput = function( source ) {
-	return endsWith( source, ' ' ) ||
-	endsWith( source, ' ' ) ||
-	endsWith( source, '\n' );
+	return endsWith( source, ' ' ) || endsWith( source, ' ' );
 };
 
 const emitChange = function( evt ) {
@@ -119,8 +117,7 @@ const emitChange = function( evt ) {
 		const html = renderHTML( source );
 
 		this.setState( {
-			html,
-			restoreCaretPosition: saveCaretPosition( this.htmlEl )
+			html
 		} );
 	}
 
@@ -167,6 +164,13 @@ export default class MarkdownLivePreview extends React.Component {
 			},
 			this.props.children
 		);
+	}
+
+	shouldComponentUpdate( nextProps, nextState ) {
+		if ( this.state.html !== nextState.html ) {
+			nextState.restoreCaretPosition = saveCaretPosition( this.htmlEl );
+			return true;
+		}
 	}
 
 	componentDidUpdate() {
