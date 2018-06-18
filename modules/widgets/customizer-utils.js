@@ -67,7 +67,7 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
 						// Refresh Simple Payments Widget
 						try {
-							const buttonId = $( '.jetpack-simple-payments-button', placement.container ).attr( 'id' ).replace( '_button', '' );
+							var buttonId = $( '.jetpack-simple-payments-button', placement.container ).attr( 'id' ).replace( '_button', '' );
 							PaypalExpressCheckout.renderButton( null, null, buttonId, null );
 						} catch ( e ) {
 							// PaypalExpressCheckout may fail.
