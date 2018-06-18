@@ -77,6 +77,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @return array Default values for the widget options.
 		 */
 		private function defaults() {
+			$current_user = wp_get_current_user();
+
 			return array(
 				'title' => '',
 				'product_post_id' => 0,
@@ -89,7 +91,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'form_product_currency' => '',
 				'form_product_price' => '',
 				'form_product_multiple' => '',
-				'form_product_email' => '',
+				'form_product_email' => $current_user->user_email,
 			);
 		}
 
@@ -335,6 +337,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			$form_product_image_id = (int) $new_instance['form_product_image_id'];
+
+			$form_product_email = ! empty( $new_instance['form_product_email'] )
+				? sanitize_text_field( $new_instance['form_product_email'] )
+				: $this->defaults()['form_product_email'];
+
 			return array_merge( $required_widget_props, array(
 				'form_product_id' => ( int ) $new_instance['form_product_id'],
 				'form_product_title' => sanitize_text_field( $new_instance['form_product_title'] ),
@@ -344,7 +351,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'form_product_currency' => sanitize_text_field( $new_instance['form_product_currency'] ),
 				'form_product_price' => sanitize_text_field( $new_instance['form_product_price'] ),
 				'form_product_multiple' => sanitize_text_field( $new_instance['form_product_multiple'] ),
-				'form_product_email' => sanitize_text_field( $new_instance['form_product_email'] ),
+				'form_product_email' => $form_product_email,
 			) );
 		}
 
