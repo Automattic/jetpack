@@ -92,7 +92,7 @@ const ignoreLastInput = function( source ) {
 
 const emitChange = function( evt ) {
 	if ( ! this.htmlEl ) {
-		return;
+		return true;
 	}
 
 	// We need to delete the last two new lines added by the browser for the
@@ -102,13 +102,13 @@ const emitChange = function( evt ) {
 
 	// if there's no source, we don't need to parse anything
 	if ( sourceIsEmpty( source ) ) {
-		return;
+		return true;
 	}
 
 	// commonmark doesn't allow trailing spaces in paragraphs, so if we've
 	// added a space, calling markdownIt now will remove it
 	if ( ignoreLastInput( source ) ) {
-		return;
+		return true;
 	}
 
 	this.setState( { restoreCaretPosition: null } );
@@ -131,6 +131,7 @@ const emitChange = function( evt ) {
 		} );
 		this.props.onChange( evt );
 	}
+	return true;
 };
 
 const placeholderSource = __( 'Write your _Markdown_ **here**...' );
