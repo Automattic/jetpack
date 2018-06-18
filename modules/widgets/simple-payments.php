@@ -356,6 +356,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				if ( $new_instance['form_action'] == 'clear' ) {
 					return array_merge( $this->defaults(), $required_widget_props );
 				}
+			}
 
 			$form_product_image_id = (int) $new_instance['form_product_image_id'];
 
