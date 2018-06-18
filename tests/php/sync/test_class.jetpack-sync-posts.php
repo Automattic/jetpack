@@ -805,6 +805,8 @@ POST_CONTENT;
 
 		//Mock registered widgets to get widget Name from
 		global $wp_registered_widgets;
+		$original_registered_widgets = $wp_registered_widgets;
+
 		$wp_registered_widgets = array(
 			'archives-2' => array(
 				'name' => 'Archives',
@@ -827,6 +829,8 @@ POST_CONTENT;
 		$this->assertEquals( 'Search', $events[1]->args[0]['name'] );
 		$this->assertEquals( 'search-2', $events[1]->args[0]['id'] );
 		$this->assertEquals( 'I am a Search widget', $events[1]->args[0]['title'] );
+
+		$wp_registered_widgets = $original_registered_widgets;
 	}
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
