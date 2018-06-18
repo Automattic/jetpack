@@ -29,16 +29,23 @@ const PANEL_EDITOR = 'editor';
 const PANEL_PREVIEW = 'preview';
 
 class JetpackMarkdownBlockEditor extends Component {
+
 	constructor() {
 		super( ...arguments );
 
 		this.updateSource = this.updateSource.bind( this );
 		this.showEditor = this.showEditor.bind( this );
 		this.showPreview = this.showPreview.bind( this );
+		this.isEmpty = this.isEmpty.bind( this );
 
 		this.state = {
 			activePanel: PANEL_EDITOR
 		};
+	}
+
+	isEmpty() {
+		const source = this.props.attributes.source;
+		return ! source || source.trim() === '';
 	}
 
 	updateSource( evt ) {
@@ -54,7 +61,7 @@ class JetpackMarkdownBlockEditor extends Component {
 	}
 
 	render() {
-		const { attributes, className } = this.props;
+		const { attributes, className, isSelected } = this.props;
 
 		// Renders the editor panel or the preview panel based on component's state
 		const editorOrPreviewPanel = function() {
@@ -62,11 +69,19 @@ class JetpackMarkdownBlockEditor extends Component {
 
 			switch ( this.state.activePanel ) {
 				case PANEL_EDITOR:
+					const placeholderSource = __( 'Write your _Markdown_ **here**...' );
+
+					if ( ! isSelected && this.isEmpty() ) {
+						return <p className={ `${ className }-placeholder` }>
+							{ placeholderSource }
+						</p>;
+					}
 					return <MarkdownLivePreview
-						className={ className }
+						className={ `${ className }-live-preview` }
 						onChange={ this.updateSource }
 						aria-label={ __( 'Markdown' ) }
-						source={ attributes.source }
+						source={ source }
+						isSelected={ isSelected }
 					/>;
 
 				case PANEL_PREVIEW:
@@ -103,5 +118,6 @@ class JetpackMarkdownBlockEditor extends Component {
 			editorOrPreviewPanel.call( this )
 		];
 	}
+
 }
 export default JetpackMarkdownBlockEditor;
