@@ -99,17 +99,88 @@ class Jetpack_Data {
 			return true;
 		}
 
-		// Check the IP to make sure it's pingable.
-		$ip = gethostbyname( $domain );
+		// Check the IP to make sure it's pingable. We wrote our own DNS client because we can't rely on local DNS.
+		$ips = gethostbyname_timeout( $domain . '.', '8.8.8.8', 10 );
 
-		// Doing this again as I was getting some false positives when gethostbyname() flaked out and returned the domain.
-		$ip = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ? $ip : gethostbyname( $ip );
+		if ( false === $ips ) {
+			return true; // probably a lookup timeout, assume everything's ok
+		}
 
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_IPV4 ) && ! self::php_bug_66229_check( $ip ) ) {
-			return new WP_Error( 'fail_domain_bad_ip_range', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as its IP `%2$s` is either invalid, or in a reserved or private range.', 'jetpack' ), $domain, $ip ) );
+		if ( count( $ips ) == 0 ) {
+			return false; // no public A-records
 		}
 
 		return true;
+	}
+
+	public static function gethostbyname_timeout( $domain, $dns, $timeout = 10 ) {
+		// based off of http://www.php.net/manual/en/function.gethostbyaddr.php#46869
+		// @ http://www.askapache.com/pub/php/gethostbyaddr.php
+		// @ http://www.askapache.com/php/php-fsockopen-dns-udp.html
+	
+		$data = pack('n6', rand(10, 77), 0x0100, 1, 0, 0, 0);
+		foreach (explode('.', $domain) as $bit) {
+			$l = strlen($bit);
+			$data .= chr($l) . $bit;
+		}
+		$data .= pack('n2', 1, 1);  // QTYPE=A, QCLASS=IN
+
+		$errno = $errstr = 0;
+		$fp = fsockopen( 'udp://' . $dns, 53, $errno, $errstr, $timeout );
+		if (!$fp || !is_resource($fp)) return $errno;
+
+		socket_set_timeout( $fp, $timeout );
+		$requestsize = fwrite( $fp, $data );
+
+		$max_rx = $requestsize * 3;
+		$start = time();
+		$response_data = '';
+		$responsesize = 0;
+		while ( $received < $max_rx && ( ( time() - $start ) < $timeout ) && ( $buf = fread( $fp, 1 ) ) !== false ) {
+			$responsesize++;
+			$response_data .= $buf;
+		}
+		$info = stream_get_meta_data( $fp );
+		fclose( $fp );
+
+		if ( $info[ 'timed_out' ] ) {
+        	echo 'Connection timed out!';
+			return false;
+		}
+
+		if ( ( time() - $start ) > $timeout ) {
+			echo 'Response timed out!';
+			return false;
+		}
+
+		// read answer header
+		$ans_header = unpack( "nid/nspec/nqdcount/nancount/nnscount/narcount", substr( $response_data, 0, 12 ) );
+
+		if ( ! $ans_header['ancount'] ) {
+			echo 'No header records!';
+			return false; // no answers!
+		}
+
+		// skip question part
+		$offset = strlen( $domain ) + 4 + 2 + 1; // 4 => QTYPE + QCLASS, 2 => len, 1 => null terminator
+
+		// loop and gather our A-records
+		$loops = 0;
+		$addresses = array();
+		
+		do {
+			$record_header = unpack("ntype/nclass/Nttl/nlength/C4addr", substr( $response_data, 12 + $offset, 15 ) );
+			$offset += $record_header['length'] + 12; // 4 => QTYPE + QCLASS, 4 = TTL, 2 = length
+
+			if ( 1 != $record_header['class'] ) { 
+				continue; // for some reason, it wasn't an A record
+			}
+
+			$addresses[] =  $record_header['addr1'] . '.' . $record_header['addr2'] . '.' . $record_header['addr3'] . '.' . $record_header['addr4'];
+			$loops++;
+		} while ( $record_header['length'] != 0 && $loops < 20 );
+
+		return $addresses;
 	}
 
 	/**
