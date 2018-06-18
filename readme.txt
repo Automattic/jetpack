@@ -89,7 +89,7 @@ There is one regular WordPress filter too. Use the "do_createsupercache" filter
 to customize the checks made before caching. The filter accepts one parameter.
 The output of WP-Cache's wp_cache_get_cookies_values() function.
 
-See plugins/searchengine.php as an example I use for my [No Adverts for Friends](https://odd.blog/no-adverts-for-friends/) plugin.
+See [plugins/searchengine.php](https://github.com/Automattic/wp-super-cache/blob/4cda5c0f2218e40e118232b5bf22d227fb3206b7/plugins/searchengine.php) as an example I use for my [No Adverts for Friends](https://odd.blog/no-adverts-for-friends/) plugin.
 
 ### Troubleshooting ###
 If things don't work when you installed the plugin here are a few things to check:
