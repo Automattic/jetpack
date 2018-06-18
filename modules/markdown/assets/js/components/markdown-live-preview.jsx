@@ -16,8 +16,6 @@ const {
 	createElement
 } = window.wp.element;
 
-const { __ } = window.wp.i18n;
-
 const markdownIt = new MarkdownIt( 'zero' ).enable( [
 	'heading',
 	'emphasis',
@@ -82,6 +80,19 @@ const stripTrailingNewLines = function( text ) {
 	}
 };
 
+const triggerOnChange = function( evt, source ) {
+	if ( this.props.onChange ) {
+		// Clone event with Object.assign to avoid
+		// "Cannot assign to read only property 'target' of object"
+		evt = Object.assign( {}, evt, {
+			target: {
+				value: source
+			}
+		} );
+		this.props.onChange( evt );
+	}
+};
+
 const sourceIsEmpty = function( source ) {
 	return ! source || '' === source.trim();
 };
@@ -89,6 +100,8 @@ const sourceIsEmpty = function( source ) {
 const ignoreLastInput = function( source ) {
 	return endsWith( source, ' ' ) || endsWith( source, ' ' );
 };
+
+const emptyState = '<p></p>';
 
 const emitChange = function( evt ) {
 	if ( ! this.htmlEl ) {
@@ -100,8 +113,11 @@ const emitChange = function( evt ) {
 	// headings parsing.
 	const source = stripTrailingNewLines( this.htmlEl.innerText );
 
+	triggerOnChange.call( this, evt, source );
+
 	// if there's no source, we don't need to parse anything
 	if ( sourceIsEmpty( source ) ) {
+		this.htmlEl.innerHTML = emptyState;
 		return true;
 	}
 
@@ -121,20 +137,8 @@ const emitChange = function( evt ) {
 		} );
 	}
 
-	if ( this.props.onChange ) {
-		// Clone event with Object.assign to avoid
-		// "Cannot assign to read only property 'target' of object"
-		evt = Object.assign( {}, evt, {
-			target: {
-				value: source
-			}
-		} );
-		this.props.onChange( evt );
-	}
 	return true;
 };
-
-const placeholderSource = __( 'Write your _Markdown_ **here**...' );
 
 export default class MarkdownLivePreview extends React.Component {
 
@@ -146,7 +150,7 @@ export default class MarkdownLivePreview extends React.Component {
 		setupMarkdownParser();
 
 		this.state = {
-			html: renderHTML( source || placeholderSource ),
+			html: source ? renderHTML( source ) : emptyState,
 		};
 	}
 
@@ -178,6 +182,12 @@ export default class MarkdownLivePreview extends React.Component {
 		// once the component has be rendered, we can restore the caret position
 		if ( this.state.restoreCaretPosition ) {
 			this.state.restoreCaretPosition();
+		}
+	}
+
+	componentDidMount() {
+		if ( this.props.isSelected ) {
+			this.htmlEl.focus();
 		}
 	}
 }

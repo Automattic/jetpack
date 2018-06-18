@@ -1,0 +1,7 @@
+.wp-block-jetpack-markdown-block-placeholder {
+	opacity: 0.5;
+	pointer-events: none;
+}
+.wp-block-jetpack-markdown-block-live-preview p {
+	min-height: 1.8em;
+}
