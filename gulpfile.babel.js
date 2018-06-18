@@ -253,10 +253,10 @@ function doStatic( done ) {
 					fs.unlinkSync( file.path );
 				} ) )
 				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static.html', window.staticHtml );
+					fs.writeFileSync( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
 					if ( done ) {
 						done();
@@ -591,4 +591,3 @@ gulp.task(
 	'languages',
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
-
