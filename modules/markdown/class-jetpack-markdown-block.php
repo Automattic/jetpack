@@ -23,6 +23,13 @@ class Jetpack_Markdown_Block {
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
 		);
 		wp_enqueue_script( 'jetpack-markdown-block' );
+
+		wp_register_style(
+			'jetpack-markdown-block',
+			plugins_url( 'assets/css/jetpack-markdown-block.css', __FILE__ ),
+			array( 'wp-edit-blocks' )
+		);
+		wp_enqueue_style( 'jetpack-markdown-block' );
 	}
 
 }
