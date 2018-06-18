@@ -139,9 +139,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			$params = wp_unslash( $_POST['params'] );
-			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
-			if ( ! empty( $illegal_params ) ) {
-				wp_send_json_error( 'illegal_params', 400 );
+			$errors = $this->validate_ajax_params( $params );
+			if ( ! empty( $errors->errors ) ) {
+				wp_send_json_error( $errors );
 			}
 
 			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
