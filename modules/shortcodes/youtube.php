@@ -199,11 +199,11 @@ function youtube_id( $url ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = ceil( ( $w / 16 ) * 9 ) + 30;
+			$h = ceil( ( $w / 16 ) * 9 );
 		}
 	} elseif ( $input_w > 0 ) {
 		$w = $input_w;
-		$h = ceil( ( $w / 16 ) * 9 ) + 30;
+		$h = ceil( ( $w / 16 ) * 9 );
 	} else {
 		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
