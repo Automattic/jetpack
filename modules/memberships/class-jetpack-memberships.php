@@ -227,7 +227,7 @@ class Jetpack_Memberships {
 		$data = shortcode_atts(
 			array_merge(
 				array(
-					'blog_id' => get_current_blog_id(),
+					'blog_id' => $this->get_blog_id(),
 					'dom_id'  => uniqid( self::$css_classname_prefix . '-' . $plan['id'] . '_', true ),
 					'class'   => self::$css_classname_prefix . '-' . $plan['id'],
 				), $plan
@@ -239,6 +239,14 @@ class Jetpack_Memberships {
 		$data['id'] = $attrs['id'];
 
 		return $this->output_purchase_modal_button( $data );
+	}
+
+	private function get_blog_id() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return get_current_blog_id();
+		}
+
+		return Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
@@ -260,7 +268,7 @@ class Jetpack_Memberships {
 		wp_add_inline_script(
 			'memberships', sprintf(
 				"try{JetpackMemberships.initPurchaseButton( '%d', '%d', '%s' );}catch(e){}",
-				esc_js( get_current_blog_id() ),
+				esc_js( $this	->get_blog_id() ),
 				esc_js( $data['id'] ),
 				esc_js( $data['class'] )
 			)
