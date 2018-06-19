@@ -91,7 +91,7 @@ class Jetpack_Sync_Queue {
 
 	// lag is the difference in time between the age of the oldest item
 	// (aka first or frontmost item) and the current time
-	function lag() {
+	function lag( $now = null ) {
 		global $wpdb;
 
 		$first_item_name = $wpdb->get_var( $wpdb->prepare(
@@ -103,10 +103,14 @@ class Jetpack_Sync_Queue {
 			return 0;
 		}
 
+		if ( null === $now ) {
+			$now = microtime( true );
+		}
+
 		// break apart the item name to get the timestamp
 		$matches = null;
 		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
-			return microtime( true ) - floatval( $matches[1] );
+			return $now - floatval( $matches[1] );
 		} else {
 			return 0;
 		}
@@ -320,6 +324,17 @@ class Jetpack_Sync_Queue {
 		return $this->delete_checkout_id();
 	}
 
+	/**
+	 * This option is specifically chosen to, as much as possible, preserve time order
+	 * and minimise the possibility of collisions between multiple processes working
+	 * at the same time.
+	 *
+	 * @return string
+	 */
+	protected function generate_option_name_timestamp() {
+		return sprintf( '%.6f', microtime( true ) );
+	}
+
 	private function get_checkout_id() {
 		global $wpdb;
 		$checkout_value = $wpdb->get_var( 
@@ -382,12 +397,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function get_next_data_row_option_name() {
-		// this option is specifically chosen to, as much as possible, preserve time order
-		// and minimise the possibility of collisions between multiple processes working
-		// at the same time
-		// TODO: confirm we only need to support PHP 5.05+ (otherwise we'll need to emulate microtime as float, and avoid PHP_INT_MAX)
-		// @see: http://php.net/manual/en/function.microtime.php
-		$timestamp = sprintf( '%.6f', microtime( true ) );
+		$timestamp = $this->generate_option_name_timestamp();
 
 		// row iterator is used to avoid collisions where we're writing data waaay fast in a single process
 		if ( $this->row_iterator === PHP_INT_MAX ) {
