@@ -10,7 +10,7 @@ if ( danger.github.pr.body.length < 10 ) {
 
 // Use labels please!
 const ghLabels = danger.github.issue.labels;
-if ( ! ghLabels.find( l => l.toLowerCase().includes( '[status]' ) ) ) {
+if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
 	warn( 'The PR is missing at least one [Status] label. Suggestions: `[Status] In Progress`, `[Status] Needs Review`' );
 }
 
