@@ -58,6 +58,9 @@ abstract class Jetpack_Sync_Module {
 		return false;
 	}
 
+	/**
+	 * Adding a comment just to see that patch can properly apply the change on dotcom side.
+	 */
 	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 

@@ -1,0 +1,6 @@
+{
+ "files": [
+  "fusion/whitelist.json",
+  "sync/class.jetpack-sync-module.php"
+ ]
+}
