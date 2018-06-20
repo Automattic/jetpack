@@ -1698,15 +1698,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return true;
 		}
 
-		if ( $post_type_object = get_post_type_object( $post_type ) ) {
-			if ( ! empty( $post_type_object->show_in_rest ) ) {
-				return $post_type_object->show_in_rest;
-			}
-			if ( ! empty( $post_type_object->publicly_queryable ) ) {
-				return $post_type_object->publicly_queryable;
-			}
-		}
-
+		$post_type_object = get_post_type_object( $post_type );
 		return ! empty( $post_type_object->public );
 	}
 
