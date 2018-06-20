@@ -140,6 +140,8 @@ const emitChange = function( evt ) {
 	return true;
 };
 
+const OBSERVER_CONFIG = { subtree: true, characterData: true };
+
 export default class MarkdownLivePreview extends React.Component {
 
 	constructor( props ) {
@@ -162,7 +164,6 @@ export default class MarkdownLivePreview extends React.Component {
 			{
 				...props,
 				ref: ( e ) => this.htmlEl = e,
-				onInput: emitChange.bind( this ),
 				onBlur: emitChange.bind( this ),
 				contentEditable: ! this.props.disabled,
 				dangerouslySetInnerHTML: { __html: this.state.html }
@@ -189,5 +190,11 @@ export default class MarkdownLivePreview extends React.Component {
 		if ( this.props.isSelected ) {
 			this.htmlEl.focus();
 		}
+		// onInput doesn't work for content editable elements in Internet Explorer 11,
+		// but we can use a MutationObserver instead
+		this.observer = new MutationObserver( ( mutations ) => {
+			mutations.forEach( emitChange.bind( this ) );
+		} );
+		this.observer.observe( this.htmlEl, OBSERVER_CONFIG );
 	}
 }

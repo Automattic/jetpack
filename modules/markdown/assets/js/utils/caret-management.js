@@ -3,6 +3,7 @@
  */
 const getTextNodeAtPosition = function( rootElement, position ) {
 	// Iterates over the passed element children nodes
+	const dontExpandEntityReferences = false;
 	const treeWalker = document.createTreeWalker( rootElement, NodeFilter.SHOW_TEXT, function next( childElement ) {
 		// if position it's bigger than this node's length, we keep searching...
 		if ( position > childElement.textContent.length ) {
@@ -11,7 +12,7 @@ const getTextNodeAtPosition = function( rootElement, position ) {
 		}
 
 		return NodeFilter.FILTER_ACCEPT;
-	} );
+	}, /* required by IE 11 */ dontExpandEntityReferences );
 
 	const nextNode = treeWalker.nextNode();
 
@@ -39,7 +40,7 @@ export function saveCaretPosition( element ) {
 		const textNodeAndPosition = getTextNodeAtPosition( element, caretOffset );
 		selection.removeAllRanges();
 
-		const restorationRange = new Range();
+		const restorationRange = document.createRange();
 		restorationRange.setStart( textNodeAndPosition.node, textNodeAndPosition.position );
 		selection.addRange( restorationRange );
 	};
