@@ -172,6 +172,17 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( $product_post_id );
 			}
 
+			$tracks_properties = array(
+				'id'       => $product_post_id,
+				'currency' => $params['currency'],
+				'price'    => $params['price']
+			);
+			if ( 0 === $product_post['ID'] ) {
+				$this->record_event( 'created', 'create', $tracks_properties );
+			} else {
+				$this->record_event( 'updated', 'update', $tracks_properties );
+			}
+
 			wp_send_json_success( [
 				'product_post_id' => $product_post_id,
 				'product_post_title' => $params['post_title'],
@@ -207,6 +218,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( false === $status ) {
 				$return['status'] = 'deleted';
 			}
+
+			$this->record_event( 'deleted', 'delete', array( 'id' => $product_id ) );
 
 			wp_send_json_success( $return );
 		}
@@ -384,6 +397,27 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			return $this->defaults();
+		}
+
+		/**
+		 * Record a Track event and bump a MC stat.
+		 *
+		 * @param string $stat_name
+		 * @param string $event_action
+		 * @param array $event_properties
+		 */
+		private function record_event( $stat_name, $event_action, $event_properties = array() ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_lib( 'tracks/client' );
+				$current_user = wp_get_current_user();
+				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
+				bump_stats_extras( 'simple_payments', $stat_name );
+				return;
+			}
+
+			JetpackTracking::record_user_event( 'wpa_simple_payments_button_' . $event_action, $event_properties );
+			/** This action is documented in modules/widgets/social-media-icons.php */
+			do_action( 'jetpack_bump_stats_extras', 'simple_payments', $stat_name );
 		}
 
 		/**
