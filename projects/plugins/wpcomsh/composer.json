@@ -9,7 +9,8 @@
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "0.2.3",
-    "woocommerce/wc-api-dev": "0.9.7"
+    "woocommerce/wc-api-dev": "0.9.7",
+    "automattic/calypsoify": "0.1.0"
   },
   "require-dev": {
     "php": ">=7.0.0"
@@ -44,6 +45,11 @@
       "type": "vcs",
       "no-api": true,
       "url": "https://github.com/woocommerce/wc-api-dev.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/Automattic/calypsoify"
     }
   ]
 }
