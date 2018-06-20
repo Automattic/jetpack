@@ -266,7 +266,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 						'post_status' => 'publish',
 					 ) );
 	
-					$attrs = array( 'id' => $product_posts[0]->ID );
+					$attrs = array( 'id' => ! empty( $product_posts ) ? $product_posts[0]->ID : null );
 				}
 
 				$jsp = Jetpack_Simple_Payments::getInstance();
