@@ -158,8 +158,13 @@ export default class MarkdownLivePreview extends React.Component {
 
 	shouldComponentUpdate( nextProps, nextState ) {
 		if ( this.state.html !== nextState.html ) {
-			nextState.restoreCaretPosition = saveCaretPosition( this.htmlEl );
 			return true;
+		}
+	}
+
+	getSnapshotBeforeUpdate( prevProps, prevState ) {
+		if ( this.state.html !== prevState.html ) {
+			this.state.restoreCaretPosition = saveCaretPosition( this.htmlEl );
 		}
 	}
 
