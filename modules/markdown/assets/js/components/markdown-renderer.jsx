@@ -11,7 +11,7 @@ const {
 
 const markdownIt = new MarkdownIt();
 
-const MarkdownPreview = function( props ) {
+const MarkdownRenderer = function( props ) {
 	const { source } = props;
 
 	let content = '';
@@ -23,4 +23,4 @@ const MarkdownPreview = function( props ) {
 	return <RawHTML>{ content }</RawHTML>;
 };
 
-export default MarkdownPreview;
+export default MarkdownRenderer;
