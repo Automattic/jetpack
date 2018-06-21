@@ -54,9 +54,11 @@ class JetpackMarkdownBlockEditor extends Component {
 			const placeholderSource = __( 'Write your _Markdown_ **here**...' );
 
 			if ( ! isSelected && this.isEmpty() ) {
-				return <p className={ `${ className }-placeholder` }>
-					{ placeholderSource }
-				</p>;
+				return (
+					<p className={ `${ className }-placeholder` }>
+						{ placeholderSource }
+					</p>
+				);
 			}
 			return <MarkdownLivePreview
 				className={ `${ className }-live-preview` }
