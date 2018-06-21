@@ -22,45 +22,46 @@ const markdownIt = new MarkdownIt( 'zero' ).enable( [
 	'backticks',
 ] );
 
-// Redefines the rules applied by the parser to render each token.  This adds
-// to each token's content, the delimiter the user used (which the parser
-// obviously removes in the resulting HTML)
-const setupMarkdownParser = function() {
-	// Adds `_` or `*` to the beginning of the em tag
-	markdownIt.renderer.rules.em_open = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		return `<em>${ token.markup }`;
-	};
-	// Adds `_` or `*` to the end of the em tag
-	markdownIt.renderer.rules.em_close = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		return `${ token.markup }</em>`;
-	};
-	// Adds `__` or `**` to the beginning of the strong tag
-	markdownIt.renderer.rules.strong_open = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		return `<strong>${ token.markup }`;
-	};
-	// Adds `__` or `**` to the end of the strong tag
-	markdownIt.renderer.rules.strong_close = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		return `${ token.markup }</strong>`;
-	};
-	// Wraps inline code tokens with ```
-	markdownIt.renderer.rules.code_inline = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		return `<code>${ token.markup }${ escape( token.content ) }${ token.markup }</code>`;
-	};
-	// Adds `#`s to the beginning of the heading content
-	markdownIt.renderer.rules.heading_open = function( tokens, idx ) {
-		const token = tokens[ idx ];
-		const inline_token = tokens[ idx + 1 ];
-		const text_token = inline_token.children[ 0 ];
-		if ( text_token ) {
-			text_token.content = ` ${ text_token.content }`;
-		}
-		return `<${ token.tag }>${ token.markup }`;
-	};
+/*
+ * Redefines the rules applied by the parser to render each token.  This adds
+ * to each token's content, the delimiter the user used (which the parser
+ * obviously removes in the resulting HTML)
+ */
+
+// Adds `_` or `*` to the beginning of the em tag
+markdownIt.renderer.rules.em_open = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	return `<em>${ token.markup }`;
+};
+// Adds `_` or `*` to the end of the em tag
+markdownIt.renderer.rules.em_close = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	return `${ token.markup }</em>`;
+};
+// Adds `__` or `**` to the beginning of the strong tag
+markdownIt.renderer.rules.strong_open = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	return `<strong>${ token.markup }`;
+};
+// Adds `__` or `**` to the end of the strong tag
+markdownIt.renderer.rules.strong_close = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	return `${ token.markup }</strong>`;
+};
+// Wraps inline code tokens with ```
+markdownIt.renderer.rules.code_inline = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	return `<code>${ token.markup }${ escape( token.content ) }${ token.markup }</code>`;
+};
+// Adds `#`s to the beginning of the heading content
+markdownIt.renderer.rules.heading_open = function( tokens, idx ) {
+	const token = tokens[ idx ];
+	const inline_token = tokens[ idx + 1 ];
+	const text_token = inline_token.children[ 0 ];
+	if ( text_token ) {
+		text_token.content = ` ${ text_token.content }`;
+	}
+	return `<${ token.tag }>${ token.markup }`;
 };
 
 const renderHTML = function( source ) {
@@ -148,8 +149,6 @@ export default class MarkdownLivePreview extends React.Component {
 		super();
 
 		const { source } = props;
-
-		setupMarkdownParser();
 
 		this.state = {
 			html: source ? renderHTML( source ) : emptyState,
