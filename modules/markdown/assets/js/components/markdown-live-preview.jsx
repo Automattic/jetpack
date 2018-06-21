@@ -156,22 +156,6 @@ export default class MarkdownLivePreview extends React.Component {
 		};
 	}
 
-	render() {
-		const { ...props } = this.props;
-
-		return createElement(
-			'div',
-			{
-				...props,
-				ref: ( e ) => this.htmlEl = e,
-				onBlur: emitChange.bind( this ),
-				contentEditable: ! this.props.disabled,
-				dangerouslySetInnerHTML: { __html: this.state.html }
-			},
-			this.props.children
-		);
-	}
-
 	shouldComponentUpdate( nextProps, nextState ) {
 		if ( this.state.html !== nextState.html ) {
 			nextState.restoreCaretPosition = saveCaretPosition( this.htmlEl );
@@ -197,4 +181,21 @@ export default class MarkdownLivePreview extends React.Component {
 		} );
 		this.observer.observe( this.htmlEl, OBSERVER_CONFIG );
 	}
+
+	render() {
+		const { ...props } = this.props;
+
+		return createElement(
+			'div',
+			{
+				...props,
+				ref: ( e ) => this.htmlEl = e,
+				onBlur: emitChange.bind( this ),
+				contentEditable: ! this.props.disabled,
+				dangerouslySetInnerHTML: { __html: this.state.html }
+			},
+			this.props.children
+		);
+	}
+
 }
