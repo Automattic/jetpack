@@ -3,7 +3,7 @@
 /**
  * Internal dependencies
  */
-import MarkdownPreview from './components/markdown-preview';
+import MarkdownPreview from './components/markdown-renderer';
 
 function JetpackMarkdownBlockSave( { attributes } ) {
 	return <MarkdownPreview source={ attributes.source } />;
