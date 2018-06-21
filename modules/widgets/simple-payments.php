@@ -407,15 +407,16 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $event_properties
 		 */
 		private function record_event( $stat_name, $event_action, $event_properties = array() ) {
+			$current_user = wp_get_current_user();
+
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				require_lib( 'tracks/client' );
-				$current_user = wp_get_current_user();
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				bump_stats_extras( 'simple_payments', $stat_name );
 				return;
 			}
 
-			JetpackTracking::record_user_event( 'wpa_simple_payments_button_' . $event_action, $event_properties );
+			jetpack_tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
 			/** This action is documented in modules/widgets/social-media-icons.php */
 			do_action( 'jetpack_bump_stats_extras', 'simple_payments', $stat_name );
 		}
