@@ -43,35 +43,29 @@ class JetpackMarkdownBlockEditor extends Component {
 	render() {
 		const { attributes, className, isSelected } = this.props;
 
-		// Renders the editor panel or the preview panel based on component's state
-		const editorOrPreviewPanel = function() {
-			const source = attributes.source;
+		const source = attributes.source;
 
-			if ( ! isSelected && ! this.isEmpty() ) {
-				return <MarkdownPreview source={ source } />;
-			}
+		if ( ! isSelected && ! this.isEmpty() ) {
+			return <MarkdownPreview source={ source } />;
+		}
 
-			const placeholderSource = __( 'Write your _Markdown_ **here**...' );
+		const placeholderSource = __( 'Write your _Markdown_ **here**...' );
 
-			if ( ! isSelected && this.isEmpty() ) {
-				return (
-					<p className={ `${ className }-placeholder` }>
-						{ placeholderSource }
-					</p>
-				);
-			}
-			return <MarkdownLivePreview
-				className={ `${ className }-live-preview` }
-				onChange={ this.updateSource }
-				aria-label={ __( 'Markdown' ) }
-				isSelected={ isSelected }
-				source={ source }
-			/>;
-		};
+		if ( ! isSelected && this.isEmpty() ) {
+			return (
+				<p className={ `${ className }-placeholder` }>
+					{ placeholderSource }
+				</p>
+			);
+		}
 
-		return [
-			editorOrPreviewPanel.call( this )
-		];
+		return <MarkdownLivePreview
+			className={ `${ className }-live-preview` }
+			onChange={ this.updateSource }
+			aria-label={ __( 'Markdown' ) }
+			isSelected={ isSelected }
+			source={ source }
+		/>;
 	}
 
 }
