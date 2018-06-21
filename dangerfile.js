@@ -9,6 +9,12 @@ if ( danger.github.pr.body.length < 10 ) {
 }
 
 // Use labels please!
-if ( danger.github.issue.labels.length === 0 ) {
-	warn( 'This PR is missing at least one label.' );
+const ghLabels = danger.github.issue.labels;
+if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
+	warn( 'The PR is missing at least one [Status] label. Suggestions: `[Status] In Progress`, `[Status] Needs Review`' );
+}
+
+// Test instructions
+if ( ! danger.github.pr.body.includes( 'Testing instructions' ) ) {
+	warn( 'Test instructions are missing for this PR. Please add some' );
 }
