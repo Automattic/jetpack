@@ -3,7 +3,7 @@
 /**
  * Internal dependencies
  */
-import MarkdownPreview from './components/markdown-preview';
+import MarkdownPreview from './components/markdown-renderer';
 import MarkdownLivePreview from './components/markdown-live-preview';
 
 const { __ } = window.wp.i18n;
