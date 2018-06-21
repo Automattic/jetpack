@@ -17,7 +17,7 @@
 		id="<?php echo $this->get_field_id('product_post_id'); ?>"
 		name="<?php echo $this->get_field_name('product_post_id'); ?>">
 		<?php foreach ( $product_posts as $product_post ) { ?>
-			<option value="<?php echo esc_attr( $product_post->ID ) ?>"<?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
+			<option value="<?php echo esc_attr( $product_post->ID ) ?>" <?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
 				<?php echo esc_attr( get_the_title( $product_post ) ) ?>
 			</option>
 		<?php } ?>

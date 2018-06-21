@@ -291,7 +291,7 @@
 				productList.remove( productList.selectedIndex );
 				productList.dispatchEvent( new Event( 'change' ) );
 
-				if ( widgetForm.find( 'select.jetpack-simple-payments-products' ).has( 'option' ).length > 0 ) {
+				if ( widgetForm.find( 'select.jetpack-simple-payments-products' ).has( 'option' ).length === 0 ) {
 					widgetForm.find( '.jetpack-simple-payments-products-fieldset' ).hide();
 					widgetForm.find( '.jetpack-simple-payments-products-warning' ).show();
 				}
