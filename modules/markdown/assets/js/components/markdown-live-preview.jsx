@@ -99,7 +99,10 @@ const sourceIsEmpty = function( source ) {
 };
 
 const ignoreLastInput = function( source ) {
-	return endsWith( source, ' ' ) || endsWith( source, ' ' );
+	const SPACE = String.fromCharCode( 32 );
+	const NO_BREAK_SPACE = String.fromCharCode( 160 );
+
+	return endsWith( source, SPACE ) || endsWith( source, NO_BREAK_SPACE );
 };
 
 const emptyState = '<p></p>';
