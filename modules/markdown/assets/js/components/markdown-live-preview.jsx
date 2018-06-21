@@ -107,7 +107,7 @@ const ignoreLastInput = function( source ) {
 
 const emptyState = '<p></p>';
 
-const emitChange = function( evt ) {
+const renderMarkdownPreview = function( evt ) {
 	if ( ! this.htmlEl ) {
 		return true;
 	}
@@ -184,7 +184,7 @@ export default class MarkdownLivePreview extends React.Component {
 		// onInput doesn't work for content editable elements in Internet Explorer 11,
 		// but we can use a MutationObserver instead
 		this.observer = new MutationObserver( ( mutations ) => {
-			mutations.forEach( emitChange.bind( this ) );
+			mutations.forEach( renderMarkdownPreview.bind( this ) );
 		} );
 		this.observer.observe( this.htmlEl, OBSERVER_CONFIG );
 	}
@@ -197,7 +197,7 @@ export default class MarkdownLivePreview extends React.Component {
 			{
 				...props,
 				ref: ( e ) => this.htmlEl = e,
-				onBlur: emitChange.bind( this ),
+				onBlur: renderMarkdownPreview.bind( this ),
 				contentEditable: ! this.props.disabled,
 				dangerouslySetInnerHTML: { __html: this.state.html }
 			},
