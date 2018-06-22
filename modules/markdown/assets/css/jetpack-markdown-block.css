@@ -1,7 +1,12 @@
+
 .wp-block-jetpack-markdown-block-placeholder {
 	opacity: 0.5;
 	pointer-events: none;
 }
 .wp-block-jetpack-markdown-block-live-preview p {
 	min-height: 1.8em;
+}
+.wp-block-jetpack-markdown-block__live-preview__token {
+	/* $dark-gray-300 from Gutenberg _colors.scss */
+	color: #6c7781;
 }

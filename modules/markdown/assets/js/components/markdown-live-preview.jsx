@@ -27,26 +27,27 @@ const markdownIt = new MarkdownIt( 'zero' ).enable( [
  * to each token's content, the delimiter the user used (which the parser
  * obviously removes in the resulting HTML)
  */
+const LIVE_PREVIEW_TOKEN_CSS_CLASS = 'wp-block-jetpack-markdown-block__live-preview__token';
 
 // Adds `_` or `*` to the beginning of the em tag
 markdownIt.renderer.rules.em_open = function( tokens, idx ) {
 	const token = tokens[ idx ];
-	return `<em>${ token.markup }`;
+	return `<em><span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span>`;
 };
 // Adds `_` or `*` to the end of the em tag
 markdownIt.renderer.rules.em_close = function( tokens, idx ) {
 	const token = tokens[ idx ];
-	return `${ token.markup }</em>`;
+	return `<span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span></em>`;
 };
 // Adds `__` or `**` to the beginning of the strong tag
 markdownIt.renderer.rules.strong_open = function( tokens, idx ) {
 	const token = tokens[ idx ];
-	return `<strong>${ token.markup }`;
+	return `<strong><span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span>`;
 };
 // Adds `__` or `**` to the end of the strong tag
 markdownIt.renderer.rules.strong_close = function( tokens, idx ) {
 	const token = tokens[ idx ];
-	return `${ token.markup }</strong>`;
+	return `<span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span></strong>`;
 };
 // Wraps inline code tokens with ```
 markdownIt.renderer.rules.code_inline = function( tokens, idx ) {
@@ -61,7 +62,7 @@ markdownIt.renderer.rules.heading_open = function( tokens, idx ) {
 	if ( text_token ) {
 		text_token.content = ` ${ text_token.content }`;
 	}
-	return `<${ token.tag }>${ token.markup }`;
+	return `<${ token.tag }><span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span>`;
 };
 
 const renderHTML = function( source ) {
