@@ -60,6 +60,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
 
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
+				add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
 			}
@@ -118,6 +119,39 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_localize_script( 'jetpack-simple-payments-widget-customizer', 'jpSimplePaymentsStrings', array(
 					'deleteConfirmation' => __( 'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.', 'jetpack' )
 				) );
+		}
+
+		public function ajax_get_payment_buttons() {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
+				wp_send_json_error( 'bad_nonce', 400 );
+			}
+
+			if ( ! current_user_can( 'customize' ) ) {
+				wp_send_json_error( 'customize_not_allowed', 403 );
+			}
+
+			$post_type_object = get_post_type_object( Jetpack_Simple_Payments::$post_type_product );
+			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+				wp_send_json_error( 'insufficient_post_permissions', 403 );
+			}
+
+			$product_posts = get_posts( array(
+				'numberposts' => 100,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+			 ) );
+
+			 $formatted_products = array_map( array( $this, 'format_product_post_for_ajax_reponse' ), $product_posts );
+
+			 wp_send_json_success( $formatted_products );
+		}
+
+		public function format_product_post_for_ajax_reponse( $product_post ) {
+			return array(
+				'ID' => $product_post->ID,
+				'post_title' => $product_post->post_title,
+			);
 		}
 
 		public function ajax_save_payment_button() {
@@ -232,6 +266,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			return $errors;
 		}
+
 		/**
 		 * Front-end display of widget.
 		 *
