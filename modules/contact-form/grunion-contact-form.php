@@ -851,13 +851,13 @@ class Grunion_Contact_Form_Plugin {
 
 		foreach ( $post_ids as $post_id ) {
 			/**
-			 * Filters whether to erase the Feedback post.
+			 * Filters whether to erase a particular Feedback post.
 			 *
-			 * @since
+			 * @since 6.3.0
 			 *
-			 * @param bool|string  Whether to apply erase the Feedback post (bool).
-			 *                     Custom prevention message (string). Default true.
-			 * @param int $post_id Feedback post ID.
+			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
+			 *                                        Custom prevention message (string). Default true.
+			 * @param int         $post_id            Feedback post ID.
 			 */
 			$prevention_message = apply_filters( 'grunion_contact_form_delete_feedback_post', true, $post_id );
 
