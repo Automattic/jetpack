@@ -749,7 +749,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $exporters An array of personal data exporters.
 	 */
 	public function register_personal_data_exporter( $exporters ) {
-		$exporters['jetpack-contact-form'] = array(
+		$exporters['jetpack-feedback'] = array(
 			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'               => array( $this, 'personal_data_exporter' ),
 		);
@@ -767,7 +767,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $erasers An array of personal data erasers.
 	 */
 	public function register_personal_data_eraser( $erasers ) {
-		$erasers['jetpack-contact-form'] = array(
+		$erasers['jetpack-feedback'] = array(
 			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'             => array( $this, 'personal_data_eraser' ),
 		);
