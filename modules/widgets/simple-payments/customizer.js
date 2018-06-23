@@ -76,7 +76,7 @@
 	function syncProductLists() {
 		var request = wp.ajax.post( 'customize-jetpack-simple-payments-buttons-get', {
 			'customize-jetpack-simple-payments-nonce': api.settings.nonce[ 'customize-jetpack-simple-payments' ],
-			'customize_changeset_uuid': api.settings.changeset.uuid,
+			'customize_changeset_uuid': api.settings.changeset.uuid
 		} );
 
 		request.done( function( data ) {
