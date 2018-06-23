@@ -78,10 +78,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		private function defaults() {
 			$current_user = wp_get_current_user();
+			$default_product_id = $this->get_first_product_id();
 
 			return array(
 				'title' => '',
-				'product_post_id' => 0,
+				'product_post_id' => $default_product_id,
 				'form_action' => '',
 				'form_product_id' => 0,
 				'form_product_title' => '',
@@ -232,6 +233,18 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			return $errors;
 		}
+
+		function get_first_product_id() {
+			$product_posts = get_posts( array(
+				'numberposts' => 1,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+			 ) );
+
+			return ! empty( $product_posts ) ? $product_posts[0]->ID : null;
+		}
+
 		/**
 		 * Front-end display of widget.
 		 *
@@ -256,26 +269,14 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ) ) && is_customize_preview() ) {
 				require( dirname( __FILE__ ) . '/simple-payments/widget.php' );
 			} else {
-				if ( ! empty( $instance['product_post_id'] ) ) {
-					$attrs = array( 'id' => $instance['product_post_id'] );
-				} else {
-					$product_posts = get_posts( array(
-						'numberposts' => 1,
-						'orderby' => 'date',
-						'post_type' => Jetpack_Simple_Payments::$post_type_product,
-						'post_status' => 'publish',
-					 ) );
-	
-					$attrs = array( 'id' => $product_posts[0]->ID );
-				}
-
 				$jsp = Jetpack_Simple_Payments::getInstance();
-				$simple_payments_button = $jsp->parse_shortcode( $attrs );
-				if ( is_null( $simple_payments_button ) && ! is_customize_preview() ) {
-					return;
-				}
+				$simple_payments_button = $jsp->parse_shortcode( array(
+					'id' => $instance['product_post_id'],
+				) );
 
-				echo $simple_payments_button;
+				if ( ! is_null( $simple_payments_button ) || is_customize_preview() ) {
+					echo $simple_payments_button;
+				}
 			}
 
 			echo '</div><!--simple-payments-->';
@@ -339,8 +340,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @return array Updated safe values to be saved.
 		 */
 		function update( $new_instance, $old_instance ) {
-			$new_instance = wp_parse_args( $new_instance, $this->defaults() );
-			$old_instance = wp_parse_args( $old_instance, $this->defaults() );
+			$defaults = $this->defaults();
+			//do not overrite `product_post_id` for `$new_instance` with the defaults
+			$new_instance = wp_parse_args( $new_instance, array_diff_key( $defaults, array( 'product_post_id' => 0 ) ) );
+			$old_instance = wp_parse_args( $old_instance, $defaults );
 
 			$required_widget_props = array(
 				'title' => $this->get_latest_field_value( $new_instance, $old_instance, 'title' ),
