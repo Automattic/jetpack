@@ -7,21 +7,22 @@
 		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
-<?php if ( ! empty( $product_posts ) ) { ?>
-<p>
+<p class="jetpack-simple-payments-products-warning" <?php if ( ! empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
+	<?php echo __( 'Looks like you don\'t have any products. You can create one using the Add New button below.' ) ?>
+</p>
+<p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
 	<label for="<?php echo $this->get_field_id('product_post_id'); ?>"><?php _e( 'Select a Simple Payment Button:', 'jetpack' ); ?></label>
 	<select
 		class="widefat jetpack-simple-payments-products"
 		id="<?php echo $this->get_field_id('product_post_id'); ?>"
 		name="<?php echo $this->get_field_name('product_post_id'); ?>">
 		<?php foreach ( $product_posts as $product_post ) { ?>
-			<option value="<?php echo esc_attr( $product_post->ID ) ?>"<?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
+			<option value="<?php echo esc_attr( $product_post->ID ) ?>" <?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
 				<?php echo esc_attr( get_the_title( $product_post ) ) ?>
 			</option>
 		<?php } ?>
 	</select>
 </p>
-<?php } ?>
 <p>
 	<div class="alignleft">
 		<button class="button jetpack-simple-payments-edit-product"><?php esc_html_e( 'Edit Selected' ); ?></button>

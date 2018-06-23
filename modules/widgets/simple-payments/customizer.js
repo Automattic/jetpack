@@ -241,6 +241,10 @@
 					);
 					select.val( data.product_post_id ).change();
 				}
+
+				widgetForm.find( '.jetpack-simple-payments-products-fieldset' ).show();
+				widgetForm.find( '.jetpack-simple-payments-products-warning' ).hide();
+
 				changeFormAction( widgetForm, 'clear' );
 				hideForm( widgetForm );
 			} );
@@ -286,6 +290,12 @@
 				var productList = widgetForm.find( 'select.jetpack-simple-payments-products' )[ 0 ];
 				productList.remove( productList.selectedIndex );
 				productList.dispatchEvent( new Event( 'change' ) );
+
+				if ( widgetForm.find( 'select.jetpack-simple-payments-products' ).has( 'option' ).length === 0 ) {
+					widgetForm.find( '.jetpack-simple-payments-products-fieldset' ).hide();
+					widgetForm.find( '.jetpack-simple-payments-products-warning' ).show();
+				}
+
 				changeFormAction( widgetForm, 'clear' );
 				hideForm( widgetForm );
 			} );
