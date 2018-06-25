@@ -97,6 +97,8 @@ const renderMarkdownPreview = function( evt ) {
 
 const OBSERVER_CONFIG = { subtree: true, characterData: true };
 
+const isIE11 = !! window.MSInputMethodContext && !! document.documentMode;
+
 export default class MarkdownLivePreview extends React.Component {
 
 	constructor( props ) {
@@ -134,10 +136,12 @@ export default class MarkdownLivePreview extends React.Component {
 		}
 		// onInput doesn't work for content editable elements in Internet Explorer 11,
 		// but we can use a MutationObserver instead
-		this.observer = new MutationObserver( ( mutations ) => {
-			mutations.forEach( renderMarkdownPreview.bind( this ) );
-		} );
-		this.observer.observe( this.htmlEl, OBSERVER_CONFIG );
+		if ( isIE11 ) {
+			this.observer = new MutationObserver( ( mutations ) => {
+				mutations.forEach( renderMarkdownPreview.bind( this ) );
+			} );
+			this.observer.observe( this.htmlEl, OBSERVER_CONFIG );
+		}
 	}
 
 	render() {
@@ -149,6 +153,7 @@ export default class MarkdownLivePreview extends React.Component {
 				...props,
 				ref: ( e ) => this.htmlEl = e,
 				onBlur: renderMarkdownPreview.bind( this ),
+				onInput: renderMarkdownPreview.bind( this ),
 				contentEditable: ! this.props.disabled,
 				dangerouslySetInnerHTML: { __html: this.state.html }
 			},
