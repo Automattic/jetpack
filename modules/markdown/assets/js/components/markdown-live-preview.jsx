@@ -16,14 +16,17 @@ const {
 	createElement
 } = window.wp.element;
 
-const markdownIt = new MarkdownIt( 'zero' ).enable( [
-	'heading',
-	'emphasis',
-	'backticks',
-] );
+const markdownIt = new MarkdownIt( 'zero' )
+	.set( { breaks: true } )
+	.enable( [
+		'heading',
+		'emphasis',
+		'backticks',
+		'newline',
+	] );
 
 /*
- * Redefines the rules applied by the parser to render each token.  This adds
+ * Redefines the rules applied by the parser to render each token. This adds
  * to each token's content, the delimiter the user used (which the parser
  * obviously removes in the resulting HTML)
  */
@@ -64,6 +67,40 @@ markdownIt.renderer.rules.heading_open = function( tokens, idx ) {
 	}
 	return `<${ token.tag }><span class="${ LIVE_PREVIEW_TOKEN_CSS_CLASS }">${ token.markup }</span>`;
 };
+// Overrides the newline rule to keep whitespace at the beginning of new lines
+// Original source from `markdown-it/lib/rules_inline/newline.js`
+markdownIt.inline.ruler.at( 'newline', function replace( state, silent ) {
+	let position = state.pos;
+
+	if ( state.src.charCodeAt( position ) !== 0x0A/* \n */ ) {
+		return false;
+	}
+
+	const lastCharPosition = state.pending.length - 1;
+
+	// '	\n' -> hardbreak
+	// Lookup in pending chars is bad practice! Don't copy to other rules!
+	// Pending string is stored in concat mode, indexed lookups will cause
+	// convertion to flat mode.
+	if ( ! silent ) {
+		if ( lastCharPosition >= 0 && state.pending.charCodeAt( lastCharPosition ) === 0x20 ) {
+			if ( lastCharPosition >= 1 && state.pending.charCodeAt( lastCharPosition - 1 ) === 0x20 ) {
+				state.pending = state.pending.replace( / +$/, '' );
+				state.push( 'hardbreak', 'br', 0 );
+			} else {
+				state.pending = state.pending.slice( 0, -1 );
+				state.push( 'softbreak', 'br', 0 );
+			}
+		} else {
+			state.push( 'softbreak', 'br', 0 );
+		}
+	}
+
+	position++;
+
+	state.pos = position;
+	return true;
+} );
 
 const renderHTML = function( source ) {
 	if ( source ) {
@@ -96,7 +133,7 @@ const triggerOnChange = function( evt, source ) {
 };
 
 const sourceIsEmpty = function( source ) {
-	return ! source || '' === source.trim();
+	return ! source;
 };
 
 const ignoreLastInput = function( source ) {

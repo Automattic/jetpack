@@ -5,6 +5,7 @@
 }
 .wp-block-jetpack-markdown-block-live-preview p {
 	min-height: 1.8em;
+	white-space: pre-wrap;
 }
 .wp-block-jetpack-markdown-block__live-preview__token {
 	/* $dark-gray-300 from Gutenberg _colors.scss */
