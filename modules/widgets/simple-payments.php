@@ -259,63 +259,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		}
 
 		/**
-		 * Return an associative array of default values.
-		 *
-		 * These values are used in new widgets.
-		 *
-		 * @return array Default values for the widget options.
-		 */
-		private function defaults() {
-			return array(
-				'title' => '',
-				'product_post_id' => 0,
-				'form_action' => '',
-				'form_product_id' => 0,
-				'form_product_title' => '',
-				'form_product_description' => '',
-				'form_product_image_id' => 0,
-				'form_product_image_src' => '',
-				'form_product_currency' => '',
-				'form_product_price' => '',
-				'form_product_multiple' => '',
-				'form_product_email' => '',
-			);
-		}
-
-		/**
-		 * Adds a nonce for customizing menus.
-		 *
-		 * @param array $nonces Array of nonces.
-		 * @return array $nonces Modified array of nonces.
-		 */
-		function widget( $args, $instance ) {
-			$instance = wp_parse_args( $instance, $this->defaults() );
-
-			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
-				wp_send_json_error( 'missing_params', 400 );
-			}
-
-			$params = wp_unslash( $_POST['params'] );
-			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
-			if ( ! empty( $illegal_params ) ) {
-				wp_send_json_error( 'illegal_params', 400 );
-			}
-
-			$product_id = ( int ) $params['product_post_id'];
-			$product_post = get_post( $product_id );
-
-			$return = array( 'status' => $product_post->post_status );
-
-			wp_delete_post( $product_id, true );
-			$status = get_post_status( $product_id );
-			if ( false === $status ) {
-				$return['status'] = 'deleted';
-			}
-
-			wp_send_json_success( $return );
-		}
-
-		/**
 		 * Front-end display of widget.
 		 *
 		 * @see WP_Widget::widget()
