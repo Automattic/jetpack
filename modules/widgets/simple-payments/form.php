@@ -142,7 +142,7 @@
 	<?php
 		echo sprintf(
 			wp_kses(
-				__( 'You can only create and edit payment buttons in the <a href="%s">Customizer</a>.' ),
+				__( 'This widget adds a payment button of your choice to your sidebar. To create or edit the payment buttons themselves, <a href="%s">use the Customizer</a>.' ),
 				array(  'a' => array( 'href' => array() ) )
 			),
 			esc_url( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) )
