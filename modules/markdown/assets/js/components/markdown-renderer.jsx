@@ -1,15 +1,13 @@
 /* global React:true */
 
 /**
- * External dependencies
+ * Internal dependencies
  */
-import MarkdownIt from 'markdown-it';
+import markdownConverter from '../utils/markdown-converter';
 
 const {
 	RawHTML
 } = window.wp.element;
-
-const markdownIt = new MarkdownIt();
 
 const MarkdownRenderer = function( props ) {
 	const { source } = props;
@@ -18,7 +16,7 @@ const MarkdownRenderer = function( props ) {
 
 	if ( source ) {
 		// converts the markdown source to HTML
-		content = markdownIt.render( source );
+		content = markdownConverter.render( source );
 	}
 	return <RawHTML>{ content }</RawHTML>;
 };
