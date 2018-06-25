@@ -29,9 +29,9 @@ registerBlockType( 'jetpack/markdown-block', {
 
 	icon: <svg
 			xmlns="http://www.w3.org/2000/svg"
-			class="dashicons"
-			width="208"
-			height="128"
+			class="dashicon"
+			width="20"
+			height="20"
 			viewBox="0 0 208 128"
 			stroke="currentColor"
 		>
