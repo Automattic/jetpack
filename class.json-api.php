@@ -268,7 +268,7 @@ class WPCOM_JSON_API {
 			}
 		}
 
-		if ( !$found ) {
+		if ( ! $found ) {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
