@@ -70,6 +70,65 @@ To test:
 1. Add the line define( 'JETPACK_PROTECT__API_HOST', '' ); to wp-config.php, breaking the API connection, which should invoke the math puzzle on login.
 1. Try logging in via the bbPress widget.
 
+### Simple Payment
+
+We added support on the Customizer to add Simple Payment Buttons as Sidebar Widgets.
+
+To test:
+
+**Note**: There was a specific call for testing this feature. Refer to p8oabR-ey-p2. 
+
+But here are some steps to give it a try:
+
+1. Create one or more Payment Buttons on the Post/Page editor.
+2. Open the Customizer on a site with a Professional plan.
+3. Get to 'Widgets' and select a Widget Area.
+4. Click on Add Widget.
+5. Search on the widget panel for Simple Payment.
+6. Select the Simple Payment widget
+7. The Simple Payment Customizer should list the available Payment Buttons, and the Customizer Preview should show the item selected by default. All changes should update live on the preview window and the site should only be updated upon publishing.
+
+To **create a new product**, you'll need to:
+
+- click on _Add New_
+- fill the form. Using an image is optional, but it should open the media library if clicked.
+
+The widget preview on the customizer should clear out, and display the entered values as they are typed on the form.
+
+- click _Save_
+
+The form should close, and the new SP button should be added to the drop down list. The customizer preview should show the new SP button.
+
+- click _Cancel_
+
+The form should clear and close, and the previously selected SP button should appear on the customizer preview.
+
+To **edit and existing product**, you'll need to:
+
+- Select the desired product from the drop down list
+- click on _Edit Selected_
+
+The form should load the product properties, and the widget preview on the customizer should show the correct product, and update the values as they are edited on the form.
+
+- click _Save_
+
+The form should close, preserving the changes on the customizer preview window and the selected item on the product drop down list.
+
+- click _Cancel_
+
+The form should clear and close, and the previously selected SP button should appear on the customizer preview.
+
+To **delete an existing product**, you'll need to:
+
+- Select the desired product from the drop down list.
+- click on _Edit Selected_
+
+The form should load the product properties, and the widget preview on the customizer should show the correct product.
+
+- click _Delete_
+
+After confirming the action, the selected product should disappear from the product drop down list. The first product on the list should be selected, and the customizer preview should reflect this change. 
+
 ### Sitemap
 
 We fixed the format of the date shown for videos on the video sitemap.

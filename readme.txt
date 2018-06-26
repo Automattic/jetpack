@@ -105,6 +105,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Simple Payment: Added Simple Payment Products as Widgets, with the option to manage them via the Customizer.
+
 **Enhancements**
 
 * Connection: Added a new connect splash screen content.
@@ -121,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: Fixed a compatibility problem between WordPress TinyMCE and Jetpack Markdown when visiting the WordPress Dashboard.
 * Lazy Images: Fixed behaviour for when JavaScript is disabled.
 * Markdown: We fixed the naming of the class used for code blocks that specify a language.
+* Simple Payments: Fixed an error when the user had published Simple Payment Products but their Professional Subscription had expired.
 * Sitemap: We fixed the format of the date shown for videos on the video sitemap.
 * Stats: We fixed the width of the Stats page for wide screens.
 
