@@ -1504,6 +1504,7 @@ class Jetpack {
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$supports[] = 'akismet';
+			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
 			$plan['class'] = 'premium';
 		}
@@ -1518,6 +1519,7 @@ class Jetpack {
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
 			$supports[] = 'akismet';
+			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
 			$plan['class'] = 'business';
 		}
