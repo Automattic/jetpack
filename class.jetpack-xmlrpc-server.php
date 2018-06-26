@@ -83,6 +83,7 @@ class Jetpack_XMLRPC_Server {
 	function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteRegister' => array( $this, 'remote_register' ),
 		);
 	}
 
