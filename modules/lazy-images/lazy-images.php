@@ -47,6 +47,7 @@ class Jetpack_Lazy_Images {
 		add_action( 'admin_bar_menu', array( $this, 'remove_filters' ), 0 );
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
+		add_action( 'wp_head', array( $this, 'add_nojs_fallback' ) );
 	}
 
 	public function setup_filters() {
@@ -176,6 +177,9 @@ class Jetpack_Lazy_Images {
 			return $matches[0];
 		}
 
+		// Ensure we add the jetpack-lazy-image class to this image.
+		$new_attributes['class'] = sprintf( '%s jetpack-lazy-image', empty( $new_attributes['class'] ) ? '' : $new_attributes['class'] );
+
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
@@ -248,6 +252,30 @@ class Jetpack_Lazy_Images {
 		 *              and the value is the attribute value.
 		 */
 		return apply_filters( 'jetpack_lazy_images_new_attributes', $attributes );
+	}
+
+	/**
+	 * Adds JavaScript to check if the current browser supports JavaScript as well as some styles to hide lazy
+	 * images when the browser does not support JavaScript.
+	 *
+	 * @return void
+	 */
+	public function add_nojs_fallback() {
+		?>
+			<style type="text/css">
+				.jetpack-lazy-image {
+					display: none;
+				}
+				.jetpack-lazy-images-js .jetpack-lazy-image {
+					display: inline-block;
+				}
+			</style>
+			<script>
+				document.documentElement.classList.add(
+					'jetpack-lazy-images-js'
+				);
+			</script>
+		<?php
 	}
 
 	private static function get_placeholder_image() {
