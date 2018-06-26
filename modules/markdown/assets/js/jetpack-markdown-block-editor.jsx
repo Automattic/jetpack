@@ -9,8 +9,29 @@ import MarkdownLivePreview from './components/markdown-live-preview';
 const { __ } = window.wp.i18n;
 
 const {
+	Toolbar
+} = window.wp.components;
+
+const {
+	BlockFormatControls
+} = window.wp.editor;
+
+const {
 	Component,
 } = window.wp.element;
+
+const FORMATTING_CONTROLS = [
+	{
+		icon: 'editor-bold',
+		title: __( 'Bold' ),
+		format: 'bold',
+	},
+	{
+		icon: 'editor-italic',
+		title: __( 'Italic' ),
+		format: 'italic',
+	},
+];
 
 class JetpackMarkdownBlockEditor extends Component {
 
@@ -59,13 +80,18 @@ class JetpackMarkdownBlockEditor extends Component {
 			);
 		}
 
-		return <MarkdownLivePreview
-			className={ `${ className }-live-preview` }
-			onChange={ this.updateSource }
-			aria-label={ __( 'Markdown' ) }
-			isSelected={ isSelected }
-			source={ source }
-		/>;
+		return [
+			<BlockFormatControls >
+				<Toolbar controls={ FORMATTING_CONTROLS } />
+			</BlockFormatControls>,
+			<MarkdownLivePreview
+				className={ `${ className }-live-preview` }
+				onChange={ this.updateSource }
+				aria-label={ __( 'Markdown' ) }
+				isSelected={ isSelected }
+				source={ source }
+			/>
+		];
 	}
 
 }
