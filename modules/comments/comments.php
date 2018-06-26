@@ -270,6 +270,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			if ( current_user_can( 'unfiltered_html' ) ) {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 			}
+		} else {
+			$commenter = wp_get_current_commenter();
+			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
+			$params['has_cookie_consent'] = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
 		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
