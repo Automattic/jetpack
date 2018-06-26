@@ -59,3 +59,14 @@
 	line-height: 20px;
 	width: 58%;
 }
+
+.widget-content .jetpack-simple-payments-form .alignleft button,
+.widget-content .jetpack-simple-payments-form .alignright span {
+	display: inline-block;
+	margin-top: 5px;
+}
+
+.widget-content .button-link:disabled,
+.widget-content .button-link:hover[disabled] {
+	color: #a0a5aa;
+}

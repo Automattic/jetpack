@@ -26,7 +26,9 @@
 </p>
 <p>
 	<div class="alignleft">
-		<button class="button jetpack-simple-payments-edit-product"><?php esc_html_e( 'Edit Selected' ); ?></button>
+		<button class="button jetpack-simple-payments-edit-product" <?php disabled( empty( $product_posts ), true ); ?>>
+			<?php esc_html_e( 'Edit Selected' ); ?>
+		</button>
 	</div>
 	<div class="alignright">
 		<button class="button jetpack-simple-payments-add-product"><?php esc_html_e( 'Add New' ); ?></button>
@@ -128,11 +130,11 @@
 	</p>
 	<p>
 		<div class="alignleft">
-			<span><button type="button" class="button-link button-link-delete jetpack-simple-payments-delete-product"><?php _e( 'Delete' ); ?></button> | </span>
-			<button type="button" class="button-link jetpack-simple-payments-cancel-form"><?php _e( 'Cancel' ); ?></button>
+			<button type="button" class="button-link button-link-delete jetpack-simple-payments-delete-product"><?php _e( 'Delete Product' ); ?></button>
 		</div>
 		<div class="alignright">
 			<button name="<?php echo $this->get_field_name('save'); ?>" class="button jetpack-simple-payments-save-product"><?php _e( 'Save' ); ?></button>
+			<span> | <button type="button" class="button-link jetpack-simple-payments-cancel-form"><?php _e( 'Cancel' ); ?></button></span>
 		</div>
 		<br class="clear">
 	</p>
