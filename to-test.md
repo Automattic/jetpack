@@ -30,6 +30,19 @@ To test:
 
 We added support for displaying geo-location data added to posts and pages with Calypso.
 
+### Lazy Images
+
+We fixed the behaviour when JavaScript is disabled.
+
+To test:
+
+- Add lazy images to a post.
+- Load post with JavaScript on.
+- Ensure lazy images load once.
+- Turn off JavaScript.
+- Reload post.
+- Ensure that the image loads via the noscript tag and the lazy images image is hidden. In other words, there shouldn't be a large blank spot.
+
 ### Protect
 
 We solved an issue related to interaction with bbPress when trying to log in via a bbPress login widget. You would get redirected a few times to log in again after solving the math puzzle.
