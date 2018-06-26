@@ -191,9 +191,9 @@ class Jetpack_Options {
 
 		if ( false === $value && false !== $default ) {
 			if ( $is_network_option ) {
-				update_site_option( $name, $default );
+				add_site_option( $name, $default );
 			} else {
-				update_option( $name, $default );
+				add_option( $name, $default );
 			}
 			$value = $default;
 		}
