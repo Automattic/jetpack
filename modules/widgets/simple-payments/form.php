@@ -103,7 +103,8 @@
 			class="field-price widefat jetpack-simple-payments-form-product-price"
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_price' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_price' ) ); ?>"
-			value="<?php echo esc_attr( $instance['form_product_price'] ); ?>" />
+			value="<?php echo esc_attr( $instance['form_product_price'] ); ?>"
+			placeholder="1.00" />
 	</p>
 	<p>
 		<input

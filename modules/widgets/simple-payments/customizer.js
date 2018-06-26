@@ -96,6 +96,8 @@
 	}
 
 	function showForm( widgetForm ) {
+		//reset validations
+		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
 		//disable widget title and product selector
 		widgetForm.find( '.jetpack-simple-payments-widget-title' ).attr( 'disabled', 'disabled' );
 		widgetForm.find( '.jetpack-simple-payments-products' ).attr( 'disabled', 'disabled' );
@@ -204,7 +206,10 @@
 	}
 
 	function isFormValid( widgetForm ) {
+		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
+
 		var errors = false;
+
 		var postTitle = widgetForm.find( '.jetpack-simple-payments-form-product-title' ).val();
 		if ( ! postTitle ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-title' ).addClass( 'invalid' );
@@ -212,7 +217,7 @@
 		}
 
 		var productPrice = widgetForm.find( '.jetpack-simple-payments-form-product-price' ).val();
-		if ( ! productPrice ) {
+		if ( ! productPrice || isNaN( parseFloat( productPrice ) ) || parseFloat( productPrice ) <= 0 ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-price' ).addClass( 'invalid' );
 			errors = true;
 		}
