@@ -451,7 +451,7 @@ class WPCom_Markdown {
 ?>
 <script type="text/javascript">
 jQuery( function() {
-	tinymce.on( 'AddEditor', function( event ) {
+	( 'undefined' !== typeof tinymce ) && tinymce.on( 'AddEditor', function( event ) {
 		event.editor.on( 'BeforeSetContent', function( event ) {
 			var editor = event.target;
 			Object.keys( editor.schema.elements ).forEach( function( key, index ) {
