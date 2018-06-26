@@ -723,7 +723,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_background_color_callback() {
-		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack' ) ) );
 	}
 
 	function carousel_background_color_sanitize( $value ) {
