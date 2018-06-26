@@ -103,6 +103,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'jetpack_sso_require_two_step',
+		'jetpack_sso_match_by_email',
 		'jetpack_relatedposts',
 		'verification_services_codes',
 		'users_can_register',
