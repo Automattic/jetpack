@@ -3,6 +3,15 @@
  */
 import { danger, warn } from 'danger';
 
+// Skip danger check if "no ci"
+const commitMessages = danger.git.commits.map( cmt => cmt.message );
+if ( commitMessages.includes( 'no ci' ) ||
+			commitMessages.includes( 'skip ci' ) ||
+			commitMessages.includes( 'no danger' ) ||
+			commitMessages.includes( 'skip danger' ) ) {
+	process.exit( 0 ); // eslint-disable-line no-process-exit
+}
+
 // No PR is too small to include a description of why you made a change
 if ( danger.github.pr.body.length < 10 ) {
 	warn( 'Please include a description of your PR changes.' );
@@ -16,5 +25,5 @@ if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
 
 // Test instructions
 if ( ! danger.github.pr.body.includes( 'Testing instructions' ) ) {
-	warn( 'Test instructions are missing for this PR. Please add some' );
+	warn( '"Testing instructions" are missing for this PR. Please add some' );
 }
