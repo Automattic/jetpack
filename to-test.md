@@ -43,6 +43,21 @@ To test:
 - Reload post.
 - Ensure that the image loads via the noscript tag and the lazy images image is hidden. In other words, there shouldn't be a large blank spot.
 
+### Markdown
+
+We fixed the way we name the CSS class for `<code>` when attempting to specify a language for a code block.
+
+To test:
+
+1. Enable markdown.
+2. Write a test post with a Markdown syntax code block. Something like:
+    ```
+       ```javascript
+          var a = 2;
+       ``` 
+    ```
+3. Preview the post, then view source code of the preview page. The post content should show `<code class="language-javascript">`.
+
 ### Protect
 
 We solved an issue related to interaction with bbPress when trying to log in via a bbPress login widget. You would get redirected a few times to log in again after solving the math puzzle.
