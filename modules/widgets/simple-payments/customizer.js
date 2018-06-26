@@ -18,6 +18,9 @@
 			}
 
 			event.preventDefault();
+
+			syncProductLists();
+
 			var widgetForm = widgetContainer.find( '> .widget-inside > .form, > .widget-inside > form' );
 
 			if ( ! widgetForm.find( '.jetpack-simple-payments-form' ).is( ':visible' ) ) {
@@ -68,6 +71,28 @@
 		widgetForm.find( '.jetpack-simple-payments-cancel-form' ).on( 'click', clearForm( widgetForm ) );
 		//Delete Selected Product
 		widgetForm.find( '.jetpack-simple-payments-delete-product' ).on( 'click', deleteProduct( widgetForm ) );
+	}
+
+	function syncProductLists() {
+		var request = wp.ajax.post( 'customize-jetpack-simple-payments-buttons-get', {
+			'customize-jetpack-simple-payments-nonce': api.settings.nonce[ 'customize-jetpack-simple-payments' ],
+			'customize_changeset_uuid': api.settings.changeset.uuid
+		} );
+
+		request.done( function( data ) {
+			var selectedProduct = 0;
+
+			$( document ).find( 'select.jetpack-simple-payments-products' ).each( function( index, select ) {
+				var $select = $( select );
+				selectedProduct = $select.val();
+
+				$select.find( 'option' ).remove();
+				$select.append( $.map( data, function( product ) {
+					return $( '<option>', { value: product.ID, text: product.post_title } );
+				} ) );
+				$select.val( selectedProduct );
+			} );
+		} );
 	}
 
 	function showForm( widgetForm ) {
