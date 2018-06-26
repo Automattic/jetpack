@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Connection: Added a new connect splash screen content.
+* Jetpack Dashboard: We removed the labels reading 'PAID' in order to introduce a better way to remark paid features.
 * General: Added support to display geo-location data added to posts and pages with Calypso.
 
 **Improved compatibility**
