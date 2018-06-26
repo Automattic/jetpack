@@ -7,9 +7,6 @@
 		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
-<p class="jetpack-simple-payments-products-warning" <?php if ( ! empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
-	<?php echo __( 'Looks like you don\'t have any products. You can create one using the Add New button below.' ) ?>
-</p>
 <p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
 	<label for="<?php echo $this->get_field_id('product_post_id'); ?>"><?php _e( 'Select a Simple Payment Button:', 'jetpack' ); ?></label>
 	<select
@@ -22,6 +19,10 @@
 			</option>
 		<?php } ?>
 	</select>
+</p>
+<?php if ( is_customize_preview() ) { ?>
+<p class="jetpack-simple-payments-products-warning" <?php if ( ! empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
+	<?php echo __( 'Looks like you don\'t have any products. You can create one using the Add New button below.' ) ?>
 </p>
 <p>
 	<div class="alignleft">
@@ -136,3 +137,16 @@
 	</p>
 	<hr />
 </div>
+<?php } else { ?>
+<p class="jetpack-simple-payments-products-warning">
+	<?php
+		echo sprintf(
+			wp_kses(
+				__( 'This widget adds a payment button of your choice to your sidebar. To create or edit the payment buttons themselves, <a href="%s">use the Customizer</a>.' ),
+				array(  'a' => array( 'href' => array() ) )
+			),
+			esc_url( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) )
+		);
+	?>
+</p>
+<?php } ?>
