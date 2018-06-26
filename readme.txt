@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Connection: Added a new connect splash screen content.
+* General: Added support to display geo-location data added to posts and pages with Calypso.
 
 **Improved compatibility**
 
