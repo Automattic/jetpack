@@ -86,14 +86,11 @@
 				var $select = $( select );
 				selectedProduct = $select.val();
 
-				$select
-					.find( 'option' )
-					.remove()
-					.end() //cancels the find operation and returns the original <select /> element.
-					.append( $.map( data, function( product ) {
-						return $( '<option>', { value: product.ID, text: product.post_title } );
-					} ) )
-					.val( selectedProduct );
+				$select.find( 'option' ).remove();
+				$select.append( $.map( data, function( product ) {
+					return $( '<option>', { value: product.ID, text: product.post_title } );
+				} ) );
+				$select.val( selectedProduct );
 			} );
 		} );
 	}
