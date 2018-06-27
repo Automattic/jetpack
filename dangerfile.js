@@ -3,7 +3,7 @@
  */
 import { danger, warn } from 'danger';
 
-// Skip danger check if "no ci"
+// Skip danger check if "no ci" or "no danger"
 const commitMessages = danger.git.commits.map( cmt => cmt.message );
 if ( commitMessages.includes( 'no ci' ) ||
 			commitMessages.includes( 'skip ci' ) ||
