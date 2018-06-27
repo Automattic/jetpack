@@ -122,7 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comments: Implemented Core WordPress' Comment Cookie Consent Checkbox in Jetpack Comments.
 * General: We solved an issue that arised when using the Front End Editor feature plugin. A fatal error wass thrown due to us assuming the `enter_title_here` filter would only run within wp-admin.
 * General: Fixed a compatibility problem between WordPress TinyMCE and Jetpack Markdown when visiting the WordPress Dashboard.
-* Lazy Images: Fixed behaviour for when JavaScript is disabled.
+* Lazy Images: Fixed behavior for when JavaScript is disabled.
 * Markdown: We fixed the naming of the class used for code blocks that specify a language.
 * Simple Payments: Fixed an error when the user had published Simple Payment Products but their Professional Subscription had expired.
 * Sitemap: We fixed the format of the date shown for videos on the video sitemap.
