@@ -328,7 +328,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		$defaults 		= $this->defaults();
 
 		foreach ( $instance as $key => $value ) {
-			$value = trim( $value );
+			implode(" ", $value); //since value was extracted from instance which is an array, value is still an array
+			$value = trim( $value ); //error occurs on this line because value is not a string
+			explode(" ", $value); //since the later conditions compare array elements, I would need to convert the string back to array. 
 
 			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) ) {
 				$instance[ $key ] = $defaults[ $key ];
