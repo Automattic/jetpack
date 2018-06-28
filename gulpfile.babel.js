@@ -112,9 +112,11 @@ function onBuild( done ) {
 		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
+		// Skipping module unit test files.
 		const sources = [
 			'_inc/*.js',
-			supportedModulesSource
+			supportedModulesSource,
+			'!modules/**/test-*.js',
 		];
 
 		// Don't process minified JS in _inc or modules directories
@@ -368,7 +370,8 @@ gulp.task( 'eslint', function() {
 	return gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js'
+		'!_inc/client/**/test/*.js',
+		'modules/**/*.jsx',
 	] )
 		.pipe( eslint() )
 		.pipe( eslint.format() )
