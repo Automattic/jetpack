@@ -383,11 +383,28 @@ class Jetpack_PostImages {
 				'height' => (int) $image_tag->getAttribute( 'height' ),
 			);
 
+			/**
+			 * Filters the switch to ignore minimum image size requirements. Can be used
+			 * to add custom logic to image dimensions, like only enforcing one of the dimensions,
+			 * or disabling it entirely.
+			 *
+			 * @since 6.4.0
+			 *
+			 * @param bool $ignore Should the image dimensions be ignored?
+			 * @param array $meta Array containing image dimensions parsed from the markup.
+			 */
+			$ignore_dimensions = apply_filters( 'jetpack_postimages_ignore_minimum_dimensions', false, $meta );
+
 			// Must be larger than 200x200 (or user-specified).
-			if ( empty( $meta['width'] ) || $meta['width'] < $width ) {
-				continue;
-			}
-			if ( empty( $meta['height'] ) || $meta['height'] < $height ) {
+			if (
+				! $ignore_dimensions
+				&& (
+					empty( $meta['width'] )
+					|| empty( $meta['height'] )
+					|| $meta['width'] < $width
+					|| $meta['height'] < $height
+				)
+			) {
 				continue;
 			}
 
