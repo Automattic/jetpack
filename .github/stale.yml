@@ -8,6 +8,8 @@ daysUntilClose: false
 exemptLabels:
   - "[Pri] High"
   - "[Pri] BLOCKER"
+  - "[Type] Good For Community"
+  - "[Type] Good First Bug"
 
 # Set to true to ignore issues in a project (defaults to false)
 exemptProjects: false
