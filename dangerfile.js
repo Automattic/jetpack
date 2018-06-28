@@ -5,10 +5,12 @@ import { danger, warn } from 'danger';
 
 // Skip danger check if "no ci" or "no danger" in latest commit
 const lastCommit = danger.git.commits.slice( -1 )[ 0 ].message;
-if ( lastCommit.includes( 'no ci' ) ||
-lastCommit.includes( 'skip ci' ) ||
-lastCommit.includes( 'no danger' ) ||
-lastCommit.includes( 'skip danger' ) ) {
+if (
+	lastCommit.includes( 'no ci' ) ||
+	lastCommit.includes( 'skip ci' ) ||
+	lastCommit.includes( 'no danger' ) ||
+	lastCommit.includes( 'skip danger' )
+) {
 	process.exit( 0 ); // eslint-disable-line no-process-exit
 }
 
