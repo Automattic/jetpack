@@ -152,7 +152,6 @@ export default class MarkdownLivePreview extends React.Component {
 			{
 				...props,
 				ref: ( e ) => this.htmlEl = e,
-				onBlur: renderMarkdownPreview.bind( this ),
 				onInput: renderMarkdownPreview.bind( this ),
 				contentEditable: ! this.props.disabled,
 				dangerouslySetInnerHTML: { __html: this.state.html }
