@@ -56,7 +56,7 @@ before_install:
         fi
         git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE $IGNORE_FORMAT_REGEX || {
           echo "Only non-testable files were updated, bailing from running unit tests."
-          exit 1
+          travis_terminate 0
         }
 
 # Git clone depth
