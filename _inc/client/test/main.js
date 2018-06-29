@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { Provider } from 'react-redux';
-import { expect } from 'chai';
+// import { expect } from 'chai';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-15';
 
