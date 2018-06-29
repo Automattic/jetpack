@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Travis CI should bail if at least one test fails
+set -ev
+
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
     echo "Testing on WordPress master..."
