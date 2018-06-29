@@ -11,10 +11,6 @@ import endsWith from 'lodash/endsWith';
 import { saveCaretPosition } from '../utils/caret-management';
 import markdownConverter from '../utils/markdown-converter';
 
-const {
-	createElement
-} = window.wp.element;
-
 const renderHTML = function( source ) {
 	if ( source ) {
 		return markdownConverter.renderPreview( source )
@@ -57,6 +53,10 @@ const ignoreLastInput = function( source ) {
 };
 
 const emptyState = '<p></p>';
+
+const addDomNodeReference = function( node ) {
+	this.htmlEl = node;
+};
 
 const renderMarkdownPreview = function( evt ) {
 	if ( ! this.htmlEl ) {
@@ -106,6 +106,9 @@ export default class MarkdownLivePreview extends React.Component {
 
 		const { source } = props;
 
+		this.domNodeReference = addDomNodeReference.bind( this );
+		this.renderMarkdownPreview = renderMarkdownPreview.bind( this );
+
 		this.state = {
 			html: source ? renderHTML( source ) : emptyState,
 		};
@@ -131,7 +134,7 @@ export default class MarkdownLivePreview extends React.Component {
 	}
 
 	componentDidMount() {
-		if ( this.props.isSelected ) {
+		if ( this.props.isSelected && this.htmlEl ) {
 			this.htmlEl.focus();
 		}
 		// onInput doesn't work for content editable elements in Internet Explorer 11,
@@ -145,18 +148,16 @@ export default class MarkdownLivePreview extends React.Component {
 	}
 
 	render() {
-		const { ...props } = this.props;
-
-		return createElement(
-			'div',
-			{
-				...props,
-				ref: ( e ) => this.htmlEl = e,
-				onInput: renderMarkdownPreview.bind( this ),
-				contentEditable: ! this.props.disabled,
-				dangerouslySetInnerHTML: { __html: this.state.html }
-			},
-			this.props.children
+		return (
+			/* eslint-disable react/no-danger */
+			<div
+				{ ...this.props }
+				ref={ this.domNodeReference }
+				onInput={ this.renderMarkdownPreview }
+				contentEditable={ ! this.props.disabled }
+				dangerouslySetInnerHTML={ { __html: this.state.html } }
+			></div>
+			/* eslint-enable react/no-danger */
 		);
 	}
 
