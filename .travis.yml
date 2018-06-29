@@ -49,7 +49,7 @@ branches:
     - /^branch-.*$/
     - /^feature\/.*$/
 before_install:
-    - ./bin/travis_before_install.sh
+    - if ! ./bin/travis_before_install.sh; then exit; fi
 
 # Git clone depth
 # By default Travis CI clones repositories to a depth of 50 commits

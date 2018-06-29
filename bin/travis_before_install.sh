@@ -13,5 +13,6 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
 fi
 git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE $IGNORE_FORMAT_REGEX || {
 	echo "Only non-testable files were updated, bailing from running unit tests."
-	exit
+	exit 1
 }
+exit
