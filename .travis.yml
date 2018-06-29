@@ -29,11 +29,10 @@ cache:
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
 matrix:
-  fast_finish: true
   include:
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
+  - env: WP_TRAVISCI="yarn test-gui" || travis_terminate 1
   - env: WP_TRAVISCI="yarn danger ci"
   - php: "7.0"
     env: "SWITCH_TO_PHP=5.2"
