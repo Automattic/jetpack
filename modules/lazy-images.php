@@ -3,6 +3,7 @@
 /**
  * Module Name: Lazy Images
  * Module Description: Lazy load images
+ * Jumpstart Description: Instead of waiting for the entire page to load before displaying it to a visitor, Jetpack shows the page’s non-image content as quickly as possible. Jetpack then requests and downloads images on the page when the user scrolls down, so they’ll appear right as the user gets to that point on the screen.
  * Sort Order: 24
  * Recommendation Order: 14
  * First Introduced: 5.6.0
