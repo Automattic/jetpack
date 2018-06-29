@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+// import React from 'react';
 import { Provider } from 'react-redux';
 // import { expect } from 'chai';
 import Enzyme, { shallow } from 'enzyme';
