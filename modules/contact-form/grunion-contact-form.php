@@ -2571,7 +2571,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string $class Additional CSS classes for input class attribute.
 		 */
-		$class             = apply_filters( 'jetpacl_contact_form_input_class', $class );
+		$class             = apply_filters( 'jetpack_contact_form_input_class', $class );
 		
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $field_type ) . ' ' . esc_attr( $class ) ) . "' ";
