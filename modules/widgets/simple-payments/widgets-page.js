@@ -1,5 +1,5 @@
 /* global wp, jetpackSimplePaymentsWidget */
-/* eslint no-var: 0 */
+/* eslint no-var: 0, no-console: 0 */
 
 ( function( $ ) {
 	var nonce = jetpackSimplePaymentsWidget.nonce;
@@ -94,8 +94,27 @@
 	$widgetsArea.on( 'click', '.jetpack-simple-payments-edit-product', function( event ) {
 		event.preventDefault();
 
+		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
+		$( '.jetpack-simple-payments-delete-product', $form ).show();
 		$form.show();
+
+		var productId = $( '.jetpack-simple-payments-products', $widget ).val();
+
+		var request = wp.ajax.post( 'customize-jetpack-simple-payments-button-get', {
+			'customize-jetpack-simple-payments-nonce': nonce,
+			params: {
+				product_post_id: productId,
+			},
+		} );
+
+		request.done( function( data ) {
+			console.log( 'DONE', data );
+		} );
+
+		request.fail( function( data ) {
+			console.log( 'FAIL', data );
+		} );
 	} );
 
 	$widgetsArea.on( 'click', '.jetpack-simple-payments-save-product', function( event ) {
@@ -189,6 +208,7 @@
 
 		var $form = getForm( $( this ) );
 		$form.hide();
+		$( '.jetpack-simple-payments-delete-product', $form ).hide();
 		clearForm( $form );
 	} );
 }( jQuery ) );

@@ -64,6 +64,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'widgets_page_enqueue_styles_and_scripts' ) );
 			}
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
+			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-get', array( $this, 'ajax_get_payment_button' ) );
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
 
@@ -180,6 +181,45 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'ID' => $product_post->ID,
 				'post_title' => $product_post->post_title,
 			);
+		}
+
+		public function ajax_get_payment_button() {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
+				wp_send_json_error( 'bad_nonce', 400 );
+			}
+
+			$post_type_object = get_post_type_object( Jetpack_Simple_Payments::$post_type_product );
+			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+				wp_send_json_error( 'insufficient_post_permissions', 403 );
+			}
+
+			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
+				wp_send_json_error( 'missing_params', 400 );
+			}
+
+			$params = wp_unslash( $_POST['params'] );
+			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
+
+			$product = get_post( $product_post_id );
+			if ( ! $product || is_wp_error( $product ) ) {
+				wp_send_json_success( [] );
+				return;
+			}
+			if ( $product->post_type !== Jetpack_Simple_Payments::$post_type_product || 'trash' === $product->post_status ) {
+				wp_send_json_success( [] );
+				return;
+			}
+
+			wp_send_json_success( array(
+				'title'       => get_the_title( $product ),
+				'description' => $product->post_content,
+				'image_id'    => get_post_thumbnail_id( $product->ID ),
+				'image_src'   => get_the_post_thumbnail_url( $product ),
+				'currency'    => get_post_meta( $product->ID, 'spay_currency', true ),
+				'price'       => get_post_meta( $product->ID, 'spay_price', true ),
+				'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0',
+				'email'       => get_post_meta( $product->ID, 'spay_email', true ),
+			) );
 		}
 
 		public function ajax_save_payment_button() {
