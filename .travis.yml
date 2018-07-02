@@ -73,6 +73,18 @@ before_install:
           travis_terminate 0
         }
 
+before_install:
+    - |
+        IGNORE_FORMAT_REGEX='(\.md$|\.txt$|\.yml$|\..*ignore$)|(^(docs|docker))\/'
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
+        fi
+        echo $(git diff --name-only $TRAVIS_COMMIT_RANGE)
+        git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE $IGNORE_FORMAT_REGEX || {
+          echo "Only non-testable files were updated, bailing from running unit tests."
+          travis_terminate 0
+        }
+
 # Git clone depth
 # By default Travis CI clones repositories to a depth of 50 commits
 git:
