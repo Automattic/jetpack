@@ -54,7 +54,7 @@ before_install:
         if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
           TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
         fi
-        echo git diff --name-only $TRAVIS_COMMIT_RANGE
+        echo $(git diff --name-only $TRAVIS_COMMIT_RANGE)
         git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE $IGNORE_FORMAT_REGEX || {
           echo "Only non-testable files were updated, bailing from running unit tests."
           travis_terminate 0
