@@ -1,4 +1,4 @@
-//// Helper function for keyboard-equivalents of onClick events
+// Helper function for keyboard-equivalents of onClick events
 
 /**
  * Helper function which triggers a callback on a keydown event, only

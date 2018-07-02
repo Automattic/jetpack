@@ -1,10 +1,10 @@
-## Docker environment for Jetpack Development
+# Docker environment for Jetpack Development
 
 Unified environment for developing Jetpack using Docker containers providing following goodies:
 
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
-	* Jetpack source code will be available as plugin from parent directory.
+* Jetpack source code will be available as plugin from parent directory.
 * PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
