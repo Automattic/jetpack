@@ -274,7 +274,7 @@ class Jetpack_Provision { //phpcs:ignore
 			if ( isset( $body_json->error ) ) {
 				return new WP_Error( $body_json->error, $body_json->message );
 			} else {
-				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
+				return new WP_Error( 'server_error', sprintf( __( 'Request failed with code %s', 'jetpack' ), $response_code ) );
 			}
 		}
 
