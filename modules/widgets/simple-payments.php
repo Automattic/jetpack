@@ -56,19 +56,16 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
+			global $pagenow;
 			if ( is_customize_preview() ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
-
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
-				add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
-				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
-				add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
-			} else {
-				global $pagenow;
-				if ( 'widgets.php' === $pagenow ) {
-					add_action( 'admin_enqueue_scripts', array( $this, 'widgets_page_enqueue_scripts' ) );
-				}
+			} else if ( 'widgets.php' === $pagenow ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'widgets_page_enqueue_scripts' ) );
 			}
+			add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
+			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
+			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
 
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
@@ -134,18 +131,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				array( 'jquery' ), false, true
 			);
 
-			$product_posts = get_posts( array(
-				'numberposts' => 100,
-				'orderby' => 'date',
-				'post_type' => Jetpack_Simple_Payments::$post_type_product,
-				'post_status' => 'publish',
-			) );
-
 			wp_localize_script(
 				'jetpack-simple-payments-widget-widgets-page',
 				'jetpackSimplePaymentsWidget',
 				array(
-					'products' => $product_posts,
+					'nonce'   => wp_create_nonce( 'customize-jetpack-simple-payments' ),
 					'strings' => array(
 						'deleteConfirmation' => __(
 							'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.',
