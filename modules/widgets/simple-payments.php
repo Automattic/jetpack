@@ -133,14 +133,25 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				plugins_url( '/simple-payments/widgets-page.js', __FILE__ ),
 				array( 'jquery' ), false, true
 			);
+
+			$product_posts = get_posts( array(
+				'numberposts' => 100,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+			) );
+
 			wp_localize_script(
 				'jetpack-simple-payments-widget-widgets-page',
-				'jpSimplePaymentsStrings',
+				'jetpackSimplePaymentsWidget',
 				array(
-					'deleteConfirmation' => __(
-						'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.',
-						'jetpack'
-					)
+					'products' => $product_posts,
+					'strings' => array(
+						'deleteConfirmation' => __(
+							'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.',
+							'jetpack'
+						),
+					),
 				)
 			);
 		}
@@ -486,14 +497,14 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			if ( is_customize_preview() ) {
-				$product_posts = get_posts( array(
-					'numberposts' => 100,
-					'orderby' => 'date',
-					'post_type' => Jetpack_Simple_Payments::$post_type_product,
-					'post_status' => 'publish',
-				 ) );
+			$product_posts = get_posts( array(
+				'numberposts' => 100,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+			) );
 
+			if ( is_customize_preview() ) {
 				require( dirname( __FILE__ ) . '/simple-payments/form.php' );
 			} else {
 				require( dirname( __FILE__ ) . '/simple-payments/form-widgets-page.php' );
