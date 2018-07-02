@@ -11,7 +11,7 @@ Enzyme.configure( { adapter: new Adapter() } );
 
 /**
  * Internal dependencies
- * JS change
+ * JS change again
  */
 import Main from '../main';
 import store from 'state/redux-store';
