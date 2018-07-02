@@ -9,7 +9,6 @@
  */
 export default function( callback ) {
 	return ( event ) => {
-		console.log( event.which )
 		if ( event.which === 13 || event.which === 32 ) {
 			callback( event );
 		}
