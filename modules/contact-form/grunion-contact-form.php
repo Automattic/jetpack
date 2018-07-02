@@ -2562,7 +2562,17 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_required    = $this->get_attribute( 'required' );
 		$placeholder       = $this->get_attribute( 'placeholder' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
-		$class             = apply_filters( 'grunion_contact_form_input_class', $class );
+		
+		/**
+		 * Filters the "class" attribute of the contact form input
+		 *
+		 * @module contact-form
+		 * @since 5.5.0
+		 *
+		 * @param string $class Additional CSS classes for input class attribute.
+		 */
+		$class             = apply_filters( 'jetpacl_contact_form_input_class', $class );
+		
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $field_type ) . ' ' . esc_attr( $class ) ) . "' ";
 
