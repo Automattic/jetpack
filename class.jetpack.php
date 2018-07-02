@@ -1,7 +1,7 @@
 <?php
 
 /*
-Options:
+.Options:
 jetpack_options (array)
 	An array of options.
 	@see Jetpack_Options::get_option_names()
