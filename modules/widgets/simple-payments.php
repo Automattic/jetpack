@@ -57,13 +57,13 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			);
 
 			global $pagenow;
-			if ( is_customize_preview() ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
+			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+/*				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
-			} else if ( 'widgets.php' === $pagenow ) {
+			} else if ( 'widgets.php' === $pagenow ) {*/
 				add_action( 'admin_enqueue_scripts', array( $this, 'widgets_page_enqueue_styles_and_scripts' ) );
 			}
-			add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
+			//add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-get', array( $this, 'ajax_get_payment_button' ) );
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-save', array( $this, 'ajax_save_payment_button' ) );
 			add_action( 'wp_ajax_customize-jetpack-simple-payments-button-delete', array( $this, 'ajax_delete_payment_button' ) );
@@ -100,29 +100,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			);
 		}
 
-		/**
-		 * Adds a nonce for customizing menus.
-		 *
-		 * @param array $nonces Array of nonces.
-		 * @return array $nonces Modified array of nonces.
-		 */
-		function filter_nonces( $nonces ) {
-			$nonces['customize-jetpack-simple-payments'] = wp_create_nonce( 'customize-jetpack-simple-payments' );
-			return $nonces;
-		}
-
 		function enqueue_style() {
 			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
-		}
-
-		function admin_enqueue_styles_and_scripts(){
-				wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
-
-				wp_enqueue_media();
-				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
-				wp_localize_script( 'jetpack-simple-payments-widget-customizer', 'jpSimplePaymentsStrings', array(
-					'deleteConfirmation' => __( 'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.', 'jetpack' )
-				) );
 		}
 
 		function widgets_page_enqueue_styles_and_scripts() {
@@ -147,39 +126,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 						),
 					),
 				)
-			);
-		}
-
-		public function ajax_get_payment_buttons() {
-			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
-				wp_send_json_error( 'bad_nonce', 400 );
-			}
-
-			if ( ! current_user_can( 'customize' ) ) {
-				wp_send_json_error( 'customize_not_allowed', 403 );
-			}
-
-			$post_type_object = get_post_type_object( Jetpack_Simple_Payments::$post_type_product );
-			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
-				wp_send_json_error( 'insufficient_post_permissions', 403 );
-			}
-
-			$product_posts = get_posts( array(
-				'numberposts' => 100,
-				'orderby' => 'date',
-				'post_type' => Jetpack_Simple_Payments::$post_type_product,
-				'post_status' => 'publish',
-			 ) );
-
-			 $formatted_products = array_map( array( $this, 'format_product_post_for_ajax_reponse' ), $product_posts );
-
-			 wp_send_json_success( $formatted_products );
-		}
-
-		public function format_product_post_for_ajax_reponse( $product_post ) {
-			return array(
-				'ID' => $product_post->ID,
-				'post_title' => $product_post->post_title,
 			);
 		}
 
@@ -537,12 +483,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'post_type' => Jetpack_Simple_Payments::$post_type_product,
 				'post_status' => 'publish',
 			) );
-
-			if ( is_customize_preview() ) {
-				require( dirname( __FILE__ ) . '/simple-payments/form.php' );
-			} else {
-				require( dirname( __FILE__ ) . '/simple-payments/form-widgets-page.php' );
-			}
+			require( dirname( __FILE__ ) . '/simple-payments/form-widgets-page.php' );
 		}
 	}
 

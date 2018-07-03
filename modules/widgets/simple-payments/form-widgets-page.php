@@ -112,7 +112,7 @@
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_description' ) ); ?>">
-				<?php esc_html_e( 'Description:', jetpack ); ?>
+				<?php esc_html_e( 'Description:', 'jetpack' ); ?>
 			</label>
 			<textarea
 				class="widefat jetpack-simple-payments-form-product-description"
@@ -177,7 +177,7 @@
 			/>
 			<small>
 				<?php printf( esc_html__(
-					"This is where PayPal will send your money. To claim a payment, you'll need a %1$sPayPal account%2$s connected to a bank account." ),
+					'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.' ),
 					'<a href="https://paypal.com" target="_blank">',
 					'</a>'
 				) ?>

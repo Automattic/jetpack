@@ -102,6 +102,7 @@
 				$( 'option[value="' + data.product_post_id + '"]', $selector ).remove();
 				break;
 		}
+		$selector.change();
 	}
 
 	// Clear the image of a product form.
