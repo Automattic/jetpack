@@ -57,6 +57,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_hulu_id() {
+		$this->markTestSkipped();
 		$content  = "[hulu $this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
@@ -64,6 +65,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_hulu_url() {
+		$this->markTestSkipped();
 		$content  = "[hulu http://www.hulu.com/watch/$this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
@@ -73,6 +75,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_hulu_width_height() {
+		$this->markTestSkipped();
 		$width    = '350';
 		$height   = '500';
 		$content  = "[hulu $this->video_id width=$width height=$height ]";
@@ -87,6 +90,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_hulu_start_end_time_thumbnail() {
+		$this->markTestSkipped();
 		$start     = '10';
 		$end       = '20';
 		$thumbnail = '10';
