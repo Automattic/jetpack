@@ -79,9 +79,6 @@ class Site_Logo {
 		// Include our custom control.
 		require( dirname( __FILE__ ) . '/class-site-logo-control.php' );
 
-		//Update the Customizer section title for discoverability.
-		$wp_customize->get_section('title_tagline')->title = __( 'Site Title, Tagline, and Logo', 'jetpack' );
-
 		// Add a setting to hide header text if the theme isn't supporting the feature itself
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$wp_customize->add_setting( 'site_logo_header_text', array(
