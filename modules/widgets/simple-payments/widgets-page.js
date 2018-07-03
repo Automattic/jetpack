@@ -34,6 +34,12 @@
 		return $element.closest( '.jetpack-simple-payments-widget-container' );
 	}
 
+	// Get the widget spinner.
+	function getSpinner( $element ) {
+		var $widgetInside = $element.closest( '.widget-inside' );
+		return $( '.spinner', $widgetInside );
+	}
+
 	// Get the product form parent context of an element.
 	function getForm( $element ) {
 		var $widget = getWidgetContainer( $element );
@@ -116,18 +122,27 @@
 	}
 
 	// Disable all fields of a widget.
-	function disableWidget( $widget ) {
+	function disableWidget( $widget, $spinner ) {
 		$( 'button, input, select, textarea', $widget ).prop( 'disabled', true );
+		if ( $spinner ) {
+			$spinner.css( 'visibility', 'visible' );
+		}
 	}
 
 	// Enable all fields of a widget.
-	function enableWidget( $widget ) {
+	function enableWidget( $widget, $spinner ) {
 		$( 'button, input, select, textarea', $widget ).prop( 'disabled', false );
+		if ( $spinner ) {
+			$spinner.css( 'visibility', 'hidden' );
+		}
 	}
 
 	// Enable all fields of a form.
-	function enableForm( $form ) {
+	function enableForm( $form, $spinner ) {
 		$( 'button, input, select, textarea', $form ).prop( 'disabled', false );
+		if ( $spinner ) {
+			$spinner.css( 'visibility', 'hidden' );
+		}
 	}
 
 	// Check if a product form's values are valid.
@@ -171,7 +186,8 @@
 
 		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
-		disableWidget( $widget );
+		var $spinner = getSpinner( $( this ) );
+		disableWidget( $widget, $spinner );
 
 		var productId = $( productsSelector, $widget ).val();
 		var request = wp.ajax.post( 'customize-jetpack-simple-payments-button-get', {
@@ -185,11 +201,11 @@
 			setFormValues( $form, data );
 			$( buttons.deleteProduct, $form ).show();
 			$form.show();
-			enableForm( $form );
+			enableForm( $form, $spinner );
 		} );
 
 		request.fail( function() {
-			enableWidget( $widget );
+			enableWidget( $widget, $spinner );
 		} );
 	} );
 
@@ -199,13 +215,14 @@
 
 		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
+		var $spinner = getSpinner( $( this ) );
 		var values = getFormValues( $form );
 
 		if ( ! isFormValid( $form, values ) ) {
 			return;
 		}
 
-		disableWidget( $widget );
+		disableWidget( $widget, $spinner );
 
 		var request = wp.ajax.post( 'customize-jetpack-simple-payments-button-save', {
 			'customize-jetpack-simple-payments-nonce': nonce,
@@ -226,7 +243,7 @@
 			updateSelector( $widget, action, data );
 			$form.hide();
 			clearForm( $form );
-			enableWidget( $widget );
+			enableWidget( $widget, $spinner );
 		} );
 
 		request.fail( function( data ) {
@@ -240,7 +257,7 @@
 					$( '.jetpack-simple-payments-form-product-' + validCodes[ item.code ], $form ).addClass( 'invalid' );
 				}
 			} );
-			enableForm( $form );
+			enableForm( $form, $spinner );
 		} );
 	} );
 
@@ -253,7 +270,8 @@
 
 		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
-		disableWidget( $widget );
+		var $spinner = getSpinner( $( this ) );
+		disableWidget( $widget, $spinner );
 
 		var productId = $( productsSelector, $widget ).val();
 		var request = wp.ajax.post( 'customize-jetpack-simple-payments-button-delete', {
@@ -267,11 +285,11 @@
 			updateSelector( $widget, 'delete', { product_post_id: productId } );
 			$form.hide();
 			clearForm( $form );
-			enableWidget( $widget );
+			enableWidget( $widget, $spinner );
 		} );
 
 		request.fail( function() {
-			enableForm( $form );
+			enableForm( $form, $spinner );
 		} );
 	} );
 
@@ -313,9 +331,10 @@
 		event.preventDefault();
 		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
+		var $spinner = getSpinner( $( this ) );
 		$form.hide();
 		$( buttons.deleteProduct, $form ).hide();
 		clearForm( $form );
-		enableWidget( $widget );
+		enableWidget( $widget, $spinner );
 	} );
 }( jQuery ) );
