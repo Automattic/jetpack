@@ -11,6 +11,11 @@ env:
   global:
   - WP_TRAVISCI=phpunit
 
+php:
+  - "5.6"
+  - "7.0"
+  - "7.2"
+
 jobs:
   include:
     - stage: prepare cache
@@ -27,8 +32,7 @@ jobs:
         - nvm use 8
         - ./tests/prepare-wordpress.sh
         - mysql -e "set global wait_timeout = 3600;"
-      php: "5.6"
-    - stage: test lint
+    - stage: test
       env: WP_TRAVISCI="yarn lint"
       script:
         - echo "Running with the following versions:"
