@@ -1,7 +1,7 @@
 # Travis CI Configuration File
 
 # Tell Travis CI which distro to use
-dist: trusty
+# dist: trusty
 
 # Tell Travis CI we're using PHP
 language: php
@@ -9,6 +9,7 @@ language: php
 # Run Matrix for these PHP versions
 php:
 - "5.6"
+- "5.2"
 #- "7.0"
 #- "7.2"
 
@@ -19,9 +20,9 @@ env:
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_MODE=single WP_BRANCH=master
-#  - WP_MODE=single WP_BRANCH=latest
-#  - WP_MODE=single WP_BRANCH=previous
-#  - WP_MODE=multi  WP_BRANCH=master
+  - WP_MODE=single WP_BRANCH=latest
+  - WP_MODE=single WP_BRANCH=previous
+  - WP_MODE=multi  WP_BRANCH=master
 
 # Define a matrix of additional build configurations
 #
@@ -29,10 +30,6 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  - php: "7.0"
-    env: "SWITCH_TO_PHP=5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
   - env: WP_TRAVISCI="yarn test-gui"
