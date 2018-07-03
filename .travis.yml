@@ -1,7 +1,7 @@
 # Travis CI Configuration File
 
 # Tell Travis CI which distro to use
-# dist: trusty
+dist: precise
 
 # Tell Travis CI we're using PHP
 language: php
@@ -9,8 +9,8 @@ language: php
 # Run Matrix for these PHP versions
 php:
 - "5.6"
-- "5.2"
-#- "7.0"
+#- "5.2"
+- "7.0"
 #- "7.2"
 
 env:
