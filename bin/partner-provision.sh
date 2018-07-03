@@ -156,9 +156,10 @@ ACCESS_TOKEN_JSON=$(
 	curl \
 		--silent \
 		--request POST \
-		--url https://public-api.wordpress.com/oauth2/token \
+		--url https://$JETPACK_START_API_HOST/oauth2/token \
 		--header 'cache-control: no-cache' \
 		--header 'content-type: multipart/form-data;' \
+		--header "Host: public-api.wordpress.com" \
 		--form client_id="$CLIENT_ID" \
 		--form client_secret="$CLIENT_SECRET" \
 		--form grant_type=client_credentials \
@@ -196,6 +197,7 @@ PROVISION_REQUEST=$(
 		--request POST \
 		--url "$PROVISION_REQUEST_URL" \
 		--header "authorization: Bearer $ACCESS_TOKEN" \
+		--header "Host: public-api.wordpress.com" \
 		--header 'cache-control: no-cache' \
 		--header 'content-type: multipart/form-data;' \
 		$PROVISION_REQUEST_ARGS
