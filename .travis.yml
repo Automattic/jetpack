@@ -30,7 +30,7 @@ jobs:
         - mysql -e "set global wait_timeout = 3600;"
     - stage: test
       php: "5.6"
-      env: WP_TRAVISCI="yarn lint"
+      env: WP_TRAVISCI=yarn lint
       script:
         - echo "Running with the following versions:"
         - php -v
@@ -38,7 +38,7 @@ jobs:
         - ./tests/run-travis.sh
     - stage: test
       php: "5.6"
-      env: WP_TRAVISCI="yarn test-client"
+      env: WP_TRAVISCI=yarn test-client
       script:
         - echo "Running with the following versions:"
         - php -v
@@ -46,7 +46,23 @@ jobs:
         - ./tests/run-travis.sh
     - stage: test
       php: "5.6"
-      env: WP_TRAVISCI="yarn test-gui"
+      env: WP_TRAVISCI=yarn test-gui
+      script:
+        - echo "Running with the following versions:"
+        - php -v
+        - phpunit --version
+        - ./tests/run-travis.sh
+    - stage: test
+      php: "5.6"
+      env: WP_TRAVISCI=yarn danger ci
+      script:
+        - echo "Running with the following versions:"
+        - php -v
+        - phpunit --version
+        - ./tests/run-travis.sh
+    - stage: test
+      php: "5.6"
+      env: WP_MODE=single WP_BRANCH=master
       script:
         - echo "Running with the following versions:"
         - php -v
