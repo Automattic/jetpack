@@ -50,6 +50,11 @@ branches:
     - /^branch-.*$/
     - /^feature\/.*$/
 
+# Git clone depth
+# By default Travis CI clones repositories to a depth of 50 commits
+git:
+  depth: 1
+
 # Clones WordPress and configures our testing environment.
 before_script:
     - phpenv config-rm xdebug.ini

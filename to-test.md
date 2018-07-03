@@ -1,158 +1,147 @@
-## 6.2
+## 6.3
 
-### AMP
+### Connection
 
-We now allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
+We refreshed the connect splash screen to help new users learn more about Jetpack.
 
 To test:
 
-* Install amp-wp from Automattic/amp-wp master branch.
-* Activate AMP in your site's plugins list
-* To test Legacy AMP, add `?amp=1` to any post URL, e.g. http://example.com/2018/03/23/a-post/?amp=1.
-* Expect to see that all Jetpack features work (or be hidden if broken) in this mode.
-* To text Canonical AMP:
-    * Use this code snippet. This will set the home page to use "canonical amp", which the the preferred way of using AMP after 1.0:
-        ```
-	function add_amp_theme_support() {
-	    add_theme_support( 'amp' );
-	}
+* Deactivate Jetpack from the plugins menu.
+* Activate Jetpack again, see the splash screen.
 
-	add_action( 'plugins_loaded', 'add_amp_theme_support' );
-        ```
-    * Expect all Jetpack features to work (or be hidden if broken) in this mode.
-    * Now try using various Jetpack features and make sure they don't break validation (or simply break).
- 
+### Custom Content Types
 
-#### Screenshots
+We fixed compatibility when using Testimonials and a front-end editing plugin.
 
-##### Legacy AMP
+To test:
 
-| Before  | After |
-| ------------- | ------------- |
-| <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png"><img src="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1" style="max-width:50%;"></a>  | <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png"><img src="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1 1" style="max-width:100%;"></a>  |
+* Using the (Front-End Editor feature plugin)[https://wordpress.org/plugins/wp-front-end-editor], confirm no fatals when the testimonial CPT is active.
 
-##### Canonical AMP
+### Dashboard
 
-| Before  | After |
-| ------------- | ------------- |
-| ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad](https://user-images.githubusercontent.com/51896/40073029-8be896f6-582a-11e8-81e5-9cbb6f9c8435.png) | ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad 1](https://user-images.githubusercontent.com/51896/40073045-986d9a34-582a-11e8-9213-2b5a8e4481bc.png) |
+We removed the labels reading `PAID` for those paid features that are not enabled yet due to your plan. 
 
-### Contact Form
+To test:
 
-We fixed scrolling/height for very large contact forms.
+1. Visit the Jetpack dashboard with a free plan
+2. Confirm that you don't see the PAID label next to the dashboard items. Refer to [#9732](https://github.com/Automattic/jetpack/pull/9732) for screenshots.
 
-* With Firefox
-* Insert this shortcode in the html editor
+### General
+
+We added support for displaying geo-location data added to posts and pages with Calypso.
+
+### Lazy Images
+
+We fixed the behaviour when JavaScript is disabled.
+
+To test:
+
+- Add lazy images to a post.
+- Load post with JavaScript on.
+- Ensure lazy images load once.
+- Turn off JavaScript.
+- Reload post.
+- Ensure that the image loads via the noscript tag and the lazy images image is hidden. In other words, there shouldn't be a large blank spot.
+
+### Markdown
+
+We fixed the way we name the CSS class for `<code>` when attempting to specify a language for a code block.
+
+To test:
+
+1. Enable markdown.
+2. Write a test post with a Markdown syntax code block. Something like:
     ```
-    [contact-form][contact-field label="Name" type="name" required="1"][contact-field label="Email" type="email" required="1"][contact-field label="Website" type="url"][contact-field label="Message" type="textarea"][contact-field label="date" type="date"][contact-field label="multiple" type="checkbox-multiple" options="hi,one,two"][contact-field label="whatever" type="textarea"][contact-field label="Keep going..." type="text"][contact-field label="check" type="checkbox"][contact-field label="drop" type="select" options="whatever,yo,ma"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][/contact-form]
+       ```javascript
+          var a = 2;
+       ``` 
     ```
-* Switch back to visual.
-* Click to edit the form
-* Expect to be able to scroll all the way down.
+3. Preview the post, then view source code of the preview page. The post content should show `<code class="language-javascript">`.
 
+### Protect
 
-### Content Options
-
-We now exclude CPTs like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option.
+We solved an issue related to interaction with bbPress when trying to log in via a bbPress login widget. You would get redirected a few times to log in again after solving the math puzzle.
 
 To test:
 
-* Check a CPT archive page and check if you have the option to switch between content and excerpt (you shouldn't be able to).
-* Check a Post archive page and check if you have the option to switch between content and excerpt (you should be able to).
+1. Install bbPress;
+1. Connect Jetpack and let default modules activate, leave bbPress settings to default.
+1. Add the bbPress login widget to the sidebar.
+1. Add the line define( 'JETPACK_PROTECT__API_HOST', '' ); to wp-config.php, breaking the API connection, which should invoke the math puzzle on login.
+1. Try logging in via the bbPress widget.
 
-### Shortcodes
+### Simple Payment
 
-We fixed the Facebook shortcode in wp-admin.
-
-To Test:
-
-* Paste a facebook post link in wp-admin editor, like https://www.facebook.com/WordPresscom/posts/10154113693553980
-* You should see an facebook embed in the post editor.
-* Make sure selective refresh still works for the facebook widget in the customizer.
-
-We also added a Gutenberg block for the `[vr]` shortcode.
+We added support on the Customizer to add Simple Payment Buttons as Sidebar Widgets.
 
 To test:
 
-* Install Gutenberg
-* Edit a post in Gutenberg
-* Add a "VR Image" block to any post
-* Paste in the URL of any 360' image, e.g. https://en-blog.files.wordpress.com/2016/12/regents_park.jpg
-* Save the post.
-* Visit the post and expect to be able to navigate the 360 image.
+**Note**: There was a specific call for testing this feature. Refer to p8oabR-ey-p2. 
 
-### Related Posts
+But here are some steps to give it a try:
 
-We stopped attempting to fetch related posts for unpublished posts.
+1. Create one or more Payment Buttons on the Post/Page editor.
+2. Open the Customizer on a site with a Professional plan.
+3. Get to 'Widgets' and select a Widget Area.
+4. Click on Add Widget.
+5. Search on the widget panel for Simple Payment.
+6. Select the Simple Payment widget
+7. The Simple Payment Customizer should list the available Payment Buttons, and the Customizer Preview should show the item selected by default. All changes should update live on the preview window and the site should only be updated upon publishing.
 
-* Open the Javascript console
-* Write a draft with Gutenberg. 
-* Confirm that there's no failing request in the background receiving a HTTP status 400 as response.
+To **create a new product**, you'll need to:
 
-### Sharing
+- click on _Add New_
+- fill the form. Using an image is optional, but it should open the media library if clicked.
 
-Fixed an issue that resulted in wrong URLs for sharing via WhatsApp.
+The widget preview on the customizer should clear out, and display the entered values as they are typed on the form.
 
-* Add the WhatsApp sharing button
-* Attempt to share a post via WhatsApp
-* Confirm that the URL that you get in the message is working properly by visiting it.
+- click _Save_
 
-### Tiled Galleries
+The form should close, and the new SP button should be added to the drop down list. The customizer preview should show the new SP button.
 
-We now use Photon if active when a Tiled Gallery links to media file.
+- click _Cancel_
 
-To test:
+The form should clear and close, and the previously selected SP button should appear on the customizer preview.
 
-* Create a Gallery with the link set to Media File.
-* Disable Carousel (via the old modules page `page=jetpack_module`).
-* View page and see the URL.
+To **edit and existing product**, you'll need to:
 
-### Widget visibility
+- Select the desired product from the drop down list
+- click on _Edit Selected_
 
-We fixed some styling issues for Microsoft Edge.
+The form should load the product properties, and the widget preview on the customizer should show the correct product, and update the values as they are edited on the form.
 
-To test:
+- click _Save_
 
-* In MS Edge, open wp-admin/widgets.php and look at a widget's Visibility settings.
-* Open wp-admin/widgets.php, click "Manage with Live Preview" to open the Customizer, and look at a widget's Visibility settings.
-* Expect to see the red crosses align properly vertically.
+The form should close, preserving the changes on the customizer preview window and the selected item on the product drop down list.
 
-### Widgets
+- click _Cancel_
 
-#### Cookies and Consent Widget
+The form should clear and close, and the previously selected SP button should appear on the customizer preview.
 
-The `.widget` CSS class used for targetting the Cookies and Consent widget was removed since .widget is not used in every theme.
+To **delete an existing product**, you'll need to:
 
-To test:
+- Select the desired product from the drop down list.
+- click on _Edit Selected_
 
-* Apply one of the themes that don't use the `.widget` class like Graphene or Kahuna.
-* Add the Cookie & Consent Widget to the footer widget area.
-* View the site from the front-end. 
-* Expect the banner to always float at the bottom of the viewport when scrolling down.
+The form should load the product properties, and the widget preview on the customizer should show the correct product.
 
-Also, we fixed the positioning for themes that set a specific margin for forms.
+- click _Delete_
 
-* Install and activate Storefront theme.
-* Enable the cookie widget.
-* Verify the margins are consistent within the widget. Previously the vertical alignment was not balanced.
+After confirming the action, the selected product should disappear from the product drop down list. The first product on the list should be selected, and the customizer preview should reflect this change. 
 
-We added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
+### Sitemap
+
+We fixed the format of the date shown for videos on the video sitemap.
 
 To test:
 
-* Add a Cookies & Consent Widget.
-* Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
+1. Have a site with a video that would generate a video sitemap.
+4. Review sitemap.xml and expect to see the correct format of `2018-06-08T14:51:39Z`
 
-#### Twitter Timeline Widget
+### Stats
 
-Usage of Widget Ids for the Twitter Timeline Widget is being deprecated. This is because Twitter is deprecating Widget IDs in July 2018.
+We fixed the width of the classic page for Stats in order to look better on wide screens.
 
-To test: 
-
-* Before checking out this feature, if you have the chance, with Jetpack 6.1.1, try to add a Twitter Timeline of type `widget-id` to a sidebar (the only way to create a Twitter Widget right now is at https://twitter.com/settings/widgets/new: create a widget, edit it, and copy the ID from the URL).
-* After updating to this 6.2 Beta again, make sure that the widget will display a deprecation notice, only visible to admins.
-* In the Customizer or in the Widgets dashboard, make sure there is no "Widget Type" selector anymore.
- 
+1. Visit Site Stats with a wide screen and confirm that everything looks great. Refer to [#9728](https://github.com/Automattic/jetpack/pull/9728) for screenshots.
 
 **Thank you for all your help!**
-

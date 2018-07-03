@@ -769,6 +769,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					break;
 
+				case 'rss_use_excerpt':
+					update_option( 'rss_use_excerpt', (int)(bool) $value );
+					break;
+
 				default:
 					//allow future versions of this endpoint to support additional settings keys
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {

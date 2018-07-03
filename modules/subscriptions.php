@@ -193,7 +193,7 @@ class Jetpack_Subscriptions {
 
 		$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
 			esc_url( get_permalink( $post ) ),
-			__( 'View post' ) // intentinally omitted domain
+			__( 'View post', 'jetpack' )
 		);
 
 		$messages['post'][6] = sprintf(

@@ -103,6 +103,7 @@ class Jetpack_Sync_Defaults {
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'jetpack_sso_require_two_step',
+		'jetpack_sso_match_by_email',
 		'jetpack_relatedposts',
 		'verification_services_codes',
 		'users_can_register',
@@ -130,6 +131,12 @@ class Jetpack_Sync_Defaults {
 		'mailserver_pass', // Not syncing contents, only the option name
 		'mailserver_port',
 		'wp_page_for_privacy_policy',
+		'enable_header_ad',
+		'wordads_second_belowpost',
+		'wordads_display_front_page',
+		'wordads_display_post',
+		'wordads_display_page',
+		'wordads_display_archive',
 	);
 
 	public static function get_options_whitelist() {

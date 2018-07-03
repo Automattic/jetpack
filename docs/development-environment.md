@@ -4,8 +4,8 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 **Recommended Environment**
 
-* node 8.x, aka `lts/carbon`
-* yarn 1.3
+* Node.js 10
+* Yarn 1.7
 
 ## A note on Node versions used for the build tasks
 
@@ -107,9 +107,12 @@ phpunit --filter my_test_name
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
-## Unit-testing the JS Admin Page
+## Unit-testing the JS code
 
-You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code.
+Jetpack includes also several [Mocha](https://mochajs.org/) based unit tests.
+To execute them in your local environment, you can use the following commands.
+
+### Admin Page unit tests
 
 Standing on your jetpack directory, run
 
@@ -117,6 +120,27 @@ Standing on your jetpack directory, run
 $ yarn
 $ yarn test-client
 $ yarn test-gui
+```
+
+### Jetpack modules unit tests
+
+Standing on your jetpack directory, run
+
+```
+$ yarn
+$ yarn test-modules
+```
+
+You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+
+```
+$ yarn test-gui -g 'my custom pattern to filter tests'
+```
+
+To use a custom reporter, pass the argument `-R, --reporter <name>`:
+
+```
+$ yarn test-client -R 'my_reporter'
 ```
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards

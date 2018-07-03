@@ -37,12 +37,13 @@
     "docker:tail": "yarn docker:compose exec wordpress bash -c \"/var/scripts/tail.sh\"",
     "docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
     "docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
-    "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
+    "lint": "gulp jshint && eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
-    "precommit": "node bin/pre-commit-hook.js"
+    "precommit": "node bin/pre-commit-hook.js",
+    "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -115,7 +116,7 @@
     "jshint-stylish": "~2.1.0",
     "json-loader": "^0.5.7",
     "lodash": "^4.9.0",
-    "node-sass": "4.5.3",
+    "node-sass": "4.9.0",
     "page": "1.7.1",
     "plugin-error": "^1.0.0",
     "prop-types": "15.5.10",
@@ -134,7 +135,7 @@
     "style-loader": "0.13",
     "uglify-save-license": "^0.4.1",
     "url-loader": "^0.5.7",
-    "webpack": "3.8.1",
+    "webpack": "3.12.0",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {

@@ -475,13 +475,13 @@ class Jetpack_Sitemap_Builder {
 		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 				$video['filename'] = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'];
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
 			} else {
 				$video['filename'] = jp_sitemap_filename(
 					JP_VIDEO_SITEMAP_INDEX_TYPE,
 					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
 				);
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'] );
 			}
 
 			$buffer->append(

@@ -112,9 +112,11 @@ function onBuild( done ) {
 		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
+		// Skipping module unit test files.
 		const sources = [
 			'_inc/*.js',
-			supportedModulesSource
+			supportedModulesSource,
+			'!modules/**/test-*.js',
 		];
 
 		// Don't process minified JS in _inc or modules directories
@@ -253,10 +255,10 @@ function doStatic( done ) {
 					fs.unlinkSync( file.path );
 				} ) )
 				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static.html', window.staticHtml );
+					fs.writeFileSync( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
 					if ( done ) {
 						done();
@@ -368,7 +370,8 @@ gulp.task( 'eslint', function() {
 	return gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js'
+		'!_inc/client/**/test/*.js',
+		'modules/**/*.jsx',
 	] )
 		.pipe( eslint() )
 		.pipe( eslint.format() )
@@ -591,4 +594,3 @@ gulp.task(
 	'languages',
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
-

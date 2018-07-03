@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
@@ -34,6 +35,11 @@ export class Sitemaps extends React.Component {
 			sitemap_url = get( sitemaps, [ 'extra', 'sitemap_url' ], '' ),
 			news_sitemap_url = get( sitemaps, [ 'extra', 'news_sitemap_url' ], '' );
 
+		const searchEngineVisibilityClasses = classNames( {
+			'jp-form-setting-explanation': true,
+			'is-warning': ! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' )
+		} );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -44,39 +50,74 @@ export class Sitemaps extends React.Component {
 					hasChild
 					module={ { module: 'sitemaps' } }
 					support={ {
-						text: __( 'Automatically generates the files required for search engines to index your site.' ),
 						link: 'https://jetpack.com/support/sitemaps/',
 					} }
-					>
+				>
+					<p>
+						{ __(
+							'Sitemaps are files that search engines like Google or Bing use ' +
+								'to index your website. They can help improve your ranking in ' +
+								'search results. When you enable this feature, Jetpack will ' +
+								'create sitemaps for you and update them automatically when ' +
+								'the content on your site changes.'
+							) }
+					</p>
 					<ModuleToggle
 						slug="sitemaps"
 						compact
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
-						toggleModule={ this.props.toggleModuleNow }>
+						toggleModule={ this.props.toggleModuleNow }
+					>
 						{ __( 'Generate XML sitemaps' ) }
 					</ModuleToggle>
 					{
 						this.props.isSiteVisibleToSearchEngines
 							? this.props.getOptionValue( 'sitemaps' ) && (
 								<FormFieldset>
-									<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
-									<p>
-										<ExternalLink onClick={ this.trackSitemapUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+									<p className="jp-form-setting-explanation">
+										{ __(
+											'Good news: Jetpack is sending your sitemap automatically ' +
+												'to all major search engines for indexing.'
+										) }
 										<br />
-										<ExternalLink onClick={ this.trackSitemapNewsUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+										<ExternalLink
+											onClick={ this.trackSitemapUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ sitemap_url }
+										>
+											{ sitemap_url }
+										</ExternalLink>
+										<br />
+										<ExternalLink
+											onClick={ this.trackSitemapNewsUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ news_sitemap_url }
+										>
+											{ news_sitemap_url }
+										</ExternalLink>
 									</p>
 								</FormFieldset>
 							)
 							: (
 								<FormFieldset>
-										<p className="jp-form-setting-explanation">
+										<p className={ searchEngineVisibilityClasses }>
 											{
-												__( 'Your site is not currently accessible to search engines. You might have "Search Engine Visibility" disabled in your {{a}}Reading Settings{{/a}}.', {
-													components: {
-														a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
+												__(
+													"Search engines can't access your site at the moment. " +
+														"If you'd like to make your site accessible, check " +
+														'your {{a}}Reading settings{{/a}} and switch ' +
+														'"Search Engine Visibility" on.',
+													{
+														components: {
+															a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
+														}
 													}
-												} )
+												)
 											}
 										</p>
 								</FormFieldset>

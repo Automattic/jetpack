@@ -365,6 +365,33 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
 		unset( $this->just_published[ $post_ID ] );
+
+		/**
+		 * Send additional sync action for Activity Log when post is a Customizer publish
+		 */
+		if ( 'customize_changeset' == $post->post_type ) {
+			$post_content = json_decode( $post->post_content, true );
+			foreach ( $post_content as $key => $value ) {
+				//Skip if it isn't a widget
+				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
+					continue;
+				}
+				// Change key from "widget_archives[2]" to "archives-2"
+				$key = str_replace( 'widget_', '', $key );
+				$key = str_replace( '[', '-', $key );
+				$key = str_replace( ']', '', $key );
+
+				global $wp_registered_widgets;
+				if ( isset( $wp_registered_widgets[ $key ] ) ) {
+					$widget_data = array(
+						'name'    => $wp_registered_widgets[ $key ]['name'],
+						'id'      => $key,
+						'title'   => $value['value']['title'],
+					);
+					do_action( 'jetpack_widget_edited', $widget_data );
+				}
+			}
+		}
 	}
 
 	public function expand_post_ids( $args ) {

@@ -58,7 +58,8 @@ class Jetpack {
 		'wordads',
 		'eu-cookie-law-style',
 		'flickr-widget-style',
-		'jetpack-search-widget'
+		'jetpack-search-widget',
+		'jetpack-simple-payments-widget-style',
 	);
 
 	/**
@@ -1504,6 +1505,7 @@ class Jetpack {
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$supports[] = 'akismet';
+			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
 			$plan['class'] = 'premium';
 		}
@@ -1518,6 +1520,7 @@ class Jetpack {
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
 			$supports[] = 'akismet';
+			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
 			$plan['class'] = 'business';
 		}
