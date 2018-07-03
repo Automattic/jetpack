@@ -29,6 +29,26 @@
 		return values;
 	}
 
+	function setFormValues( $form, values ) {
+		console.log( values );
+
+		$( '.jetpack-simple-payments-form-product-title', $form ).val( values.title );
+		$( '.jetpack-simple-payments-form-product-description', $form ).val( values.description );
+		$( '.jetpack-simple-payments-form-product-currency', $form ).val( values.currency );
+		$( '.jetpack-simple-payments-form-product-price', $form ).val( values.price );
+		$( '.jetpack-simple-payments-form-product-multiple', $form ).prop( 'checked', !! values.multiple );
+		$( '.jetpack-simple-payments-form-product-email', $form ).val( values.email );
+
+		if ( !! values.image_id && !! values.image_src ) {
+			var $imageContainer = $( '.jetpack-simple-payments-image', $form );
+
+			$( '.jetpack-simple-payments-image-fieldset .placeholder', $form ).hide();
+			$( 'img', $imageContainer ).prop( 'src', values.image_src );
+			$imageContainer.data( 'image-id', values.image_id );
+			$imageContainer.show();
+		}
+	}
+
 	function updateSelector( $widget, action, data ) {
 		var $selector = $( '.jetpack-simple-payments-products', $widget );
 
@@ -50,7 +70,9 @@
 	}
 
 	function clearForm( $form ) {
-		$( 'input', $form ).val( '' );
+		$( 'input[type="text"], textarea', $form ).val( '' );
+		$( 'input[type="checkbox"]', $form ).prop( 'checked', false );
+		$( 'option', $form ).prop( 'selected', false );
 	}
 
 	function disableWidget( $widget ) {
@@ -96,8 +118,7 @@
 
 		var $widget = getWidgetContainer( $( this ) );
 		var $form = getForm( $( this ) );
-		$( '.jetpack-simple-payments-delete-product', $form ).show();
-		$form.show();
+		disableWidget( $widget );
 
 		var productId = $( '.jetpack-simple-payments-products', $widget ).val();
 
@@ -109,11 +130,14 @@
 		} );
 
 		request.done( function( data ) {
-			console.log( 'DONE', data );
+			setFormValues( $form, data );
+			$( '.jetpack-simple-payments-delete-product', $form ).show();
+			$form.show();
+			enableWidget( $widget );
 		} );
 
-		request.fail( function( data ) {
-			console.log( 'FAIL', data );
+		request.fail( function() {
+			enableWidget( $widget );
 		} );
 	} );
 
@@ -207,8 +231,13 @@
 		event.preventDefault();
 
 		var $form = getForm( $( this ) );
+		var $imageContainer = $( '.jetpack-simple-payments-image', $form );
+
 		$form.hide();
 		$( '.jetpack-simple-payments-delete-product', $form ).hide();
+		$( '.jetpack-simple-payments-image-fieldset .placeholder', $form ).show();
+		$imageContainer.data( 'image-id', 0 );
+		$imageContainer.hide();
 		clearForm( $form );
 	} );
 }( jQuery ) );
