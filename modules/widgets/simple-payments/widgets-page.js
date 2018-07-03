@@ -1,5 +1,5 @@
 /* global wp, jetpackSimplePaymentsWidget */
-/* eslint no-var: 0, no-console: 0 */
+/* eslint no-var: 0 */
 
 ( function( $ ) {
 	// ELEMENTS CLASSES
@@ -26,7 +26,7 @@
 	};
 
 	var nonce = jetpackSimplePaymentsWidget.nonce;
-	//var strings = jetpackSimplePaymentsWidget.strings;
+	var strings = jetpackSimplePaymentsWidget.strings;
 	var $widgetsArea = $( '#widgets-right' );
 
 	// Get the widget parent context of an element.
@@ -93,6 +93,7 @@
 				$( 'option[value="' + data.product_post_id + '"]', $selector ).text( data.product_post_title );
 				break;
 			case 'delete':
+				$( 'option[value="' + data.product_post_id + '"]', $selector ).remove();
 				break;
 		}
 	}
@@ -223,9 +224,9 @@
 		request.done( function( data ) {
 			var action = !! values.id ? 'update' : 'create';
 			updateSelector( $widget, action, data );
-			enableWidget( $widget );
 			$form.hide();
 			clearForm( $form );
+			enableWidget( $widget );
 		} );
 
 		request.fail( function( data ) {
@@ -239,6 +240,37 @@
 					$( '.jetpack-simple-payments-form-product-' + validCodes[ item.code ], $form ).addClass( 'invalid' );
 				}
 			} );
+			enableForm( $form );
+		} );
+	} );
+
+	$widgetsArea.on( 'click', buttons.deleteProduct, function( event ) {
+		event.preventDefault();
+
+		if ( ! confirm( strings.deleteConfirmation ) ) {
+			return;
+		}
+
+		var $widget = getWidgetContainer( $( this ) );
+		var $form = getForm( $( this ) );
+		disableWidget( $widget );
+
+		var productId = $( productsSelector, $widget ).val();
+		var request = wp.ajax.post( 'customize-jetpack-simple-payments-button-delete', {
+			'customize-jetpack-simple-payments-nonce': nonce,
+			params: {
+				product_post_id: productId,
+			},
+		} );
+
+		request.done( function() {
+			updateSelector( $widget, 'delete', { product_post_id: productId } );
+			$form.hide();
+			clearForm( $form );
+			enableWidget( $widget );
+		} );
+
+		request.fail( function() {
 			enableForm( $form );
 		} );
 	} );
