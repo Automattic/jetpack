@@ -211,6 +211,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			wp_send_json_success( array(
+				'id'          => $product_post_id,
 				'title'       => get_the_title( $product ),
 				'description' => $product->post_content,
 				'image_id'    => get_post_thumbnail_id( $product->ID ),

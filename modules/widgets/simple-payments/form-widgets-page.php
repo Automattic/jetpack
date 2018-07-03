@@ -62,6 +62,14 @@
 	<hr />
 
 	<div  class="jetpack-simple-payments-form" style="display: none;">
+		<input
+			class="jetpack-simple-payments-form-product-id"
+			id="<?php echo $this->get_field_id('form_product_id'); ?>"
+			name="<?php echo $this->get_field_name('form_product_id'); ?>"
+			type="hidden"
+			value="<?php echo esc_attr( $instance['form_product_id'] ); ?>"
+		/>
+
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_title' ) ); ?>">
 				<?php esc_html_e( 'What is this payment for?', 'jetpack' ); ?>

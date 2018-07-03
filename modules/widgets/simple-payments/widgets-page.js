@@ -14,6 +14,7 @@
 		cancelForm: '.jetpack-simple-payments-cancel-form',
 	};
 	var productForm = {
+		id: '.jetpack-simple-payments-form-product-id',
 		title: '.jetpack-simple-payments-form-product-title',
 		description: '.jetpack-simple-payments-form-product-description',
 		image: '.jetpack-simple-payments-image',
@@ -42,7 +43,7 @@
 	// Get the values of a product form.
 	function getFormValues( $form ) {
 		var values = {
-			id: 0,
+			id: $( productForm.id, $form ).val(),
 			title: $( productForm.title, $form ).val(),
 			description: $( productForm.description, $form ).val(),
 			imageId: $( productForm.image, $form ).data( 'image-id' ),
@@ -56,6 +57,7 @@
 
 	// Set the values of a product form.
 	function setFormValues( $form, values ) {
+		$( productForm.id, $form ).val( values.id );
 		$( productForm.title, $form ).val( values.title );
 		$( productForm.description, $form ).val( values.description );
 		$( productForm.currency, $form ).val( values.currency );
@@ -88,6 +90,7 @@
 				$selector.val( data.product_post_id ).change();
 				break;
 			case 'update':
+				$( 'option[value="' + data.product_post_id + '"]', $selector ).text( data.product_post_title );
 				break;
 			case 'delete':
 				break;
@@ -105,7 +108,7 @@
 
 	// Clear a product form.
 	function clearForm( $form ) {
-		$( 'input[type="text"], textarea', $form ).val( '' );
+		$( 'input[type="hidden"], input[type="text"], textarea', $form ).val( '' );
 		$( 'input[type="checkbox"]', $form ).prop( 'checked', false );
 		$( 'option', $form ).prop( 'selected', false );
 		clearFormImage( $form );
