@@ -9,9 +9,9 @@ language: php
 # Run Matrix for these PHP versions
 php:
 - "5.6"
-#- "5.2"
+- "5.2"
 - "7.0"
-#- "7.2"
+- "7.2"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -30,10 +30,18 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - env: WP_TRAVISCI="yarn danger ci"
+  - php: "5.6"
+    env: WP_TRAVISCI="yarn lint"
+    dist: trusty
+  - php: "5.6"
+    env: WP_TRAVISCI="yarn test-client"
+    dist: trusty
+  - php: "5.6"
+    env: WP_TRAVISCI="yarn test-gui"
+    dist: trusty
+  - php: "5.6"
+    env: WP_TRAVISCI="yarn danger ci"
+    dist: trusty
 
 cache:
   directories:
