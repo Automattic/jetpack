@@ -217,10 +217,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$this->record_event( 'updated', 'update', $tracks_properties );
 			}
 
-			wp_send_json_success( [
+			wp_send_json_success( array(
 				'product_post_id' => $product_post_id,
 				'product_post_title' => $params['post_title'],
-			] );
+			) );
 		}
 
 		public function ajax_delete_payment_button() {
@@ -438,7 +438,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$form_product_email = ! empty( $new_instance['form_product_email'] )
 				? sanitize_text_field( $new_instance['form_product_email'] )
-				: $this->defaults()['form_product_email'];
+				: $defaults['form_product_email'];
 
 			return array_merge( $required_widget_props, array(
 				'form_product_id' => ( int ) $new_instance['form_product_id'],
