@@ -9,7 +9,7 @@ dist: trusty
 # Setup a global environemnt and overide as needed
 env:
   global:
-    - WP_TRAVISCI="phpunit --testdox"
+    - WP_TRAVISCI="phpunit"
 
 cache:
   directories:
