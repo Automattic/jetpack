@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.2.1
+Stable tag: 6.3
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,33 +98,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.3 =
+= 6.3.2 =
 
-* Release date: July 3, 2018
-* Release post: https://wp.me/p1moTy-8ag
-
-**Major Enhancements**
-
-* Simple Payment: Added Simple Payment Products as Widgets, with the option to manage them via the Customizer.
-
-**Enhancements**
-
-* Connection: Added a new connect splash screen content.
-* Jetpack Dashboard: We removed the labels reading 'PAID' in order to introduce a better way to remark paid features.
-* General: Added support to display geo-location data added to posts and pages with Calypso.
-
-**Improved compatibility**
-
-* Protect: We solved an issue related to interaction with bbPress when trying to log in via a bbPress login widget. You would get redirected a few times to log in again after solving the math puzzle.
+* Release date: July 4, 2018
+* Release post: https://wp.me/p1moTy-96E
 
 **Bug fixes**
 
-* Comments: Implemented Core WordPress' Comment Cookie Consent Checkbox in Jetpack Comments.
-* General: We solved an issue that arised when using the Front End Editor feature plugin. A fatal error wass thrown due to us assuming the `enter_title_here` filter would only run within wp-admin.
-* General: Fixed a compatibility problem between WordPress TinyMCE and Jetpack Markdown when visiting the WordPress Dashboard.
-* Lazy Images: Fixed behaviour for when JavaScript is disabled.
-* Markdown: We fixed the naming of the class used for code blocks that specify a language.
-* Simple Payments: Fixed an error when the user had published Simple Payment Products but their Professional Subscription had expired.
-* Sitemap: We fixed the format of the date shown for videos on the video sitemap.
-* Stats: We fixed the width of the Stats page for wide screens.
+* Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
 
