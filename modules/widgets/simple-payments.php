@@ -438,7 +438,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$form_product_email = ! empty( $new_instance['form_product_email'] )
 				? sanitize_text_field( $new_instance['form_product_email'] )
-				: $this->defaults()['form_product_email'];
+				: $defaults['form_product_email'];
 
 			return array_merge( $required_widget_props, array(
 				'form_product_id' => ( int ) $new_instance['form_product_id'],
