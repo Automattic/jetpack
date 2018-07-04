@@ -4,7 +4,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
     echo "Testing on WordPress master..."
     cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
-    if $WP_TRAVISCI --testdox; then
+    if $WP_TRAVISCI; then
 	# Everything is fine
 	:
     else
