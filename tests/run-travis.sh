@@ -2,6 +2,14 @@
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
+		echo "Linting PHP files..."
+		find . \
+			-not -path "./node_modules*" \
+			-not -path "./tools*" \
+			-not -path "./docker*" \
+			-name \*.php \
+			-exec php -l "{}" \;
+
     echo "Testing on WordPress master..."
     cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
     if $WP_TRAVISCI; then
