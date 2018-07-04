@@ -3,12 +3,20 @@
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 		echo "Linting PHP files..."
-		find . \
+		if find . \
 			-not -path "./node_modules*" \
 			-not -path "./tools*" \
 			-not -path "./docker*" \
+			-not -path "./languages*" \
+			-not -path "./scss*" \
+			-not -path "./docs*" \
+			-not -path "./images*" \
 			-name \*.php \
-			-exec php -l "{}" \;
+			-exec php -l "{}" \; | grep "Parse error";
+		then
+			echo "Linting errors found: see above."
+			exit 1;
+		fi
 
     echo "Testing on WordPress master..."
     cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
