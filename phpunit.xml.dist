@@ -15,7 +15,7 @@
 			<file>tests/php/test_class.jetpack-options.php</file>
 		</testsuite>
 		<testsuite name="php-lint">
-			<file phpVersion="5.3.0" phpVersionOperator="<=">tests/php/test_php-lint.php</file>
+			<file phpVersion="5.3.0" phpVersionOperator="&lt;=">tests/php/test_php-lint.php</file>
 		</testsuite>
 		<testsuite name="core-api">
 			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
