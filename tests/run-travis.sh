@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$WP_TRAVISCI" == "phpunit" ]; then
+if [ "$WP_TRAVISCI" == "phpunit --testdox" ]; then
 
     echo "Testing on WordPress master..."
     cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
