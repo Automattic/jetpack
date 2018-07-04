@@ -8,7 +8,7 @@ import endsWith from 'lodash/endsWith';
 /**
  * Internal dependencies
  */
-import { saveCaretPosition } from '../utils/caret-management';
+import CaretManager from '../utils/caret-management';
 import markdownConverter from '../utils/markdown-converter';
 
 const renderHTML = function( source ) {
@@ -82,8 +82,6 @@ const renderMarkdownPreview = function( evt ) {
 		return true;
 	}
 
-	this.setState( { restoreCaretPosition: null } );
-
 	if ( source ) {
 		const html = renderHTML( source );
 
@@ -106,6 +104,7 @@ export default class MarkdownLivePreview extends React.Component {
 
 		const { source } = props;
 
+		this.caretManager = new CaretManager();
 		this.domNodeReference = addDomNodeReference.bind( this );
 		this.renderMarkdownPreview = renderMarkdownPreview.bind( this );
 
@@ -122,15 +121,13 @@ export default class MarkdownLivePreview extends React.Component {
 
 	getSnapshotBeforeUpdate( prevProps, prevState ) {
 		if ( this.state.html !== prevState.html ) {
-			this.state.restoreCaretPosition = saveCaretPosition( this.htmlEl );
+			this.caretManager.savePosition( this.htmlEl );
 		}
 	}
 
 	componentDidUpdate() {
 		// once the component has be rendered, we can restore the caret position
-		if ( this.state.restoreCaretPosition ) {
-			this.state.restoreCaretPosition();
-		}
+		this.caretManager.restorePosition( this.htmlEl );
 	}
 
 	componentDidMount() {

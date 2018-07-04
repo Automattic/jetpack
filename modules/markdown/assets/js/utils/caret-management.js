@@ -22,7 +22,7 @@ const getTextNodeAtPosition = function( rootElement, position ) {
 	};
 };
 
-const getCaretPosition = function( element ) {
+const getCaretPositionForElement = function( element ) {
 	const selection = window.getSelection();
 	const selectionRange = selection.getRangeAt( 0 );
 	selectionRange.setStart( element, 0 );
@@ -30,19 +30,26 @@ const getCaretPosition = function( element ) {
 	return selectionRange.toString().length;
 };
 
-export function saveCaretPosition( element ) {
-	const caretOffset = getCaretPosition( element );
+const restoreCaretPositionForElement = function( element, caretOffset ) {
+	const selection = window.getSelection();
+	// retrieves the text node to set the caret position to, and the
+	// relative position the caret should move to.
+	const textNodeAndPosition = getTextNodeAtPosition( element, caretOffset );
+	selection.removeAllRanges();
 
-	return function restore() {
-		const selection = window.getSelection();
-		// retrieves the text node to set the caret position to, and the
-		// relative position the caret should move to.
-		const textNodeAndPosition = getTextNodeAtPosition( element, caretOffset );
-		selection.removeAllRanges();
+	const restorationRange = document.createRange();
+	restorationRange.setStart( textNodeAndPosition.node, textNodeAndPosition.position );
+	selection.addRange( restorationRange );
+};
 
-		const restorationRange = document.createRange();
-		restorationRange.setStart( textNodeAndPosition.node, textNodeAndPosition.position );
-		selection.addRange( restorationRange );
-	};
+export default class CaretManager {
+
+	savePosition( element ) {
+		this.caretOffset = getCaretPositionForElement( element );
+	}
+
+	restorePosition( element ) {
+		restoreCaretPositionForElement( element, this.caretOffset );
+	}
 }
 
