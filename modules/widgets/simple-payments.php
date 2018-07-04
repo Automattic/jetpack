@@ -263,19 +263,19 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
 			if ( ! empty( $illegal_params ) ) {
-				$errors.add( 'illegal_params' );
+				$errors->add( 'illegal_params', __( 'Invalid parameters.', 'jetpack' ) );
 			}
 
 			if ( empty( $params['post_title'] ) ) {
-				$errors->add( 'post_title', __( 'People need to know what they\'re paying for! Please add a brief title.' ) );
+				$errors->add( 'post_title', __( "People need to know what they're paying for! Please add a brief title.", 'jetpack' ) );
 			}
 
 			if ( empty( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
-				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.' ) );
+				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
 			}
 
 			if ( empty( $params['email'] ) || ! is_email( $params['email'] ) ) {
-				$errors->add( 'email', __( 'We want to make sure payments reach you, so please add an email address.' ) );
+				$errors->add( 'email', __( 'We want to make sure payments reach you, so please add an email address.', 'jetpack' ) );
 			}
 
 			return $errors;

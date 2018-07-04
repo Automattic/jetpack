@@ -96,7 +96,7 @@
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
 			<?php foreach( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {?>
 				<option value="<?php echo esc_attr( $code ) ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
-					<?php esc_html_e( $code . ' ' . $currency ) ?>
+					<?php echo esc_html( "$code $currency" ); ?>
 				</option>
 			<?php } ?>
 		</select>
@@ -146,7 +146,7 @@
 		echo sprintf(
 			wp_kses(
 				__( 'This widget adds a payment button of your choice to your sidebar. To create or edit the payment buttons themselves, <a href="%s">use the Customizer</a>.' ),
-				array(  'a' => array( 'href' => array() ) )
+				array( 'a' => array( 'href' => array() ) )
 			),
 			esc_url( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) )
 		);
