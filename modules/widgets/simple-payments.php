@@ -217,10 +217,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$this->record_event( 'updated', 'update', $tracks_properties );
 			}
 
-			wp_send_json_success( [
+			wp_send_json_success( array(
 				'product_post_id' => $product_post_id,
 				'product_post_title' => $params['post_title'],
-			] );
+			) );
 		}
 
 		public function ajax_delete_payment_button() {
