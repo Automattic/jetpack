@@ -2,8 +2,8 @@
 
 jetpack_require_lib( 'class.media' );
 
-const REVISION_HISTORY_MAXIMUM_AMOUNT = 0;
-const WP_ATTACHMENT_IMAGE_ALT = '_wp_attachment_image_alt';
+define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 0 );
+define( 'WP_ATTACHMENT_IMAGE_ALT', '_wp_attachment_image_alt' );
 
 new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint( array(
 	'description' => 'Edit a media item.',
