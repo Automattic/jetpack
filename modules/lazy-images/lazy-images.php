@@ -267,7 +267,7 @@ class Jetpack_Lazy_Images {
 					display: none;
 				}
 				.jetpack-lazy-images-js .jetpack-lazy-image {
-					display: inline-block;
+					display: block;
 				}
 			</style>
 			<script>
