@@ -31,7 +31,7 @@ When a user clicks an upgrade button, as well as most other links in the Jetpack
 
 With the above information, specifically the source and the site URL, we are able to determine the intent of the click as well as whether the user is coming from a site that has been registered with a hosting partner. We will redirect the user to the hosting partner's purchase/upgrade flow if all of the following conditions are met:
 
-- The source must have purchase intent, meaning that the user would have landed on a purchsae flow on WordPress.com
+- The source must have purchase intent, meaning that the user would have landed on a purchase flow on WordPress.com
 - The site needs to have been registered with the partners API, with or without a plan
 - The hosting partner that registered the site needs to have provided us with URLs for their upgrade flows. Currently, we can specify URLs for the following:
   - Personal plan (the site does not have an existing plan)
@@ -44,4 +44,4 @@ With the above information, specifically the source and the site URL, we are abl
 For hosting partners to get started with upgrade redirecting, there are only two steps:
 
 1) Be sure to register all sites with the partner API
-2) Send us the relevant purchase URLs for the personal, premium, and professional plans as well as well as a comparison page
+2) Send us the relevant purchase URLs for the personal, premium, and professional plans as well as a comparison page
