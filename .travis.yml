@@ -9,8 +9,8 @@ language: php
 # Run Matrix for these PHP versions
 php:
 - "5.6"
-- "7.0"
-- "7.2"
+#- "7.0"
+#- "7.2"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -19,9 +19,9 @@ env:
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_MODE=single WP_BRANCH=master
-  - WP_MODE=single WP_BRANCH=latest
-  - WP_MODE=single WP_BRANCH=previous
-  - WP_MODE=multi  WP_BRANCH=master
+#  - WP_MODE=single WP_BRANCH=latest
+#  - WP_MODE=single WP_BRANCH=previous
+#  - WP_MODE=multi  WP_BRANCH=master
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
@@ -29,22 +29,22 @@ env:
 matrix:
   include:
   # Versions listed below run within Precise distribution with PHP 5.2
-  - php: "7.0"
-    env: SWITCH_TO_PHP=5.2 WP_MODE=single WP_BRANCH=master
+  - php: "5.2"
+    env: WP_MODE=single WP_BRANCH=master
     dist: precise
-  - php: "7.0"
-    env: SWITCH_TO_PHP=5.2 WP_MODE=single WP_BRANCH=latest
-    dist: precise
-  - php: "7.0"
-    env: SWITCH_TO_PHP=5.2 WP_MODE=single WP_BRANCH=previous
-    dist: precise
-  - php: "7.0"
-    env: SWITCH_TO_PHP=5.2 WP_MODE=multi  WP_BRANCH=master
-    dist: precise
+#  - php: "7.0"
+#    env: SWITCH_TO_PHP=5.2 WP_MODE=single WP_BRANCH=latest
+#    dist: precise
+#  - php: "7.0"
+#    env: SWITCH_TO_PHP=5.2 WP_MODE=single WP_BRANCH=previous
+#    dist: precise
+#  - php: "7.0"
+#    env: SWITCH_TO_PHP=5.2 WP_MODE=multi  WP_BRANCH=master
+#    dist: precise
   - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - env: WP_TRAVISCI="yarn danger ci"
+#  - env: WP_TRAVISCI="yarn test-client"
+#  - env: WP_TRAVISCI="yarn test-gui"
+#  - env: WP_TRAVISCI="yarn danger ci"
 
 cache:
   directories:
@@ -72,9 +72,11 @@ before_script:
     - source ~/.nvm/nvm.sh
     - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
-        set -e
-        source ./tests/install-php-phpunit.sh
-        set +e
+        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+            composer global require "phpunit/phpunit=5.7.*"
+        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+            composer global require "phpunit/phpunit=4.8.*"
+        fi
     - nvm install 8
     - nvm use 8
     - ./tests/prepare-wordpress.sh
