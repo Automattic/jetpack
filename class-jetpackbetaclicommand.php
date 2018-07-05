@@ -76,8 +76,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 		private function branches_list() {
 			$manifest = Jetpack_Beta::get_beta_manifest();
-			$current_branch = str_replace( '_', '/', get_option( 'jetpack_beta_active' )[0] );
-			$branches = [ 'stable', 'master', 'rc' ];
+			$jetpack_beta_active = get_option( 'jetpack_beta_active' );
+			$current_branch = str_replace( '_', '/', $jetpack_beta_active[0] );
+			$branches = array( 'stable', 'master', 'rc' );
 			foreach( get_object_vars( $manifest->pr ) as $key ) {
 				$branches[] = $key->branch;
 			}
