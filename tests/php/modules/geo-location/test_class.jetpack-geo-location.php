@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 	public function test_location_display_filter_skipped_when_lacking_theme_support() {
 		$instance = $this->create_mock_instance(
-			[ 'current_theme_supports', 'the_content_location_display' ],
+			array( 'current_theme_supports', 'the_content_location_display' ),
 			self::ENABLE_CONSTRUCTOR
 		);
 
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		}
 
 		$instance = $this->create_mock_instance(
-			[ 'the_content_location_display' ],
+			array( 'the_content_location_display' ),
 			self::ENABLE_CONSTRUCTOR
 		);
 
@@ -396,7 +396,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed', 'is_single' ] )
+			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -409,7 +409,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed', 'is_single' ] )
+			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -422,7 +422,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed' ] )
+			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -435,7 +435,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed' ] )
+			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
