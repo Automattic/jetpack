@@ -75,6 +75,7 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+			<file phpVersion="5.3.0" phpVersionOperator=">=">tests/php/sync/test_class.jetpack-sync-callables.php</file>
 		</testsuite>
 		<testsuite name="uninstall">
 			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
