@@ -248,7 +248,7 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 	echo
 		'<tr class="plugin-update-tr active">' .
 			'<td colspan="3" class="plugin-update colspanchange">' .
-				'<div class="notice inline notice-warning notice-alt">' .
+				'<div class="notice inline notice-success notice-alt">' .
 					"<p>{$message}</p>" .
 				'</div>' .
 			'</td>' .
