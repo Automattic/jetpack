@@ -28,7 +28,8 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # Versions listed below run within Precise distribution with PHP 5.2
+  # Versions listed below run within Precise distro with PHP 5.2
+  # Travis only supports PHP 5.2 and 5.3 when used within Precise distro
   - php: "5.2"
     env: WP_MODE=single WP_BRANCH=master
     dist: precise
