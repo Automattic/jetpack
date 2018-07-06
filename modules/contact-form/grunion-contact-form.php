@@ -2962,21 +2962,18 @@ function grunion_delete_old_spam() {
 		wp_delete_post( $post_id, true );
 	}
 
-	// Arbitrary check points for running OPTIMIZE
-	// nothing special about 5000 or 11
-	// just trying to periodically recover deleted rows
-	$random_num = mt_rand( 1, 5000 );
 	if (
 		/**
-		 * Filter how often the module run OPTIMIZE TABLE on the core WP tables.
+		 * Filter if the module run OPTIMIZE TABLE on the core WP tables.
 		 *
 		 * @module contact-form
 		 *
 		 * @since 1.3.1
+		 * @since 6.4.0 Set to false by default.
 		 *
-		 * @param int $random_num Random number.
+		 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 		 */
-		apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
+		apply_filters( 'grunion_optimize_table', false )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
