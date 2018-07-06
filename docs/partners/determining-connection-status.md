@@ -40,7 +40,33 @@ curl https://public-api.wordpress.com/rest/v1.1/sites/eric.blog
 When a site is connected to WordPress.com properly, the response will be something like this:
 
 ```
-{"ID":67272686,"name":"Eric Binnion","description":"Mostly pictures of family with a healthy dose of WordPress","URL":"https:\/\/eric.blog","jetpack":true,"subscribers_count":55,"icon":{"img":"https:\/\/i1.wp.com\/eric.blog\/wp-content\/uploads\/2015\/08\/cropped-profile.jpg?fit=512%2C512&strip=all&ssl=1","ico":"https:\/\/i1.wp.com\/eric.blog\/wp-content\/uploads\/2015\/08\/cropped-profile.jpg?fit=16%2C16&strip=all&ssl=1"},"logo":{"id":0,"sizes":[],"url":""},"is_following":false,"meta":{"links":{"self":"https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/67272686","help":"https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/67272686\/help","posts":"https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/67272686\/posts\/","comments":"https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/67272686\/comments\/","xmlrpc":"https:\/\/eric.blog\/xmlrpc.php"}}}
+{
+  "ID": 67272686,
+  "name": "Eric Binnion",
+  "description": "Mostly pictures of family with a healthy dose of WordPress",
+  "URL": "https://eric.blog",
+  "jetpack": true,
+  "subscribers_count": 55,
+  "icon": {
+    "img": "https://i1.wp.com/eric.blog/wp-content/uploads/2015/08/cropped-profile.jpg?fit=512%2C512&strip=all&ssl=1",
+    "ico": "https://i1.wp.com/eric.blog/wp-content/uploads/2015/08/cropped-profile.jpg?fit=16%2C16&strip=all&ssl=1"
+  },
+  "logo": {
+    "id": 0,
+    "sizes": [],
+    "url": ""
+  },
+  "is_following": false,
+  "meta": {
+    "links": {
+      "self": "https://public-api.wordpress.com/rest/v1.1/sites/67272686",
+      "help": "https://public-api.wordpress.com/rest/v1.1/sites/67272686/help",
+      "posts": "https://public-api.wordpress.com/rest/v1.1/sites/67272686/posts/",
+      "comments": "https://public-api.wordpress.com/rest/v1.1/sites/67272686/comments/",
+      "xmlrpc": "https://eric.blog/xmlrpc.php"
+    }
+  }
+}
 ```
 
 One property that will always be present, and uniform, for connected Jetpack sites will be the `jetpack` propery. So, if you decode the response from the API, if the `jetpack` key is present, and if the value is `true`, then the site is properly connected. Here's an example of how to do that in the terminal with `jq`:
@@ -49,4 +75,4 @@ One property that will always be present, and uniform, for connected Jetpack sit
 curl -s https://public-api.wordpress.com/rest/v1.1/sites/eric.blog | jq '.jetpack'
 ```
 
-There are some cases where this could fail. For example, if the site has disabled the JSON API, then the API response will not contain the `jetpack` key even though the site is connected. In practice, the JSON API is enabled on more than 83.5% of sites, and the JSON API is activated by default for new sites, so this will not be an often occurrence.
+There are some cases where this could fail. For example, if the site has disabled the JSON API, then the API response will not contain the `jetpack` key even though the site is connected. In practice, the JSON API is enabled on more than 83.5% of sites, and the JSON API is activated by default for new sites, so this will not occur often.
