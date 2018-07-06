@@ -38,6 +38,8 @@
     "docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
     "docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
     "lint": "gulp jshint && eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
+    "php:5.2-compatibility": "composer php:5.2-compatibility",
+    "php:lint": "composer php:lint",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
