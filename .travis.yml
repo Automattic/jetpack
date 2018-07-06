@@ -28,23 +28,25 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
-  - php: "5.2"
+  # The versions listed below run within Precise distro with PHP 7.2 due to Travis limitation
+  - php: "7.2"
     env: WP_MODE=single WP_BRANCH=master
     dist: precise
-  - php: "5.2"
+  - php: "7.2"
     env: WP_MODE=single WP_BRANCH=latest
     dist: precise
-  - php: "5.2"
+  - php: "7.2"
     env: WP_MODE=single WP_BRANCH=previous
     dist: precise
-  - php: "5.2"
+  - php: "7.2"
     env: WP_MODE=multi  WP_BRANCH=master
     dist: precise
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
   - env: WP_TRAVISCI="yarn test-gui"
   - env: WP_TRAVISCI="yarn danger ci"
+  - php: "7.2"
+    env: WP_TRAVISCI="yarn php:5.2-compatibility"
 
 cache:
   directories:
