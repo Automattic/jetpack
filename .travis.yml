@@ -47,6 +47,7 @@ matrix:
   - env: WP_TRAVISCI="yarn danger ci"
   - php: "7.2"
     env: WP_TRAVISCI="yarn php:5.2-compatibility"
+  - env: WP_TRAVISCI="yarn test-adminpage"
 
 cache:
   directories:
