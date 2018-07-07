@@ -360,6 +360,11 @@ class Jetpack_Sitemap_Manager {
 		return $schedules;
 	}
 
+	/**
+	 * Callback handler for sitemap cron hook
+	 *
+	 * @access public
+	 */
 	public function callback_sitemap_cron_hook() {
 		$sitemap_builder = new Jetpack_Sitemap_Builder();
 		$sitemap_builder->update_sitemap();
