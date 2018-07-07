@@ -360,6 +360,11 @@ class Jetpack_Sitemap_Manager {
 		return $schedules;
 	}
 
+	public function callback_sitemap_cron_hook() {
+		$sitemap_builder = new Jetpack_Sitemap_Builder();
+		$sitemap_builder->update_sitemap();
+	}
+
 	/**
 	 * Add actions to schedule sitemap generation.
 	 * Should only be called once, in the constructor.
