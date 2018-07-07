@@ -393,8 +393,6 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap_cron_hook'
 			);
 		}
-
-		return;
 	}
 
 	/**
