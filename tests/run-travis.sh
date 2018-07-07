@@ -32,9 +32,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	fi
 else
 
-	gem install sass
-	gem install compass
-	yarn
+    yarn
 
 	if $WP_TRAVISCI; then
 		# Everything is fine
