@@ -40,6 +40,7 @@
     "lint": "gulp jshint && eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "php:5.2-compatibility": "composer php:5.2-compatibility",
     "php:lint": "composer php:lint",
+    "test-adminpage": "yarn test-client && yarn test-gui",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
