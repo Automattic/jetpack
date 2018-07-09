@@ -165,61 +165,34 @@ add_action(
 	11 // Priority 11 so it runs after VaultPress `admin_head` hook
 );
 
-function wpcomsh_register_plugins_action_links() {
-	// Hide WPComSH "Deactivate" and "Edit" links on WP Admin Plugins page
-	add_filter(
-		'plugin_action_links_' . plugin_basename( WPCOMSH__PLUGIN_FILE ),
-		'wpcomsh_hide_wpcomsh_plugin_links'
-	);
+function wpcomsh_register_symlinked_plugins_action_links() {
+	$plugin_files = array_keys( get_plugins() );
+	foreach( $plugin_files as $plugin ) {
+		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
+			add_filter(
+				"plugin_action_links_{$plugin}",
+				'wpcomsh_hide_plugin_deactivate_edit_links'
+			);
 
-	// If Jetpack is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
-	if ( defined( 'JETPACK__PLUGIN_FILE' ) ) {
-		$jetpack_basename = plugin_basename( JETPACK__PLUGIN_FILE );
+			add_action(
+				"after_plugin_row_{$plugin}",
+				'wpcomsh_show_plugin_auto_managed_notice'
+			);
+        }
+    }
+}
+add_action( 'admin_init', 'wpcomsh_register_symlinked_plugins_action_links' );
 
-		add_filter(
-			'plugin_action_links_' . $jetpack_basename,
-			'wpcomsh_hide_plugin_deactivate_edit_links'
-		);
-		add_action(
-			'after_plugin_row_' . $jetpack_basename,
-			'wpcomsh_show_plugin_auto_managed_notice',
-		10, 2 );
-	}
-
-	$vaultpress_plugin_file = WP_PLUGIN_DIR . '/vaultpress/vaultpress.php';
-
-	// If VaultPress is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
-	if ( file_exists( $vaultpress_plugin_file ) ) {
-		$vaultpress_basename = plugin_basename( $vaultpress_plugin_file );
-
-		add_filter(
-			'plugin_action_links_' . $vaultpress_basename,
-			'wpcomsh_hide_plugin_deactivate_edit_links'
-		);
-
-		add_action(
-			"after_plugin_row_" . $vaultpress_basename,
-			"wpcomsh_show_plugin_auto_managed_notice",
-		10, 2 );
-	}
-
-	// If Akismet is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
-	if ( defined( 'AKISMET__PLUGIN_DIR' ) ) {
-		$akismet_basename = plugin_basename( AKISMET__PLUGIN_DIR . '/akismet.php' );
-
-		add_filter(
-			'plugin_action_links_' . $akismet_basename,
-			'wpcomsh_hide_plugin_deactivate_edit_links'
-		);
-
-		add_action(
-			"after_plugin_row_" . $akismet_basename,
-			"wpcomsh_show_plugin_auto_managed_notice",
-			10, 2 );
-	}
+function wpcomsh_is_managed_plugin( $plugin_file ) {
+	  $plugin_dir = WP_PLUGIN_DIR . '/' . dirname( $plugin_file );
+	  return is_dir( $plugin_dir ) && is_link( $plugin_dir ) && fileowner( $plugin_dir ) === 0;
 }
 
-add_action( 'admin_init', 'wpcomsh_register_plugins_action_links' );
+function hide_vaultpress_from_plugin_list() {
+	  global $wp_list_table;
+	  unset( $wp_list_table->items['vaultpress/vaultpress.php'] );
+}
+add_action( 'pre_current_active_plugins', 'hide_vaultpress_from_plugin_list' );
 
 function wpcomsh_hide_wpcomsh_plugin_links() {
 	return array();
