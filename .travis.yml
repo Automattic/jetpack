@@ -12,6 +12,7 @@ php:
 - "7.0"
 - "5.6"
 
+# Order of the build stages - we wait for lint tests to complete before unit tests can start
 stages:
   - lint etc
   - test
@@ -27,8 +28,12 @@ env:
   - WP_MODE=single WP_BRANCH=previous
   - WP_MODE=multi  WP_BRANCH=master
 
+# Define a matrix of additional build configurations
+# The versions listed above will automatically create our first configuration under "test" stage,
+# so it doesn't need to be re-defined below.
 jobs:
   include:
+    # The versions listed below for php 5.2 run only with precise as distro due to Travis limitation
     - stage: test
       env: WP_MODE=single WP_BRANCH=master
       php: "5.2"
