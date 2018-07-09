@@ -33,14 +33,14 @@
 
 .wp-list-table tr[data-slug="akismet"] > *,
 .wp-list-table tr[data-slug="jetpack"] > *,
-.wp-list-table tr[data-slug="vaultpress"] > * {
+.wp-list-table tr[data-slug="amp"] > * {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 }
 
 .wp-list-table #akismet-update,
 .wp-list-table #jetpack-update,
-.wp-list-table #vaultpress-update {
+.wp-list-table #amp-update {
 	display: none;
 }
 
