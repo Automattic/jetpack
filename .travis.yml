@@ -26,13 +26,13 @@ env:
 jobs:
   include:
     - stage: Test
-      env: WP_TRAVISCI=yarn lint
+      env: WP_TRAVISCI="yarn lint"
     - Stage: Test
-      env: WP_TRAVISCI=yarn test-client
+      env: WP_TRAVISCI="yarn test-client"
     - Stage: Test
-      env: WP_TRAVISCI=yarn test-gui
+      env: WP_TRAVISCI="yarn test-gui"
     - Stage: Test
-      env: WP_TRAVISCI=yarn danger ci
+      env: WP_TRAVISCI="yarn danger ci"
     - Stage: Test
       env: WP_MODE=single WP_BRANCH=master
       php: "5.2"
