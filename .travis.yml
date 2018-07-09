@@ -12,6 +12,10 @@ php:
 - "7.0"
 - "5.6"
 
+stages:
+  - lint etc
+  - test
+
 env:
   # Global variable is re-defined in matrix-include -list
   global:
@@ -25,30 +29,30 @@ env:
 
 jobs:
   include:
-    - stage: Test
-      env: WP_TRAVISCI="yarn lint"
-    - Stage: Test
-      env: WP_TRAVISCI="yarn test-client"
-    - Stage: Test
-      env: WP_TRAVISCI="yarn test-gui"
-    - Stage: Test
-      env: WP_TRAVISCI="yarn danger ci"
-    - Stage: Test
+    - stage: test
       env: WP_MODE=single WP_BRANCH=master
       php: "5.2"
       dist: precise
-    - Stage: Test
+    - stage: test
       env: WP_MODE=single WP_BRANCH=latest
       php: "5.2"
       dist: precise
-    - Stage: Test
+    - stage: test
       env: WP_MODE=single WP_BRANCH=previous
       php: "5.2"
       dist: precise
-    - Stage: Test
+    - stage: test
       env: WP_MODE=multi  WP_BRANCH=master
       php: "5.2"
       dist: precise
+    - stage: lint etc
+      env: WP_TRAVISCI="yarn lint"
+    - stage: lint etc
+      env: WP_TRAVISCI="yarn test-client"
+    - stage: lint etc
+      env: WP_TRAVISCI="yarn test-gui"
+    - stage: lint etc
+      env: WP_TRAVISCI="yarn danger ci"
 
 cache:
   directories:
