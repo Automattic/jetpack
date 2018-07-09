@@ -11,6 +11,12 @@ env:
   global:
   - WP_TRAVISCI=phpunit
 
+cache:
+  directories:
+   - $HOME/.composer/cache/files
+   - $HOME/.cache/yarn
+   - $HOME/.phpbrew
+
 jobs:
   include:
     - stage: prepare cache
@@ -21,9 +27,11 @@ jobs:
         - source ~/.nvm/nvm.sh
         - export PATH="$HOME/.composer/vendor/bin:$PATH"
         - |
-            set -e
-            source ./tests/install-php-phpunit.sh
-            set +e
+            if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+              composer global require "phpunit/phpunit=5.7.*"
+            elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+              composer global require "phpunit/phpunit=4.8.*"
+            fi
         - nvm install 8
         - nvm use 8
         - ./tests/prepare-wordpress.sh
@@ -68,12 +76,6 @@ jobs:
         - php -v
         - phpunit --version
         - ./tests/run-travis.sh
-
-cache:
-  directories:
-   - $HOME/.composer/cache/files
-   - $HOME/.cache/yarn
-   - $HOME/.phpbrew
 
 # whitelist branches for the "push" build check.
 branches:
