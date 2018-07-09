@@ -69,7 +69,7 @@ When a site is connected to WordPress.com properly, the response will be somethi
 }
 ```
 
-One property that will always be present, and uniform, for connected Jetpack sites will be the `jetpack` propery. So, if you decode the response from the API, if the `jetpack` key is present, and if the value is `true`, then the site is properly connected. Here's an example of how to do that in the terminal with `jq`:
+One property that will always be present, and uniform, for connected Jetpack sites will be the `jetpack` property. So, if you decode the response from the API, if the `jetpack` key is present, and if the value is `true`, then the site is properly connected. Here's an example of how to do that in the terminal with `jq`:
 
 ```
 curl -s https://public-api.wordpress.com/rest/v1.1/sites/eric.blog | jq '.jetpack'
