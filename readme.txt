@@ -7,6 +7,7 @@ Tested up to: 4.9
 
 
 
+
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
 == Description ==
