@@ -17,6 +17,7 @@
  */
 
 add_shortcode( 'tweet', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode' ) );
+add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Tweet', 'enqueue_block_editor_assets' ) );
 
 class Jetpack_Tweet {
 
@@ -140,6 +141,193 @@ class Jetpack_Tweet {
 			wp_register_script( 'twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), JETPACK__VERSION, true );
 			wp_print_scripts( 'twitter-widgets' );
 		}
+	}
+
+	static public function enqueue_block_editor_assets() {
+		wp_register_script(
+			'jetpack-shortcode-tweet-gutenberg',
+			null,
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'shortcode' )
+		);
+		wp_enqueue_script( 'jetpack-shortcode-tweet-gutenberg' );
+
+		ob_start();
+		self::jetpack_shortcode_tweet_gutenberg_script();
+		$content = ob_get_clean();
+
+		wp_script_add_data( 'jetpack-shortcode-tweet-gutenberg', 'data', $content );
+	}
+
+	static public function jetpack_shortcode_tweet_gutenberg_script() {
+?>
+// <script>
+( function( wp ) {
+	var el = wp.element.createElement;
+
+	wp.blocks.registerBlockType( 'jetpack/tweet', {
+		title: wp.i18n.__( 'Tweet', 'jetpack' ),
+		icon: 'twitter',
+		category: 'layout',
+
+		attributes : function( content ) {
+			console.log( content );
+			var shortcode = wp.shortcode.next( 'tweet', content ),
+				data = {};
+
+			if ( shortcode.attrs.named.tweet ) {
+				data.tweet = shortcode.attrs.named.tweet;
+			} else if ( shortcode.attrs.numeric[0] ) {
+				data.tweet = shortcode.attrs.numeric[0];
+			}
+
+			if ( shortcode.attrs.named.align ) {
+				data.align = shortcode.attrs.named.align;
+			}
+
+			if ( shortcode.attrs.named.width ) {
+				data.width = shortcode.attrs.named.width;
+			}
+
+			if ( shortcode.attrs.named.lang ) {
+				data.lang = shortcode.attrs.named.lang;
+			}
+
+			if ( shortcode.attrs.named.hide_thread ) {
+				data.hide_thread = shortcode.attrs.named.hide_thread;
+			}
+
+			if ( shortcode.attrs.named.hide_media ) {
+				data.hide_media = shortcode.attrs.named.hide_media;
+			}
+
+			return data;
+		},
+
+		edit : function( props ) {
+			return [
+				!! props.focus && el(
+					wp.blocks.BlockControls,
+					{ key : 'controls' },
+					el(
+						wp.blocks.AlignmentToolbar,
+						{
+							key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
+							value    : props.attributes.align,
+							onChange : function( newAlignment ) {
+								props.setAttributes( {
+									align : newAlignment
+								} );
+							}
+						}
+					)
+				),
+				!! props.focus && el(
+					wp.blocks.InspectorControls,
+					{ key : 'inspector' },
+					[
+						el(
+							wp.blocks.BlockDescription,
+							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
+							el(
+								'p',
+								null,
+								wp.i18n.__( 'Optional embed settings:' )
+							)
+						),
+						el(
+							'label',
+							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
+							el(
+								'label',
+								{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
+								[
+									wp.i18n.__( 'Width:' ),
+									el(
+										'input',
+										{
+											key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
+											type : 'number',
+											min : 100,
+											value : props.attributes.width,
+											onChange : function( newWidth ) {
+												props.setAttributes( {
+													width : newWidth.target.value
+												} );
+											}
+										}
+									)
+								]
+							)
+						),
+					]
+				),
+				el(
+					'input',
+					{
+						key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
+						name : 'tweet',
+						type : 'url',
+						value : props.attributes.tweet,
+						onChange: function( event ) {
+							props.setAttributes({
+								tweet : event.target.value
+							});
+						}
+					},
+					null
+				)
+			];
+		},
+
+		save : function( props ) {
+			var args = {
+				tag     : 'tweet',
+				type    : 'single',
+				attrs   : {
+					named   : {},
+					numeric : [
+						props.attributes.tweet
+					]
+				}
+			};
+
+			// Populate optional attributes.
+			if ( props.attributes.align && props.attributes.align !== 'none' ) {
+				args.attrs.named.align = props.attributes.align;
+			}
+			if ( props.attributes.width && props.attributes.width !== '' ) {
+				args.attrs.named.width = props.attributes.width;
+			}
+			if ( props.attributes.lang && props.attributes.lang !== 'en' ) {
+				args.attrs.named.lang = props.attributes.lang;
+			}
+			if ( props.attributes.hide_thread && props.attributes.hide_thread !== 'none' ) {
+				args.attrs.named.hide_thread = props.attributes.hide_thread;
+			}
+			if ( props.attributes.hide_media && props.attributes.hide_media !== 'none' ) {
+				args.attrs.named.hide_media = props.attributes.hide_media;
+			}
+
+			// If there's a className to be set, wrap it in a div so it can be set on that.
+			if ( props.className || props.attributes.className ) {
+				return el(
+					'div',
+					{
+						// This is necessary so React doesn't turn `"` into `&quot;`
+						dangerouslySetInnerHTML: {
+							__html: wp.shortcode.string( args )
+						}
+					}
+				);
+			}
+
+			return wp.shortcode.string( args );
+		}
+
+	} );
+} )( window.wp );
+// </script>
+<?php
 	}
 
 } // class end
