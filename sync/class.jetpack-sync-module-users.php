@@ -42,6 +42,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
 
+		//Confirmed new email address
+		add_action( 'deleted_user_meta', array( $this, 'deleted_user_meta_handler' ), 10, 4 );
+
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
@@ -75,6 +78,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
+	}
+
+	public function deleted_user_meta_handler( $meta_ids, $object_id, $meta_key, $_meta_value ) {
+		error_log(print_r( $meta_ids, true ));
+		error_log($object_id);
+		error_log( $meta_key);
+		error_log( $_meta_value );
 	}
 
 	private function get_user( $user ) {
@@ -239,6 +249,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
 			$this->flags[ $user_id ]['password_changed'] = true;
 		}
+		error_log(print_r( $old_user, true));
 
 		/**
 		 * Fires when the client needs to sync an updated user
