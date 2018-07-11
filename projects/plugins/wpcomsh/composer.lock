@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d28ecd445f36aa0f9681a5ca6f3aca93",
+    "content-hash": "b394f6e3f57b17ae0f032fe548b4e01d",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v1.2.2",
+            "version": "v1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "27a4329cf3063179068c7cf887d9ff5e86a3a4db"
+                "reference": "6f7936671a6653f499e96465447d1748a5fa38cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/27a4329cf3063179068c7cf887d9ff5e86a3a4db",
-                "reference": "27a4329cf3063179068c7cf887d9ff5e86a3a4db",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/6f7936671a6653f499e96465447d1748a5fa38cc",
+                "reference": "6f7936671a6653f499e96465447d1748a5fa38cc",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-06-07T16:14:05+00:00"
+            "time": "2018-07-11T02:29:04+00:00"
         },
         {
             "name": "automattic/calypsoify",
