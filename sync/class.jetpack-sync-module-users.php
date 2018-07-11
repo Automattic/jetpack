@@ -254,6 +254,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			$this->flags[ $user_id ]['email_changed'] = true;
 		}
 
+		$flags = $this->get_flags( $user_id );
+		error_log('flags are ' . print_r( $flags , true));
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
