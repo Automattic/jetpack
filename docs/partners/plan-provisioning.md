@@ -44,7 +44,9 @@ We like to think that integrating with Jetpack Start is fairly easy. From beginn
     - `sh ./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
     - The script makes a call to our servers to register the site (if necessary) and provision the requested plan and any additional plugins such as VaultPress and Akismet
 4. If the script is successful, it will exit with code 0, and a JSON string. If any next steps are required in the browser, the JSON will include a URL to send your user to. E.g
-    - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar" }`
+    - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar", "auth_required": true }`
+    - When `auth_required` is `true`, the user must finish authorizing the connection between WordPress.com and their site to finish provisioning. In this case, `next_url` will be a URL that allows the user to finish that authorization step.
+    - When `auth_required` is `false` provisioning is complete and redirecting the user to `next_url` is optional. In this case, `next_url` will be a URL back to the user's `wp-admin`.
 5. If the script is unsuccessful, it will exit with code 1, and some text describing the error, like this:
     `{ success: false, error_code: "site_inaccessible", error_message: "We couldn't contact your site" }`
 6. Any additional products and settings will be installed on the site within a couple of minutes.
