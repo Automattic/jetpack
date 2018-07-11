@@ -146,6 +146,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_action( $args ) {
+		error_log("EXPAND CALLED WITH" . print_r( $args, true));
 		// the first argument is always the user
 		list( $user ) = $args;
 		if ( $user ) {
