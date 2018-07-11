@@ -28,8 +28,7 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # Versions listed below run within Precise distro with PHP 5.2
-  # Travis only supports PHP 5.2 and 5.3 when used within Precise distro
+  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
   - php: "5.2"
     env: WP_MODE=single WP_BRANCH=master
     dist: precise
@@ -53,7 +52,7 @@ cache:
    - $HOME/.cache/yarn
    - $HOME/.phpbrew
 
-# whitelist branches for the "push" build check.
+# whitelist branches for the "push" build check
 branches:
   only:
     - master
@@ -66,7 +65,7 @@ branches:
 git:
   depth: 1
 
-# Clones WordPress and configures our testing environment.
+# Clones WordPress and configures our testing environment
 before_script:
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
@@ -110,7 +109,7 @@ notifications:
        - beau@automattic.com
        - kraft@automattic.com
        - oscar@automattic.com
-       # Encrypted Slack notification address.
+       # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 
 addons:
