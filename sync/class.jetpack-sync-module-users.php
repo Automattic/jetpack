@@ -249,7 +249,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
 			$this->flags[ $user_id ]['password_changed'] = true;
 		}
-		error_log(print_r( $old_user, true));
+		if ( $old_user !== null && $user->user_email !== $old_user->user_email ) {
+			$this->flags[ $user_id ]['email_changed'] = true;
+		}
 
 		/**
 		 * Fires when the client needs to sync an updated user
