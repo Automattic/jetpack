@@ -1,5 +1,7 @@
 <p>
-	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Widget Title', 'jetpack' ); ?></label>
+	<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+		<?php esc_html_e( 'Widget Title', 'jetpack' ); ?>
+	</label>
 	<input
 		type="text"
 		class="widefat jetpack-simple-payments-widget-title"
@@ -8,7 +10,9 @@
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
 <p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
-	<label for="<?php echo $this->get_field_id('product_post_id'); ?>"><?php _e( 'Select a Simple Payment Button:', 'jetpack' ); ?></label>
+	<label for="<?php echo $this->get_field_id('product_post_id'); ?>">
+		<?php esc_html_e( 'Select a Simple Payment Button:', 'jetpack' ); ?>
+	</label>
 	<select
 		class="widefat jetpack-simple-payments-products"
 		id="<?php echo $this->get_field_id('product_post_id'); ?>"
@@ -22,16 +26,16 @@
 </p>
 <?php if ( is_customize_preview() ) { ?>
 <p class="jetpack-simple-payments-products-warning" <?php if ( ! empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
-	<?php echo __( 'Looks like you don\'t have any products. You can create one using the Add New button below.' ) ?>
+	<?php esc_html_e( "Looks like you don't have any products. You can create one using the Add New button below.", 'jetpack' ) ?>
 </p>
 <p>
 	<div class="alignleft">
 		<button class="button jetpack-simple-payments-edit-product" <?php disabled( empty( $product_posts ), true ); ?>>
-			<?php esc_html_e( 'Edit Selected' ); ?>
+			<?php esc_html_e( 'Edit Selected', 'jetpack' ); ?>
 		</button>
 	</div>
 	<div class="alignright">
-		<button class="button jetpack-simple-payments-add-product"><?php esc_html_e( 'Add New' ); ?></button>
+		<button class="button jetpack-simple-payments-add-product"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
 	</div>
 	<br class="clear">
 </p>
@@ -62,7 +66,9 @@
 		value="<?php echo esc_attr( $instance['form_product_image_src'] ); ?>"
 		class="jetpack-simple-payments-form-image-src" />
 	<p>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_title' ) ); ?>"><?php esc_html_e( 'What is this payment for?' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_title' ) ); ?>">
+			<?php esc_html_e( 'What is this payment for?', 'jetpack' ); ?>
+		</label>
 		<input
 			type="text"
 			class="widefat field-title jetpack-simple-payments-form-product-title"
@@ -70,18 +76,24 @@
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_title' ) ); ?>"
 			value="<?php echo esc_attr( $instance['form_product_title'] ); ?>" />
 		<br />
-		<small><?php _e( 'For example: event tickets, charitable donations, training courses, coaching fees, etc.' ); ?></small>
+		<small>
+			<?php esc_html_e( 'For example: event tickets, charitable donations, training courses, coaching fees, etc.', 'jetpack' ); ?>
+		</small>
 	</p>
 	<div class="jetpack-simple-payments-image-fieldset">
-		<label><?php esc_html_e( 'Product image' ); ?></label>
-		<div class="placeholder" <?php if ( ! empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image' ); ?></div>
+		<label><?php esc_html_e( 'Product image', 'jetpack' ); ?></label>
+		<div class="placeholder" <?php if ( ! empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>>
+			<?php esc_html_e( 'Select an image', 'jetpack' ); ?>
+		</div>
 		<div class="jetpack-simple-payments-image" <?php if ( empty( $instance['form_product_image_id'] ) ) echo 'style="display:none;"'; ?>>
 			<img src="<?php echo esc_url( $instance['form_product_image_src'] ); ?>" />
-			<button class="button jetpack-simple-payments-remove-image"><?php esc_html_e( 'Remove image' ); ?></button>
+			<button class="button jetpack-simple-payments-remove-image"><?php esc_html_e( 'Remove image', 'jetpack' ); ?></button>
 		</div>
 	</div>
 	<p>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_description' ) ); ?>"><?php esc_html_e( 'Description' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_description' ) ); ?>">
+			<?php esc_html_e( 'Description', 'jetpack' ); ?>
+		</label>
 		<textarea
 			class="field-description widefat jetpack-simple-payments-form-product-description"
 			rows=5
@@ -89,14 +101,16 @@
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_description' ) ); ?>"><?php  esc_html_e( $instance['form_product_description'] ); ?></textarea>
 	</p>
 	<p class="cost">
-		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_price' ) ); ?>"><?php esc_html_e( 'Price' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_price' ) ); ?>">
+			<?php esc_html_e( 'Price', 'jetpack' ); ?>
+		</label>
 		<select
 			class="field-currency widefat jetpack-simple-payments-form-product-currency"
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_currency' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
 			<?php foreach( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {?>
 				<option value="<?php echo esc_attr( $code ) ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
-					<?php esc_html_e( $code . ' ' . $currency ) ?>
+					<?php echo esc_html( "$code $currency" ); ?>
 				</option>
 			<?php } ?>
 		</select>
@@ -116,25 +130,42 @@
 			type="checkbox"
 			value="1"
 			<?php checked( $instance['form_product_multiple'], '1' ); ?> />
-		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_multiple' ) ); ?>"><?php esc_html_e( 'Allow people to buy more than one item at a time.' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_multiple' ) ); ?>">
+			<?php esc_html_e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?>
+		</label>
 	</p>
 	<p>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_email' ) ); ?>"><?php esc_html_e( 'Email' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_email' ) ); ?>">
+			<?php esc_html_e( 'Email', 'jetpack' ); ?>
+		</label>
 		<input
 			class="field-email widefat jetpack-simple-payments-form-product-email"
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_email' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_email' ) ); ?>"
 			type="email"
 			value="<?php  echo esc_attr( $instance['form_product_email'] ); ?>" />
-		<small><?php printf( esc_html__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.' ), '<a href="https://paypal.com" target="_blank">', '</a>' ) ?></small>
+		<small>
+			<?php
+			printf(
+				wp_kses(
+					__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a <a href="%s" %s>PayPal account</a> connected to a bank account.' ),
+					array( 'a' => array( 'href' => array(), 'target' => array() ) )
+				),
+				'https://paypal.com',
+				'target="_blank"'
+			);
+			?>
+		</small>
 	</p>
 	<p>
 		<div class="alignleft">
-			<button type="button" class="button-link button-link-delete jetpack-simple-payments-delete-product"><?php _e( 'Delete Product' ); ?></button>
+			<button type="button" class="button-link button-link-delete jetpack-simple-payments-delete-product">
+				<?php esc_html_e( 'Delete Product', 'jetpack' ); ?>
+			</button>
 		</div>
 		<div class="alignright">
-			<button name="<?php echo $this->get_field_name('save'); ?>" class="button jetpack-simple-payments-save-product"><?php _e( 'Save' ); ?></button>
-			<span> | <button type="button" class="button-link jetpack-simple-payments-cancel-form"><?php _e( 'Cancel' ); ?></button></span>
+			<button name="<?php echo $this->get_field_name('save'); ?>" class="button jetpack-simple-payments-save-product"><?php esc_html_e( 'Save', 'jetpack' ); ?></button>
+			<span> | <button type="button" class="button-link jetpack-simple-payments-cancel-form"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></button></span>
 		</div>
 		<br class="clear">
 	</p>
@@ -143,10 +174,10 @@
 <?php } else { ?>
 <p class="jetpack-simple-payments-products-warning">
 	<?php
-		echo sprintf(
+		printf(
 			wp_kses(
-				__( 'This widget adds a payment button of your choice to your sidebar. To create or edit the payment buttons themselves, <a href="%s">use the Customizer</a>.' ),
-				array(  'a' => array( 'href' => array() ) )
+				__( 'This widget adds a payment button of your choice to your sidebar. To create or edit the payment buttons themselves, <a href="%s">use the Customizer</a>.', 'jetpack' ),
+				array( 'a' => array( 'href' => array() ) )
 			),
 			esc_url( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) )
 		);

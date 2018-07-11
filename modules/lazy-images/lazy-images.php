@@ -263,16 +263,13 @@ class Jetpack_Lazy_Images {
 	public function add_nojs_fallback() {
 		?>
 			<style type="text/css">
-				.jetpack-lazy-image {
+				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
 					display: none;
-				}
-				.jetpack-lazy-images-js .jetpack-lazy-image {
-					display: inline-block;
 				}
 			</style>
 			<script>
 				document.documentElement.classList.add(
-					'jetpack-lazy-images-js'
+					'jetpack-lazy-images-js-enabled'
 				);
 			</script>
 		<?php
