@@ -41,7 +41,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
 		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
-		
+
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
@@ -242,8 +242,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
 			// The '_new_email' user meta is deleted right after the call to wp_update_user
-			// that got us to this point, https://opengrok.a8c.com/source/xref/trunk/wp-admin/user-edit.php#101
-			// so if it's still set then this was a user confirming their new email address
+			// that got us to this point so if it's still set then this was a user confirming
+			// their new email address
 			if ( 1 === intval( get_user_meta( $user->ID, '_new_email', true ) ) ) {
 				$this->flags[ $user_id ]['email_changed'] = true;
 			}
