@@ -124,11 +124,19 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			?>
 			<div style="margin: 5px 0 20px;">
 				<strong><?php esc_html_e( 'Prove your humanity:', 'jetpack' ); ?> </strong>
-				<?php echo $num1 ?> &nbsp; + &nbsp; <?php echo $num2 ?> &nbsp; = &nbsp;
-				<input type="input" name="jetpack_protect_num" value="" size="2" />
-				<input type="hidden" name="jetpack_protect_answer" value="<?php echo $ans; ?>" />
+				<label for="sum">
+					<?php echo esc_html( $num1 ); ?>
+					<span class="a11y-visually-hidden"><?php esc_html_e( 'plus', 'jetpack' ); ?></span>
+					<span aria-hidden="true"> + </span>
+					<?php echo esc_html( $num2 ); ?>
+					<span class="a11y-visually-hidden"><?php esc_html_e( 'equals', 'jetpack' ); ?></span>
+					<span aria-hidden="true"> = </span>
+				</label>
+				<input type="number" id="sum" name="jetpack_protect_num" value="" size="2" />
+				<input type="hidden" name="jetpack_protect_answer" value="<?php echo esc_attr( $ans ); ?>" />
 			</div>
 		<?php
+			return void;
 		}
 
 	}
