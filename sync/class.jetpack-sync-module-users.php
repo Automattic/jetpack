@@ -259,7 +259,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			$this->flags[ $user_id ]['email_changed'] = true;
 		}
 
-		error_log(print_r( $this->flags[ $user_id ], true) );
+		//error_log(print_r( $this->flags[ $user_id ], true) );
 
 		$flags = $this->get_flags( $user_id );
 		error_log('flags are ' . print_r( $flags , true));
