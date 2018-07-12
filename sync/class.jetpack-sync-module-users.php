@@ -80,13 +80,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
 	}
 
-	public function deleted_user_meta_handler( $meta_ids, $object_id, $meta_key, $_meta_value ) {
-		error_log(print_r( $meta_ids, true ));
-		error_log($object_id);
-		error_log( $meta_key);
-		error_log( $_meta_value );
-	}
-
 	private function get_user( $user ) {
 		if ( is_numeric( $user ) ) {
 			$user = get_user_by( 'id', $user );
@@ -146,7 +139,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_action( $args ) {
-		error_log("EXPAND CALLED WITH" . print_r( $args, true));
 		// the first argument is always the user
 		list( $user ) = $args;
 		if ( $user ) {
