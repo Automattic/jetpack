@@ -236,8 +236,17 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		} else {
 			$old_user = $old_user_data;
 		}
+
 		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
 			$this->flags[ $user_id ]['password_changed'] = true;
+		}
+		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
+			// The '_new_email' user meta is deleted right after the call to wp_update_user
+			// that got us to this point so if it's still set then this was a user confirming
+			// their new email address
+			if ( 1 === intval( get_user_meta( $user->ID, '_new_email', true ) ) ) {
+				$this->flags[ $user_id ]['email_changed'] = true;
+			}
 		}
 
 		/**
