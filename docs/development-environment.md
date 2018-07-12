@@ -150,6 +150,56 @@ We strongly recommend that you install tools to review your code in your IDE. It
 - You can find [Code Sniffer rules for WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) here. Once you've installed these rulesets, you can [follow the instructions here](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#how-to-use) to configure your IDE.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc` file that defines our coding standards.
 
+### Linting Jetpack's PHP
+
+You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code:
+
+This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
+
+```sh
+$ composer install
+```
+
+This runs the actual linting task.
+
+```sh
+$ composer php:lint
+```
+
+_There's also a handy `yarn php:lint` that will run `composer php:lint` if you prefer_.
+
+```sh
+$ yarn php:lint
+```
+
+### Checking Jetpack's PHP for PHP 5.2 Compatibility
+
+We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibility` ruleset checking for code not compatible with PHP 5.2
+
+```sh
+$ composer php:5.2-compatibility
+```
+
+_There's also a handy `yarn php:5.2-compatibility` that will run `composer php:5.2-compatibility` if you prefer_.
+
+```sh
+$ yarn php:5.2-compatibility
+```
+
+
+### Linting Jetpack's JavaScript
+
+`yarn lint` will check syntax and style in the following JavaScript pieces:
+
+* All the frontend JavaScript that Jetpack relies on.
+* All the JavaScript present in the Admin Page Single Page App for Jetpack.
+
+```sh
+$ yarn lint
+```
+
+_If you haven't done it yet, you may need to run `yarn` before `yarn lint` for installing node modules for this task_.
+
 ## Developing and contributing code to Jetpack from a Windows machine
 
 When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
