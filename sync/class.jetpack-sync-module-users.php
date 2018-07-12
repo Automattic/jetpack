@@ -41,10 +41,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
 		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
-
-		//Confirmed new email address
-		add_action( 'deleted_user_meta', array( $this, 'deleted_user_meta_handler' ), 10, 4 );
-
+		
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
