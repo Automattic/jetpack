@@ -143,7 +143,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		global $wp_version, $pagenow;
 
 		$this->assertFalse( $pagenow === 'update-core.php' );
-		Jetpack_Constants::set_constant( 'REST_API_REQUEST', false );
+		Jetpack_Constants::set_constant( 'REST_API_REQUEST', true );
 		Jetpack_Sync_Modules::get_module( "updates" )->update_core( 'new_version' );
 		$this->sender->do_sync();
 
