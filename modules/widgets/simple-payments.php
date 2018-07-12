@@ -56,9 +56,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
+
 			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
 			if ( is_customize_preview() && $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
+				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
 				add_action( 'wp_ajax_customize-jetpack-simple-payments-buttons-get', array( $this, 'ajax_get_payment_buttons' ) );
@@ -113,9 +115,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_enqueue_style( 'jetpack-simple-payments-widget-style', plugins_url( 'simple-payments/style.css', __FILE__ ), array(), '20180518' );
 		}
 
-		function admin_enqueue_styles_and_scripts(){
-				wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
+		function admin_enqueue_styles() {
+			wp_enqueue_style( 'jetpack-simple-payments-widget-customizer', plugins_url( 'simple-payments/customizer.css', __FILE__ ) );
+		}
 
+		function admin_enqueue_scripts() {
 				wp_enqueue_media();
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 				wp_localize_script( 'jetpack-simple-payments-widget-customizer', 'jpSimplePaymentsStrings', array(
@@ -462,21 +466,22 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @param array $instance Previously saved values from database.
 		 */
 		function form( $instance ) {
+			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+			if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
+				require dirname( __FILE__ ) . '/simple-payments/admin-warning.php';
+				return;
+			}
+
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
-			if ( $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
-				$product_posts = get_posts( array(
-					'numberposts' => 100,
-					'orderby' => 'date',
-					'post_type' => Jetpack_Simple_Payments::$post_type_product,
-					'post_status' => 'publish',
-				) );
+			$product_posts = get_posts( array(
+				'numberposts' => 100,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+			) );
 
-				require( dirname( __FILE__ ) . '/simple-payments/form.php' );
-			} else {
-				require( dirname( __FILE__ ) . '/simple-payments/admin-warning.php' );
-			}
+			require dirname( __FILE__ ) . '/simple-payments/form.php';
 		}
 	}
 
