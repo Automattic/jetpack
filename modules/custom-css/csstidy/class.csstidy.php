@@ -734,7 +734,7 @@ class csstidy {
 									case '@namespace':
 										/* Add quotes to namespace */
 										$this->sub_value_arr[] = '"' . trim($this->sub_value) . '"';
-										$this->namespace = implode(' ', $this->sub_value_arr);
+										$this->namespace = implode(' ', $this->sub_value_arr); // phpcs:ignore PHPCompatibility
 										break;
 									case '@import':
 										$this->sub_value = trim($this->sub_value);
@@ -937,7 +937,7 @@ class csstidy {
 
 		@setlocale(LC_ALL, $old); // Set locale back to original setting
 
-		return!(empty($this->css) && empty($this->import) && empty($this->charset) && empty($this->tokens) && empty($this->namespace));
+		return!(empty($this->css) && empty($this->import) && empty($this->charset) && empty($this->tokens) && empty($this->namespace)); // phpcs:ignore PHPCompatibility
 	}
 
 	/**
@@ -1028,7 +1028,7 @@ class csstidy {
 			return $media;
 		}
 		end($this->css);
-		list($at,) = each($this->css);
+		list($at,) = each($this->css); // phpcs:ignore PHPCompatibility
 		if ($at == $media){
 			return $media;
 		}
@@ -1067,7 +1067,7 @@ class csstidy {
 
 			// if last is the same, keep it
 			end($this->css[$media]);
-			list($sel,) = each($this->css[$media]);
+			list($sel,) = each($this->css[$media]); // phpcs:ignore PHPCompatibility
 			if ($sel == $selector){
 				return $selector;
 			}

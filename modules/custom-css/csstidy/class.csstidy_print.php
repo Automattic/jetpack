@@ -73,7 +73,7 @@ class csstidy_print {
 		$this->tokens = & $css->tokens;
 		$this->charset = & $css->charset;
 		$this->import = & $css->import;
-		$this->namespace = & $css->namespace;
+		$this->namespace = & $css->namespace; // phpcs:ignore PHPCompatibility
 	}
 
 	function csstidy_print(&$css) {
@@ -201,7 +201,7 @@ class csstidy_print {
 				$output .= $template[0] . '@import ' . $template[5] . $this->import[$i] . $template[6];
 			}
 		}
-
+		// phpcs:disable PHPCompatibility.PHP.NewKeywords
 		if (!empty($this->namespace)) {
 			if (substr($this->namespace, 0, 4) === 'url(' && substr($this->namespace, -1, 1) === ')') {
 				$this->namespace = '\'' . substr($this->namespace, 4, -1) . '\'';
@@ -209,6 +209,7 @@ class csstidy_print {
 			}
 			$output .= $template[0] . '@namespace ' . $template[5] . $this->namespace . $template[6];
 		}
+		// phpcs:enable PHPCompatibility.PHP.NewKeywords
 
 		$output .= $template[13];
 		$in_at_out = '';

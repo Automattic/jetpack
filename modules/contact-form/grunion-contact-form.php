@@ -1703,7 +1703,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( isset( $_GET['contact-form-id'] )
 			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
 			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -1925,7 +1925,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 		&&
-			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
+			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] ) // phpcs:ignore PHPCompatibility
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
