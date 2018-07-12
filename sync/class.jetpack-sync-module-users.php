@@ -247,22 +247,19 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		} else {
 			$old_user = $old_user_data;
 		}
-		error_log("Old user is: " . print_r($old_user, true));
-		error_log("New user is: " . print_r($user, true));
 
 		if ( $old_user !== null && $user->data->user_pass !== $old_user->user_pass ) {
-			error_log("SETTING PASSWORD CHANGED");
 			$this->flags[ $user_id ]['password_changed'] = true;
 		}
 		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
-			error_log("SETTING EMAIL CHANGED");
-			$this->flags[ $user_id ]['email_changed'] = true;
+			// The '_new_email' user meta is deleted right after the call to wp_update_user
+			// that got us to this point, https://opengrok.a8c.com/source/xref/trunk/wp-admin/user-edit.php#101
+			// so if it's still set then this was a user confirming their new email address
+			if ( 1 === intval( get_user_meta( $user->ID, '_new_email', true ) ) ) {
+				$this->flags[ $user_id ]['email_changed'] = true;
+			}
 		}
 
-		//error_log(print_r( $this->flags[ $user_id ], true) );
-
-		$flags = $this->get_flags( $user_id );
-		error_log('flags are ' . print_r( $flags , true));
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
