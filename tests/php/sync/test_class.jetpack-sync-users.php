@@ -104,6 +104,31 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $events[1] ) );
 	}
 
+	public function test_confirm_user_email_flag_gets_synced() {
+		$this->server_event_storage->reset();
+		$new_email = 'nobody@automattic.com';
+
+		// Simulate waiting on email confirmation
+		update_user_meta( $this->user_id, '_new_email', 1 );
+
+		wp_update_user( array(
+			'ID'        => $this->user_id,
+			'user_email' => $new_email
+		) );
+
+		$this->sender->do_sync();
+
+		// Don't sync the password changes since we don't track passwords
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['email_changed'] );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+
+		// Only the sync save user event should be present.
+		$this->assertFalse( isset( $events[1] ) );
+
+		delete_user_meta( $this->user_id, '_new_email' );
+	}
+
 	public function test_delete_user_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 
