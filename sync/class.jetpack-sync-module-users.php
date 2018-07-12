@@ -250,11 +250,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		error_log("Old user is: " . print_r($old_user, true));
 		error_log("New user is: " . print_r($user, true));
 
-		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
+		if ( $old_user !== null && $user->data->user_pass !== $old_user->user_pass ) {
 			error_log("SETTING PASSWORD CHANGED");
 			$this->flags[ $user_id ]['password_changed'] = true;
 		}
-		if ( $old_user !== null && $user->user_email !== $old_user->user_email ) {
+		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
 			error_log("SETTING EMAIL CHANGED");
 			$this->flags[ $user_id ]['email_changed'] = true;
 		}
