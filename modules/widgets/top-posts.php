@@ -319,6 +319,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return;
 		}
 
+		$layout = apply_filters('jetpack_top_posts_widget_layout', '', $posts, $display );
+		if (!empty($layout)) {
+			echo $layout;
+			echo $args['after_widget'];
+			return;
+		}
+
 		switch ( $display ) {
 		case 'list' :
 		case 'grid' :
