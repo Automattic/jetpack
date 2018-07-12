@@ -16,3 +16,42 @@ To change the default redirect behavior, hosts will want to append `&partner_red
 The `partner_redirect` value will be validated on WordPress.com against a whitelist, and assuming the redirect is valid, the user will be redirected to `partner_redirect` after authorization.
 
 **Note:** Because redirects are validated against a whitelist, please be sure to get in touch with us about whitelisting your redirect if you'd like to change the default redirect behavior after authorization.
+
+## Example
+
+Here is an example in NodeJS, using the request module, which will print the `next_url` value after adding the `&partner_redirect=` value when `auth_required` is `true`.
+
+```js
+var request = require( 'request' );
+var accessToken = 'access_token_here';
+var plan = 'plan_here';
+var siteurl = 'http://example.com';
+var local_user = 'username_id_or_email_here';
+
+var options = {
+    method: 'POST',
+    url: 'https://public-api.wordpress.com/rest/v1.3/jpphp/provision',
+    headers: {
+        'cache-control': 'no-cache',
+        authorization: 'Bearer ' + accessToken,
+    },
+    formData: {
+        plan: plan,
+        siteurl: siteurl,
+        local_user: local_user
+    }
+};
+
+request( options, function ( error, response, body ) {
+    if ( error ) {
+        throw new Error( error );
+    }
+
+    body = JSON.parse( body );
+    console.log(
+        body.auth_required
+            ? body.next_url + '&partner_redirect=' + encodeURIComponent( 'http://example.com' )
+            : body.next_url
+    );
+} );
+```
