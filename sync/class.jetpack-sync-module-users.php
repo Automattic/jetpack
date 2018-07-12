@@ -248,7 +248,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			$old_user = $old_user_data;
 		}
 
-		if ( $old_user !== null && $user->data->user_pass !== $old_user->user_pass ) {
+		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
 			$this->flags[ $user_id ]['password_changed'] = true;
 		}
 		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
