@@ -43,8 +43,7 @@ matrix:
     dist: precise
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - env: WP_TRAVISCI="yarn danger ci"
+  - env: WP_TRAVISCI="yarn danger ci && yarn test-gui"
 
 cache:
   directories:
