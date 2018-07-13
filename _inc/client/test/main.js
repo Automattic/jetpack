@@ -12,8 +12,8 @@ Enzyme.configure( { adapter: new Adapter() } );
 /**
  * Internal dependencies
  */
-import Main from '../main';
-import store from 'state/redux-store';
+//import Main from '../main';
+//import store from 'state/redux-store';
 
 describe( 'Main', () => {
 	it( 'should render the Main component', () => {
