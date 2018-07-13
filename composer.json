@@ -18,6 +18,7 @@
     },
     "scripts": {
       "php:5.2-compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-'  --standard=PHPCompatibility --ignore=docker,tools,tests,node_modules,vendor --extensions=php .",
+      "_php:5.2-compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-'  --standard=PHPCompatibility --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
       "php:lint": "composer install && vendor/bin/phpcs -p"
     }
 }
