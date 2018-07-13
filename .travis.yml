@@ -41,7 +41,9 @@ matrix:
   - php: "5.2"
     env: WP_MODE=multi  WP_BRANCH=master
     dist: precise
-  - env: WP_TRAVISCI="yarn test-everything"
+  - env: WP_TRAVISCI="yarn lint"
+  - env: WP_TRAVISCI="yarn test-client"
+  - env: WP_TRAVISCI="yarn test-dangerci-and-gui"
 
 cache:
   directories:
