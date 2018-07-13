@@ -20,6 +20,9 @@ var jetpackLazyImagesModule = function( $ ) {
 
 		// Add event to provide optional compatibility for other code.
 		$( 'body' ).bind( 'jetpack-lazy-images-load', lazy_load_init );
+
+		// WooCommerce updates the cart with new HTML, we need to trigger init when it's done
+		$( 'body' ).bind( 'wc_fragments_refreshed', lazy_load_init );
 	} );
 
 	function lazy_load_init() {
