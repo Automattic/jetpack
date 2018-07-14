@@ -328,8 +328,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 * @param array $posts IDs of the posts to be displayed
 		 * @param array $display Display option from widget form
 		 */
-		$layout = apply_filters('jetpack_top_posts_widget_layout', '', $posts, $display );
-		if (!empty($layout)) {
+		$layout = apply_filters( 'jetpack_top_posts_widget_layout', '', $posts, $display );
+		if ( ! empty( $layout ) ) {
 			echo $layout;
 			echo $args['after_widget'];
 			return;
