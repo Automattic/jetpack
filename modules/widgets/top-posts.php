@@ -319,6 +319,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return;
 		}
 
+		/**
+		 * Filter the layout of the Top Posts Widget
+		 *
+		 * @module widgets
+		 * 
+		 * @param string $layout layout of the Top Posts Widget (empty string)
+		 * @param array $posts IDs of the posts to be displayed
+		 * @param array $display Display option from widget form
+		 */
 		$layout = apply_filters('jetpack_top_posts_widget_layout', '', $posts, $display );
 		if (!empty($layout)) {
 			echo $layout;
