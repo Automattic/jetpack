@@ -1540,7 +1540,15 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function default_footer() {
-		$credits = sprintf(
+		if ( function_exists( 'the_privacy_policy_link' ) ) {
+			$credits = sprintf(
+				__( '%1$s / ', 'jetpack' ),
+				the_privacy_policy_link()
+			);
+		} else {
+			$credits = '';
+		}
+		$credits .= sprintf(
 			'<a href="https://wordpress.org/" rel="noopener noreferrer" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
@@ -1549,6 +1557,7 @@ class The_Neverending_Home_Page {
 			__( 'Theme: %1$s.', 'jetpack' ),
 			wp_get_theme()->Name
 		);
+
 		/**
 		 * Filter Infinite Scroll's credit text.
 		 *
