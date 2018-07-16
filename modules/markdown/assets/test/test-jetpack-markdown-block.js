@@ -32,7 +32,7 @@ require( '../js/jetpack-markdown-block' );
 const JetpackMarkdownBlockEditor = require( '../js/jetpack-markdown-block-editor' );
 const JetpackMarkdownBlockSave = require( '../js/jetpack-markdown-block-save' );
 
-describe( '', () => {
+describe( 'JetpackMarkdownBlock', () => {
 	it( 'registers the markdown block', () => {
 		expect( registerBlockTypeSpy ).to.have.been.calledWith(
 			'jetpack/markdown-block',
@@ -51,23 +51,21 @@ describe( '', () => {
 						viewBox: '0 0 208 128',
 						stroke: 'currentColor'
 					},
-					[
-						createElement(
-							'rect', {
-								width: '198',
-								height: '118',
-								x: '5',
-								y: '5',
-								ry: '10',
-								'stroke-width': '10',
-								fill: 'none'
-							} ),
-						createElement(
-							'path', {
-								d: 'M30 98v-68h20l20 25 20-25h20v68h-20v-39l-20 25-20-25v39zM155 98l-30-33h20v-35h20v35h20z'
-							}
-						)
-					]
+					createElement(
+						'rect', {
+							width: '198',
+							height: '118',
+							x: '5',
+							y: '5',
+							ry: '10',
+							'stroke-width': '10',
+							fill: 'none'
+						} ),
+					createElement(
+						'path', {
+							d: 'M30 98v-68h20l20 25 20-25h20v68h-20v-39l-20 25-20-25v39zM155 98l-30-33h20v-35h20v35h20z'
+						}
+					)
 				),
 				category: 'formatting',
 				attributes: {
