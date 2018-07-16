@@ -7,7 +7,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	$support_url = 'https://jetpack.com/support/simple-payment-button/';
 }
 ?>
-<div class='jetpack-simple-payments error'>
+<div class='jetpack-simple-payments-disabled-error'>
 	<p>
 	<?php
 	printf(
