@@ -45,15 +45,41 @@ global.window.wp = {
  */
 const MarkdownLivePreview = require( '../../js/components/markdown-live-preview' );
 
-const markdownSource = 'This is *Markdown* __source__.';
-const markdownHTML = '<div contenteditable="true"><p>This is <em><span class="wp-block-jetpack-markdown-block__live-preview__token">*</span>Markdown<span class="wp-block-jetpack-markdown-block__live-preview__token">*</span></em> <strong><span class="wp-block-jetpack-markdown-block__live-preview__token">__</span>source<span class="wp-block-jetpack-markdown-block__live-preview__token">__</span></strong>.</p></div>';
+const markdownLightSource = 'This is *Markdown* __source__.';
+const markdownLightHTML = '<div contenteditable="true"><p>This is <em><span class="wp-block-jetpack-markdown-block__live-preview__token">*</span>Markdown<span class="wp-block-jetpack-markdown-block__live-preview__token">*</span></em> <strong><span class="wp-block-jetpack-markdown-block__live-preview__token">__</span>source<span class="wp-block-jetpack-markdown-block__live-preview__token">__</span></strong>.</p></div>';
+const markdownFullSource = `This is *Markdown* __source__.
+It does not renders lists:
+* Element 1
+* Element 2
+* Element 3
+
+It does not render [ links ](https://www.automattic.com) either.
+`;
+const markdownFullHTML = '<div contenteditable="true"><p>This is <em><span class="wp-block-jetpack-markdown-block__live-preview__token">*</span>Markdown<span class="wp-block-jetpack-markdown-block__live-preview__token">*</span></em> <strong><span class="wp-block-jetpack-markdown-block__live-preview__token">__</span>source<span class="wp-block-jetpack-markdown-block__live-preview__token">__</span></strong>.<br>It does not renders lists:<br>* Element 1<br>* Element 2<br>* Element 3</p><p>It does not render [ links ](https://www.automattic.com) either.</p></div>';
 
 describe( 'MarkdownLivePreview', () => {
 	it( 'renders a subset of the CommonMark specification as the user types', () => {
 		const markdownRenderer = mount( <MarkdownLivePreview /> );
 		const markdownRendererNode = ReactDom.findDOMNode( markdownRenderer.instance() );
-		markdownRendererNode.innerText = markdownSource;
+		markdownRendererNode.innerText = markdownLightSource;
 		markdownRenderer.simulate( 'input' );
-		expect( markdownRenderer.html() ).to.equal( markdownHTML );
+		expect( markdownRenderer.html() ).to.equal( markdownLightHTML );
+	} );
+
+	it( 'triggers a change event when its contents are updated', () => {
+		const handleChangeStub = function( event ) {
+			expect( event.target.value ).to.equal( markdownLightSource );
+		};
+		const markdownRenderer = mount( <MarkdownLivePreview onChange={ handleChangeStub } /> );
+		const markdownRendererNode = ReactDom.findDOMNode( markdownRenderer.instance() );
+		markdownRendererNode.innerText = markdownLightSource;
+		markdownRenderer.simulate( 'input' );
+	} );
+	it( 'does not render complex Markdown source', () => {
+		const markdownRenderer = mount( <MarkdownLivePreview /> );
+		const markdownRendererNode = ReactDom.findDOMNode( markdownRenderer.instance() );
+		markdownRendererNode.innerText = markdownFullSource;
+		markdownRenderer.simulate( 'input' );
+		expect( markdownRenderer.html() ).to.equal( markdownFullHTML );
 	} );
 } );
