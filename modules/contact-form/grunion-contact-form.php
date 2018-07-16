@@ -1703,7 +1703,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( isset( $_GET['contact-form-id'] )
 			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
 			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore PHPCompatibility
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
