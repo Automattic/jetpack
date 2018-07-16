@@ -46,7 +46,8 @@
     "build-pot": "grunt makepot",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
     "precommit": "node bin/pre-commit-hook.js",
-    "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules"
+    "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules",
+    "test-dangerci-and-adminpage": "yarn danger ci && yarn test-adminpage"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",

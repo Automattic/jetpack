@@ -42,9 +42,7 @@ matrix:
     env: WP_MODE=multi  WP_BRANCH=master
     dist: precise
   - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - env: WP_TRAVISCI="yarn danger ci"
+  - env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
 
 cache:
   directories:
