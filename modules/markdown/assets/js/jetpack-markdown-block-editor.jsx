@@ -2,18 +2,30 @@
  * External dependencies
  */
 import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import MarkdownPreview from './components/markdown-renderer';
-import MarkdownLivePreview from './components/markdown-live-preview';
+import MarkdownRenderer from './components/markdown-renderer';
 
 const { __ } = window.wp.i18n;
 
 const {
-	Component,
+	ButtonGroup
+} = window.wp.components;
+
+const {
+	BlockControls,
+	PlainText
+} = window.wp.editor;
+
+const {
+	Component
 } = window.wp.element;
+
+const PANEL_EDITOR = 'editor';
+const PANEL_PREVIEW = 'preview';
 
 class JetpackMarkdownBlockEditor extends Component {
 
@@ -24,6 +36,10 @@ class JetpackMarkdownBlockEditor extends Component {
 		this.showEditor = this.showEditor.bind( this );
 		this.showPreview = this.showPreview.bind( this );
 		this.isEmpty = this.isEmpty.bind( this );
+
+		this.state = {
+			activePanel: PANEL_EDITOR
+		};
 	}
 
 	isEmpty() {
@@ -31,8 +47,8 @@ class JetpackMarkdownBlockEditor extends Component {
 		return ! source || source.trim() === '';
 	}
 
-	updateSource( evt ) {
-		this.props.setAttributes( { source: evt.target.value } );
+	updateSource( source ) {
+		this.props.setAttributes( { source } );
 	}
 
 	showEditor() {
@@ -46,29 +62,65 @@ class JetpackMarkdownBlockEditor extends Component {
 	render() {
 		const { attributes, className, isSelected } = this.props;
 
-		const source = attributes.source;
-
-		if ( ! isSelected && ! this.isEmpty() ) {
-			return <MarkdownPreview source={ source } />;
-		}
-
-		const placeholderSource = __( 'Write your _Markdown_ **here**...' );
-
 		if ( ! isSelected && this.isEmpty() ) {
 			return (
-				<p className={ `${ className }-placeholder` }>
-					{ placeholderSource }
+				<p className={ `${ className }__placeholder` }>
+					{ __( 'Write your _Markdown_ **here**...' ) }
 				</p>
 			);
 		}
 
-		return <MarkdownLivePreview
-			className={ `${ className }-live-preview` }
-			onChange={ this.updateSource }
-			aria-label={ __( 'Markdown' ) }
-			isSelected={ isSelected }
-			source={ source }
-		/>;
+		// Renders the editor panel or the preview panel based on component's state
+		const editorOrPreviewPanel = function() {
+			const source = attributes.source;
+
+			switch ( this.state.activePanel ) {
+				case PANEL_EDITOR:
+					return <PlainText
+						className={ `${ className }__editor` }
+						onChange={ this.updateSource }
+						aria-label={ __( 'Markdown' ) }
+						value={ attributes.source }
+					/>;
+
+				case PANEL_PREVIEW:
+					return <MarkdownRenderer
+						className={ `${ className }__preview` }
+						source={ source }
+					/>;
+			}
+		};
+
+		// Manages css classes for each panel based on component's state
+		const classesForPanel = function( panelName ) {
+			return classNames( {
+				'components-tab-button': true,
+				'is-active': this.state.activePanel === panelName,
+				[ `${ className }__${ panelName }-button` ]: true
+			} );
+		};
+
+		return (
+			<div>
+				<BlockControls >
+					<ButtonGroup>
+						<button
+							className={ classesForPanel.call( this, 'editor' ) }
+							onClick={ this.showEditor }
+						>
+							<span>{ __( 'Markdown' ) }</span>
+						</button>
+						<button
+							className={ classesForPanel.call( this, 'preview' ) }
+							onClick={ this.showPreview }
+						>
+							<span>{ __( 'Preview' ) }</span>
+						</button>
+					</ButtonGroup>
+				</BlockControls>
+				{ ( editorOrPreviewPanel.call( this ) ) }
+			</div>
+		);
 	}
 
 }
