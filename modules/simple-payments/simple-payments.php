@@ -160,6 +160,10 @@ class Jetpack_Simple_Payments {
 		}
 		$css_prefix = self::$css_classname_prefix;
 
+		$support_url = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? 'https://support.wordpress.com/simple-payments/'
+			: 'https://jetpack.com/support/simple-payment-button/';
+
 		$warning = sprintf(
 			wp_kses(
 				__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
