@@ -572,7 +572,7 @@ class Publicize extends Publicize_Base {
 			$update_notice = ob_get_clean();
 
 			if ( ! empty( $update_notice ) ) {
-			 	echo $update_notice;
+				echo $update_notice;
 			}
 
 			if ( $pages ) : ?>
