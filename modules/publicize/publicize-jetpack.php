@@ -572,31 +572,10 @@ class Publicize extends Publicize_Base {
 			$update_notice = ob_get_clean();
 
 			if ( ! empty( $update_notice ) ) {
-				echo $update_notice;
+			 	echo $update_notice;
 			}
-			?>
 
-			<?php if ( ! empty( $me['name'] ) ) : ?>
-				<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
-				<table id="option-profile">
-					<tbody>
-					<tr>
-						<td class="radio"><input type="radio" name="option" data-type="profile"
-						                         id="<?php echo esc_attr( $me['id'] ) ?>"
-						                         value="" <?php checked( $profile_checked, true ); ?> /></td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $me['id'] ) ?>"><img
-									src="<?php echo esc_url( $me['picture']['data']['url'] ) ?>" width="50"
-									height="50"/></label></td>
-						<td class="details"><label
-								for="<?php echo esc_attr( $me['id'] ) ?>"><?php echo esc_html( $me['name'] ) ?></label>
-						</td>
-					</tr>
-					</tbody>
-				</table>
-			<?php endif; ?>
-
-			<?php if ( $pages ) : ?>
-
+			if ( $pages ) : ?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -625,8 +604,14 @@ class Publicize extends Publicize_Base {
 
 					</tbody>
 				</table>
-
-			<?php endif; ?>
+			<?php else: ?>
+				<div>
+					<p><?php _e( sprintf( 'Only Facebook pages are now supported by Publicize. <a href="%s">Learn more about this change</a>', 'https://jetpack.com/support/publicize/facebook' ), 'jetpack' ); ?></p>
+					<p><?php _e( sprintf( '<a class="button" href="%s" target="_blank">Create a Facebook page</a> to get started.', 'https://www.facebook.com/pages/creation/'), 'jetpack' ); ?></p>
+				</div>
+			<?php
+				die();
+			endif; ?>
 
 			<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
 
@@ -637,7 +622,6 @@ class Publicize extends Publicize_Base {
 				       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
 			</p><br/>
 		</div>
-
 		<?php
 	}
 
