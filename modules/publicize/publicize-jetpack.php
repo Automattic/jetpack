@@ -606,8 +606,8 @@ class Publicize extends Publicize_Base {
 				</table>
 			<?php else: ?>
 				<div>
-					<p><?php _e( sprintf( 'Only Facebook pages are now supported by Publicize. <a href="%s">Learn more about this change</a>', 'https://jetpack.com/support/publicize/facebook' ), 'jetpack' ); ?></p>
-					<p><?php _e( sprintf( '<a class="button" href="%s" target="_blank">Create a Facebook page</a> to get started.', 'https://www.facebook.com/pages/creation/'), 'jetpack' ); ?></p>
+					<p><?php printf( __( 'Facebook only supports Publicize for Facebook Pages. Publicize for Facebook Profiles is not possible. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ), 'https://jetpack.com/support/publicize/facebook' ); ?></p>
+					<p><?php printf( __( '<a class="button" href="%s" target="%s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
 				</div>
 			<?php
 				die();
