@@ -85,12 +85,13 @@ class Publicize_UI {
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);
-		if( is_rtl() ) {
+		if ( is_rtl() ) {
 			wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20180301' );
 		} else {
 			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20180301' );
 		}
 
+		wp_enqueue_style( 'social-logos' );
 
 		add_thickbox();
 	}
