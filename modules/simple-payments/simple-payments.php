@@ -160,18 +160,12 @@ class Jetpack_Simple_Payments {
 		}
 		$css_prefix = self::$css_classname_prefix;
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$message = __( 'Simple Payments is not supported by your current Plan. To learn more, and to upgrade to a supported plan, visit <a href="%s" %s>these resources</a>.', 'jetpack' );
-			$support_url = 'https://support.wordpress.com/simple-payments/';
-		} else {
-			$message = __( 'Simple Payments is not supported by your Jetpack Plan. To learn more, and to upgrade to a supported plan, visit <a href="%s" %s>these resources</a>.', 'jetpack' );
-			$support_url = 'https://jetpack.com/support/simple-payment-button/';
-		}
-
 		$warning = sprintf(
-			wp_kses( $message, array( 'a' => array( 'href' => array(), 'target' => array() ) ) ),
-			esc_url( $support_url ),
-			'target="_blank"'
+			wp_kses(
+				__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
+				array( 'a' => array( 'href' => array(), 'target' => array() ) )
+			),
+			esc_url( $support_url )
 		);
 
 		return "
