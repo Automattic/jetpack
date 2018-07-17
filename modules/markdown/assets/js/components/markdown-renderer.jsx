@@ -13,7 +13,7 @@ const {
 } = window.wp.element;
 
 const MarkdownRenderer = function( props ) {
-	const { source } = props;
+	const { className, source } = props;
 
 	let content = '';
 
@@ -21,7 +21,7 @@ const MarkdownRenderer = function( props ) {
 		// converts the markdown source to HTML
 		content = markdownConverter.render( source );
 	}
-	return <RawHTML>{ content }</RawHTML>;
+	return <RawHTML className={ className }>{ content }</RawHTML>;
 };
 
 export default MarkdownRenderer;
