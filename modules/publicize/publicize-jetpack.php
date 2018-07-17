@@ -411,6 +411,249 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * Retrieves current list of connections and applies filters.
+	 *
+	 * Retrieves current available connections and checks if the connections
+	 * have already been used to share current post. Finally, the checkbox
+	 * form UI fields are calculated. This function exposes connection form
+	 * data directly as array so it can be retrieved for static HTML generation
+	 * or JSON consumption.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
+	 *
+	 * @return array {
+	 *     Array of UI setup data for connection list form.
+	 *
+	 *     @type string 'unique_id'       ID string representing connection
+	 *     @type bool   'checked'         Default value of checkbox for connection.
+	 *     @type bool   'disabled'        String of HTML disabled property of checkbox. Empty if not disabled.
+	 *     @type bool   'active'          True if connection is not skipped by filters and is not already done.
+	 *     @type bool   'hidden_checkbox' True if the connection should not be shared to by current user.
+	 *     @type string 'label'           Text description of checkbox.
+	 *     @type string 'display_name'    Username for sharing account.
+	 * }
+	 */
+	public function get_filtered_connection_data( $selected_post_id = null ) {
+		$connection_list = array();
+
+		$post = get_post( $selected_post_id ); // Defaults to current post if $post_id is null.
+		// Handle case where there is no current post.
+		if ( ! empty( $post ) ) {
+			$post_id = $post->ID;
+		} else {
+			$post_id = null;
+		}
+
+		$services = $this->get_services( 'connected' );
+		$all_done = $this->done_sharing_post( $post_id );
+
+		// We don't allow Publicizing to the same external id twice, to prevent spam.
+		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
+
+		foreach ( $services as $name => $connections ) {
+			foreach ( $connections as $connection ) {
+				$connection_data = '';
+				if ( method_exists( $connection, 'get_meta' ) ) {
+					$connection_data = $connection->get_meta( 'connection_data' );
+				} elseif ( ! empty( $connection['connection_data'] ) ) {
+					$connection_data = $connection['connection_data'];
+				}
+
+				/**
+				 * Filter whether a post should be publicized to a given service.
+				 *
+				 * @module publicize
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param bool true Should the post be publicized to a given service? Default to true.
+				 * @param int $post_id Post ID.
+				 * @param string $name Service name.
+				 * @param array $connection_data Array of information about all Publicize details for the site.
+				 */
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $name, $connection_data ) ) {
+					continue;
+				}
+
+				if ( ! empty( $connection->unique_id ) ) {
+					$unique_id = $connection->unique_id;
+				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
+					$unique_id = $connection['connection_data']['token_id'];
+				}
+
+				// Should we be skipping this one?
+				$skip = (
+					(
+						! empty( $post )
+						&&
+						in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
+						&&
+						get_post_meta( $post_id, $this->POST_SKIP . $unique_id, true )
+					)
+					||
+					(
+						is_array( $connection )
+						&&
+						(
+							(
+									isset( $connection['meta']['external_id'] )
+									&&
+									! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] )
+							)
+							||
+							// Jetpack's connection data looks a little different.
+							(
+									isset( $connection['external_id'] )
+									&&
+									! empty( $service_id_done[ $name ][ $connection['external_id'] ] )
+							)
+						)
+					)
+				);
+
+				// Was this connections (OR, old-format service) already Publicized to.
+				$done = (
+							( 1 == get_post_meta( $post_id, $this->POST_DONE . $unique_id, true ) )
+							||
+							( 1 == get_post_meta( $post_id, $this->POST_DONE . $name, true ) )
+				); // New and old style flags.
+
+				// If this one has already been publicized to, don't let it happen again.
+				$disabled = false;
+				if ( $done ) {
+					$disabled = true;
+				}
+
+				/**
+				 * If this is a global connection and this user doesn't have enough permissions to modify
+				 * those connections, don't let them change it.
+				 */
+				$cmeta           = $this->get_connection_meta( $connection );
+				$hidden_checkbox = false;
+				if ( ! $done && ( 0 == $cmeta['connection_data']['user_id'] && ! current_user_can( $this->GLOBAL_CAP ) ) ) {
+					$disabled = true;
+					/**
+					 * Filters the checkboxes for global connections with non-prilvedged users.
+					 *
+					 * @module publicize
+					 *
+					 * @since 3.7.0
+					 *
+					 * @param bool   $checked Indicates if this connection should be enabled. Default true.
+					 * @param int    $post_id ID of the current post
+					 * @param string $name Name of the connection (Facebook, Twitter, etc)
+					 * @param array  $connection Array of data about the connection.
+					 */
+					$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post_id, $name, $connection );
+				}
+
+				// Determine the state of the checkbox (on/off) and allow filtering.
+				$checked = ( ( 1 != $skip ) || $done );
+				/**
+				 * Filter the checkbox state of each Publicize connection appearing in the post editor.
+				 *
+				 * @module publicize
+				 *
+				 * @since 2.0.1
+				 *
+				 * @param bool $checked Should the Publicize checkbox be enabled for a given service.
+				 * @param int $post_id Post ID.
+				 * @param string $name Service name.
+				 * @param array $connection Array of connection details.
+				 */
+				$checked = apply_filters( 'publicize_checkbox_default', $checked, $post_id, $name, $connection );
+
+				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does.
+				if ( $done ) {
+					$checked = true;
+				}
+
+				// This post has been handled, so disable everything.
+				if ( $all_done ) {
+					$disabled = true;
+				}
+
+				$label  = sprintf(
+					_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
+					esc_html( $this->get_service_label( $name ) ),
+					esc_html( $this->get_display_name( $name, $connection ) )
+				);
+				$active = ! $skip || $done;
+
+				$connection_list[] = array(
+					'unique_id'       => $unique_id,
+					'name'            => $name,
+					'checked'         => $checked,
+					'disabled'        => $disabled,
+					'active'          => $active,
+					'hidden_checkbox' => $hidden_checkbox,
+					'label'           => esc_html( $label ),
+					'display_name'    => $this->get_display_name( $name, $connection ),
+				);
+			}
+		}
+
+		return $connection_list;
+	}
+
+	/**
+	 * Checks if post has already been shared by Publicize in the past.
+	 *
+	 * We can set an _all flag to indicate that this post is completely done as
+	 * far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
+	 * have Publicize disabled.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @global Publicize_UI $publicize_ui UI instance that contains the 'in_jetpack' property
+	 *
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
+	 *
+	 * @return bool True if post has already been shared by Publicize, false otherwise.
+	 */
+	public function done_sharing_post( $post_id = null ) {
+		global $publicize_ui;
+		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
+		if ( is_null( $post ) ) {
+			return false;
+		}
+		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $publicize_ui->in_jetpack && 'publish' == $post->post_status );
+	}
+
+	/**
+	 * Retrieves full list of available Publicize connection services.
+	 *
+	 * Retrieves current available publicize service connections
+	 * with associated labels and URLs.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return array {
+	 *     Array of UI service connection data for all services
+	 *
+	 *     @type string 'name'  Name of service.
+	 *     @type string 'label' Display label for service.
+	 *     @type string 'url'   URL for adding connection to service.
+	 * }
+	 */
+	function get_available_service_data() {
+		$available_services     = $this->get_services( 'all' );
+		$available_service_data = array();
+
+		foreach ( $available_services as $service_name => $service ) {
+			$available_service_data[] = array(
+				'name'  => $service_name,
+				'label' => $this->get_service_label( $service_name ),
+				'url'   => $this->connect_url( $service_name ),
+			);
+		}
+
+		return $available_service_data;
+	}
+
 	function get_connection( $service, $id, $_blog_id = false, $_user_id = false ) {
 		// Stub
 	}
