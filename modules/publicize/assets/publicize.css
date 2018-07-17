@@ -19,9 +19,14 @@ span.pub-logos {
 	vertical-align: top;
 }
 
-.left, .right{
-	width: 50%;
-	float: left;
+@media screen and ( min-width: 782px ) {
+	.left, .right {
+		width: 50%;
+		float: left;
+	}
+	div.publicize-service-entry:last-of-type{
+		border-width: 0px;
+	}
 }
 
 div#facebook:before {
@@ -85,7 +90,7 @@ div.publicize-service-entry {
 	overflow: hidden;
 }
 
-div.publicize-service-entry:last-of-type{
+.right div.publicize-service-entry:last-of-type{
 	border-width: 0px;
 }
 
