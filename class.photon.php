@@ -791,9 +791,9 @@ class Jetpack_Photon {
 			} // foreach ( $multipliers as $multiplier )
 			if ( is_array( $newsources ) ) {
 				if ( function_exists( 'array_replace' ) ) { // PHP 5.3+, preferred
-					$sources = array_replace( $sources, $newsources );
+					$sources = array_replace( $sources, $newsources ); // phpcs:ignore PHPCompatibility
 				} else { // For PHP 5.2 using WP shim function
-					$sources = array_replace_recursive( $sources, $newsources );
+					$sources = array_replace_recursive( $sources, $newsources ); // phpcs:ignore PHPCompatibility -- skipping since `array_replace_recursive` is part of WP core
 				}
 			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )

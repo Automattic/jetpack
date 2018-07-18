@@ -4961,7 +4961,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -5431,7 +5431,7 @@ p {
 		}
 
 		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -5471,7 +5471,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -6095,11 +6095,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 					wp_die( $die_error );
 				}
 			} else {
@@ -7145,7 +7145,7 @@ p {
 	 * @return bool
 	 */
 	public static function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false );
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}
@@ -7153,7 +7153,7 @@ p {
 
 		//Do check in constant O(1) time for PHP5.5+
 		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions = array_column( $backtrace, 'function' );
+			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility
 			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
 			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
 			return ! empty ( $intersection );
