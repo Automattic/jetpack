@@ -2,18 +2,17 @@
 /* eslint react/react-in-jsx-scope: 0 */
 
 ( function( blocks, components, i18n ) {
-	const {
-		registerBlockType,
-		UrlInput
-	} = blocks;
+	const { registerBlockType } = blocks;
 	const {
 		Placeholder,
-		SelectControl
+		SelectControl,
+		TextControl
 	} = components;
 	const { __ } = i18n;
 
 	registerBlockType( 'jetpack/vr', {
 		title: __( 'VR Image', 'jetpack' ),
+		description: __( 'Embed 360° photos and Virtual Reality (VR) Content', 'jetpack' ),
 		icon: 'embed-photo',
 		category: 'embed',
 		support: {
@@ -53,27 +52,26 @@
 					<div>
 						<Placeholder
 							key="placeholder"
-							instructions={ __( 'Enter URL to VR image', 'jetpack' ) }
 							icon="format-image"
 							label={ __( 'VR Image', 'jetpack' ) }
 							className={ props.className }
 						>
-							<UrlInput
+							<TextControl
+								style={ { flex: '1 1 auto' } }
+								label={ __( 'Enter URL to VR image', 'jetpack' ) }
 								value={ attributes.url }
 								onChange={ onSetUrl }
 							/>
-							<div style={ { marginTop: '10px' } }>
-								<SelectControl
-									label={ __( 'View Type', 'jetpack' ) }
-									value={ attributes.view }
-									onChange={ onSetView }
-									options={ [
-										{ label: '', value: '' },
-										{ label: __( '360', 'jetpack' ), value: '360' },
-										{ label: __( 'Cinema', 'jetpack' ), value: 'cinema' },
-									] }
-								/>
-							</div>
+							<SelectControl
+								label={ __( 'View Type', 'jetpack' ) }
+								value={ attributes.view }
+								onChange={ onSetView }
+								options={ [
+									{ label: '', value: '' },
+									{ label: __( '360°', 'jetpack' ), value: '360' },
+									{ label: __( 'Cinema', 'jetpack' ), value: 'cinema' },
+								] }
+							/>
 						</Placeholder>
 					</div>
 				);
