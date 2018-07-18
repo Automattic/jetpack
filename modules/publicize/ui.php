@@ -151,6 +151,14 @@ class Publicize_UI {
 
 			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
 
+			<?php if ( isset( $_GET['publicize_popup'] ) ): ?>
+				<div id="publicize-popup-notify">
+					<a href="javascript:close();">
+						<?php esc_html_e( 'Click here to close window and go back to editor.', 'jetpack' )?>
+					</a>
+				</div>
+			<?php endif; ?>
+
 			<div id="publicize-services-block">
 				<?php
 				$services = $this->publicize->get_services( 'all' );
