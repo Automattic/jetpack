@@ -144,9 +144,7 @@ function jetpack_register_block_type_vr() {
 
 	wp_register_script(
 		'jetpack_vr_viewer_shortcode_editor_script',
-		// Not using `Jetpack::get_file_url_for_environment()` here because
-		// Jetpack does not generate minified files for Gutenberg blocks just yet.
-		plugins_url( 'modules/shortcodes/js/blocks/vr-block.js', JETPACK__PLUGIN_FILE ),
+		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/blocks/vr-block.min.js', 'modules/shortcodes/js/blocks/vr-block.js' ),
 		array( 'wp-blocks', 'wp-element', 'wp-i18n' )
 	);
 
