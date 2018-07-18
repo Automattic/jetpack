@@ -177,15 +177,14 @@ $ yarn php:lint
 We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibility` ruleset checking for code not compatible with PHP 5.2
 
 ```sh
-$ composer php:5.2-compatibility
+$ composer php:5.2-compatibility .
 ```
 
 _There's also a handy `yarn php:5.2-compatibility` that will run `composer php:5.2-compatibility` if you prefer_.
 
 ```sh
-$ yarn php:5.2-compatibility
+$ yarn php:5.2-compatibility .
 ```
-
 
 ### Linting Jetpack's JavaScript
 
