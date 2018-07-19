@@ -21,17 +21,19 @@
 		attributes: {
 			url: {
 				type: 'string',
+				'default': '',
 			},
 			view: {
 				type: 'string',
+				'default': '',
 			}
 		},
 
 		edit: props => {
-			const attributes = props.attributes;
+			const { attributes, setAttributes } = props;
 
-			const onSetUrl = value => props.setAttributes( { url: value } );
-			const onSetView = value => props.setAttributes( { view: value } );
+			const onChangeUrl = value => setAttributes( { url: value.trim() } );
+			const onChangeView = value => setAttributes( { view: value } );
 
 			const renderEdit = () => {
 				if ( attributes.url && attributes.view ) {
@@ -57,15 +59,19 @@
 							className={ props.className }
 						>
 							<TextControl
+								name="jetpack_vr_url"
+								type="url"
 								style={ { flex: '1 1 auto' } }
 								label={ __( 'Enter URL to VR image', 'jetpack' ) }
 								value={ attributes.url }
-								onChange={ onSetUrl }
+								onChange={ onChangeUrl }
 							/>
 							<SelectControl
+								name="jetpack_vr_view"
 								label={ __( 'View Type', 'jetpack' ) }
+								disabled={ ! attributes.url }
 								value={ attributes.view }
-								onChange={ onSetView }
+								onChange={ onChangeView }
 								options={ [
 									{ label: '', value: '' },
 									{ label: __( '360°', 'jetpack' ), value: '360' },
@@ -79,7 +85,7 @@
 
 			return renderEdit();
 		},
-		save: ( props ) => {
+		save: props => {
 			return (
 				<div className={ props.className }>
 					<iframe
