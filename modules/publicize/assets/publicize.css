@@ -101,7 +101,6 @@ div.publicize-service-left {
 	min-height: 35px;
 }
 
-
 div.publicize-service-left a{
 	font-size: 18px;
 	text-decoration: none;
@@ -228,3 +227,5 @@ input.fb-options {
 .pub-connection-error {
 	color: #ff0000;
 }
+
+.pub-connection-test. test-failed p { margin-top: 0; }
