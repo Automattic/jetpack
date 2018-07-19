@@ -234,7 +234,7 @@ class Jetpack_Tiled_Gallery {
 	public static function enqueue_block_editor_assets() {
 		wp_register_script(
 			'jetpack-tiled-gallery-block',
-			plugins_url( 'modules/tiled-gallery/block/tiled-gallery-block.js', JETPACK__PLUGIN_FILE ), // this is built as a new webpack entry point
+			plugins_url( 'modules/tiled-gallery/block.js', JETPACK__PLUGIN_FILE ), // this is built as a new webpack entry point
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
 		);
 		wp_enqueue_script( 'jetpack-tiled-gallery-block' );
