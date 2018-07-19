@@ -229,24 +229,23 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	/**
- 	 * Enqueue js for our jetpack/gallery block
- 	 */
- 	public static function enqueue_block_editor_assets() {
-  		wp_register_script(
-  			'jetpack-tiled-gallery-block',
-  			plugins_url( '_inc/build/modules-tiled-gallery-block.js', JETPACK__PLUGIN_FILE ), // this is built as a new webpack entry point
-  			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
-  		);
-  		wp_enqueue_script( 'jetpack-tiled-gallery-block' );
-  }
-
+	 * Enqueue js for our jetpack/gallery block
+	 */
+	public static function enqueue_block_editor_assets() {
+		wp_register_script(
+			'jetpack-tiled-gallery-block',
+			plugins_url( 'modules/tiled-gallery/block/tiled-gallery-block.js', JETPACK__PLUGIN_FILE ), // this is built as a new webpack entry point
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
+		);
+		wp_enqueue_script( 'jetpack-tiled-gallery-block' );
+	}
 
 	/**
 	 * Enqueue the existing css & js for the block (we are using it for Gutenberg also)
 	 */
 	public static function enqueue_block_assets() {
 		self::default_scripts_and_styles();
-  }
+	}
 
 	/**
 	 * Add a checkbox field to the Carousel section in Settings > Media

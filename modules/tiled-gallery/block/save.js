@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import TiledGalleryLayoutSquare from './block/components/tiled-gallery-layout-square.jsx';
+import TiledGalleryLayoutSquare from './components/tiled-gallery-layout-square.js';
 
 function JetpackGalleryBlockSave( { attributes } ) {
 	return (
@@ -15,4 +15,3 @@ function JetpackGalleryBlockSave( { attributes } ) {
 }
 
 export default JetpackGalleryBlockSave;
-

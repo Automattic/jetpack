@@ -8,13 +8,13 @@ const { __ } = wp.i18n;
 /**
  * Internal dependencies
  */
-import JetpackGalleryBlockEditor from './block-edit.jsx';
-import JetpackGalleryBlockSave from './block-save.jsx';
+import JetpackGalleryBlockEditor from './edit.js';
+import JetpackGalleryBlockSave from './save.js';
 
 const JetpackGalleryBlockType = 'jetpack/gallery';
 
 const settings = {
-	title: __( 'Jetpack Gallery' ),
+	title: __( 'Tiled Gallery' ),
 	icon: 'format-gallery',
 	category: 'layout',
 
