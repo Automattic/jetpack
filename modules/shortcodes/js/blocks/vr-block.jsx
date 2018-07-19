@@ -59,7 +59,6 @@
 							className={ props.className }
 						>
 							<TextControl
-								name="jetpack_vr_url"
 								type="url"
 								style={ { flex: '1 1 auto' } }
 								label={ __( 'Enter URL to VR image', 'jetpack' ) }
@@ -67,7 +66,6 @@
 								onChange={ onChangeUrl }
 							/>
 							<SelectControl
-								name="jetpack_vr_view"
 								label={ __( 'View Type', 'jetpack' ) }
 								disabled={ ! attributes.url }
 								value={ attributes.view }
