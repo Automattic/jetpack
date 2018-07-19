@@ -56,7 +56,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
+			global $pagenow;
+			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
+			}
 
 			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
 			if ( is_customize_preview() && $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
