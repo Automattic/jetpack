@@ -116,9 +116,11 @@ function jetpack_get_migration_data( $option_name ) {
  *
  * @return string
  */
+/* translators: 1: "Set up Jetpack", 2: ToS URL, 3: Support page URL */
 function jetpack_render_tos_blurb() {
 	printf(
-		__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
+		__( 'By clicking the <strong>%1$s</strong> button, you agree to our fascinating <a href="%2$s" target="_blank">Terms of Service</a> and to <a href="%3$s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
+		__( 'Set up Jetpack', 'jetpack' ),
 		'https://wordpress.com/tos',
 		'https://jetpack.com/support/what-data-does-jetpack-sync'
 	);
