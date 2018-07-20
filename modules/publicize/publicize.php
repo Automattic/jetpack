@@ -560,7 +560,7 @@ abstract class Publicize_Base {
 					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
 						$connection_test_passed = false;
 						$user_can_refresh = false;
-						$connection_test_message = __( 'Publizing to Facebook using a Personal account is not supported.' );
+						$connection_test_message = __( 'Facebook Profiles no longer support automatic sharing via Publicize.', 'jetpack');
 					}
 				}
 
