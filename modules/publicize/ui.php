@@ -82,7 +82,7 @@ class Publicize_UI {
 				'_inc/build/publicize/assets/publicize.min.js',
 				'modules/publicize/assets/publicize.js'
 			),
-			array( 'jquery', 'thickbox' ),
+			array( 'jquery', 'F' ),
 			'20121019'
 		);
 		if ( is_rtl() ) {

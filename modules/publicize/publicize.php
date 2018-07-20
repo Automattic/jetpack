@@ -560,7 +560,7 @@ abstract class Publicize_Base {
 					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
 						$connection_test_passed = false;
 						$user_can_refresh = false;
-						$connection_test_message = __( 'Facebook Profiles no longer support automatic sharing via Publicize.', 'jetpack');
+						$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.', 'jetpack');
 					}
 				}
 
