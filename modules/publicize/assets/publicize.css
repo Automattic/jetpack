@@ -60,7 +60,7 @@ div#google_plus:before {
 }
 
 div.publicize-service-left:before {
-	font: normal 40px/1 social-logos;
+	font: normal 30px/1 social-logos;
 	vertical-align: middle;
 }
 
@@ -103,7 +103,7 @@ div.publicize-service-left {
 
 
 div.publicize-service-left a{
-	font-size: 24px;
+	font-size: 18px;
 	text-decoration: none;
 }
 
