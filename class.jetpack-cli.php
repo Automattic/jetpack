@@ -1288,7 +1288,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// differs from the logic in the Publicize class.
 				$option_connections = is_user_logged_in()
 					? (array) $publicize->get_all_connections_for_user()
-					: Jetpack_Options::get_option( 'publicize_connections' );
+					: (array) $publicize->get_all_connections();
 
 				foreach ( $option_connections as $service_name => $connections ) {
 					foreach ( (array) $connections as $id => $connection ) {
@@ -1355,7 +1355,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					$option_connections = is_user_logged_in()
 						? (array) $publicize->get_all_connections_for_user()
-						: Jetpack_Options::get_option( 'publicize_connections' );
+						: (array) $publicize->get_all_connections();
 
 					if ( 'all' === $service ) {
 						foreach ( (array) $option_connections as $service_name => $service_connections ) {

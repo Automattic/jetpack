@@ -120,8 +120,12 @@ class Publicize extends Publicize_Base {
 		) );
 	}
 
+	function get_all_connections() {
+		return Jetpack_Options::get_option( 'publicize_connections' );
+	}
+
 	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
-		$connections           = Jetpack_Options::get_option( 'publicize_connections' );
+		$connections           = $this->get_all_connections();
 		$connections_to_return = array();
 		if ( ! empty( $connections ) && is_array( $connections ) ) {
 			if ( ! empty( $connections[ $service_name ] ) ) {
@@ -139,7 +143,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_all_connections_for_user() {
-		$connections = Jetpack_Options::get_option( 'publicize_connections' );
+		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
 		if ( ! empty( $connections ) ) {
@@ -490,7 +494,7 @@ class Publicize extends Publicize_Base {
 		}
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
-			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+			$connected_services = $this->get_all_connections();
 			if ( ! empty( $connected_services ) ) {
 				/**
 				 * Fires when a post is saved that has is marked as pending publicizing
@@ -516,7 +520,7 @@ class Publicize extends Publicize_Base {
 			return $flags;
 		}
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 
 		if ( empty( $connected_services ) ) {
 			return $flags;
@@ -532,7 +536,7 @@ class Publicize extends Publicize_Base {
 	 */
 
 	function options_page_facebook() {
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
 		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
@@ -662,7 +666,7 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'options_page_tumblr_' . $_REQUEST['connection'] );
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['tumblr'][ $_POST['connection'] ];
 		$options_to_show    = $connection['connection_data']['meta']['options_responses'];
 		$request            = $options_to_show[0];
