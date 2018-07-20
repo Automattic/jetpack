@@ -120,7 +120,7 @@ function wp_cache_serve_cache_file() {
 		} elseif ( isset( $wpsc_save_headers ) && $wpsc_save_headers ) {
 			wp_cache_debug( 'Saving headers. Cannot serve a supercache file.' );
 			return false;
-		} elseif ( ( filemtime( $file ) + $cache_max_time ) < time() ) {
+		} elseif ( $cache_max_time > 0 && ( filemtime( $file ) + $cache_max_time ) < time() ) {
 			wp_cache_debug( sprintf( "Cache has expired and is older than %d seconds old.", $cache_max_time ) );
 			return false;
 		}
