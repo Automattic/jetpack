@@ -539,12 +539,9 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
 
-		$me    = ( ! empty( $options_to_show[0] ) ? $options_to_show[0] : false );
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
 
-		$profile_checked = true;
 		$page_selected   = false;
-
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
 			if ( $pages && is_array( $pages->data ) ) {
@@ -557,7 +554,6 @@ class Publicize extends Publicize_Base {
 			}
 
 			if ( $found ) {
-				$profile_checked = false;
 				$page_selected   = $connection['connection_data']['meta']['facebook_page'];
 			}
 		}
@@ -574,29 +570,12 @@ class Publicize extends Publicize_Base {
 			if ( ! empty( $update_notice ) ) {
 				echo $update_notice;
 			}
-			?>
+			$page_info_message = sprintf(
+				__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+				'https://jetpack.com/support/publicize/facebook'
+			);
 
-			<?php if ( ! empty( $me['name'] ) ) : ?>
-				<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
-				<table id="option-profile">
-					<tbody>
-					<tr>
-						<td class="radio"><input type="radio" name="option" data-type="profile"
-						                         id="<?php echo esc_attr( $me['id'] ) ?>"
-						                         value="" <?php checked( $profile_checked, true ); ?> /></td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $me['id'] ) ?>"><img
-									src="<?php echo esc_url( $me['picture']['data']['url'] ) ?>" width="50"
-									height="50"/></label></td>
-						<td class="details"><label
-								for="<?php echo esc_attr( $me['id'] ) ?>"><?php echo esc_html( $me['name'] ) ?></label>
-						</td>
-					</tr>
-					</tbody>
-				</table>
-			<?php endif; ?>
-
-			<?php if ( $pages ) : ?>
-
+			if ( $pages ) : ?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -626,18 +605,21 @@ class Publicize extends Publicize_Base {
 					</tbody>
 				</table>
 
+				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
+				<p style="text-align: center;">
+					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
+					       class="button fb-options save-options" name="save"
+					       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+					       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
+				</p><br/>
+				<p><?php echo $page_info_message; ?></p>
+			<?php else: ?>
+				<div>
+					<p><?php echo $page_info_message; ?></p>
+					<p><?php printf( __( '<a class="button" href="%s" target="%s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
+				</div>
 			<?php endif; ?>
-
-			<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
-
-			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
-				       class="button fb-options save-options" name="save"
-				       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-				       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
-			</p><br/>
 		</div>
-
 		<?php
 	}
 
@@ -653,24 +635,16 @@ class Publicize extends Publicize_Base {
 			die( 'Security check' );
 		}
 
-		if ( isset( $_POST['selected_id'] ) && 'profile' == $_POST['type'] ) {
-			// Publish to User Wall/Profile
-			$options = array(
-				'facebook_page'    => null,
-				'facebook_profile' => true
-			);
-
-		} else {
-			if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-				return;
-			}
-
-			// Publish to Page
-			$options = array(
-				'facebook_page'    => $page_id,
-				'facebook_profile' => null
-			);
+		if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+			return;
 		}
+
+		// Publish to Page
+		$options = array(
+			'facebook_page'    => $page_id,
+			'facebook_profile' => null
+		);
+
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
