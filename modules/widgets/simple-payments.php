@@ -476,6 +476,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 	// Register Jetpack_Simple_Payments_Widget widget.
 	function register_widget_jetpack_simple_payments() {
+		if ( ! class_exists( 'Jetpack_Simple_Payments' ) ) {
+			return;
+		}
+
 		$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
 		if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 			return;
