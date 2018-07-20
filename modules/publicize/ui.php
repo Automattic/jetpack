@@ -485,6 +485,7 @@ jQuery( function($) {
 				if ( ! facebookNotice ) {
 					var message = '<p>'
 						+ testResult.connectionTestMessage
+						+ '</p><p>'
 						+ ' <a class="button" href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank">'
 						+ '<?php echo esc_html( __( 'Update Your Sharing Settings' ,'jetpack' ) ); ?>'
 						+ '</a>'
