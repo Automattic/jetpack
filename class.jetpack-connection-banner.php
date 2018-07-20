@@ -883,7 +883,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Publish: Post on the go from any device using the WordPress apps for iOS, Android, Windows, Linux, and OSX.',
+							'Publish: Post on the go from any device using the WordPress apps for iOS, Android, Windows, Linux, and macOS.',
 							'jetpack'
 						);
 					?></p>
