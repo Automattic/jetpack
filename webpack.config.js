@@ -10,8 +10,7 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: './_inc/client/admin.js',
-		'static': './_inc/client/static.jsx',
-		'modules-tiled-gallery-block': './modules/tiled-gallery/block.jsx',
+		'static': './_inc/client/static.jsx'
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -43,7 +42,6 @@ const webpackConfig = {
 				include: [
 					path.join( __dirname, 'test' ),
 					path.join( __dirname, '_inc/client' ),
-					path.join( __dirname, 'modules/tiled-gallery' ),
 				]
 			},
 			{
