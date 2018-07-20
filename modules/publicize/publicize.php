@@ -181,6 +181,15 @@ abstract class Publicize_Base {
 	function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
+		if ( 'facebook' === $service_name ) {
+			if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
+				return $cmeta['connection_data']['meta']['display_name'];
+			}
+
+			return __( 'Connecting facebook...', 'jetpack' );
+
+		}
+
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
 		} elseif ( $service_name == 'tumblr' && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
