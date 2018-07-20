@@ -539,12 +539,9 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
 
-		$me    = ( ! empty( $options_to_show[0] ) ? $options_to_show[0] : false );
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
 
-		$profile_checked = true;
 		$page_selected   = false;
-
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
 			if ( $pages && is_array( $pages->data ) ) {
@@ -557,7 +554,6 @@ class Publicize extends Publicize_Base {
 			}
 
 			if ( $found ) {
-				$profile_checked = false;
 				$page_selected   = $connection['connection_data']['meta']['facebook_page'];
 			}
 		}
@@ -637,24 +633,16 @@ class Publicize extends Publicize_Base {
 			die( 'Security check' );
 		}
 
-		if ( isset( $_POST['selected_id'] ) && 'profile' == $_POST['type'] ) {
-			// Publish to User Wall/Profile
-			$options = array(
-				'facebook_page'    => null,
-				'facebook_profile' => true
-			);
-
-		} else {
-			if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-				return;
-			}
-
-			// Publish to Page
-			$options = array(
-				'facebook_page'    => $page_id,
-				'facebook_profile' => null
-			);
+		if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+			return;
 		}
+
+		// Publish to Page
+		$options = array(
+			'facebook_page'    => $page_id,
+			'facebook_profile' => null
+		);
+
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
