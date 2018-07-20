@@ -87,7 +87,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		}
 
 		// Core was autoudpated
-		if ( 'update-core.php' !== $pagenow ) {
+		if (
+			'update-core.php' !== $pagenow &&
+			! Jetpack_Constants::is_true( 'REST_API_REQUEST' ) // wp.com rest api calls should never be marked as a core autoupdate
+		) {
 			/**
 			 * Sync event that fires when core autoupdate was successful
 			 *

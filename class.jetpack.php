@@ -179,12 +179,14 @@ class Jetpack {
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+			'The SEO Framework'                    => 'autodescription/autodescription.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+			'The SEO Framework'                    => 'autodescription/autodescription.php',
 		),
 		'widget-visibility' => array(
 			'Widget Logic'                         => 'widget-logic/widget_logic.php',
@@ -200,6 +202,7 @@ class Jetpack {
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+			'The SEO Framework'                    => 'autodescription/autodescription.php',
 			'Sitemap'                              => 'sitemap/sitemap.php',
 			'Simple Wp Sitemap'                    => 'simple-wp-sitemap/simple-wp-sitemap.php',
 			'Simple Sitemap'                       => 'simple-sitemap/simple-sitemap.php',
@@ -227,7 +230,6 @@ class Jetpack {
 		                                                         // 2 Click Social Media Buttons
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
-		'autodescription/autodescription.php',                   // The SEO Framework
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'heateor-open-graph-meta-tags/heateor-open-graph-meta-tags.php',
 		                                                         // Open Graph Meta Tags by Heateor
@@ -4961,7 +4963,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -5431,7 +5433,7 @@ p {
 		}
 
 		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -5471,7 +5473,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 
@@ -6095,11 +6097,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 					wp_die( $die_error );
 				}
 			} else {
@@ -7145,7 +7147,7 @@ p {
 	 * @return bool
 	 */
 	public static function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false );
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}
@@ -7153,7 +7155,7 @@ p {
 
 		//Do check in constant O(1) time for PHP5.5+
 		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions = array_column( $backtrace, 'function' );
+			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility
 			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
 			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
 			return ! empty ( $intersection );

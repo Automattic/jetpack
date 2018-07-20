@@ -1,15 +1,50 @@
 # Travis CI Configuration File
 
-# Tell Travis CI we're using PHP
-language: php
-
 # Tell Travis CI which distro to use
 dist: trusty
 
-# Setup a global environemnt and overide as needed
+# Tell Travis CI we're using PHP
+language: php
+
+# Run Matrix for these PHP versions
+php:
+- "5.6"
+- "7.0"
+- "7.2"
+
 env:
+  # Global variable is re-defined in matrix-include -list
   global:
-    - WP_TRAVISCI=phpunit
+  - WP_TRAVISCI=phpunit
+  # Run phpunit in Travis matrix for these combinations
+  matrix:
+  - WP_MODE=single WP_BRANCH=master
+  - WP_MODE=single WP_BRANCH=latest
+  - WP_MODE=single WP_BRANCH=previous
+  - WP_MODE=multi  WP_BRANCH=master
+
+# Define a matrix of additional build configurations
+# The versions listed above will automatically create our first configuration,
+# so it doesn't need to be re-defined below.
+matrix:
+  include:
+  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
+  - php: "5.2"
+    env: WP_MODE=single WP_BRANCH=master
+    dist: precise
+  - php: "5.2"
+    env: WP_MODE=single WP_BRANCH=latest
+    dist: precise
+  - php: "5.2"
+    env: WP_MODE=single WP_BRANCH=previous
+    dist: precise
+  - php: "5.2"
+    env: WP_MODE=multi  WP_BRANCH=master
+    dist: precise
+  - env: WP_TRAVISCI="yarn lint"
+  - env: WP_TRAVISCI="yarn test-client"
+  - env: WP_TRAVISCI="yarn test-gui"
+  - env: WP_TRAVISCI="yarn danger ci"
 
 cache:
   directories:
@@ -17,31 +52,7 @@ cache:
    - $HOME/.cache/yarn
    - $HOME/.phpbrew
 
-# Next we define our matrix of additional build configurations to test against.
-# The versions listed above will automatically create our first configuration,
-# so it doesn't need to be re-defined below.
-
-# Test WP trunk/master and two latest versions on minimum (5.2).
-# Test WP latest two versions (4.5, 4.3) on most popular (5.6, 7.0).
-# Test WP trunk/master on edge platforms (PHP 7.2).
-
-# WP_VERSION specifies the tag to use. The way these tests are configured to run
-# requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
-
-matrix:
-  include:
-  - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - env: WP_TRAVISCI="yarn danger ci"
-  - php: "7.0"
-    env: "SWITCH_TO_PHP=5.2"
-    dist: precise
-  - php: "5.6"
-  - php: "7.0"
-  - php: "7.2"
-
-# whitelist branches for the "push" build check.
+# whitelist branches for the "push" build check
 branches:
   only:
     - master
@@ -54,16 +65,18 @@ branches:
 git:
   depth: 1
 
-# Clones WordPress and configures our testing environment.
+# Clones WordPress and configures our testing environment
 before_script:
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
     - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
-        set -e
-        source ./tests/install-php-phpunit.sh
-        set +e
+        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+            composer global require "phpunit/phpunit=5.7.*"
+        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+            composer global require "phpunit/phpunit=4.8.*"
+        fi
     - nvm install 8
     - nvm use 8
     - ./tests/prepare-wordpress.sh
@@ -96,7 +109,7 @@ notifications:
        - beau@automattic.com
        - kraft@automattic.com
        - oscar@automattic.com
-       # Encrypted Slack notification address.
+       # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 
 addons:

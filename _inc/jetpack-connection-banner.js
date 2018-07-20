@@ -36,7 +36,9 @@
 		transitionSlideToIndex( $( this ).index() );
 	} );
 
-	nextFeatureButtons.on( 'click', function() {
+	nextFeatureButtons.on( 'click', function( e ) {
+		e.preventDefault();
+
 		var slideIndex = $( this )
 			.closest( '.jp-wpcom-connect__slide' )
 			.index();

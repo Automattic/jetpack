@@ -109,6 +109,13 @@ Plans can be provisioned by making a request using your partner token from the s
 - __wpcom_user_id__:  (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively.
 - __wpcom_user_email__: (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively, and if necessary creating a WordPress.com account.
 
+### Response Parameters (/provision)
+
+- __success__:       (bool) Was the operation successful?.
+- __error_code__:    (string) Error code, if any.
+- __error_message__: (string) Error message, if any.
+- __auth_required__: (bool) Does the user need to authorize the connection on WordPress.com to finish provisioning?
+
 ### Endpoint Errors (/provision)
 
 The following is non-exhaustive list of errors that could be returned.

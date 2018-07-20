@@ -389,7 +389,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ), $tracks_failure_event_name, $user );
 		}
 
-		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) {
+		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ), $tracks_failure_event_name, $user );
 		}
@@ -500,7 +500,7 @@ class Jetpack_XMLRPC_Server {
 			'code'      => (string) $api_user_code,
 		) ), $jetpack_token->secret );
 
-		if ( ! hash_equals( $hmac, $verify ) ) {
+		if ( ! hash_equals( $hmac, $verify ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			return false;
 		}
 

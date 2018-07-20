@@ -109,6 +109,32 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Used to simulate a successful response to any XML-RPC request.
+	 * Should be hooked on the `http_response` filter.
+	 *
+	 * @param array|obj $response HTTP Response.
+	 * @param array     $args     HTTP request arguments.
+	 * @param string    $url      The request URL.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function mock_xmlrpc_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Check response status code.
 	 *
 	 * @since 4.4.0
@@ -1001,12 +1027,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Create another user
 		$new_owner = $this->create_and_get_user( 'administrator' );
-		Jetpack_Options::update_option( 'user_tokens', array( $new_owner->ID => "honey.badger.$new_owner->ID" ) );
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$user->ID => "honey.badger.$user->ID",
+			$new_owner->ID => "honey.badger.$new_owner->ID",
+		) );
 
 		// Change owner to valid user
+		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
+		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 

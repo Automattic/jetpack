@@ -217,10 +217,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$this->record_event( 'updated', 'update', $tracks_properties );
 			}
 
-			wp_send_json_success( [
+			wp_send_json_success( array(
 				'product_post_id' => $product_post_id,
 				'product_post_title' => $params['post_title'],
-			] );
+			) );
 		}
 
 		public function ajax_delete_payment_button() {
@@ -263,19 +263,19 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id', 'post_title', 'post_content', 'image_id', 'currency', 'price', 'multiple', 'email' ) );
 			if ( ! empty( $illegal_params ) ) {
-				$errors.add( 'illegal_params' );
+				$errors->add( 'illegal_params', __( 'Invalid parameters.', 'jetpack' ) );
 			}
 
 			if ( empty( $params['post_title'] ) ) {
-				$errors->add( 'post_title', __( 'People need to know what they\'re paying for! Please add a brief title.' ) );
+				$errors->add( 'post_title', __( "People need to know what they're paying for! Please add a brief title.", 'jetpack' ) );
 			}
 
 			if ( empty( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
-				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.' ) );
+				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
 			}
 
 			if ( empty( $params['email'] ) || ! is_email( $params['email'] ) ) {
-				$errors->add( 'email', __( 'We want to make sure payments reach you, so please add an email address.' ) );
+				$errors->add( 'email', __( 'We want to make sure payments reach you, so please add an email address.', 'jetpack' ) );
 			}
 
 			return $errors;
@@ -438,7 +438,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			$form_product_email = ! empty( $new_instance['form_product_email'] )
 				? sanitize_text_field( $new_instance['form_product_email'] )
-				: $this->defaults()['form_product_email'];
+				: $defaults['form_product_email'];
 
 			return array_merge( $required_widget_props, array(
 				'form_product_id' => ( int ) $new_instance['form_product_id'],
@@ -476,6 +476,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 	// Register Jetpack_Simple_Payments_Widget widget.
 	function register_widget_jetpack_simple_payments() {
+		if ( ! class_exists( 'Jetpack_Simple_Payments' ) ) {
+			return;
+		}
+
 		$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
 		if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 			return;

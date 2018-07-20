@@ -881,11 +881,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
+		// Update the master user in Jetpack
 		$updated = Jetpack_Options::update_option( 'master_user', $new_owner_id );
-		if ( $updated ) {
+
+		// Notify WPCOM about the master user change
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( 'jetpack.switchBlogOwner', array(
+			'new_blog_owner' => $new_owner_id,
+		) );
+
+		if ( $updated && ! $xml->isError() ) {
 			return rest_ensure_response(
 				array(
-					'code' => 'success'
+					'code' => 'success',
 				)
 			);
 		}

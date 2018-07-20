@@ -268,6 +268,7 @@ class Jetpack_Sync_Listener {
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'is_wp_admin'      => is_admin(),
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {

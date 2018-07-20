@@ -257,7 +257,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return = json_decode( $input, true );
 
 			if ( function_exists( 'json_last_error' ) ) {
-				if ( JSON_ERROR_NONE !== json_last_error() ) {
+				if ( JSON_ERROR_NONE !== json_last_error() ) { // phpcs:ignore PHPCompatibility
 					return null;
 				}
 			} else {
