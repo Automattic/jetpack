@@ -451,9 +451,11 @@ jQuery( function($) {
 
 		// If any of the tests failed, show some stuff
 		var somethingShownAlready = false;
+		var facebookNotice = false;
 		$.each( response.data, function( index, testResult ) {
+
 			// find the li for this connection
-			if ( ! testResult.connectionTestPassed ) {
+			if ( ! testResult.connectionTestPassed && testResult.userCanRefresh ) {
 				if ( ! somethingShownAlready ) {
 					testsSelector
 						.addClass( 'below-h2' )
@@ -476,6 +478,30 @@ jQuery( function($) {
 						.click( publicizeConnRefreshClick );
 				}
 			}
+
+			if( ! testResult.connectionTestPassed && ! testResult.userCanRefresh ) {
+
+				$( '#wpas-submit-' + testResult.unique_id ).prop( "checked", false ).prop( "disabled", true );
+				if ( ! facebookNotice ) {
+					var message = '<p>'
+						+ testResult.connectionTestMessage
+						+ '</p><p>'
+						+ ' <a class="button" href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank">'
+						+ '<?php echo esc_html( __( 'Update Your Sharing Settings' ,'jetpack' ) ); ?>'
+						+ '</a>'
+						+ '<p>';
+
+					testsSelector
+						.addClass( 'below-h2' )
+						.addClass( 'error' )
+						.addClass( 'publicize-token-refresh-message' )
+						.append( message );
+					facebookNotice = true;
+				}
+
+			}
+
+
 		} );
 	}
 
@@ -701,7 +727,7 @@ jQuery( function($) {
 					if ( $done ) {
 						$checked = true;
 					}
-
+					$disabled = false;
 					// This post has been handled, so disable everything
 					if ( $all_done ) {
 						$disabled = ' disabled="disabled"';
@@ -712,9 +738,18 @@ jQuery( function($) {
 						esc_html( $this->publicize->get_service_label( $name ) ),
 						esc_html( $this->publicize->get_display_name( $name, $connection ) )
 					);
-					if ( !$skip || $done ) {
+
+					if ( $name === 'facebook' && ! $this->publicize->is_valid_facebook_connection( $connection ) ) {
+						$skip = true;
+						$disabled = ' disabled="disabled"';
+						$checked = false;
+						$hidden_checkbox = false;
+					}
+
+					if ( ( !$skip || $done ) && ! $disabled ) {
 						$active[] = $label;
 					}
+
 					?>
 					<li>
 						<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
