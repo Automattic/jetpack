@@ -570,6 +570,10 @@ class Publicize extends Publicize_Base {
 			if ( ! empty( $update_notice ) ) {
 				echo $update_notice;
 			}
+			$page_info_message = sprintf(
+				__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+				'https://jetpack.com/support/publicize/facebook'
+			);
 
 			if ( $pages ) : ?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
@@ -600,23 +604,21 @@ class Publicize extends Publicize_Base {
 
 					</tbody>
 				</table>
+
+				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
+				<p style="text-align: center;">
+					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
+					       class="button fb-options save-options" name="save"
+					       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+					       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
+				</p><br/>
+				<p><?php echo $page_info_message; ?></p>
 			<?php else: ?>
 				<div>
-					<p><?php printf( __( 'Facebook only supports Publicize for Facebook Pages. Publicize for Facebook Profiles is not possible. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ), 'https://jetpack.com/support/publicize/facebook' ); ?></p>
+					<p><?php echo $page_info_message; ?></p>
 					<p><?php printf( __( '<a class="button" href="%s" target="%s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
 				</div>
-			<?php
-				die();
-			endif; ?>
-
-			<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
-
-			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
-				       class="button fb-options save-options" name="save"
-				       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-				       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
-			</p><br/>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
