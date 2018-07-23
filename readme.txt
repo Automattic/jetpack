@@ -98,6 +98,23 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 6.3.3 =
+
+* Release date: July 30, 2018
+* Release post: https://wp.me/p1moTy-9n0
+
+**Facebook API Maintenance**
+
+On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to your Profile Page. Only the API allowing to post to Facebook Pages will remain. This required several changes to Jetpack that we are presenting in this release:
+
+* Publicize: making sure we are handling existing connections gracefully.
+* Publicize: using logo font instead of images to make the UI up to date and mobile ready.
+* Publicize: removing the ability to select Facebook Profile connections in the UI.
+
+**Bug fixes**
+
+* General: properly handle Jetpack connection owner transition process.
+
 = 6.3.2 =
 
 * Release date: July 4, 2018
@@ -106,4 +123,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
-
