@@ -3562,8 +3562,10 @@ function wp_cron_preload_cache() {
 		}
 		if ( $wp_cache_preload_email_me )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), home_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
-		wp_cache_debug( "wp_cron_preload_cache: clean expired cache files older than $cache_max_time seconds.", 5 );
-		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
+		if ( $cache_max_time > 0 ) { // GC is NOT disabled
+			wp_cache_debug( "wp_cron_preload_cache: clean expired cache files older than $cache_max_time seconds.", 5 );
+			wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
+		}
 	}
 	@unlink( $mutex );
 }

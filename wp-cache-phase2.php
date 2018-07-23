@@ -2325,6 +2325,11 @@ function wp_cache_rebuild_or_delete( $file ) {
 function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 	global $cache_path, $cache_max_time, $blog_cache_dir, $wp_cache_preload_on;
 
+	if ( $cache_max_time == 0 ) {
+		wp_cache_debug( "wp_cache_phase2_clean_expired: disabled because GC disabled.", 2 );
+		return false;
+	}
+
 	clearstatcache();
 	if( !wp_cache_writers_entry() )
 		return false;
