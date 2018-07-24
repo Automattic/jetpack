@@ -446,9 +446,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function test_connection( $service_name, $connection ) {
-		$connection_test_passed  = true;
-		$connection_test_message = '';
-		$user_can_refresh        = false;
 
 		$id = $this->get_connection_id( $connection );
 
@@ -456,16 +453,13 @@ class Publicize extends Publicize_Base {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
-		if ( $xml->isError() ) {
-			$xml_response            = $xml->getResponse();
-			$connection_test_message = $xml_response['faultString'];
-			$connection_test_passed  = false;
-		}
-
 		// Bail if all is well
-		if ( $connection_test_passed ) {
+		if ( ! $xml->isError() ) {
 			return true;
 		}
+
+		$xml_response            = $xml->getResponse();
+		$connection_test_message = $xml_response['faultString'];
 
 		// Set up refresh if the user can
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
