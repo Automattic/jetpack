@@ -529,7 +529,14 @@ abstract class Publicize_Base {
 	}
 
 	function is_valid_facebook_connection( $connection ) {
+		if ( $this->is_connecting_connection( $connection ) ) {
+			return true;
+		}
 		return isset( $connection['connection_data']['meta']['facebook_page'] );
+	}
+
+	function is_connecting_connection( $connection ) {
+		return isset( $connection['connection_data']['meta']['options_responses'] );
 	}
 
 	/**
@@ -565,12 +572,10 @@ abstract class Publicize_Base {
 				}
 
 				// Mark facebook profiles as deprecated
-				if ( 'facebook' === $service_name ) {
-					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
-						$connection_test_passed = false;
-						$user_can_refresh = false;
-						$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.', 'jetpack');
-					}
+				if ( 'facebook' === $service_name && ! $this->is_valid_facebook_connection( $connection ) ) {
+					$connection_test_passed = false;
+					$user_can_refresh = false;
+					$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.', 'jetpack');
 				}
 
 				$unique_id = null;

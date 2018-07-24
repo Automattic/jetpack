@@ -739,7 +739,11 @@ jQuery( function($) {
 						esc_html( $this->publicize->get_display_name( $name, $connection ) )
 					);
 
-					if ( $name === 'facebook' && ! $this->publicize->is_valid_facebook_connection( $connection ) ) {
+					if (
+						$name === 'facebook'
+					     && ! $this->publicize->is_valid_facebook_connection( $connection )
+					     && $this->publicize->is_connecting_connection( $connection )
+					) {
 						$skip = true;
 						$disabled = ' disabled="disabled"';
 						$checked = false;
