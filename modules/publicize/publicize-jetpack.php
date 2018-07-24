@@ -657,9 +657,8 @@ class Publicize extends Publicize_Base {
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
 			Jetpack_Options::update_option( 'publicize_connections', $response );
+			$this->globalization();
 		}
-
-		$this->globalization();
 	}
 
 	function options_page_tumblr() {
