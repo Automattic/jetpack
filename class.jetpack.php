@@ -1490,6 +1490,7 @@ class Jetpack {
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 			'personal-bundle',
+			'personal-bundle-2y',
 		);
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
@@ -1503,7 +1504,8 @@ class Jetpack {
 			'jetpack_premium',
 			'jetpack_premium_monthly',
 			'value_bundle',
-		);
+			'value_bundle-2y',
+        );
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$supports[] = 'akismet';
@@ -1517,6 +1519,7 @@ class Jetpack {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'business-bundle-2y',
 			'vip',
 		);
 
