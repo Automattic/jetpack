@@ -186,7 +186,7 @@ abstract class Publicize_Base {
 				return $cmeta['connection_data']['meta']['display_name'];
 			}
 
-			return __( 'Connecting Facebook...', 'jetpack' );
+			return __( 'Connecting...', 'jetpack' );
 
 		}
 
