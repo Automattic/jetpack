@@ -242,8 +242,14 @@ function wp_cache_manager_error_checks() {
 		return false;
 	}
 
-	if( $wp_cache_debug || !$wp_cache_cron_check ) {
-		if( function_exists( "wp_remote_get" ) == false ) {
+	if ( $wp_cache_debug || ! $wp_cache_cron_check ) {
+		if ( defined( 'DISABLE_WP_CRON' ) && constant( 'DISABLE_WP_CRON' ) ) {
+			?>
+			<div class="notice notice-error"><h3><?php _e( 'CRON System Disabled', 'wp-super-cache' ); ?></h3>
+			<p><?php _e( 'The WordPress CRON jobs system is disabled. This means the garbage collection system will not work unless you run the CRON system manually.', 'wp-super-cache' ); ?></p>
+			</div>
+			<?php
+		} elseif ( function_exists( "wp_remote_get" ) == false ) {
 			$hostname = str_replace( 'http://', '', str_replace( 'https://', '', get_option( 'siteurl' ) ) );
 			if( strpos( $hostname, '/' ) )
 				$hostname = substr( $hostname, 0, strpos( $hostname, '/' ) );
