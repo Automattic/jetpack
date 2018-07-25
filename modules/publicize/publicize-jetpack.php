@@ -542,7 +542,7 @@ class Publicize extends Publicize_Base {
 		$page_selected   = false;
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
-			if ( $pages && is_array( $pages->data ) ) {
+			if ( $pages && isset( $pages->data ) && is_array( $pages->data )  ) {
 				foreach ( $pages->data as $page ) {
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
