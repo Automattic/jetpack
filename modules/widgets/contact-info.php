@@ -76,6 +76,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * @return void Echoes it's output
 		 **/
 		function widget( $args, $instance ) {
+			jetpack_require_lib('class.jetpack-google-maps-api-key' );
+			$google_maps = new Jetpack_Google_Maps_Api_Key();
+			$google_maps->init();
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			echo $args['before_widget'];
@@ -165,6 +168,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * @return array
 		 */
 		function update( $new_instance, $old_instance ) {
+			jetpack_require_lib('class.jetpack-google-maps-api-key' );
+			$google_maps = new Jetpack_Google_Maps_Api_Key();
+			$google_maps->init();
+
 			$update_lat_lon = false;
 			if (
 				! isset( $old_instance['address'] ) ||
