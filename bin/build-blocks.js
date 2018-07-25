@@ -23,7 +23,7 @@ blocks.forEach( block => {
 	console.log( `Building ${ block }` );
 	// Relative to wp-calypso
 	const inputFile = path.join( 'client/gutenberg/extensions/', block );
-	execSync( `npx wp-calypso-sdk ${ inputFile } ${ outputDir }`, {
+	execSync( `npx calypso-gutenberg-sdk ${ inputFile } ${ outputDir }`, {
 		shell: true,
 		stdio: 'inherit',
 	} );
