@@ -446,9 +446,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function test_connection( $service_name, $connection ) {
-		$connection_test_passed  = true;
-		$connection_test_message = '';
-		$user_can_refresh        = false;
 
 		$id = $this->get_connection_id( $connection );
 
@@ -456,16 +453,13 @@ class Publicize extends Publicize_Base {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
-		if ( $xml->isError() ) {
-			$xml_response            = $xml->getResponse();
-			$connection_test_message = $xml_response['faultString'];
-			$connection_test_passed  = false;
-		}
-
 		// Bail if all is well
-		if ( $connection_test_passed ) {
+		if ( ! $xml->isError() ) {
 			return true;
 		}
+
+		$xml_response            = $xml->getResponse();
+		$connection_test_message = $xml_response['faultString'];
 
 		// Set up refresh if the user can
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
@@ -548,7 +542,7 @@ class Publicize extends Publicize_Base {
 		$page_selected   = false;
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
-			if ( $pages && is_array( $pages->data ) ) {
+			if ( $pages && isset( $pages->data ) && is_array( $pages->data )  ) {
 				foreach ( $pages->data as $page ) {
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
@@ -631,8 +625,6 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'save_fb_token_' . $_REQUEST['connection'] );
 
-		$id = $_POST['connection'];
-
 		// Check for a numeric page ID
 		$page_id = $_POST['selected_id'];
 		if ( ! ctype_digit( $page_id ) ) {
@@ -649,17 +641,7 @@ class Publicize extends Publicize_Base {
 			'facebook_profile' => null
 		);
 
-
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
-
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
-		}
-
-		$this->globalization();
+		$this->set_remote_publicize_options( $_POST['connection'], $options );
 	}
 
 	function options_page_tumblr() {
@@ -743,11 +725,13 @@ class Publicize extends Publicize_Base {
 	function options_save_tumblr() {
 		// Nonce check
 		check_admin_referer( 'save_tumblr_blog_' . $_REQUEST['connection'] );
-
-		$id = $_POST['connection'];
-
 		$options = array( 'tumblr_base_hostname' => $_POST['selected_id'] );
 
+		$this->set_remote_publicize_options( $_POST['connection'], $options );
+
+	}
+
+	function set_remote_publicize_options( $id, $options ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
@@ -755,9 +739,8 @@ class Publicize extends Publicize_Base {
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
 			Jetpack_Options::update_option( 'publicize_connections', $response );
+			$this->globalization();
 		}
-
-		$this->globalization();
 	}
 
 	function options_page_twitter() {
