@@ -51,7 +51,15 @@ class Publicize_UI {
 	* If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
 	*/
 	function sharing_menu() {
-		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
+		$page_hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
+		add_action( "load-{$page_hook}", array( &$this, 'redirect_to_calypso' ) );
+	}
+
+	public function redirect_to_calypso() {
+		if ( empty( $_GET['action'] ) ) { // this is done so that we support the refresh links.
+			wp_redirect( Jetpack::calyps_url( '/sharing/%site%' ) );
+			die();
+		}
 	}
 
 
