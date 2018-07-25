@@ -3371,8 +3371,13 @@ function clear_post_supercache( $post_id ) {
 	if ( false == @is_dir( $dir ) )
 		return false;
 
-	wp_cache_debug( "clear_post_supercache: deleting files in $dir", 2 );
-	if ( get_post_type( $post_id ) != 'page' ) { // don't delete child pages if they exist
+	if ( get_supercache_dir() == $dir ) {
+		wp_cache_debug( "clear_post_supercache: not deleting post_id $post_id as it points at homepage: $dir" );
+		return false;
+	}
+
+	wp_cache_debug( "clear_post_supercache: post_id: $post_id. deleting files in $dir" );
+	if ( get_post_type( $post_id ) != 'page') { // don't delete child pages if they exist
 		prune_super_cache( $dir, true );
 	} else {
 		wpsc_delete_files( $dir );
@@ -3545,6 +3550,7 @@ function wp_cron_preload_cache() {
 			wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 30 seconds.', 5 );
 			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
 		}
+		wpsc_delete_files( get_supercache_dir() );
 	} else {
 		$msg = '';
 		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
