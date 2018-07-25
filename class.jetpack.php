@@ -1505,7 +1505,7 @@ class Jetpack {
 			'jetpack_premium_monthly',
 			'value_bundle',
 			'value_bundle-2y',
-        );
+		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
 			$supports[] = 'akismet';
