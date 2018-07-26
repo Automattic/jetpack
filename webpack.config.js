@@ -11,7 +11,6 @@ const webpackConfig = {
 	entry: {
 		admin: './_inc/client/admin.js',
 		'static': './_inc/client/static.jsx',
-		'modules-markdown-block': './modules/markdown/assets/js/jetpack-markdown-block.jsx',
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
