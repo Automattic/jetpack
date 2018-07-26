@@ -264,11 +264,28 @@ abstract class Jetpack_Admin_Page {
 						</a>
 					</div>
 					<div class="jp-masthead__nav">
-						<span class="dops-button-group">
-							
-							<a href="<?php echo esc_url( $jetpack_admin_url ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Dashboard', 'jetpack' ); ?></a>
-							<a href="<?php echo esc_url( $jetpack_admin_url . '#/settings' ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
-						</span>
+						<?php if ( is_network_admin() ) {
+							$current_screen = get_current_screen();
+
+							$highlight_current_sites = ( 'toplevel_page_jetpack-network' === $current_screen->id  ? 'is-primary' : '' );
+							$highlight_current_settings = ( 'jetpack_page_jetpack-settings-network' === $current_screen->id  ? 'is-primary' : '' );
+							?>
+							<span class="dops-button-group">
+								<?php
+								if ( current_user_can( 'jetpack_network_sites_page' ) ) {
+									?><a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack' ) ); ?>" type="button" class="<?php echo esc_attr( $highlight_current_sites ); ?> dops-button is-compact" title="<?php esc_html_e( 'Manage your network\'s Jetpack Sites.', 'jetpack' ); ?>"><?php echo esc_html_x( 'Sites', 'Navigation item', 'jetpack' ); ?></a><?php
+								} if ( current_user_can( 'jetpack_network_settings_page' ) ) {
+									?><a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack-settings' ) ); ?>" type="button" class="<?php echo esc_attr( $highlight_current_settings ); ?> dops-button is-compact" title="<?php esc_html_e( 'Manage your network\'s Jetpack Settings.', 'jetpack' ); ?>"><?php echo esc_html_x( 'Network Settings', 'Navigation item', 'jetpack' ); ?></a><?php
+								} ?>
+							</span>
+						<?php } else { ?>
+							<span class="dops-button-group">
+								<a href="<?php echo esc_url( $jetpack_admin_url ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Dashboard', 'jetpack' ); ?></a><?php
+								if ( current_user_can( 'jetpack_manage_modules' ) ) {
+									?><a href="<?php echo esc_url( $jetpack_admin_url . '#/settings' ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a><?php
+								} ?>
+							</span>
+						<?php } ?>
 					</div>
 				</div>
 			</div>
@@ -293,9 +310,21 @@ abstract class Jetpack_Admin_Page {
 					<li class="jp-footer__link-item">
 						<a href="<?php echo esc_url( $jetpack_admin_url . '#/privacy' ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( 'Automattic\'s Privacy Policy', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
 					</li>
-					<li class="jp-footer__link-item">
-						<a href="<?php echo esc_url( admin_url() . 'admin.php?page=jetpack-debugger' ); ?>" title="<?php esc_html_e( 'Test your site\'s compatibility with Jetpack.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
-					</li>
+					<?php if ( is_multisite() && current_user_can( 'jetpack_network_sites_page' ) ) { ?>
+						<li class="jp-footer__link-item">
+							<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack' ) ); ?>" title="<?php esc_html_e( 'Manage your network\'s Jetpack Sites.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Network Sites', 'Navigation item', 'jetpack' ); ?></a>
+						</li>
+					<?php } ?>
+					<?php if ( is_multisite() && current_user_can( 'jetpack_network_settings_page' ) ) { ?>
+						<li class="jp-footer__link-item">
+							<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack-settings' ) ); ?>" title="<?php esc_html_e( 'Manage your network\'s Jetpack Settings.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Network Settings', 'Navigation item', 'jetpack' ); ?></a>
+						</li>
+					<?php } ?>
+					<?php if ( current_user_can( 'manage_options' ) ) { ?>
+						<li class="jp-footer__link-item">
+							<a href="<?php echo esc_url( admin_url() . 'admin.php?page=jetpack-debugger' ); ?>" title="<?php esc_html_e( 'Test your site\'s compatibility with Jetpack.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
+						</li>
+					<?php } ?>
 				</ul>
 			</div>
 		</div>
