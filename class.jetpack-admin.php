@@ -252,15 +252,26 @@ class Jetpack_Admin {
 
 	function admin_menu_debugger() {
 		Jetpack_Debugger::disconnect_and_redirect();
-		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
+		$debugger_hook = add_submenu_page(
+			null,
+			__( 'Debugging Center', 'jetpack' ),
+			'',
+			'manage_options',
+			'jetpack-debugger',
+			array( $this, 'wrap_debugger_page' )
+		);
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}
 
-	function debugger_page() {
+	function wrap_debugger_page( ) {
 		nocache_headers();
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
+	}
+
+	function debugger_page() {
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 }
