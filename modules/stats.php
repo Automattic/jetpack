@@ -436,7 +436,7 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
+	$hook = add_submenu_page( 'jetpack', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 	add_action( "load-$hook", 'stats_reports_load' );
 }
 
@@ -461,10 +461,7 @@ function stats_reports_load() {
 	wp_enqueue_script( 'postbox' );
 	wp_enqueue_script( 'underscore' );
 
-	$rtl = is_rtl() ? '.rtl' : '';
-	wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-	wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-
+	Jetpack_Admin_Page::load_wrapper_styles();
 	add_action( 'admin_print_styles', 'stats_reports_css' );
 
 	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) {
@@ -491,14 +488,6 @@ function stats_reports_load() {
 function stats_reports_css() {
 ?>
 <style type="text/css">
-#wpcontent {
-	padding-left: 0 !important;
-}
-
-.jetpack_page_stats {
-	background-color: #f3f6f8;
-}
-
 #jp-stats-wrap {
 	max-width: 1040px;
 	margin: 0 auto;
@@ -556,6 +545,15 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 <?php
 }
 
+function jetpack_admin_ui_stats_report_page_wrapper()  {
+	if( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
+		Jetpack_Admin_Page::wrap_ui( 'stats_reports_page' );
+	} else {
+		stats_reports_page();
+	}
+
+}
+
 /**
  * Stats Report Page.
  *
@@ -578,57 +576,30 @@ function stats_reports_page( $main_chart_only = false ) {
 		$http = is_ssl() ? 'https' : 'http';
 		// Loading message. No JS fallback message.
 ?>
-<div id="jp-plugin-container">
-	<div class="jp-masthead">
-		<div class="jp-masthead__inside-container">
-			<div class="jp-masthead__logo-container">
-				<a class="jp-masthead__logo-link" href="<?php echo esc_url( $jetpack_admin_url ); ?>">
-					<svg class="jetpack-logo__masthead" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32"><path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path><path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z"></path><path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z"></path><path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z"></path><path d="M93,22h-3v-1.5c-0.9,0.7-1.9,1.5-3.5,1.5c-1.5,0-3.1-1.1-3.1-3.2c0-2.9,2.5-3.4,4.2-3.7l2.4-0.3v-0.3c0-1.5-0.5-2.3-2-2.3 c-0.7,0-2.3,0.5-3.7,1.1L84,11c1.2-0.4,3-1,4.4-1c2.7,0,4.6,1.4,4.6,4.7L93,22z M90,16.4l-2.2,0.4c-0.7,0.1-1.4,0.5-1.4,1.6 c0,0.9,0.5,1.4,1.3,1.4s1.5-0.5,2.3-1V16.4z"></path><path d="M104.5,21.3c-1.1,0.4-2.2,0.6-3.5,0.6c-4.2,0-5.9-2.4-5.9-5.9c0-3.7,2.3-6,6.1-6c1.4,0,2.3,0.2,3.2,0.5V13 c-0.8-0.3-2-0.6-3.2-0.6c-1.7,0-3.2,0.9-3.2,3.6c0,2.9,1.5,3.8,3.3,3.8c0.9,0,1.9-0.2,3.2-0.7V21.3z"></path><path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z"></path><path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z"></path></svg>
-				</a>
-			</div>
-			<div class="jp-masthead__nav"><span class="dops-button-group"><a href="<?php echo esc_url( $jetpack_admin_url ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Dashboard', 'jetpack' ); ?></a><a href="<?php echo esc_url( $jetpack_admin_url . '#/settings' ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a></span></div>
+
+	<div id="jp-stats-wrap">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack&configure=stats' ) ); ?>"><?php esc_html_e( 'Configure', 'jetpack' ); ?></a><?php endif; ?></h2>
+		</div>
+		<div id="stats-loading-wrap" class="wrap">
+		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
+				echo esc_url(
+					/**
+					 * Sets external resource URL.
+					 *
+					 * @module stats
+					 *
+					 * @since 1.4.0
+					 *
+					 * @param string $args URL of external resource.
+					 */
+					apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
+				); ?>" /></p>
+		<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+		<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
+		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
 	</div>
-	<div id="jp-stats-wrap">
-<div class="wrap">
-	<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack&configure=stats' ) ); ?>"><?php esc_html_e( 'Configure', 'jetpack' ); ?></a><?php endif; ?></h2>
-</div>
-<div id="stats-loading-wrap" class="wrap">
-<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
-		echo esc_url(
-			/**
-			 * Sets external resource URL.
-			 *
-			 * @module stats
-			 *
-			 * @since 1.4.0
-			 *
-			 * @param string $args URL of external resource.
-			 */
-			apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
-		); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
-<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
-</div>
-</div>
-<div class="jp-footer">
-	<ul class="jp-footer__links">
-		<li class="jp-footer__link-item">
-			<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
-		</li>
-		<li class="jp-footer__link-item">
-			<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
-		</li>
-		<li class="jp-footer__link-item">
-			<a href="<?php echo esc_url( $jetpack_admin_url . '#/privacy' ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( 'Automattic\'s Privacy Policy', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
-		</li>
-		<li class="jp-footer__link-item">
-			<a href="<?php echo esc_url( admin_url() . 'admin.php?page=jetpack-debugger' ); ?>" title="<?php esc_html_e( 'Test your site\'s compatibility with Jetpack.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
-		</li>
-	</ul>
-</div>
-</div>
 <?php
 		return;
 	}
@@ -715,6 +686,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				die();
 			}
 		}
+		error_log( print_r( $get, 1) );
 		$body = stats_convert_post_titles( $get['body'] );
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
