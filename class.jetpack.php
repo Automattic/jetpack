@@ -4810,7 +4810,6 @@ p {
 			<h3>
 			<?php
 				$module = Jetpack::get_module( $module_id );
-				echo '<a href="' . Jetpack::admin_url( 'page=jetpack_modules' ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
