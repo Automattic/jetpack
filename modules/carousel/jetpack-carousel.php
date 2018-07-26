@@ -398,6 +398,10 @@ class Jetpack_Carousel {
 
 	function add_data_to_images( $attr, $attachment = null ) {
 		$attachment_id   = intval( $attachment->ID );
+		if ( ! wp_attachment_is_image( $attachment_id ) ) {
+			return $attr;
+		}
+
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
@@ -703,7 +707,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_display_exif_callback() {
-		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
+		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
 	}
 
 	function carousel_display_exif_sanitize( $value ) {
@@ -719,7 +723,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_background_color_callback() {
-		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack' ) ) );
 	}
 
 	function carousel_background_color_sanitize( $value ) {

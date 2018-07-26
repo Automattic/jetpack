@@ -140,6 +140,20 @@ class Jetpack_Likes {
 		}
 	}
 
+
+	/**
+     * Stub for is_post_likeable, since some wpcom functions call this directly on the class
+	 * Are likes enabled for this post?
+     *
+     * @param int $post_id
+     * @return bool
+	 */
+	static function is_post_likeable( $post_id = 0 ) {
+		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
+		$settings = new Jetpack_Likes_Settings();
+		return $settings->is_post_likeable();
+	}
+
 	/**
 	 * Stub for is_likes_visible, since some themes were calling it directly from this class
 	 *
@@ -161,21 +175,6 @@ class Jetpack_Likes {
 	function configuration_target_area( $html = '' ) {
 		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
 		return $html;
-	}
-
-	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
-	 */
-	function sharing_meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
-		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
-		<p>
-			<label for="wpl_enable_post_sharing">
-				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
-			</label>
-			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> <?php
 	}
 
 	/**
@@ -256,6 +255,10 @@ class Jetpack_Likes {
 			 ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
 			 ( defined( 'COOKIE_AUTH_REQUEST' ) && COOKIE_AUTH_REQUEST ) ||
 			 ( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) ) {
+			return;
+		}
+
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 

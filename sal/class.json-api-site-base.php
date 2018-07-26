@@ -319,7 +319,6 @@ abstract class SAL_Site {
 			'name' => $name,
 			'numberposts' => 1,
 			'post_type' => $this->get_whitelisted_post_types(),
-			'suppress_filters' => false,
 		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
@@ -583,7 +582,7 @@ abstract class SAL_Site {
 	function has_pending_automated_transfer() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
-			return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
+			return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id ); //phpcs:ignore PHPCompatibility
 		}
 
 		return false;

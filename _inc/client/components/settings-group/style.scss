@@ -31,6 +31,10 @@
 			margin-top: rem( 16px );
 		}
 
+		&.is-warning {
+			color: $alert-red;
+		}
+
 		a {
 			text-decoration: underline;
 		}
@@ -42,7 +46,7 @@
 		padding-right: rem( 48px );
 	}
 
-	.jp-module-settings__learn-more {
+	.jp-support-info {
 		@include breakpoint( "<480px" ) {
 			right: rem( 16px );
 			top: rem( 20px );

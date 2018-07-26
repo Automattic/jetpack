@@ -122,6 +122,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Set the connection owner
+		register_rest_route( 'jetpack/v4', '/connection/owner', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::set_connection_owner',
+			'permission_callback' => __CLASS__ . '::set_connection_owner_permission_callback',
+		) );
+
 		// Current user: get or set tracking settings.
 		register_rest_route( 'jetpack/v4', '/tracking/settings', array(
 			array(
@@ -374,39 +381,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		/**
-		 * Filter to turn off caching of Jetpack plans
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool true Whether to cache Jetpack plans locally
-		 */
-		$use_cache = apply_filters( 'jetpack_cache_plans', true );
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/plans?_locale=' . get_user_locale(),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
 
-		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
-
-		if ( false === $data ) {
-			$path = '/plans';
-			// passing along from client to help geolocate currency
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
-			}
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
-			}
-			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
-			$body = wp_remote_retrieve_body( $request );
-			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
-				$data = $body;
-			} else {
-				// something went wrong so we'll just return the response without caching
-				return $body;
-			}
-
-			if ( true === $use_cache ) {
-				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
-			}
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = $body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
 		}
 
 		return $data;
@@ -572,6 +563,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Check that user has permission to change the master user.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return bool|WP_Error True if user is able to change master user.
+	 */
+	public static function set_connection_owner_permission_callback() {
+		if ( get_current_user_id() === Jetpack_Options::get_option( 'master_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -830,6 +836,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'currentUser'  => jetpack_current_user_data(),
 		);
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Change the master user.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if owner successfully changed.
+	 */
+	public static function set_connection_owner( $request ) {
+		if ( ! isset( $request['owner'] ) ) {
+			return new WP_Error(
+				'invalid_param',
+				esc_html__( 'Invalid Parameter', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$new_owner_id = $request['owner'];
+		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+			return new WP_Error(
+				'new_owner_not_admin',
+				esc_html__( 'New owner is not admin', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( $new_owner_id === get_current_user_id() ) {
+			return new WP_Error(
+				'new_owner_is_current_user',
+				esc_html__( 'New owner is same as current user', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! Jetpack::is_user_connected( $new_owner_id ) ) {
+			return new WP_Error(
+				'new_owner_not_connected',
+				esc_html__( 'New owner is not connected', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Update the master user in Jetpack
+		$updated = Jetpack_Options::update_option( 'master_user', $new_owner_id );
+
+		// Notify WPCOM about the master user change
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( 'jetpack.switchBlogOwner', array(
+			'new_blog_owner' => $new_owner_id,
+		) );
+
+		if ( $updated && ! $xml->isError() ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		}
+		return new WP_Error(
+			'error_setting_new_owner',
+			esc_html__( 'Could not confirm new owner.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
@@ -1653,14 +1728,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Related Posts
 			'show_headline' => array(
-				'description'       => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+				'description'       => esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'related-posts',
 			),
 			'show_thumbnails' => array(
-				'description'       => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+				'description'       => esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

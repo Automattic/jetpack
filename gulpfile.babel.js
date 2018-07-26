@@ -19,7 +19,6 @@ import phplint from 'gulp-phplint';
 import phpunit from 'gulp-phpunit';
 import PluginError from 'plugin-error';
 import po2json from 'gulp-po2json';
-import qunit from 'gulp-qunit';
 import rename from 'gulp-rename';
 import request from 'request';
 import rtlcss from 'gulp-rtlcss';
@@ -103,7 +102,8 @@ function onBuild( done ) {
 			'masterbar',
 			'videopress',
 			'comment-likes',
-			'lazy-images'
+			'lazy-images',
+			'wordads',
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
@@ -112,9 +112,11 @@ function onBuild( done ) {
 		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
+		// Skipping module unit test files.
 		const sources = [
 			'_inc/*.js',
-			supportedModulesSource
+			supportedModulesSource,
+			'!modules/**/test-*.js',
 		];
 
 		// Don't process minified JS in _inc or modules directories
@@ -253,10 +255,10 @@ function doStatic( done ) {
 					fs.unlinkSync( file.path );
 				} ) )
 				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static.html', window.staticHtml );
+					fs.writeFileSync( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
 					if ( done ) {
 						done();
@@ -368,7 +370,8 @@ gulp.task( 'eslint', function() {
 	return gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js'
+		'!_inc/client/**/test/*.js',
+		'modules/**/*.jsx',
 	] )
 		.pipe( eslint() )
 		.pipe( eslint.format() )
@@ -391,14 +394,6 @@ gulp.task( 'js:hint', function() {
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
 		.pipe( jshint.reporter( 'fail' ) );
-} );
-
-/*
-	JS qunit
- */
-gulp.task( 'js:qunit', function() {
-	return gulp.src( 'tests/qunit/**/*.html' )
-		.pipe( qunit() );
 } );
 
 /*
@@ -599,6 +594,3 @@ gulp.task(
 	'languages',
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
-
-// travis CI tasks.
-gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );

@@ -199,8 +199,7 @@ class Jetpack_Admin {
 				return false;
 			}
 
-			$plan = Jetpack::get_active_plan();
-			return in_array( $module['module'], $plan['supports'] );
+			return Jetpack::active_plan_supports( $module['module'] );
 		}
 	}
 

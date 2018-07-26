@@ -17,6 +17,7 @@ import analytics from 'lib/analytics';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
+import SupportInfo from 'components/support-info';
 import { ModuleToggle } from 'components/module-toggle';
 import { isDevMode } from 'state/connection';
 import { getModule as _getModule } from 'state/modules';
@@ -36,6 +37,7 @@ export class DashItem extends Component {
 		module: PropTypes.string,
 		pro: PropTypes.bool,
 		isModule: PropTypes.bool,
+		support: PropTypes.object,
 	};
 
 	static defaultProps = {
@@ -43,10 +45,11 @@ export class DashItem extends Component {
 		module: '',
 		pro: false,
 		isModule: true,
+		support: { text: '', link: '' },
 	};
 
 	render() {
-		let toggle, proButton = '';
+		let module, toggle, proButton = '';
 
 		const classes = classNames(
 			this.props.className,
@@ -117,6 +120,10 @@ export class DashItem extends Component {
 			}
 		}
 
+		if ( this.props.module && this.props.getModule ) {
+			module = this.props.getModule( this.props.module );
+		}
+
 		return (
 			<div className={ classes }>
 				<SectionHeader
@@ -127,6 +134,13 @@ export class DashItem extends Component {
 				</SectionHeader>
 				<Card className="jp-dash-item__card" href={ this.props.href }>
 					<div className="jp-dash-item__content">
+						{
+							this.props.support.link &&
+								<SupportInfo
+									module={ module }
+									{ ...this.props.support }
+								/>
+						}
 						{ this.props.children }
 					</div>
 				</Card>

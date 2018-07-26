@@ -76,7 +76,7 @@ var PaypalExpressCheckout = {
 		var cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
 		cssClasses += isError ? 'error' : 'success';
 
-		// show message 1s after Paypal popup is closed
+		// show message 1s after PayPal popup is closed
 		setTimeout( function() {
 			domEl.innerHTML = message;
 			domEl.setAttribute( 'class', cssClasses );
@@ -140,9 +140,9 @@ var PaypalExpressCheckout = {
 
 			style: {
 				label: 'pay',
-				fundingicons: true,
 				shape: 'rect',
-				color: 'silver'
+				color: 'silver',
+				fundingicons: true,
 			},
 
 			payment: function() {

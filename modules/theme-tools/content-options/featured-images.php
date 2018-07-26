@@ -14,6 +14,7 @@ function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $
 	if (
 		( true === $opts['archive']
 			&& ( is_home() || is_archive() || is_search() )
+			&& ! jetpack_is_shop_page()
 			&& ! $opts['archive-option']
 			&& ( isset( $meta_key )
 			&& '_thumbnail_id' === $meta_key )
@@ -56,4 +57,28 @@ add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail'
  */
 function jetpack_is_product() {
 	return ( function_exists( 'is_product' ) ) ? is_product() : false;
+}
+
+/**
+ * Check if we are in a WooCommerce Shop in order to exclude it from the is_archive check.
+ */
+function jetpack_is_shop_page() {
+	// Check if WooCommerce is active first.
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return false;
+	}
+
+	global $wp_query;
+
+	$front_page_id        = get_option( 'page_on_front' );
+	$current_page_id      = $wp_query->get( 'page_id' );
+	$is_static_front_page = 'page' === get_option( 'show_on_front' );
+
+	if ( $is_static_front_page && $front_page_id === $current_page_id  ) {
+		$is_shop_page = ( $current_page_id === wc_get_page_id( 'shop' ) ) ? true : false;
+	} else {
+		$is_shop_page = is_shop();
+	}
+
+	return $is_shop_page;
 }

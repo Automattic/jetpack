@@ -15,5 +15,9 @@
         "wp-coding-standards/wpcs": "^0.14.0",
         "sirbrillig/phpcs-variable-analysis": "^2.0",
         "wimg/php-compatibility": "^8.1"
+    },
+    "scripts": {
+      "php:5.2-compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-'  --standard=PHPCompatibility --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+      "php:lint": "composer install && vendor/bin/phpcs -p"
     }
 }

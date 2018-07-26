@@ -15,9 +15,11 @@ class WordAds {
 
 	public $params = null;
 
+	public $ads = array();
+
 	/**
-	 * The different supported ad types.
-	 * v0.1 - mrec only for now
+	 * Array of supported ad types.
+	 *
 	 * @var array
 	 */
 	public static $ad_tag_ids = array(
@@ -45,6 +47,7 @@ class WordAds {
 
 	/**
 	 * Convenience function for grabbing options from params->options
+	 *
 	 * @param  string $option the option to grab
 	 * @param  mixed  $default (optional)
 	 * @return option or $default if not set
@@ -92,10 +95,34 @@ class WordAds {
 		}
 
 		$this->insert_adcode();
+
+		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+
+			if ( false === ( $ads_txt_transient = get_transient( 'jetpack_ads_txt' ) ) ) {
+				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
+			}
+
+			/**
+			 * Provide plugins a way of modifying the contents of the automatically-generated ads.txt file.
+			 *
+			 * @module wordads
+			 *
+			 * @since 6.1.0
+			 *
+			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
+			 */
+			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
+
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			echo esc_html( $ads_txt_content );
+			die();
+		}
 	}
 
 	/**
 	 * Check for Jetpack's The_Neverending_Home_Page and use got_infinity
+	 *
 	 * @return boolean true if load came from infinite scroll
 	 *
 	 * @since 4.5.0
@@ -110,9 +137,9 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	private function insert_adcode() {
-		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
-		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_head',              array( $this, 'insert_head_meta' ), 20 );
+		add_action( 'wp_head',              array( $this, 'insert_head_iponweb' ), 30 );
+		add_action( 'wp_enqueue_scripts',   array( $this, 'enqueue_scripts' ) );
 
 		/**
 		 * Filters enabling ads in `the_content` filter
@@ -181,9 +208,10 @@ class WordAds {
 		$pagetype = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id = $this->params->blog_id;
+		$consent = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id };
+			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id, consent: $consent };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -214,9 +242,6 @@ HTML;
 		<link rel='dns-prefetch' href='//ad.doubleclick.net' />
 		<link rel='dns-prefetch' href='//googleads.g.doubleclick.net' />
 		<link rel='dns-prefetch' href='//www.googletagservices.com' />
-		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
-		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
 		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
 HTML;
 	}
@@ -227,8 +252,8 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_ad( $content ) {
-		// Ad JS won't work in XML feeds.
-		if ( is_feed() ) {
+		// Don't insert ads in feeds, or for anything but the main display. (This is required for compatibility with the Publicize module).
+		if ( is_feed() || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
 		}
 		/**
@@ -247,6 +272,36 @@ HTML;
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
 		return $content . $this->get_ad( 'belowpost', $ad_type );
+	}
+
+	/**
+	 * Insert an inline ad into a post content
+	 * Used for rendering the `wordads` shortcode.
+	 *
+	 * @since 6.1.0
+	 */
+	function insert_inline_ad( $content ) {
+		// Ad JS won't work in XML feeds.
+		if ( is_feed() ) {
+			return $content;
+		}
+		/**
+		 * Allow third-party tools to disable the display of in post ads.
+		 *
+		 * @module wordads
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param bool true Should the in post unit be disabled. Default to false.
+		 */
+		$disable = apply_filters( 'wordads_inpost_disable', false );
+		if ( $disable ) {
+			return $content;
+		}
+
+		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		$content .= $this->get_ad( 'inline', $ad_type );
+		return $content;
 	}
 
 	/**
@@ -315,16 +370,17 @@ HTML;
 
 	/**
 	 * Get the ad for the spot and type.
-	 * @param  string $spot top, side, or belowpost
+	 * @param  string $spot top, side, inline, or belowpost
 	 * @param  string $type iponweb or adsense
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
-		$blocker_unit = 'mrec';
 		if ( 'iponweb' == $type ) {
-			$section_id = WORDADS_API_TEST_ID;
+			// Default to mrec
 			$width = 300;
 			$height = 250;
+
+			$section_id = WORDADS_API_TEST_ID;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
@@ -332,18 +388,20 @@ HTML;
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $blocker_unit );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
+			} else if ( 'inline' === $spot ) {
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -373,66 +431,37 @@ HTML;
 	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
+	 * @param  int $location
 	 * @param  string $css
 	 * @return string
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $adblock_unit = 'mrec', $css = '' ) {
-		$this->ads[] = array( 'id' => $section_id, 'width' => $width, 'height' => $height );
+	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
+		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
+		$ad_number = count( $this->ads );
+		// Max 6 ads per page.
+		if ( $ad_number > 5 && 'top' !== $location ) {
+			return;
+		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$adblock_ad = $this->get_adblocker_ad( $adblock_unit );
 
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
-			<div id="atatags-{$section_id}">
+			<div id="atatags-{$ad_number}">
 				<script$data_tags type="text/javascript">
 				__ATA.cmd.push(function() {
-					__ATA.initSlot('atatags-{$section_id}',  {
+					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
 						sectionId: '{$section_id}',
+						location: '{$location}',
 						width: {$width},
 						height: {$height}
 					});
 				});
 				</script>
-				$adblock_ad
 			</div>
 		</div>
-HTML;
-	}
-
-	/**
-	 * Get Criteo Acceptable Ad unit
-	 * @param  string $unit mrec, mrec2, widesky, top, top_mrec
-	 *
-	 * @since 5.3
-	 */
-	public function get_adblocker_ad( $unit = 'mrec' ) {
-		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$criteo_id = mt_rand();
-		$height = 250;
-		$width = 300;
-		$zone_id = 388248;
-		if ( 'mrec2' == $unit ) { // 2nd belowpost
-			$zone_id = 837497;
-		} else if ( 'widesky' == $unit ) { // sidebar
-			$zone_id = 563902;
-			$width = 160;
-			$height= 600;
-		} else if ( 'top' == $unit ) { // top leaderboard
-			$zone_id = 563903;
-			$width = 728;
-			$height = 90;
-		} else if ( 'top_mrec' == $unit ) { // top mrec
-			$zone_id = 563903;
-		}
-
-		return <<<HTML
-		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;display:none !important;"></div>
-		<script$data_tags type="text/javascript">
-		(function(){var c=function(){var a=document.getElementById("crt-{$criteo_id}");window.Criteo?(a.parentNode.style.setProperty("display","inline-block","important"),a.style.setProperty("display","block","important"),window.Criteo.DisplayAcceptableAdIfAdblocked({zoneid:{$zone_id},containerid:"crt-{$criteo_id}",collapseContainerIfNotAdblocked:!0,callifnotadblocked:function(){a.style.setProperty("display","none","important");a.style.setProperty("visbility","hidden","important")}})):(a.style.setProperty("display","none","important"),a.style.setProperty("visibility","hidden","important"))};if(window.Criteo)c();else{if(!__ATA.criteo.script){var b=document.createElement("script");b.src="//static.criteo.net/js/ld/publishertag.js";b.onload=function(){for(var a=0;a<__ATA.criteo.cmd.length;a++){var b=__ATA.criteo.cmd[a];"function"===typeof b&&b()}};(document.head||document.getElementsByTagName("head")[0]).appendChild(b);__ATA.criteo.script=b}__ATA.criteo.cmd.push(c)}})();
-		</script>
 HTML;
 	}
 
@@ -454,18 +483,21 @@ HTML;
 	 * @since 4.7.0
 	 */
 	public function get_house_ad( $unit = 'mrec' ) {
-		if ( ! in_array( $unit, array( 'mrec', 'widesky', 'leaderboard' ) ) ) {
-			$unit = 'mrec';
-		}
 
-		$width  = 300;
-		$height = 250;
-		if ( 'widesky' == $unit ) {
-			$width  = 160;
-			$height = 600;
-		} else if ( 'leaderboard' == $unit ) {
-			$width  = 728;
-			$height = 90;
+		switch ( $unit ) {
+			case 'widesky':
+				$width  = 160;
+				$height = 600;
+				break;
+			case 'leaderboard':
+				$width  = 728;
+				$height = 90;
+				break;
+			case 'mrec':
+			default:
+				$width  = 300;
+				$height = 250;
+				break;
 		}
 
 		return <<<HTML

@@ -130,7 +130,9 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
-			$this->build_next_sitemap_file();
+			if ( true === $this->build_next_sitemap_file() ) {
+				break; // All finished!
+			}
 		}
 
 		if ( $this->logger ) {
@@ -146,14 +148,18 @@ class Jetpack_Sitemap_Builder {
 	 * constructs the next file, and updates the state.
 	 *
 	 * @since 4.8.0
+	 *
+	 * @return bool True when finished.
 	 */
 	private function build_next_sitemap_file() {
+		$finished = false; // Initialize finished flag.
+
 		// Get the most recent state, and lock the state.
 		$state = Jetpack_Sitemap_State::check_out();
 
 		// Do nothing if the state was locked.
 		if ( false === $state ) {
-			return;
+			return false;
 		}
 
 		// Otherwise, branch on the sitemap-type key of $state.
@@ -218,19 +224,23 @@ class Jetpack_Sitemap_Builder {
 					$this->logger->report( '-- Finished.' );
 					$this->logger->time();
 				}
+				$finished = true;
 
-				die();
+				break;
 
 			default:
-				// Otherwise, reset the state.
 				Jetpack_Sitemap_State::reset(
 					JP_PAGE_SITEMAP_TYPE
 				);
-				die();
+				$finished = true;
+
+				break;
 		} // End switch().
 
 		// Unlock the state.
 		Jetpack_Sitemap_State::unlock();
+
+		return $finished;
 	}
 
 	/**
@@ -465,13 +475,13 @@ class Jetpack_Sitemap_Builder {
 		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 				$video['filename'] = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'];
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
 			} else {
 				$video['filename'] = jp_sitemap_filename(
 					JP_VIDEO_SITEMAP_INDEX_TYPE,
 					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
 				);
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'] );
 			}
 
 			$buffer->append(
@@ -510,7 +520,7 @@ class Jetpack_Sitemap_Builder {
 	 * }
 	 */
 	public function build_one_page_sitemap( $number, $from_id ) {
-		$last_post_id = $from_id;
+		$last_post_id   = $from_id;
 		$any_posts_left = true;
 
 		if ( $this->logger ) {
@@ -547,7 +557,7 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		// Add as many items to the buffer as possible.
-		while ( false === $buffer->is_full() ) {
+		while ( $last_post_id >= 0 && false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_posts_after_id(
 				$last_post_id, JP_SITEMAP_BATCH_SIZE
 			);
@@ -565,6 +575,60 @@ class Jetpack_Sitemap_Builder {
 					$buffer->view_time( $current_item['last_modified'] );
 				} else {
 					break;
+				}
+			}
+		}
+
+		// Handle other page sitemap URLs.
+		if ( false === $any_posts_left || $last_post_id < 0 ) {
+			// Negative IDs are used to track URL indexes.
+			$last_post_id   = min( 0, $last_post_id );
+			$any_posts_left = true; // Reinitialize.
+
+			/**
+			 * Filter other page sitemap URLs.
+			 *
+			 * @module sitemaps
+			 *
+			 * @since 6.1.0
+			 *
+			 * @param array $urls An array of other URLs.
+			 */
+			$other_urls = apply_filters( 'jetpack_page_sitemap_other_urls', array() );
+
+			if ( $other_urls ) { // Start with index [1].
+				$other_urls = array_values( $other_urls );
+				array_unshift( $other_urls, $other_urls[0] );
+				unset( $other_urls[0] );
+			}
+
+			// Add as many items to the buffer as possible.
+			while ( false === $buffer->is_full() ) {
+				$last_post_id_index       = abs( $last_post_id );
+				$start_from_post_id_index = $last_post_id_index ? $last_post_id_index + 1 : 0;
+				$urls                     = array_slice(
+					$other_urls,
+					$start_from_post_id_index,
+					JP_SITEMAP_BATCH_SIZE,
+					true
+				);
+
+				if ( ! $urls ) {
+					$any_posts_left = false;
+					break;
+				}
+
+				foreach ( $urls as $index => $url ) {
+					if ( ! is_array( $url ) ) {
+						$url = array( 'loc' => $url );
+					}
+					$item = array( 'xml' => compact( 'url' ) );
+
+					if ( true === $buffer->append( $item['xml'] ) ) {
+						$last_post_id = -$index;
+					} else {
+						break;
+					}
 				}
 			}
 		}

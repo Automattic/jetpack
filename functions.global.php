@@ -17,6 +17,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Set the admin language, based on user language.
+ *
+ * @since 4.5.0
+ *
+ * @return string
+ *
+ * @todo Remove this function when WordPress 4.8 is released
+ * and replace `jetpack_get_user_locale()` in this file with `get_user_locale()`.
+ */
+function jetpack_get_user_locale() {
+	$locale = get_locale();
+
+	if ( function_exists( 'get_user_locale' ) ) {
+		$locale = get_user_locale();
+	}
+
+	return $locale;
+}
+
+/**
  * Determine if this site is an Atomic site or not looking first at the 'at_options' option.
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
@@ -152,3 +172,44 @@ function jetpack_upgrader_pre_download( $reply ) {
 }
 
 add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
+
+
+/**
+ * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
+ *
+ * @since 6.1.0
+ *
+ * @param $any
+ * @param array $seen_nodes
+ *
+ * @return array
+ */
+function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
+	if ( is_object( $any ) ) {
+		$input = get_object_vars( $any );
+		$input['__o'] = 1;
+	} else {
+		$input = &$any;
+	}
+
+	if ( is_array( $input ) ) {
+		$seen_nodes[] = &$any;
+
+		$return = array();
+
+		foreach ( $input as $k => &$v ) {
+			if ( ( is_array( $v ) || is_object( $v ) ) ) {
+				if ( in_array( $v, $seen_nodes, true ) ) {
+					continue;
+				}
+				$return[ $k ] = jetpack_json_wrap( $v, $seen_nodes );
+			} else {
+				$return[ $k ] = $v;
+			}
+		}
+
+		return $return;
+	}
+
+	return $any;
+}

@@ -60,7 +60,7 @@ class WC_Services_Installer {
 				break;
 		}
 
-		$redirect = wp_get_referer();
+		$redirect = isset( $_GET['redirect'] ) ? admin_url( $_GET['redirect'] ) : wp_get_referer();
 
 		if ( $result ) {
 			$this->jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );

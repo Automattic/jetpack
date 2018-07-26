@@ -341,12 +341,12 @@ class Jetpack_Sync_Functions {
 		return $wp_version;
 	}
 
-	public static function site_icon_url() {
+	public static function site_icon_url( $size = 512 ) {
 		if ( ! function_exists( 'get_site_icon_url' ) || ! has_site_icon() ) {
 			return get_option( 'jetpack_site_icon_url' );
 		}
 
-		return get_site_icon_url();
+		return get_site_icon_url( $size );
 	}
 
 	public static function roles() {
@@ -354,4 +354,34 @@ class Jetpack_Sync_Functions {
 		return $wp_roles->roles;
 	}
 
+	/**
+	* Determine time zone from WordPress' options "timezone_string"
+	* and "gmt_offset".
+	*
+	* 1. Check if `timezone_string` is set and return it.
+	* 2. Check if `gmt_offset` is set, formats UTC-offset from it and return it.
+	* 3. Default to "UTC+0" if nothing is set.
+	*
+	* @return string
+	*/
+	public static function get_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( ! empty( $timezone_string ) ) {
+			return str_replace( '_', ' ', $timezone_string );
+		}
+
+		$gmt_offset = get_option( 'gmt_offset', 0 );
+
+		$formatted_gmt_offset = sprintf( '%+g', floatval( $gmt_offset ) );
+
+		$formatted_gmt_offset = str_replace(
+			array( '.25', '.5', '.75' ),
+			array( ':15', ':30', ':45' ),
+			(string) $formatted_gmt_offset
+		);
+
+		/* translators: %s is UTC offset, e.g. "+1" */
+		return sprintf( __( 'UTC%s', 'jetpack' ), $formatted_gmt_offset );
+	}
 }

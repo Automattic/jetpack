@@ -3,6 +3,7 @@
 	<config name="minimum_supported_wp_version" value="4.7" />
 	<config name="testVersion" value="5.2-"/>
 
+	<rule ref="PHPCompatibility" />
 	<rule ref="WordPress-Core" />
 	<rule ref="WordPress-Docs" />
 	<rule ref="WordPress-Extra" />

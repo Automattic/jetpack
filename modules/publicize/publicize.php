@@ -46,7 +46,7 @@ abstract class Publicize_Base {
 	* Sets up the basics of Publicize
 	*/
 	function __construct() {
-		$this->default_message = Publicize_Util::build_sprintf( array(
+		$this->default_message = self::build_sprintf( array(
 			/**
 			 * Filter the default Publicize message.
 			 *
@@ -61,7 +61,7 @@ abstract class Publicize_Base {
 			'url',
 		) );
 
-		$this->default_prefix = Publicize_Util::build_sprintf( array(
+		$this->default_prefix = self::build_sprintf( array(
 			/**
 			 * Filter the message prepended to the Publicize custom message.
 			 *
@@ -75,7 +75,7 @@ abstract class Publicize_Base {
 			'url',
 		) );
 
-		$this->default_suffix = Publicize_Util::build_sprintf( array(
+		$this->default_suffix = self::build_sprintf( array(
 			/**
 			 * Filter the message appended to the Publicize custom message.
 			 *
@@ -180,6 +180,15 @@ abstract class Publicize_Base {
 	*/
 	function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
+
+		if ( 'facebook' === $service_name ) {
+			if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
+				return $cmeta['connection_data']['meta']['display_name'];
+			}
+
+			return __( 'Connecting...', 'jetpack' );
+
+		}
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
@@ -519,6 +528,17 @@ abstract class Publicize_Base {
 		return post_type_supports( $post_type, 'publicize' );
 	}
 
+	function is_valid_facebook_connection( $connection ) {
+		if ( $this->is_connecting_connection( $connection ) ) {
+			return true;
+		}
+		return isset( $connection['connection_data']['meta']['facebook_page'] );
+	}
+
+	function is_connecting_connection( $connection ) {
+		return isset( $connection['connection_data']['meta']['options_responses'] );
+	}
+
 	/**
 	 * Runs tests on all the connections and returns the results to the caller
 	 */
@@ -551,6 +571,20 @@ abstract class Publicize_Base {
 					$refresh_url = $error_data['refresh_url'];
 				}
 
+				// Mark facebook profiles as deprecated
+				if ( 'facebook' === $service_name && ! $this->is_valid_facebook_connection( $connection ) ) {
+					$connection_test_passed = false;
+					$user_can_refresh = false;
+					$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.', 'jetpack');
+				}
+
+				$unique_id = null;
+				if ( ! empty( $connection->unique_id ) ) {
+					$unique_id = $connection->unique_id;
+				} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
+					$unique_id = $connection['connection_data']['token_id'];
+				}
+
 				$test_results[] = array(
 					'connectionID'          => $id,
 					'serviceName'           => $service_name,
@@ -558,11 +592,41 @@ abstract class Publicize_Base {
 					'connectionTestMessage' => esc_attr( $connection_test_message ),
 					'userCanRefresh'        => $user_can_refresh,
 					'refreshText'           => esc_attr( $refresh_text ),
-					'refreshURL'            => $refresh_url
+					'refreshURL'            => $refresh_url,
+					'unique_id'             => $unique_id,
 				);
 			}
 		}
 
 		wp_send_json_success( $test_results );
+	}
+
+	protected static function build_sprintf( $args ) {
+		$search = array();
+		$replace = array();
+		foreach ( $args as $k => $arg ) {
+			if ( 0 == $k ) {
+				$string = $arg;
+				continue;
+			}
+			$search[] = "%$arg%";
+			$replace[] = "%$k\$s";
+		}
+		return str_replace( $search, $replace, $string );
+	}
+}
+
+function publicize_calypso_url() {
+	$calypso_sharing_url = 'https://wordpress.com/sharing/';
+	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+		$site_suffix = Jetpack::build_raw_urls( home_url() );
+	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+	}
+
+	if ( $site_suffix ) {
+		return $calypso_sharing_url . $site_suffix;
+	} else {
+		return $calypso_sharing_url;
 	}
 }

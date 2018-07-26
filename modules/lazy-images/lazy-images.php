@@ -47,6 +47,7 @@ class Jetpack_Lazy_Images {
 		add_action( 'admin_bar_menu', array( $this, 'remove_filters' ), 0 );
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
+		add_action( 'wp_head', array( $this, 'add_nojs_fallback' ) );
 	}
 
 	public function setup_filters() {
@@ -176,6 +177,9 @@ class Jetpack_Lazy_Images {
 			return $matches[0];
 		}
 
+		// Ensure we add the jetpack-lazy-image class to this image.
+		$new_attributes['class'] = sprintf( '%s jetpack-lazy-image', empty( $new_attributes['class'] ) ? '' : $new_attributes['class'] );
+
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
@@ -250,6 +254,27 @@ class Jetpack_Lazy_Images {
 		return apply_filters( 'jetpack_lazy_images_new_attributes', $attributes );
 	}
 
+	/**
+	 * Adds JavaScript to check if the current browser supports JavaScript as well as some styles to hide lazy
+	 * images when the browser does not support JavaScript.
+	 *
+	 * @return void
+	 */
+	public function add_nojs_fallback() {
+		?>
+			<style type="text/css">
+				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
+					display: none;
+				}
+			</style>
+			<script>
+				document.documentElement.classList.add(
+					'jetpack-lazy-images-js-enabled'
+				);
+			</script>
+		<?php
+	}
+
 	private static function get_placeholder_image() {
 		/**
 		 * Allows plugins and themes to modify the placeholder image.
@@ -290,6 +315,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(

@@ -85,12 +85,13 @@ class Publicize_UI {
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);
-		if( is_rtl() ) {
-			wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20120925' );
+		if ( is_rtl() ) {
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20180301' );
 		} else {
-			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20120925' );
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20180301' );
 		}
 
+		wp_enqueue_style( 'social-logos' );
 
 		add_thickbox();
 	}
@@ -149,7 +150,7 @@ class Publicize_UI {
 			}
 			?>
 
-			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
+			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
 
 			<div id="publicize-services-block">
 				<?php
@@ -450,9 +451,11 @@ jQuery( function($) {
 
 		// If any of the tests failed, show some stuff
 		var somethingShownAlready = false;
+		var facebookNotice = false;
 		$.each( response.data, function( index, testResult ) {
+
 			// find the li for this connection
-			if ( ! testResult.connectionTestPassed ) {
+			if ( ! testResult.connectionTestPassed && testResult.userCanRefresh ) {
 				if ( ! somethingShownAlready ) {
 					testsSelector
 						.addClass( 'below-h2' )
@@ -475,6 +478,30 @@ jQuery( function($) {
 						.click( publicizeConnRefreshClick );
 				}
 			}
+
+			if( ! testResult.connectionTestPassed && ! testResult.userCanRefresh ) {
+
+				$( '#wpas-submit-' + testResult.unique_id ).prop( "checked", false ).prop( "disabled", true );
+				if ( ! facebookNotice ) {
+					var message = '<p>'
+						+ testResult.connectionTestMessage
+						+ '</p><p>'
+						+ ' <a class="button" href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank">'
+						+ '<?php echo esc_html( __( 'Update Your Sharing Settings' ,'jetpack' ) ); ?>'
+						+ '</a>'
+						+ '<p>';
+
+					testsSelector
+						.addClass( 'below-h2' )
+						.addClass( 'error' )
+						.addClass( 'publicize-token-refresh-message' )
+						.append( message );
+					facebookNotice = true;
+				}
+
+			}
+
+
 		} );
 	}
 
@@ -562,7 +589,7 @@ jQuery( function($) {
 							<strong><?php echo esc_html( $item ); ?></strong>
 						<?php endforeach; ?>
 					</span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php else : ?>
 					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
@@ -700,7 +727,7 @@ jQuery( function($) {
 					if ( $done ) {
 						$checked = true;
 					}
-
+					$disabled = false;
 					// This post has been handled, so disable everything
 					if ( $all_done ) {
 						$disabled = ' disabled="disabled"';
@@ -711,9 +738,22 @@ jQuery( function($) {
 						esc_html( $this->publicize->get_service_label( $name ) ),
 						esc_html( $this->publicize->get_display_name( $name, $connection ) )
 					);
-					if ( !$skip || $done ) {
+
+					if (
+						$name === 'facebook'
+					     && ! $this->publicize->is_valid_facebook_connection( $connection )
+					     && $this->publicize->is_connecting_connection( $connection )
+					) {
+						$skip = true;
+						$disabled = ' disabled="disabled"';
+						$checked = false;
+						$hidden_checkbox = false;
+					}
+
+					if ( ( !$skip || $done ) && ! $disabled ) {
 						$active[] = $label;
 					}
+
 					?>
 					<li>
 						<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
@@ -771,7 +811,7 @@ jQuery( function($) {
 			<ul class="not-connected">
 				<?php foreach ( $available_services as $service_name => $service ) : ?>
 				<li>
-					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
+					<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $this->publicize->connect_url( $service_name ) ); ?>">
 						<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
 					</a>
 				</li>

@@ -694,7 +694,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
 		add_filter( 'sharing_enabled', array( $this, 'enable_services' ) );
@@ -762,6 +764,73 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 
 		$this->assertEquals( "\n", $synced_post->post_content_filtered );
+	}
+
+	function test_customizer_changeset_to_widget_edited() {
+		$post_content = <<<POST_CONTENT
+{
+    "widget_archives[2]": {
+        "value": {
+            "encoded_serialized_instance": "YTozOntzOjU6InRpdGxlIjtzOjg6IkkgbG92ZSBDIjtzOjU6ImNvdW50IjtpOjA7czo4OiJkcm9wZG93biI7aTowO30=",
+            "title": "I am an Archive widget",
+            "is_widget_customizer_js_value": true,
+            "instance_hash_key": "cada21c4bae5635f7943a0c6cf41e5c3"
+        },
+        "type": "option",
+        "user_id": 1,
+        "date_modified_gmt": "2018-06-18 19:42:36"
+    },
+    "widget_search[2]": {
+        "value": {
+            "encoded_serialized_instance": "YToyOntzOjU6InRpdGxlIjtzOjg6IkkgbG92ZSBEIjtzOjEwOiJjb25kaXRpb25zIjthOjM6e3M6NjoiYWN0aW9uIjtzOjQ6ImhpZGUiO3M6OToibWF0Y2hfYWxsIjtzOjE6IjAiO3M6NToicnVsZXMiO2E6MTp7aTowO2E6Mzp7czo1OiJtYWpvciI7czo4OiJsb2dnZWRpbiI7czo1OiJtaW5vciI7czowOiIiO3M6MTI6Imhhc19jaGlsZHJlbiI7YjowO319fX0=",
+            "title": "I am a Search widget",
+            "is_widget_customizer_js_value": true,
+            "instance_hash_key": "20bf20f6d7d4ecae9092f7d3850387f1"
+        },
+		"type": "option",
+        "user_id": 1,
+        "date_modified_gmt": "2018-06-18 19:42:36"
+	}
+}
+POST_CONTENT;
+
+		// create a post
+		$user_id = $this->factory->user->create();
+		$post_id    = $this->factory->post->create( array(
+			'post_author' => $user_id,
+			'post_type' => 'customize_changeset',
+			'post_content' => $post_content
+		) );
+		$post = get_post( $post_id );
+
+		//Mock registered widgets to get widget Name from
+		global $wp_registered_widgets;
+		$original_registered_widgets = $wp_registered_widgets;
+
+		$wp_registered_widgets = array(
+			'archives-2' => array(
+				'name' => 'Archives',
+			),
+			'search-2' => array(
+				'name' => 'Search',
+			)
+		);
+
+		wp_update_post( $post );
+		$this->sender->do_sync();
+		$events = $this->server_event_storage->get_all_events( 'jetpack_widget_edited' );
+
+		$this->assertEquals( 'jetpack_widget_edited', $events[0]->action );
+		$this->assertEquals( 'Archives', $events[0]->args[0]['name'] );
+		$this->assertEquals( 'archives-2', $events[0]->args[0]['id'] );
+		$this->assertEquals( 'I am an Archive widget', $events[0]->args[0]['title'] );
+
+		$this->assertEquals( 'jetpack_widget_edited', $events[1]->action );
+		$this->assertEquals( 'Search', $events[1]->args[0]['name'] );
+		$this->assertEquals( 'search-2', $events[1]->args[0]['id'] );
+		$this->assertEquals( 'I am a Search widget', $events[1]->args[0]['title'] );
+
+		$wp_registered_widgets = $original_registered_widgets;
 	}
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
@@ -1016,51 +1085,6 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
 		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
-	}
-
-	public function test_sync_export_content_event() {
-		// Can't call export_wp directly since it require no headers to be set...
-		do_action( 'export_wp', array( 'content' => 'all' ) );
-		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
-		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0]['content'], 'all' );
-	}
-
-	function test_import_done_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_done', 'test' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'test', $event->args[0] );
-		$this->assertEquals( 'Unknown Importer', $event->args[1] );
-	}
-
-	function test_import_end_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_end' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'unknown', $event->args[0] );
-		$this->assertEquals( 'Unknown Importer', $event->args[1] );
-	}
-
-	function test_import_end_and_import_done_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_end' );
-		do_action( 'import_done', 'test' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'unknown', $event->args[0] );
-	}
-
-	function test_import_done_and_import_end_action_syncs_jetpack_sync_import_end() {
-		do_action( 'import_done', 'test' );
-		do_action( 'import_end' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertEquals( 'test', $event->args[0] );
 	}
 
 	function add_a_hello_post_type() {

@@ -35,6 +35,26 @@ function jetpack_woocommerce_social_share_icons() {
 }
 
 /**
+ * Remove sharing display from account, cart, and checkout pages in WooCommerce.
+ */
+function jetpack_woocommerce_remove_share() {
+	/**
+	 * Double check WooCommerce exists - unlikely to fail due to the hook being used but better safe than sorry.
+	 */
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return;
+	}
+
+	if ( is_cart() || is_checkout() || is_account_page() ) {
+		remove_filter( 'the_content', 'sharing_display', 19 );
+		if ( class_exists( 'Jetpack_Likes' ) ) {
+			remove_filter( 'the_content', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+		}
+	}
+}
+add_action( 'loop_start', 'jetpack_woocommerce_remove_share' );
+
+/**
  * Add a callback for WooCommerce product rendering in infinite scroll.
  *
  * @param array $callbacks
@@ -73,3 +93,13 @@ function jetpack_woocommerce_infinite_scroll_style() {
 	}";
 	wp_add_inline_style( 'woocommerce-layout', $custom_css );
 }
+
+function jetpack_woocommerce_lazy_images_compat() {
+	wp_add_inline_script( 'wc-cart-fragments', "
+		jQuery( 'body' ).bind( 'wc_fragments_refreshed', function() {
+			jQuery( 'body' ).trigger( 'jetpack-lazy-images-load' );
+		} );
+	" );
+}
+
+add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_lazy_images_compat', 11 );

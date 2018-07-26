@@ -9,6 +9,7 @@
 	background: rgba($gray-light, .95);
 	text-align: center;
 	padding: rem( 32px );
+	height: 100%;
 }
 
 .jp-dialogue {
@@ -102,7 +103,7 @@
 		padding-right: 30px;
 	}
 
-	.jp-module-settings__learn-more {
+	.jp-support-info {
 		top: rem( 15px );
 		right: rem( 15px );
 	}

@@ -35,9 +35,10 @@ function jetpack_load_theme_compat() {
 	 * @param array Associative array of theme compat files to load.
 	 */
 	$compat_files = apply_filters( 'jetpack_theme_compat_files', array(
-		'twentyfourteen' => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
-		'twentyfifteen'  => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfifteen.php',
-		'twentysixteen'  => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentysixteen.php',
+		'twentyfourteen'   => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
+		'twentyfifteen'    => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfifteen.php',
+		'twentysixteen'    => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentysixteen.php',
+		'twentyseventeen'  => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyseventeen.php',
 	) );
 
 	_jetpack_require_compat_file( get_stylesheet(), $compat_files );

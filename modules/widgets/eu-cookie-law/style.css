@@ -1,4 +1,4 @@
-.widget_eu_cookie_law_widget.widget {
+.widget_eu_cookie_law_widget {
 	border: none;
 	bottom: 1em;
 	display: none;
@@ -9,6 +9,15 @@
 	right: 1em;
 	width: auto;
 	z-index: 50001;
+}
+
+.widget_eu_cookie_law_widget.widget.top {
+	bottom: auto;
+	top: 1em;
+}
+
+.admin-bar .widget_eu_cookie_law_widget.widget.top {
+	top: 3em;
 }
 
 #eu-cookie-law {
@@ -39,6 +48,14 @@
 	background-color: #000;
 	border: none;
 	color: #fff;
+}
+
+/**
+ * Using a highly-specific rule to make sure that certain form styles
+ * will be reset
+ */
+#eu-cookie-law form {
+	margin-bottom: 0;
 }
 
 /**

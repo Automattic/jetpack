@@ -41,11 +41,18 @@ class DashAkismet extends Component {
 		const akismetData = this.props.akismetData;
 		const labelName = __( 'Spam Protection' );
 
+		const support = {
+			text: __( 'Akismet checks your comments and contact form submissions against our global database of spam.' ),
+			link: 'https://akismet.com/',
+			privacyLink: 'https://automattic.com/privacy/',
+		};
+
 		if ( akismetData === 'N/A' ) {
 			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
+					support={ support }
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
@@ -62,6 +69,7 @@ class DashAkismet extends Component {
 				<DashItem
 					label={ labelName }
 					module="akismet"
+					support={ support }
 					className="jp-dash-item__is-inactive"
 					status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 					pro={ true }
@@ -84,6 +92,7 @@ class DashAkismet extends Component {
 				<DashItem
 					label={ labelName }
 					module="akismet"
+					support={ support }
 					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
@@ -106,6 +115,7 @@ class DashAkismet extends Component {
 				<DashItem
 					label={ labelName }
 					module="akismet"
+					support={ support }
 					className="jp-dash-item__is-inactive"
 					status="is-warning"
 					statusText={ __( 'Invalid key' ) }
@@ -129,6 +139,7 @@ class DashAkismet extends Component {
 				key="comment-moderation"
 				label={ labelName }
 				module="akismet"
+				support={ support }
 				status="is-working"
 				pro={ true }
 			>

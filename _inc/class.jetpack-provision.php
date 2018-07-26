@@ -24,7 +24,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) {
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility
 						return $named_args[ $url_arg ];
 					}, 11 );
 				} elseif ( ! defined( $constant_name ) ) {
@@ -43,7 +43,7 @@ class Jetpack_Provision { //phpcs:ignore
 		if ( Jetpack::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
-				esc_html__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 			);
 		}
 
@@ -210,7 +210,7 @@ class Jetpack_Provision { //phpcs:ignore
 				return new WP_Error(
 					'server_error',
 					/* translators: %s is an HTTP status code retured from an API request. Ex. – 400 */
-					sprintf( esc_html__( 'Request failed with code %s', 'jetpack' ), $response_code )
+					sprintf( __( 'Request failed with code %s', 'jetpack' ), $response_code )
 				);
 			}
 		}
@@ -274,7 +274,7 @@ class Jetpack_Provision { //phpcs:ignore
 			if ( isset( $body_json->error ) ) {
 				return new WP_Error( $body_json->error, $body_json->message );
 			} else {
-				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
+				return new WP_Error( 'server_error', sprintf( __( 'Request failed with code %s', 'jetpack' ), $response_code ) );
 			}
 		}
 

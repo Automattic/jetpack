@@ -136,8 +136,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Adds the product ID to the remove product link (for use by remove_from_cart above) if not present
 	 *
-	 * @param string $url url.
-	 * @param string $key key.
+	 * @param string $url Full HTML a tag of the link to remove an item from the cart.
+	 * @param string $key Unique Key ID for a cart item.
+	 *
 	 * @return mixed.
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
@@ -149,12 +150,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$product = $item['data'];
 
 		$new_attributes = sprintf(
-			'href="%s" data-product_id="%s" data-product_sku="%s"',
-			esc_attr( $url ),
-			esc_attr( $product->get_id() ),
-			esc_attr( $product->get_sku() )
+			'" data-product_id="%s">',
+			esc_attr( $product->get_id() )
 		);
-		$url = str_replace( 'href=', $new_attributes, $url );
+
+		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
 	}
 

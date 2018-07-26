@@ -14,13 +14,13 @@
 readme.md
 .github
 phpunit.xml.dist
+dangerfile.js
 docs
 tests
 tools
 vendor
 composer.lock
 package.json
-Gruntfile.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
@@ -37,3 +37,6 @@ _inc/build/maps
 .codeclimate.yml
 yarn.lock
 docker
+bin/pre-commit-hook.js
+bin/travis_install.sh
+yarn-error.log

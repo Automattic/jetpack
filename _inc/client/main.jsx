@@ -157,7 +157,7 @@ class Main extends React.Component {
 		// Track page views
 		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		if ( ! this.props.userCanManageModules || ! this.props.userCanConnectSite ) {
+		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
 			}
@@ -168,7 +168,7 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( ! this.props.siteConnectionStatus ) {
+		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
 			return (
 				<div aria-live="assertive">
 					<JetpackConnect />

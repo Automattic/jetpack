@@ -22,6 +22,7 @@ $jetpack_seo_conflicting_plugins = array(
 	'wordpress-seo-premium/wp-seo-premium.php',
 	'all-in-one-seo-pack/all_in_one_seo_pack.php',
 	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+	'autodescription/autodescription.php',
 );
 
 foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {

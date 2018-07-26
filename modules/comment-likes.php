@@ -125,6 +125,10 @@ class Jetpack_Comment_Likes {
 			return;
 		}
 
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'load_styles_register_scripts' ) );
 		add_filter( 'comment_text', array( $this, 'comment_likes' ), 10, 2 );
 	}

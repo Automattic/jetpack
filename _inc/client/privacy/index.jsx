@@ -24,8 +24,13 @@ const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
-const trackWhatJetpackSyncView = () => analytics.tracks.recordJetpackClick( {
-	target: 'what-data-jetpack-sync',
+const trackCookiePolicyView = () => analytics.tracks.recordJetpackClick( {
+	target: 'cookie-policy',
+	feature: 'privacy'
+} );
+
+const trackPrivacyCenterView = () => analytics.tracks.recordJetpackClick( {
+	target: 'privacy-center',
 	feature: 'privacy'
 } );
 
@@ -100,24 +105,6 @@ class Privacy extends React.Component {
 							{
 								__( 'We are committed to your privacy and security. ' )
 							}
-							<br />
-							{ __(
-								'Read about how Jetpack uses your data in {{pp}}Automattic Privacy Policy{{/pp}} ' +
-								'and {{js}}What Data Does Jetpack Sync{{/js}}?', {
-									components: {
-										pp: <ExternalLink
-												href="https://automattic.com/privacy/"
-												onClick={ trackPrivacyPolicyView }
-												target="_blank" rel="noopener noreferrer"
-												/>,
-										js: <ExternalLink
-												href="https://jetpack.com/support/what-data-does-jetpack-sync/"
-												onClick={ trackWhatJetpackSyncView }
-												target="_blank" rel="noopener noreferrer"
-												/>
-									}
-								} )
-							}
 						</p>
 						<p>
 							<CompactFormToggle
@@ -126,8 +113,59 @@ class Privacy extends React.Component {
 								disabled={ this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings }
 								onChange={ this.togglePrivacy }
 								id="privacy-settings">
-								{ __( 'Send information to help us improve our products.' ) }
+								{ __(
+									'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. ' +
+									'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.', {
+										components: {
+											cookiePolicyLink: <ExternalLink
+													href="https://automattic.com/cookies/"
+													onClick={ trackCookiePolicyView }
+													target="_blank" rel="noopener noreferrer"
+													/>
+										}
+									}
+								) }
 							</CompactFormToggle>
+						</p>
+						<p>
+							{ __(
+								'This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.', {
+									components: {
+										pp: <ExternalLink
+												href="https://automattic.com/privacy/"
+												onClick={ trackPrivacyPolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
+						</p>
+						<p>
+							{ __(
+								'We use other tracking tools, including some from third parties. ' +
+								'{{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.', {
+									components: {
+										cookiePolicyLink: <ExternalLink
+												href="https://automattic.com/cookies/"
+												onClick={ trackCookiePolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
+						</p>
+						<p>
+							{ __(
+								'For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.', {
+									components: {
+										privacyCenterLink: <ExternalLink
+												href="https://jetpack.com/support/privacy"
+												onClick={ trackPrivacyCenterView }
+												target="_blank" rel="noopener noreferrer"
+												/>
+									}
+								} )
+							}
 						</p>
 					</SettingsGroup>
 				</SettingsCard>

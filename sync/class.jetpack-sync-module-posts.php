@@ -23,10 +23,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	public function set_defaults() {
-		$this->import_end = false;
-	}
-
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
@@ -47,75 +43,30 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
-		add_action( 'export_wp', $callable );
-		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
+		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
+		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
+		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
 
-		// Movable type, RSS, Livejournal
-		add_action( 'import_done', array( $this, 'sync_import_done' ) );
-
-		// WordPress, Blogger, Livejournal, woo tax rate
-		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 	}
 
-	public function sync_import_done( $importer ) {
-		// We already ran an send the import
-		if ( $this->import_end ) {
-			return;
-		}
 
-		$importer_name = $this->get_importer_name( $importer );
-
+	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
+		remove_action( 'deleted_post_meta', $this->action_handler );
 		/**
-		 * Sync Event that tells that the import is finished
+		 * Used for syncing deletion of batch post meta
 		 *
-		 * @since 5.0.0
+		 * @since 6.1.0
 		 *
-		 * $param string $importer
+		 * @module sync
+		 *
+		 * $param array $feedback_ids feedback post IDs
+		 * $param string $meta_key to be deleted
 		 */
-		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
-		$this->import_end = true;
+		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values');
 	}
 
-	public function sync_import_end() {
-		// We already ran an send the import
-		if ( $this->import_end ) {
-			return;
-		}
-
-		$this->import_end = true;
-		$importer         = 'unknown';
-		$backtrace        = wp_debug_backtrace_summary( null, 0, false );
-		if ( $this->is_importer( $backtrace, 'Blogger_Importer' ) ) {
-			$importer = 'blogger';
-		}
-
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WC_Tax_Rate_Importer' ) ) {
-			$importer = 'woo-tax-rate';
-		}
-
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WP_Import' ) ) {
-			$importer = 'wordpress';
-		}
-
-		$importer_name = $this->get_importer_name( $importer );
-
-		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
-		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
-	}
-
-	private function get_importer_name( $importer ) {
-		$importers = get_importers();
-		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
-	}
-
-	private function is_importer( $backtrace, $class_name ) {
-		foreach ( $backtrace as $trace ) {
-			if ( strpos( $trace, $class_name ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
+	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {
+		add_action( 'deleted_post_meta', $this->action_handler );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -414,6 +365,33 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
 		unset( $this->just_published[ $post_ID ] );
+
+		/**
+		 * Send additional sync action for Activity Log when post is a Customizer publish
+		 */
+		if ( 'customize_changeset' == $post->post_type ) {
+			$post_content = json_decode( $post->post_content, true );
+			foreach ( $post_content as $key => $value ) {
+				//Skip if it isn't a widget
+				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
+					continue;
+				}
+				// Change key from "widget_archives[2]" to "archives-2"
+				$key = str_replace( 'widget_', '', $key );
+				$key = str_replace( '[', '-', $key );
+				$key = str_replace( ']', '', $key );
+
+				global $wp_registered_widgets;
+				if ( isset( $wp_registered_widgets[ $key ] ) ) {
+					$widget_data = array(
+						'name'    => $wp_registered_widgets[ $key ]['name'],
+						'id'      => $key,
+						'title'   => $value['value']['title'],
+					);
+					do_action( 'jetpack_widget_edited', $widget_data );
+				}
+			}
+		}
 	}
 
 	public function expand_post_ids( $args ) {

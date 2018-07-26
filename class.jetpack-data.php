@@ -99,16 +99,6 @@ class Jetpack_Data {
 			return true;
 		}
 
-		// Check the IP to make sure it's pingable.
-		$ip = gethostbyname( $domain );
-
-		// Doing this again as I was getting some false positives when gethostbyname() flaked out and returned the domain.
-		$ip = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ? $ip : gethostbyname( $ip );
-
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_IPV4 ) && ! self::php_bug_66229_check( $ip ) ) {
-			return new WP_Error( 'fail_domain_bad_ip_range', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as its IP `%2$s` is either invalid, or in a reserved or private range.', 'jetpack' ), $domain, $ip ) );
-		}
-
 		return true;
 	}
 

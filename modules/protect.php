@@ -50,7 +50,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_init', array ( $this, 'check_use_math' ) );
+		add_action( 'login_form', array ( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
@@ -58,7 +58,7 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_head', array ( $this, 'check_login_ability' ), 100, 3 );
+		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases

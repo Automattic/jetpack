@@ -4,7 +4,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
-	* Jetpack source code will be available as plugin from parent directory.
+* Jetpack source code will be available as plugin from parent directory.
 * PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
@@ -18,7 +18,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 #### Prerequisites:
 - [Docker](https://www.docker.com/community-edition)
 - [NodeJS](https://nodejs.org)
-- [Yarn](https://yarnpkg.com/)
+- [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 - Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites and clone the repository:
@@ -55,7 +55,7 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 
 ### Quick install WordPress
 
-You can to just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
+You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
 yarn docker:install

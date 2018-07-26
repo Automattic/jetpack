@@ -222,7 +222,7 @@ function sharing_plugin_settings( $links ) {
 function sharing_add_plugin_settings($links, $file) {
 	if ( $file == basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ) ) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
-		$links[] = '<a href="http://support.wordpress.com/sharing/" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
+		$links[] = '<a href="http://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
 
 	return $links;
