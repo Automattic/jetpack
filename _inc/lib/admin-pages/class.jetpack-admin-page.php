@@ -236,6 +236,12 @@ abstract class Jetpack_Admin_Page {
 			#jp-plugin-container .wrap {
 				margin: 0 auto;
 				max-width:45rem;
+				padding: 0 1.5rem;
+			}
+			@media (max-width: 660px) { 
+				#jp-plugin-container .wrap {
+				padding: 0;
+				}
 			}
 			
 		';
