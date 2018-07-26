@@ -14,10 +14,10 @@ class Jetpack_Tiled_Gallery {
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_assets' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
-
-
 	}
 
 	public function tiles_enabled() {
@@ -227,6 +227,26 @@ class Jetpack_Tiled_Gallery {
 	static function get_talaveras() {
 		return self::$talaveras;
 	}
+
+	/**
+ 	 * Enqueue js for our jetpack/gallery block
+ 	 */
+ 	public static function enqueue_block_editor_assets() {
+  		wp_register_script(
+  			'jetpack-tiled-gallery-block',
+  			plugins_url( '_inc/build/modules-tiled-gallery-block.js', JETPACK__PLUGIN_FILE ), // this is built as a new webpack entry point
+  			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
+  		);
+  		wp_enqueue_script( 'jetpack-tiled-gallery-block' );
+  }
+
+
+	/**
+	 * Enqueue the existing css & js for the block (we are using it for Gutenberg also)
+	 */
+	public static function enqueue_block_assets() {
+		self::default_scripts_and_styles();
+  }
 
 	/**
 	 * Add a checkbox field to the Carousel section in Settings > Media
