@@ -167,10 +167,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function additional_styles() {
-		$rtl = is_rtl() ? '.rtl' : '';
-
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	function page_admin_scripts() {
