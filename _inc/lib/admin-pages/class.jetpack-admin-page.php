@@ -240,12 +240,6 @@ abstract class Jetpack_Admin_Page {
 				max-width:45rem;
 				padding: 0 1.5rem;
 			}
-			@media (max-width: 660px) { 
-				#jp-plugin-container .wrap {
-				padding: 0;
-				}
-			}
-			
 		';
 		wp_add_inline_style( 'dops-css', $custom_css );
 	}
