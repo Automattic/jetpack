@@ -47,11 +47,6 @@ class Jetpack_Simple_Payments {
 	}
 
 	public function init_hook_action() {
-		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			add_shortcode( self::$shortcode, array( $this, 'ignore_shortcode' ) );
-			return;
-		}
-
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->register_scripts_and_styles();
@@ -140,6 +135,10 @@ class Jetpack_Simple_Payments {
 			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
 
+		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
+			return $this->output_admin_warning( $data );
+		}
+
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
 		}
@@ -155,7 +154,37 @@ class Jetpack_Simple_Payments {
 		return $this->output_shortcode( $data );
 	}
 
-	function ignore_shortcode() { return; }
+	function output_admin_warning( $data ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$css_prefix = self::$css_classname_prefix;
+
+		$support_url = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? 'https://support.wordpress.com/simple-payments/'
+			: 'https://jetpack.com/support/simple-payment-button/';
+
+		$warning = sprintf(
+			wp_kses(
+				__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
+				array( 'a' => array( 'href' => array(), 'rel' => array(), 'target' => array() ) )
+			),
+			esc_url( $support_url )
+		);
+
+		return "
+<div class='{$data['class']} ${css_prefix}-wrapper'>
+	<div class='${css_prefix}-product'>
+		<div class='${css_prefix}-details'>
+			<div class='${css_prefix}-purchase-message show error' id='{$data['dom_id']}-message-container'>
+				<p>${warning}</p>
+				<p>" . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . "</p>
+			</div>
+		</div>
+	</div>
+</div>
+		";
+	}
 
 	function output_shortcode( $data ) {
 		$items = '';
