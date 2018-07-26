@@ -92,7 +92,17 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		$this->page_render();
+		// Check if we are looking at the main dashboard
+		if (
+			isset( $_GET['page'] ) &&
+			'jetpack' === $_GET['page'] &&
+		     empty( $_GET['configure'] )
+		)
+		{
+			$this->page_render();
+			return;
+		}
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'page_render' ) );
 	}
 
 	function admin_help() {

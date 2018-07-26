@@ -174,7 +174,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
-		if ( $this->is_redirecting ) {
+		if ( $this->is_redirecting || isset( $_GET['configure'] ) ) {
 			return; // No need for scripts on a fallback page
 		}
 
