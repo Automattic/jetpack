@@ -283,6 +283,7 @@ abstract class Jetpack_Admin_Page {
 					</div>
 				</div>
 			</div>
+			<div class="wrap"><div id="jp-admin-notices" aria-live="polite"></div></div>
 			<!-- START OF CALLBACK -->
 			<?php
 			ob_start();
