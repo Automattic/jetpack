@@ -19,14 +19,14 @@ class Jetpack_Markdown_Block {
 	public static function enqueue_block_editor_assets() {
 		wp_register_script(
 			'jetpack-markdown-block',
-			plugins_url( '_inc/build/modules-markdown-block.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components' )
 		);
 		wp_enqueue_script( 'jetpack-markdown-block' );
 
 		wp_register_style(
 			'jetpack-markdown-block',
-			plugins_url( 'assets/css/jetpack-markdown-block.css', __FILE__ ),
+			plugins_url( 'block.css', __FILE__ ),
 			array( 'wp-edit-blocks' )
 		);
 		wp_enqueue_style( 'jetpack-markdown-block' );
