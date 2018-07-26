@@ -114,14 +114,6 @@ abstract class Jetpack_Admin_Page {
 		$this->jetpack->admin_page_load();
 	}
 
-	function admin_page_top() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-	}
-
-	function admin_page_bottom() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
-	}
-
 	// Add page specific scripts and jetpack stats for all menu pages
 	function admin_scripts() {
 		$this->page_admin_scripts(); // Delegate to inheriting class
