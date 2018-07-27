@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
-		add_action( 'admin_init', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
+		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
 
 		// For some options, we should always send the change right away!
 		$always_send_updates_to_these_options = array(
@@ -122,7 +122,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 	}
 
-	public function set_plugin_action_links() {
+	public function set_plugin_action_links( $current_screen ) {
 		if (
 			! class_exists( 'DOMDocument' ) ||
 			! function_exists ( 'libxml_use_internal_errors' ) ||
