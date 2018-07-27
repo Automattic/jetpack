@@ -267,7 +267,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'jetpack_network_sites_page' ), 'div', 3 );
+		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
 		$jetpack_sites_page_hook = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
 		add_action( "admin_print_styles-$jetpack_sites_page_hook",  array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
