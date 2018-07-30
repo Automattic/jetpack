@@ -1,5 +1,14 @@
 == Changelog ==
 
+= 6.3.2 =
+
+* Release date: July 4, 2018
+* Release post: https://wp.me/p1moTy-96E
+
+**Bug fixes**
+
+* Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
+
 = 6.3 =
 
 * Release date: July 3, 2018

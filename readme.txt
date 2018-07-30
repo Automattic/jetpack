@@ -114,12 +114,3 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 **Bug fixes**
 
 * General: properly handle Jetpack connection owner transition process.
-
-= 6.3.2 =
-
-* Release date: July 4, 2018
-* Release post: https://wp.me/p1moTy-96E
-
-**Bug fixes**
-
-* Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
