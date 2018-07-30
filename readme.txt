@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.3
+Stable tag: 6.3.2
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,12 +98,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.3.2 =
+= 6.3.3 =
 
-* Release date: July 4, 2018
-* Release post: https://wp.me/p1moTy-96E
+* Release date: July 30, 2018
+* Release post: https://wp.me/p1moTy-9n0
+
+**Facebook API Maintenance**
+
+On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to your Profile Page. Only the API allowing to post to Facebook Pages will remain. This required several changes to Jetpack that we are presenting in this release:
+
+* Publicize: making sure we are handling existing connections gracefully.
+* Publicize: using logo font instead of images to make the UI up to date and mobile ready.
+* Publicize: removing the ability to select Facebook Profile connections in the UI.
 
 **Bug fixes**
 
-* Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
-
+* General: properly handle Jetpack connection owner transition process.

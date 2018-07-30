@@ -19,17 +19,50 @@ span.pub-logos {
 	vertical-align: top;
 }
 
-.left, .right{
-	width: 50%;
-	float: left;
+@media screen and ( min-width: 782px ) {
+	.left, .right {
+		width: 50%;
+		float: left;
+	}
+	div.publicize-service-entry:last-of-type{
+		border-width: 0px;
+	}
 }
 
-div#facebook { background: url( publicize-fb-2x.png ) no-repeat; background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px; }
-div#twitter { background: url( publicize-twitter-2x.png ) no-repeat; background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px;  }
-div#linkedin { background: url( publicize-linkedin-2x.png )no-repeat; background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px;  }
-div#tumblr { background: url( publicize-tumblr-2x.png ) no-repeat; background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px;  }
-div#path { background: url( publicize-path-2x.png ) no-repeat;  background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px;  }
-div#google_plus { background: url( publicize-google-2x.png ) no-repeat;  background-size: 32px 32px; padding-left: 42px;background-position: 0px 0px;padding-top:5px;  }
+div#facebook:before {
+	color: #3B5998;
+	content: '\f203';
+}
+
+div#twitter:before {
+	color: #1DA1F2;
+	content: '\f610';
+}
+
+div#linkedin:before {
+	color: #0077b5;
+	content: '\f207';
+}
+
+div#tumblr:before {
+	color: #35465c;
+	content: '\f214';
+}
+
+div#path:before {
+	color: #df3b2f;
+	content: '\f219';
+}
+
+div#google_plus:before {
+	color: #dd4b39;
+	content: '\f206';
+}
+
+div.publicize-service-left:before {
+	font: normal 30px/1 social-logos;
+	vertical-align: middle;
+}
 
 a.publicize-profile-link, a.publicize-profile-link:visited {
 	text-decoration: none;
@@ -57,7 +90,7 @@ div.publicize-service-entry {
 	overflow: hidden;
 }
 
-div.publicize-service-entry:last-of-type{
+.right div.publicize-service-entry:last-of-type{
 	border-width: 0px;
 }
 
@@ -68,9 +101,8 @@ div.publicize-service-left {
 	min-height: 35px;
 }
 
-
 div.publicize-service-left a{
-	font-size: 24px;
+	font-size: 18px;
 	text-decoration: none;
 }
 
@@ -195,3 +227,5 @@ input.fb-options {
 .pub-connection-error {
 	color: #ff0000;
 }
+
+.pub-connection-test. test-failed p { margin-top: 0; }
