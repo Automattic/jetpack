@@ -694,3 +694,9 @@ add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializabl
 
 // Initialize REST API
 add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
+
+
+/**
+ * Remove Try Gutenberg callout introduced as part of 4.9.8
+ */
+remove_action( 'try_gutenberg_panel', 'wp_try_gutenberg_panel' );
