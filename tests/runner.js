@@ -59,10 +59,6 @@ if ( program.args.length ) {
 				} );
 				break;
 		}
-		glob.sync( 'modules/**/test-*.js' ).forEach( file => {
-			mocha.addFile( file );
-		});
-
 	} else {
 		program.args.forEach( function( file ) {
 			mocha.addFile( file );
