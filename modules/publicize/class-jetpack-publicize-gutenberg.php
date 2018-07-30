@@ -272,7 +272,7 @@ class Jetpack_Publicize_Gutenberg {
 
 			wp_enqueue_script(
 				'modules-publicize-gutenberg_js',
-				plugins_url( '_inc/build/modules-publicize-gutenberg.js', JETPACK__PLUGIN_FILE ),
+				plugins_url( 'assets/block.js', __FILE__ ),
 				array(
 					'jquery',
 					'wp-edit-post',
