@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Simple Payments: Fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
 * Simple Payments: Fixed site failure which happens on Multisite installation with Simple Payments widget.
 * Simple Payments: Fixed syntax and misc compatibility issues with Simple Payments widget on PHP 5.2.
+* Simple Payments: Added warning for admin users if Simple Payments is not enabled but there are products published on pages/posts as a widget.
 * Lazy Images: Fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
 * Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
 * General: Fixed auto scrolling to top when following the Quick Tour buttons.
