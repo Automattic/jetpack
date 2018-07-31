@@ -52,4 +52,11 @@ To test:
 * Cancel the Professional Subscription
 * Navigate to the page/post: the site should show the warning for admin users, and for non-admin and anonymous users it shouldn't show a warning nor the product.
 
+### Site Logo
+
+We removed the custom name for the "Site Identity" section in the Customizer. The custom name is unnecessary, given core's updating of the section name in 4.3.
+
+* Visit the Customizer.
+* The section containing Site Title, Tagline, and Logo should be named "Site Identity".
+
 **Thank you for all your help!**
