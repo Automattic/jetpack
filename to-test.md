@@ -40,4 +40,16 @@ To test (You will need ftp / ssh access to the test site):
 - For Test 1, the result should be that the data export does not include feedback posts, and during data erasure, the feedback posts are not deleted.
 - For Test 2, during erasure, you should see a message that personal data was found, but not erased, followed by the "because reasons" message.
 
+### Simple Payments widget
+
+We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
+
+To test:
+
+* Get a Professional Subscription on a Jetpack site.
+* Add a Simple Payment Product to a Page/Post and as a Widget, and publish the changes.
+* Navigate to the page/post: the site should show the product and the widget for both admin, non-admins and logged out users.
+* Cancel the Professional Subscription
+* Navigate to the page/post: the site should show the warning for admin users, and for non-admin and anonymous users it shouldn't show a warning nor the product.
+
 **Thank you for all your help!**
