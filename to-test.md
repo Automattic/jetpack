@@ -1,147 +1,129 @@
-## 6.3
+## 6.4
+
+### Widgets
+
+#### Top Posts Widget
+
+We added new `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top Posts widget (which _might_ be used to extend Top Posts widget).
+
+To test:
+
+- Add 'Top Posts' Widget
+- Make sure it works as expected
+
+### AMP Compatibility
+
+AMP compatibility for Comments was improved.
+
+To test:
+
+1. Install [AMP v1.0-beta1](https://github.com/Automattic/amp-wp/releases/tag/1.0-beta1).
+2. In the admin, go to AMP > General settings and enable Native template mode.
+3. Activate the comments module in Jetpack.
+4. Open the dev console.
+5. Navigate to a post and attempt to leave a comment.
+6. Clicking the “Post Comment” button, expect to see no error like `Blocked form submission to 'https://jetpack.wordpress.com/jetpack-comment/' because the form's frame is sandboxed and the 'allow-forms' permission is not set.`.
+
+
+### Contact Form
+
+We added a bit of flexibility to the data exporter and eraser so they can be tailored to the needs of different privacy and data retention policies.
+
+To test (You will need ftp / ssh access to the test site):
+
+- Enable Jetpack Contact Forms.
+- Create a page and add a Jetpack Contact Form.
+- Submit the form a couple of times with a test email address.
+- Check that `Export Personal Data` & `Remove Personal Data` tool work as expected. You should find that exporting personal data includes a "Feedback" group containing the personal data that you submitted with the test email address. Removing personal data should remove the Feedback posts associated with the test email address.
+- Copy this file (https://gist.github.com/coreymckrill/bed546ef05c9917d0d01618588a2c206) into the wp-content/mu-plugins folder.
+- Perform the two tests separately, uncommenting the relevant lines to activate them.
+- For Test 1, the result should be that the data export does not include feedback posts, and during data erasure, the feedback posts are not deleted.
+- For Test 2, during erasure, you should see a message that personal data was found, but not erased, followed by the "because reasons" message.
 
 ### Connection
 
-We refreshed the connect splash screen to help new users learn more about Jetpack.
+We updated the wording on the connection prompts text by removing the word "fascinating" from it.
 
 To test:
 
-* Deactivate Jetpack from the plugins menu.
-* Activate Jetpack again, see the splash screen.
+* Start with a disconnected site.
+* Confirm that the connection on WordPress' Dashboard and on Jetpack's Dashboard lacks the word "fascinating".
+* Deactivate and activate Jetpack. Confirm that the modal that appears on reactivation lacks the word too.
 
-### Custom Content Types
+### Lazy images
 
-We fixed compatibility when using Testimonials and a front-end editing plugin.
+We fixed the behaviour for visitors with JavaScript disabled when the images were expected to be centered.
 
-To test:
+- Ensure lazy images module is on.
+- Load a post with images in it, with at least one image being centered.
+- Ensure the centered image does not fill the post content. If it does, crop it.
+- Reload post and ensure that image is properly centered
 
-* Using the (Front-End Editor feature plugin)[https://wordpress.org/plugins/wp-front-end-editor], confirm no fatals when the testimonial CPT is active.
-
-### Dashboard
-
-We removed the labels reading `PAID` for those paid features that are not enabled yet due to your plan. 
-
-To test:
-
-1. Visit the Jetpack dashboard with a free plan
-2. Confirm that you don't see the PAID label next to the dashboard items. Refer to [#9732](https://github.com/Automattic/jetpack/pull/9732) for screenshots.
-
-### General
-
-We added support for displaying geo-location data added to posts and pages with Calypso.
-
-### Lazy Images
-
-We fixed the behaviour when JavaScript is disabled.
+We also fixed compatbility on lazy images when updating WooCommerce cart quantity.
 
 To test:
 
-- Add lazy images to a post.
-- Load post with JavaScript on.
-- Ensure lazy images load once.
-- Turn off JavaScript.
-- Reload post.
-- Ensure that the image loads via the noscript tag and the lazy images image is hidden. In other words, there shouldn't be a large blank spot.
+* Start having a WooCommerce with the Salient theme installed.
+* Add some items into the cart, go to the cart.
+* Update the quantity and save.
+* Confirm that images start loading fine after quantity update.
 
-### Markdown
+### Sharing
 
-We fixed the way we name the CSS class for `<code>` when attempting to specify a language for a code block.
+We now redirect users to WordPress.com for configuring Sharing. If a user is not linked to WordPress.com, we put them in the flow to complete the connection.
 
-To test:
+1. Enable "sharing".
+2. Create a secondary admin/user on the site.
+3. Log in as secondary user, navigate to the Settings -> Sharing page in wp-admin.
+4. You should be redirected to Calypso to link your WordPress.com account.
+5. Once linked, you should be redirected back to the wp-admin sharing screen.
+6. If the secondary user is already linked, there should be no redirection.
+7. Clicking on Settings -> Sharing as a linked user should take you to WordPress.com for configuration.
 
-1. Enable markdown.
-2. Write a test post with a Markdown syntax code block. Something like:
-    ```
-       ```javascript
-          var a = 2;
-       ``` 
-    ```
-3. Preview the post, then view source code of the preview page. The post content should show `<code class="language-javascript">`.
+### Shortcodes
 
-### Protect
-
-We solved an issue related to interaction with bbPress when trying to log in via a bbPress login widget. You would get redirected a few times to log in again after solving the math puzzle.
+We added a shortcode for adding [flat.io](https://flat.io) embeds.
 
 To test:
 
-1. Install bbPress;
-1. Connect Jetpack and let default modules activate, leave bbPress settings to default.
-1. Add the bbPress login widget to the sidebar.
-1. Add the line define( 'JETPACK_PROTECT__API_HOST', '' ); to wp-config.php, breaking the API connection, which should invoke the math puzzle on login.
-1. Try logging in via the bbPress widget.
+1. Start a new post and paste `https://flat.io/score/5a5268ed41396318cbd7772c-string-quartet-for-rainy-days` on a new line.
+2. Publish the post and expect to see the embed.
 
-### Simple Payment
+### Simple Payments widget
 
-We added support on the Customizer to add Simple Payment Buttons as Sidebar Widgets.
+We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
 
 To test:
 
-**Note**: There was a specific call for testing this feature. Refer to p8oabR-ey-p2. 
+* Get a Professional Subscription on a Jetpack site.
+* Add a Simple Payment Product to a Page/Post and as a Widget, and publish the changes.
+* Navigate to the page/post: the site should show the product and the widget for both admin, non-admins and logged out users.
+* Cancel the Professional Subscription
+* Navigate to the page/post: the site should show the warning for admin users, and for non-admin and anonymous users it shouldn't show a warning nor the product.
 
-But here are some steps to give it a try:
-
-1. Create one or more Payment Buttons on the Post/Page editor.
-2. Open the Customizer on a site with a Professional plan.
-3. Get to 'Widgets' and select a Widget Area.
-4. Click on Add Widget.
-5. Search on the widget panel for Simple Payment.
-6. Select the Simple Payment widget
-7. The Simple Payment Customizer should list the available Payment Buttons, and the Customizer Preview should show the item selected by default. All changes should update live on the preview window and the site should only be updated upon publishing.
-
-To **create a new product**, you'll need to:
-
-- click on _Add New_
-- fill the form. Using an image is optional, but it should open the media library if clicked.
-
-The widget preview on the customizer should clear out, and display the entered values as they are typed on the form.
-
-- click _Save_
-
-The form should close, and the new SP button should be added to the drop down list. The customizer preview should show the new SP button.
-
-- click _Cancel_
-
-The form should clear and close, and the previously selected SP button should appear on the customizer preview.
-
-To **edit and existing product**, you'll need to:
-
-- Select the desired product from the drop down list
-- click on _Edit Selected_
-
-The form should load the product properties, and the widget preview on the customizer should show the correct product, and update the values as they are edited on the form.
-
-- click _Save_
-
-The form should close, preserving the changes on the customizer preview window and the selected item on the product drop down list.
-
-- click _Cancel_
-
-The form should clear and close, and the previously selected SP button should appear on the customizer preview.
-
-To **delete an existing product**, you'll need to:
-
-- Select the desired product from the drop down list.
-- click on _Edit Selected_
-
-The form should load the product properties, and the widget preview on the customizer should show the correct product.
-
-- click _Delete_
-
-After confirming the action, the selected product should disappear from the product drop down list. The first product on the list should be selected, and the customizer preview should reflect this change. 
-
-### Sitemap
-
-We fixed the format of the date shown for videos on the video sitemap.
+We also fixed a fatal error that was affecting the main site on multisite installations.
 
 To test:
 
-1. Have a site with a video that would generate a video sitemap.
-4. Review sitemap.xml and expect to see the correct format of `2018-06-08T14:51:39Z`
+* Start with Multisite Installation.
+* Activate the Jetpack Plugin on the main site.
+* Deactivate the Jetpack Plugin on the main site.
+* Expect not to see an error logged like `Uncaught Error: Class 'Jetpack_Simple_Payments' not found`.
 
-### Stats
+Also a bug was fixed related to 2 years plan implemented recently in WordPress.come
 
-We fixed the width of the classic page for Stats in order to look better on wide screens.
+To test:
 
-1. Visit Site Stats with a wide screen and confirm that everything looks great. Refer to [#9728](https://github.com/Automattic/jetpack/pull/9728) for screenshots.
+* Start with an Atomic site having a 2 year business plan subscription.
+- Install the [Jetpack beta plugin](https://jetpack.com/download-jetpack-beta/)
+- Visit /wp-admin/admin.php?page=jetpack-beta and active the Release Candidate.
+- Expect to be able to add a Simple Payment in the post editor or as a widget in the customizer.
+
+### Site Logo
+
+We removed the custom name for the "Site Identity" section in the Customizer. The custom name is unnecessary, given core's updating of the section name in 4.3.
+
+* Visit the Customizer.
+* The section containing Site Title, Tagline, and Logo should be named "Site Identity".
 
 **Thank you for all your help!**
