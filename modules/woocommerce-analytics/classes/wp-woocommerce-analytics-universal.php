@@ -33,6 +33,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		// Capture cart events
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
+		add_action( 'woocommerce_bundled_item_before_add_to_cart', array( $this, 'capture_bundle_add_to_cart' ), 10, 6 );
 
 		// single product page view
 		add_action( 'woocommerce_after_single_product', array( $this, 'capture_product_view' ) );
@@ -40,7 +41,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
+
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
+		add_action( 'woocommerce_cart_item_removed', array( $this, 'remove_bundle_items_from_cart' ), 10, 2 );
 
 		// cart checkout
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
@@ -156,6 +159,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
+	}
+
+	/**
+	 * Queue remove from cart events for each item in a bundle
+	 *
+	 * @param string $removed_cart_item_key cart item key
+	 * @param object $cart cart
+	 */
+	public function remove_bundle_items_from_cart( $removed_cart_item_key, $cart ) {
+		$cart_item = $cart->removed_cart_contents[ $removed_cart_item_key ];
+		$product_id = $cart_item[ 'product_id' ];
+		$quantity = $cart_item[ 'quantity' ];
+		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_remove_from_cart' );
 	}
 
 	/**
@@ -312,7 +328,28 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		* @param $cart_item_data
 		*/
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
+		$this->capture_cart_event( $product_id, $quantity );
+	}
+
+	/**
+		* @param $product_id
+		* @param $quantity
+		* @param $variation_id
+		* @param $variations
+		* @param $bundled_item_cart_data
+		*/
+	public function capture_bundle_add_to_cart( $product_id, $quantity, $variation_id, $variations, $bundled_item_cart_data ) {
+		$this->capture_cart_event( $product_id, $quantity );
+	}
+
+	/**
+	 * @param $product_id
+	 * @param $quantity
+	 * @param $event
+	 */
+	public function capture_cart_event ( $product_id, $quantity ) {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
+
 		// if the referring post is not a product OR the product being added is not the same as post
 		// (eg. related product list on single product page) then include a product view event
 		if ( ! wc_get_product( $referer_postid ) || $product_id != $referer_postid ) {
