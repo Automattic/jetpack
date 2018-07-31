@@ -50,6 +50,15 @@ To test:
 * Confirm that the connection on WordPress' Dashboard and on Jetpack's Dashboard lacks the word "fascinating".
 * Deactivate and activate Jetpack. Confirm that the modal that appears on reactivation lacks the word too.
 
+### Lazy images
+
+We fixed the behaviour for visitors with JavaScript disabled when the images were expected to be centered.
+
+- Ensure lazy images module is on.
+- Load a post with images in it, with at least one image being centered.
+- Ensure the centered image does not fill the post content. If it does, crop it.
+- Reload post and ensure that image is properly centered
+
 ### Simple Payments widget
 
 We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
