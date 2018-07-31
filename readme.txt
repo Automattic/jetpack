@@ -115,3 +115,4 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
+* AMP: Improved AMP compatibility for Comments iframe.
