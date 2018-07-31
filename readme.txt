@@ -127,3 +127,4 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Simple Payments: Fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
 * Lazy Images: Fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
 * Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
+* General: Fixed auto scrolling to top when following the Quick Tour buttons.
