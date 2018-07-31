@@ -59,6 +59,15 @@ We fixed the behaviour for visitors with JavaScript disabled when the images wer
 - Ensure the centered image does not fill the post content. If it does, crop it.
 - Reload post and ensure that image is properly centered
 
+We also fixed compatbility on lazy images when updating WooCommerce cart quantity.
+
+To test:
+
+* Start having a WooCommerce with the Salient theme installed.
+* Add some items into the cart, go to the cart.
+* Update the quantity and save.
+* Confirm that images start loading fine after quantity update.
+
 ### Simple Payments widget
 
 We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
