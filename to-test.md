@@ -68,6 +68,15 @@ To test:
 * Update the quantity and save.
 * Confirm that images start loading fine after quantity update.
 
+### Shortcodes
+
+We added a shortcode for adding [flat.io](https://flat.io) embeds.
+
+To test:
+
+1. Start a new post and paste `https://flat.io/score/5a5268ed41396318cbd7772c-string-quartet-for-rainy-days` on a new line.
+2. Publish the post and expect to see the embed.
+
 ### Simple Payments widget
 
 We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
