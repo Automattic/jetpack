@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * AMP: We improved AMP compatibility for Comments iframe.
+* General: The SEO Framework is no longer a conflicting Open Graph plugin and is now better compatible with Jetpack.
 
 **Bug fixes**
 
