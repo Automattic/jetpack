@@ -110,3 +110,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 **Bug fixes**
+
+* Shortcodes: remove extra black bars from youtube embeds as controls are inside the container now.
