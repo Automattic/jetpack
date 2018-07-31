@@ -120,3 +120,4 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
 * Simple Payments: We fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
+* Lazy Images: We fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
