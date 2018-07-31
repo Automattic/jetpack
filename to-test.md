@@ -11,6 +11,20 @@ To test:
 - Add 'Top Posts' Widget
 - Make sure it works as expected
 
+### AMP Compatibility
+
+AMP compatibility for Comments was improved.
+
+To test:
+
+1. Install [AMP v1.0-beta1](https://github.com/Automattic/amp-wp/releases/tag/1.0-beta1).
+2. In the admin, go to AMP > General settings and enable Native template mode.
+3. Activate the comments module in Jetpack.
+4. Open the dev console.
+5. Navigate to a post and attempt to leave a comment.
+6. Clicking the “Post Comment” button, expect to see no error like `Blocked form submission to 'https://jetpack.wordpress.com/jetpack-comment/' because the form's frame is sandboxed and the 'allow-forms' permission is not set.`.
+
+
 ### Contact Form
 
 We added a bit of flexibility to the data exporter and eraser so they can be tailored to the needs of different privacy and data retention policies.
