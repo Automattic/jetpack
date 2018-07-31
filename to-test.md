@@ -62,6 +62,15 @@ To test:
 * Cancel the Professional Subscription
 * Navigate to the page/post: the site should show the warning for admin users, and for non-admin and anonymous users it shouldn't show a warning nor the product.
 
+We also fixed a fatal error that was affecting the main site on multisite installations.
+
+To test:
+
+* Start with Multisite Installation.
+* Activate the Jetpack Plugin on the main site.
+* Deactivate the Jetpack Plugin on the main site.
+* Expect not to see an error logged like `Uncaught Error: Class 'Jetpack_Simple_Payments' not found`.
+
 ### Site Logo
 
 We removed the custom name for the "Site Identity" section in the Customizer. The custom name is unnecessary, given core's updating of the section name in 4.3.
