@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Sharing: sharing section in wp-admin will now redirect to calypso instead.
+
 **Improved compatibility**
 
 **Bug fixes**
