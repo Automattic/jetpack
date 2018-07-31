@@ -138,7 +138,7 @@ export class ConnectButton extends React.Component {
 				{ ! this.props.isSiteConnected &&
 					<p className="jp-banner__tos-blurb">
 					{ __(
-						'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com',
+						'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
 						{
 							components: {
 								tosLink: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />,
