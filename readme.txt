@@ -115,4 +115,5 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
-* AMP: Improved AMP compatibility for Comments iframe.
+* AMP: We improved AMP compatibility for Comments iframe.
+* Simple Payments: We fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
