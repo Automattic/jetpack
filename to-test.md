@@ -68,6 +68,18 @@ To test:
 * Update the quantity and save.
 * Confirm that images start loading fine after quantity update.
 
+### Sharing
+
+We now redirect admin users to WordPress.com for configuring Sharing. If the admin users is not linked to WordPress.com, we put them in the flow to complete the connection.
+
+1. Enable "sharing".
+2. Create a secondary admin/user on the site.
+3. Log in as secondary user, navigate to the Settings -> Sharing page in wp-admin.
+4. You should be redirected to Calypso to link your WordPress.com account.
+5. Once linked, you should be redirected back to the wp-admin sharing screen.
+6. If the secondary user is already linked, there should be no redirection.
+7. Clicking on Settings -> Sharing as a linked user should take you to WordPress.com for configuration.
+
 ### Shortcodes
 
 We added a shortcode for adding [flat.io](https://flat.io) embeds.
