@@ -17,6 +17,9 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+// Load API endpoints that are synced with WP.com
+// Each of these is a class that will register its own routes on 'rest_api_init'.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
