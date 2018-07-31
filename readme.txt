@@ -103,8 +103,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: August 7, 2018
 * Release post: https://wp.me/p1moTy-9md
 
-**Major Enhancements**
-
 **Enhancements**
 
 * Connection: Updated connect splash screen with new content.
