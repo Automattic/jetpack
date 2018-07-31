@@ -98,6 +98,15 @@ To test:
 * Deactivate the Jetpack Plugin on the main site.
 * Expect not to see an error logged like `Uncaught Error: Class 'Jetpack_Simple_Payments' not found`.
 
+Also a bug was fixed related to 2 years plan implemented recently in WordPress.come
+
+To test:
+
+* Start with an Atomic site having a 2 year business plan subscription.
+- Install the [Jetpack beta plugin](https://jetpack.com/download-jetpack-beta/)
+- Visit /wp-admin/admin.php?page=jetpack-beta and active the Release Candidate.
+- Expect to be able to add a Simple Payment in the post editor or as a widget in the customizer.
+
 ### Site Logo
 
 We removed the custom name for the "Site Identity" section in the Customizer. The custom name is unnecessary, given core's updating of the section name in 4.3.
