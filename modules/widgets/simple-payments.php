@@ -266,6 +266,21 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			wp_send_json_success( $return );
 		}
 
+		/**
+		 * Returns the number of decimal places on string representing a price.
+		 *
+		 * @param string $number Price to check.
+		 * @return number number of decimal places.
+		 */
+		private function get_decimal_places( $number ) {
+			preg_match( '/(?:\.(\d+))/', $number, $match );
+			if ( count( $match ) <= 1 ) {
+				return 0;
+			}
+
+			return isset( $match[1] ) ? strlen( $match[1] ) : 0;
+		}
+
 		public function validate_ajax_params( $params ) {
 			$errors = new WP_Error();
 
@@ -280,6 +295,11 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			if ( empty( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
 				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
+			}
+
+			$precision = strcmp( $params['currency'], 'JPY' ) === 0 ? 0 : 2;
+			if ( $this->get_decimal_places( $params['price'] ) > $precision ) {
+				$errors->add( 'price', __( 'Invalid price', 'jetpack' ) );
 			}
 
 			if ( empty( $params['email'] ) || ! is_email( $params['email'] ) ) {
