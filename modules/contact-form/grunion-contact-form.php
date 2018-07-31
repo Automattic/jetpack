@@ -749,7 +749,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $exporters An array of personal data exporters.
 	 */
 	public function register_personal_data_exporter( $exporters ) {
-		$exporters[] = array(
+		$exporters['jetpack-feedback'] = array(
 			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'               => array( $this, 'personal_data_exporter' ),
 		);
@@ -767,7 +767,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $erasers An array of personal data erasers.
 	 */
 	public function register_personal_data_eraser( $erasers ) {
-		$erasers[] = array(
+		$erasers['jetpack-feedback'] = array(
 			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'             => array( $this, 'personal_data_eraser' ),
 		);
@@ -844,16 +844,43 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public function personal_data_eraser( $email, $page = 1 ) {
 		$per_page = 250;
-		$removed  = 0;
-		$retained = 0;
+		$removed  = false;
+		$retained = false;
 		$messages = array();
 		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
 		foreach ( $post_ids as $post_id ) {
+			/**
+			 * Filters whether to erase a particular Feedback post.
+			 *
+			 * @since 6.3.0
+			 *
+			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
+			 *                                        Custom prevention message (string). Default true.
+			 * @param int         $post_id            Feedback post ID.
+			 */
+			$prevention_message = apply_filters( 'grunion_contact_form_delete_feedback_post', true, $post_id );
+
+			if ( true !== $prevention_message ) {
+				if ( $prevention_message && is_string( $prevention_message ) ) {
+					$messages[] = esc_html( $prevention_message );
+				} else {
+					$messages[] = sprintf(
+						// translators: %d: Post ID.
+						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+						$post_id
+					);
+				}
+
+				$retained = true;
+
+				continue;
+			}
+
 			if ( wp_delete_post( $post_id, true ) ) {
-				$removed++;
+				$removed = true;
 			} else {
-				$retained++;
+				$retained = true;
 				$messages[] = sprintf(
 					// translators: %d: Post ID.
 					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
