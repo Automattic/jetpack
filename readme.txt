@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection: We updated connect splash screen with new content.
 * Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
 * Docs: We added documentation for retrieving provision status of a site.
+* Shortcodes: We added oEmbed support for flat.io.
 
 **Improved compatibility**
 
