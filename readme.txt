@@ -132,3 +132,4 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
 * General: Fixed auto scrolling to top when following the Quick Tour buttons.
 * General: Removed ability to set custom name for Site Identity section.
+* General: Added advanced control capabilities to image extraction from posts.
