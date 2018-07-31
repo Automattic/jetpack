@@ -40,6 +40,16 @@ To test (You will need ftp / ssh access to the test site):
 - For Test 1, the result should be that the data export does not include feedback posts, and during data erasure, the feedback posts are not deleted.
 - For Test 2, during erasure, you should see a message that personal data was found, but not erased, followed by the "because reasons" message.
 
+### Connection
+
+We updated the wording on the connection prompts text by removing the word "fascinating" from it.
+
+To test:
+
+* Start with a disconnected site.
+* Confirm that the connection on WordPress' Dashboard and on Jetpack's Dashboard lacks the word "fascinating".
+* Deactivate and activate Jetpack. Confirm that the modal that appears on reactivation lacks the word too.
+
 ### Simple Payments widget
 
 We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
