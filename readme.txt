@@ -107,21 +107,22 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Connection: We updated connect splash screen with new content.
+* Connection: Updated connect splash screen with new content.
 * Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
-* Docs: We added documentation for retrieving provision status of a site.
-* Shortcodes: We added oEmbed support for flat.io.
+* Docs: Added documentation for retrieving provision status of a site.
+* Shortcodes: Added oEmbed support for flat.io.
 * Widgets: Added `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top posts widget.
 * Privacy tools: Identify the data export/erasure callbacks for Feedback posts using associative keys, to better match the convention in Core.
 * Privacy tools: Added the `grunion_contact_form_delete_feedback_post` filter hook to allow specific Feedback posts to be bypassed during data erasure requests, similar to the `wp_anonymize_comment` filter in Core.
 
 **Improved compatibility**
 
-* AMP: We improved AMP compatibility for Comments iframe.
+* AMP: Improved AMP compatibility for Comments iframe.
 * General: The SEO Framework is no longer a conflicting Open Graph plugin and is now better compatible with Jetpack.
 
 **Bug fixes**
 
-* Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
-* Simple Payments: We fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
-* Lazy Images: We fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
+* Shortcodes: Removed extra black bars from YouTube embeds as controls are inside the container now.
+* Simple Payments: Fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
+* Lazy Images: Fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
+* Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
