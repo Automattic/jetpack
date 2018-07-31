@@ -490,6 +490,13 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 }
 add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_custom_wp_options' );
 
+add_filter( 'jetpack_site_automated_transfer', '__return_true' );
+
+function check_site_has_pending_automated_transfer() {
+	return get_option( 'has_pending_automated_transfer' );
+}
+
+add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
 
 /**
  * Load a WordPress.com theme compat file, if it exists.
