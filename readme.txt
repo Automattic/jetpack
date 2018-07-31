@@ -109,11 +109,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connection: We updated connect splash screen with new content.
 * Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
+* Docs: We added documentation for retrieving provision status of a site.
 
 **Improved compatibility**
+
+* AMP: We improved AMP compatibility for Comments iframe.
 
 **Bug fixes**
 
 * Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
-* AMP: We improved AMP compatibility for Comments iframe.
 * Simple Payments: We fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
