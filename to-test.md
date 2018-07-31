@@ -70,7 +70,7 @@ To test:
 
 ### Sharing
 
-We now redirect admin users to WordPress.com for configuring Sharing. If the admin users is not linked to WordPress.com, we put them in the flow to complete the connection.
+We now redirect users to WordPress.com for configuring Sharing. If a user is not linked to WordPress.com, we put them in the flow to complete the connection.
 
 1. Enable "sharing".
 2. Create a secondary admin/user on the site.
