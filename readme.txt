@@ -125,7 +125,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Shortcodes: Removed extra black bars from YouTube embeds as controls are inside the container now.
 * Simple Payments: Fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
-* Simple Payments: Fixed site failure which happens on Multisite installation with Simple Payments Widget.
+* Simple Payments: Fixed site failure which happens on Multisite installation with Simple Payments widget.
+* Simple Payments: Fixed syntax and misc compatibility issues with Simple Payments widget on PHP 5.2.
 * Lazy Images: Fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
 * Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
 * General: Fixed auto scrolling to top when following the Quick Tour buttons.
