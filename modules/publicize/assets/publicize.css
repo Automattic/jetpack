@@ -228,4 +228,57 @@ input.fb-options {
 	color: #ff0000;
 }
 
-.pub-connection-test. test-failed p { margin-top: 0; }
+.jetpack-publicize-message-box {
+	background-color: #ECECEC;
+}
+
+.jetpack-publicize-message-box textarea {
+	width: 100%;
+}
+
+.jetpack-publicize-character-count {
+	padding-left: 5px;
+	padding-bottom: 5px;
+}
+
+.publicize-jetpack-connection-container {
+	display: flex;
+}
+
+.jetpack-publicize-gutenberg-social-icon {
+	font-size: 2em;
+	margin-right: 0.2em;
+}
+
+.jetpack-publicize-connection-label {
+	flex: 1;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin-right: 0.25em;
+}
+
+.jetpack-publicize-add-icon {
+	font-family: Dashicons;
+	font-size: 2em;
+	margin-right: 0.2em;
+}
+
+.jetpack-publicize-message-note {
+	margin-top: 15px;
+	display: inline-block;
+}
+
+.jetpack-publicize-add-connection-container {
+	display: flex;
+}
+
+#publicize-popup-notify {
+	background-color: yellow;
+	height: 50px;
+	text-align: center;
+	width: 100%;
+	max-width: 1200px;
+	font-size: 20px;
+	padding-top: 30px;
+}
