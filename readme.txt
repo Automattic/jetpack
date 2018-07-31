@@ -107,10 +107,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Sharing: sharing section in wp-admin will now redirect to calypso instead.
+* Connection: We updated connect splash screen with new content.
+* Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
 
 **Improved compatibility**
 
 **Bug fixes**
 
-* Shortcodes: remove extra black bars from youtube embeds as controls are inside the container now.
+* Shortcodes: We removed extra black bars from YouTube embeds as controls are inside the container now.
