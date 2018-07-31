@@ -314,18 +314,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				</h3>
 			<?php endif; ?>
 			<form id="commentform" class="comment-form">
-				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
-				<!--[if !IE]><!-->
-				<script>
-					document.addEventListener('DOMContentLoaded', function () {
-						var commentForms = document.getElementsByClassName('jetpack_remote_comment');
-						for (var i = 0; i < commentForms.length; i++) {
-							commentForms[i].allowTransparency = <?php echo $transparent; ?>;
-							commentForms[i].scrolling = 'no';
-						}
-					});
-				</script>
-				<!--<![endif]-->
+				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-scripts allow-top-navigation-by-user-activation allow-forms"></iframe>
+				<?php if ( ! Jetpack_AMP_Support::is_amp_request() ) : ?>
+					<!--[if !IE]><!-->
+					<script>
+						document.addEventListener('DOMContentLoaded', function () {
+							var commentForms = document.getElementsByClassName('jetpack_remote_comment');
+							for (var i = 0; i < commentForms.length; i++) {
+								commentForms[i].allowTransparency = <?php echo $transparent; ?>;
+								commentForms[i].scrolling = 'no';
+							}
+						});
+					</script>
+					<!--<![endif]-->
+				<?php endif; ?>
 			</form>
 		</div>
 
