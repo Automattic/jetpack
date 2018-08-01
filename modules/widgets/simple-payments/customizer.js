@@ -6,7 +6,7 @@
 
 	// based on https://stackoverflow.com/a/10454560/59752
 	function decimalPlaces( number ) {
-		const match = ( '' + number ).match( /(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/ );
+		var match = ( '' + number ).match( /(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/ );
 		if ( ! match ) {
 			return 0;
 		}
