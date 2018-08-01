@@ -1538,12 +1538,14 @@ class The_Neverending_Home_Page {
 	 *
 	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
+	 *
 	 */
 	private function default_footer() {
-		if ( function_exists( 'the_privacy_policy_link' ) ) {
+		if ( get_privacy_policy_url() !== '' ) {
 			$credits = sprintf(
-				__( '%1$s / ', 'jetpack' ),
-				the_privacy_policy_link()
+				'<a href="%1$s" rel="noopener noreferrer" target="_blank">%2$s</a><span role="separator" aria-hidden="true"> / </span>',
+				get_privacy_policy_url(),
+				__('Privacy Policy', 'jetpack' )
 			);
 		} else {
 			$credits = '';
@@ -1557,7 +1559,6 @@ class The_Neverending_Home_Page {
 			__( 'Theme: %1$s.', 'jetpack' ),
 			wp_get_theme()->Name
 		);
-
 		/**
 		 * Filter Infinite Scroll's credit text.
 		 *
