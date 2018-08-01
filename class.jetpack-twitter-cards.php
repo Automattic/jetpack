@@ -30,7 +30,7 @@ class Jetpack_Twitter_Cards {
 		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
 			/** This action is documented in modules/sharedaddy/sharing-sources.php */
 			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
-			if ( ! empty( $handle ) && 'wordpressdotcom' != $handle && 'jetpack' != $handle ) {
+			if ( ! empty( $handle ) && ! self::is_default_site_tag( $handle ) ) {
 				$og_tags['twitter:creator'] = self::sanitize_twitter_user( $handle );
 			}
 		}
@@ -144,8 +144,8 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function is_default_site_tag( $site_tag ) {
-	    return in_array( $site_tag, array( '@wordpressdotcom', '@jetpack', 'wordpressdotcom', 'jetpack' ) );
-    }
+		return in_array( $site_tag, array( '@wordpressdotcom', '@jetpack', 'wordpressdotcom', 'jetpack' ) );
+	}
 
 	static function prioritize_creator_over_default_site( $site_tag, $og_tags = array() ) {
 		if ( ! empty( $og_tags['twitter:creator'] ) && self::is_default_site_tag( $site_tag ) ) {
