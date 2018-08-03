@@ -585,12 +585,13 @@ abstract class SAL_Site {
 		 *
 		 * @module json-api
 		 *
-		 * @since 6.3.3
+		 * @since 6.4.0
 		 *
 		 * @param bool has_site_pending_automated_transfer( $this->blog_id )
 		 * @param int  $blog_id Blog identifier.
 		 */
-		return apply_filters( 'wpcom_json_api_site_pending_automated_transfer',
+		return apply_filters(
+			'jetpack_site_pending_automated_transfer',
 			false,
 			$this->blog_id
 		);
