@@ -174,6 +174,24 @@ request( options, function ( error, response, body ) {
 } );
 ```
 
+### Considerations for domain names that do not resolve
+
+During the typical provisioning process, several calls are made between WordPress.com and the site that will receive a plan. For calls from WordPress.com to the site to succeed, we must be able to resolve the host of the URL provided to this endpoint.
+
+That typical provisioning process presents an issue in the case of provisioning a plan to a site with a new domain name. As of early August 2018, we are able to gracefully degrade in this case.
+
+When WordPress.com cannot communicate to the remote site due to not being able to resolve the host, cURL error 6, WordPress.com will flag the URL for future provisioning of a plan. After doing this, the API will return a response that looks like this:
+
+```
+{
+  "success": true,
+  "next_url": "",
+  "auth_required": true
+}
+```
+
+This response is the same as the standard `/provision` response, with the exception of `next_url` being blank. Since WordPress.com is not able to communicate to the remote site, the API is not able to set secrets that are needed in the `next_url` that allows users to finish the authorization process. Authorization is still required by the user to receive the plan, which the user can do by visiting `/wp-admin` of their WordPress site and clicking the "Set Up Jetpack" button.
+
 ## Cancelling a plan
 
 Plans can be cancelled by making a request using your partner token from the step above and the URL of the site being cancelled.
