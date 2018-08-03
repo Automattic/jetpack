@@ -630,11 +630,14 @@ class Jetpack_Subscriptions {
 
 		// Check if Mark Jaquith's Subscribe to Comments plugin is active - if so, suppress Jetpack checkbox
 
-		$str = '';
+		$unique_id = esc_attr( uniqid( 'jetpack-subscription-form-' ) );
+
+		// Add heading and wrap in list for assistive technology
+		$str = '<div><h4 id="'. esc_attr( $unique_id ).'" class="comment-subscription-form-title">Comment subscription preferences</h4><ul class="comment-subscription-form-list" aria-labelledby="'. esc_attr( $unique_id ).'">';
 
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) && 'post' == get_post_type() ) {
 			// Subscribe to comments checkbox
-			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
+			$str .= '<li class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
 			$str .=	'<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . esc_html(
 				/**
@@ -648,12 +651,12 @@ class Jetpack_Subscriptions {
 				 */
 				apply_filters( 'jetpack_subscribe_comment_label', $comment_sub_text )
 			) . '</label>';
-			$str .= '</p>';
+			$str .= '</li>';
 		}
 
 		if ( 1 == get_option( 'stb_enabled', 1 ) ) {
 			// Subscribe to blog checkbox
-			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
+			$str .= '<li class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
 			$blog_sub_text = __( 'Notify me of new posts by email.', 'jetpack' );
 			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . esc_html(
 				/**
@@ -667,8 +670,10 @@ class Jetpack_Subscriptions {
 				 */
 				apply_filters( 'jetpack_subscribe_blog_label', $blog_sub_text )
 			) . '</label>';
-			$str .= '</p>';
+			$str .= '</li>';
 		}
+
+		$str .= '</ul></div>';
 
 		/**
 		 * Filter the output of the subscription options appearing below the comment form.
