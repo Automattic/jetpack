@@ -4,15 +4,6 @@
 ( function( api, wp, $ ) {
 	var $document = $( document );
 
-	// based on https://stackoverflow.com/a/10454560/59752
-	function decimalPlaces( number ) {
-		var match = ( '' + number ).match( /(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/ );
-		if ( ! match ) {
-			return 0;
-		}
-		return Math.max( 0, ( match[ 1 ] ? match[ 1 ].length : 0 ) - ( match[ 2 ] ? +match[ 2 ] : 0 ) );
-	}
-
 	$document.ready( function() {
 		$document.on( 'widget-added', function( event, widgetContainer ) {
 			if ( widgetContainer.is( '[id*="jetpack_simple_payments_widget"]' ) ) {
@@ -241,6 +232,15 @@
 		}
 	}
 
+	function decimalPlaces( number ) {
+		var parts = number.split( '.' );
+		if ( parts.length > 2 ) {
+			return null;
+		}
+
+		return parts[ 1 ] ? parts[ 1 ].length : 0;
+	}
+
 	function isFormValid( widgetForm ) {
 		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
 
@@ -253,14 +253,15 @@
 		}
 
 		var productPrice = widgetForm.find( '.jetpack-simple-payments-form-product-price' ).val();
-		if ( ! productPrice || isNaN( parseFloat( productPrice ) ) || parseFloat( productPrice ) <= 0 ) {
+		if ( ! productPrice || isNaN( productPrice ) || parseFloat( productPrice ) <= 0 ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-price' ).addClass( 'invalid' );
 			errors = true;
 		}
 
 		// Japan's Yen is the only supported currency with a zero decimal precision.
 		var precision = widgetForm.find( '.jetpack-simple-payments-form-product-currency' ).val() === 'JPY' ? 0 : 2;
-		if ( decimalPlaces( productPrice ) > precision ) {
+		var priceDecimalPlaces = decimalPlaces( productPrice );
+		if ( priceDecimalPlaces === null || priceDecimalPlaces > precision ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-price' ).addClass( 'invalid' );
 			errors = true;
 		}

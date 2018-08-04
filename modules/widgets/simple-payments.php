@@ -273,12 +273,12 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @return number number of decimal places.
 		 */
 		private function get_decimal_places( $number ) {
-			preg_match( '/(?:\.(\d+))/', $number, $match );
-			if ( count( $match ) <= 1 ) {
-				return 0;
+			$parts = explode( '.', $number );
+			if ( count( $parts ) > 2 ) {
+				return null;
 			}
 
-			return isset( $match[1] ) ? strlen( $match[1] ) : 0;
+			return isset( $parts[1] ) ? strlen( $parts[1] ) : 0;
 		}
 
 		public function validate_ajax_params( $params ) {
@@ -293,12 +293,14 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$errors->add( 'post_title', __( "People need to know what they're paying for! Please add a brief title.", 'jetpack' ) );
 			}
 
-			if ( empty( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
+			if ( empty( $params['price'] ) || ! is_numeric( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
 				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
 			}
 
+			// Japan's Yen is the only supported currency with a zero decimal precision.
 			$precision = strcmp( $params['currency'], 'JPY' ) === 0 ? 0 : 2;
-			if ( $this->get_decimal_places( $params['price'] ) > $precision ) {
+			$price_decimal_places = $this->get_decimal_places( $params['price'] );
+			if ( is_null( $price_decimal_places ) || $price_decimal_places > $precision ) {
 				$errors->add( 'price', __( 'Invalid price', 'jetpack' ) );
 			}
 
