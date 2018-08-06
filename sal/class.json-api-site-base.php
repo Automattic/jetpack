@@ -108,7 +108,21 @@ abstract class SAL_Site {
 	abstract protected function is_a8c_publication( $post_id );
 
 	public function is_automated_transfer() {
-		return false;
+		/**
+		 * Filter if a site is an automated-transfer site.
+		 *
+		 * @module json-api
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param bool is_automated_transfer( $this->blog_id )
+		 * @param int  $blog_id Blog identifier.
+		 */
+		return apply_filters(
+			'jetpack_site_automated_transfer',
+			false,
+			$this->blog_id
+		);
 	}
 
 	public function is_wpcom_store() {
