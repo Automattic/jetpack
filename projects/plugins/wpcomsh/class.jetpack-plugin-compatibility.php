@@ -59,9 +59,14 @@ class Jetpack_Plugin_Compatibility {
 	}
 
 	function disable_plugin_install_link( $action_links, $plugin ) {
+		$needle = "{$plugin['slug']}/";
 		foreach ( $this->incompatible_plugins as $disallowed_plugin => $message ) {
-			if ( strpos( $disallowed_plugin, $plugin['slug'] ) !== false ) {
+			// the name convention of $disallowed_plugin is <slug>/<file>.php
+			// so we are checking if the string $needle is included into
+			// $disallowed_plugin from the `0` position
+			if ( strpos( $disallowed_plugin, $needle ) === 0 ) {
 				$action_links = array( 'Not Supported' );
+				break;
 			}
 		}
 
