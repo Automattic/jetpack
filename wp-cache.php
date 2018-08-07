@@ -66,6 +66,7 @@ wpsc_init();
  * It's minimal list of global variables.
  */
 global $super_cache_enabled, $cache_enabled, $wp_cache_home_path, $cache_path;
+global $wp_cache_mutex_disabled, $mutex_filename, $sem_id;
 global $wp_cache_config_file, $wp_cache_config_file_sample;
 
 if( !@include($wp_cache_config_file) ) {
