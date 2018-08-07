@@ -17,7 +17,7 @@ if ( ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == tr
 			$base = '';
 		}
 		$request_uri = str_replace( '..', '', preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI'] ) );
-		if ( strpos( $request_uri, '/', 1 ) ) {
+		if ( strlen( $request_uri ) > 0 && strpos( $request_uri, '/', 1 ) ) {
 			if ( $base == '/' ) {
 				$blogcacheid = substr( $request_uri, 1, strpos( $request_uri, '/', 1 ) - 1 );
 			} else {
