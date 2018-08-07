@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: Added `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top posts widget.
 * Privacy tools: Identify the data export/erasure callbacks for Feedback posts using associative keys, to better match the convention in Core.
 * Privacy tools: Added the `grunion_contact_form_delete_feedback_post` filter hook to allow specific Feedback posts to be bypassed during data erasure requests, similar to the `wp_anonymize_comment` filter in Core.
-* Contact Fork: Disabled random table optimizations on core tables.
+* Contact Form: Disabled random table optimizations on core tables.
 
 **Improved compatibility**
 
