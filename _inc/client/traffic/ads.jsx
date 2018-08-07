@@ -12,6 +12,7 @@ import analytics from 'lib/analytics';
  */
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
+import Textarea from 'components/textarea';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -48,12 +49,15 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 		const wordads_display_post = this.props.getOptionValue( 'wordads_display_post', 'wordads' );
 		const wordads_display_page = this.props.getOptionValue( 'wordads_display_page', 'wordads' );
 		const wordads_display_archive = this.props.getOptionValue( 'wordads_display_archive', 'wordads' );
+		const wordads_custom_adstxt = this.props.getOptionValue( 'wordads_custom_adstxt', 'wordads' );
+		const isSubDirSite = this.props.siteRawUrl.indexOf( '::' ) !== -1;
 		return (
 			<SettingsCard
 				{ ...this.props }
 				header={ __( 'Ads', { context: 'Ads header' } ) }
 				feature={ FEATURE_WORDADS_JETPACK }
-				hideButton>
+				saveDisabled={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt' ] ) } >
+
 				<SettingsGroup
 					disableInDevMode
 					hasChild
@@ -147,6 +151,31 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 							} ) }
 						</small>
 					</FormFieldset>
+					{ ! isSubDirSite &&
+						<FormFieldset>
+							<FormLegend>{ __( 'Custom ads.txt entries' ) }</FormLegend>
+							<p>
+								{ isAdsActive && __(
+									'Jetpack automatically generates a custom {{link}}ads.txt{{/link}} tailored for your site. ' +
+									'If you need to add additional entries for other networks please add them in the space below, one per line.', {
+										components: {
+											link: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />
+										}
+									}
+								) }
+
+								{ ! isAdsActive && __(
+									'Jetpack automatically generates a custom ads.txt tailored for your site. ' +
+									'If you need to add additional entries for other networks please add them in the space below, one per line.'
+								) }
+							</p>
+							<Textarea
+								name="wordads_custom_adstxt"
+								value={ wordads_custom_adstxt }
+								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] ) }
+								onChange={ this.props.onOptionChange } />
+						</FormFieldset>
+					}
 				</SettingsGroup>
 				{
 					! unavailableInDevMode && isAdsActive && (

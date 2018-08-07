@@ -19,6 +19,7 @@ class WordAds_Params {
 			'wordads_display_post'       => true,
 			'wordads_display_page'       => true,
 			'wordads_display_archive'    => true,
+			'wordads_custom_adstxt'      => ''
 		);
 
 		// grab settings, or set as default if it doesn't exist
@@ -30,7 +31,7 @@ class WordAds_Params {
 				$option = $default;
 			}
 
-			$this->options[$setting] = (bool) $option;
+			$this->options[$setting] = 'wordads_custom_adstxt' !== $setting ? (bool) $option : $option;
 		}
 
 		$host = 'localhost';
