@@ -70,6 +70,7 @@ class Jetpack_RelatedPosts {
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 			jetpack_require_lib( 'class.media-summary' );
@@ -1478,6 +1479,28 @@ EOT;
 			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
 			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
 		}
+	}
+
+	public function enqueue_block_editor_assets() {
+		wp_enqueue_script(
+			'jetpack_related-posts_block',
+			plugins_url( 'block.js', __FILE__ ),
+			array(
+				'wp-blocks',
+				'wp-components',
+				'wp-editor',
+				'wp-element',
+				'wp-i18n',
+			),
+			self::VERSION
+		);
+
+		wp_enqueue_style(
+			'jetpack_related-posts_block',
+			plugins_url( 'block.css', __FILE__ ),
+			array(),
+			self::VERSION
+		);
 	}
 
 	/**
