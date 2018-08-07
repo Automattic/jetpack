@@ -49,6 +49,28 @@ if ( is_array( $plugins ) ) {
 	}
 }
 
+if ( isset( $wpsc_plugins ) && is_array( $wpsc_plugins ) ) {
+	foreach( $wpsc_plugins as $plugin_file ) {
+		if ( file_exists( ABSPATH . $plugin_file ) ) {
+			include_once( ABSPATH . $plugin_file );
+		}
+	}
+}
+
+if (
+	file_exists( WPCACHEHOME . '../wp-super-cache-plugins/' ) &&
+	is_dir( WPCACHEHOME . '../wp-super-cache-plugins/' )
+) {
+	$plugins = glob( WPCACHEHOME . '../wp-super-cache-plugins/*.php' );
+	if ( is_array( $plugins ) ) {
+		foreach ( $plugins as $plugin ) {
+			if ( is_file( $plugin ) ) {
+				require_once $plugin;
+			}
+		}
+	}
+}
+
 $wp_start_time = microtime();
 
 if ( $wp_cache_not_logged_in && wp_cache_get_cookies_values() ) {

@@ -4062,3 +4062,38 @@ function wpsc_update_plugin_list( $update ) {
 		}
 	}
 }
+
+function wpsc_add_plugin( $file ) {
+	global $wpsc_plugins;
+	if ( substr( $file, 0, strlen( ABSPATH ) ) == ABSPATH ) {
+		$file = substr( $file, strlen( ABSPATH ) ); // remove ABSPATH
+	}
+	if (
+		! isset( $wpsc_plugins ) ||
+		! is_array( $wpsc_plugins ) ||
+		! in_array( $file, $wpsc_plugins )
+	) {
+		$wpsc_plugins[] = $file;
+		wp_cache_setting( 'wpsc_plugins', $wpsc_plugins );
+	}
+}
+
+function wpsc_delete_plugin( $file ) {
+	global $wpsc_plugins;
+	if ( substr( $file, 0, strlen( ABSPATH ) ) == ABSPATH ) {
+		$file = substr( $file, strlen( ABSPATH ) ); // remove ABSPATH
+	}
+	if (
+		isset( $wpsc_plugins ) &&
+		is_array( $wpsc_plugins ) &&
+		in_array( $file, $wpsc_plugins )
+	) {
+		unset( $wpsc_plugins[ array_search( $file, $wpsc_plugins ) ] );
+		wp_cache_setting( 'wpsc_plugins', $wpsc_plugins );
+	}
+}
+
+function wpsc_get_plugins() {
+	global $wpsc_plugins;
+	return $wpsc_plugins;
+}
