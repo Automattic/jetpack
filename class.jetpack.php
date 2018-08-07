@@ -6929,28 +6929,6 @@ p {
 		$url = str_replace( '/', '::', $url );
 		return $url;
 	}
-	/*
-	 * link to the calypso section
-	 * $link is expected to be the url starting from the root and the %site% will be replaced with the url of the site as expected.
-	 *
-	 * $param string
-	 * @return string
-	 */
-	public static function calyps_url( $path, $from = null ) {
-		$host = 'https://wordpress.com';
-
-		if ( $path[0] !== '/' ) {
-			$path = '/' . $path;
-		}
-		$site_suffix = self::build_raw_urls( home_url() );
-		$path_with_site = str_replace( '%site%', $site_suffix, $path );
-
-		if ( self::is_user_connected() ) {
-			return $host . $path_with_site;
-		}
-
-		self::$instance->build_connect_url( true, $host . $path_with_site, $from );
-	}
 
 	/**
 	 * Stores and prints out domains to prefetch for page speed optimization.

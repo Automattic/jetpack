@@ -79,26 +79,13 @@ class Sharing_Admin {
 
 	public function subscription_menu( $user ) {
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			if ( ! Jetpack::is_module_active( 'publicize' ) && ! current_user_can( 'manage_options' ) ) {
+			$active = Jetpack::get_active_modules();
+			if ( ! in_array( 'publicize', $active ) && ! current_user_can( 'manage_options' ) ) {
 				return;
 			}
 		}
 
-		$page_hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
-		add_action( "load-{$page_hook}", array( &$this, 'redirect_to_calypso' ) );
-	}
-
-	public function redirect_to_calypso() {
-		$path = '/sharing/buttons/%site%';
-		if ( Jetpack::is_module_active( 'publicize' ) ) {
-			if ( isset( $_GET['action'] ) ) { // do not redirect if action is set.
-				return;
-			}
-			$path = '/sharing/%site%';
-		}
-
-		wp_redirect( Jetpack::calyps_url( $path ) );
-		die();
+		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
 	}
 
 	public function ajax_save_services() {
