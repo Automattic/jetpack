@@ -462,26 +462,40 @@ function wp_cache_manager_error_checks() {
 }
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
+/**
+ * Delete cache for a specific page.
+ */
 function admin_bar_delete_page() {
-	// Delete cache for a specific page
-	if ( function_exists('current_user_can') && false == current_user_can('delete_others_posts') )
+
+	if ( function_exists( 'current_user_can' ) && false == current_user_can( 'delete_others_posts' ) ) {
 		return false;
-	if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' && ( isset( $_GET[ '_wpnonce' ] ) ? wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'delete-cache' ) : false ) ) {
-		$path = realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $_GET[ 'path' ] ) ) ) ) . '/';
-		if ( $path == '/' ) {
-			return false; // Directory not found. Probably not cached.
-		}
-		$supercachepath = realpath(get_supercache_dir());
+	}
+
+	$req_path    = filter_input( INPUT_GET, 'path' );
+	$referer     = wp_get_referer();
+	$valid_nonce = ( $req_path && isset( $_GET['_wpnonce'] ) ) ? wp_verify_nonce( $_GET['_wpnonce'], 'delete-cache' ) : false;
+
+	$path = $valid_nonce ? realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $req_path ) ) ) ) : false;
+
+	if ( $path ) {
+		$path .= '/';
+		$supercachepath = realpath( get_supercache_dir() );
+
 		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( $supercachepath ) ) != $supercachepath ) {
-			die( "Could not delete directory" );
+			wp_die( 'Could not delete directory' );
 		}
+
 		wpsc_delete_files( $path );
-		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_GET[ 'path' ] ) );
-		die();
+	}
+
+	if ( $referer && $req_path && ( false !== stripos( $referer, $req_path ) || 0 === stripos( $referer, wp_login_url() ) ) ) {
+		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $req_path ) );
+		exit;
 	}
 }
-if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' )
+if ( 'delcachepage' === filter_input( INPUT_GET, 'action' ) ) {
 	add_action( 'admin_init', 'admin_bar_delete_page' );
+}
 
 function wp_cache_manager_updates() {
 	global $wp_cache_mobile_enabled, $wp_cache_mfunc_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $cache_page_secret, $wp_cache_disable_utf8, $wp_cache_no_cache_for_get;
