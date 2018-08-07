@@ -106,7 +106,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Connection: Updated connect splash screen with new content.
-* Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
 * Docs: Added documentation for retrieving provision status of a site.
 * Shortcodes: Added oEmbed support for flat.io.
 * Widgets: Added `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top posts widget.

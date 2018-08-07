@@ -108,7 +108,21 @@ abstract class SAL_Site {
 	abstract protected function is_a8c_publication( $post_id );
 
 	public function is_automated_transfer() {
-		return false;
+		/**
+		 * Filter if a site is an automated-transfer site.
+		 *
+		 * @module json-api
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param bool is_automated_transfer( $this->blog_id )
+		 * @param int  $blog_id Blog identifier.
+		 */
+		return apply_filters(
+			'jetpack_site_automated_transfer',
+			false,
+			$this->blog_id
+		);
 	}
 
 	public function is_wpcom_store() {
@@ -580,12 +594,21 @@ abstract class SAL_Site {
 	}
 
 	function has_pending_automated_transfer() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
-			return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id ); //phpcs:ignore PHPCompatibility
-		}
-
-		return false;
+		/**
+		 * Filter if a site is in pending automated transfer state.
+		 *
+		 * @module json-api
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param bool has_site_pending_automated_transfer( $this->blog_id )
+		 * @param int  $blog_id Blog identifier.
+		 */
+		return apply_filters(
+			'jetpack_site_pending_automated_transfer',
+			false,
+			$this->blog_id
+		);
 	}
 
 	function signup_is_store() {
