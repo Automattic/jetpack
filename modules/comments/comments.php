@@ -314,7 +314,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				</h3>
 			<?php endif; ?>
 			<form id="commentform" class="comment-form">
-				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-scripts allow-top-navigation-by-user-activation allow-forms"></iframe>
+				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms"></iframe>
 				<?php if ( ! Jetpack_AMP_Support::is_amp_request() ) : ?>
 					<!--[if !IE]><!-->
 					<script>
