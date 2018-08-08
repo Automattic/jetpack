@@ -2682,6 +2682,10 @@ function wpsc_delete_post_archives( $post ) {
 }
 
 function wpsc_delete_cats_tags( $post ) {
+	if ( function_exists( '_deprecated_function' ) ) {
+		_deprecated_function( __FUNCTION__, 'WP Super Cache 1.6.3', 'wpsc_delete_post_archives' );
+	}
+
 	$post = get_post($post);
 	$categories = get_the_category($post->ID);
 	if ( $categories ) {
@@ -2708,14 +2712,17 @@ function wpsc_delete_cats_tags( $post ) {
 }
 
 function wpsc_post_transition( $new_status, $old_status, $post ) {
-	if (
-		($old_status == 'publish' && $new_status != 'publish' ) // post unpublished
-		||
-		($new_status == 'publish') // post published or updated
-	) {
-		//wpsc_delete_cats_tags( $post );
+
+	if ( $old_status === 'publish' && $new_status !== 'publish' ) { // post unpublished
+		list( $permalink, $post_name ) = get_sample_permalink( $post->ID );
+		$post_url = str_replace( array( '%pagename%', '%postname%' ), $post->post_name, $permalink );
+	}
+	elseif ( $new_status === 'publish' )  {	// post published or updated
+		$post_url  = get_permalink( $post->ID );
+	}
+
+	if ( ! empty( $post_url ) ) {
 		wpsc_delete_post_archives( $post );
-		$post_url = get_permalink( $post->ID );
 		wpsc_delete_url_cache( $post_url );
 		wp_cache_debug( 'wpsc_post_transition: deleting cache of post: ' . $post_url );
 	}
@@ -2755,6 +2762,7 @@ function wp_cache_post_edit($post_id) {
 	} else {
 		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on post edit.", 2 );
 		wp_cache_post_change( $post_id );
+		wpsc_delete_post_archives( $post_id ); // delete related archive pages.
 	}
 }
 
