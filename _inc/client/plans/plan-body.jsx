@@ -30,6 +30,7 @@ import {
 	getModuleOverride
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { showBackups } from 'state/initial-state';
 
 class PlanBody extends React.Component {
 	static propTypes = {
@@ -89,7 +90,7 @@ class PlanBody extends React.Component {
 			: 'dev';
 		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			hideVaultPressCard = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
+			hideVaultPressCard = ! this.props.showBackups || ( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
 		const getRewindVaultPressCard = () => {
 			if ( hideVaultPressCard ) {
@@ -458,7 +459,8 @@ export default connect(
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
 			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
-			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug )
+			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug ),
+			showBackups: showBackups( state ),
 		};
 	},
 	( dispatch ) => {

@@ -23,6 +23,7 @@ import { isFetchingSiteData } from 'state/site';
 import DashItem from 'components/dash-item';
 import isArray from 'lodash/isArray';
 import get from 'lodash/get';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -152,6 +153,10 @@ class DashScan extends Component {
 	}
 
 	render() {
+		if ( ! this.props.showBackups ) {
+			return null;
+		}
+
 		if ( this.props.isDevMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
@@ -206,7 +211,8 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
+			showBackups: showBackups( state ),
 		};
 	}
 )( DashScan );

@@ -289,6 +289,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
 				'isAtomicSite' => jetpack_is_atomic_site(),
 				'plan' => Jetpack::get_active_plan(),
+				/**
+				 * Whether UI for backups should be displayed.
+				 *
+				 * @since 6.5.0
+				 *
+				 * @param bool $show_backups Should UI for backups be displayed? True by default.
+				 */
+				'showBackups' => is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true ),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),
