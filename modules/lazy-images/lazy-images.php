@@ -209,12 +209,29 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @module-lazy-images
 		 *
+		 * @deprecated 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
+		 *
 		 * @since 5.9.0
 		 *
 		 * @param bool  Default to not skip processing the current image.
 		 * @param array An array of attributes via wp_kses_hair() for the current image.
 		 */
 		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_atttributes', false, $attributes ) ) {
+			return $attributes;
+		}
+
+		/**
+		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
+		 *
+		 * @module-lazy-images
+		 *
+		 * @since 6.5.0 Filter name was updated from jetpack_lazy_images_skip_image_with_atttributes to correct typo.
+		 * @since 5.9.0
+		 *
+		 * @param bool  Default to not skip processing the current image.
+		 * @param array An array of attributes via wp_kses_hair() for the current image.
+		 */
+		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_attributes', false, $attributes ) ) {
 			return $attributes;
 		}
 
