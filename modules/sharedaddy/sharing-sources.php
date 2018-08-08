@@ -201,11 +201,12 @@ abstract class Sharing_Source {
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
 		return sprintf(
-			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			( true == $this->open_link_in_new ) ? ' noopener noreferrer' : '',
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( true == $this->open_link_in_new ) ? ' rel="noopener noreferrer" target="_blank"' : '',
+			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
 			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text
