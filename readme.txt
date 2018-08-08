@@ -89,6 +89,11 @@ There is one regular WordPress filter too. Use the "do_createsupercache" filter
 to customize the checks made before caching. The filter accepts one parameter.
 The output of WP-Cache's wp_cache_get_cookies_values() function.
 
+WP Super Cache has it's own plugin system. This code is loaded when WP Super Cache loads and can be used to change how caching is done. This is before most of WordPress loads so some functionality will not be available. Plugins can be located anywhere that PHP can load them. Add your own plugin by calling wpsc_add_plugin( $name ) where $name is the full filename and path to the plugin. You only need to call that function once to add it. Use wpsc_delete_plugin( $name ) to remove it from the list of loaded plugins.
+
+The cookies WP Super Cache uses to identify "known users" can be modified now by adding the names of those cookies to a list in the plugin configuration. Use wpsc_add_cookie( $name ) to add a new cookie, and wpsc_delete_cookie( $name ) to remove it. The cookie names also modify the mod_rewrite rules used by the plugin but I recommend using Simple mode caching to avoid complications with updating the .htaccess file.
+The cookie name and value are used to differenciate users so you can have one cookie, but different values for each type of user on your site for example. They'll be served different cache files.
+
 See [plugins/searchengine.php](https://github.com/Automattic/wp-super-cache/blob/4cda5c0f2218e40e118232b5bf22d227fb3206b7/plugins/searchengine.php) as an example I use for my [No Adverts for Friends](https://odd.blog/no-adverts-for-friends/) plugin.
 
 ### Troubleshooting ###

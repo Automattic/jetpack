@@ -322,6 +322,7 @@ function wp_cache_late_loader() {
 }
 
 function wp_cache_get_cookies_values() {
+	global $wpsc_cookies;
 	static $string = '';
 
 	if ( $string != '' ) {
@@ -350,6 +351,20 @@ function wp_cache_get_cookies_values() {
 
 	// If you use this hook, make sure you update your .htaccess rules with the same conditions
 	$string = do_cacheaction( 'wp_cache_get_cookies_values', $string );
+
+	if (
+		isset( $wpsc_cookies ) &&
+		is_array( $wpsc_cookies ) &&
+		! empty( $wpsc_cookies )
+	) {
+		foreach( $wpsc_cookies as $name ) {
+			if ( isset( $_COOKIE[ $name ] ) ) {
+				wp_cache_debug( "wp_cache_get_cookies_values - found extra cookie: $name" );
+				$string .= $name . "=" . $_COOKIE[ $name ] . ",";
+			}
+		}
+	}
+
 	if ( $string != '' )
 		$string = md5( $string );
 
