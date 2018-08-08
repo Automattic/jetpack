@@ -196,17 +196,15 @@ function wp_cache_serve_cache_file() {
 
 			// don't try to match modified dates if using dynamic code.
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
-				if ( function_exists( 'apache_request_headers' ) ) {
-					$request = apache_request_headers();
-					$remote_mod_time = ( isset ( $request[ 'If-Modified-Since' ] ) ) ? $request[ 'If-Modified-Since' ] : null;
-				} else {
-					if ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) )
-						$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
-					else
-						$remote_mod_time = null;
+				$headers         = apache_request_headers();
+				$remote_mod_time = isset ( $headers['If-Modified-Since'] ) ? $headers['If-Modified-Since'] : null;
+
+				if ( is_null( $remote_mod_time ) && isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
+					$remote_mod_time = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 				}
+
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
-				if ( !is_null($remote_mod_time) && $remote_mod_time == $local_mod_time ) {
+				if ( ! is_null( $remote_mod_time ) && $remote_mod_time == $local_mod_time ) {
 					header( $_SERVER[ 'SERVER_PROTOCOL' ] . " 304 Not Modified" );
 					exit();
 				}
@@ -1355,15 +1353,21 @@ function wpcache_logged_in_message() {
 function wp_cache_user_agent_is_rejected() {
 	global $cache_rejected_user_agent;
 
-	if (!function_exists('apache_request_headers')) return false;
-	$headers = apache_request_headers();
-	if (!isset($headers["User-Agent"])) return false;
-	if ( false == is_array( $cache_rejected_user_agent ) )
+	if ( empty( $cache_rejected_user_agent ) || ! is_array( $cache_rejected_user_agent ) ) {
 		return false;
-	foreach ($cache_rejected_user_agent as $expr) {
-		if (strlen($expr) > 0 && stristr($headers["User-Agent"], $expr))
-			return true;
 	}
+
+	$headers = apache_request_headers();
+	if ( empty( $headers['User-Agent'] ) ) {
+		return false;
+	}
+
+	foreach ( $cache_rejected_user_agent as $user_agent ) {
+		if ( ! empty( $user_agent ) && stristr( $headers['User-Agent'], $user_agent ) ) {
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -3057,4 +3061,23 @@ function wp_cache_gc_watcher() {
 	}
 }
 
-?>
+if ( ! function_exists( 'apache_request_headers' ) ) {
+	/**
+	 * A fallback for get request headers.
+	 * Based on comments from http://php.net/manual/en/function.apache-request-headers.php
+	 *
+	 * @return array List of request headers
+	 */
+	function apache_request_headers() {
+		$headers = array();
+
+		foreach ( array_keys( $_SERVER ) as $skey ) {
+			if ( 0 === strncmp( $skey, 'HTTP_' ) ) {
+				$header = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ) , 1 ) ) );
+				$headers[ $header ] = $_SERVER[ $skey ];
+			}
+		}
+
+		return $headers;
+	}
+}
