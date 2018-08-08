@@ -51,10 +51,19 @@ class Publicize_UI {
 	* If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
 	*/
 	function sharing_menu() {
-		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
+		add_submenu_page(
+			'options-general.php',
+			__( 'Sharing Settings', 'jetpack' ),
+			__( 'Sharing', 'jetpack' ),
+			'publish_posts',
+			'sharing',
+			array( &$this, 'wrapper_admin_page' )
+		);
 	}
 
-
+	function wrapper_admin_page() {
+		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ) );
+	}
 	/**
 	* Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
 	*/
@@ -91,6 +100,7 @@ class Publicize_UI {
 			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20180301' );
 		}
 
+		Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style( 'social-logos' );
 
 		add_thickbox();
