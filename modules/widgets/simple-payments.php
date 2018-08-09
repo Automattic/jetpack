@@ -298,7 +298,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			}
 
 			// Japan's Yen is the only supported currency with a zero decimal precision.
-			$precision = strcmp( $params['currency'], 'JPY' ) === 0 ? 0 : 2;
+			$precision            = strtoupper( $params['currency'] ) === 'JPY' ? 0 : 2;
 			$price_decimal_places = $this->get_decimal_places( $params['price'] );
 			if ( is_null( $price_decimal_places ) || $price_decimal_places > $precision ) {
 				$errors->add( 'price', __( 'Invalid price', 'jetpack' ) );
