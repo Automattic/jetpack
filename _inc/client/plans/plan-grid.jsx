@@ -17,6 +17,7 @@ import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
+import { showBackups } from 'state/initial-state';
 
 class PlanGrid extends React.Component {
 
@@ -331,8 +332,19 @@ class PlanGrid extends React.Component {
 		const plan = this.getPlans()[ planType ];
 		const item = plan.features[ rowIndex ];
 		const key = planType + '-row-' + rowIndex;
+		const backupFeatureIds = [
+			'backups',
+			'malware-scan',
+			'real-time-backups',
+		];
+		const hideBackupFeature = (
+			! this.props.showBackups &&
+			item &&
+			-1 !== backupFeatureIds.indexOf( item.id )
+		);
+
 		// empty?
-		if ( typeof item === 'undefined' ) {
+		if ( typeof item === 'undefined' || hideBackupFeature ) {
 			return (
 				<td key={ key } className="plan-features__table-item" />
 			);
@@ -366,5 +378,6 @@ export default connect( ( state ) => {
 		siteRawUrl: getSiteRawUrl( state ),
 		sitePlan: getSitePlan( state ),
 		userId: getUserId( state ),
+		showBackups: showBackups( state ),
 	};
 }, null, )( PlanGrid );
