@@ -340,7 +340,7 @@ class PlanGrid extends React.Component {
 		const hideBackupFeature = (
 			! this.props.showBackups &&
 			item &&
-			-1 !== backupFeatureIds.indexOf( item.id )
+			includes( backupFeatureIds, item.id )
 		);
 
 		// empty?

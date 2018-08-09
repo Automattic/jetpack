@@ -296,7 +296,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 *
 				 * @param bool $show_backups Should UI for backups be displayed? True by default.
 				 */
-				'showBackups' => is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true ),
+				'showBackups' => Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true ),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),
