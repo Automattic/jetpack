@@ -526,6 +526,14 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
+		// Load Gutenberg editor blocks
+		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
+
+		// A filter to control Gutenberg editor blocks
+		add_filter( 'jetpack_gutenberg', '__return_false', 9);
+		// A filter to control if Gutenberg blocks should be loaded from CDN or locally
+		add_filter( 'jetpack_gutenberg_cdn', '__return_true', 9);
+
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from .com
@@ -7257,5 +7265,65 @@ p {
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		Jetpack::state( 'message', 'authorized' );
+	}
+
+	/**
+	 * Load Gutenberg editor blocks
+	 *
+	 * Blocks are disabled by default and enabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+	 *
+	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
+	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+	 *
+	 * Note that when loaded locally, you need to build the files yourself:
+	 * - _inc/blocks/jetpack-editor.js
+	 * - _inc/blocks/jetpack-editor.css
+	 *
+	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
+	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
+	 */
+	public static function load_jetpack_gutenberg() {
+		if ( ! apply_filters( 'jetpack_gutenberg', false ) || ! Jetpack::is_plugin_active( 'gutenberg/gutenberg.php' ) ) {
+			return;
+		}
+
+		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
+			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
+			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
+			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
+		} else {
+			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
+			$editor_style = plugins_url( '_inc/blocks/jetpack-editor.css', JETPACK__PLUGIN_FILE );
+			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
+		}
+
+		wp_register_script(
+			'jetpack-blocks-editor',
+			$editor_script,
+			array(
+				'wp-blocks',
+				'wp-components',
+				'wp-data',
+				'wp-editor',
+				'wp-element',
+				'wp-i18n',
+			),
+			$version
+		);
+
+		wp_register_style(
+			'jetpack-blocks-editor',
+			$editor_style,
+			array(),
+			$version
+		);
+
+		if ( function_exists( 'register_block_type' ) ) {
+			register_block_type( 'jetpack/blocks', array(
+					'editor_script' => 'jetpack-blocks-editor',
+					'editor_style'  => 'jetpack-blocks-editor',
+			) );
+		}
 	}
 }
