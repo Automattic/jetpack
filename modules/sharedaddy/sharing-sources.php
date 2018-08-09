@@ -590,7 +590,12 @@ class Share_Twitter extends Sharing_Source {
 		 * @param string $string Twitter Username.
 		 * @param array $args Array of Open Graph Meta Tags and Twitter Cards tags.
 		 */
-		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '', array() );
+		$twitter_site_tag_value = apply_filters(
+			'jetpack_twitter_cards_site_tag',
+			'',
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
+		);
 
 		/*
 		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
