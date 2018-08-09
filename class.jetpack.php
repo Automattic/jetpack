@@ -6633,6 +6633,7 @@ p {
 			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
 			'jetpack_cache_plans'                                    => null,
 			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
+			'jetpack_lazy_images_skip_image_with_atttributes'        => 'jetpack_lazy_images_skip_image_with_attributes',
 		);
 
 		// This is a silly loop depth. Better way?
