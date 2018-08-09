@@ -3072,7 +3072,7 @@ if ( ! function_exists( 'apache_request_headers' ) ) {
 		$headers = array();
 
 		foreach ( array_keys( $_SERVER ) as $skey ) {
-			if ( 0 === strncmp( $skey, 'HTTP_' ) ) {
+			if ( 0 === strpos( $skey, 'HTTP_' ) ) {
 				$header = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ) , 1 ) ) );
 				$headers[ $header ] = $_SERVER[ $skey ];
 			}
