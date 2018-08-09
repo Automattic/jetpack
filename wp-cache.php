@@ -83,9 +83,11 @@ if ( class_exists( 'WP_REST_Controller' ) ) {
 }
 
 function wp_super_cache_init_action() {
+
 	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
 
 	wpsc_register_post_hooks();
+
 }
 add_action( 'init', 'wp_super_cache_init_action' );
 
@@ -4075,7 +4077,9 @@ function wpsc_add_plugin( $file ) {
 		$wpsc_plugins[] = $file;
 		wp_cache_setting( 'wpsc_plugins', $wpsc_plugins );
 	}
+	return $file;
 }
+add_action( 'wpsc_add_plugin', 'wpsc_add_plugin' );
 
 function wpsc_delete_plugin( $file ) {
 	global $wpsc_plugins;
@@ -4090,7 +4094,9 @@ function wpsc_delete_plugin( $file ) {
 		unset( $wpsc_plugins[ array_search( $file, $wpsc_plugins ) ] );
 		wp_cache_setting( 'wpsc_plugins', $wpsc_plugins );
 	}
+	return $file;
 }
+add_action( 'wpsc_delete_plugin', 'wpsc_delete_plugin' );
 
 function wpsc_get_plugins() {
 	global $wpsc_plugins;
@@ -4107,7 +4113,9 @@ function wpsc_add_cookie( $name ) {
 		$wpsc_cookies[] = $name;
 		wp_cache_setting( 'wpsc_cookies', $wpsc_cookies );
 	}
+	return $name;
 }
+add_action( 'wpsc_add_cookie', 'wpsc_add_cookie' );
 
 function wpsc_delete_cookie( $name ) {
 	global $wpsc_cookies;
@@ -4119,7 +4127,9 @@ function wpsc_delete_cookie( $name ) {
 		unset( $wpsc_cookies[ array_search( $name, $wpsc_cookies ) ] );
 		wp_cache_setting( 'wpsc_cookies', $wpsc_cookies );
 	}
+	return $name;
 }
+add_action( 'wpsc_delete_cookie', 'wpsc_delete_cookie' );
 
 function wpsc_get_cookies() {
 	global $wpsc_cookies;
