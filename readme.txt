@@ -101,7 +101,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 6.4.2 =
 
 * Release date: August 10, 2018
-* Release post: 
+* Release post: https://wp.me/p1moTy-9pL
 
 **Bug fixes**
 
