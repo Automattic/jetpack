@@ -10,7 +10,9 @@ import assign from 'lodash/assign';
 import config from 'config';
 
 const debug = debugFactory( 'dops:analytics' );
-let _superProps, _user;
+let _blog,
+	_superProps,
+	_user;
 
 // Load tracking scripts
 window._tkq = window._tkq || [];
@@ -57,10 +59,15 @@ function buildQuerystringNoPrefix( group, name ) {
 }
 
 const analytics = {
-	initialize: function( userId, username, superProps ) {
+	initialize: function( blogid, userId, username, superProps ) {
+		analytics.blogId( blogid );
 		analytics.setUser( userId, username );
 		analytics.setSuperProps( superProps );
 		analytics.identifyUser();
+	},
+
+	blogId( blogid ) {
+		_blog = { blogid: blogid };
 	},
 
 	setUser: function( userId, username ) {
@@ -114,18 +121,20 @@ const analytics = {
 
 	tracks: {
 		recordEvent: function( eventName, eventProperties ) {
-			let superProperties;
+			let blogIdProperty,
+				superProperties;
 
 			eventProperties = eventProperties || {};
 
-			debug(
-				'Record event "%s" called with props %s',
-				eventName,
-				JSON.stringify( eventProperties )
-			);
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
 				debug( '- Event name must be prefixed by "akismet_" or "jetpack_"' );
 				return;
+			}
+
+			if ( _blog ) {
+				blogIdProperty = _blog;
+				debug( '- Blog Id: %o', _blog );
+				eventProperties = assign( eventProperties, blogIdProperty );
 			}
 
 			if ( _superProps ) {
@@ -133,6 +142,8 @@ const analytics = {
 				debug( '- Super Props: %o', superProperties );
 				eventProperties = assign( eventProperties, superProperties );
 			}
+
+			debug( 'Record event "%s" called with props %s', eventName, JSON.stringify( eventProperties ) );
 
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
 		},
