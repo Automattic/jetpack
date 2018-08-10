@@ -8,11 +8,13 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import { imagePath } from 'constants/urls';
+import { showBackups } from 'state/initial-state';
 
 class ThemesPromoCard extends React.Component {
 	static displayName = 'ThemesPromoCard';
@@ -55,15 +57,27 @@ class ThemesPromoCard extends React.Component {
 
 					<div className="jp-apps-card__description">
 						<h3 className="jp-apps-card__header">{ __( 'Introducing Premium Themes' ) }</h3>
-						{ __(
-							'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
-							"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
-							{
-								components: {
-									p: <p className="jp-apps-card__paragraph" />
+						{
+							this.props.showBackups
+							? __(
+								'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
+								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
+								{
+									components: {
+										p: <p className="jp-apps-card__paragraph" />
+									}
 								}
-							}
-						) }
+							)
+							: __(
+								'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
+								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
+								{
+									components: {
+										p: <p className="jp-apps-card__paragraph" />
+									}
+								}
+							)
+						}
 
 						<p>
 							<Button
@@ -91,4 +105,11 @@ ThemesPromoCard.propTypes = {
 	plan: PropTypes.string
 };
 
-export default ThemesPromoCard;
+export default connect(
+	( state ) => {
+		return {
+			showBackups: showBackups( state ),
+		};
+	}
+)( ThemesPromoCard );
+
