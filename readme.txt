@@ -98,6 +98,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 6.4.2 =
+
+* Release date: August 10, 2018
+* Release post: 
+
+**Bug fixes**
+
+Comments: We fixed an error that broke functionality of Social Login for comments.
+
 = 6.4.1 =
 
 * Release date: August 8, 2018
