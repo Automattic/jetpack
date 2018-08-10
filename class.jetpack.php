@@ -530,9 +530,9 @@ class Jetpack {
 		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
 
 		// A filter to control Gutenberg editor blocks
-		add_filter( 'jetpack_gutenberg', '__return_false', 9);
+		add_filter( 'jetpack_gutenberg', '__return_false', 9 );
 		// A filter to control if Gutenberg blocks should be loaded from CDN or locally
-		add_filter( 'jetpack_gutenberg_cdn', '__return_true', 9);
+		add_filter( 'jetpack_gutenberg_cdn', '__return_true', 9 );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
