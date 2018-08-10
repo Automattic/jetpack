@@ -428,7 +428,7 @@ function wp_cache_manager_error_checks() {
 		}
 		if( isset( $missing_mods) && is_array( $missing_mods ) ) {
 			?><div class='notice notice-warning'><h3><?php _e( 'Missing Apache Modules', 'wp-super-cache' ); ?></h3>
-			<p><?php __( 'The following Apache modules are missing. The plugin will work in simple mode without them but in export mode, your visitors may see corrupted pages or out of date content however.', 'wp-super-cache' ); ?></p><?php
+			<p><?php __( 'The following Apache modules are missing. The plugin will work in simple mode without them but in expert mode, your visitors may see corrupted pages or out of date content however.', 'wp-super-cache' ); ?></p><?php
 			echo "<ul>";
 			foreach( $missing_mods as $req => $desc ) {
 				echo "<li> $req - $desc</li>";
