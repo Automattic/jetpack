@@ -84,8 +84,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		// Twitter deprecated `data-widget-id` on 2018-05-25,
 		// with cease support deadline on 2018-07-27.
-		// 1532563200 is 2018-07-26, one day early.
-		 if ( isset( $instance['type'] ) && 'widget-id' === $instance['type'] && time() > 1532563200 ) {
+		if ( isset( $instance['type'] ) && 'widget-id' === $instance['type'] ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
 				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
