@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 4.9.6
-* Stable tag: 1.6.2
+* Tested up to: 4.9.8
+* Stable tag: 1.6.3
 * Requires at least: 3.0
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -265,6 +265,21 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.6.3 ###
+* Changes between [1.6.2 and 1.6.3](https://github.com/Automattic/wp-super-cache/compare/1.6.2...1.6.3)
+* Added cookie helper functions (#580)
+* Added plugin helper functions (#574)
+* Added actions to modify cookie and plugin lists. (#582)
+* Really disable garbage collection when timeout = 0 (#571)
+* Added warnings about DISABLE_WP_CRON (#575)
+* Don't clean expired cache files after preload if garbage collection is disabled (#572)
+* On preload, if deleting a post don't delete the sub directories if it's the homepage. (#573)
+* Fix generation of semaphores when using WP CLI (#576)
+* Fix deleting from the admin bar (#578)
+* Avoid a strpos() warning. (#579)
+* Improve deleting of cache in edit/delete/publish actions (#577)
+* Fixes to headers code (#496)
 
 ### 1.6.2 ###
 * Fixed serving expired supercache files (#562)
@@ -668,4 +683,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Fix problems writing to the config file for some users.
+Bug fixes and new features
