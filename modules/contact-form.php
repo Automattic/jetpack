@@ -13,7 +13,7 @@
  * Additional Search Queries: contact, form, grunion, feedback, submission
  */
 
-include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
+require_once dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
 /*
  * Filters if the new Contact Form Editor View should be used.
  *
@@ -22,7 +22,7 @@ include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
  * Expected to be removed in Jetpack 5.8 or if a security issue merits removing the old code sooner.
  *
  * @since 5.2.0
- * 
+ *
  * @param boolean $view Use new Editor View. Default true.
  */
 if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {

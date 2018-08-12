@@ -2804,8 +2804,10 @@ class Jetpack {
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules );
 
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
-		Jetpack::restate();
-		Jetpack::catch_errors( true );
+		if ( $send_state_messages ) {
+			Jetpack::restate();
+			Jetpack::catch_errors( true );
+		}
 
 		$active = Jetpack::get_active_modules();
 
@@ -7236,9 +7238,14 @@ p {
 	 *
 	 * @param boolean $activate_sso                 Whether to activate the SSO module when activating default modules.
 	 * @param boolean $redirect_on_activation_error Whether to redirect on activation error.
+	 * @param boolean $send_state_messages          Whether to send state messages.
 	 * @return void
 	 */
-	public static function handle_post_authorization_actions( $activate_sso = false, $redirect_on_activation_error = false ) {
+	public static function handle_post_authorization_actions(
+		$activate_sso = false,
+		$redirect_on_activation_error = false,
+		$send_state_messages = true
+	) {
 		$other_modules = $activate_sso
 			? array( 'sso' )
 			: array();
@@ -7246,9 +7253,9 @@ p {
 		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
 			Jetpack::delete_active_modules();
 
-			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, false );
+			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
 		} else {
-			Jetpack::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, false );
+			Jetpack::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages );
 		}
 
 		// Since this is a fresh connection, be sure to clear out IDC options
@@ -7259,7 +7266,9 @@ p {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
-		Jetpack::state( 'message', 'authorized' );
+		if ( $send_state_messages ) {
+			Jetpack::state( 'message', 'authorized' );
+		}
 	}
 
 	/**
