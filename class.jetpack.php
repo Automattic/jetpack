@@ -7263,9 +7263,26 @@ p {
 	}
 
 	/**
-	 * Load Gutenberg editor blocks
+	 * Check if Gutenberg editor is available
 	 *
-	 * Blocks are disabled by default and enabled via filter:
+	 * @since 6.5.0
+	 *
+	 * @return bool
+	 */
+	public static function is_gutenberg_available() {
+		return function_exists( 'register_block_type' );
+	}
+
+	/**
+	 * Load Gutenberg editor blocks.
+	 *
+	 * This section meant for unstable phase of developing Jetpack's
+	 * Gutenberg extensions. If still around after Sep. 15, 2018 then
+	 * please file an issue to remove it; if nobody responds within one
+	 * week then please delete the code.
+	 *
+	 *
+	 * Loading blocks is disabled by default and enabled via filter:
 	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
 	 *
 	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
@@ -7279,13 +7296,24 @@ p {
 	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
 	 */
 	public static function load_jetpack_gutenberg() {
-		if ( ! apply_filters( 'jetpack_gutenberg', false ) || ! Jetpack::is_plugin_active( 'gutenberg/gutenberg.php' ) ) {
+		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
 			return;
 		}
 
+		/**
+		 * Filter to turn off serving blocks via CDN
+		 *
+		 * @param bool true Whether to load Gutenberg blocks from CDN
+		 */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
 			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
 			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
+
+			/**
+			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
+			 *
+			 * @param string
+			 */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
 			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
@@ -7316,11 +7344,9 @@ p {
 			$version
 		);
 
-		if ( function_exists( 'register_block_type' ) ) {
-			register_block_type( 'jetpack/blocks', array(
-					'editor_script' => 'jetpack-blocks-editor',
-					'editor_style'  => 'jetpack-blocks-editor',
-			) );
-		}
+		register_block_type( 'jetpack/blocks', array(
+				'editor_script' => 'jetpack-blocks-editor',
+				'editor_style'  => 'jetpack-blocks-editor',
+		) );
 	}
 }
