@@ -286,7 +286,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
-		if ( $post && 'shop_order' === $post->post_type ) {
+		if ( $post && 'shop_order' === $post->post_type && post_type_exists( 'shop_order' ) ) {
 			$post = get_post( $post_ID );
 		}
 
