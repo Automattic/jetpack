@@ -338,4 +338,33 @@ class Jetpack_WPES_Query_Builder {
 		return $aggregations;
 	}
 
+	/**
+	 * Assemble the 'suggest' portion of an ES query, using a phrase suggester. Note that this is experimental and
+	 * only works with English tokens.
+	 *
+	 * @param string $query The query text being searched.
+	 *
+	 * @return array An experimental suggest query.
+	 */
+	public function build_experimental_suggest( $query ) {
+		return array(
+			'text' => $query,
+			'experimental-phrase-suggester' => array(
+				'phrase' => array(
+					'field'                      => 'title.en',
+					"max_errors"                 => 4.0,
+					'confidence'                 => .9,
+					'real_word_error_likelihood' => .9,
+					'size' => 1,
+					"direct_generator" => array(
+						array(
+							'field'           => 'content.en',
+							'suggest_mode'    => 'always',
+							'min_word_length' => 1
+						)
+					)
+				)
+			)
+		);
+	}
 }

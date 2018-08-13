@@ -430,6 +430,55 @@ class Jetpack_Search {
 	}
 
 	/**
+	 * Displays HTML about the result of the spelling auto-correction.
+	 * Should be called during loop_start to be displayed below page headers and above post results.
+	 *
+	 * @since 6.4.2
+	 *
+	 * @param string $spell_text The text to show in the suggest block
+	 */
+	public function display_suggest_result( $spell_text ) {
+		printf("<div class=\"suggest-result page-header\"><h4>" . $spell_text . "<br><br></h4></div>");
+	}
+
+	/**
+	 * Displays HTML for "Did you mean, $suggestion?", which $suggestion being a link to search for the suggestion.
+	 * Should be called during loop_start to be displayed below page headers and above post results.
+	 *
+	 * @since 6.4.2
+	 *
+	 * @param WP_Query $query             The WP_Query object.
+	 */
+	public function filter__show_did_you_mean( $query ) {
+		if ( ! is_array( $this->search_result ) ) return;
+		if ( empty( $this->search_result['suggest'] ) ) return;
+		$suggestion = $this->search_result['suggest']['experimental-phrase-suggester'][0]['options'][0]['text'];
+		if ( $suggestion == $query->get( 's' ) ) return;
+		$this->display_suggest_result( "Did you mean, <em><a href=\"/?s="
+				. $suggestion
+				. "\">"
+				. $suggestion
+				. "?</a></em>" );
+	}
+
+	/**
+	 * Displays HTML for "Spell corrected to, $suggestion".
+	 * Should be called during loop_start to be displayed below page headers and above post results.
+	 *
+	 * @since 6.4.2
+	 *
+	 * @param WP_Query $query             The WP_Query object.
+	 * @param bool $original_has_results  Whether the original query found results.
+	 */
+	public function filter__show_spell_correction( $query ) {
+		if ( ! is_array( $this->search_result ) ) return;
+		if ( empty( $this->search_result['suggest'] ) ) return;
+		$suggestion = $this->search_result['suggest']['experimental-phrase-suggester'][0]['options'][0]['text'];
+		if ( $suggestion == $query->get( 's' ) ) return;
+		$this->display_suggest_result( "Spell corrected to, <em>". $suggestion . "<em>" );
+	}
+
+	/**
 	 * Bypass the normal Search query and offload it to Jetpack servers.
 	 *
 	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
@@ -462,7 +511,28 @@ class Jetpack_Search {
 			return $posts;
 		}
 
-		// If no results, nothing to do
+		if ( count( $this->search_result['results']['hits'] ) ) {
+			// If results, check for a "did you mean" suggestion.
+			add_filter( 'loop_start', array( $this, 'filter__show_did_you_mean' ) );
+		} else {
+			// If no results, search again for the top suggestion.
+			if ( empty( $this->search_result['suggest'] ) ) return array();
+			$suggest_result = $this->search_result['suggest'];
+			$suggestion = $suggest_result['experimental-phrase-suggester'][0]['options'][0]['text'];
+			$original_query = $query->get( 's' );
+			$query->set( 's', $suggestion );
+			$this->do_search( $query );
+
+			// Restore the original q and suggest result, to be displayed at the time of loop_start.
+			$query->set( 's', $original_query );
+			$this->search_result['suggest'] = $suggest_result;
+			if ( ! is_array( $this->search_result ) ) {
+				return $posts;
+			}
+			add_filter( 'loop_start', array( $this, 'filter__show_spell_correction' ) );
+		}
+
+		// If still no results, nothing to do.
 		if ( ! count( $this->search_result['results']['hits'] ) ) {
 			return array();
 		}
@@ -1125,6 +1195,7 @@ class Jetpack_Search {
 		$es_query_args['filter']       = $parser->build_filter();
 		$es_query_args['query']        = $parser->build_query();
 		$es_query_args['aggregations'] = $parser->build_aggregation();
+		$es_query_args["suggest"]      = $parser->build_experimental_suggest( $args['query'] );
 
 		return $es_query_args;
 	}
