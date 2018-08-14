@@ -7294,14 +7294,27 @@ p {
 	 *
 	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
 	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
+	 *
+	 * @since 6.5.0
+	 *
+	 * @return void
 	 */
 	public static function load_jetpack_gutenberg() {
+		/**
+		 * Filter to turn on loading Gutenberg blocks
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool false Whether to load Gutenberg blocks
+		 */
 		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
 			return;
 		}
 
 		/**
 		 * Filter to turn off serving blocks via CDN
+		 *
+		 * @since 6.5.0
 		 *
 		 * @param bool true Whether to load Gutenberg blocks from CDN
 		 */
@@ -7311,6 +7324,8 @@ p {
 
 			/**
 			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
+			 *
+			 * @since 6.5.0
 			 *
 			 * @param string
 			 */
