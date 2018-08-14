@@ -38,6 +38,25 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		return preg_replace( '/((id=\'[:alpha:\-]+)|[\?&]|&amp;|&#038;)(et=[\w-]+|sig=[\w-=]+)/', '', $str );
 	}
 
+	function setUp() {
+		/*
+		 * We normally make an HTTP request to Getty's oEmbed endpoint to generate
+		 * the shortcode output.
+		 * This filter bypasses that HTTP request for these tests
+		 */
+		add_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
+	}
+
+	function getty_oembed_response( $html, $url, $args ) {
+		if ( 0 !== strpos( $url, 'https://gty.im/' ) ) {
+			return $html;
+		}
+
+		// Only works for https://gty.im/82278805
+		// If more inputs are needed, add more outputs.
+		return self::GETTY_EMBED_2017;
+	}
+
 	/**
 	 * Verify that [getty] exists.
 	 *
@@ -123,6 +142,25 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_getty_image() {
+		$image_id = '82278805';
+		$content = "[getty src='$image_id']";
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( $image_id, $shortcode_content );
+	}
+
+	/**
+	 * Uses a real HTTP request to Getty's oEmbed endpoint to
+	 * verify that rendering the shortcode returns a Getty image.
+	 *
+	 * @group external-http
+	 *
+	 * @since 4.5.0
+	 */
+	public function test_shortcodes_getty_image_via_oembed_http_request() {
+		remove_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
+
 		$image_id = '82278805';
 		$content = "[getty src='$image_id']";
 
