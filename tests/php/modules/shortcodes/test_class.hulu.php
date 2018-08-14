@@ -63,15 +63,27 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
 	}
 
+	/**
+	 * Using $this->video_id requires a (cached) HTTP lookup:
+	 * @see modules/shortcodes/hulu.php:jetpack_hulu_shortcode()
+	 * Running these tests in parallel means we send many of the same requests
+	 * to Hulu before we have a chance to cache the response.
+	 * Flag all tests that use $this->video_id as dependent on
+	 * self::test_shortcodes_hulu_id() so that the response is made once, cached,
+	 * and pulled from the cache for subsequent uses.
+	 *
+	 * @depends test_shortcodes_hulu_id
+	 */
 	public function test_shortcodes_hulu_url() {
 		$content  = "[hulu http://www.hulu.com/watch/$this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
-		if ( false === stripos( $shortcode_content, 'Hulu Error' ) ) {
-			$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
-		}
+		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
 	}
 
+	/**
+	 * @depends test_shortcodes_hulu_id
+	 */
 	public function test_shortcodes_hulu_width_height() {
 		$width    = '350';
 		$height   = '500';
@@ -86,6 +98,9 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$this->assertContains( 'height="197"', $shortcode_content );
 	}
 
+	/**
+	 * @depends test_shortcodes_hulu_id
+	 */
 	public function test_shortcodes_hulu_start_end_time_thumbnail() {
 		$start     = '10';
 		$end       = '20';
