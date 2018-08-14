@@ -351,14 +351,14 @@ class Jetpack_WPES_Query_Builder {
 			'text' => $query,
 			'experimental-phrase-suggester' => array(
 				'phrase' => array(
-					'field'                      => 'title.en',
+					'field'                      => 'mlt_content.default',
 					"max_errors"                 => 4.0,
 					'confidence'                 => .9,
 					'real_word_error_likelihood' => .9,
 					'size' => 1,
 					"direct_generator" => array(
 						array(
-							'field'           => 'content.en',
+							'field'           => 'mlt_content.default',
 							'suggest_mode'    => 'always',
 							'min_word_length' => 1
 						)
