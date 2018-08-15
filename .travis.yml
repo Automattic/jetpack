@@ -66,14 +66,7 @@ git:
 # Skip Travis CI test if edited files were doc / non-testable
 before_install:
     - |
-        if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-          TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
-        fi
-        CHANGED_FILES=($(git diff --name-only $TRAVIS_COMMIT_RANGE))
-        echo "TEST"
-        git diff --name-only HEAD~1
-        $CHANGED_FILES
-        git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '(\.txt$|\.editorconfig$|\.md$|\.yml$|\..*ignore$)|(^docker)' || {
+        git diff --name-only HEAD~1 | grep -qvE '(\.txt$|\.editorconfig$|\.md$|\.yml$|\..*ignore$)|(^docker)' || {
           echo "Only non-testable files were updated, skipping from running tests."
           travis_terminate 0
         }
