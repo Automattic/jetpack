@@ -27,7 +27,6 @@ if ( program.grep ) {
 	mocha.grep( new RegExp( program.grep ) );
 }
 
-
 mocha.suite.beforeAll( boot.before );
 mocha.suite.afterAll( boot.after );
 
