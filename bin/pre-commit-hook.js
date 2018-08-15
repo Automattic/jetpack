@@ -17,6 +17,7 @@ const jsLintResult = spawnSync( 'eslint-eslines', [ ...jsFiles, '--', '--diff=in
 	stdio: 'inherit',
 } );
 
+/*
 let phpLintResult;
 if ( phpFiles.length > 0 ) {
 	phpLintResult = spawnSync( 'composer', [ 'php:5.2-compatibility', ...phpFiles, ], {
@@ -24,6 +25,7 @@ if ( phpFiles.length > 0 ) {
 		stdio: 'inherit',
 	} );
 }
+
 
 if ( jsLintResult.status || ( phpLintResult && phpLintResult.status ) ) {
 	console.log(
@@ -34,3 +36,4 @@ if ( jsLintResult.status || ( phpLintResult && phpLintResult.status ) ) {
 	);
 	process.exit( 1 );
 }
+*/
