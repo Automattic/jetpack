@@ -58,6 +58,11 @@ branches:
     - /^branch-.*$/
     - /^feature\/.*$/
 
+# Git clone depth
+# By default Travis CI clones repositories to a depth of 50 commits
+git:
+  depth: 1
+
 # Skip Travis CI test if edited files were doc / non-testable
 before_install:
     - |
@@ -66,6 +71,7 @@ before_install:
         fi
         CHANGED_FILES=($(git diff --name-only $TRAVIS_COMMIT_RANGE))
         echo "TEST"
+        git diff --name-only HEAD~1
         $CHANGED_FILES
         git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '(\.txt$|\.editorconfig$|\.md$|\.yml$|\..*ignore$)|(^docker)' || {
           echo "Only non-testable files were updated, skipping from running tests."
