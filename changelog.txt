@@ -2,9 +2,6 @@
 
 = 6.3.3 =
 
-Just adding something to check.
-Adding again.
-
 * Release date: July 30, 2018
 * Release post: https://wp.me/p1moTy-9n0
 
