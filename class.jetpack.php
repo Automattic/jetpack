@@ -7263,6 +7263,7 @@ p {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Check if Gutenberg editor is available
 	 *
 	 * @since 6.5.0
@@ -7363,5 +7364,21 @@ p {
 				'editor_script' => 'jetpack-blocks-editor',
 				'editor_style'  => 'jetpack-blocks-editor',
 		) );
+	}
+
+	/**
+	 * Returns a boolean for whether backups UI should be displayed or not.
+	 *
+	 * @return bool Should backups UI be displayed?
+	 */
+	public static function show_backups_ui() {
+		/**
+		 * Whether UI for backups should be displayed.
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool $show_backups Should UI for backups be displayed? True by default.
+		 */
+		return Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 }
