@@ -58,11 +58,6 @@ branches:
     - /^branch-.*$/
     - /^feature\/.*$/
 
-# Git clone depth
-# By default Travis CI clones repositories to a depth of 50 commits
-git:
-  depth: 1
-
 # Skip Travis CI test if edited files were doc / non-testable
 before_install:
     - |
