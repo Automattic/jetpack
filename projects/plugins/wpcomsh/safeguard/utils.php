@@ -67,7 +67,7 @@ function request_check_plugin( $body ) {
 	}
 
 	if ( $response['action'] == 'reject' ) {
-		return new WP_Error( 'unaccepted_plugin', $response['message'] );
+		return new WP_Error( 'unaccepted_plugin', $response['message'], $response['threats'] );
 	}
 
 	$result = array(
@@ -252,3 +252,19 @@ function get_plugin_data_from_package( $package ) {
 	return $result;
 }
 
+function log_safeguard_error( $error, $extra = array() ) {
+	$message = 'Safeguard: ';
+
+	if ( is_wp_error( $error ) ) {
+		$message .= $error->get_error_message();
+	} else {
+		$message .= $error;
+	}
+
+	WPCOMSH_Log::unsafe_direct_log(
+		$message,
+		json_encode( $extra, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES )
+	);
+
+	return $error;
+}
