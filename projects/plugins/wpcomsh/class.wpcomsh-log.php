@@ -47,11 +47,11 @@ class WPCOMSH_Log {
 	 * is during the site setup process
 	 * @param $message
 	 */
-	public static function unsafe_direct_log( $message ) {
+	public static function unsafe_direct_log( $message, $extra = array() ) {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 		}
-		self::$instance->log( $message );
+		self::$instance->log( $message, $extra );
 	}
 
 
@@ -62,8 +62,8 @@ class WPCOMSH_Log {
 		add_action( 'wpcomsh_log', array( $this, 'log' ), 1 );
 	}
 
-	public function log( $message ) {
-		$this->log_queue[] = array( "message" => $message );
+	public function log( $message, $extra = array() ) {
+		$this->log_queue[] = array( "message" => $message, "extra" => $extra );
 		if ( ! $this->has_shutdown_hook ) {
 			register_shutdown_function( array( $this, 'send_to_api' ) );
 			$this->has_shutdown_hook = true;
