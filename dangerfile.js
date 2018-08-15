@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { danger, warn, markdown } from 'danger';
+import { danger, warn, markdown, results } from 'danger';
 
 // Skip danger check if "no ci" or "no danger" in latest commit
 const lastCommit = danger.git.commits.slice( -1 )[ 0 ].message;
@@ -34,5 +34,9 @@ if ( ! danger.github.pr.body.includes( 'Testing instructions' ) ) {
 if ( ! danger.github.pr.body.includes( 'Proposed changelog entry' ) ) {
 	warn( '"Proposed changelog entry" is missing for this PR. Please include any meaningful changes' );
 }
-
-markdown( "This is automated (and not very smart btw) check which relies on [`PULL_REQUEST_TEMPLATE`](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md).We encourage you to follow that template as it helps Jetpack maintainers do their job. If you think 'Testing instructions' or 'Proposed changelog entry' are not needed for your PR - please explain why you think so. Thanks for cooperation :robot:" );
+// skip if there are no warnings.
+if ( results.warnings.length > 0 || results.fails.length > 0 ) {
+	markdown( "This is automated (and not very smart btw) check which relies on [`PULL_REQUEST_TEMPLATE`](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md).We encourage you to follow that template as it helps Jetpack maintainers do their job. If you think 'Testing instructions' or 'Proposed changelog entry' are not needed for your PR - please explain why you think so. Thanks for cooperation :robot:" );
+} else {
+	markdown( "That's great PR description. Jetpack Crew appreciated your effort!" );
+}
