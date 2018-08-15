@@ -1542,11 +1542,7 @@ class The_Neverending_Home_Page {
 	 */
 	private function default_footer() {
 		if ( get_privacy_policy_url() !== '' ) {
-			$credits = sprintf(
-				'<a href="%1$s" rel="noopener noreferrer" target="_blank">%2$s</a><span role="separator" aria-hidden="true"> / </span>',
-				get_privacy_policy_url(),
-				__( 'Privacy Policy', 'jetpack' )
-			);
+			$credits = get_the_privacy_policy_link() . ' / ';
 		} else {
 			$credits = '';
 		}
