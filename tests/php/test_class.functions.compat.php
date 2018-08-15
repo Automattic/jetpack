@@ -3,7 +3,6 @@
 class WP_Test_Functions_Compat extends WP_UnitTestCase {
 
 	/**
-	 * test
 	 * @author enkrates
 	 * @covers ::youtube_sanitize_url
 	 * @since 3.2
