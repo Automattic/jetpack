@@ -13,6 +13,7 @@ class WordAds_Params {
 			'wordads_approved'           => false,
 			'wordads_active'             => false,
 			'wordads_house'              => true,
+			'wordads_unsafe'             => false,
 			'enable_header_ad'           => true,
 			'wordads_second_belowpost'   => true,
 			'wordads_display_front_page' => true,
@@ -25,6 +26,7 @@ class WordAds_Params {
 		$this->options = array();
 		foreach ( $settings as $setting => $default ) {
 			$option = get_option( $setting, null );
+
 			if ( is_null( $option ) ) {
 				update_option( $setting, $default, true );
 				$option = $default;
