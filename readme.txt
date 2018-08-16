@@ -3,7 +3,7 @@
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 4.9.8
 * Stable tag: 1.6.3
-* Requires at least: 3.0
+* Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
