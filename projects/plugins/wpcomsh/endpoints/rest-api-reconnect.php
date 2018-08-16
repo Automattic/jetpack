@@ -39,13 +39,6 @@ function wpcomsh_rest_api_reconnect( $request = null ) {
 	$package_sig = $_POST['sig'];
 	$package_ts = $_POST['ts'];
 
-	// Do not reconnect if Jetpack is active
-	if ( Jetpack::is_active() ) {
-		return new WP_REST_Response( array(
-			'error' => 'Jetpack connection is already active',
-		), 400);
-	}
-
 	if ( empty( $package ) ) {
 		return new WP_REST_Response( array(
 			'error' => 'reconnect package missing',
