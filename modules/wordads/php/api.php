@@ -110,7 +110,7 @@ class WordAds_API {
 	 * Returns whether or not this site is safe to run ads on.
 	 * @return boolean true if ads shown not be shown on this site.
 	 *
-	 * @since @next @TODO
+	 * @since 6.5.0
 	 */
 	public static function is_wordads_unsafe() {
 		if ( is_null( self::$wordads_status ) ) {
