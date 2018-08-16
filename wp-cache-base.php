@@ -1,9 +1,13 @@
 <?php
-if ( false == isset( $_SERVER['HTTP_HOST'] ) ) {
+global $WPSC_HTTP_HOST, $blogcacheid;
+
+if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
+	$WPSC_HTTP_HOST = htmlentities( $_SERVER['HTTP_HOST'] );
+} elseif ( PHP_SAPI === 'cli' && function_exists( 'get_option' ) ) {
+	$WPSC_HTTP_HOST = (string) parse_url( get_option( 'home' ), PHP_URL_HOST );
+} else {
 	$cache_enabled  = false;
 	$WPSC_HTTP_HOST = '';
-} else {
-	$WPSC_HTTP_HOST = htmlentities( $_SERVER['HTTP_HOST'] );
 }
 
 // We want to be able to identify each blog in a WordPress MU install
