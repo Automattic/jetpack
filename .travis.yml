@@ -63,13 +63,15 @@ branches:
 git:
   depth: 1
 
-# Skip Travis CI test if edited files were doc / non-testable
+# Skip Travis CI test if edited files were doc / non-testable only on PR
 before_install:
     - |
-        git diff --name-only HEAD~1 | grep -qvE '(\.txt$|\.editorconfig$|\.md$|\.yml$|\..*ignore$)|(^docker)' || {
-          echo "Only non-testable files were updated, skipping from running tests."
-          travis_terminate 0
-        }
+        if [[ ${TRAVUS_PULL_REQUEST} != "false" ]]; then
+            git diff --name-only HEAD~1 | grep -qvE '(\.txt$|\.editorconfig$|\.md$|\.yml$|\..*ignore$)|(^docker)' || {
+              echo "Only non-testable files were updated, skipping from running tests."
+              travis_terminate 0
+            }
+        fi
 
 # Clones WordPress and configures our testing environment
 before_script:
