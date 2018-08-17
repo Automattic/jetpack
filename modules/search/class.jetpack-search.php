@@ -433,49 +433,59 @@ class Jetpack_Search {
 	 * Displays HTML about the result of the spelling auto-correction.
 	 * Should be called during loop_start to be displayed below page headers and above post results.
 	 *
-	 * @since 6.4.2
+	 * @since 6.5.0
 	 *
 	 * @param string $spell_text The text to show in the suggest block
 	 */
 	public function display_suggest_result( $spell_text ) {
-		printf("<div class=\"suggest-result page-header\"><h4>" . $spell_text . "<br><br></h4></div>");
+		printf( "<div class=\"suggest-result page-header\"><h4>" . $spell_text . "<br><br></h4></div>" );
 	}
 
 	/**
 	 * Displays HTML for "Did you mean, $suggestion?", which $suggestion being a link to search for the suggestion.
 	 * Should be called during loop_start to be displayed below page headers and above post results.
 	 *
-	 * @since 6.4.2
+	 * @since 6.5.0
 	 *
 	 * @param WP_Query $query             The WP_Query object.
 	 */
 	public function filter__show_did_you_mean( $query ) {
-		if ( ! is_array( $this->search_result ) ) return;
-		if ( empty( $this->search_result['suggest'] ) ) return;
+		if ( ! is_array( $this->search_result ) ) {
+			return;
+		}
+		if ( empty( $this->search_result['suggest'] ) ) {
+			return;
+		}
 		$suggestion = $this->search_result['suggest']['experimental-phrase-suggester'][0]['options'][0]['text'];
-		if ( $suggestion == $query->get( 's' ) ) return;
-		$this->display_suggest_result( "Did you mean, <em><a href=\"/?s="
-				. $suggestion
-				. "\">"
-				. $suggestion
-				. "?</a></em>" );
+		if ( $suggestion == $query->get( 's' ) ) {
+			return;
+		}
+		$suggestion_sentence = sprintf( wp_kses( _x( 'Did you mean, <em><a href="/?s=%1$s">%2$s?</a></em>', 'displayed as a spelling suggestion for a search query', 'jetpack' ) ), $suggestion, $suggestion );
+		$this->display_suggest_result( $suggestion_sentence );
 	}
 
 	/**
 	 * Displays HTML for "Spell corrected to, $suggestion".
 	 * Should be called during loop_start to be displayed below page headers and above post results.
 	 *
-	 * @since 6.4.2
+	 * @since 6.5.0
 	 *
 	 * @param WP_Query $query             The WP_Query object.
 	 * @param bool $original_has_results  Whether the original query found results.
 	 */
 	public function filter__show_spell_correction( $query ) {
-		if ( ! is_array( $this->search_result ) ) return;
-		if ( empty( $this->search_result['suggest'] ) ) return;
+		if ( ! is_array( $this->search_result ) ) {
+			return;
+		}
+		if ( empty( $this->search_result['suggest'] ) ) {
+			return;
+		}
 		$suggestion = $this->search_result['suggest']['experimental-phrase-suggester'][0]['options'][0]['text'];
-		if ( $suggestion == $query->get( 's' ) ) return;
-		$this->display_suggest_result( "Spell corrected to, <em>". $suggestion . "<em>" );
+		if ( $suggestion == $query->get( 's' ) ) {
+			return;
+		}
+		$suggestion_sentence = sprintf( wp_kses( _x( 'Spell corrected to, <em>%s</em>', 'displayed when the spelling of a search query was corrected', 'jetpack' ) ), $suggestion );
+		$this->display_suggest_result( $suggestion_sentence );
 	}
 
 	/**
@@ -516,7 +526,9 @@ class Jetpack_Search {
 			add_filter( 'loop_start', array( $this, 'filter__show_did_you_mean' ) );
 		} else {
 			// If no results, search again for the top suggestion.
-			if ( empty( $this->search_result['suggest'] ) ) return array();
+			if ( empty( $this->search_result['suggest'] ) ) {
+			  return array();
+			}
 			$suggest_result = $this->search_result['suggest'];
 			$suggestion = $suggest_result['experimental-phrase-suggester'][0]['options'][0]['text'];
 			$original_query = $query->get( 's' );
@@ -1195,9 +1207,48 @@ class Jetpack_Search {
 		$es_query_args['filter']       = $parser->build_filter();
 		$es_query_args['query']        = $parser->build_query();
 		$es_query_args['aggregations'] = $parser->build_aggregation();
-		$es_query_args["suggest"]      = $parser->build_experimental_suggest( $args['query'] );
+		$es_query_args['suggest']      = $this->build_experimental_suggest( $args['query'], $parser );
 
 		return $es_query_args;
+	}
+
+	/**
+	 * Assemble the 'suggest' portion of an ES query, using a phrase suggester. Note that this is experimental and
+	 * only works with English tokens.
+	 *
+	 * @param string $query                    The query text being searched.
+	 * @param Jetpack_WPES_Search_Query_Parser The search query parser for this query.
+	 *
+	 * @return array An experimental suggest query.
+	 */
+	private function build_experimental_suggest( $query, &$parser ) {
+		if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+			// VIP indices do not have per language fields.
+			$field = 'mlt_content';
+		} else {
+			// Add the language suffix but not a boost.
+			$field_with_boost = $parser->merge_ml_fields( array( 'mlt_content' => 0 ), array() )[0];
+			$field = rtrim( $field_with_boost, '^0' );
+		}
+		return array(
+			'text' => $query,
+			'experimental-phrase-suggester' => array(
+				'phrase' => array(
+					'field'                      => $field,
+					"max_errors"                 => 4.0,
+					'confidence'                 => .9,
+					'real_word_error_likelihood' => .9,
+					'size' => 1,
+					"direct_generator" => array(
+						array(
+							'field'           => $field,
+							'suggest_mode'    => 'always',
+							'min_word_length' => 1
+						)
+					)
+				)
+			)
+		);
 	}
 
 	/**
