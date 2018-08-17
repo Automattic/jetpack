@@ -387,19 +387,19 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		do_action( 'jetpack_removed_user_from_blog', $user_id, $reassigned_user_id );
 	}
 
-	private function is_add_new_user_to_blog() {
+	protected function is_add_new_user_to_blog() {
 		return Jetpack::is_function_in_backtrace( 'add_new_user_to_blog' );
 	}
 
-	private function is_add_user_to_blog() {
+	protected function is_add_user_to_blog() {
 		return Jetpack::is_function_in_backtrace( 'add_user_to_blog' );
 	}
 
-	private function is_delete_user() {
+	protected function is_delete_user() {
 		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user' , 'remove_user_from_blog' ) );
 	}
 
-	private function is_create_user() {
+	protected function is_create_user() {
 		$functions = array(
 			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site
 			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site
@@ -409,7 +409,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return Jetpack::is_function_in_backtrace( $functions );
 	}
 
-	private function get_reassigned_network_user_id() {
+	protected function get_reassigned_network_user_id() {
 		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
 		foreach ( $backtrace as $call ) {
 			if (
