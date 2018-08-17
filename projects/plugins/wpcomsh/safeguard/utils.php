@@ -53,17 +53,29 @@ function request_check_plugin( $body ) {
 	$response_code = wp_remote_retrieve_response_code( $request );
 	$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
+	$error_data = array(
+		'wpcom_blog_id' => $wpcom_blog_id,
+		'endpoint'      => $endpoint,
+		'response'      => $response,
+	);
+
 	if ( $response_code === 404 ) {
-		return new WP_Error( 'checking_plugin_failed', 'Request route not found.' );
+		$error_data['response-code'] = 404;
+		return new WP_Error( 'checking_plugin_failed', 'Request route not found.', $error_data );
 	}
 
 	// it should be changed passing the `reject` action;
 	if ( $response_code === 400 ) {
-		return new WP_Error( 'unaccepted_plugin', $response['message'] );
+		$error_data['response-code'] = 400;
+		return new WP_Error( 'unaccepted_plugin', $response['message'], $error_data );
 	}
 
 	if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-		return new WP_Error( 'checking_plugin_failed', "Invalid response from API - {$response_code}"  );
+		return new WP_Error(
+			'checking_plugin_failed',
+			"Invalid response from API - {$response_code}",
+			$error_data
+		);
 	}
 
 	if ( $response['action'] == 'reject' ) {
