@@ -40,3 +40,4 @@ docker
 bin/pre-commit-hook.js
 bin/travis_install.sh
 yarn-error.log
+partner
