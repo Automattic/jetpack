@@ -711,9 +711,10 @@ function wpsc_delete_files( $dir, $delete = true ) {
 		}
 	}
 
+	$orig_dir = $dir;
 	$dir = wpsc_get_realpath( $dir );
 	if ( ! $dir ) {
-		wp_cache_debug( 'wpsc_delete_files: directory does not exist: ' . $dir );
+		wp_cache_debug( 'wpsc_delete_files: directory does not exist: ' . $orig_dir );
 		return false;
 	}
 
@@ -2717,34 +2718,45 @@ function wpsc_delete_cats_tags( $post ) {
 
 function wpsc_post_transition( $new_status, $old_status, $post ) {
 
-	if ( $old_status === 'publish' && $new_status !== 'publish' ) { // post unpublished
-		list( $permalink, $post_name ) = get_sample_permalink( $post->ID );
-		$post_url = str_replace( array( '%pagename%', '%postname%' ), $post->post_name, $permalink );
+	$ptype = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
+	if ( empty( $ptype ) || ! $ptype->public ) {
+		return;
 	}
-	elseif ( $new_status === 'publish' )  {	// post published or updated
-		$post_url  = get_permalink( $post->ID );
+
+	if ( $old_status === 'publish' && $new_status !== 'publish' ) { // post unpublished
+		if ( ! function_exists( 'get_sample_permalink' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/post.php' );
+		}
+		list( $permalink, $post_name ) = get_sample_permalink( $post );
+		$post_url = str_replace( array( "%postname%", "%pagename%" ), $post->post_name, $permalink );
+	}
+	elseif ( $old_status !== 'publish' && $new_status === 'publish' ) { // post published
+		wp_cache_post_edit( $post->ID );
+		return;
 	}
 
 	if ( ! empty( $post_url ) ) {
-		wpsc_delete_post_archives( $post );
-		wpsc_delete_url_cache( $post_url );
 		wp_cache_debug( 'wpsc_post_transition: deleting cache of post: ' . $post_url );
+		wpsc_delete_url_cache( $post_url );
+		wpsc_delete_post_archives( $post );
 	}
 }
 
 /* check if we want to clear out all cached files on post updates, otherwise call standard wp_cache_post_change() */
-function wp_cache_post_edit($post_id) {
+function wp_cache_post_edit( $post_id ) {
 	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir, $wp_cache_object_cache;
 	static $last_post_edited = -1;
 
 	if ( $post_id == $last_post_edited ) {
-		wp_cache_debug( "wp_cache_post_edit: Already processed post $post_id.", 4 );
+		$action = current_filter();
+		wp_cache_debug( "wp_cache_post_edit(${action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 
 	$post = get_post( $post_id );
-	if ( is_object( $post ) == false )
+	if ( ! is_object( $post ) || 'auto-draft' === $post->post_status ) {
 		return $post_id;
+	}
 
 	// Some users are inexplicibly seeing this error on scheduled posts.
 	// define this constant to disable the post status check.
@@ -2764,7 +2776,8 @@ function wp_cache_post_edit($post_id) {
 			prune_super_cache( get_supercache_dir(), true );
 		}
 	} else {
-		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on post edit.", 2 );
+		$action = current_filter();
+		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on ${action}", 2 );
 		wp_cache_post_change( $post_id );
 		wpsc_delete_post_archives( $post_id ); // delete related archive pages.
 	}
@@ -2808,7 +2821,8 @@ function wp_cache_post_change( $post_id ) {
 	static $last_processed = -1;
 
 	if ( $post_id == $last_processed ) {
-		wp_cache_debug( "wp_cache_post_change: Already processed post $post_id.", 4 );
+		$action = current_filter();
+		wp_cache_debug( "wp_cache_post_change(${action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 	$post = get_post( $post_id );
@@ -2866,10 +2880,17 @@ function wp_cache_post_change( $post_id ) {
 		if ( get_option( 'show_on_front' ) == 'page' ) {
 			wp_cache_debug( 'Post change: deleting page_on_front and page_for_posts pages.', 4 );
 			wp_cache_debug( 'Post change: page_on_front ' . get_option( 'page_on_front' ), 4 );
-			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( get_option( 'page_for_posts' ) ) ) );
-			wp_cache_debug( 'Post change: Deleting files in: ' . str_replace( '//', '/', $dir . $permalink ) );
-			wpsc_rebuild_files( $dir . $permalink );
-			do_action( 'gc_cache', 'prune', $permalink );
+			/**
+			 * It's possible that page_for_posts is zero.
+			 * Quick fix to reduce issues in debugging.
+			 */
+			wp_cache_debug( 'Post change: page_for_posts ' . get_option( 'page_for_posts' ), 4 );
+			if ( get_option( 'page_for_posts' ) ) {
+				$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( get_option( 'page_for_posts' ) ) ) );
+				wp_cache_debug( 'Post change: Deleting files in: ' . str_replace( '//', '/', $dir . $permalink ) );
+				wpsc_rebuild_files( $dir . $permalink );
+				do_action( 'gc_cache', 'prune', $permalink );
+			}
 		}
 	} else {
 		wp_cache_debug( 'wp_cache_post_change: not deleting all pages.', 4 );
