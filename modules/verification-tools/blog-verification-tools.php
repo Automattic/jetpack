@@ -29,6 +29,13 @@ function jetpack_verification_services() {
 		),
 	);
 }
+
+
+function jetpack_verification_options_init() {
+	register_setting( 'verification_services_codes_fields', 'verification_services_codes', 'jetpack_verification_validate' );
+}
+add_action( 'admin_init', 'jetpack_verification_options_init' );
+
 function jetpack_verification_print_meta() {
 	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
 	if ( is_array( $verification_services_codes ) ) {
@@ -59,7 +66,4 @@ function jetpack_verification_print_meta() {
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
 
-function jetpack_verification_options_init() {
-	register_setting( 'verification_services_codes_fields', 'verification_services_codes', 'jetpack_verification_validate' );
-}
-add_action( 'admin_init', 'jetpack_verification_options_init' );
+
