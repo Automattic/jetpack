@@ -29,7 +29,35 @@ function jetpack_verification_services() {
 		),
 	);
 }
-
+function jetpack_verification_print_meta() {
+	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
+	if ( is_array( $verification_services_codes ) ) {
+		$ver_output = "<!-- Jetpack Site Verification Tags -->\n";
+		foreach ( jetpack_verification_services() as $name => $service ) {
+			if ( is_array( $service ) && !empty( $verification_services_codes["$name"] ) ) {
+				if ( preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $verification_services_codes["$name"], $matches ) ) {
+					$verification_code = $matches[2];
+				} else {
+					$verification_code = $verification_services_codes["$name"];
+				}
+				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_code ) );
+				/**
+				 * Filter the meta tag template used for all verification tools.
+				 *
+				 * @module verification-tools
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $ver_tag Verification Tool meta tag.
+				 */
+				$ver_output .= apply_filters( 'jetpack_site_verification_output', $ver_tag );
+				$ver_output .= "\n";
+			}
+		}
+	echo $ver_output;
+	}
+}
+add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
 
 function jetpack_verification_options_init() {
 	register_setting( 'verification_services_codes_fields', 'verification_services_codes', 'jetpack_verification_validate' );
