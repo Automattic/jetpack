@@ -3,7 +3,7 @@
 // Edit here to add new services
 function jetpack_verification_services() {
 	return array(
-			'google' => array(
+		'google' => array(
 			'name'   =>'Google Search Console',
 			'key'    =>'google-site-verification',
 			'format' =>'dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8',
