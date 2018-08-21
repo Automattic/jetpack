@@ -38,6 +38,7 @@ function jetpack_verification_options_init() {
 	);
 }
 add_action( 'admin_init', 'jetpack_verification_options_init' );
+add_action( 'rest_api_init', 'jetpack_verification_options_init' );
 
 function jetpack_verification_print_meta() {
 	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );

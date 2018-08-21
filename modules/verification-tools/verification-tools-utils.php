@@ -5,7 +5,7 @@
  * This file will be included in module-extras.php.
  */
 
-function jetpack_verification_validate( &$verification_services_codes ) {
+function jetpack_verification_validate( $verification_services_codes ) {
 	foreach ( $verification_services_codes as $key => $code ) {
 		// Parse html meta tags if present
 		if ( stripos( $code, 'meta' ) )
