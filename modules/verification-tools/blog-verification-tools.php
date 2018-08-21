@@ -30,9 +30,12 @@ function jetpack_verification_services() {
 	);
 }
 
-
 function jetpack_verification_options_init() {
-	register_setting( 'verification_services_codes_fields', 'verification_services_codes', 'jetpack_verification_validate' );
+	register_setting(
+		'verification_services_codes_fields',
+		'verification_services_codes',
+		[ 'sanitize_callback' => 'jetpack_verification_validate' ]
+	);
 }
 add_action( 'admin_init', 'jetpack_verification_options_init' );
 
