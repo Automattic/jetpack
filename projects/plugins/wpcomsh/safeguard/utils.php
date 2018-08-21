@@ -1,4 +1,14 @@
 <?php
+namespace Safeguard;
+
+use \ZipArchive;
+use \RecursiveDirectoryIterator;
+use \RecursiveIteratorIterator;
+use \WP_Error;
+use \WPCOMSH_Log;
+use \Jetpack_Options;
+use \Jetpack_Client;
+
 const DOTORG_API_HOST             = 'https://api.wordpress.org';
 const DOTORG_PLUGINS_HOST         = DOTORG_API_HOST . '/plugins';
 const DOTORG_PLUGIN_INFO_ENDPOINT = DOTORG_PLUGINS_HOST . '/info/1.0/';
@@ -27,9 +37,9 @@ function search_plugin_info( $slug ) {
  * @param  array $body array data with needed information to check the plugin
  * @return WP_Error|bool error instance if something fails, `true` if plugin is accepted.
  */
-function request_check_plugin( $body ) {
+function request_check_plugin( $slug, $body ) {
 	$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
-	$endpoint = "jetpack-blogs/{$wpcom_blog_id}/check-plugin";
+	$endpoint = "/sites/{$wpcom_blog_id}/plugins/{$slug}/check";
 
 	$request = Jetpack_Client::wpcom_json_api_request_as_blog(
 		$endpoint,

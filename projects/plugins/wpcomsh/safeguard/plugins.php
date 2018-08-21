@@ -1,4 +1,12 @@
 <?php
+namespace Safeguard;
+/**
+ * Plugin Name: Safeguard
+ * Description: Checking plugin for safety and compatibility.
+ * Version: 0.0.6
+ * Author: Automattic
+ * Author URI: http://automattic.com/
+ */
 
 require_once dirname( __FILE__ ) . '/utils.php';
 /**
@@ -39,7 +47,7 @@ add_filter( 'wp_insert_attachment_data', function ( $data ) use( $attachment_dat
 		}
 
 		// create request body
-		$request_body = array( 'slug' => $plugin_data['slug'] );
+		$request_body = array();
 
 		// check the plugin exists in wordpress.org
 		$plugin_info = search_plugin_info( $plugin_data['slug'] );
@@ -53,7 +61,7 @@ add_filter( 'wp_insert_attachment_data', function ( $data ) use( $attachment_dat
 		$request_body['version'] = $plugin_data['version'];
 
 		// check plugin hitting the WP COM API endpoint
-		$checking_passed = request_check_plugin( $request_body );
+		$checking_passed = request_check_plugin( $plugin_data['slug'], $request_body );
 		if ( is_wp_error( $checking_passed ) ) {
 			log_safeguard_error( $checking_passed, array(
 				'package' => $package,
