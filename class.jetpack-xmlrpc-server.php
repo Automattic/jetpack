@@ -327,8 +327,8 @@ class Jetpack_XMLRPC_Server {
 			$ixr_client = new Jetpack_IXR_Client();
 		}
 		$ixr_client->query( 'jetpack.getUserAccessToken', array(
-			'nonce'   => sanitize_text_field( $request['nonce'] ),
-			'user_id' => $user->ID,
+			'nonce'            => sanitize_text_field( $request['nonce'] ),
+			'external_user_id' => $user->ID,
 		) );
 
 		$token = $ixr_client->isError() ? false : $ixr_client->getResponse();
