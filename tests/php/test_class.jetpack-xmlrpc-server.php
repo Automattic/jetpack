@@ -328,7 +328,9 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 			) )
 			->getMock();
 
-		$server->method( 'do_post_authorization' )->willReturn( true );
+		$server->expects( $this->any() )
+			->method( 'do_post_authorization' )
+			->willReturn( true );
 
 		return $server;
 	}
