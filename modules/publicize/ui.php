@@ -119,7 +119,8 @@ class Publicize_UI {
 			}
 
 			printf(
-				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. WordPress.com or Jetpack', 'jetpack' ),
+				/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Site type (WordPress.com or Jetpack) */
+				__( 'You have successfully connected your %1$s account with %2$s.', 'jetpack' ),
 				Publicize::get_service_label( $service_name ),
 				$platform
 			); ?></p>
@@ -291,7 +292,11 @@ class Publicize_UI {
 	function broken_connection( $service_name, $id ) { ?>
 		<div id="thickbox-content">
 			<div class='error'>
-				<p><?php printf( __( 'There was a problem connecting to %s. Please disconnect and try again.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
+				<p><?php printf(
+					/* translators: %s: Service Name (Facebook, Twitter, ...) */
+					__( 'There was a problem connecting to %s. Please disconnect and try again.', 'jetpack' ),
+					Publicize::get_service_label( $service_name )
+				); ?></p>
 			</div>
 		</div><?php
 	}
@@ -771,7 +776,8 @@ jQuery( function($) {
 					}
 
 					$label = sprintf(
-						_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
+						/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on Service (@jetpack, ...) */
+						__( '%1$s: %2$s', 'jetpack' ),
 						esc_html( $this->publicize->get_service_label( $name ) ),
 						esc_html( $this->publicize->get_display_name( $name, $connection ) )
 					);
