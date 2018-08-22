@@ -12,6 +12,7 @@ import {
 	getModuleOptionValidValues
 } from 'state/modules';
 import {
+	fetchSettings,
 	getSetting,
 	updateSettings,
 	isUpdatingSetting,
@@ -65,6 +66,9 @@ export function connectModuleOptions( Component ) {
 			},
 			clearUnsavedSettingsFlag: () => {
 				return dispatch( clearUnsavedSettingsFlag() );
+			},
+			refreshSettings: () => {
+				return dispatch( fetchSettings() );
 			}
 		} )
 	)( Component );

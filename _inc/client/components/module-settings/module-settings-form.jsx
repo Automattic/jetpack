@@ -127,6 +127,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					this.setState( { options: {} } );
 				} )
 				.then( () => {
+					this.props.refreshSettings();
 					this.props.clearUnsavedSettingsFlag();
 				} );
 		};
