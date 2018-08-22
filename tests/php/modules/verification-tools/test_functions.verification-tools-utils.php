@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 
 		$processed_codes = jetpack_verification_validate( $codes );
 
-		foreach( [ 'google', 'bing', 'yandex' ] as $key ) {
+		foreach( array( 'google', 'bing', 'yandex' ) as $key ) {
 			$this->assertEquals(
 				substr( esc_attr( trim( $codes[ $key ] ) ), 0, 100 ),
 				$processed_codes[ $key ],
