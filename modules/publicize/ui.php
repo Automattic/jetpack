@@ -148,6 +148,18 @@ class Publicize_UI {
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
 	 */
 	function admin_page() {
+		$override_publicize_settings_page = apply_filters_deprecated(
+			'jetpack_override_publicize_settings_page',
+			array( false ),
+			'6.5',
+			false,
+			__( 'This filter will be removed in a future version of Jetpack', 'jetpack' )
+		);
+
+		if ( $override_publicize_settings_page ) {
+			return;
+		}
+
 		$_blog_id = get_current_blog_id();
 		?>
 
