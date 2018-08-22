@@ -3,6 +3,11 @@
 use WHMCS\Database\Capsule;
 
 
+if (!defined("WHMCS")) {
+    die("This file cannot be accessed directly");
+}
+
+
 /**
  * A WHMCS module for use by Jetpack hosting partners to provision Jetpack plans.
  * The module provides functionality for partner hosts to be able to save their
@@ -21,11 +26,6 @@ use WHMCS\Database\Capsule;
  * Jetpack Meta Data for WHMCS module.
  * @return array
  */
-
-if (!defined("WHMCS")) {
-    die("This file cannot be accessed directly");
-}
-
 function jetpack_MetaData()
 {
     return array(
