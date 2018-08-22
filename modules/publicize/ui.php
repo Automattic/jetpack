@@ -693,6 +693,9 @@ jQuery( function($) {
 			// We don't allow Publicizing to the same external id twice, to prevent spam
 			$service_id_done = (array) get_post_meta( $post->ID, $this->publicize->POST_SERVICE_DONE, true );
 
+			// In addition to looking at $all_done, we also look through the currently active services
+			// To see if they are all done.
+			$all_services_done = true;
 			foreach ( $services as $name => $connections ) {
 				foreach ( $connections as $connection ) {
 					$connection_data = '';
@@ -700,6 +703,16 @@ jQuery( function($) {
 						$connection_data = $connection->get_meta( 'connection_data' );
 					elseif ( ! empty( $connection['connection_data'] ) )
 						$connection_data = $connection['connection_data'];
+
+					if ( ! empty( $connection->unique_id ) ) {
+						$unique_id = $connection->unique_id;
+					} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
+						$unique_id = $connection['connection_data']['token_id'];
+					}
+
+					// Was this connections (OR, old-format service) already Publicized to?
+					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
+					$all_services_done = $all_services_done && $done;
 
 					/**
 					 * Filter whether a post should be publicized to a given service.
@@ -715,12 +728,6 @@ jQuery( function($) {
 					 */
 					if ( ! $continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
 						continue;
-					}
-
-					if ( ! empty( $connection->unique_id ) ) {
-						$unique_id = $connection->unique_id;
-					} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
-						$unique_id = $connection['connection_data']['token_id'];
 					}
 
 					// Should we be skipping this one?
@@ -746,9 +753,6 @@ jQuery( function($) {
 							)
 						)
 					);
-
-					// Was this connections (OR, old-format service) already Publicized to?
-					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
 
 					// If this one has already been publicized to, don't let it happen again
 					$disabled = '';
@@ -798,8 +802,8 @@ jQuery( function($) {
 						$checked = true;
 					}
 					$disabled = false;
-					// This post has been handled, so disable everything
-					if ( $all_done ) {
+					// This service has been handled, so disable everything
+					if ( $done || $all_done ) {
 						$disabled = ' disabled="disabled"';
 					}
 
@@ -859,7 +863,7 @@ jQuery( function($) {
 			<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
 			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
 
-			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
+			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done || $all_services_done ); ?>><?php echo $title; ?></textarea>
 
 			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
