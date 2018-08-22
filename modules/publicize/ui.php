@@ -10,6 +10,8 @@ class Publicize_UI {
 	*/
 	public $publicize;
 
+	protected $publicize_settings_url = '';
+
 	/**
 	* Hooks into WordPress to display the various pieces of UI and load our assets
 	*/
@@ -22,6 +24,14 @@ class Publicize_UI {
 	}
 
 	function init() {
+		$this->publicize_settings_url = apply_filters_deprecated(
+			'jetpack_override_publicize_settings_url',
+			array( admin_url( 'options-general.php?page=sharing' ) ),
+			'6.5',
+			false,
+			__( 'This filter will be removed in a future version of Jetpack', 'jetpack' )
+		);
+
 		// Show only to users with the capability required to manage their Publicize connections.
 		/**
 		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
@@ -521,13 +531,12 @@ jQuery( function($) {
 			}
 
 			if( ! testResult.connectionTestPassed && ! testResult.userCanRefresh ) {
-
 				$( '#wpas-submit-' + testResult.unique_id ).prop( "checked", false ).prop( "disabled", true );
 				if ( ! facebookNotice ) {
 					var message = '<p>'
 						+ testResult.connectionTestMessage
 						+ '</p><p>'
-						+ ' <a class="button" href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank">'
+						+ ' <a class="button" href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank">'
 						+ '<?php echo esc_html( __( 'Update Your Sharing Settings' ,'jetpack' ) ); ?>'
 						+ '</a>'
 						+ '<p>';
@@ -627,7 +636,7 @@ jQuery( function($) {
 							<strong><?php echo esc_html( $item ); ?></strong>
 						<?php endforeach; ?>
 					</span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php else : ?>
 					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
