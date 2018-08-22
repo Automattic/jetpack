@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 4.9.8
-* Stable tag: 1.6.3
+* Stable tag: 1.6.4
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -265,6 +265,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.6.4 ###
+* Changes between [1.6.3 and 1.6.4](https://github.com/Automattic/wp-super-cache/compare/1.6.3...1.6.4)
+* Fixes for WP-CLI (#587) (#592)
+* Bumped the minimum WordPress version to 3.1 to use functions introduced then. (#591)
+* Fixes to wpsc_post_transition to avoid a fatal error using get_sample_permalink. (#595)
+* Fixed the admin bar "Delete Cache" link. (#589)
+* Fixed the headings used in the settings page. (#597)
 
 ### 1.6.3 ###
 * Changes between [1.6.2 and 1.6.3](https://github.com/Automattic/wp-super-cache/compare/1.6.2...1.6.3)
@@ -683,4 +691,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Bug fixes and new features
+Bug fixes
