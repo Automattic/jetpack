@@ -405,6 +405,13 @@ jQuery( function($) {
 	// set the initial placeholder
 	postTitle.trigger( 'keyup' );
 
+	// If a custom message has been provided, open the UI so the author remembers
+	if ( wpasTitle.val() && ! wpasTitle.prop( 'disabled' ) && wpasTitle.attr( 'placeholder' ) !== wpasTitle.val() ) {
+		$( '#publicize-form' ).show();
+		$( '#publicize-defaults' ).hide();
+		$( '#publicize-form-edit' ).hide();
+	}
+
 	$('#publicize-disconnected-form-show').click( function() {
 		$('#publicize-form').slideDown( 'fast' );
 		$(this).hide();
