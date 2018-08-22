@@ -233,3 +233,14 @@ export function isAtomicSite( state ) {
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
 }
+
+/**
+ * Check if backups UI should be displayed.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if backups UI should be displayed.
+ */
+export function showBackups( state ) {
+	return get( state.jetpack.initialState.siteData, 'showBackups', true );
+}

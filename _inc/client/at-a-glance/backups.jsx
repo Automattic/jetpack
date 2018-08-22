@@ -19,6 +19,7 @@ import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -128,6 +129,10 @@ class DashBackups extends Component {
 	}
 
 	render() {
+		if ( ! this.props.showBackups ) {
+			return null;
+		}
+
 		if ( this.props.isDevMode ) {
 			return (
 				<div className="jp-dash-item__interior">
@@ -185,7 +190,8 @@ export default connect(
 			vaultPressData: getVaultPressData( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
-			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' )
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			showBackups: showBackups( state ),
 		};
 	}
 )( DashBackups );

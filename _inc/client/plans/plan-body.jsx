@@ -30,6 +30,7 @@ import {
 	getModuleOverride
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { showBackups } from 'state/initial-state';
 
 class PlanBody extends React.Component {
 	static propTypes = {
@@ -89,7 +90,7 @@ class PlanBody extends React.Component {
 			: 'dev';
 		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			hideVaultPressCard = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
+			hideVaultPressCard = ! this.props.showBackups || ( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
 		const getRewindVaultPressCard = () => {
 			if ( hideVaultPressCard ) {
@@ -351,7 +352,7 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						'is-personal-plan' === planClass && (
+						this.props.showBackups && 'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Three great reasons to go Pro' ) }</h3>
 								<p>{ __( 'Design the perfect site with unlimited access to hundreds of themes and unlimited, high-speed, and ad-free video hosting.' ) }</p>
@@ -367,7 +368,7 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						'is-premium-plan' === planClass && (
+						( ! this.props.showBackups && 'is-personal-plan' === planClass ) || 'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Two great reasons to go Pro' ) }</h3>
 								<p>{ __( 'Unlimited access to hundreds of premium WordPress themes with dedicated support directly from the theme authors.' ) }</p>
@@ -398,10 +399,13 @@ class PlanBody extends React.Component {
 							<p>{ __( 'Reach more people and earn money with automated social media scheduling, better search results, SEO preview tools, PayPal payments, and an ad program.' ) }</p>
 						</div>
 
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
-							<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
-						</div>
+						{
+							this.props.showBackups &&
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+								<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
+							</div>
+						}
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
@@ -458,7 +462,8 @@ export default connect(
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
 			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
-			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug )
+			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug ),
+			showBackups: showBackups( state ),
 		};
 	},
 	( dispatch ) => {
