@@ -308,15 +308,15 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
 			->method( 'query' )
-			->willReturn( $query_return );
+			->will( $this->returnValue( $query_return ) );
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
 			->method( 'isError' )
-			->willReturn( empty( $error ) ? false : true );
+			->will( $this->returnValue( empty( $error ) ? false : true ) );
 
 		$xml->expects( $this->exactly( empty( $error ) ? 1 : 0 ) )
 			->method( 'getResponse' )
-			->willReturn( $response );
+			->will( $this->returnValue( $response ) );
 
 		return $xml;
 	}
@@ -330,7 +330,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		$server->expects( $this->any() )
 			->method( 'do_post_authorization' )
-			->willReturn( true );
+			->will( $this->returnValue( true ) );
 
 		return $server;
 	}
