@@ -6637,6 +6637,7 @@ p {
 			'jetpack_cache_plans'                                    => null,
 			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
 			'jetpack_lazy_images_skip_image_with_atttributes'        => 'jetpack_lazy_images_skip_image_with_attributes',
+			'jetpack_enable_site_verification'                       => null,
 		);
 
 		// This is a silly loop depth. Better way?
