@@ -686,7 +686,6 @@ function stats_reports_page( $main_chart_only = false ) {
 				die();
 			}
 		}
-		error_log( print_r( $get, 1) );
 		$body = stats_convert_post_titles( $get['body'] );
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
