@@ -71,7 +71,7 @@ function jetpack_verification_tool_box() {
 		<div class="jp-verification-tools card">
 			<h3 class="title"><?php _e( 'Website Verification Services', 'jetpack' ) ?>&nbsp;<a href="http://support.wordpress.com/webmaster-tools/" rel="noopener noreferrer" target="_blank">(?)</a></h3>
 			<p>
-				<?php _e( sprintf( 'You can verify your site using the <a href="%s">"Site verification" tool in Jetpack Settings</a>.', esc_url( admin_url( 'admin.php?page=jetpack#/traffic' ) ) ), 'jetpack' ); ?>
+				<?php printf( __( 'You can verify your site using the <a href="%s">"Site verification" tool in Jetpack Settings</a>.', 'jetpack' ), esc_url( admin_url( 'admin.php?page=jetpack#/traffic' ) ) ); ?>
 			</p>
 		</div>
 	<?php
