@@ -53,7 +53,7 @@ class Jetpack_Google_Analytics {
 		/**
 		 * Allow for universal analytics (analytics.js) to be used outside of ecommerce contexts
 		 *
-		 * @since 6.1.0
+		 * @since 6.5.0
 		 *
 		 * @param bool Whether universal analytics (analytics.js) should be used (true) or legacy (ga.js) should be used (false)
 		 */
@@ -85,7 +85,7 @@ class Jetpack_Google_Analytics {
  * Bootstrap analytics on the init action. This allows filtering of things like
  * jetpack_wga_use_universal_analytics
  *
- * @since 6.1.0
+ * @since 6.5.0
  *
  * @return void
  */
