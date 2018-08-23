@@ -1,5 +1,23 @@
 == Changelog ==
 
+= 6.4.2 =
+
+* Release date: August 10, 2018
+* Release post: https://wp.me/p1moTy-9pL
+
+**Bug fixes**
+
+Comments: We fixed an error that broke functionality of Social Login for comments.
+
+= 6.4.1 =
+
+* Release date: August 8, 2018
+* Release post: https://wp.me/p1moTy-9pc
+
+**Bug fixes**
+
+Comments: We fixed an error that broke functionality of nested comments.
+
 = 6.4 =
 
 * Release date: August 7, 2018
