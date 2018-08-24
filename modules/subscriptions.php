@@ -89,7 +89,7 @@ class Jetpack_Subscriptions {
 			add_action( 'template_redirect', array( $this, 'widget_submit' ) );
 
 		// Set up the comment subscription checkboxes
-		add_action( 'comment_form', array( $this, 'comment_subscribe_init' ) );
+		add_action( 'comment_form_after_fields', array( $this, 'comment_subscribe_init' ) );
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
