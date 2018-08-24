@@ -698,17 +698,10 @@ jQuery( function($) {
 			$all_services_done = true;
 			foreach ( $services as $name => $connections ) {
 				foreach ( $connections as $connection ) {
-					$connection_data = '';
-					if ( method_exists( $connection, 'get_meta' ) )
-						$connection_data = $connection->get_meta( 'connection_data' );
-					elseif ( ! empty( $connection['connection_data'] ) )
-						$connection_data = $connection['connection_data'];
+					$connection_meta = $this->publicize->get_connection_meta( $connection );
+					$connection_data = $connection_meta['connection_data'];
 
-					if ( ! empty( $connection->unique_id ) ) {
-						$unique_id = $connection->unique_id;
-					} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
-						$unique_id = $connection['connection_data']['token_id'];
-					}
+					$unique_id = $this->publicize->get_connection_unique_id( $connection );
 
 					// Was this connections (OR, old-format service) already Publicized to?
 					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
