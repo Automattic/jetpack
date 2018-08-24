@@ -12,7 +12,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	/**
 	 * Current test user id produced by factory method.
 	 *
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 * @var integer $user_id ID of current user.
 	 */
 	private $user_id;
@@ -20,7 +20,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	/**
 	 * Index in 'publicize_connections' test data of Facebook connection.
 	 *
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 * @var integer FACEBOOK_CONNECTION_INDEX index number of facebook connection.
 	 */
 	const FACEBOOK_CONNECTION_INDEX = 0;
@@ -28,7 +28,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	/**
 	 * Index in 'publicize_connections' test data of Tumblr connection.
 	 *
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 * @var integer TUMBLR_CONNECTION_INDEX index number of Tumblr connection.
 	 */
 	const TUMBLR_CONNECTION_INDEX = 1;
@@ -243,7 +243,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * of already shared post.
 	 *
 	 * @covers Publicize::done_sharing_post()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_done_sharing_post_for_done_all() {
 		$this->assertFalse(
@@ -262,7 +262,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * that already published post is correctly reported as 'done'.
 	 *
 	 * @covers Publicize::done_sharing_post()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_done_sharing_post_for_published() {
 		$this->assertFalse(
@@ -285,7 +285,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * connections that are valid for the current user.
 	 *
 	 * @covers Publicize::get_services_connected()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_get_services_connected() {
 		$connected_services = $this->publicize->get_services( 'connected' );
@@ -299,7 +299,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * has not been shared yet.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_get_filtered_connection_data_no_filters() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
@@ -347,7 +347,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * so a new post will not have connections disabled.
 	 *
 	 * @covers Publicize::done_sharing_post()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_done_sharing_post_null_post() {
 		/**
@@ -367,7 +367,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * through without disabling connections.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_get_filtered_connection_data_null_post() {
 		/**
@@ -388,7 +388,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * been applied.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_filter_wpas_submit_post() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
@@ -426,7 +426,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * can be used to cause such a connection to be shown.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_filter_publicize_checkbox_global_default() {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
@@ -455,7 +455,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * can correctly set default value to unchecked.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_filter_publicize_checkbox_default() {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
@@ -482,7 +482,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * its checkbox should be disabled.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 */
 	public function test_get_filtered_connection_data_disabled_done_all() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
@@ -515,7 +515,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * get_filtered_connection_data so this callback can be reused
 	 * for all filter test cases.
 	 *
-	 * @since 6.2.0
+	 * @since 6.5.0
 	 *
 	 * @param bool   $enabled         Should the connection be enabled.
 	 * @param int    $post_id         Post ID.
