@@ -31,7 +31,7 @@ As part of the the product creation for WHMCS you may use any of the 4 options u
 
 In the Clients Tab of WHMCS admin under Products/Services the module currently provides functionality for Create and Terminate for Jetpack plans. If you do not setup the product to be automatically provisioned on checkout you will be able perform either of these actions for your users. 
 
-###Additional Information/Troubleshooting:
+### Additional Information/Troubleshooting:
 - The jetpack_provisioning_details field will either contain a URL that a user can use to complete the setup for a provisioned jetpack plan or a message indicating that a plan is waiting. The plan will be waiting in the event that the domain that was supplied for provisioning does not resolve likely because it was also just purchased.
 
 - The module will relay issues that are preventing it from functioning properly that are due to incorrect set up of the product whenever manual provisioning is attempted. Examples of these include an incorrectly entered required field or a missing hosting partner information like the client id or secret. Other errors will require that Module logging be enabled in the Logs section of the Utilities tab for WHMCS.. These errors will also be logged if automatic provisioning is being done and Module logging ins enabled in WHMCS Utilities. 
