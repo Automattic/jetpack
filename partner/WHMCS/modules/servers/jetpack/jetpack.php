@@ -84,12 +84,13 @@ function jetpack_CreateAccount(array $params)
         );
 
         $response = make_api_request($provisioning_url, $access_token, $request_data);
+        if ($response->success && $response->success == true) {
+            if ($response->next_url) {
+                save_provisioning_details($response->next_url, $params);
+            } else if(!$response->next_url && $response->auth_required)  {
+                save_provisioning_details($response->next_url, $params, true);
+            }
 
-        if (isset($response->next_url)) {
-            save_next_url($response->next_url, $params);
-        }
-
-        if ($response->success == true) {
             return 'success';
         }
     } catch(Exception $e) {
@@ -191,7 +192,8 @@ function make_api_request($url, $auth='', $data=[])
 
     if ($http_code >= 400) {
         logModuleCall('jetpack', __FUNCTION__, $url, $data, $response);
-        throw new Exception('Something Went wrong');
+        throw new Exception('Something went wrong while provisioning. Please temporarily enable Module logging 
+        in the Utilities tab and try again for more information');
     } else if (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
@@ -209,13 +211,20 @@ function make_api_request($url, $auth='', $data=[])
  * @param $url
  * @param $orderId
  */
-function save_next_url($url, $params)
+function save_provisioning_details($url, $params, $pending=false)
 {
     $jetpack_next_url_field = Capsule::table('tblcustomfields')
         ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
 
-    Capsule::table('tblcustomfieldsvalues')->insert(array(
-        'fieldid' => $jetpack_next_url_field->id, 'relid' => $params['model']['orderId'], 'value' => $url));
+    $details = '';
+    if ($url) {
+        $details = 'URL to Activate Jetpack: ' . $url;
+    } else if ($pending) {
+        $details = 'The domain did not appear to resolve when provisioning was attempted however a Jetpack plan is waiting for ' .
+            $params['customfields']['Site URL'] . '. Once DNS resolves please connect the site via the Jetpack Banner in the sites dashboard';
+    }
+    Capsule::table('tblcustomfieldsvalues')->where(array('fieldid' => $jetpack_next_url_field->id))->update(array(
+         'relid' => $params['model']['orderId'], 'value' => $details));
 }
 
 /**
