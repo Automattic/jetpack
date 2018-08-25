@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 1.9.5
+ * Version: 1.9.6
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -18,7 +18,7 @@ class VaultPress {
 	var $option_name          = 'vaultpress';
 	var $auto_register_option = 'vaultpress_auto_register';
 	var $db_version           = 4;
-	var $plugin_version       = '1.9.5';
+	var $plugin_version       = '1.9.6';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -952,6 +952,11 @@ class VaultPress {
 	 */
 	function ai_ping_next() {
 		global $wpdb;
+
+		if ( absint( $this->ai_ping_count() ) >= 100 ) {
+			return false;
+		}
+
 		$name = "_vp_ai_ping";
 		$wpdb->query( $wpdb->prepare( "DELETE FROM `$wpdb->options` WHERE `option_name` = %s;", $name ) );
 		$success = $wpdb->query( $wpdb->prepare( "INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, '', 'no')", $name ) );
@@ -962,7 +967,12 @@ class VaultPress {
 	}
 
 	function ai_ping_insert( $value ) {
+		if ( absint( $this->ai_ping_count() ) >= 100 ) {
+			return false;
+		}
+
 		$new_id = $this->ai_ping_next();
+
 		if ( !$new_id )
 			return false;
 		add_option( '_vp_ai_ping_' . $new_id, $value, '', 'no' );
