@@ -1,5 +1,13 @@
 version: '3.3'
 
+## If docker is launched via Jetpack's `yarn docker:compose` (used by all
+## of the `yarn docker:*` scripts), the containers' host ports can be
+## configured via the following environment variables:
+## PORT_WORDPRESS - default 80
+## PORT_MYSQL     - default 3306
+## PORT_MAILDEV   - default 1080
+## PORT_SMTP      - default 25
+## PORT_SFTP      - default 1022
 
 volumes:
   ## Kludge for not having the ./docker directory bound recursively
@@ -16,7 +24,7 @@ services:
       - ./data/mysql:/var/lib/mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "3306:3306" #port:MYSQL
     env_file:
       - default.env
       - .env
@@ -28,8 +36,8 @@ services:
     container_name: maildev
     restart: always
     ports:
-      - "1080:80"
-      - "25:25"
+      - "1080:80" #port:MAILDEV
+      - "25:25" #port:SMTP
 
   ## SFTP server running at localhost:1022
   sftp:
@@ -41,7 +49,7 @@ services:
       - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
       - ./wordpress:/home/wordpress/var/www/html
     ports:
-      - "1022:22"
+      - "1022:22" #port:SFTP
     env_file:
       - ./default.env
       - ./.env
@@ -77,7 +85,7 @@ services:
       - ./logs/php:/var/log/php
       - ./bin:/var/scripts
     ports:
-      - "80:80"
+      - "80:80" #port:WORDPRESS
     restart: always
     env_file:
       - default.env
