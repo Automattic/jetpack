@@ -7263,7 +7263,6 @@ p {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Check if Gutenberg editor is available
 	 *
 	 * @since 6.5.0
