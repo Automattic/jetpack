@@ -19,6 +19,7 @@ yarn-error.log
 /modules/**/*/*block.js
 
 ## Things for docker-composer
+/docker/docker-compose.mine
 /docker/data/mysql/*
 !/docker/data/mysql/.gitkeep
 /docker/logs/*
