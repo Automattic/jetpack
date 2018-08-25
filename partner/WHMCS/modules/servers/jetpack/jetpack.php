@@ -1,12 +1,12 @@
 <?php
 
-use WHMCS\Database\Capsule;
-
-
 /**
  * @group whmcs
  * Requires PHP 5.6.0
  */
+use WHMCS\Database\Capsule;
+
+
 if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
