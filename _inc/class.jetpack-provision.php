@@ -170,9 +170,7 @@ class Jetpack_Provision { //phpcs:ignore
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer $access_token",
-				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' )
-					? JETPACK__WPCOM_JSON_API_HOST_HEADER
-					: 'public-api.wordpress.com',
+				'Host'          => 'public-api.wordpress.com',
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
@@ -253,7 +251,7 @@ class Jetpack_Provision { //phpcs:ignore
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $access_token,
-				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+				'Host'          => 'public-api.wordpress.com',
 			),
 			'timeout' => 10,
 			'method'  => 'POST',
