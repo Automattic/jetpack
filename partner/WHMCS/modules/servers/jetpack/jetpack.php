@@ -3,6 +3,10 @@
 use WHMCS\Database\Capsule;
 
 
+/**
+ * @group whmcs
+ * Requires PHP 5.6.0
+ */
 if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
@@ -87,17 +91,16 @@ function jetpack_CreateAccount(array $params)
         if ($response->success && $response->success == true) {
             if ($response->next_url) {
                 save_provisioning_details($response->next_url, $params);
-            } else if(!$response->next_url && $response->auth_required)  {
+            } elseif (!$response->next_url && $response->auth_required) {
                 save_provisioning_details($response->next_url, $params, true);
             }
 
             return 'success';
         }
-    } catch(Exception $e) {
+    } catch (Exception $e) {
         logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getMessage());
         return $e->getMessage();
     }
-
 }
 
 /**
@@ -115,17 +118,15 @@ function jetpack_TerminateAccount(array $params)
 
         $access_token = get_access_token($params);
         $clean_url = str_replace('/', '::', $params['customfields']['Site URL']);
-        $url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url .'/partner-cancel';
+        $url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
         $response = make_api_request($url, $access_token);
         if ($response->success == true) {
             return 'success';
         }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getMessage());
         return $e->getMessage();
     }
-
 }
 
 /**
@@ -170,7 +171,7 @@ function get_access_token($params)
  * @return mixed
  * @throws Exception
  */
-function make_api_request($url, $auth='', $data=[])
+function make_api_request($url, $auth = '', $data = [])
 {
     if (isset($auth)) {
         $auth = "Authorization: Bearer " . $auth;
@@ -194,7 +195,7 @@ function make_api_request($url, $auth='', $data=[])
         logModuleCall('jetpack', __FUNCTION__, $url, $data, $response);
         throw new Exception('Something went wrong while provisioning. Please temporarily enable Module logging 
         in the Utilities tab and try again for more information');
-    } else if (curl_error($curl)) {
+    } elseif (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
         throw new Exception('Empty response');
@@ -211,7 +212,7 @@ function make_api_request($url, $auth='', $data=[])
  * @param $url
  * @param $orderId
  */
-function save_provisioning_details($url, $params, $pending=false)
+function save_provisioning_details($url, $params, $pending = false)
 {
     $jetpack_next_url_field = Capsule::table('tblcustomfields')
         ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
@@ -219,9 +220,10 @@ function save_provisioning_details($url, $params, $pending=false)
     $details = '';
     if ($url) {
         $details = 'URL to Activate Jetpack: ' . $url;
-    } else if ($pending) {
-        $details = 'The domain did not appear to resolve when provisioning was attempted however a Jetpack plan is waiting for ' .
-            $params['customfields']['Site URL'] . '. Once DNS resolves please connect the site via the Jetpack Banner in the sites dashboard';
+    } elseif ($pending) {
+        $details = 'The domain did not appear to resolve when provisioning was attempted however a Jetpack plan is 
+        waiting for ' . $params['customfields']['Site URL'] . '. Once DNS resolves please connect the site via 
+        the Jetpack Banner in the sites dashboard';
     }
     Capsule::table('tblcustomfieldsvalues')->where(array('fieldid' => $jetpack_next_url_field->id))->update(array(
          'relid' => $params['model']['orderId'], 'value' => $details));
@@ -244,17 +246,21 @@ function validate_required_fields(array $params)
     $allowed_plans = array('free', 'personal', 'premium', 'professional');
     $required_custom_fields = array('Plan', 'Site URL', 'Local User');
 
-    foreach ($required_custom_fields as $field)
+    foreach ($required_custom_fields as $field) {
         if (!isset($params['customfields'][$field])) {
             throw new Exception('The module does not appear to be setup correctly. The required custom field '
-            . $field . ' was not setup when the product was created. Please see the module documentation for more information');
+                . $field . ' was not setup when the product was created.
+				Please see the module documentation for more information');
         }
+    }
+
 
     $jetpack_next_url_field = Capsule::table('tblcustomfields')
         ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
 
     if (!$jetpack_next_url_field) {
-        throw new Exception('The module does not appear to be setup correctly. The jetpack_provisioning_details field is missing');
+        throw new Exception('The module does not appear to be setup correctly. 
+        The jetpack_provisioning_details field is missing');
     }
 
     if (!in_array(strtolower($params['customfields']['Plan']), $allowed_plans)) {
@@ -269,4 +275,3 @@ function validate_required_fields(array $params)
 
     return true;
 }
-
