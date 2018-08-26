@@ -105,7 +105,6 @@
 		<exclude>
 			<group>external-http</group>
 			<group>uninstall</group>
-			<group>whmcs</group>
 		</exclude>
 	</groups>
 	<filter>
