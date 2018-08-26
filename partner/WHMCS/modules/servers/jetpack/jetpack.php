@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @group whmcs
- * Requires PHP 5.6.0
- */
 use WHMCS\Database\Capsule;
 
 
@@ -75,9 +71,13 @@ function jetpack_ConfigOptions()
  */
 function jetpack_CreateAccount(array $params)
 {
-    try {
-        validate_required_fields($params);
 
+    $validation_status = validate_required_fields($params);
+    if ($validation_status !== true) {
+        return $validation_status;
+    }
+
+    try {
         $access_token = get_access_token($params);
         $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
         $request_data = array (
@@ -113,9 +113,12 @@ function jetpack_CreateAccount(array $params)
  */
 function jetpack_TerminateAccount(array $params)
 {
-    try {
-        validate_required_fields($params);
+    $validation_status = validate_required_fields($params);
+    if ($validation_status !== true) {
+        return $validation_status;
+    }
 
+    try {
         $access_token = get_access_token($params);
         $clean_url = str_replace('/', '::', $params['customfields']['Site URL']);
         $url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
@@ -248,29 +251,28 @@ function validate_required_fields(array $params)
 
     foreach ($required_custom_fields as $field) {
         if (!isset($params['customfields'][$field])) {
-            throw new Exception('The module does not appear to be setup correctly. The required custom field '
+            return 'JETPACK MODULE: The module does not appear to be setup correctly. The required custom field '
                 . $field . ' was not setup when the product was created.
-				Please see the module documentation for more information');
+				Please see the module documentation for more information';
         }
     }
-
 
     $jetpack_next_url_field = Capsule::table('tblcustomfields')
         ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
 
     if (!$jetpack_next_url_field) {
-        throw new Exception('The module does not appear to be setup correctly. 
-        The jetpack_provisioning_details field is missing');
+        return 'JETPACK MODULE: The module does not appear to be setup correctly. 
+        The jetpack_provisioning_details field is missing';
     }
 
     if (!in_array(strtolower($params['customfields']['Plan']), $allowed_plans)) {
-        throw new Exception('The module does not appear to be setup correctly. ' .
-            $params['customfields']['Plan'] . ' is not an allowed plan');
+        return 'JETPACK MODULE: The module does not appear to be setup correctly. ' .
+            $params['customfields']['Plan'] . ' is not an allowed plan';
     }
 
     if (!isset($params['configoption1']) || !isset($params['configoption2'])) {
-        throw new Exception('Your credentials for provisioning are not complete. Please see the module documentation
-        for more information');
+        return'JETPACK MODULE: Your credentials for provisioning are not complete. Please see the module documentation
+        for more information';
     }
 
     return true;
