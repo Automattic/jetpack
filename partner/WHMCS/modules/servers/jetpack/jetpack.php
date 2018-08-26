@@ -197,7 +197,7 @@ function make_api_request($url, $auth = null, $data = null)
     $response = curl_exec($curl);
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-    if ($http_code >= 400) {
+    if ($response && $http_code >= 400) {
         if ($data['client_id']) {
             //If client_id is set in the data array when this function was called then we are trying to get an access
             // token and are unsuccessful which likely means the client id or client secret are not valid.
@@ -210,6 +210,7 @@ function make_api_request($url, $auth = null, $data = null)
             the request was ' . $response . '. This usually means the url provided does not have a valid WordPress 
             installation or the local_user field provided for provisioning is not valid.';
         }
+        return 'There was a problem with provisioning or terminating a Jetpack Plan. The response was ' . $response;
     } elseif (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
