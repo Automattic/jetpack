@@ -98,7 +98,7 @@ function jetpack_CreateAccount(array $params)
             return 'success';
         }
     } catch (Exception $e) {
-        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getMessage());
+        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
         return $e->getMessage();
     }
 }
@@ -127,7 +127,7 @@ function jetpack_TerminateAccount(array $params)
             return 'success';
         }
     } catch (Exception $e) {
-        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getMessage());
+        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
         return $e->getMessage();
     }
 }
@@ -195,9 +195,13 @@ function make_api_request($url, $auth = '', $data = [])
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
     if ($http_code >= 400) {
-        logModuleCall('jetpack', __FUNCTION__, $url, $data, $response);
-        throw new Exception('Something went wrong while provisioning. Please temporarily enable Module logging 
-        in the Utilities tab and try again for more information');
+        //If the siteurl is set in the data array we are attempting to provision a plan. There are few errors that
+        //could show up here but its likely the user did not enter siteurl or local_user field correctly.
+        if (isset($data['siteurl'])) {
+            return 'JETPACK MODULE: There was a problem provisioning a Jetpack Plan for ' . $data['siteurl'] . '. 
+            The response from the request was ' . $response . '. This usually means the url provided does not have a 
+            valid WordPress installation or the local_user field provided for provisioning is not valid.';
+        }
     } elseif (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
@@ -228,8 +232,9 @@ function save_provisioning_details($url, $params, $pending = false)
         waiting for ' . $params['customfields']['Site URL'] . '. Once DNS resolves please connect the site via 
         the Jetpack Banner in the sites dashboard';
     }
-    Capsule::table('tblcustomfieldsvalues')->where(array('fieldid' => $jetpack_next_url_field->id))->update(array(
-         'relid' => $params['model']['orderId'], 'value' => $details));
+    Capsule::table('tblcustomfieldsvalues')->where(array('fieldid' => $jetpack_next_url_field->id))->update(
+        array('relid' => $params['model']['orderId'], 'value' => $details)
+    );
 }
 
 /**
