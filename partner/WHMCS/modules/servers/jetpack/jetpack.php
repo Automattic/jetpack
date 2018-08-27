@@ -132,7 +132,7 @@ function jetpack_TerminateAccount(array $params)
         if ($response->success === true) {
             return 'success';
         } elseif ($response->success === false) {
-            return 'Unable to terminate this Jetpack plan as it has likely already been cancelled';
+            return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
         }
     } catch (Exception $e) {
         logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
@@ -205,16 +205,17 @@ function make_api_request($url, $auth = null, $data = null)
         if ($data['client_id']) {
             //If client_id is set in the data array when this function was called then we are trying to get an access
             // token and are unsuccessful which likely means the client id or client secret are not valid.
-            return 'There was a problem getting an access token for your Jetpack hosting partner account. This usually 
-            means the Client Id or Client Secret provided when creating the product are not valid';
+            return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
+            account. This usually means the Client Id or Client Secret provided when creating the product are invalid';
         } elseif ($data['siteurl']) {
             //If the siteurl is set in the data array we are attempting to provision a plan. There are few errors that
             //could show up here but its likely the user did not enter siteurl or local_user field correctly.
-            return 'There was a problem provisioning a Jetpack Plan for ' . $data['siteurl'] . '. The response from
-            the request was ' . $response . '. This usually means the url provided does not have a valid WordPress 
-            installation or the local_user field provided for provisioning is not valid.';
+            return 'JETPACK MODULE: There was a problem provisioning a Jetpack Plan for ' . $data['siteurl'] . '. The 
+            response from the request was ' . $response . '. This usually means the url provided does not have a valid 
+            WordPress installation or the local_user field provided for provisioning is not valid.';
         }
-        return 'There was a problem with provisioning or terminating a Jetpack Plan. The response was ' . $response;
+        return 'JETPACK MODULE: There was a problem with provisioning or terminating a Jetpack Plan. 
+        The response was ' . $response;
     } elseif (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
