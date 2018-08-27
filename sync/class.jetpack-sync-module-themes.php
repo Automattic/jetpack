@@ -569,7 +569,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	/**
-	 * @param null $theme the theme object!
+	 * @param null $theme or the theme object
 	 *
 	 * @return array
 	 */
@@ -577,7 +577,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		global $_wp_theme_features;
 
 		$theme_support = array();
-		if ( $theme === null  ) { // we are dealing with the current theme!
+		
+		// We are trying to get the current theme info.
+		if ( $theme === null ) {
 			$theme = wp_get_theme();
 
 			foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
@@ -588,12 +590,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			}
 		}
 
-
 		$theme_support['name'] = $theme->get('Name');
-		$theme_support['version'] =  $theme->get('Version');
+		$theme_support['version'] = $theme->get('Version');
 		$theme_support['slug'] = $theme->get_stylesheet();
 		$theme_support['uri'] = $theme->get('ThemeURI');
-
 
 		return $theme_support;
 	}
