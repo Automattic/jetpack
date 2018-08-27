@@ -162,7 +162,7 @@ class Jetpack_Lazy_Images {
 	 * @return string The image with updated lazy attributes
 	 */
 	static function process_image( $matches ) {
-		$old_attributes_str = $matches[2];
+		$old_attributes_str       = $matches[2];
 		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
 		if ( empty( $old_attributes_kses_hair['src'] ) ) {
@@ -173,12 +173,9 @@ class Jetpack_Lazy_Images {
 		$new_attributes = self::process_image_attributes( $old_attributes );
 
 		// If we didn't add lazy attributes, just return the original image source.
-		if ( empty( $new_attributes['data-lazy-src'] ) ) {
+		if ( false === strpos( $new_attributes['class'], 'jetpack-lazy-image' ) ) {
 			return $matches[0];
 		}
-
-		// Ensure we add the jetpack-lazy-image class to this image.
-		$new_attributes['class'] = sprintf( '%s jetpack-lazy-image', empty( $new_attributes['class'] ) ? '' : $new_attributes['class'] );
 
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
@@ -237,21 +234,21 @@ class Jetpack_Lazy_Images {
 
 		$old_attributes = $attributes;
 
-		// Set placeholder and lazy-src
-		$attributes['src'] = self::get_placeholder_image();
-		$attributes['data-lazy-src'] = $old_attributes['src'];
-
-		// Handle `srcset`
-		if ( ! empty( $attributes['srcset'] ) ) {
-			$attributes['data-lazy-srcset'] = $old_attributes['srcset'];
-			unset( $attributes['srcset'] );
+		// Set placeholder and lazy-src.
+		foreach ( array( 'srcset', 'sizes' ) as $attribute ) {
+			if ( isset( $old_attributes[ $attribute ] ) ) {
+				$attributes[ "data-lazy-$attribute" ] = $old_attributes[ $attribute ];
+				unset( $attributes[ $attribute ] );
+			}
 		}
 
-		// Handle `sizes`
-		if ( ! empty( $attributes['sizes'] ) ) {
-			$attributes['data-lazy-sizes'] = $old_attributes['sizes'];
-			unset( $attributes['sizes'] );
-		}
+		$attributes['srcset'] = self::get_placeholder_image();
+		$attributes['class']  = sprintf(
+			'%s jetpack-lazy-image',
+			empty( $old_attributes['class'] )
+				? ''
+				: $old_attributes['class']
+		);
 
 		/**
 		 * Allow plugins and themes to override the attributes on the image before the content is updated.
