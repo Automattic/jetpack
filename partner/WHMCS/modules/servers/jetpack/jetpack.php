@@ -80,9 +80,11 @@ function jetpack_CreateAccount(array $params)
     try {
         $access_token = get_access_token($params);
         $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
+        $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
+
         $request_data = array (
             'plan' => strtolower($params['customfields']['Plan']),
-            'siteurl' => $params['customfields']['Site URL'],
+            'siteurl' => $stripped_url,
             'local_user' => $params['customfields']['Local User'],
             'force_register' => true,
         );
@@ -122,9 +124,11 @@ function jetpack_TerminateAccount(array $params)
 
     try {
         $access_token = get_access_token($params);
-        $clean_url = str_replace('/', '::', $params['customfields']['Site URL']);
-        $url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
-        $response = make_api_request($url, $access_token);
+        $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
+        $clean_url = str_replace('/', '::', $stripped_url);
+
+        $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
+        $response = make_api_request($request_url, $access_token);
         if ($response->success === true) {
             return 'success';
         } elseif ($response->success === false) {
