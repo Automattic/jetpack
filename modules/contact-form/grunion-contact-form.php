@@ -847,7 +847,9 @@ class Grunion_Contact_Form_Plugin {
 		$removed  = false;
 		$retained = false;
 		$messages = array();
-		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+		$option_name = sprintf( '_jetpack_pde_feedback_%s', md5( $email ) );
+		$last_post_id = 1 === $page ? 0 : get_option( $option_name, 0 );
+		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page, $last_post_id );
 
 		foreach ( $post_ids as $post_id ) {
 			/**
@@ -889,11 +891,19 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
+		$done = count( $post_ids ) < $per_page;
+
+		if ( $done ) {
+			delete_option( $option_name );
+		} else {
+			update_option( $option_name, (int) $post_id );
+		}
+
 		return array(
 			'items_removed'  => $removed,
 			'items_retained' => $retained,
 			'messages'       => $messages,
-			'done'           => count( $post_ids ) < $per_page,
+			'done'           => $done,
 		);
 	}
 
@@ -902,13 +912,14 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @since 6.1.1
 	 *
-	 * @param  string $email    Email address.
-	 * @param  int    $per_page Post IDs per page. Default is `250`.
-	 * @param  int    $page     Page to query. Default is `1`.
+	 * @param  string $email        Email address.
+	 * @param  int    $per_page     Post IDs per page. Default is `250`.
+	 * @param  int    $page         Page to query. Default is `1`.
+	 * @param  int    $last_post_id Page to query. Default is `0`. If non-zero, used instead of $page.
 	 *
-	 * @return array            An array of post IDs.
+	 * @return array An array of post IDs.
 	 */
-	public function personal_data_post_ids_by_email( $email, $per_page = 250, $page = 1 ) {
+	public function personal_data_post_ids_by_email( $email, $per_page = 250, $page = 1, $last_post_id = 0 ) {
 		add_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
 
 		$post_ids = get_posts( array(
@@ -917,9 +928,10 @@ class Grunion_Contact_Form_Plugin {
 			's'                => 'AUTHOR EMAIL: ' . $email,
 			'sentence'         => true,
 			'order'            => 'ASC',
+			'orderby'          => 'ID',
 			'fields'           => 'ids',
 			'posts_per_page'   => $per_page,
-			'paged'            => $page,
+			'paged'            => $last_post_id ? 1 : $page,
 			'suppress_filters' => false,
 		) );
 
@@ -946,11 +958,18 @@ class Grunion_Contact_Form_Plugin {
 		 * `CHAR(13)` = `\r`, `CHAR(10)` = `\n`
 		 */
 		if ( preg_match( '/AUTHOR EMAIL\: ([^{\s]+)/', $search, $m ) ) {
+			$option_name = sprintf( '_jetpack_pde_feedback_%s', md5( $m[1] ) );
+			$last_post_id = get_option( $option_name, 0 );
+
 			$esc_like_email = esc_sql( $wpdb->esc_like( 'AUTHOR EMAIL: ' . $m[1] ) );
 			$search         = " AND (
 				{$wpdb->posts}.post_content LIKE CONCAT('%', CHAR(13), '{$esc_like_email}', CHAR(13), '%')
 				OR {$wpdb->posts}.post_content LIKE CONCAT('%', CHAR(10), '{$esc_like_email}', CHAR(10), '%')
 			)";
+
+			if ( $last_post_id ) {
+				$search .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", $last_post_id );
+			}
 		}
 
 		return $search;
