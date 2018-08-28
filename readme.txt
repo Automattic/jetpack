@@ -107,6 +107,22 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+Admin Page: Added ability to disable backups UI by filter when VaultPress is not activated.
+Comments: Moved the Subscription checkboxes on a comment form from after the submit button to before the submit button.
+General: Removed the outdated "Site Verification Services" card in Tools.
+General: Removed jetpack_enable_site_verification filter. We recommend filtering access to verification tools using jetpack_get_available_modules instead.
+General: Simplified the logic of Jetpack's signed HTTP requests code.
+
 **Improved compatibility**
 
 **Bug fixes**
+
+Widgets: Fixed excessive logging issue with Twitter Timeline widget.
+Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necassary.
+Sharing: Fixed duplicate rel tags on Sharing links.
+Lazy Images: Deprecated jetpack_lazy_images_skip_image_with_atttributes filter in favor of jetpack_lazy_images_skip_image_with_attributes to address typo.
+Search: Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
+Shortcodes: Updated Wufoo Shortcode to always load over https and use async form embed.
+AMP: Fix PHP notice when rendering AMP images with unknown width and height.
+General: Improves compatibility with the upcoming PHP 7.3.
+General: Updated input validation for meta tags given in site verification.
