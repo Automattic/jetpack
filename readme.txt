@@ -105,6 +105,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+WordAds: Added ability to include custom ads.txt entries in the ads module.
+
 **Enhancements**
 
 Admin Page: Added ability to disable backups UI by filter when VaultPress is not activated.
@@ -113,11 +115,10 @@ General: Removed the outdated "Site Verification Services" card in Tools.
 General: Removed jetpack_enable_site_verification filter. We recommend filtering access to verification tools using jetpack_get_available_modules instead.
 General: Simplified the logic of Jetpack's signed HTTP requests code.
 Lazy Images: Updated lazy images to use a default base64 encoded transparent to reduce a network request.
-WordAds: Added ability to include custom ads.txt entries in the ads module.
 
 **Improved compatibility**
 
-Geo Location: Fixed a compatibility issue with other plugins that added meta attributes to site feeds with the `rss2_ns`, `atom_ns` or `rdf_ns` filters. 
+Geo Location: Fixed a compatibility issue with other plugins that added meta attributes to site feeds with the `rss2_ns`, `atom_ns` or `rdf_ns` filters.
 
 **Bug fixes**
 
