@@ -97,6 +97,15 @@ To test :
 
 1. Test with various Wufoo embed shortcodes. All should work over HTTPS, regardless of whether they set HTTPS argument to (true/false) or not at all.
 
+We also updated the Geo Location module to fix compatibility issues with plugins that added meta attributes to site feeds.
+
+To test:
+
+* Add a plugin that uses the `rss2_ns` hook, or better yet, create one yourself: https://gist.github.com/zinigor/8c2fb946536be33b2cb141d5808d57b4
+* Feed your feed into [the validator](https://validator.w3.org/feed/). You can get your site's feed URL by adding `/rss` to the end of the site URL.
+* Confirm that the feed is only invalid due to a duplicate attribute issue and not due to a `not well-formed (invalid token)` issue.
+
+
 ### AMP
 
 Fixed PHP error notice that appears when a post has no featured image set, but does have an embedded `gallery` shortcode with image files that have been deleted before.

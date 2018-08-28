@@ -115,6 +115,8 @@ General: Simplified the logic of Jetpack's signed HTTP requests code.
 
 **Improved compatibility**
 
+Geo Location: Fixed a compatibility issue with other plugins that added meta attributes to site feeds with the `rss2_ns`, `atom_ns` or `rdf_ns` filters. 
+
 **Bug fixes**
 
 Widgets: Fixed excessive logging issue with Twitter Timeline widget.
