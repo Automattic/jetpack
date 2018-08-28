@@ -3,7 +3,7 @@
 // Edit here to add new services
 function jetpack_verification_services() {
 	return array(
-			'google' => array(
+		'google' => array(
 			'name'   =>'Google Search Console',
 			'key'    =>'google-site-verification',
 			'format' =>'dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8',
@@ -30,11 +30,15 @@ function jetpack_verification_services() {
 	);
 }
 
-
 function jetpack_verification_options_init() {
-	register_setting( 'verification_services_codes_fields', 'verification_services_codes', 'jetpack_verification_validate' );
+	register_setting(
+		'verification_services_codes_fields',
+		'verification_services_codes',
+		array( 'sanitize_callback' => 'jetpack_verification_validate' )
+	);
 }
 add_action( 'admin_init', 'jetpack_verification_options_init' );
+add_action( 'rest_api_init', 'jetpack_verification_options_init' );
 
 function jetpack_verification_print_meta() {
 	$verification_services_codes =  Jetpack_Options::get_option_and_ensure_autoload( 'verification_services_codes', '0' );
