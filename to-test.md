@@ -32,6 +32,18 @@ To test :
 `PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 88`
 `PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 111`
 
+
+We also added precision validation for the price field in the Simple Payments Widget. Fixes a bug that allows the creation of Simple Payment Products with the wrong number of decimals. This is because all currencies have a precision of 2, except Japanese Yen that does not support decimals.
+
+To test:
+
+* Start with a Premium or Professional plan.
+* On the Customizer, navigate to Widgets and select a sidebar or a footer.
+* Click on Add a Widget and search for Simple Payments.
+* Click on Add New to create a new Product.
+* Using an invalid precision, click _Save_.
+* Expect to receive an error message.
+
 ### Comments
 
 Moved the Subscription checkboxes from after the submit button to before the submit button.
