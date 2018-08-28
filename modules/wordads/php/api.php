@@ -22,6 +22,7 @@ class WordAds_API {
 				'approved' => true,
 				'active'   => true,
 				'house'    => true,
+				'unsafe'   => false,
 			);
 
 			return self::$wordads_status;
@@ -38,6 +39,7 @@ class WordAds_API {
 			'approved' => $body->approved,
 			'active'   => $body->active,
 			'house'    => $body->house,
+			'unsafe'   => $body->unsafe,
 		);
 
 		return self::$wordads_status;
@@ -103,6 +105,21 @@ class WordAds_API {
 		return self::$wordads_status['house'] ? '1' : '0';
 	}
 
+
+	/**
+	 * Returns whether or not this site is safe to run ads on.
+	 * @return boolean true if ads shown not be shown on this site.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function is_wordads_unsafe() {
+		if ( is_null( self::$wordads_status ) ) {
+			self::get_wordads_status();
+		}
+
+		return self::$wordads_status['unsafe'] ? '1' : '0';
+	}
+
 	/**
 	 * Grab WordAds status from WP.com API and store as option
 	 *
@@ -114,6 +131,7 @@ class WordAds_API {
 			update_option( 'wordads_approved', self::is_wordads_approved(), true );
 			update_option( 'wordads_active', self::is_wordads_active(), true );
 			update_option( 'wordads_house', self::is_wordads_house(), true );
+			update_option( 'wordads_unsafe', self::is_wordads_unsafe(), true );
 		}
 	}
 }
