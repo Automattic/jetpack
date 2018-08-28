@@ -292,6 +292,11 @@ class Jetpack_Lazy_Images {
 		<?php
 	}
 
+	/**
+	 * Retrieves the placeholder image after running it through the lazyload_images_placeholder_image filter.
+	 *
+	 * @return string The placeholder image source.
+	 */
 	private static function get_placeholder_image() {
 		/**
 		 * Allows plugins and themes to modify the placeholder image.
@@ -302,12 +307,13 @@ class Jetpack_Lazy_Images {
 		 * @module lazy-images
 		 *
 		 * @since 5.6.0
+		 * @since 6.5.0 Default image is now a base64 encoded transparent gif.
 		 *
 		 * @param string The URL to the placeholder image
 		 */
 		return apply_filters(
 			'lazyload_images_placeholder_image',
-			plugins_url( 'modules/lazy-images/images/1x1.trans.gif', JETPACK__PLUGIN_FILE )
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		);
 	}
 
