@@ -27,7 +27,7 @@ To test :
 
 1. Enable logging in WordPress.
 2. Use the Twitter Timeline widget.
-3. Check your log and ensure there are no log lines line this :
+3. Check your log and ensure there are no log lines like this :
 
 `PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 88`
 `PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 111`
