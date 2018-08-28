@@ -194,7 +194,11 @@ Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) 
 
 You can add your own PHP code to `./docker/mu-plugins` directory and they will be loaded by WordPress, in alphabetical order, before normal plugins, meaning API hooks added in an mu-plugin apply to all other plugins even if they run hooked-functions in the global namespace. Read more about [must use plugins](https://codex.wordpress.org/Must_Use_Plugins).
 
-You can add your custom Jetpack constants (such as `JETPACK__API_BASE`) to a file under this folder.
+You can add your custom Jetpack constants (such as `JETPACK__SANDBOX_DOMAIN`) to a file under this folder. Automattic engineers can use this to sandbox their environment:
+
+```
+define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
+```
 
 ## Using Ngrok with Jetpack
 
