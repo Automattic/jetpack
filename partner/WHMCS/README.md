@@ -23,7 +23,7 @@ When setting up the module 4 custom fields will need to be added in order for th
 | Site URL | Text Box | Yes | Optional | User input field
 | Local User | Text Box | Yes | Optional | User input field
 | Plan | Drop Down | Yes | Optional | (Free,Personal,Premium,Professional)
-| jetpack_provisioning_details | Text Area | No | No | **Not a user field**
+| jetpack_provisioning_details | Text Area | Yes | No | **Not a user field**
 
 **Please Note:** WHMCS requires that you first save each field by selecting the save changes box at the bottom of the page in order to add the next field.
 
