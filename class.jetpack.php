@@ -690,6 +690,30 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_wpcom_color_scheme_block_assets' ) );
+	}
+
+	function enqueue_wpcom_color_scheme_block_assets() {
+		wp_enqueue_script(
+			'wpcom_color_scheme_block',
+			plugins_url( '_inc/build/wpcom-color-scheme/block.js', __FILE__ ),
+			array(
+				'wp-api-fetch',
+				'wp-blocks',
+				'wp-element',
+				'wp-i18n',
+			),
+			JETPACK__VERSION,
+			true
+		);
+
+		// TODO: fix Calypso's config when building from the SDK
+		wp_add_inline_script(
+			'wpcom_color_scheme_block',
+			'window.configData={};',
+			'before'
+		);
 	}
 
 	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
