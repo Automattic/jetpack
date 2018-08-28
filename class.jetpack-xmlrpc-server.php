@@ -294,7 +294,8 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'already_connected',
-					__( 'Jetpack is already connected.', 'jetpack' ), 400
+					__( 'Jetpack is already connected.', 'jetpack' ),
+					400
 				),
 				'jpc_remote_register_fail'
 			);
@@ -302,11 +303,12 @@ class Jetpack_XMLRPC_Server {
 
 		$user = $this->fetch_and_verify_local_user( $request );
 
-		if ( ! $user | is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+		if ( ! $user || is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
 			return $this->error(
 				new WP_Error(
 					'input_error',
-					__( 'Valid user is required.', 'jetpack' ), 400
+					__( 'Valid user is required.', 'jetpack' ),
+					400
 				),
 				'jpc_remote_connect_fail'
 			);
@@ -316,7 +318,8 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'input_error',
-					__( 'A non-empty nonce must be supplied.', 'jetpack' ), 400
+					__( 'A non-empty nonce must be supplied.', 'jetpack' ),
+					400
 				),
 				'jpc_remote_connect_fail'
 			);
@@ -336,7 +339,8 @@ class Jetpack_XMLRPC_Server {
 			return $this->error(
 				new WP_Error(
 					'token_fetch_failed',
-					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ), 400
+					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ),
+					400
 				),
 				'jpc_remote_connect_fail'
 			);
