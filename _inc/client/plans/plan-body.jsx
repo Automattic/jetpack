@@ -118,7 +118,7 @@ class PlanBody extends React.Component {
 					<div className="jp-landing__plan-features-card">
 						<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
 						<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.' ) }</p>
-						<Button onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl } className="is-primary">
+						<Button onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/activity/' + this.props.siteRawUrl } className="is-primary">
 							{ __( 'View your security activity' ) }
 						</Button>
 					</div>

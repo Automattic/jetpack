@@ -33,7 +33,7 @@ class DashActivity extends Component {
 	render() {
 		const { siteRawUrl, inDevMode } = this.props;
 		// const sitePlan = get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
-		const activityLogLink = <a href={ `https://wordpress.com/stats/activity/${ siteRawUrl }` } />;
+		const activityLogLink = <a href={ `https://wordpress.com/activity/${ siteRawUrl }` } />;
 		// const hasBackups = includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP ], sitePlan );
 		// const maybeUpgrade = hasBackups
 		// 	? __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and rewind them if you need to.", {

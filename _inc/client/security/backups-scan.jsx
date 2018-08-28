@@ -65,7 +65,7 @@ class BackupsScanRewind extends Component {
 			feature={ 'rewind' }
 			description={ __( 'Your site is being backed up in real time and regularly scanned for security threats.' ) }
 			className="is-upgrade-premium jp-banner__no-border"
-			href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl }
+			href={ 'https://wordpress.com/activity/' + this.props.siteRawUrl }
 		/>;
 	};
 
