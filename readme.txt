@@ -112,6 +112,7 @@ Comments: Moved the Subscription checkboxes on a comment form from after the sub
 General: Removed the outdated "Site Verification Services" card in Tools.
 General: Removed jetpack_enable_site_verification filter. We recommend filtering access to verification tools using jetpack_get_available_modules instead.
 General: Simplified the logic of Jetpack's signed HTTP requests code.
+Lazy Images: Updated lazy images to use a default base64 encoded transparent to reduce a network request.
 WordAds: Added ability to include custom ads.txt entries in the ads module.
 
 **Improved compatibility**

@@ -62,6 +62,16 @@ To test :
 
 1. Make sure filters work on tests with `phpunit --filter=WP_Test_Lazy_Images`
 
+We also updated lazy images to use a base64 encoded transparent to reduce a network request.
+
+To test:
+
+- Ensure that site has Lazy Images turned on.
+- Create a post/page with some images in it.
+- Load the post/page.
+- Ensure that images load properly.
+- If you view the source when the page first loads, you should see the base64 encoded image.
+
 ### Admin Page
 
 Added ability to disable backups related UI when a filter is passed for our hosting partners.
