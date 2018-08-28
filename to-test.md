@@ -155,4 +155,20 @@ To test :
 
 2. Enter a "bad" string and make sure it fails to save with a validation error. i.e `<moota name="google-site-verification" content="1234"/>`
 
+### WordAds
+
+We added the ability to include custom ads.txt entries in the ads module by configuring them on the Jetpack Admin Page.
+
+To test:
+
+1. Enable Jetpack ads module.
+1. View `<site>/ads.txt` and verify `#Jetpack - User Custom Entries` is not present.
+1. Add custom entries to `Custom ads.txt entries` textarea and save.
+1. Attempt to include garbage entries with HTML markup or `<script>` tags.
+1. View `<site>/ads.txt` and verify `#Jetpack - User Custom Entries` is present and that "bad" entries are stripped and only "regular" text remains.
+1. On a site WP install utilizing a subdirectory (e.g. www.site.com/foo/wp-admin) check that the ads.txt portion is removed, as ads.txt requires by definition not to run under a subdirectory.
+
 **Thank you for all your help!**
+
+
+
