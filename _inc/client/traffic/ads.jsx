@@ -165,8 +165,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 								) }
 
 								{ ! isAdsActive && __(
-									'Jetpack automatically generates a custom ads.txt tailored for your site. ' +
-									'If you need to add additional entries for other networks please add them in the space below, one per line.'
+									'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.'
 								) }
 							</p>
 							<Textarea
