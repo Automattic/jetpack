@@ -27,6 +27,8 @@ defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'ht
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
+defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
@@ -117,6 +119,10 @@ add_filter( 'is_jetpack_site', '__return_true' );
  */
 if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+}
+
+if ( JETPACK__SANDBOX_DOMAIN ) {
+	require_once( JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php' );
 }
 
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
