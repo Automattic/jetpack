@@ -630,7 +630,8 @@ class Jetpack_Subscriptions {
 
 		// Check if Mark Jaquith's Subscribe to Comments plugin is active - if so, suppress Jetpack checkbox
 
-		$unique_id = esc_attr( uniqid( 'jetpack-subscription-form-' ) );
+		// Create unique ID for the header label
+		$unique_id = uniqid( 'jetpack-subscription-form-' );
 
 		// Add heading and wrap in list for assistive technology
 		$str = '<div><h4 id="'. esc_attr( $unique_id ).'" class="comment-subscription-form-title">Comment subscription preferences</h4><ul class="comment-subscription-form-list" aria-labelledby="'. esc_attr( $unique_id ).'">';
