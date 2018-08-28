@@ -84,6 +84,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $current_theme->name, $switch_data->args[0]['name']);
 		$this->assertEquals( $current_theme->version, $switch_data->args[0]['version']);
 
+		$this->assertTrue( isset( $switch_data->args[1]['name'] ) );
+		$this->assertTrue( isset( $switch_data->args[1]['version'] ) );
+		$this->assertTrue( isset( $switch_data->args[1]['slug'] ) );
+		$this->assertTrue( isset( $switch_data->args[1]['uri'] ) );
+
 		foreach ( $theme_features as $theme_feature ) {
 			$synced_theme_support_value = $this->server_replica_storage->current_theme_supports( $theme_feature );
 			$this->assertEquals( current_theme_supports( $theme_feature ), $synced_theme_support_value, 'Feature(s) not synced' . $theme_feature );
