@@ -634,7 +634,7 @@ class Jetpack_Subscriptions {
 		$unique_id = uniqid( 'jetpack-subscription-form-' );
 
 		// Add heading and wrap in list for assistive technology
-		$str = '<div><h4 id="'. esc_attr( $unique_id ).'" class="comment-subscription-form-title">Comment subscription preferences</h4><ul class="comment-subscription-form-list" aria-labelledby="'. esc_attr( $unique_id ).'">';
+		$str = '<div><h4 id="'. esc_attr( $unique_id ).'" class="comment-subscription-form-title">'.__( 'Comment subscription preferences', 'jetpack' ).'</h4><ul class="comment-subscription-form-list" aria-labelledby="'. esc_attr( $unique_id ).'">';
 
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) && 'post' == get_post_type() ) {
 			// Subscribe to comments checkbox
