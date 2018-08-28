@@ -26,7 +26,7 @@ Further in this document, you will find a few CLI commands with various argument
 - `partner_id`            : Provided to you when we provision your partner account.
 - `partner_secret`        : Provided to you when we provision your partner account.
 - `user`                  : The ID, email address, or login of a valid user on the WordPress installation hosted by the partner. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
-- `plan`                  : One of `personal`, `premium`, or `professional`. The partner's account will need to have this type of plan allowed.
+- `plan`                  : One of `free`, `personal`, `premium`, or `professional`. The partner's account will need to have this type of plan allowed.
 - `url`                   : This optional URL value is used to select a specific subsite in a network. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
 - `onboarding`            : This optional value can be set to `1` to enabled an onboarding wizard.
 - `partner_tracking_id`   : This optional value allows us to attach specific actions to a specific site on the partner's side. This has proved useful in cases where users had multiple staging sites.

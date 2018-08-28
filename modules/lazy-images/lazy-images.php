@@ -209,12 +209,29 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @module-lazy-images
 		 *
+		 * @deprecated 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
+		 *
 		 * @since 5.9.0
 		 *
 		 * @param bool  Default to not skip processing the current image.
 		 * @param array An array of attributes via wp_kses_hair() for the current image.
 		 */
 		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_atttributes', false, $attributes ) ) {
+			return $attributes;
+		}
+
+		/**
+		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
+		 *
+		 * @module-lazy-images
+		 *
+		 * @since 6.5.0 Filter name was updated from jetpack_lazy_images_skip_image_with_atttributes to correct typo.
+		 * @since 5.9.0
+		 *
+		 * @param bool  Default to not skip processing the current image.
+		 * @param array An array of attributes via wp_kses_hair() for the current image.
+		 */
+		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_attributes', false, $attributes ) ) {
 			return $attributes;
 		}
 
@@ -275,6 +292,11 @@ class Jetpack_Lazy_Images {
 		<?php
 	}
 
+	/**
+	 * Retrieves the placeholder image after running it through the lazyload_images_placeholder_image filter.
+	 *
+	 * @return string The placeholder image source.
+	 */
 	private static function get_placeholder_image() {
 		/**
 		 * Allows plugins and themes to modify the placeholder image.
@@ -285,12 +307,13 @@ class Jetpack_Lazy_Images {
 		 * @module lazy-images
 		 *
 		 * @since 5.6.0
+		 * @since 6.5.0 Default image is now a base64 encoded transparent gif.
 		 *
 		 * @param string The URL to the placeholder image
 		 */
 		return apply_filters(
 			'lazyload_images_placeholder_image',
-			plugins_url( 'modules/lazy-images/images/1x1.trans.gif', JETPACK__PLUGIN_FILE )
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		);
 	}
 

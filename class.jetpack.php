@@ -526,6 +526,9 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
+		// Load Gutenberg editor blocks
+		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
+
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from .com
@@ -6633,6 +6636,8 @@ p {
 			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
 			'jetpack_cache_plans'                                    => null,
 			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
+			'jetpack_lazy_images_skip_image_with_atttributes'        => 'jetpack_lazy_images_skip_image_with_attributes',
+			'jetpack_enable_site_verification'                       => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6928,28 +6933,6 @@ p {
 		$url = preg_replace( $strip_http, '', $url  );
 		$url = str_replace( '/', '::', $url );
 		return $url;
-	}
-	/*
-	 * link to the calypso section
-	 * $link is expected to be the url starting from the root and the %site% will be replaced with the url of the site as expected.
-	 *
-	 * $param string
-	 * @return string
-	 */
-	public static function calyps_url( $path, $from = null ) {
-		$host = 'https://wordpress.com';
-
-		if ( $path[0] !== '/' ) {
-			$path = '/' . $path;
-		}
-		$site_suffix = self::build_raw_urls( home_url() );
-		$path_with_site = str_replace( '%site%', $site_suffix, $path );
-
-		if ( self::is_user_connected() ) {
-			return $host . $path_with_site;
-		}
-
-		self::$instance->build_connect_url( true, $host . $path_with_site, $from );
 	}
 
 	/**
@@ -7278,5 +7261,124 @@ p {
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		Jetpack::state( 'message', 'authorized' );
+	}
+
+	/**
+	 * Check if Gutenberg editor is available
+	 *
+	 * @since 6.5.0
+	 *
+	 * @return bool
+	 */
+	public static function is_gutenberg_available() {
+		return function_exists( 'register_block_type' );
+	}
+
+	/**
+	 * Load Gutenberg editor blocks.
+	 *
+	 * This section meant for unstable phase of developing Jetpack's
+	 * Gutenberg extensions. If still around after Sep. 15, 2018 then
+	 * please file an issue to remove it; if nobody responds within one
+	 * week then please delete the code.
+	 *
+	 *
+	 * Loading blocks is disabled by default and enabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+	 *
+	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
+	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+	 *
+	 * Note that when loaded locally, you need to build the files yourself:
+	 * - _inc/blocks/jetpack-editor.js
+	 * - _inc/blocks/jetpack-editor.css
+	 *
+	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
+	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
+	 *
+	 * @since 6.5.0
+	 *
+	 * @return void
+	 */
+	public static function load_jetpack_gutenberg() {
+		/**
+		 * Filter to turn on loading Gutenberg blocks
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool false Whether to load Gutenberg blocks
+		 */
+		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
+			return;
+		}
+
+		/**
+		 * Filter to turn off serving blocks via CDN
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool true Whether to load Gutenberg blocks from CDN
+		 */
+		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
+			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
+			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
+
+			/**
+			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
+			 *
+			 * @since 6.5.0
+			 *
+			 * @param string
+			 */
+			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
+		} else {
+			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
+			$editor_style = plugins_url( '_inc/blocks/jetpack-editor.css', JETPACK__PLUGIN_FILE );
+			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
+		}
+
+		wp_register_script(
+			'jetpack-blocks-editor',
+			$editor_script,
+			array(
+				'wp-blocks',
+				'wp-components',
+				'wp-compose',
+				'wp-data',
+				'wp-editor',
+				'wp-element',
+				'wp-i18n',
+				'wp-plugins',
+			),
+			$version
+		);
+
+		wp_register_style(
+			'jetpack-blocks-editor',
+			$editor_style,
+			array(),
+			$version
+		);
+
+		register_block_type( 'jetpack/blocks', array(
+				'editor_script' => 'jetpack-blocks-editor',
+				'editor_style'  => 'jetpack-blocks-editor',
+		) );
+	}
+
+	/**
+	 * Returns a boolean for whether backups UI should be displayed or not.
+	 *
+	 * @return bool Should backups UI be displayed?
+	 */
+	public static function show_backups_ui() {
+		/**
+		 * Whether UI for backups should be displayed.
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool $show_backups Should UI for backups be displayed? True by default.
+		 */
+		return Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 }

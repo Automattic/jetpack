@@ -6,8 +6,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
-		add_action( 'jetpack_sync_current_theme_support', $callable );
+		add_action( 'switch_theme', array( $this, 'sync_theme_support' ), 10, 3 );
+		add_action( 'jetpack_sync_current_theme_support', $callable, 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
@@ -357,16 +357,22 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_full_sync_theme_data', $callable );
 	}
 
-	public function sync_theme_support() {
+	public function sync_theme_support( $new_name, $new_theme, $old_theme = null ) {
+		// Previous theme support got added in WP 4.5
+		$previous_theme = false;
+		if ( $old_theme instanceof WP_Theme ) {
+			$previous_theme = $this->get_theme_support_info( $old_theme );
+		}
 		/**
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param object the theme support hash
+		 * @param array the theme support array
+		 * @param array the previous theme since Jetpack 6.5.0
 		 */
-		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info() );
+		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info(), $previous_theme );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -562,24 +568,32 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 	}
 
-	private function get_theme_support_info() {
+	/**
+	 * @param null $theme or the theme object
+	 *
+	 * @return array
+	 */
+	private function get_theme_support_info( $theme = null ) {
 		global $_wp_theme_features;
 
 		$theme_support = array();
+		
+		// We are trying to get the current theme info.
+		if ( $theme === null ) {
+			$theme = wp_get_theme();
 
-		foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
-			$has_support = current_theme_supports( $theme_feature );
-			if ( $has_support ) {
-				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
+			foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
+				$has_support = current_theme_supports( $theme_feature );
+				if ( $has_support ) {
+					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
+				}
 			}
 		}
 
-		$theme = wp_get_theme();
 		$theme_support['name'] = $theme->get('Name');
-		$theme_support['version'] =  $theme->get('Version');
+		$theme_support['version'] = $theme->get('Version');
 		$theme_support['slug'] = $theme->get_stylesheet();
 		$theme_support['uri'] = $theme->get('ThemeURI');
-
 
 		return $theme_support;
 	}

@@ -232,6 +232,15 @@
 		}
 	}
 
+	function decimalPlaces( number ) {
+		var parts = number.split( '.' );
+		if ( parts.length > 2 ) {
+			return null;
+		}
+
+		return parts[ 1 ] ? parts[ 1 ].length : 0;
+	}
+
 	function isFormValid( widgetForm ) {
 		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
 
@@ -244,7 +253,15 @@
 		}
 
 		var productPrice = widgetForm.find( '.jetpack-simple-payments-form-product-price' ).val();
-		if ( ! productPrice || isNaN( parseFloat( productPrice ) ) || parseFloat( productPrice ) <= 0 ) {
+		if ( ! productPrice || isNaN( productPrice ) || parseFloat( productPrice ) <= 0 ) {
+			widgetForm.find( '.jetpack-simple-payments-form-product-price' ).addClass( 'invalid' );
+			errors = true;
+		}
+
+		// Japan's Yen is the only supported currency with a zero decimal precision.
+		var precision = widgetForm.find( '.jetpack-simple-payments-form-product-currency' ).val() === 'JPY' ? 0 : 2;
+		var priceDecimalPlaces = decimalPlaces( productPrice );
+		if ( priceDecimalPlaces === null || priceDecimalPlaces > precision ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-price' ).addClass( 'invalid' );
 			errors = true;
 		}

@@ -137,6 +137,7 @@ class Jetpack_Sync_Defaults {
 		'wordads_display_post',
 		'wordads_display_page',
 		'wordads_display_archive',
+		'wordads_custom_adstxt',
 	);
 
 	public static function get_options_whitelist() {

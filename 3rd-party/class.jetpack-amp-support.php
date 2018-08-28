@@ -217,11 +217,15 @@ class Jetpack_AMP_Support {
 		}
 
 		$metadata['image'] = array(
-			'@type'  => 'ImageObject',
-			'url'    => $image['src'],
-			'width'  => $image['src_width'],
-			'height' => $image['src_height'],
+			'@type' => 'ImageObject',
+			'url'   => $image['src'],
 		);
+		if ( isset( $image['src_width'] ) ) {
+			$metadata['image']['width'] = $image['src_width'];
+		}
+		if ( isset( $image['src_width'] ) ) {
+			$metadata['image']['height'] = $image['src_height'];
+		}
 
 		return $metadata;
 	}

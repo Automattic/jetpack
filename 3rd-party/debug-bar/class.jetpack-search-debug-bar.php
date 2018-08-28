@@ -26,6 +26,8 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 		$this->title( esc_html__( 'Jetpack Search', 'jetpack' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'enqueue_embed_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -46,6 +48,11 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function enqueue_scripts() {
+		// Do not enqueue scripts if we haven't already enqueued Debug Bar or Query Monitor styles.
+		if ( ! wp_style_is( 'debug-bar' ) && ! wp_style_is( 'query-monitor' ) ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'jetpack-search-debug-bar',
 			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE )

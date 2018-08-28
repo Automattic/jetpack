@@ -615,3 +615,18 @@ abstract class Publicize_Base {
 		return str_replace( $search, $replace, $string );
 	}
 }
+
+function publicize_calypso_url() {
+	$calypso_sharing_url = 'https://wordpress.com/sharing/';
+	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+		$site_suffix = Jetpack::build_raw_urls( home_url() );
+	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+	}
+
+	if ( $site_suffix ) {
+		return $calypso_sharing_url . $site_suffix;
+	} else {
+		return $calypso_sharing_url;
+	}
+}

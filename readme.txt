@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.3.3
+Stable tag: 6.4.1
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,6 +98,24 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 6.4.2 =
+
+* Release date: August 10, 2018
+* Release post: https://wp.me/p1moTy-9pL
+
+**Bug fixes**
+
+Comments: We fixed an error that broke functionality of Social Login for comments.
+
+= 6.4.1 =
+
+* Release date: August 8, 2018
+* Release post: https://wp.me/p1moTy-9pc
+
+**Bug fixes**
+
+Comments: We fixed an error that broke functionality of nested comments.
+
 = 6.4 =
 
 * Release date: August 7, 2018
@@ -106,13 +124,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Connection: Updated connect splash screen with new content.
-* Sharing: Sharing section in wp-admin will now redirect to Calypso instead.
 * Docs: Added documentation for retrieving provision status of a site.
 * Shortcodes: Added oEmbed support for flat.io.
 * Widgets: Added `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top posts widget.
 * Privacy tools: Identify the data export/erasure callbacks for Feedback posts using associative keys, to better match the convention in Core.
 * Privacy tools: Added the `grunion_contact_form_delete_feedback_post` filter hook to allow specific Feedback posts to be bypassed during data erasure requests, similar to the `wp_anonymize_comment` filter in Core.
-* Contact Fork: Disabled random table optimizations on core tables.
+* Contact Form: Disabled random table optimizations on core tables.
 
 **Improved compatibility**
 

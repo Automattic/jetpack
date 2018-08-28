@@ -140,6 +140,7 @@ class WordAds {
 		add_action( 'wp_head',              array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head',              array( $this, 'insert_head_iponweb' ), 30 );
 		add_action( 'wp_enqueue_scripts',   array( $this, 'enqueue_scripts' ) );
+		add_filter( 'wordads_ads_txt',      array( $this, 'insert_custom_adstxt' ) );
 
 		/**
 		 * Filters enabling ads in `the_content` filter
@@ -369,6 +370,23 @@ HTML;
 	}
 
 	/**
+	 * Filter the latest ads.txt to include custom user entries. Strips any tags or whitespace.
+	 * @param  string $adstxt The ads.txt being filtered
+	 * @return string         Filtered ads.txt with custom entries, if applicable
+	 *
+	 * @since 6.5.0
+	 */
+	function insert_custom_adstxt( $adstxt ) {
+		$custom_adstxt = trim( wp_strip_all_tags( $this->option( 'wordads_custom_adstxt' ) ) );
+		if ( $custom_adstxt ) {
+			$adstxt .= "\n\n#Jetpack - User Custom Entries\n";
+			$adstxt .= $custom_adstxt . "\n";
+		}
+
+		return $adstxt;
+	}
+
+	/**
 	 * Get the ad for the spot and type.
 	 * @param  string $spot top, side, inline, or belowpost
 	 * @param  string $type iponweb or adsense
@@ -472,7 +490,7 @@ HTML;
 	 * @since 4.5.0
 	 */
 	public function should_bail() {
-		return ! $this->option( 'wordads_approved' );
+		return ! $this->option( 'wordads_approved' ) || !! $this->option( 'wordads_unsafe' );
 	}
 
 	/**

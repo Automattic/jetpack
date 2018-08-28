@@ -235,7 +235,7 @@ class Jetpack_Geo_Location {
 	 * Add the georss namespace during RSS generation.
 	 */
 	public function rss_namespace() {
-		echo 'xmlns:georss="http://www.georss.org/georss" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" ';
+		echo PHP_EOL . 'xmlns:georss="http://www.georss.org/georss" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"' . PHP_EOL;
 	}
 
 	/**

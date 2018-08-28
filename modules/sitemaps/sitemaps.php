@@ -361,6 +361,16 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
+	 * Callback handler for sitemap cron hook
+	 *
+	 * @access public
+	 */
+	public function callback_sitemap_cron_hook() {
+		$sitemap_builder = new Jetpack_Sitemap_Builder();
+		$sitemap_builder->update_sitemap();
+	}
+
+	/**
 	 * Add actions to schedule sitemap generation.
 	 * Should only be called once, in the constructor.
 	 *
@@ -371,11 +381,9 @@ class Jetpack_Sitemap_Manager {
 		// Add cron schedule.
 		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) );
 
-		$sitemap_builder = new Jetpack_Sitemap_Builder();
-
 		add_action(
 			'jp_sitemap_cron_hook',
-			array( $sitemap_builder, 'update_sitemap' )
+			array( $this, 'callback_sitemap_cron_hook' )
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
@@ -385,8 +393,6 @@ class Jetpack_Sitemap_Manager {
 				'jp_sitemap_cron_hook'
 			);
 		}
-
-		return;
 	}
 
 	/**

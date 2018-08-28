@@ -72,7 +72,7 @@ yarn docker:multisite-convert
 To remove WordPress installation and start over, run:
 
 ```sh
-+yarn docker:uninstall
+yarn docker:uninstall
 ```
 
 ### Start containers
