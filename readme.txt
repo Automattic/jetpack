@@ -122,13 +122,15 @@ Geo Location: Fixed a compatibility issue with other plugins that added meta att
 
 **Bug fixes**
 
+AMP: Fix PHP notice when rendering AMP images with unknown width and height.
+Contact Forms: We fixed an issue where personal data eraser requests didn't erase all requested feedback.
+General: Improves compatibility with the upcoming PHP 7.3.
+General: Updated input validation for meta tags given in site verification.
+Lazy Images: Deprecated jetpack_lazy_images_skip_image_with_atttributes filter in favor of jetpack_lazy_images_skip_image_with_attributes to address typo.
+Sharing: Fixed duplicate rel tags on Sharing links.
+Search: Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
+Shortcodes: Updated Wufoo Shortcode to always load over https and use async form embed.
 Widgets: Fixed excessive logging issue with Twitter Timeline widget.
 Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necassary.
 Widgets: Added decimal precision validator to Simple Payments Widget price field on the Customizer for supporting Japanese Yen.
-Sharing: Fixed duplicate rel tags on Sharing links.
-Lazy Images: Deprecated jetpack_lazy_images_skip_image_with_atttributes filter in favor of jetpack_lazy_images_skip_image_with_attributes to address typo.
-Search: Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
-Shortcodes: Updated Wufoo Shortcode to always load over https and use async form embed.
-AMP: Fix PHP notice when rendering AMP images with unknown width and height.
-General: Improves compatibility with the upcoming PHP 7.3.
-General: Updated input validation for meta tags given in site verification.
+

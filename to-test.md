@@ -35,6 +35,25 @@ To test :
 ![](https://user-images.githubusercontent.com/44990/43659234-37cad834-9710-11e8-83fd-7b3661bf927d.png)
 2. Make sure Subscribing also does work as expected.
 
+### Contact Form
+
+We fixed an issue when attempting to erase all feeback using the personal data eraser that would leave some feedback non deleted. 
+
+To test: 
+
+Setup:
+
+1. Create a contact form on your site
+2. Manually edit to `/contact-form/grunion-contact-form.php` on line 846 to read `$per_page = 1;`
+Test:
+1. Submit 3 feedbacks through the form, all with *the same email address*.
+2. Go to wp-admin/ -> Tools -> Erase Personal Data.
+3. Enter the email address you used, click "Send Request".
+4. Find that Pending Request in the table on that page, hover over it and click "Force Erase Personal Data".
+5. See the AJAX requests go, and the success message "All of the personal data found for this user was erased." appear.
+6. Go to wp-admin/ -> Feedback
+7. Expect to see no feedbacks left.
+
 ### General
 
 Improved compatibility with the upcoming PHP 7.3 that fixes warning when using `continue` within a `switch` to confirm intent.
