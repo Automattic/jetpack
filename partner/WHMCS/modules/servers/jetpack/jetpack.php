@@ -166,7 +166,7 @@ function get_access_token($params)
     if (isset($response->access_token)) {
         return $response->access_token;
     } else {
-        return $reponse;
+        return $response;
     }
 }
 
@@ -260,12 +260,11 @@ function save_provisioning_details($url, $params, $pending = false)
  *
  * @param array $params
  * @return bool
- * @throws Exception
  */
 function validate_required_fields(array $params)
 {
     $allowed_plans = array('free', 'personal', 'premium', 'professional');
-    $required_custom_fields = array('Plan', 'Site URL', 'Local User');
+    $required_custom_fields = array('Plan', 'Site URL', 'Local User', 'jetpack_provisioning_details');
 
     foreach ($required_custom_fields as $field) {
         if (!isset($params['customfields'][$field])) {
@@ -273,14 +272,6 @@ function validate_required_fields(array $params)
                 . $field . ' was not setup when the product was created.
 				Please see the module documentation for more information';
         }
-    }
-
-    $jetpack_next_url_field = Capsule::table('tblcustomfields')
-        ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
-
-    if (!$jetpack_next_url_field) {
-        return 'JETPACK MODULE: The module does not appear to be setup correctly. 
-        The jetpack_provisioning_details field is missing';
     }
 
     if (!in_array(strtolower($params['customfields']['Plan']), $allowed_plans)) {
