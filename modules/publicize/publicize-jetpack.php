@@ -1,16 +1,11 @@
 <?php
 
-jetpack_require_lib( 'class.jetpack-service-helpers' );
-
 class Publicize extends Publicize_Base {
 
 	function __construct() {
 		parent::__construct();
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_update_publicize_connections_xmlrpc_method' ) );
-
-		// moved to Keyring module
-		//add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
 		add_action( 'wp_ajax_publicize_tumblr_options_page', array( $this, 'options_page_tumblr' ) );
 		add_action( 'wp_ajax_publicize_facebook_options_page', array( $this, 'options_page_facebook' ) );
@@ -42,6 +37,8 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
+
+		jetpack_require_lib( 'class.jetpack-service-helper' );
 	}
 
 	function force_user_connection() {
@@ -175,13 +172,6 @@ class Publicize extends Publicize_Base {
 		return $connection;
 	}
 
-	// moved to Keyring module
-	// function admin_age_load() {
-
-	// moved to Keyring module
-	// function display_connection_error() {
-
-
 	function display_disconnected() {
 		echo "<div class='updated'>\n";
 		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
@@ -206,10 +196,6 @@ class Publicize extends Publicize_Base {
 			}
 		}
 	}
-
-
-	// moved to Keyring module
-	//function api_url( $service = false, $params = array() ) {
 
 	function connect_url( $service_name ) {
 		return Jetpack_Service_Helper::connect_url( $service_name );
