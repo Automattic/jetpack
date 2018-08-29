@@ -144,12 +144,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
 			),
 
-			// todo: move
-			'keyring' => array(
-				'name' => _x( 'Keyring', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
-			),
-
 			'pwa' => array(
 				'name' => _x( 'Progressive Web Apps', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Speed up and improve the reliability of your site using the latest in web technology.', 'Module Description', 'jetpack' ),
