@@ -1348,10 +1348,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
 				}
 
-				if ( empty( $connections_to_return ) ) {
-					return false;
-				}
-
 				$expected_keys = array(
 					'id',
 					'service',
@@ -1365,6 +1361,24 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'type',
 					'connection_data',
 				);
+
+				// Somehow, a test site ended up in a state where $connections_to_return looked like:
+				// array( array( array( 'id' => 0, 'service' => 0 ) ) ) // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// This caused the CLI command to error when running WP_CLI\Utils\format_items() below. So
+				// to minimize future issues, this nested loop will remove any connections that don't contain
+				// any keys that we expect.
+				foreach ( (array) $connections_to_return as $connection_key => $connection ) {
+					foreach ( $expected_keys as $expected_key ) {
+						if ( ! isset( $connection[ $expected_key ] ) ) {
+							unset( $connections_to_return[ $connection_key ] );
+							continue;
+						}
+					}
+				}
+
+				if ( empty( $connections_to_return ) ) {
+					return false;
+				}
 
 				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys ); // phpcs:ignore PHPCompatibility
 				break; // list.
