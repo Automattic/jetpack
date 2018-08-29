@@ -721,6 +721,14 @@ class Jetpack {
 			'window.wp.apiFetch.use( function( options, next ) { return next( { ...options, path: options.path.replace( /^\/me/, "jetpack/v4/me" ) } ) } );',
 			'before'
 		);
+
+		wp_enqueue_style(
+			'wpcom_color_scheme_block',
+			plugins_url( '_inc/build/wpcom-color-scheme/block.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
 	}
 
 	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
