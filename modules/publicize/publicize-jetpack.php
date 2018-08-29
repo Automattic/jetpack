@@ -97,15 +97,7 @@ class Publicize extends Publicize_Base {
 	 * Remove a Publicize connection
 	 */
 	function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
-
-		if ( ! $xml->isError() ) {
-			Jetpack_Options::update_option( 'publicize_connections', $xml->getResponse() );
-		} else {
-			return false;
-		}
+		return Jetpack_Service_Helper::disconnect( $serivce_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
 	function receive_updated_publicize_connections( $publicize_connections ) {
@@ -172,11 +164,7 @@ class Publicize extends Publicize_Base {
 		return $connection;
 	}
 
-	function display_disconnected() {
-		echo "<div class='updated'>\n";
-		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
-		echo "</div>\n\n";
-	}
+
 
 	function globalization() {
 		if ( 'on' == $_REQUEST['global'] ) {

@@ -15,7 +15,7 @@ class Jetpack_Service_Helper {
 	}
 
 	private function __construct() {
-		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
+		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Jetpack_Service_Helper {
 		), menu_page_url( 'sharing', false ) );
 	}
 
-	function admin_page_load() {
+	static function admin_page_load() {
 		if ( isset( $_GET['action'] ) ) {
 			if ( isset( $_GET['service'] ) ) {
 				$service_name = $_GET['service'];
@@ -87,7 +87,7 @@ class Jetpack_Service_Helper {
 
 			switch ( $_GET['action'] ) {
 				case 'error':
-					add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
+					add_action( 'pre_admin_screen_sharing', array( __CLASS__, 'display_connection_error' ), 9 );
 					break;
 
 				case 'request':
@@ -105,7 +105,7 @@ class Jetpack_Service_Helper {
 					$wpcom_blog_id = ! empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
 
 					$user     = wp_get_current_user();
-					$redirect = $this->api_url( $service_name, urlencode_deep( array(
+					$redirect = Jetpack_Service_Helper::api_url( $service_name, urlencode_deep( array(
 						'action'       => 'request',
 						'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
 						'for'          => 'publicize',
@@ -139,15 +139,15 @@ class Jetpack_Service_Helper {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$this->disconnect( $service_name, $id );
+					Jetpack_Service_Helper::disconnect( $service_name, $id );
 
-					add_action( 'admin_notices', array( $this, 'display_disconnected' ) );
+					add_action( 'admin_notices', array( __CLASS__, 'display_disconnected' ) );
 					break;
 			}
 		}
 	}
 
-	function display_connection_error() {
+	static function display_connection_error() {
 		$code = false;
 		if ( isset( $_GET['service'] ) ) {
 			$service_name = $_GET['service'];
@@ -192,6 +192,27 @@ class Jetpack_Service_Helper {
 			</div>
 		</div>
 		<?php
+	}
+
+	static function display_disconnected() {
+		echo "<div class='updated'>\n";
+		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
+		echo "</div>\n\n";
+	}
+
+		/**
+	 * Remove a Publicize connection
+	 */
+	static function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
+
+		if ( ! $xml->isError() ) {
+			Jetpack_Options::update_option( 'publicize_connections', $xml->getResponse() );
+		} else {
+			return false;
+		}
 	}
 
 }
