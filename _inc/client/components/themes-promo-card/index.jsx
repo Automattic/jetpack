@@ -70,7 +70,7 @@ class ThemesPromoCard extends React.Component {
 							)
 							: __(
 								'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
-								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
+								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
 								{
 									components: {
 										p: <p className="jp-apps-card__paragraph" />
