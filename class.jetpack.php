@@ -714,6 +714,13 @@ class Jetpack {
 			'window.configData={};',
 			'before'
 		);
+
+		// TODO: move to a separate file instead of inlining it
+		wp_add_inline_script(
+			'wpcom_color_scheme_block',
+			'window.wp.apiFetch.use( function( options, next ) { return next( { ...options, path: options.path.replace( /^\/me/, "jetpack/v4/me" ) } ) } );',
+			'before'
+		);
 	}
 
 	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
