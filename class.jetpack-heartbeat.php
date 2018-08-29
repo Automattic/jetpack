@@ -140,8 +140,13 @@ class Jetpack_Heartbeat {
 	}
 
 	public static function jetpack_xmlrpc_methods( $methods ) {
-		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'generate_stats_array' );
+		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'xmlrpc_data_response' );
 		return $methods;
+	}
+
+	public static function xmlrpc_data_response( $params = array() ) {
+		$params = empty( $params ) ? '' : $params;
+		return self::generate_stats_array( $params );
 	}
 
 	public function deactivate() {
