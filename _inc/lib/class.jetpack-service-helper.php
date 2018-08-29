@@ -141,7 +141,7 @@ class Jetpack_Service_Helper {
 
 					Jetpack_Service_Helper::disconnect( $service_name, $id );
 
-					add_action( 'admin_notices', array( __CLASS__, 'display_disconnected' ) );
+					do_action( 'connection_disconnected', $service_name );
 					break;
 			}
 		}
@@ -192,12 +192,6 @@ class Jetpack_Service_Helper {
 			</div>
 		</div>
 		<?php
-	}
-
-	static function display_disconnected() {
-		echo "<div class='updated'>\n";
-		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
-		echo "</div>\n\n";
 	}
 
 		/**

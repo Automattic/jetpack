@@ -45,6 +45,7 @@ class Publicize_UI {
 		// management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen)
 		add_action( 'pre_admin_screen_sharing', array( &$this, 'admin_page' ) );
 		add_action( 'post_submitbox_misc_actions', array( &$this, 'post_page_metabox' ) );
+		add_action( 'connection_disconnected', array( __CLASS__, 'add_disconnect_notice' ) );
 	}
 
 	/**
@@ -112,6 +113,16 @@ class Publicize_UI {
 				$platform
 			); ?></p>
 		</div><?php
+	}
+
+	public static function add_disconnect_notice() {
+		add_action( 'admin_notices', array( __CLASS__, 'disconnected_notice' ) );
+	}
+
+	public static function disconnected_notice() {
+		echo "<div class='updated'>\n";
+		echo '<p>' . esc_html(__( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
+		echo "</div>\n\n";
 	}
 
 	public static function denied_notice() { ?>
