@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../keyring/keyring-jetpack.php';
+jetpack_require_lib( 'class.jetpack-service-helpers' );
 
 class Publicize extends Publicize_Base {
 
@@ -212,15 +212,15 @@ class Publicize extends Publicize_Base {
 	//function api_url( $service = false, $params = array() ) {
 
 	function connect_url( $service_name ) {
-		return Keyring::connect_url( $service_name );
+		return Jetpack_Service_Helper::connect_url( $service_name );
 	}
 
 	function refresh_url( $service_name ) {
-		return Keyring::refresh_url( $service_name );
+		return Jetpack_Service_Helper::refresh_url( $service_name );
 	}
 
 	function disconnect_url( $service_name, $id ) {
-		return Keyring::disconnect_url( $service_name, $id );
+		return Jetpack_Service_Helper::disconnect_url( $service_name, $id );
 	}
 
 	/**
