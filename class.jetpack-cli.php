@@ -1289,6 +1289,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
+		if ( Jetpack::is_development_mode() ) {
+			if (
+				! defined( 'JETPACK_DEV_DEBUG' ) &&
+				! has_filter( 'jetpack_development_mode' ) &&
+				false === strpos( site_url(), '.' )
+			) {
+				WP_CLI::error( __( "Jetpack is current in development mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in development mode, the publicize module will not load.", 'jetpack' ) );
+			}
+
+			WP_CLI::error( __( 'Jetpack is currently in development mode, so the publicize module will not load.', 'jetpack' ) );
+		}
+
 		$action        = $args[0];
 		$publicize     = new Publicize();
 		$identifier    = ! empty( $args[1] ) ? $args[1] : false;
