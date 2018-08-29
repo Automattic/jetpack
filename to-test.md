@@ -1,129 +1,199 @@
-## 6.4
+## 6.5
 
-### Widgets
+### Admin Page
 
-#### Top Posts Widget
+Added ability to disable backups related UI when a filter is passed for our hosting partners.
 
-We added new `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top Posts widget (which _might_ be used to extend Top Posts widget).
+To test :
 
-To test:
+1. In an integration plugin, add `add_filter( 'jetpack_show_backups', '__return_false' );`
+2. Load Jetpack admin page.
+3. Ensure that backups and scanning are not mentioned in UI.
+4. Install and activate VaultPress.
+5. Ensure that backups and scanning are mentioned.
 
-- Add 'Top Posts' Widget
-- Make sure it works as expected
+### AMP
 
-### AMP Compatibility
+Fixed PHP error notice that appears when a post has no featured image set, but does have an embedded `gallery` shortcode with image files that have been deleted before.
 
-AMP compatibility for Comments was improved.
+To test :
 
-To test:
+1. Enable logging in WordPress.
+2. Add a post with no featured image set.
+3. Add `gallery` shortcode to that post with some images.
+4. Delete those images from `gallery`.
+5. Ensure the following error code does not appear in your error log when you view the post in `AMP`:
+`Undefined index: src_width in wp-content/plugins/jetpack/3rd-party/class.jetpack-amp-support.php on line 224`
 
-1. Install [AMP v1.0-beta1](https://github.com/Automattic/amp-wp/releases/tag/1.0-beta1).
-2. In the admin, go to AMP > General settings and enable Native template mode.
-3. Activate the comments module in Jetpack.
-4. Open the dev console.
-5. Navigate to a post and attempt to leave a comment.
-6. Clicking the “Post Comment” button, expect to see no error like `Blocked form submission to 'https://jetpack.wordpress.com/jetpack-comment/' because the form's frame is sandboxed and the 'allow-forms' permission is not set.`.
+### Comments
 
+Moved the Subscription checkboxes from after the submit button to before the submit button.
+
+To test :
+
+1. When viewing a comment form, ensure Subscription options are located above the submit/post comment button.
+![](https://user-images.githubusercontent.com/44990/43659234-37cad834-9710-11e8-83fd-7b3661bf927d.png)
+2. Make sure Subscribing also does work as expected.
 
 ### Contact Form
 
-We added a bit of flexibility to the data exporter and eraser so they can be tailored to the needs of different privacy and data retention policies.
+We fixed an issue when attempting to erase all feeback using the personal data eraser that would leave some feedback non deleted. 
 
-To test (You will need ftp / ssh access to the test site):
+To test: 
 
-- Enable Jetpack Contact Forms.
-- Create a page and add a Jetpack Contact Form.
-- Submit the form a couple of times with a test email address.
-- Check that `Export Personal Data` & `Remove Personal Data` tool work as expected. You should find that exporting personal data includes a "Feedback" group containing the personal data that you submitted with the test email address. Removing personal data should remove the Feedback posts associated with the test email address.
-- Copy this file (https://gist.github.com/coreymckrill/bed546ef05c9917d0d01618588a2c206) into the wp-content/mu-plugins folder.
-- Perform the two tests separately, uncommenting the relevant lines to activate them.
-- For Test 1, the result should be that the data export does not include feedback posts, and during data erasure, the feedback posts are not deleted.
-- For Test 2, during erasure, you should see a message that personal data was found, but not erased, followed by the "because reasons" message.
+Setup:
 
-### Connection
+1. Create a contact form on your site
+2. Manually edit to `/contact-form/grunion-contact-form.php` on line 846 to read `$per_page = 1;`
+Test:
+1. Submit 3 feedbacks through the form, all with *the same email address*.
+2. Go to wp-admin/ -> Tools -> Erase Personal Data.
+3. Enter the email address you used, click "Send Request".
+4. Find that Pending Request in the table on that page, hover over it and click "Force Erase Personal Data".
+5. See the AJAX requests go, and the success message "All of the personal data found for this user was erased." appear.
+6. Go to wp-admin/ -> Feedback
+7. Expect to see no feedbacks left.
 
-We updated the wording on the connection prompts text by removing the word "fascinating" from it.
+### General
+
+Improved compatibility with the upcoming PHP 7.3 that fixes warning when using `continue` within a `switch` to confirm intent.
+
+To test :
+
+1. Ensure there are no warning messages when running with PHP 7.3.
+
+Removed the outdated "Site Verification Services" card in Tools.
+
+To test :
+
+1. Connect to `WP-Admin` on a Jetpack Site
+2. Go to `Tools` (`/wp-admin/tools.php`) and notice the screen to verify your site on search engines (titled `Website Verification Services (?)`) has been replaced by a placeholder.
+
+Old UI :
+![](https://user-images.githubusercontent.com/230230/44407221-d8a47c00-a55d-11e8-9e60-f8dad7e7daec.png)
+
+New UI :
+![](https://user-images.githubusercontent.com/51896/44542314-45845700-a6c1-11e8-8a02-996bb28b4ff6.png)
+
+Updated input validation we have for meta tags used for Website Verification services.
+
+To test :
+
+1. Enter any of the following valid meta tags and make sure they are saved successfully without any validation errors.
+
+- `<meta name="google-site-verification" content="1234"/>` (no space before `/>`)
+- `<meta name='google-site-verification' content='1234' />` (use of `'` instead of `"`)
+- `<meta name='google-site-verification' content=1234 />` (does not use any quotes)
+- `<meta content="1234" name="google-site-verification" />` (switches the order)
+- `<meta name="google-site-verification" content="1234" some-prop />` (has extra properties)
+- `<meta name="google-site-verification" content="1234">` (does not have a closing character)
+
+2. Enter a "bad" string and make sure it fails to save with a validation error. i.e `<moota name="google-site-verification" content="1234"/>`
+
+### Lazy Images
+
+Deprecates `jetpack_lazy_images_skip_image_with_atttributes` filter in favor of `jetpack_lazy_images_skip_image_with_attributes` to address typo.
+
+To test :
+
+1. Make sure filters work on tests with `phpunit --filter=WP_Test_Lazy_Images`
+
+We also updated lazy images to use a base64 encoded transparent to reduce a network request.
 
 To test:
 
-* Start with a disconnected site.
-* Confirm that the connection on WordPress' Dashboard and on Jetpack's Dashboard lacks the word "fascinating".
-* Deactivate and activate Jetpack. Confirm that the modal that appears on reactivation lacks the word too.
+- Ensure that site has Lazy Images turned on.
+- Create a post/page with some images in it.
+- Load the post/page.
+- Ensure that images load properly.
+- If you view the source when the page first loads, you should see the base64 encoded image.
 
-### Lazy images
+### Search
 
-We fixed the behaviour for visitors with JavaScript disabled when the images were expected to be centered.
+Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
 
-- Ensure lazy images module is on.
-- Load a post with images in it, with at least one image being centered.
-- Ensure the centered image does not fill the post content. If it does, crop it.
-- Reload post and ensure that image is properly centered
+To test :
 
-We also fixed compatbility on lazy images when updating WooCommerce cart quantity.
-
-To test:
-
-* Start having a WooCommerce with the Salient theme installed.
-* Add some items into the cart, go to the cart.
-* Update the quantity and save.
-* Confirm that images start loading fine after quantity update.
+1. Purchase Jetpack Professional plan.
+2. Ensure Search module is ON.
+3. Install and activate Debug Bar.
+4. While logged in, perform a search on frontend of site and ensure Jetpack Search debug panel shows.
+5. Ensure that you can prettify JSON output in panel.
+6. In an incognito, or logged out tab, perform search on the frontend, and ensure that you don't see files like this in the source: `jetpack/3rd-party/debug-bar/debug-bar.css`.
+7. Deactivate Debug Bar plugin.
+8. Follow steps above for Query Monitor plugin.
 
 ### Sharing
 
-We now redirect users to WordPress.com for configuring Sharing. If a user is not linked to WordPress.com, we put them in the flow to complete the connection.
+Fixed an issue with Twitter sharing that affected WordPress.com sites.
 
-1. Enable "sharing".
-2. Create a secondary admin/user on the site.
-3. Log in as secondary user, navigate to the Settings -> Sharing page in wp-admin.
-4. You should be redirected to Calypso to link your WordPress.com account.
-5. Once linked, you should be redirected back to the wp-admin sharing screen.
-6. If the secondary user is already linked, there should be no redirection.
-7. Clicking on Settings -> Sharing as a linked user should take you to WordPress.com for configuration.
+To test :
+
+1. Set a default Twitter handle for your sharing buttons, and that your default Twitter handle appears when you click a share-via-twitter button.
+2. When you Publicize a post, and no default Twitter handle is set, ensure the Twitter handle used in Publicize is present when you click a share-via-twitter button.
+
+Fixed an issue with duplicate `rel` tags on Sharing links.
+
+To test :
+
+1. Enable Jetpack Sharing.
+2. Inspect the Sharing links/buttons on any page/post and ensure there is only one `rel` tag in the link.
+
+i.e should NOT be like this (contains double `rel` tags) :
+`<li class="share-twitter"><a rel="nofollow" data-shared="sharing-twitter-14" class="share-twitter sd-button no-icon" href="https://myurl.com/link?share=twitter" rel="noopener noreferrer" target="_blank" title="Click to share on Twitter"><span>Twitter</span></a></li>`
 
 ### Shortcodes
 
-We added a shortcode for adding [flat.io](https://flat.io) embeds.
+We updated Wufoo Shortcode to always load over HTTPS and use async form embed.
+
+To test :
+
+1. Test with various Wufoo embed shortcodes. All should work over HTTPS, regardless of whether they set HTTPS argument to (true/false) or not at all.
+
+We also updated the Geo Location module to fix compatibility issues with plugins that added meta attributes to site feeds.
 
 To test:
 
-1. Start a new post and paste `https://flat.io/score/5a5268ed41396318cbd7772c-string-quartet-for-rainy-days` on a new line.
-2. Publish the post and expect to see the embed.
+* Add a plugin that uses the `rss2_ns` hook, or better yet, create one yourself: https://gist.github.com/zinigor/8c2fb946536be33b2cb141d5808d57b4
+* Feed your feed into [the validator](https://validator.w3.org/feed/). You can get your site's feed URL by adding `/rss` to the end of the site URL.
+* Confirm that the feed is only invalid due to a duplicate attribute issue and not due to a `not well-formed (invalid token)` issue.
 
-### Simple Payments widget
+### Widgets
 
-We added a warning for admin users when there are Simple Payments products published on pages/posts or as a Widget and Simple Payments is disabled.
+Fixed an issue with Twitter Timeline widget that caused excessive logging.
 
-To test:
+To test :
 
-* Get a Professional Subscription on a Jetpack site.
-* Add a Simple Payment Product to a Page/Post and as a Widget, and publish the changes.
-* Navigate to the page/post: the site should show the product and the widget for both admin, non-admins and logged out users.
-* Cancel the Professional Subscription
-* Navigate to the page/post: the site should show the warning for admin users, and for non-admin and anonymous users it shouldn't show a warning nor the product.
+1. Enable logging in WordPress.
+2. Use the Twitter Timeline widget.
+3. Check your log and ensure there are no log lines like this :
 
-We also fixed a fatal error that was affecting the main site on multisite installations.
+`PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 88`
+`PHP Notice: Undefined index: type in .../wp-content/plugins/jetpack/modules/widgets/twitter-timeline.php on line 111`
 
-To test:
 
-* Start with Multisite Installation.
-* Activate the Jetpack Plugin on the main site.
-* Deactivate the Jetpack Plugin on the main site.
-* Expect not to see an error logged like `Uncaught Error: Class 'Jetpack_Simple_Payments' not found`.
-
-Also a bug was fixed related to 2 years plan implemented recently in WordPress.come
+We also added precision validation for the price field in the Simple Payments Widget. Fixes a bug that allows the creation of Simple Payment Products with the wrong number of decimals. This is because all currencies have a precision of 2, except Japanese Yen that does not support decimals.
 
 To test:
 
-* Start with an Atomic site having a 2 year business plan subscription.
-- Install the [Jetpack beta plugin](https://jetpack.com/download-jetpack-beta/)
-- Visit /wp-admin/admin.php?page=jetpack-beta and active the Release Candidate.
-- Expect to be able to add a Simple Payment in the post editor or as a widget in the customizer.
+* Start with a Premium or Professional plan.
+* On the Customizer, navigate to Widgets and select a sidebar or a footer.
+* Click on Add a Widget and search for Simple Payments.
+* Click on Add New to create a new Product.
+* Using an invalid precision, click _Save_.
+* Expect to receive an error message.
 
-### Site Logo
+### WordAds
 
-We removed the custom name for the "Site Identity" section in the Customizer. The custom name is unnecessary, given core's updating of the section name in 4.3.
+We added the ability to include custom ads.txt entries in the ads module by configuring them on the Jetpack Admin Page.
 
-* Visit the Customizer.
-* The section containing Site Title, Tagline, and Logo should be named "Site Identity".
+To test:
+
+1. Enable Jetpack ads module.
+1. View `<site>/ads.txt` and verify `#Jetpack - User Custom Entries` is not present.
+1. Add custom entries to `Custom ads.txt entries` textarea and save.
+1. Attempt to include garbage entries with HTML markup or `<script>` tags.
+1. View `<site>/ads.txt` and verify `#Jetpack - User Custom Entries` is present and that "bad" entries are stripped and only "regular" text remains.
+1. On a site WP install utilizing a subdirectory (e.g. www.site.com/foo/wp-admin) check that the ads.txt portion is removed, as ads.txt requires by definition not to run under a subdirectory.
 
 **Thank you for all your help!**

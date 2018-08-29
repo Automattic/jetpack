@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.4.1
+Stable tag: 6.4.2
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -98,53 +98,39 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.4.2 =
+= 6.5 =
 
-* Release date: August 10, 2018
-* Release post: https://wp.me/p1moTy-9pL
+* Release date: September 4, 2018
+* Release post: https://wp.me/p1moTy-a7U
 
-**Bug fixes**
+**Major Enhancements**
 
-Comments: We fixed an error that broke functionality of Social Login for comments.
-
-= 6.4.1 =
-
-* Release date: August 8, 2018
-* Release post: https://wp.me/p1moTy-9pc
-
-**Bug fixes**
-
-Comments: We fixed an error that broke functionality of nested comments.
-
-= 6.4 =
-
-* Release date: August 7, 2018
-* Release post: https://wp.me/p1moTy-9md
+WordAds: Added ability to include custom ads.txt entries in the ads module.
 
 **Enhancements**
 
-* Connection: Updated connect splash screen with new content.
-* Docs: Added documentation for retrieving provision status of a site.
-* Shortcodes: Added oEmbed support for flat.io.
-* Widgets: Added `jetpack_top_posts_widget_layout` filter that allows you to create a custom display layout for the Top posts widget.
-* Privacy tools: Identify the data export/erasure callbacks for Feedback posts using associative keys, to better match the convention in Core.
-* Privacy tools: Added the `grunion_contact_form_delete_feedback_post` filter hook to allow specific Feedback posts to be bypassed during data erasure requests, similar to the `wp_anonymize_comment` filter in Core.
-* Contact Form: Disabled random table optimizations on core tables.
+Admin Page: Added ability to disable backups UI by filter when VaultPress is not activated.
+Comments: Moved the Subscription checkboxes on a comment form from after the submit button to before the submit button.
+General: Removed the outdated "Site Verification Services" card in Tools.
+General: Removed jetpack_enable_site_verification filter. We recommend filtering access to verification tools using jetpack_get_available_modules instead.
+General: Simplified the logic of Jetpack's signed HTTP requests code.
+Lazy Images: Updated lazy images to use a default base64 encoded transparent to reduce a network request.
 
 **Improved compatibility**
 
-* AMP: Improved AMP compatibility for Comments iframe.
-* General: The SEO Framework is no longer a conflicting Open Graph plugin and is now better compatible with Jetpack.
+Geo Location: Fixed a compatibility issue with other plugins that added meta attributes to site feeds with the `rss2_ns`, `atom_ns` or `rdf_ns` filters.
 
 **Bug fixes**
 
-* Shortcodes: Removed extra black bars from YouTube embeds as controls are inside the container now.
-* Simple Payments: Fixed the custom post type bug that affected Simple Payments widget for 2 year subscriptions.
-* Simple Payments: Fixed site failure which happens on Multisite installation with Simple Payments widget.
-* Simple Payments: Fixed syntax and misc compatibility issues with Simple Payments widget on PHP 5.2.
-* Simple Payments: Added warning for admin users if Simple Payments is not enabled but there are products published on pages/posts as a widget.
-* Lazy Images: Fixed an issue with images not loading while updating quantity in WooCommerce shopping cart.
-* Lazy Images: Fixed centered images that do not crop properly when no JavaScript is enabled.
-* General: Fixed auto scrolling to top when following the Quick Tour buttons.
-* General: Removed ability to set custom name for Site Identity section.
-* General: Added advanced control capabilities to image extraction from posts.
+AMP: Fix PHP notice when rendering AMP images with unknown width and height.
+Contact Forms: We fixed an issue where personal data eraser requests didn't erase all requested feedback.
+General: Improves compatibility with the upcoming PHP 7.3.
+General: Updated input validation for meta tags given in site verification.
+Lazy Images: Deprecated jetpack_lazy_images_skip_image_with_atttributes filter in favor of jetpack_lazy_images_skip_image_with_attributes to address typo.
+Sharing: Fixed duplicate rel tags on Sharing links.
+Search: Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
+Shortcodes: Updated Wufoo Shortcode to always load over https and use async form embed.
+Widgets: Fixed excessive logging issue with Twitter Timeline widget.
+Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necassary.
+Widgets: Added decimal precision validator to Simple Payments Widget price field on the Customizer for supporting Japanese Yen.
+
