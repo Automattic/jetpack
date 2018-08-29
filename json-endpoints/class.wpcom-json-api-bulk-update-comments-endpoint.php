@@ -18,7 +18,7 @@ new WPCOM_JSON_API_Bulk_Update_Comments_Endpoint( array(
 	'response_format'      => array(
 		'results' => '(array) An array of updated Comment IDs.'
 	),
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/comments/status',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/status',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -48,7 +48,7 @@ new WPCOM_JSON_API_Bulk_Update_Comments_Endpoint( array(
 	'response_format'      => array(
 		'results' => '(array) An array of deleted or trashed Comment IDs.'
 	),
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/comments/delete',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/delete',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -71,7 +71,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 		$input = $this->input();
 
 		if ( is_array( $input['comment_ids'] ) ) {
-			$comment_ids = (array) $input['comment_ids'];
+			$comment_ids = $input['comment_ids'];
 		} else if ( ! empty( $input['comment_ids'] ) ) {
 			$comment_ids = explode( ',', $input['comment_ids'] );
 		} else {
@@ -85,15 +85,13 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 		wp_defer_comment_counting( true );
 
 		if ( $this->api->ends_with( $path, '/delete' ) ) {
-			if ( ! empty( $input['empty_status'] ) ) {
-				$empty_status = $input['empty_status'];
-				$result['results'] = $this->delete_all( $empty_status );
+			if ( $this->validate_empty_status_param( $input['empty_status'] ) ) {
+				$result['results'] = $this->delete_all( $input['empty_status'] );
 			} else {
 				$result['results'] = $this->bulk_delete_comments( $comment_ids );
 			}
 		} else {
-			$status = $input['status'];
-			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $status );
+			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $input['status'] );
 		}
 
 		wp_defer_comment_counting( false );
@@ -109,7 +107,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 	 * @return boolean
 	 */
 	function validate_status_param( $status ) {
-		return in_array( $status, array( 'approved', 'unapproved', 'pending', 'spam', 'trash' ) );
+		return in_array( $status, array( 'approved', 'unapproved', 'pending', 'spam', 'trash' ), true );
 	}
 
 	/**
@@ -120,7 +118,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 	 * @return boolean
 	 */
 	function validate_empty_status_param( $empty_status ) {
-		return in_array( $empty_status, array( 'spam', 'trash' ) );
+		return in_array( $empty_status, array( 'spam', 'trash' ), true );
 	}
 
 	/**
@@ -133,7 +131,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 	 */
 	function bulk_update_comments_status( $comment_ids, $status ) {
 		if ( count( $comment_ids ) < 1 ) {
-			return new WP_Error( 'empty_comment_ids', 'The request must include comment_ids' );
+			return new WP_Error( 'empty_comment_ids', 'The request must include comment_ids', 400 );
 		}
 		if ( ! $this->validate_status_param( $status ) ) {
 			return new WP_Error( 'invalid_status', "Invalid comment status value provided: '$status'.", 400 );
@@ -178,7 +176,7 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 	 */
 	function bulk_delete_comments( $comment_ids ) {
 		if ( count( $comment_ids ) < 1 ) {
-			return new WP_Error( 'empty_comment_ids', 'The request must include comment_ids' );
+			return new WP_Error( 'empty_comment_ids', 'The request must include comment_ids', 400 );
 		}
 		$results = array();
 		foreach( $comment_ids as $comment_id ) {
@@ -203,9 +201,6 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 	 * @return array Deleted comments IDs.
 	 */
 	function delete_all( $status ) {
-		if ( ! $this->validate_empty_status_param( $status ) ) {
-			return array();
-		}
 		global $wpdb;
 		// This could potentially take a long time, so we only want to delete comments created
 		// before this operation.
