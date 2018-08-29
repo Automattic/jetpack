@@ -74,6 +74,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		) );
 
+		register_rest_route( 'jetpack/v4', 'me/settings', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_me_settings',
+				'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_me_settings',
+				'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			)
+		) );
+
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_jitm_message',
@@ -395,6 +408,56 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$body = wp_remote_retrieve_body( $request );
 		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
 			$data = $body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
+		}
+
+		return $data;
+	}
+
+	public static function get_me_settings( $request ) {
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/me/settings',
+			'1.1',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+			null,
+			'rest'
+		);
+
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = json_decode( $body );
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
+		}
+
+		return $data;
+	}
+
+	public static function update_me_settings( $request ) {
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/me/settings',
+			'1.1',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+			$request->get_body(),
+			'rest'
+		);
+
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = json_decode( $body );
 		} else {
 			// something went wrong so we'll just return the response without caching
 			return $body;
