@@ -142,6 +142,126 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_remote_connect_error_when_site_active() {
+		// Simulate the site being active.
+		Jetpack_Options::update_options( array(
+			'blog_token'  => 1,
+			'id'          => 1001,
+		) );
+		Jetpack::update_user_token( 1, sprintf( '%s.%d', 'token', 1 ), true );
+
+		$server = new Jetpack_XMLRPC_Server();
+
+		$response = $server->remote_connect( array(
+			'nonce'      => '1234',
+			'local_user' => '1',
+		) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertObjectHasAttribute( 'code', $response );
+		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertEquals(
+			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
+			$response->message
+		);
+
+		foreach ( array( 'blog_token', 'id','master_user', 'user_tokens' ) as $option_name ) {
+			Jetpack_Options::delete_option( $option_name );
+		}
+	}
+
+	public function test_remote_connect_error_invalid_user() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_connect( array(
+			'nonce'      => '1234',
+			'local_user' => '100000000',
+		) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertObjectHasAttribute( 'code', $response );
+		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertEquals(
+			'Jetpack: [input_error] Valid user is required.',
+			$response->message
+		);
+	}
+
+	public function test_remote_connect_empty_nonce() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_connect( array(
+			'local_user' => '1',
+		) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertObjectHasAttribute( 'code', $response );
+		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertEquals(
+			'Jetpack: [input_error] A non-empty nonce must be supplied.',
+			$response->message
+		);
+	}
+
+	public function test_remote_connect_fails_no_blog_token() {
+		Jetpack_Options::delete_option( 'blog_token' );
+
+		$server = new Jetpack_XMLRPC_Server();
+
+		add_filter( 'pre_http_request', array( $this, '__return_token' ) );
+		$response = $server->remote_connect( array(
+			'nonce'      => '1234',
+			'local_user' => '1',
+		) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertObjectHasAttribute( 'code', $response );
+		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertEquals(
+			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
+			$response->message
+		);
+	}
+
+	public function test_remote_connect_nonce_validation_error() {
+		Jetpack_Options::update_options( array(
+			'id'         => 1001,
+			'blog_token' =>  '123456.123456',
+		) );
+
+		$server = $this->get_mocked_xmlrpc_server();
+		$response = $server->remote_connect( array(
+			'nonce'      => '1234',
+			'local_user' => '1',
+		), $this->get_mocked_ixr_client( true, false ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertObjectHasAttribute( 'code', $response );
+		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertEquals(
+			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
+			$response->message
+		);
+	}
+
+	public function test_remote_connect_success() {
+		Jetpack_Options::update_options( array(
+			'id'         => 1001,
+			'blog_token' =>  '123456.123456',
+		) );
+
+		$server = $this->get_mocked_xmlrpc_server();
+		$response = $server->remote_connect( array(
+			'nonce'      => '1234',
+			'local_user' => '1',
+		), $this->get_mocked_ixr_client( true, 'this_is.a_token' ) );
+
+		$this->assertTrue( $response );
+	}
+
 	/*
 	 * Helpers
 	 */
@@ -174,5 +294,44 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 				'message' => '',
 			)
 		);
+	}
+
+	protected function get_mocked_ixr_client( $query_called = false, $response = '', $query_return = true, $error = null ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
+			->setMethods( array(
+				'query',
+				'isError',
+				'getResponse',
+			) )
+			->getMock();
+
+		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
+			->method( 'query' )
+			->will( $this->returnValue( $query_return ) );
+
+		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
+			->method( 'isError' )
+			->will( $this->returnValue( empty( $error ) ? false : true ) );
+
+		$xml->expects( $this->exactly( empty( $error ) ? 1 : 0 ) )
+			->method( 'getResponse' )
+			->will( $this->returnValue( $response ) );
+
+		return $xml;
+	}
+
+	protected function get_mocked_xmlrpc_server() {
+		$server = $this->getMockBuilder( 'Jetpack_XMLRPC_Server' )
+			->setMethods( array(
+				'do_post_authorization',
+			) )
+			->getMock();
+
+		$server->expects( $this->any() )
+			->method( 'do_post_authorization' )
+			->will( $this->returnValue( true ) );
+
+		return $server;
 	}
 }
