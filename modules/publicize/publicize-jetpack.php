@@ -57,41 +57,10 @@ class Publicize extends Publicize_Base {
 
 		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
 		// Jetpack::init()->admin_styles();
-		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page_warning' ), 1 );
+		add_action( 'pre_admin_screen_sharing', array( $publicize_ui, 'admin_page_warning' ), 1 );
 	}
 
-	function admin_page_warning() {
-		$jetpack   = Jetpack::init();
-		$blog_name = get_bloginfo( 'blogname' );
-		if ( empty( $blog_name ) ) {
-			$blog_name = home_url( '/' );
-		}
 
-		?>
-		<div id="message" class="updated jetpack-message jp-connect">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<p><?php printf(
-							/* translators: %s is the name of the blog */
-							esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
-							'<strong>' . esc_html( $blog_name ) . '</strong>'
-						); ?></p>
-					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
-				</div>
-				<div class="jetpack-install-container">
-					<p class="submit"><a
-							href="<?php echo $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ); ?>"
-							class="button-connector"
-							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
-					</p>
-					<p class="jetpack-install-blurb">
-						<?php jetpack_render_tos_blurb(); ?>
-					</p>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
 
 	/**
 	 * Remove a Publicize connection
