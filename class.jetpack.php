@@ -513,7 +513,7 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-service-helpers.php';
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Service_Helper', 'init' ), 9, 0 );
 		}
 
