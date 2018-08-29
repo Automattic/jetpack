@@ -23,9 +23,11 @@ When setting up the module 4 custom fields will need to be added in order for th
 | Site URL | Text Box | Yes | Optional | User input field
 | Local User | Text Box | Yes | Optional | User input field
 | Plan | Drop Down | Yes | Optional | (Free,Personal,Premium,Professional)
-| jetpack_provisioning_details | Text Area | Yes | No | **Not a user field**
+| jetpack_provisioning_details | Text Area | Yes | No | **Not a user field(Leave Blank)**
 
-**Please Note:** WHMCS requires that you first save each field by selecting the save changes box at the bottom of the page in order to add the next field.
+**Please Note:** 
+- WHMCS requires that you first save each field by selecting the save changes box at the bottom of the page in order to add the next field.
+- If the Site URL, Local User and Plan type are not show on the order form the module cannot be used to provision a Jetpack plan at checkout so please select the "Do not automatically setup this product" in that scenario.
 
 As part of the the product creation for WHMCS you may use any of the 4 options under Module Settings for setting up the product. The modules Create functionality will automatically be called an account provisioned if any of the first 3 options are selected.  
 
