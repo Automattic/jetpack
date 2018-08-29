@@ -1229,7 +1229,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 	}
 
-	/*
+	/**
 	 * Allows management of publicize connections.
 	 *
 	 * ## OPTIONS
@@ -1238,8 +1238,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : The action to perform.
 	 * ---
 	 * options:
-	 *  - list
-	 *  - disconnect
+	 *   - list
+	 *   - disconnect
 	 * ---
 	 *
 	 * [<identifier>]
@@ -1250,24 +1250,39 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ---
 	 * default: table
 	 * options:
-	 *  - table
-	 *  - json
-	 *  - csv
-	 *  - yaml
-	 *  - ids
-	 *  - count
+	 *   - table
+	 *   - json
+	 *   - csv
+	 *   - yaml
+	 *   - ids
+	 *   - count
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack publicize list
-	 * wp jetpack publicize list twitter
-	 * wp --user=1 jetpack publicize list
-	 * wp --user=1 jetpack publicize list twitter
-	 * wp jetpack publicize list 123456
-	 * wp jetpack publicize disconnect 123456
-	 * wp jetpack publicize disconnect all
-	 * wp jetpack publicize disconnect twitter
+	 *     # List all publicize connections.
+	 *     $ wp jetpack publicize list
+	 *
+	 *     # List publicize connections for a given service.
+	 *     $ wp jetpack publicize list twitter
+	 *
+	 *     # List all publicize connections for a given user.
+	 *     $ wp --user=1 jetpack publicize list
+	 *
+	 *     # List all publicize connections for a given user and service.
+	 *     $ wp --user=1 jetpack publicize list twitter
+	 *
+	 *     # Display details for a given connection.
+	 *     $ wp jetpack publicize list 123456
+	 *
+	 *     # Diconnection a given connection.
+	 *     $ wp jetpack publicize disconnect 123456
+	 *
+	 *     # Disconnect all connections.
+	 *     $ wp jetpack publicize disconnect all
+	 *
+	 *     # Disconnect all connections for a given service.
+	 *     $ wp jetpack publicize disconnect twitter
 	 */
 	public function publicize( $args, $named_args ) {
 		if ( ! Jetpack::is_active() ) {
