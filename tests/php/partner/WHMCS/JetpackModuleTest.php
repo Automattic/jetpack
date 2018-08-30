@@ -115,8 +115,4 @@ class JetpackModuleTest extends TestCase {
 		return $modified_params;
 	}
 
-	public function test_get_access_token() {
-		$this->createMock()
-	}
-
 }
