@@ -182,12 +182,9 @@ class Jetpack_Tracks_Client {
 		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
 			return false;
 		}
-		if ( ! $blog_id = Jetpack_Options::get_option( 'id' ) ) {
-			return false;
-		}
 
 		return array(
-			'blogid' => $blog_id,
+			'blogid' => Jetpack_Options::get_option( 'id' ),
 			'userid' => $user_data['ID'],
 			'username' => $user_data['login'],
 		);

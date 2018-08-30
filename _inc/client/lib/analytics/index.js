@@ -10,8 +10,7 @@ import assign from 'lodash/assign';
 import config from 'config';
 
 const debug = debugFactory( 'dops:analytics' );
-let _blog,
-	_superProps,
+let	_superProps,
 	_user;
 
 // Load tracking scripts
@@ -59,15 +58,11 @@ function buildQuerystringNoPrefix( group, name ) {
 }
 
 const analytics = {
-	initialize: function( blogid, userId, username, superProps ) {
-		analytics.blogId( blogid );
+
+	initialize: function( userId, username, superProps ) {
 		analytics.setUser( userId, username );
 		analytics.setSuperProps( superProps );
 		analytics.identifyUser();
-	},
-
-	blogId( blogid ) {
-		_blog = { blogid: blogid };
 	},
 
 	setUser: function( userId, username ) {
@@ -121,20 +116,13 @@ const analytics = {
 
 	tracks: {
 		recordEvent: function( eventName, eventProperties ) {
-			let blogIdProperty,
-				superProperties;
+			let superProperties;
 
 			eventProperties = eventProperties || {};
 
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
 				debug( '- Event name must be prefixed by "akismet_" or "jetpack_"' );
 				return;
-			}
-
-			if ( _blog ) {
-				blogIdProperty = _blog;
-				debug( '- Blog Id: %o', _blog );
-				eventProperties = assign( eventProperties, blogIdProperty );
 			}
 
 			if ( _superProps ) {
