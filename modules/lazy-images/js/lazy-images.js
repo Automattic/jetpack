@@ -99,7 +99,8 @@ var jetpackLazyImagesModule = function( $ ) {
 		var theImage = $( image ),
 			srcset,
 			sizes,
-			theClone;
+			theClone,
+			style;
 
 		if ( ! theImage.length ) {
 			return;
@@ -107,7 +108,18 @@ var jetpackLazyImagesModule = function( $ ) {
 
 		srcset = theImage.attr( 'data-lazy-srcset' );
 		sizes = theImage.attr( 'data-lazy-sizes' );
+		style = theImage.attr( 'style' ) || '';
+		style = style.replace( /max-width:.*/, '' );
+
 		theClone = theImage.clone(true);
+
+		// Add a load handler on the image so that we'll replace the placeholder once this image is loaded.
+		theClone.on( 'load', function() {
+			theImage.replaceWith( theClone );
+
+			// Fire an event so that third-party code can perform actions after an image is loaded.
+			theClone.trigger( 'jetpack-lazy-loaded-image' );
+		} );
 
 		// Remove lazy attributes from the clone.
 		theClone.removeAttr( 'data-lazy-srcset' ),
@@ -117,6 +129,8 @@ var jetpackLazyImagesModule = function( $ ) {
 		// Add the attributes we want on the finished image.
 		theClone.addClass( 'jetpack-lazy-image--handled' );
 		theClone.attr( 'data-lazy-loaded', 1 );
+		theClone.attr( 'style', style );
+
 		if ( ! srcset ) {
 			theClone.removeAttr( 'srcset' );
 		} else {
@@ -125,11 +139,6 @@ var jetpackLazyImagesModule = function( $ ) {
 		if ( sizes ) {
 			theClone.attr( 'sizes', sizes );
 		}
-
-		theImage.replaceWith( theClone );
-
-		// Fire an event so that third-party code can perform actions after an image is loaded.
-		theClone.trigger( 'jetpack-lazy-loaded-image' );
 	}
 };
 

@@ -61,8 +61,8 @@ class Jetpack_Lazy_Images {
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
-		add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX, 3 );
 	}
 
 	public function remove_filters() {
@@ -70,8 +70,8 @@ class Jetpack_Lazy_Images {
 		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
-		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX, 3 );
 	}
 
 	/**
@@ -189,11 +189,13 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @since 5.7.0
 	 *
-	 * @param array $attributes
+	 * @param array        $attributes The attributes of the image, such as src and srcset.
+	 * @param WP_Post      $attachment When called via filter, will contain a WP_Post object for the attachment.
+	 * @param array|string $size       When called via filter, will be either a string or an array specifying the size of the image.
 	 *
 	 * @return array The updated image attributes array with lazy load attributes
 	 */
-	static function process_image_attributes( $attributes ) {
+	static function process_image_attributes( $attributes, $attachment = null, $size = null ) {
 		if ( empty( $attributes['src'] ) ) {
 			return $attributes;
 		}
@@ -254,6 +256,23 @@ class Jetpack_Lazy_Images {
 				? ''
 				: $old_attributes['class']
 		);
+
+		if ( ! empty( $attributes['width'] ) && ! empty( $attributes['height'] ) ) {
+			$initial_style = empty( $attributes['style'] )
+				? ''
+				: $attributes['styles'];
+
+			if ( $initial_style && ';' !== substr( $initial_style, -1 ) ) {
+				$initial_style .= ';';
+			}
+
+			$attributes['style'] = sprintf(
+				'%s max-width: 100%%; width:%dpx; height: 0; padding-bottom: %s%%;',
+				$initial_style,
+				intval( $attributes['width'] ),
+				( $attributes['height'] / $attributes['width'] ) * 100
+			);
+		}
 
 		/**
 		 * Allow plugins and themes to override the attributes on the image before the content is updated.
