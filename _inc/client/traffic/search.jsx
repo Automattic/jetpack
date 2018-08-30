@@ -45,10 +45,10 @@ class Search extends React.Component {
 					</ModuleToggle>
 					{ this.props.getOptionValue( 'search' ) && (
 						<FormFieldset>
-								<p className="jp-form-setting-explanation">
-									{ __( 'Add the Jetpack search widget to your sidebar to configure advanced search filters.' ) }
-								</p>
-							</FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __( 'Add the Jetpack Search widget to your sidebar to configure advanced search filters.' ) }
+							</p>
+						</FormFieldset>
 					) }
 				</SettingsGroup>
 				{
