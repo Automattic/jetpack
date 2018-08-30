@@ -327,7 +327,6 @@ class Jetpack_WPES_Query_Builder {
 				'function_score' => array(
 					'query'     => $query,
 					'functions' => $this->weighting_functions,
-					'max_boost' => $this->functions_max_boost,
 					'score_mode' => $this->functions_score_mode,
 					'boost_mode' => $this->functions_boost_mode,
 				),
