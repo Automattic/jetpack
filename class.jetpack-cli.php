@@ -1289,6 +1289,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
+		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
+		}
+
 		if ( Jetpack::is_development_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
@@ -1299,6 +1303,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 
 			WP_CLI::error( __( 'Jetpack is currently in development mode, so the publicize module will not load.', 'jetpack' ) );
+		}
+
+		if ( ! class_exists( 'Publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not loaded.', 'jetpack' ) );
 		}
 
 		$action        = $args[0];
