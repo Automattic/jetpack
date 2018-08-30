@@ -44,7 +44,7 @@ const concat_list = [
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',
-	'modules/search/css/search-widget-frontend.css',
+	'modules/widgets/search/css/search-widget-frontend.css',
 	'modules/widgets/simple-payments/style.css',
 ];
 
