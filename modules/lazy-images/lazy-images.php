@@ -257,10 +257,11 @@ class Jetpack_Lazy_Images {
 				: $old_attributes['class']
 		);
 
-		if ( ! empty( $attributes['width'] ) && ! empty( $attributes['height'] ) ) {
+		$image_detail = self::get_image_detail( $attributes, $attachment, $size );
+		if ( $image_detail ) {
 			$initial_style = empty( $attributes['style'] )
 				? ''
-				: $attributes['styles'];
+				: $attributes['style'];
 
 			if ( $initial_style && ';' !== substr( $initial_style, -1 ) ) {
 				$initial_style .= ';';
@@ -269,8 +270,8 @@ class Jetpack_Lazy_Images {
 			$attributes['style'] = sprintf(
 				'%s max-width: 100%%; width:%dpx; height: 0; padding-bottom: %s%%;',
 				$initial_style,
-				intval( $attributes['width'] ),
-				( $attributes['height'] / $attributes['width'] ) * 100
+				intval( $image_detail['width'] ),
+				$image_detail['aspect_ratio']
 			);
 		}
 
@@ -369,6 +370,49 @@ class Jetpack_Lazy_Images {
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
+		);
+	}
+
+	/**
+	 * Given details about an image, will attempt to determine the height, width, and aspect ratio of an image.
+	 *
+	 * Requires an array of attributes but will fall back to retrieving the height and width by getting
+	 * information about the attachment.
+	 *
+	 * @param array        $attributes An array of image attributes.
+	 * @param WP_Post      $attachment The attachment post object.
+	 * @param string|array $size       An array of sizes or a string for a registered size.
+	 *
+	 * @return bool|array
+	 */
+	public static function get_image_detail( $attributes, $attachment = null, $size = null ) {
+		$width = 0;
+		$height = 0;
+
+		do {
+			if ( ! empty( $attributes['width'] ) && ! empty( $attributes['height'] ) ) {
+				$width  = intval( $attributes['width'] );
+				$height = intval( $attributes['height'] );
+				continue;
+			}
+
+			if ( ! $attachment ) {
+				continue;
+			}
+
+			$image = wp_get_attachment_image_src( $attachment->ID, $size );
+
+			list( $source, $width, $height ) = $image;
+		} while ( false );
+
+		if ( empty( $width ) || empty( $height ) ) {
+			return false;
+		}
+
+		return array(
+			'width'        => $width,
+			'height'       => $height,
+			'aspect_ratio' => ( $height / $width ) * 100,
 		);
 	}
 }
