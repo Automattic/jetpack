@@ -29,10 +29,12 @@ class Jetpack_WPES_Query_Builder {
 
 	// Custom boosting with function_score
 	protected $functions = array();
+	protected $weighting_functions = array();
 	protected $decays    = array();
 	protected $scripts   = array();
 	protected $functions_max_boost  = 2.0;
 	protected $functions_score_mode = 'multiply';
+	protected $functions_boost_mode = 'multiply';
 	protected $query_bool_boost     = null;
 
 	// General aggregations for buckets and metrics
