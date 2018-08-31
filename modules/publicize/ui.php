@@ -181,6 +181,12 @@ class Publicize_UI {
 				}
 			?>
 
+			<?php
+				if ( ! empty ( $_GET['action'] ) && 'error' == $_GET['action'] ) {
+					$this->display_connection_error();
+				}
+			?>
+
 			<p>
 				<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>
 				<?php esc_html_e( 'You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text.', 'jetpack' ); ?>
@@ -309,6 +315,54 @@ class Publicize_UI {
 		</form><?php
 
 	}
+
+	function display_connection_error() {
+		$code = false;
+		if ( isset( $_GET['service'] ) ) {
+			$service_name = $_GET['service'];
+			$error        = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
+		} else {
+			if ( isset( $_GET['publicize_error'] ) ) {
+				$code = strtolower( $_GET['publicize_error'] );
+				switch ( $code ) {
+					case '400':
+						$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack' );
+						break;
+					case 'secret_mismatch':
+						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack' );
+						break;
+					case 'empty_blog_id':
+						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack' );
+						break;
+					case 'empty_state':
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack' ), Jetpack::admin_url() );
+						break;
+					default:
+						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack' );
+						break;
+				}
+			} else {
+				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
+			}
+		}
+		// Using the same formatting/style as Jetpack::admin_notices() error
+		?>
+		<div id="message" class="jetpack-message jetpack-err">
+			<div class="squeezer">
+				<h2><?php echo wp_kses( $error, array( 'a'      => array( 'href' => true ),
+														'code'   => true,
+														'strong' => true,
+														'br'     => true,
+														'b'      => true
+					) ); ?></h2>
+				<?php if ( $code ) : ?>
+					<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
 
 	public static function global_checkbox( $service_name, $id ) {
 		global $publicize;
