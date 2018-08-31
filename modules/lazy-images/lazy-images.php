@@ -257,25 +257,7 @@ class Jetpack_Lazy_Images {
 				: $old_attributes['class']
 		);
 
-		$image_detail = self::get_image_detail( $attributes, $attachment, $size );
-		if ( $image_detail ) {
-			$initial_style = empty( $attributes['style'] )
-				? ''
-				: $attributes['style'];
-
-			if ( $initial_style && ';' !== substr( $initial_style, -1 ) ) {
-				$initial_style .= ';';
-			}
-
-			$attributes['style'] = sprintf(
-				'%s /* jetpack-lazy-images */ width:%dpx; padding-bottom: %s%%;',
-				$initial_style,
-				intval( $image_detail['width'] ),
-				$image_detail['aspect_ratio']
-			);
-
-			$attributes['class'] .= ' is-placeholder';
-		}
+		$attributes = self::maybe_add_placeholder( $attributes, $attachment, $size );
 
 		/**
 		 * Allow plugins and themes to override the attributes on the image before the content is updated.
@@ -312,6 +294,9 @@ class Jetpack_Lazy_Images {
 				.jetpack-lazy-image.is-placeholder {
 					max-width: 100% !important;
 					height: 0 !important;
+				}
+
+				.jetpack-lazy-image.is-placeholder.do-pulse {
 					animation: jetpack-lazy-images-loading-fade 1.6s ease-in-out infinite;
 					background-color: #f5f5f5;
 				}
@@ -429,5 +414,70 @@ class Jetpack_Lazy_Images {
 			'height'       => $height,
 			'aspect_ratio' => ( $height / $width ) * 100,
 		);
+	}
+
+	/**
+	 * Given details about an image, will add placeholders if possible.
+	 *
+	 * @param array        $attributes An array of image attributes.
+	 * @param WP_Post      $attachment The attachment post object.
+	 * @param string|array $size       An array of sizes or a string for a registered size.
+	 *
+	 * @return array
+	 */
+	public static function maybe_add_placeholder( $attributes, $attachment = null, $size = null ) {
+		/**
+		 * Should a placeholder be used, if possible, for this image?
+		 *
+		 * @module lazy-images
+		 *
+		 * @since 6.6.0
+		 *
+		 * @param bool         true        Should a placeholder be used if possible?
+		 * @param array        $attributes An array of image attributes.
+		 * @param WP_Post      $attachment The attachment post object.
+		 * @param string|array $size       An array of sizes or a string for a registered size.
+		 */
+		if ( ! apply_filters( 'jetpack_lazy_images_do_placholder', true, $attributes, $attachment, $size ) ) {
+			return $attributes;
+		}
+
+		$image_detail = self::get_image_detail( $attributes, $attachment, $size );
+		if ( $image_detail ) {
+			$initial_style = empty( $attributes['style'] )
+				? ''
+				: $attributes['style'];
+
+			if ( $initial_style && ';' !== substr( $initial_style, -1 ) ) {
+				$initial_style .= ';';
+			}
+
+			$attributes['style'] = esc_attr( sprintf(
+				'%s /* jetpack-lazy-images */ width:%dpx; padding-bottom: %s%%;',
+				$initial_style,
+				intval( $image_detail['width'] ),
+				$image_detail['aspect_ratio']
+			) );
+
+			$attributes['class'] .= ' is-placeholder';
+
+			/**
+			 * Should the placeholder pulse?
+			 *
+			 * @module lazy-images
+			 *
+			 * @since 6.6.0
+			 *
+			 * @param bool         true        Should a placeholder be used if possible?
+			 * @param array        $attributes An array of image attributes.
+			 * @param WP_Post      $attachment The attachment post object.
+			 * @param string|array $size       An array of sizes or a string for a registered size.
+			 */
+			if ( apply_filters( 'jetpack_lazy_images_use_pulsing_placeholder', true, $attributes, $attachment, $size ) ) {
+				$attributes['class'] .= ' do-pulse';
+			}
+		}
+
+		return $attributes;
 	}
 }
