@@ -449,6 +449,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'POST',
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					'Content-Type'    => 'application/json',
 				),
 			),
 			$request->get_body(),
