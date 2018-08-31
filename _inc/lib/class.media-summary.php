@@ -30,7 +30,11 @@ class Jetpack_Media_Summary {
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
-			jetpack_require_lib( 'class.media-extractor' );
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				jetpack_require_lib( 'class.wpcom-media-meta-extractor' );
+			} else {
+				jetpack_require_lib( 'class.media-extractor' );
+			}
 		}
 
 		$post      = get_post( $post_id );
