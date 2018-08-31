@@ -57,11 +57,14 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.0.0
 	 */
-	public function __construct() {
+	public function __construct( $name = null ) {
+		if ( empty( $name ) ) {
+			$name = esc_html__( 'Search', 'jetpack' );
+		}
 		parent::__construct(
 			Jetpack_Search_Helpers::FILTER_WIDGET_BASE,
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Search', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', $name ),
 			array(
 				'classname'   => 'jetpack-filters widget_search',
 				'description' => __( 'Replaces the default search with an Elasticsearch-powered search interface and filters.', 'jetpack' ),
@@ -70,9 +73,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		if (
 			Jetpack_Search_Helpers::is_active_widget( $this->id ) &&
-			! Jetpack::is_module_active( 'search' )
+			! $this->is_search_active()
 		) {
-			Jetpack::activate_module( 'search', false, false );
+			$this->activate_search();
 		}
 
 		if ( is_admin() ) {
@@ -84,6 +87,25 @@ class Jetpack_Search_Widget extends WP_Widget {
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
 		add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
 	}
+
+	/**
+	 * Check whether search is currently active
+	 *
+	 * @since 6.3
+	 */
+	public function is_search_active() {
+		return Jetpack::is_module_active( 'search' );
+	}
+
+	/**
+	 * Activate search
+	 *
+	 * @since 6.3
+	 */
+	public function activate_search() {
+		Jetpack::activate_module( 'search', false, false );
+	}
+
 
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
@@ -438,7 +460,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		if ( isset( $new_instance['filter_type'] ) ) {
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
 				$count = intval( $new_instance['num_filters'][ $index ] );
-				$count = min( 50, $count ); // Set max boundary at 20.
+				$count = min( 50, $count ); // Set max boundary at 50.
 				$count = max( 1, $count );  // Set min boundary at 1.
 
 				switch ( $type ) {
@@ -598,7 +620,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * We need to render HTML in two formats: an Underscore template (client-size)
+	 * We need to render HTML in two formats: an Underscore template (client-side)
 	 * and native PHP (server-side). This helper function allows for easy rendering
 	 * of attributes in both formats.
 	 *
