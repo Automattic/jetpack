@@ -250,12 +250,7 @@ class Jetpack_Lazy_Images {
 		$attributes['data-lazy-src'] = esc_url_raw( add_query_arg( 'is-pending-load', true, $attributes['src'] ) );
 
 		$attributes['srcset'] = self::get_placeholder_image();
-		$attributes['class']  = sprintf(
-			'%s jetpack-lazy-image',
-			empty( $old_attributes['class'] )
-				? ''
-				: $old_attributes['class']
-		);
+		$additional_classes   = 'jetpack-lazy-image';
 
 		$image_detail = self::get_image_detail( $attributes, $attachment, $size );
 		if ( $image_detail ) {
@@ -268,12 +263,22 @@ class Jetpack_Lazy_Images {
 			}
 
 			$attributes['style'] = sprintf(
-				'%s max-width: 100%%; width:%dpx; height: 0; padding-bottom: %s%%;',
+				'%s /* jetpack-lazy-images */ width:%dpx; padding-bottom: %s%%;',
 				$initial_style,
 				intval( $image_detail['width'] ),
 				$image_detail['aspect_ratio']
 			);
+
+			$additional_classes .= ' is-placeholder';
 		}
+
+		$attributes['class'] = sprintf(
+			'%s %s',
+			empty( $old_attributes['class'] )
+				? ''
+				: $old_attributes['class'],
+			$additional_classes
+		);
 
 		/**
 		 * Allow plugins and themes to override the attributes on the image before the content is updated.
@@ -305,6 +310,19 @@ class Jetpack_Lazy_Images {
 				/* If html does not have either class, do not show lazy loaded images. */
 				html:not( .jetpack-lazy-images-js-enabled ):not( .js ) .jetpack-lazy-image {
 					display: none;
+				}
+
+				.jetpack-lazy-image.is-placeholder {
+					max-width: 100% !important;
+					height: 0 !important;
+					animation: jetpack-lazy-images-loading-fade 1.6s ease-in-out infinite;
+					background-color: #f5f5f5;
+				}
+
+				@keyframes jetpack-lazy-images-loading-fade {
+					0% { opacity: .5; }
+					50% { opacity: 1; }
+					100% { opacity: .5; }
 				}
 			</style>
 			<script>
