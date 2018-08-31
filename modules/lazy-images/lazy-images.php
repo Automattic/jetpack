@@ -234,13 +234,17 @@ class Jetpack_Lazy_Images {
 
 		$old_attributes = $attributes;
 
-		// Set placeholder and lazy-src.
+		// Stash srcset and sizes in data attributes.
 		foreach ( array( 'srcset', 'sizes' ) as $attribute ) {
 			if ( isset( $old_attributes[ $attribute ] ) ) {
 				$attributes[ "data-lazy-$attribute" ] = $old_attributes[ $attribute ];
 				unset( $attributes[ $attribute ] );
 			}
 		}
+
+		// We set this, adding the query arg so that it doesn't exactly equal the src attribute, so that photon JavaScript
+		// will hold off on processing this image.
+		$attributes['data-lazy-src'] = esc_url_raw( add_query_arg( 'is-pending-load', true, $attributes['src'] ) );
 
 		$attributes['srcset'] = self::get_placeholder_image();
 		$attributes['class']  = sprintf(
