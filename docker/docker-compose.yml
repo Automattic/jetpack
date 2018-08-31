@@ -82,3 +82,5 @@ services:
     env_file:
       - default.env
       - .env
+    environment:
+      - HOST_PORT=${PORT_WORDPRESS}
