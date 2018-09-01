@@ -10,8 +10,7 @@ import assign from 'lodash/assign';
 import config from 'config';
 
 const debug = debugFactory( 'dops:analytics' );
-let	_superProps,
-	_user;
+let _superProps, _user;
 
 // Load tracking scripts
 window._tkq = window._tkq || [];
