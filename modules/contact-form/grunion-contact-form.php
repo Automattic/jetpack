@@ -798,7 +798,25 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array  $return Associative array with keys expected by core.
 	 */
 	public function personal_data_exporter( $email, $page = 1 ) {
-		$per_page    = 250;
+		return $this->_internal_personal_data_exporter( $email, $page );
+	}
+
+	/**
+	 * Internal method for exporting personal data.
+	 *
+	 * Allows us to have a different signature than core expects
+	 * while protecting against future core API changes.
+	 *
+	 * @internal
+	 * @since 6.5
+	 *
+	 * @param  string $email    Email address.
+	 * @param  int    $page     Page to export.
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 *
+	 * @return array            Associative array with keys expected by core.
+	 */
+	public function _internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
 		$export_data = array();
 		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
@@ -855,7 +873,25 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array         Associative array with keys expected by core.
 	 */
 	public function personal_data_eraser( $email, $page = 1 ) {
-		$per_page = 250;
+		return $this->_internal_personal_data_eraser( $email, $page );
+	}
+
+	/**
+	 * Internal method for erasing personal data.
+	 *
+	 * Allows us to have a different signature than core expects
+	 * while protecting against future core API changes.
+	 *
+	 * @internal
+	 * @since 6.5
+	 *
+	 * @param  string $email    Email address.
+	 * @param  int    $page     Page to erase.
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 *
+	 * @return array            Associative array with keys expected by core.
+	 */
+	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) {
 		$removed  = false;
 		$retained = false;
 		$messages = array();

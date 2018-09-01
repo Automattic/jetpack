@@ -1072,4 +1072,68 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertSame( 0, count( $posts ), 'posts count matches after erasing' );
 	}
 
+	public function test_personal_data_eraser_pagination() {
+		$this->add_field_values( array(
+			'name'  => 'Jane Doe',
+			'email' => 'jane_doe@example.com',
+		) );
+
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"jane" <jane_doe@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$this->add_field_values( array(
+			'name'  => 'Jane Doe Again',
+			'email' => 'jane@example.com',
+		) );
+
+
+		$form = new Grunion_Contact_Form(
+			array(
+				'to'      => '"jane" <jane@example.com>',
+				'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+			),
+			'
+				[contact-field label="Name" type="name" required="1"/]
+				[contact-field label="Email" type="email" required="1"/]
+			'
+		);
+		$this->assertTrue(
+			is_string( $form->process_submission() ),
+			'form submission ' . $i
+		);
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 4, count( $posts ), 'posts count matches before erasing' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 1, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 3, count( $posts ), 'posts count matches after page 1' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 2, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 2, count( $posts ), 'posts count matches after page 2' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 3, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 1, count( $posts ), 'posts count matches after page 3' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane@example.com', 1, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 0, count( $posts ), 'posts count matches after deleting the other feedback responder' );
+	}
+
 } // end class
