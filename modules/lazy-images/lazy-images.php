@@ -170,13 +170,13 @@ class Jetpack_Lazy_Images {
 		}
 
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
-		$new_attributes = self::process_image_attributes( $old_attributes );
 
 		// If we didn't add lazy attributes, just return the original image source.
-		if ( false === strpos( $new_attributes['class'], 'jetpack-lazy-image' ) ) {
+		if ( ! empty( $old_attributes['class'] ) && false !== strpos( $old_attributes['class'], 'jetpack-lazy-image' ) ) {
 			return $matches[0];
 		}
 
+		$new_attributes     = self::process_image_attributes( $old_attributes );
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
