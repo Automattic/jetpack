@@ -72,7 +72,7 @@ function jetpack_ConfigOptions()
  *
  *  An Access token will also be retrieved before trying to provisioning.
  *  Errors strings are prefixed with 'JETPACK MODULE' so if getting the access
- *  token starts with this
+ *  token starts with this return this as an error.
  *
  * If the response from provisioning does not contain "success" in the message
  * consider the provisioning to be incomplete and get a useful error from the response
