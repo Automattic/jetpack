@@ -153,8 +153,9 @@ function jetpack_TerminateAccount(array $params)
 
     try {
         $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
-        $clean_url = str_replace('/', '::', $stripped_url);
-        $clean_url = rtrim($clean_url, '/');
+        $clean_url = rtrim($stripped_url, '/');
+        $clean_url = str_replace('/', '::', $clean_url);
+
 
         $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
         $response = make_api_request($request_url, $access_token);
