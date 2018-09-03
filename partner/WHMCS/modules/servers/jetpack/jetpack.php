@@ -2,7 +2,6 @@
 
 use WHMCS\Database\Capsule;
 
-
 if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
@@ -28,12 +27,12 @@ if (!defined("WHMCS")) {
  */
 function jetpack_MetaData()
 {
-    return array(
+    return [
         'DisplayName' => 'Jetpack by Automattic',
         'Description' => 'Use this module to provision Jetpack plans with your Jetpack hosting partner account',
         'APIVersion' => '1.1',
         'RequiresServer' => false,
-    );
+    ];
 }
 
 
@@ -46,48 +45,67 @@ function jetpack_MetaData()
  */
 function jetpack_ConfigOptions()
 {
-    return array(
-        'Jetpack Partner Client ID' => array(
+    return [
+        'Jetpack Partner Client ID' => [
             'Type' => 'text',
             'Size' => '256',
-        ),
-        'Jetpack Partner Client Secret' => array(
+        ],
+        'Jetpack Partner Client Secret' => [
             'Type' => 'text',
             'Size' => '256',
-        )
-    );
+        ]
+    ];
 }
 
 
 /**
  * Equivalent to /provision. Create a Jetpack plan using
- * a Jetpack Hosting partner account.
+ * a Jetpack Hosting partner account. WHMCS expects the string "success"
+ * to be returned if the process is completed successfully otherwise
+ * a string can be returned which will be logged as part of the error.
  *
+ * Pre Provisioning Steps:
+ *  Module requirements are validated and will return an error string
+ *  if the module was not setup correctly. An error string will also be
+ *  returned in the even that a request to provision a new returns a
+ *  4xx or 5xx error.
+ *
+ *  An Access token will also be retrieved before trying to provisioning.
+ *  Errors strings are prefixed with 'JETPACK MODULE' so if getting the access
+ *  token starts with this
+ *
+ * If the response from provisioning does not contain "success" in the message
+ * consider
  *
  * @param array $params
- * @return string 'success'
+ * @return string Either 'success' or an error with what went wrong when provisioning
  * @throws Exception
 
  */
 function jetpack_CreateAccount(array $params)
 {
 
-    $validation_status = validate_required_fields($params);
-    if ($validation_status !== true) {
-        return $validation_status;
+    $module_errors = validate_required_fields($params);
+    if ($module_errors) {
+        return $module_errors;
+    }
+
+    $access_token = get_access_token($params);
+    if (strpos($access_token, 'JETPACK MODULE') === 0) {
+        return $access_token;
     }
 
     try {
-        $access_token = get_access_token($params);
         $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
         $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
+        $stripped_url = rtrim($stripped_url, '/');
 
-        $request_data = array (
+        $request_data = [
             'plan' => strtolower($params['customfields']['Plan']),
             'siteurl' => $stripped_url,
             'local_user' => $params['customfields']['Local User'],
             'force_register' => true,
-        );
+        ];
 
         $response = make_api_request($provisioning_url, $access_token, $request_data);
         if ($response->success && $response->success == true) {
@@ -96,10 +114,10 @@ function jetpack_CreateAccount(array $params)
             } elseif (!$response->next_url && $response->auth_required) {
                 save_provisioning_details($response->next_url, $params, true);
             }
-
             return 'success';
         } else {
-            return $response;
+            $errors = get_provisioning_errors_from_response($response);
+            return $errors;
         }
     } catch (Exception $e) {
         logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
@@ -108,8 +126,14 @@ function jetpack_CreateAccount(array $params)
 }
 
 /**
- * Equivalent to partner/cancel. Cancel a Jetpack plan using
- * using a Jetpack Hosting partner account.
+ * Equivalent to partner/cancel. Cancel a Jetpack plan using using a Jetpack Hosting partner account. This has
+ * the same prerequiste steps as jetpack_createAccount and will return an error string if the module has not been
+ * setup correctly or there was a failure getting an access token.
+ *
+ * The url scheme for the site being cancelled is not necessary when making this request and is stripped along
+ * with trailing slashes
+ *
+ * If the response json does not contain "success" return error strings based on the response properties
  *
  * @param array $params
  * @return string
@@ -117,15 +141,20 @@ function jetpack_CreateAccount(array $params)
  */
 function jetpack_TerminateAccount(array $params)
 {
-    $validation_status = validate_required_fields($params);
-    if ($validation_status !== true) {
-        return $validation_status;
+    $module_errors = validate_required_fields($params);
+    if ($module_errors) {
+        return $module_errors;
+    }
+
+    $access_token = get_access_token($params);
+    if (strpos($access_token, 'JETPACK MODULE') === 0) {
+        return $access_token;
     }
 
     try {
-        $access_token = get_access_token($params);
         $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
         $clean_url = str_replace('/', '::', $stripped_url);
+        $clean_url = rtrim($clean_url, '/');
 
         $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
         $response = make_api_request($request_url, $access_token);
@@ -133,6 +162,9 @@ function jetpack_TerminateAccount(array $params)
             return 'success';
         } elseif ($response->success === false) {
             return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
+        } else {
+            $errors = get_cancellation_errors_from_response();
+            return $errors;
         }
     } catch (Exception $e) {
         logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
@@ -141,9 +173,10 @@ function jetpack_TerminateAccount(array $params)
 }
 
 /**
- * Get a Jetpack partner access token using the client_id
- * and client secret stored when the product was created in
- * the WHMCS product settings.
+ * Get a Jetpack partner access token using the client_id and client secret
+ * stored when the product was created in the WHMCS product settings. If the
+ * response does not explicitly contain an access token provisioning or cancellation
+ * cannot be attempted so return an error string.
  *
  *
  * @param $params
@@ -153,33 +186,35 @@ function jetpack_TerminateAccount(array $params)
 function get_access_token($params)
 {
 
-    $oauthURL = "https://public-api.wordpress.com/oauth2/token";
+    $oauth_url = "https://public-api.wordpress.com/oauth2/token";
 
-    $credentials = array (
+    $credentials = [
         'client_id' => $params['configoption1'],
         'client_secret' => $params['configoption2'],
         'grant_type' => 'client_credentials',
         'scope' => 'jetpack-partner'
-    );
+    ];
 
-    $response = make_api_request($oauthURL, null, $credentials);
+    $response = make_api_request($oauth_url, null, $credentials);
+
     if (isset($response->access_token)) {
         return $response->access_token;
     } else {
-        return $response;
+        return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
+            account. This usually means the Client Id or Client Secret provided when setting up the module are invalid';
     }
 }
 
 
 /**
- * Make an API request for authenticating and provisioning or
- * cancelling a Jetpack plan
+ * Make an API request for authenticating and provisioning or cancelling a Jetpack plan or getting an access token.
+ * Include the http status in the response.
  *
- * @param $url
- * @param $data
- * @param string $auth
- * @return mixed
- * @throws Exception
+ * @param string $url where to make the request to
+ * @param null $auth access token to make a provisioning or cancellation request
+ * @param null $data form data for the api request
+ * @return mixed json_decoded response
+ * @throws Exception On a curl error or an empty body an Exception will be thrown.
  */
 function make_api_request($url, $auth = null, $data = null)
 {
@@ -188,55 +223,43 @@ function make_api_request($url, $auth = null, $data = null)
     }
 
     $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_HTTPHEADER => array($auth),
+    curl_setopt_array($curl, [
+        CURLOPT_HTTPHEADER => [$auth],
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_POSTFIELDS => $data,
         CURLOPT_CUSTOMREQUEST => "POST"
-    ));
+    ]);
 
     $response = curl_exec($curl);
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-    if ($response && $http_code >= 400) {
-        if ($data['client_id']) {
-            //If client_id is set in the data array when this function was called then we are trying to get an access
-            // token and are unsuccessful which likely means the client id or client secret are not valid.
-            return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
-            account. This usually means the Client Id or Client Secret provided when creating the product are invalid';
-        } elseif ($data['siteurl']) {
-            //If the siteurl is set in the data array we are attempting to provision a plan. There are few errors that
-            //could show up here but its likely the user did not enter siteurl or local_user field correctly.
-            return 'JETPACK MODULE: There was a problem provisioning a Jetpack Plan for ' . $data['siteurl'] . '. The 
-            response from the request was ' . $response . '. This usually means the url provided does not have a valid 
-            WordPress installation or the local_user field provided for provisioning is not valid.';
-        }
-        return 'JETPACK MODULE: There was a problem with provisioning or terminating a Jetpack Plan. 
-        The response was ' . $response;
-    } elseif (curl_error($curl)) {
+    if (curl_error($curl)) {
         throw new Exception('Unable to connect: ' . curl_errno($curl) . ' - ' . curl_error($curl));
     } elseif (empty($response)) {
         throw new Exception('Empty response');
     }
 
+    $decoded_response = json_decode($response);
+    $decoded_response->http_status = $http_code;
     curl_close($curl);
-    return json_decode($response);
+
+    return $decoded_response;
 }
 
 /**
  * Save the next_url for Jetpack activation/setup to the
  * order for the client
  *
- * @param $url
- * @param $orderId
+ * @param string $url The next url for activating the Jetpack plan
+ * @param array $params WHMCS params
+ * @param bool $pending If the plan is pending domain resolution.
  */
 function save_provisioning_details($url, $params, $pending = false)
 {
     $jetpack_next_url_field = Capsule::table('tblcustomfields')
-        ->where(array('fieldname' => 'jetpack_provisioning_details', 'type' => 'product'))->first();
+        ->where(['fieldname' => 'jetpack_provisioning_details', 'type' => 'product'])->first();
 
     $details = '';
     if ($url) {
@@ -246,8 +269,8 @@ function save_provisioning_details($url, $params, $pending = false)
         waiting for ' . $params['customfields']['Site URL'] . '. Once DNS resolves please connect the site via 
         the Jetpack Banner in the sites dashboard';
     }
-    Capsule::table('tblcustomfieldsvalues')->where(array('fieldid' => $jetpack_next_url_field->id))->update(array(
-        'relid' => $params['model']['orderId'], 'value' => $details));
+    Capsule::table('tblcustomfieldsvalues')->where(['fieldid' => $jetpack_next_url_field->id])->update([
+        'relid' => $params['model']['orderId'], 'value' => $details]);
 }
 
 /**
@@ -258,13 +281,13 @@ function save_provisioning_details($url, $params, $pending = false)
  *  - Required Custom Fields
  *  - Required Config Options
  *
- * @param array $params
- * @return bool
+ * @param array $params WHMCS params
+ * @return string An error describing what was not correctly included in the setup of the module
  */
 function validate_required_fields(array $params)
 {
-    $allowed_plans = array('free', 'personal', 'premium', 'professional');
-    $required_custom_fields = array('Plan', 'Site URL', 'Local User', 'jetpack_provisioning_details');
+    $allowed_plans = ['free', 'personal', 'premium', 'professional'];
+    $required_custom_fields = ['Plan', 'Site URL', 'Local User', 'jetpack_provisioning_details'];
 
     foreach ($required_custom_fields as $field) {
         if (!isset($params['customfields'][$field])) {
@@ -283,6 +306,37 @@ function validate_required_fields(array $params)
         return'JETPACK MODULE: Your credentials for provisioning are not complete. Please see the module documentation
         for more information';
     }
+}
 
-    return true;
+/**
+ * If provisioning fails for a Jetpack plan parse the response http status code
+ * and response body and return a useful error regarding what went wrong. Include
+ * the response message if there is one.
+ *
+ * If the response is a 400 or 403 and there is no message in the response return
+ * a generic error letting the partner know.
+ *
+ * @param object $response Response from the provisioning request
+ * @return string an error string provided to the partner host describing the issue.
+ */
+function get_provisioning_errors_from_response($response)
+{
+    if (($response->http_status == 400 || $response->http_status == 403) && $response->message) {
+        return 'JETPACK MODULE: The following error was returned trying to provision a plan - ' . $response->message;
+    } elseif ($response->http_status > 500) {
+        return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
+    }
+    return 'JETPACK MODULE: There was an error provisioning the Jetpack plan. Please contact us for assistance.';
+}
+
+
+/**
+ * If termination fails for a Jetpack plan parse the http status code and response body
+ * and return a useful error message.
+ *
+ * @return string error message for a failed plan cancellation describing the issue.
+ */
+function get_cancellation_errors_from_response()
+{
+    return 'JETPACK MODULE: Unable to terminate the plan. Please contact us for assistance';
 }
