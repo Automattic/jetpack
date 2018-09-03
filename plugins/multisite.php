@@ -1,6 +1,6 @@
 <?php
 
-if ( ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) === true ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'VHOST' ) || defined( 'SUNRISE' ) ) {
+if ( is_multisite() ) {
 	add_cacheaction( 'add_cacheaction', 'wp_super_cache_multisite_init' );
 }
 

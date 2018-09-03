@@ -1296,7 +1296,7 @@ table.wpsc-settings-table {
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
 
-			if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true  ) ) && wpsupercache_site_admin() ) {
+			if ( is_multisite() && wpsupercache_site_admin() ) {
 				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 				echo '<input type="hidden" name="wp_delete_all_cache" />';
 				echo '<div class="submit"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
@@ -2856,7 +2856,7 @@ function wp_cache_delete_buttons() {
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-	if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
+	if ( is_multisite() && wpsupercache_site_admin() ) {
 		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 		echo '<input type="hidden" name="wp_delete_all_cache" />';
 		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
@@ -2992,6 +2992,8 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 		return false;
 
 	if ( $handle = @opendir( $dir ) ) {
+		$curr_blog_id = is_multisite() ? get_current_blog_id() : false;
+
 		while ( false !== ( $file = readdir( $handle ) ) ) {
 			if ( is_file( $dir . $file ) == false || $file == 'index.html' ) {
 				continue;
@@ -3004,8 +3006,9 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 					@unlink( $dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
 				} else {
 					$meta = json_decode( wp_cache_get_legacy_cache( $dir . 'meta/' . $file ), true );
-					if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && $meta[ 'blog_id' ] != $wpdb->blogid )
+					if (  $curr_blog_id && $curr_blog_id !== (int)$meta['blog_id'] ) {
 						continue;
+					}
 					@unlink( $dir . $file);
 					@unlink( $dir . 'meta/' . $file);
 				}
