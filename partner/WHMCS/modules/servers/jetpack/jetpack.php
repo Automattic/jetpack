@@ -86,7 +86,7 @@ function jetpack_CreateAccount(array $params)
 {
 
     $module_errors = validate_required_fields($params);
-    if ($module_errors) {
+    if ($module_errors !== true) {
         return $module_errors;
     }
 
@@ -142,7 +142,7 @@ function jetpack_CreateAccount(array $params)
 function jetpack_TerminateAccount(array $params)
 {
     $module_errors = validate_required_fields($params);
-    if ($module_errors) {
+    if ($module_errors !== true) {
         return $module_errors;
     }
 
@@ -283,7 +283,7 @@ function save_provisioning_details($url, $params, $pending = false)
  *  - Required Config Options
  *
  * @param array $params WHMCS params
- * @return string An error describing what was not correctly included in the setup of the module
+ * @return bool|string An error describing what was not correctly included in the setup of the module
  */
 function validate_required_fields(array $params)
 {
@@ -307,6 +307,7 @@ function validate_required_fields(array $params)
         return'JETPACK MODULE: Your credentials for provisioning are not complete. Please see the module documentation
         for more information';
     }
+    return true;
 }
 
 /**
