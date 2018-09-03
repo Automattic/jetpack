@@ -75,7 +75,7 @@ function jetpack_ConfigOptions()
  *  token starts with this
  *
  * If the response from provisioning does not contain "success" in the message
- * consider
+ * consider the provisioning to be incomplete and get a useful error from the response
  *
  * @param array WHMCS $params
  * @return string Either 'success' or an error with what went wrong when provisioning
@@ -164,7 +164,7 @@ function jetpack_TerminateAccount(array $params)
         } elseif ($response->success === false) {
             return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
         } else {
-            $errors = get_cancellation_errors_from_response();
+            $errors = get_cancellation_errors_from_response($response);
             return $errors;
         }
     } catch (Exception $e) {
@@ -180,7 +180,7 @@ function jetpack_TerminateAccount(array $params)
  * cannot be attempted so return an error string.
  *
  *
- * @param $params WHMCS params
+ * @param array $params WHMCS params
  * @return mixed A string with the access token or an error string beginning with 'JETPACK MODULE' indicating that
  * an access token was not retrieved for provisioning or cancelling.
  * @throws Exception  An exception is thrown from make_api_request when there is a curl_error or an empty response
@@ -202,8 +202,8 @@ function get_access_token($params)
     if (isset($response->access_token)) {
         return $response->access_token;
     } else {
-        return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
-            account. This usually means the Client Id or Client Secret provided when setting up the module are invalid';
+        $errors = get_authentication_errors_from_response($response);
+        return $errors;
     }
 }
 
@@ -312,6 +312,28 @@ function validate_required_fields(array $params)
 }
 
 /**
+ * If we are attempting to get an access token and this fails parse the response
+ * http status code and response body and return a useful error from these
+ * regarding what went wrong.
+ *
+ * Return a general error if no other information is available.
+ *
+ * @param object $response Response from request for access token
+ * @return string an error string describing the issue when requesting an access token
+ */
+function get_authentication_errors_from_response($response)
+{
+    if ($response->http_status == 400 and $response->error_description) {
+        return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
+            account. This usually means the Client Id or Client Secret provided when setting up the module are invalid.
+            The specific error from the request was ' . $response->error_description;
+    } elseif ($response->http_status > 500) {
+        return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
+    }
+    return 'JETPACK MODULE: There was an error getting an authentication token. Please contact us for assistance';
+}
+
+/**
  * If provisioning fails for a Jetpack plan parse the response http status code
  * and response body and return a useful error regarding what went wrong. Include
  * the response message if there is one.
@@ -337,9 +359,16 @@ function get_provisioning_errors_from_response($response)
  * If termination fails for a Jetpack plan parse the http status code and response body
  * and return a useful error message.
  *
+ * @param object $response Response from the provisioning request
  * @return string error message for a failed plan cancellation describing the issue.
  */
-function get_cancellation_errors_from_response()
+function get_cancellation_errors_from_response($response)
 {
+    if ($response->http_status == 404) {
+        return 'JETPACK MODULE: The http response was a 404 which likely means the site url attempting to be cancelled
+        is invalid';
+    } elseif ($response->http_status > 500) {
+        return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
+    }
     return 'JETPACK MODULE: Unable to terminate the plan. Please contact us for assistance';
 }
