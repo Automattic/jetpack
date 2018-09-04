@@ -156,7 +156,7 @@ class Grunion_Contact_Form_Plugin {
 				'search_items'       => __( 'Search Feedback', 'jetpack' ),
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
-				'menu_name'          => __( 'Feedback' )
+				'menu_name'          => __( 'Feedback', 'jetpack' )
 			),
 			'menu_icon'         	=> 'dashicons-feedback',
 			'show_ui'           	=> TRUE,
