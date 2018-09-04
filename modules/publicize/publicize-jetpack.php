@@ -66,7 +66,7 @@ class Publicize extends Publicize_Base {
 	 * Remove a Publicize connection
 	 */
 	function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		return Jetpack_Service_Helper::disconnect( $serivce_name, $connection_id, $_blog_id, $_user_id, $force_delete );
+		return Jetpack_Keyring_Service_Helper::disconnect( $serivce_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
 	function receive_updated_publicize_connections( $publicize_connections ) {
@@ -155,15 +155,15 @@ class Publicize extends Publicize_Base {
 	}
 
 	function connect_url( $service_name ) {
-		return Jetpack_Service_Helper::connect_url( $service_name );
+		return Jetpack_Keyring_Service_Helper::connect_url( $service_name );
 	}
 
 	function refresh_url( $service_name ) {
-		return Jetpack_Service_Helper::refresh_url( $service_name );
+		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name );
 	}
 
 	function disconnect_url( $service_name, $id ) {
-		return Jetpack_Service_Helper::disconnect_url( $service_name, $id );
+		return Jetpack_Keyring_Service_Helper::disconnect_url( $service_name, $id );
 	}
 
 	/**

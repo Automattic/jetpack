@@ -1,14 +1,14 @@
 <?php
 
-class Jetpack_Service_Helper {
+class Jetpack_Keyring_Service_Helper {
 	/**
-	 * @var Jetpack_Service_Helper
+	 * @var Jetpack_Keyring_Service_Helper
 	 **/
 	private static $instance = null;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Service_Helper;
+			self::$instance = new Jetpack_Keyring_Service_Helper;
 		}
 
 		return self::$instance;
@@ -29,8 +29,6 @@ class Jetpack_Service_Helper {
 	static function api_url( $service = false, $params = array() ) {
 		/**
 		 * Filters the API URL used to interact with WordPress.com.
-		 *
-		 * @module publicize
 		 *
 		 * @since 2.0.0
 		 *
@@ -102,7 +100,7 @@ class Jetpack_Service_Helper {
 					$wpcom_blog_id = ! empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
 
 					$user     = wp_get_current_user();
-					$redirect = Jetpack_Service_Helper::api_url( $service_name, urlencode_deep( array(
+					$redirect = Jetpack_Keyring_Service_Helper::api_url( $service_name, urlencode_deep( array(
 						'action'       => 'request',
 						'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
 						'for'          => 'publicize',
@@ -136,7 +134,7 @@ class Jetpack_Service_Helper {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					Jetpack_Service_Helper::disconnect( $service_name, $id );
+					Jetpack_Keyring_Service_Helper::disconnect( $service_name, $id );
 
 					do_action( 'connection_disconnected', $service_name );
 					break;
