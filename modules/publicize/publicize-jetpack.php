@@ -38,7 +38,7 @@ class Publicize extends Publicize_Base {
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 
-		jetpack_require_lib( 'class.jetpack-service-helper' );
+		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
 	function force_user_connection() {
