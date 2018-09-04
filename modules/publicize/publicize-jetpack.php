@@ -36,11 +36,17 @@ class Publicize extends Publicize_Base {
 		add_action( 'publicize_save_meta', array( $this, 'save_publicized_twitter_account' ), 10, 4 );
 		add_action( 'publicize_save_meta', array( $this, 'save_publicized_facebook_account' ), 10, 4 );
 
+		add_action( 'connection_disconnected', array( $this, 'add_disconnect_notice' ) );
+
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+	}
+
+	function add_disconnect_notice() {
+		add_action( 'admin_notices', array( $this, 'display_disconnected' ) );
 	}
 
 	function force_user_connection() {
@@ -206,10 +212,10 @@ class Publicize extends Publicize_Base {
 		<div id="message" class="jetpack-message jetpack-err">
 			<div class="squeezer">
 				<h2><?php echo wp_kses( $error, array( 'a'      => array( 'href' => true ),
-							'code'   => true,
-							'strong' => true,
-							'br'     => true,
-							'b'      => true
+										'code'   => true,
+										'strong' => true,
+										'br'     => true,
+										'b'      => true
 					) ); ?></h2>
 				<?php if ( $code ) : ?>
 					<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
