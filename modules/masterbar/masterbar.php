@@ -649,7 +649,7 @@ class A8C_WPCOM_Masterbar {
 				'parent' => 'blog',
 				'id'     => 'activity',
 				'title'  => esc_html__( 'Activity', 'jetpack' ),
-				'href'   => 'https://wordpress.com/activity/' . esc_attr( $this->primary_site_slug ),
+				'href'   => 'https://wordpress.com/activity-log/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
