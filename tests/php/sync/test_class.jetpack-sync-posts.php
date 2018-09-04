@@ -261,6 +261,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
+	public function test_sync_attach_attachment_to_post() {
+		$modified_attachment           = clone $this->post;
+		$modified_attachment->post_parent = 1000;
+		do_action( 'attachment_updated', $this->post->ID, $modified_attachment, $this->post );
+
+		$this->sender->do_sync();
+
+		$attach_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_attach_attachment' );
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event    = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+
+		$this->assertTrue( (bool) $attach_attachment_event );
+		$this->assertFalse( (bool) $update_attachment_event );
+		$this->assertFalse( (bool) $add_attachment_event );
+	}
+
 	public function test_broken_do_wp_insert_post_does_not_break_sync() {
 		// Some plugins do unexpected things see pet-manager
 		$this->server_event_storage->reset();
