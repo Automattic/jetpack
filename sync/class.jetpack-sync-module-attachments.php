@@ -46,6 +46,14 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 	function process_update( $attachment_id, $attachment_after, $attachment_before ) {
 		// Check whether attachment was added to a post for the first time
 		if ( 0 === $attachment_before->post_parent && 0 !== $attachment_after->post_parent ) {
+			/**
+			 * Fires when an existing attachment is added to a post for the first time
+			 *
+			 * @since 6.5.0
+			 *
+			 * @param int The attachment ID
+			 * @param object The attachment
+			 */
 			do_action( 'jetpack_sync_save_attach_attachment', $attachment_id, $attachment_after );
 		}
 	}
