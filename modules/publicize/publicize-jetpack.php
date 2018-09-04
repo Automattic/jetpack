@@ -212,10 +212,10 @@ class Publicize extends Publicize_Base {
 		<div id="message" class="jetpack-message jetpack-err">
 			<div class="squeezer">
 				<h2><?php echo wp_kses( $error, array( 'a'      => array( 'href' => true ),
-										'code'   => true,
-										'strong' => true,
-										'br'     => true,
-										'b'      => true
+													   'code'   => true,
+													   'strong' => true,
+													   'br'     => true,
+													    'b'      => true
 					) ); ?></h2>
 				<?php if ( $code ) : ?>
 					<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
