@@ -1229,7 +1229,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 	}
 
-	/*
+	/**
 	 * Allows management of publicize connections.
 	 *
 	 * ## OPTIONS
@@ -1238,8 +1238,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : The action to perform.
 	 * ---
 	 * options:
-	 *  - list
-	 *  - disconnect
+	 *   - list
+	 *   - disconnect
 	 * ---
 	 *
 	 * [<identifier>]
@@ -1250,28 +1250,63 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ---
 	 * default: table
 	 * options:
-	 *  - table
-	 *  - json
-	 *  - csv
-	 *  - yaml
-	 *  - ids
-	 *  - count
+	 *   - table
+	 *   - json
+	 *   - csv
+	 *   - yaml
+	 *   - ids
+	 *   - count
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack publicize list
-	 * wp jetpack publicize list twitter
-	 * wp --user=1 jetpack publicize list
-	 * wp --user=1 jetpack publicize list twitter
-	 * wp jetpack publicize list 123456
-	 * wp jetpack publicize disconnect 123456
-	 * wp jetpack publicize disconnect all
-	 * wp jetpack publicize disconnect twitter
+	 *     # List all publicize connections.
+	 *     $ wp jetpack publicize list
+	 *
+	 *     # List publicize connections for a given service.
+	 *     $ wp jetpack publicize list twitter
+	 *
+	 *     # List all publicize connections for a given user.
+	 *     $ wp --user=1 jetpack publicize list
+	 *
+	 *     # List all publicize connections for a given user and service.
+	 *     $ wp --user=1 jetpack publicize list twitter
+	 *
+	 *     # Display details for a given connection.
+	 *     $ wp jetpack publicize list 123456
+	 *
+	 *     # Diconnection a given connection.
+	 *     $ wp jetpack publicize disconnect 123456
+	 *
+	 *     # Disconnect all connections.
+	 *     $ wp jetpack publicize disconnect all
+	 *
+	 *     # Disconnect all connections for a given service.
+	 *     $ wp jetpack publicize disconnect twitter
 	 */
 	public function publicize( $args, $named_args ) {
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
+		}
+
+		if ( Jetpack::is_development_mode() ) {
+			if (
+				! defined( 'JETPACK_DEV_DEBUG' ) &&
+				! has_filter( 'jetpack_development_mode' ) &&
+				false === strpos( site_url(), '.' )
+			) {
+				WP_CLI::error( __( "Jetpack is current in development mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in development mode, the publicize module will not load.", 'jetpack' ) );
+			}
+
+			WP_CLI::error( __( 'Jetpack is currently in development mode, so the publicize module will not load.', 'jetpack' ) );
+		}
+
+		if ( ! class_exists( 'Publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not loaded.', 'jetpack' ) );
 		}
 
 		$action        = $args[0];
@@ -1313,10 +1348,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
 				}
 
-				if ( empty( $connections_to_return ) ) {
-					return false;
-				}
-
 				$expected_keys = array(
 					'id',
 					'service',
@@ -1330,6 +1361,24 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'type',
 					'connection_data',
 				);
+
+				// Somehow, a test site ended up in a state where $connections_to_return looked like:
+				// array( array( array( 'id' => 0, 'service' => 0 ) ) ) // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// This caused the CLI command to error when running WP_CLI\Utils\format_items() below. So
+				// to minimize future issues, this nested loop will remove any connections that don't contain
+				// any keys that we expect.
+				foreach ( (array) $connections_to_return as $connection_key => $connection ) {
+					foreach ( $expected_keys as $expected_key ) {
+						if ( ! isset( $connection[ $expected_key ] ) ) {
+							unset( $connections_to_return[ $connection_key ] );
+							continue;
+						}
+					}
+				}
+
+				if ( empty( $connections_to_return ) ) {
+					return false;
+				}
 
 				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys ); // phpcs:ignore PHPCompatibility
 				break; // list.

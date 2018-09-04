@@ -164,26 +164,32 @@ class Jetpack_Simple_Payments {
 			? 'https://support.wordpress.com/simple-payments/'
 			: 'https://jetpack.com/support/simple-payment-button/';
 
-		$warning = sprintf(
-			wp_kses(
-				__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
-				array( 'a' => array( 'href' => array(), 'rel' => array(), 'target' => array() ) )
-			),
-			esc_url( $support_url )
-		);
-
-		return "
-<div class='{$data['class']} ${css_prefix}-wrapper'>
-	<div class='${css_prefix}-product'>
-		<div class='${css_prefix}-details'>
-			<div class='${css_prefix}-purchase-message show error' id='{$data['dom_id']}-message-container'>
-				<p>${warning}</p>
-				<p>" . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . "</p>
+		return sprintf( '
+<div class="%1$s">
+	<div class="%2$s">
+		<div class="%3$s">
+			<div class="%4$s" id="%5$s">
+				<p>%6$s</p>
+				<p>%7$s</p>
 			</div>
 		</div>
 	</div>
 </div>
-		";
+',
+			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
+			esc_attr( "${css_prefix}-product" ),
+			esc_attr( "${css_prefix}-details" ),
+			esc_attr( "${css_prefix}-purchase-message show error" ),
+			esc_attr( "{$data['dom_id']}-message-container" ),
+			sprintf(
+				wp_kses(
+					__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
+					array( 'a' => array( 'href' => array(), 'rel' => array(), 'target' => array() ) )
+				),
+				esc_url( $support_url )
+			),
+			esc_html__( '(Only administrators will see this message.)', 'jetpack' )
+		);
 	}
 
 	function output_shortcode( $data ) {
@@ -191,31 +197,58 @@ class Jetpack_Simple_Payments {
 		$css_prefix = self::$css_classname_prefix;
 
 		if ( $data['multiple'] ) {
-			$items="<div class='${css_prefix}-items'>
-				<input class='${css_prefix}-items-number' type='number' value='1' min='1' id='{$data['dom_id']}_number' />
-			</div>";
+			$items = sprintf( '
+				<div class="%1$s">
+					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
+				</div>
+				',
+				esc_attr( "${css_prefix}-items" ),
+				esc_attr( "${css_prefix}-items-number" ),
+				esc_attr( "{$data['dom_id']}_number" )
+			);
 		}
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
-			$image = "<div class='${css_prefix}-product-image'><div class='${css_prefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div></div>";
+			$image = sprintf( '<div class="%1$s"><div class="%2$s">%3$s</div></div>',
+				esc_attr( "${css_prefix}-product-image" ),
+				esc_attr( "${css_prefix}-image" ),
+				get_the_post_thumbnail( $data['id'], 'full' )
+			);
 		}
-		return "
-<div class='{$data['class']} ${css_prefix}-wrapper'>
-	<div class='${css_prefix}-product'>
-		{$image}
-		<div class='${css_prefix}-details'>
-			<div class='${css_prefix}-title'><p>{$data['title']}</p></div>
-			<div class='${css_prefix}-description'><p>{$data['description']}</p></div>
-			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
-			<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
-			<div class='${css_prefix}-purchase-box'>
-				{$items}
-				<div class='${css_prefix}-button' id='{$data['dom_id']}_button'></div>
+		return sprintf( '
+<div class="%1$s">
+	<div class="%2$s">
+		%3$s
+		<div class="%4$s">
+			<div class="%5$s"><p>%6$s</p></div>
+			<div class="%7$s"><p>%8$s</p></div>
+			<div class="%9$s"><p>%10$s</p></div>
+			<div class="%11$s" id="%12$s"></div>
+			<div class="%13$s">
+				%14$s
+				<div class="%15$s" id="%16$s"></div>
 			</div>
 		</div>
 	</div>
 </div>
-		";
+',
+			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
+			esc_attr( "${css_prefix}-product" ),
+			$image,
+			esc_attr( "${css_prefix}-details" ),
+			esc_attr( "${css_prefix}-title" ),
+			$data['title'],
+			esc_attr( "${css_prefix}-description" ),
+			$data['description'],
+			esc_attr( "${css_prefix}-price" ),
+			esc_html( $data['price'] ),
+			esc_attr( "${css_prefix}-purchase-message" ),
+			esc_attr( "{$data['dom_id']}-message-container" ),
+			esc_attr( "${css_prefix}-purchase-box" ),
+			$items,
+			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$data['dom_id']}_button" )
+		);
 	}
 
 	function format_price( $formatted_price, $price, $currency, $all_data ) {

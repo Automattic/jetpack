@@ -131,6 +131,6 @@ Sharing: Fixed duplicate rel tags on Sharing links.
 Search: Fixed an issue where a CSS and JavaScript file could be enqueued unnecessarily if the Search module was activated and if the site was using the Query Monitor plugin.
 Shortcodes: Updated Wufoo Shortcode to always load over https and use async form embed.
 Widgets: Fixed excessive logging issue with Twitter Timeline widget.
-Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necassary.
+Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necessary.
 Widgets: Added decimal precision validator to Simple Payments Widget price field on the Customizer for supporting Japanese Yen.
 
