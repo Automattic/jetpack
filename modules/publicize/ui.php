@@ -137,12 +137,6 @@ class Publicize_UI {
 				}
 			?>
 
-			<?php
-				if ( ! empty ( $_GET['action'] ) && 'error' == $_GET['action'] ) {
-					$this->display_connection_error();
-				}
-			?>
-
 			<p>
 				<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>
 				<?php esc_html_e( 'You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text.', 'jetpack' ); ?>
