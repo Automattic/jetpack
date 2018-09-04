@@ -6615,7 +6615,7 @@ p {
 			$pos += 7;
 		}
 
-		$tag = substr( $tag, 0, $pos ) . 'integrity="' . $item->extra['integrity'] . '" ' . substr( $tag, $pos );
+		$tag = substr( $tag, 0, $pos ) . 'integrity="' . esc_attr( $item->extra['integrity'] ) . '" ' . substr( $tag, $pos );
 		return $tag;
 	}
 
