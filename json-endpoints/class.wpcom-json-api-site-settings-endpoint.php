@@ -45,6 +45,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
+		'jetpack_search_enabled'       => '(bool) Enable Jetpack Search',
+		'jetpack_search_supported'     => '(bool) Jetpack Search is supported',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
 		'default_category'             => '(int) Default post category',
 		'default_post_format'          => '(string) Default post format',
@@ -302,6 +304,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
 				}
 
+				$jetpack_search_supported = false;
+				if ( function_exists( 'wpcom_is_jetpack_search_supported' ) ) {
+					$jetpack_search_supported = wpcom_is_jetpack_search_supported( $blog_id );
+				}
+
+				$jetpack_search_active = false;
+				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
+					$jetpack_search_active = Jetpack::is_module_active( 'search' );
+				}
+				if ( function_exists( 'is_jetpack_module_active' ) ) {
+					$jetpack_search_active = is_jetpack_module_active( 'search', $blog_id );
+				}
+
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
 					array_map(
@@ -331,6 +346,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options[ 'show_headline' ] ) ? $jetpack_relatedposts_options[ 'show_headline' ] : false,
 					'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options[ 'show_thumbnails' ] ) ? $jetpack_relatedposts_options[ 'show_thumbnails' ] : false,
+					'jetpack_search_enabled'  => (bool) $jetpack_search_active,
+					'jetpack_search_supported'=> (bool) $jetpack_search_supported,
 					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -522,6 +539,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
+					break;
+				case 'jetpack_search_enabled':
+					if ( ! method_exists( 'Jetpack', 'activate_module' ) ) {
+						break;
+					}
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+					if ( $value ) {
+						$jetpack_search_update_success = $is_wpcom
+							? Jetpack::activate_module( $blog_id, 'search' )
+							: Jetpack::activate_module( 'search', false, false );
+					} else {
+						$jetpack_search_update_success = $is_wpcom
+							? Jetpack::deactivate_module( $blog_id, 'search' )
+							: Jetpack::deactivate_module( 'search' );
+					}
+					$updated[ $key ] = (bool) $value;
 					break;
 				case 'jetpack_relatedposts_enabled':
 				case 'jetpack_relatedposts_show_thumbnails':
