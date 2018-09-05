@@ -74,6 +74,13 @@ class Jetpack_Photon_Static_Assets_CDN {
 		return get_core_checksums( $wp_version, get_locale() );
 	}
 
+	public static function get_plugin_versions( $plugin = 'jetpack' ) {
+		$response = wp_remote_get( sprintf( 'https://api.wordpress.org/plugins/info/1.0/%s.json', esc_url( $plugin ) ) );
+		$body = trim( wp_remote_retrieve_body( $response ) );
+		$body = json_decode( $body, true );
+		return array_keys( $body['versions'] );
+	}
+
 	/**
 	 * Returns SHA-256 checksums
 	 */
