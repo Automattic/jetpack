@@ -313,14 +313,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function get_external_services_connect_urls() {
-		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
-			return array();
-		}
-		$publicize = publicize_init();
-		$services = array_keys( $publicize->get_services( 'all' ) );
 		$connect_urls = array();
-		foreach ( $services as $service_name ) {
-			$connect_urls[ $service_name ] = $publicize->connect_url( $service_name );
+		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name ) {
+			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name );
 		}
 		return $connect_urls;
 	}

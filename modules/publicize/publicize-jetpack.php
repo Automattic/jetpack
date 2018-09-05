@@ -279,7 +279,6 @@ class Publicize extends Publicize_Base {
 			'tumblr'      => array(),
 			'path'        => array(),
 			'google_plus' => array(),
-			'google_site_verification' => array(),
 		);
 
 		if ( 'all' == $filter ) {
