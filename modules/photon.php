@@ -24,8 +24,9 @@ Jetpack_Photon::instance();
 
 class Jetpack_Photon_Static_Assets_CDN {
 	public static function go() {
-		add_action( 'wp_head', array( __CLASS__, 'cdnize_assets' ) );
-		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
+        add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
+        add_action( 'wp_print_styles',  array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'wp_footer',        array( __CLASS__, 'cdnize_assets' ) );
 	}
 
 	public static function cdnize_assets() {
