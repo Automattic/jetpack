@@ -481,21 +481,23 @@ add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
  */
 function admin_bar_delete_page() {
 
-	if ( function_exists( 'current_user_can' ) && false == current_user_can( 'delete_others_posts' ) ) {
+	if ( ! current_user_can( 'delete_others_posts' ) ) {
 		return false;
 	}
 
-	$req_path    = filter_input( INPUT_GET, 'path' );
+	$req_path    = isset( $_GET['path'] ) ? sanitize_text_field( stripslashes( $_GET['path'] ) ) : '';
 	$referer     = wp_get_referer();
 	$valid_nonce = ( $req_path && isset( $_GET['_wpnonce'] ) ) ? wp_verify_nonce( $_GET['_wpnonce'], 'delete-cache' ) : false;
 
 	$path = $valid_nonce ? realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $req_path ) ) ) ) : false;
 
 	if ( $path ) {
-		$path = trailingslashit( $path );
+		$path           = trailingslashit( $path );
 		$supercachepath = realpath( get_supercache_dir() );
 
-		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( $supercachepath ) ) != $supercachepath ) {
+		if ( false === wp_cache_confirm_delete( $path ) ||
+			0 !== strpos( $path, $supercachepath )
+		) {
 			wp_die( 'Could not delete directory' );
 		}
 
@@ -503,7 +505,7 @@ function admin_bar_delete_page() {
 	}
 
 	if ( $referer && $req_path && ( false !== stripos( $referer, $req_path ) || 0 === stripos( $referer, wp_login_url() ) ) ) {
-		wp_redirect( site_url( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $req_path ) ) );
+		wp_safe_redirect( esc_url_raw( home_url( $req_path ) ) );
 		exit;
 	}
 }
@@ -3763,7 +3765,7 @@ function wpsc_admin_bar_render( $wp_admin_bar ) {
 					'id' => 'delete-cache',
 					'title' => __( 'Delete Cache', 'wp-super-cache' ),
 					'meta' => array( 'title' => __( 'Delete cache of the current page', 'wp-super-cache' ) ),
-					'href' => wp_nonce_url( admin_url( 'index.php?action=delcachepage&path=' . urlencode( $path ) ), 'delete-cache' )
+					'href' => wp_nonce_url( admin_url( 'index.php?action=delcachepage&path=' . rawurlencode( $path ) ), 'delete-cache' )
 					) );
 	}
 
