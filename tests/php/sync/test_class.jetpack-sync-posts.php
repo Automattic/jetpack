@@ -262,13 +262,34 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attach_attachment_to_post() {
-		$this->post->post_parent          = 0;
-		$modified_attachment              = clone $this->post;
-		$modified_attachment->post_parent = 1000;
-		do_action( 'attachment_updated', $this->post->ID, $modified_attachment, $this->post );
+		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+
+		// Check the type of file. We'll use this as the 'post_mime_type'.
+		$filetype = wp_check_filetype( basename( $filename ), null );
+
+		// Get the path to the upload directory.
+		$wp_upload_dir = wp_upload_dir();
+
+		// Prepare an array of post data for the attachment.
+		$attachment = array(
+			'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ),
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit'
+		);
+
+		// Give attachment a parent id
+		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg' );
+		$attachment['ID'] = $post_id;
 
 		$this->sender->do_sync();
+		$this->server_event_storage->reset();
 
+		wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg', 1000 );
+
+		$this->sender->do_sync();
+		
 		$attach_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_attach_attachment' );
 		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
 		$add_attachment_event    = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
