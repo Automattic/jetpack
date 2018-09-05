@@ -299,7 +299,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 			),
 			'locale' => Jetpack::get_i18n_data_json(),
-			'localeSlug' => join( '-', explode( '_', jetpack_get_user_locale() ) ),
+			'localeSlug' => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),

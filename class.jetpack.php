@@ -2612,7 +2612,7 @@ class Jetpack {
 	 * @return string The locale as JSON
 	 */
 	public static function get_i18n_data_json() {
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_user_locale() . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );

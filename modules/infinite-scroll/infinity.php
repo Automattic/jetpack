@@ -1366,11 +1366,6 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		// This should be removed when WordPress 4.8 is released.
-		if ( version_compare( $wp_version, '4.7', '<' ) && is_customize_preview() ) {
-			$wp_customize->remove_preview_signature();
-		}
-
 		wp_send_json(
 			/**
 			 * Filter the Infinite Scroll results.
