@@ -39,6 +39,16 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 			 */
 			do_action( 'jetpack_sync_save_attach_attachment', $attachment_id, $attachment_after );
 		} else {
+			/**
+			 * Fires when the client needs to sync an updated attachment
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param int The attachment ID
+			 * @param object The attachment
+			 *
+			 * Previously this action was synced using jetpack_sync_save_add_attachment action.
+			 */
 			do_action( 'jetpack_sync_save_update_attachment', $attachment_id, $attachment_after );
 		}
 	}
