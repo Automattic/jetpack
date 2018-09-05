@@ -58,7 +58,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$jetpack_version = JETPACK__VERSION;
 
 		// If Jetpack is running a known version that we have the assets CDN'd for...
-		// @todo: Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
+		// @todo Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
 		if ( in_array( $jetpack_version, self::get_plugin_versions( 'jetpack' ) ) ) {
 			$jetpack_asset_hashes = self::get_plugin_checksums( $jetpack_version, 'jetpack' );
 			$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
@@ -90,6 +90,14 @@ class Jetpack_Photon_Static_Assets_CDN {
 		}
 	}
 
+	/**
+	 * Returns MD5 checksums (boo, hiss)
+	 * @todo CACHING
+	 *
+	 * @param null $version
+	 * @param null $locale
+	 * @return array|bool
+	 */
 	public static function get_core_checksums( $version = null, $locale = null ) {
 		if ( empty( $version ) ) {
 			$version = $GLOBALS['wp_version'];
@@ -101,6 +109,12 @@ class Jetpack_Photon_Static_Assets_CDN {
 		return get_core_checksums( $version, $locale );
 	}
 
+	/**
+	 * @todo CACHING
+	 *
+	 * @param string $plugin
+	 * @return array
+	 */
 	public static function get_plugin_versions( $plugin = 'jetpack' ) {
 		$response = wp_remote_get( sprintf( 'https://api.wordpress.org/plugins/info/1.0/%s.json', esc_url( $plugin ) ) );
 		$body = trim( wp_remote_retrieve_body( $response ) );
@@ -110,6 +124,11 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 	/**
 	 * Returns SHA-256 checksums
+	 * @todo CACHING
+	 *
+	 * @param null $version
+	 * @param string $plugin
+	 * @return array
 	 */
 	public static function get_plugin_checksums( $version = null, $plugin = 'jetpack' ) {
 		if ( empty( $version ) ) {
