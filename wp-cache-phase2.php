@@ -825,7 +825,7 @@ function get_oc_key( $url = false ) {
 	global $wp_cache_gzip_encoding, $WPSC_HTTP_HOST;
 
 	if ( $url ) {
-		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $WPSC_HTTP_HOST ) ) . $url;
+		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace( '/:.*$/', '',  $WPSC_HTTP_HOST ) . $url;
 	} else {
 		$key = get_current_url_supercache_dir();
 	}
