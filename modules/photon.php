@@ -34,7 +34,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 		$known_core_files = self::get_core_checksums();
 		$site_url = trailingslashit( site_url() );
-		foreach ( $wp_scripts as $handle => $thing ) {
+		foreach ( $wp_scripts->registered as $handle => $thing ) {
 			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
 				continue;
 			}
@@ -44,7 +44,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 				wp_script_add_data( $handle, 'integrity', 'md5-' . base64_encode( $known_core_files[ $src ] ) );
 			}
 		}
-		foreach ( $wp_styles as $handle => $thing ) {
+		foreach ( $wp_styles->registered as $handle => $thing ) {
 			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
 				continue;
 			}
