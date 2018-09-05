@@ -79,7 +79,6 @@ function jetpack_ConfigOptions()
  *
  * @param array WHMCS $params
  * @return string Either 'success' or an error with what went wrong when provisioning
- * @throws Exception An exception is thrown from make_api_request when there is a curl_error or an empty response
  */
 function jetpack_CreateAccount(array $params)
 {
@@ -131,7 +130,6 @@ function jetpack_CreateAccount(array $params)
  *
  * @param array WHMCS $params
  * @return string Either 'success' or an error with what went wrong when provisioning
- * @throws Exception An exception is thrown from make_api_request when there is a curl_error or an empty response
  */
 function jetpack_TerminateAccount(array $params)
 {
@@ -173,7 +171,6 @@ function jetpack_TerminateAccount(array $params)
  * @param array $params WHMCS params
  * @return mixed A string with the access token or an error string beginning with 'JETPACK MODULE' indicating that
  * an access token was not retrieved for provisioning or cancelling.
- * @throws Exception  An exception is thrown from make_api_request when there is a curl_error or an empty response
  */
 function get_access_token($params)
 {
