@@ -47,7 +47,7 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 			/**
 			 * Fires when an existing attachment is added to a post for the first time
 			 *
-			 * @since 6.5.0
+			 * @since 6.6.0
 			 *
 			 * @param int The attachment ID
 			 * @param object The attachment
