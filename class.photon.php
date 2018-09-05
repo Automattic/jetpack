@@ -791,7 +791,7 @@ class Jetpack_Photon {
 			} // foreach ( $multipliers as $multiplier )
 			if ( is_array( $newsources ) ) {
 				if ( function_exists( 'array_replace' ) ) { // PHP 5.3+, preferred
-					$sources = array_replace( $sources, $newsources ); // phpcs:ignore PHPCompatibility
+					$sources = array_replace( $sources, $newsources ); // phpcs:ignore PHPCompatibility.PHP.NewFunctions.array_replaceFound
 				} else { // For PHP 5.2 using WP shim function
 					$sources = array_replace_recursive( $sources, $newsources );
 				}

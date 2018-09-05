@@ -37,7 +37,7 @@ class WPCOM_JSON_API {
 	 */
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( !self::$self ) {
-			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility
+			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
 			self::$self = new $class( $method, $url, $post_body );
 		}
 		return self::$self;
