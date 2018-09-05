@@ -262,7 +262,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attach_attachment_to_post() {
-		$modified_attachment           = clone $this->post;
+		$this->post->post_parent          = 0;
+		$modified_attachment              = clone $this->post;
 		$modified_attachment->post_parent = 1000;
 		do_action( 'attachment_updated', $this->post->ID, $modified_attachment, $this->post );
 

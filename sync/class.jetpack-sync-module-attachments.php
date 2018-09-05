@@ -6,8 +6,6 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		add_action( 'edit_attachment', array( $this, 'send_attachment_info' ) );
-		// Once we don't have to support 4.3 we can start using add_action( 'attachment_updated', $handler, 10, 3 ); instead
 		add_action( 'add_attachment', array( $this, 'send_attachment_info' ) );
 		add_action( 'attachment_updated', array( $this, 'process_update'), 10, 3 );
 		add_action( 'jetpack_sync_save_update_attachment', $callable, 10, 2 );
@@ -55,6 +53,8 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 			 * @param object The attachment
 			 */
 			do_action( 'jetpack_sync_save_attach_attachment', $attachment_id, $attachment_after );
+		} else {
+			do_action( 'jetpack_sync_save_update_attachment', $attachment_id, $attachment_after );
 		}
 	}
 }
