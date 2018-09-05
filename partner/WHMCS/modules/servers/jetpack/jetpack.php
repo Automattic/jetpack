@@ -22,7 +22,9 @@ if (!defined("WHMCS")) {
  */
 
 /**
- * Jetpack Meta Data for WHMCS module.
+ * Jetpack Meta Data for WHMCS module. This is what is shown specifically when the host
+ * is setting up the module.
+ *
  * @return array
  */
 function jetpack_MetaData()
@@ -37,10 +39,8 @@ function jetpack_MetaData()
 
 
 /**
- * Basic configuration options required for a partner to get
- * a Jetpack plan provisioned. Currently a partner client id
- * and secret are the only host partner options needed to get
- * an access token to provision a Jetpack plan
+ * Basic configuration options required for a partner to get a Jetpack plan provisioned. Currently a partner
+ * client id and secret are the only host partner options needed to get an access token to provision a Jetpack plan
  * @return array
  */
 function jetpack_ConfigOptions()
@@ -251,8 +251,9 @@ function make_api_request($url, $auth = null, $data = null)
 }
 
 /**
- * Save the next_url for Jetpack activation/setup to the
- * order for the client
+ * Save the next_url for Jetpack activation/setup to the order for the client. If a next url is not
+ * and the pending param is true save a message letting the user know a plan is pending and will
+ * be available once the domain the plan is being provisioned for resolves
  *
  * @param string $url The next url for activating the Jetpack plan
  * @param array $params WHMCS params
@@ -284,7 +285,8 @@ function save_provisioning_details($url, $params, $pending = false)
  *  - Required Config Options
  *
  * @param array $params WHMCS params
- * @return bool|string An error describing what was not correctly included in the setup of the module
+ * @return bool|string An error describing what was not correctly included in the setup of the module or True if
+ * everything checks out and provisioning can be attempted.
  */
 function validate_required_fields(array $params)
 {
