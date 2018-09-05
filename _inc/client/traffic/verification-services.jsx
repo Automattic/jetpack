@@ -88,16 +88,13 @@ class VerificationServicesComponent extends React.Component {
 	}
 
 	checkVerifySite() {
-		this.props.checkVerifyStatusGoogle().then( ( { verified, token } ) => {
-			if ( verified ) {
-				return;
+		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
+			if ( token !== this.props.getSettingCurrentValue( 'google' ) ) {
+				return this.props.updateOptions( { google: token } );
 			}
-			if ( token ) {
-				this.props.updateOptions( { google: token } ).then( () => {
-					if ( ! this.props.isSiteVerifiedWithGoogle && this.props.getSettingCurrentValue( 'google' ) ) {
-						this.props.verifySiteGoogle();
-					}
-				} );
+		} ).then( () => {
+			if ( ! this.props.isSiteVerifiedWithGoogle ) {
+				this.props.verifySiteGoogle();
 			}
 		} ).catch( () => {
 			// ignore error
