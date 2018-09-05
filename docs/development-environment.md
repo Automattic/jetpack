@@ -174,7 +174,7 @@ $ yarn php:lint
 
 ### Checking Jetpack's PHP for PHP 5.2 Compatibility
 
-We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibility` ruleset checking for code not compatible with PHP 5.2
+We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.2
 
 ```sh
 $ composer php:5.2-compatibility .
