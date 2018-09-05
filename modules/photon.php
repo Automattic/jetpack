@@ -50,6 +50,18 @@ class Jetpack_Photon_Static_Assets_CDN {
 					}
 				}
 			}
+            foreach ( $wp_styles->registered as $handle => $thing ) {
+                if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+                    continue;
+                }
+                if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
+                    $local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
+                    if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
+                        $wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
+                        wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
+                    }
+                }
+            }
 		}
 	}
 
