@@ -31,18 +31,21 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles;
+        $jetpack_version = JETPACK__VERSION;
 
 //		$known_core_files = self::get_core_checksums();
 
-		if ( ! Jetpack::is_development_version() ) {
-			$jetpack_asset_hashes = self::get_jetpack_checksums();
+        // If Jetpack is running a known version that we have the assets CDN'd for...
+        // @todo: Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
+		if ( in_array( $jetpack_version, self::get_plugin_versions( 'jetpack' ) ) ) {
+			$jetpack_asset_hashes = self::get_plugin_checksums( $jetpack_version, 'jetpack' );
 			$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
 
 			foreach ( $wp_scripts->registered as $handle => $thing ) {
 				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
 					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
 					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
-						$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', JETPACK__VERSION, $local_path );
+						$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
 						wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
 					}
 				}
