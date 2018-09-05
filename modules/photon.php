@@ -31,9 +31,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles;
-        $jetpack_version = JETPACK__VERSION;
 
 //		$known_core_files = self::get_core_checksums();
+		$jetpack_version = JETPACK__VERSION;
 
 		// If Jetpack is running a known version that we have the assets CDN'd for...
 		// @todo: Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
