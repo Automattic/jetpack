@@ -4,6 +4,9 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
  * Control your local Jetpack installation.
+ *
+ * Minimum PHP requirement for WP-CLI is PHP 5.3, so ignore PHP 5.2 compatibility issues.
+ * @phpcs:disable PHPCompatibility.PHP.NewLanguageConstructs.t_ns_separatorFound
  */
 class Jetpack_CLI extends WP_CLI_Command {
 	// Aesthetics
@@ -384,7 +387,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							: __( 'Inactive', 'jetpack' ),
 					);
 				}
-				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) ); // phpcs:ignore PHPCompatibility
+				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) );
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
@@ -689,7 +692,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					);
 				}
 
-				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) ); // phpcs:ignore PHPCompatibility
+				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
 				break;
 			case 'start':
 				// Get the original settings so that we can restore them later
@@ -830,7 +833,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							'importing'       => (string) $item[4],
 						);
 					}
-					WP_CLI\Utils\format_items( // phpcs:ignore PHPCompatibility
+					WP_CLI\Utils\format_items(
 						'table',
 						$collection,
 						array(
@@ -1148,7 +1151,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( isset( $named_args['pretty'] ) ) {
 			$decoded_output = json_decode( $output );
 			if ( $decoded_output ) {
-				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT ); // phpcs:ignore PHPCompatibility
+				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
 			}
 		}
 
@@ -1380,7 +1383,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					return false;
 				}
 
-				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys ); // phpcs:ignore PHPCompatibility
+				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys );
 				break; // list.
 			case 'disconnect':
 				if ( ! $identifier ) {
@@ -1418,7 +1421,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					if ( ! empty( $connections ) ) {
 						$count    = count( $connections );
-						$progress = \WP_CLI\Utils\make_progress_bar( // phpcs:ignore PHPCompatibility
+						$progress = \WP_CLI\Utils\make_progress_bar(
 							/* translators: %s is a lowercase string for a social network. */
 							sprintf( __( 'Disconnecting all connections to %s.', 'jetpack' ), $service ),
 							$count
