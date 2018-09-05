@@ -6609,10 +6609,12 @@ p {
 			return $tag;
 		}
 
-		if ( -1 !== ( $pos = strpos( $tag, '<link ' ) ) ) {
+		if ( false !== ( $pos = strpos( $tag, '<link ' ) ) ) {
 			$pos += 6;
-		} elseif ( -1 !== ( $pos = strpos( $tag, '<style ' ) ) ) {
+		} elseif ( false !== ( $pos = strpos( $tag, '<style ' ) ) ) {
 			$pos += 7;
+		} elseif ( false !== ( $pos = strpos( $tag, '<script ' ) ) ) {
+			$pos += 8;
 		}
 
 		$tag = substr( $tag, 0, $pos ) . 'integrity="' . esc_attr( $item->extra['integrity'] ) . '" ' . substr( $tag, $pos );
