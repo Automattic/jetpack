@@ -68,10 +68,15 @@ class Jetpack_Photon_Static_Assets_CDN {
 		}
 	}
 
-	public static function get_core_checksums() {
-		global $wp_version;
+	public static function get_core_checksums( $version = null, $locale = null ) {
+		if ( empty( $version ) ) {
+			$version = $GLOBALS['wp_version'];
+		}
+		if ( empty( $locale ) ) {
+			$locale = get_locale();
+		}
 		require_once( ABSPATH . 'wp-admin/includes/update.php' );
-		return get_core_checksums( $wp_version, get_locale() );
+		return get_core_checksums( $version, $locale );
 	}
 
 	public static function get_plugin_versions( $plugin = 'jetpack' ) {
