@@ -77,8 +77,11 @@ class Jetpack_Photon_Static_Assets_CDN {
 	/**
 	 * Returns SHA-256 checksums
 	 */
-	public static function get_jetpack_checksums() {
-		$url = sprintf( 'http://downloads.wordpress.org/plugin-checksums/jetpack/%s.json', '6.4.2' /* JETPACK__VERSION */ );
+	public static function get_plugin_checksums( $version = null, $plugin = 'jetpack' ) {
+	    if ( empty( $version ) ) {
+	        $version = JETPACK__VERSION;
+        }
+		$url = sprintf( 'http://downloads.wordpress.org/plugin-checksums/%s/%s.json', $plugin, $version );
 
 		if ( wp_http_supports( array( 'ssl' ) ) ) {
 			$url = set_url_scheme( $url, 'https' );
