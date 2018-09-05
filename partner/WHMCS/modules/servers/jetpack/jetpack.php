@@ -321,7 +321,7 @@ function get_authentication_errors_from_response($response)
         return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
             account. This usually means the Client Id or Client Secret provided when setting up the module are invalid.
             The specific error from the request was ' . $response->error_description;
-    } elseif ($response->http_status > 500) {
+    } elseif ($response->http_status >= 500) {
         return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
     }
     return 'JETPACK MODULE: There was an error getting an authentication token. Please contact us for assistance';
@@ -342,7 +342,7 @@ function get_provisioning_errors_from_response($response)
 {
     if (($response->http_status == 400 || $response->http_status == 403) && $response->message) {
         return 'JETPACK MODULE: The following error was returned trying to provision a plan - ' . $response->message;
-    } elseif ($response->http_status > 500) {
+    } elseif ($response->http_status >= 500) {
         return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
     }
     return 'JETPACK MODULE: There was an error provisioning the Jetpack plan. Please contact us for assistance.';
@@ -361,7 +361,7 @@ function get_cancellation_errors_from_response($response)
     if ($response->http_status == 404) {
         return 'JETPACK MODULE: The http response was a 404 which likely means the site url attempting to be cancelled
         is invalid';
-    } elseif ($response->http_status > 500) {
+    } elseif ($response->http_status >= 500) {
         return 'JETPACK MODULE: There was an error communicating with the provisioning server. Please try again later.';
     }
     return 'JETPACK MODULE: Unable to terminate the plan. Please contact us for assistance';

@@ -115,4 +115,82 @@ class JetpackModuleTest extends TestCase {
 		return $modified_params;
 	}
 
+	/**
+	 * Test get_provisioning_errors_from_response
+	 *
+	 * Test that when there is an error message it is included in the return string
+	 * Test that when there is no message and an http status not accounted for we get the general error
+	 * Test 500's include try again information
+	 *
+	 */
+	public function test_get_provisioning_errors_from_response()
+	{
+		//Test with an error message in the response
+		$response = new stdClass;
+		$response->http_status=400;
+		$response->message = 'A test message';
+		$this->assertContains('a plan - ' . $response->message,
+			get_provisioning_errors_from_response($response));
+
+		//Test with no error message to make sure we get the general error
+		$response->http_status=404;
+		unset($response->message);
+		$this->assertContains('contact us', get_provisioning_errors_from_response($response));
+
+		//Test 500 lets the host know to try again later
+		$response->http_status=500;
+		$this->assertContains('try again later', get_provisioning_errors_from_response($response));
+	}
+
+	/**
+	 * Test get_cancellation_errors_from_response
+	 *
+	 * Test 404's include information about the domain being invalid
+	 * Test 500's include try again information
+	 * Test that a general error message is always returned
+	 */
+	public function test_get_cancellation_errors_from_response()
+	{
+		//Test 404s
+		$response = new stdClass;
+		$response->http_status=404;
+		$this->assertContains('is invalid', get_cancellation_errors_from_response($response));
+
+		//Test 500 lets the host know to try again later
+		$response->http_status=500;
+		$this->assertContains('try again later', get_cancellation_errors_from_response($response));
+
+		//Test general error message
+		$response->http_status = 403;
+		$this->assertContains('contact us', get_cancellation_errors_from_response($response));
+
+	}
+
+	/**
+	 * Test get_authentication_errors_from_response
+	 *
+	 * Test 400's include the error description from the request if there is one
+	 * Test 500's include try again information
+	 * Test that a general error message is always returned
+
+	 */
+	public function test_get_authentication_errors_from_response()
+	{
+		//Test 404s
+		$response = new stdClass;
+		$response->http_status=400;
+		$response->error_description = 'Error Description';
+		$this->assertContains('request was ' . $response->error_description,
+			get_authentication_errors_from_response($response));
+
+		//Test 500 lets the host know to try again later
+		$response->http_status=500;
+		$this->assertContains('try again later', get_authentication_errors_from_response($response));
+
+		//Test general error message
+		$response->http_status = 403;
+		$this->assertContains('contact us', get_cancellation_errors_from_response($response));
+	}
+
+
 }
