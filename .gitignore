@@ -17,6 +17,8 @@ tests/php/files/jetpack-150x150.jpg
 .eslintcache
 yarn-error.log
 /modules/**/*/*block.js
+.phpcs.xml
+phpcs.xml
 
 ## Things for docker-composer
 /docker/data/mysql/*
