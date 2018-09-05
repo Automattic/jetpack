@@ -24,8 +24,8 @@ Jetpack_Photon::instance();
 
 class Jetpack_Photon_Static_Assets_CDN {
 	public static function go() {
-        add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
-        add_action( 'wp_print_styles',  array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'wp_print_styles',  array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer',        array( __CLASS__, 'cdnize_assets' ) );
 	}
 
@@ -35,16 +35,16 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 //		$known_core_files = self::get_core_checksums();
 
-        // If Jetpack is running a known version that we have the assets CDN'd for...
-        // @todo: Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
+		// If Jetpack is running a known version that we have the assets CDN'd for...
+		// @todo: Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
 		if ( in_array( $jetpack_version, self::get_plugin_versions( 'jetpack' ) ) ) {
 			$jetpack_asset_hashes = self::get_plugin_checksums( $jetpack_version, 'jetpack' );
 			$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
 
 			foreach ( $wp_scripts->registered as $handle => $thing ) {
-			    if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-			        continue;
-                }
+				if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+					continue;
+				}
 				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
 					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
 					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
@@ -53,18 +53,18 @@ class Jetpack_Photon_Static_Assets_CDN {
 					}
 				}
 			}
-            foreach ( $wp_styles->registered as $handle => $thing ) {
-                if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-                    continue;
-                }
-                if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
-                    $local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
-                    if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
-                        $wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
-                        wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
-                    }
-                }
-            }
+			foreach ( $wp_styles->registered as $handle => $thing ) {
+				if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+					continue;
+				}
+				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
+					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
+					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
+						$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
+						wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
+					}
+				}
+			}
 		}
 	}
 
@@ -85,9 +85,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * Returns SHA-256 checksums
 	 */
 	public static function get_plugin_checksums( $version = null, $plugin = 'jetpack' ) {
-	    if ( empty( $version ) ) {
-	        $version = JETPACK__VERSION;
-        }
+		if ( empty( $version ) ) {
+			$version = JETPACK__VERSION;
+		}
 		$url = sprintf( 'http://downloads.wordpress.org/plugin-checksums/%s/%s.json', $plugin, $version );
 
 		if ( wp_http_supports( array( 'ssl' ) ) ) {
