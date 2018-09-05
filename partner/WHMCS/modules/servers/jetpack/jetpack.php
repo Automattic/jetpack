@@ -80,7 +80,6 @@ function jetpack_ConfigOptions()
  * @param array WHMCS $params
  * @return string Either 'success' or an error with what went wrong when provisioning
  * @throws Exception An exception is thrown from make_api_request when there is a curl_error or an empty response
-
  */
 function jetpack_CreateAccount(array $params)
 {
@@ -95,33 +94,28 @@ function jetpack_CreateAccount(array $params)
         return $access_token;
     }
 
-    try {
-        $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
-        $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
-        $stripped_url = rtrim($stripped_url, '/');
+    $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
+    $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
+    $stripped_url = rtrim($stripped_url, '/');
 
-        $request_data = [
-            'plan' => strtolower($params['customfields']['Plan']),
-            'siteurl' => $stripped_url,
-            'local_user' => $params['customfields']['Local User'],
-            'force_register' => true,
-        ];
+    $request_data = [
+        'plan' => strtolower($params['customfields']['Plan']),
+        'siteurl' => $stripped_url,
+        'local_user' => $params['customfields']['Local User'],
+        'force_register' => true,
+    ];
 
-        $response = make_api_request($provisioning_url, $access_token, $request_data);
-        if ($response->success && $response->success == true) {
-            if ($response->next_url) {
-                save_provisioning_details($response->next_url, $params);
-            } elseif (!$response->next_url && $response->auth_required) {
-                save_provisioning_details($response->next_url, $params, true);
-            }
-            return 'success';
-        } else {
-            $errors = get_provisioning_errors_from_response($response);
-            return $errors;
+    $response = make_api_request($provisioning_url, $access_token, $request_data);
+    if ($response->success && $response->success == true) {
+        if ($response->next_url) {
+            save_provisioning_details($response->next_url, $params);
+        } elseif (!$response->next_url && $response->auth_required) {
+            save_provisioning_details($response->next_url, $params, true);
         }
-    } catch (Exception $e) {
-        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
-        return $e->getMessage();
+        return 'success';
+    } else {
+        $errors = get_provisioning_errors_from_response($response);
+        return $errors;
     }
 }
 
@@ -151,26 +145,22 @@ function jetpack_TerminateAccount(array $params)
         return $access_token;
     }
 
-    try {
-        $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
-        $clean_url = rtrim($stripped_url, '/');
-        $clean_url = str_replace('/', '::', $clean_url);
+    $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
+    $clean_url = rtrim($stripped_url, '/');
+    $clean_url = str_replace('/', '::', $clean_url);
 
 
-        $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
-        $response = make_api_request($request_url, $access_token);
-        if ($response->success === true) {
-            return 'success';
-        } elseif ($response->success === false) {
-            return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
-        } else {
-            $errors = get_cancellation_errors_from_response($response);
-            return $errors;
-        }
-    } catch (Exception $e) {
-        logModuleCall('jetpack', __FUNCTION__, $params, $e->getMessage(), $e->getTraceAsString());
-        return $e->getMessage();
+    $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
+    $response = make_api_request($request_url, $access_token);
+    if ($response->success === true) {
+        return 'success';
+    } elseif ($response->success === false) {
+        return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
+    } else {
+        $errors = get_cancellation_errors_from_response($response);
+        return $errors;
     }
+
 }
 
 /**
@@ -220,6 +210,7 @@ function get_access_token($params)
  */
 function make_api_request($url, $auth = null, $data = null)
 {
+
     if (isset($auth)) {
         $auth = "Authorization: Bearer " . $auth;
     }
@@ -242,6 +233,7 @@ function make_api_request($url, $auth = null, $data = null)
     } elseif (empty($response)) {
         throw new Exception('Empty response');
     }
+
 
     $decoded_response = json_decode($response);
     $decoded_response->http_status = $http_code;
