@@ -33,15 +33,17 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 //		$known_core_files = self::get_core_checksums();
 
-		$jetpack_asset_hashes = self::get_jetpack_checksums();
-		$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
+		if ( ! Jetpack::is_development_version() ) {
+			$jetpack_asset_hashes = self::get_jetpack_checksums();
+			$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
 
-		foreach ( $wp_scripts->registered as $handle => $thing ) {
-			if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
-				$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
-				if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
-					$wp_scripts->registered[ $handle ]->src = sprintf( 'https://c0.wp.com/p/jetpack/%1$s/%2$s', JETPACK__VERSION, $local_path );
-					wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
+			foreach ( $wp_scripts->registered as $handle => $thing ) {
+				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
+					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
+					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
+						$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', JETPACK__VERSION, $local_path );
+						wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
+					}
 				}
 			}
 		}
