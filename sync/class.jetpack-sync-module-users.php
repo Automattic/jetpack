@@ -296,7 +296,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key  ) {
+		if ( isset( $user->cap_key ) && $meta_key === $user->cap_key ) {
 			$this->add_flags( $user_id, array( 'capabilities_changed' => true ) );
 		}
 
