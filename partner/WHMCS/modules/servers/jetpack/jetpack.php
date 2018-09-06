@@ -67,10 +67,10 @@ function jetpack_ConfigOptions()
  * Pre Provisioning Steps:
  *  Module requirements are validated and will return an error string
  *  if the module was not setup correctly. An error string will also be
- *  returned in the even that a request to provision a new returns a
+ *  returned in the event that a request to provision a new plan returns a
  *  4xx or 5xx error.
  *
- *  An Access token will also be retrieved before trying to provisioning.
+ *  An Access token will also be retrieved before trying to provision a plan.
  *  Errors strings are prefixed with 'JETPACK MODULE' so if getting the access
  *  token starts with this return this as an error.
  *
@@ -240,7 +240,7 @@ function make_api_request($url, $auth = null, $data = null)
 }
 
 /**
- * Save the next_url for Jetpack activation/setup to the order for the client. If a next url is not
+ * Save the next_url for Jetpack activation/setup to the order for the client. If a next url is not set or is empty
  * and the pending param is true save a message letting the user know a plan is pending and will
  * be available once the domain the plan is being provisioned for resolves
  *
@@ -304,8 +304,8 @@ function validate_required_fields(array $params)
 
 /**
  * If we are attempting to get an access token and this fails parse the response
- * http status code and response body and return a useful error from these
- * regarding what went wrong.
+ * http status code if it's set. If it's a 400 and there is an an error_description
+ * in the response body return an error message to the user that includes the error_description.
  *
  * Return a general error if no other information is available.
  *
