@@ -105,7 +105,7 @@ function jetpack_CreateAccount(array $params)
     ];
 
     $response = make_api_request($provisioning_url, $access_token, $request_data);
-    if ($response->success && $response->success == true) {
+    if (isset($response->success) && $response->success == true) {
         if ($response->next_url) {
             save_provisioning_details($response->next_url, $params);
         } elseif (!$response->next_url && $response->auth_required) {
@@ -150,9 +150,10 @@ function jetpack_TerminateAccount(array $params)
 
     $request_url = 'https://public-api.wordpress.com/rest/v1.3/jpphp/' . $clean_url . '/partner-cancel';
     $response = make_api_request($request_url, $access_token);
-    if ($response->success === true) {
+
+    if (isset($response->success) && $response->success == true) {
         return 'success';
-    } elseif ($response->success === false) {
+    } elseif ($response->success == false) {
         return 'JETPACK MODULE: Unable to terminate this Jetpack plan as it has likely already been cancelled';
     } else {
         $errors = get_cancellation_errors_from_response($response);
