@@ -71,8 +71,9 @@ function jetpack_ConfigOptions()
  *  4xx or 5xx error.
  *
  *  An Access token will also be retrieved before trying to provision a plan.
- *  Errors strings are prefixed with 'JETPACK MODULE' so if getting the access
- *  token starts with this return this as an error.
+ * 	If the access_token_details array does not contain the access token string it will
+ *  contain errors about what went wrong with getting the access token which should be
+ *  returned to the partner host
  *
  * If the response from provisioning does not contain "success" in the message
  * consider the provisioning to be incomplete and get a useful error from the response
@@ -88,9 +89,11 @@ function jetpack_CreateAccount(array $params)
         return $module_errors;
     }
 
-    $access_token = get_access_token($params);
-    if (strpos($access_token, 'JETPACK MODULE') === 0) {
-        return $access_token;
+    $access_token_details = get_access_token($params);
+    if (isset($access_token_details['access_token'])) {
+        $access_token = $access_token_details['access_token'];
+    } else {
+        return $access_token_details['errors'];
     }
 
     $provisioning_url = "https://public-api.wordpress.com/rest/v1.3/jpphp/provision";
@@ -138,9 +141,11 @@ function jetpack_TerminateAccount(array $params)
         return $module_errors;
     }
 
-    $access_token = get_access_token($params);
-    if (strpos($access_token, 'JETPACK MODULE') === 0) {
-        return $access_token;
+    $access_token_details = get_access_token($params);
+    if (isset($access_token_details['access_token'])) {
+        $access_token = $access_token_details['access_token'];
+    } else {
+        return $access_token_details['errors'];
     }
 
     $stripped_url = preg_replace("(^https?://)", "", $params['customfields']['Site URL']);
@@ -170,8 +175,8 @@ function jetpack_TerminateAccount(array $params)
  *
  *
  * @param array $params WHMCS params
- * @return mixed A string with the access token or an error string beginning with 'JETPACK MODULE' indicating that
- * an access token was not retrieved for provisioning or cancelling.
+ * @return array An array that contains a set property of either the access token
+ * or errors that happened while trying to get an access token.
  */
 function get_access_token($params)
 {
@@ -186,12 +191,17 @@ function get_access_token($params)
     ];
 
     $response = make_api_request($oauth_url, null, $credentials);
-
+    $access_token_response = [
+        'access_token' => null,
+        'errors' => null
+    ];
     if (isset($response->access_token)) {
-        return $response->access_token;
+        $access_token_response['access_token'] = $response->access_token;
+        return $access_token_response;
     } else {
         $errors = get_authentication_errors_from_response($response);
-        return $errors;
+        $access_token_response['errors'] = $errors;
+        return $access_token_response;
     }
 }
 
