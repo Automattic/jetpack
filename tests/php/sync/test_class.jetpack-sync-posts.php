@@ -286,10 +286,15 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
-		wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg', 1000 );
+		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg', 1000 );
 
 		$this->sender->do_sync();
-		
+
+		$remote_attachment = $this->server_replica_storage->get_post( $post_id );
+		$attachment        = get_post( $post_id );
+
+		$this->assertEquals( $attachment, $remote_attachment );
+
 		$attach_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_attach_attachment' );
 		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
 		$add_attachment_event    = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
