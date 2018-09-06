@@ -41,6 +41,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
 			if ( isset( $known_core_files[ $src ] ) ) {
 				$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
+				$wp_scripts->registered[ $handle ]->ver = null;
 				wp_script_add_data( $handle, 'integrity', 'md5-' . base64_encode( $known_core_files[ $src ] ) );
 			}
 		}
@@ -51,6 +52,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
 			if ( isset( $known_core_files[ $src ] ) ) {
 				$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
+				$wp_styles->registered[ $handle ]->ver = null;
 				wp_style_add_data( $handle, 'integrity', 'md5-' . base64_encode( $known_core_files[ $src ] ) );
 			}
 		}
