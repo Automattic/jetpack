@@ -98,6 +98,23 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 6.6 =
+
+* Release date: October 9, 2018
+* Release post: https://wp.me/p1moTy-aa1
+
+**Major Enhancements**
+
+
+**Enhancements**
+
+
+**Improved compatibility**
+
+
+**Bug fixes**
+
+
 = 6.5 =
 
 * Release date: September 4, 2018
@@ -133,4 +150,3 @@ Shortcodes: Updated Wufoo Shortcode to always load over https and use async form
 Widgets: Fixed excessive logging issue with Twitter Timeline widget.
 Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necessary.
 Widgets: Added decimal precision validator to Simple Payments Widget price field on the Customizer for supporting Japanese Yen.
-
