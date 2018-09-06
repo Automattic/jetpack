@@ -201,8 +201,8 @@ function get_access_token($params)
  * Include the http status in the response.
  *
  * @param string $url where to make the request to
- * @param null $auth access token to make a provisioning or cancellation request
- * @param null $data form data for the api request
+ * @param string $auth access token to make a provisioning or cancellation request
+ * @param array $data form data for the api request
  * @return mixed json_decoded response
  * @throws Exception On a curl error or an empty body an Exception will be thrown.
  */
