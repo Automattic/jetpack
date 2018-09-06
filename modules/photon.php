@@ -57,36 +57,43 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 		}
 
-		$jetpack_version = JETPACK__VERSION;
+		self::cdnize_plugin_assets( 'jetpack', JETPACK__VERSION );
+	}
 
-		// If Jetpack is running a known version that we have the assets CDN'd for...
-		// @todo Abstract this out to make it easy to run for multiple plugins, like WooCommerce.
-		if ( in_array( $jetpack_version, self::get_plugin_versions( 'jetpack' ) ) ) {
-			$jetpack_asset_hashes = self::get_plugin_checksums( $jetpack_version, 'jetpack' );
-			$jetpack_directory_url = plugins_url( '/', JETPACK__PLUGIN_FILE );
+	public static function cdnize_plugin_assets( $plugin_slug, $current_version ) {
+		global $wp_scripts, $wp_styles;
 
-			foreach ( $wp_scripts->registered as $handle => $thing ) {
-				if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-					continue;
-				}
-				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
-					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
-					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
-						$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
-						wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
-					}
+		$supported_versions = self::get_plugin_versions( $plugin_slug );
+		if ( ! in_array( $current_version, $supported_versions ) ) {
+			return false;
+		}
+
+		$asset_hashes = self::get_plugin_checksums( $current_version, $plugin_slug );
+		$plugin_directory_url = plugins_url() . '/' . $plugin_slug . '/';
+
+		foreach ( $wp_scripts->registered as $handle => $thing ) {
+			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+				continue;
+			}
+			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
+				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
+				if ( isset( $asset_hashes[ $local_path ] ) ) {
+					$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+					$wp_scripts->registered[ $handle ]->ver = null;
+					wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $asset_hashes[ $local_path ] ) );
 				}
 			}
-			foreach ( $wp_styles->registered as $handle => $thing ) {
-				if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-					continue;
-				}
-				if ( wp_startswith( $thing->src, $jetpack_directory_url ) ) {
-					$local_path = substr( $thing->src, strlen( $jetpack_directory_url ) );
-					if ( isset( $jetpack_asset_hashes[ $local_path ] ) ) {
-						$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/jetpack/%1$s/%2$s', $jetpack_version, $local_path );
-						wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $jetpack_asset_hashes[ $local_path ] ) );
-					}
+		}
+		foreach ( $wp_styles->registered as $handle => $thing ) {
+			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+				continue;
+			}
+			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
+				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
+				if ( isset( $asset_hashes[ $local_path ] ) ) {
+					$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+					$wp_styles->registered[ $handle ]->ver = null;
+					wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $asset_hashes[ $local_path ] ) );
 				}
 			}
 		}
