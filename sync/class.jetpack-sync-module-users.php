@@ -105,12 +105,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
 		$user->allcaps = $this->get_real_user_capabilities( $user );
 
-		if ( function_exists( 'get_user_locale' ) ) {
-
-			// Only set the user locale if it is different from the site local
-			if ( get_locale() !== get_user_locale( $user->ID ) ) {
-				$user->locale = get_user_locale( $user->ID );
-			}
+		// Only set the user locale if it is different from the site local
+		if ( get_locale() !== get_user_locale( $user->ID ) ) {
+			$user->locale = get_user_locale( $user->ID );
 		}
 
 		return $user;

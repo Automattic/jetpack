@@ -84,12 +84,8 @@ function AtD_redirect_call() {
 
 	$user = wp_get_current_user();
 
-	$atd_lang = get_locale();
+	$atd_lang = get_user_locale( $user->ID );
 
-	// If we're on WPCOM, this function should be available.
-	if ( function_exists( 'get_user_locale' ) ) {
-		$atd_lang = get_user_locale( $user->ID );
-	}
 
 	if ( ! empty( $atd_lang ) ) {
 		if ( strpos($atd_lang, 'pt') !== false )

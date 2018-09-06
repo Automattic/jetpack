@@ -26,13 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function jetpack_get_user_locale() {
 	_deprecated_function( __FUNCTION__, 'jetpack-6.6.0', 'get_user_locale' );
-	$locale = get_locale();
-
-	if ( function_exists( 'get_user_locale' ) ) {
-		$locale = get_user_locale();
-	}
-
-	return $locale;
+	return get_user_locale();
 }
 
 /**
