@@ -1,5 +1,7 @@
 == Changelog ==
 
+**This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
+
 = 6.5 =
 
 * Release date: September 4, 2018
