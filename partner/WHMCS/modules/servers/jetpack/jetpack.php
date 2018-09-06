@@ -108,7 +108,7 @@ function jetpack_CreateAccount(array $params)
     if (isset($response->success) && $response->success == true) {
         if ($response->next_url) {
             save_provisioning_details($response->next_url, $params);
-        } elseif (!$response->next_url && $response->auth_required) {
+        } else {
             save_provisioning_details($response->next_url, $params, true);
         }
         return 'success';
