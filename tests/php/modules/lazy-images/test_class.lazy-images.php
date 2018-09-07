@@ -9,6 +9,11 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		add_filter( 'lazyload_images_placeholder_image', array( $this, '__override_image_placeholder' ) );
 	}
 
+	public function tearDown() {
+		remove_all_filters( 'jetpack_lazy_images_do_placholder' );
+		remove_all_filters( 'jetpack_lazy_images_use_pulsing_placeholder' );
+	}
+
 	function get_process_image_test_data() {
 		return array(
 			'img_with_no_src' => array(
@@ -365,6 +370,38 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 				'jetpack_lazy_images_skip_image_with_attributes'
 			),
 		);
+	}
+
+	function test_process_image_skipping_placeholder_classes() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$image    = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" />';
+		$output   = $instance->add_image_placeholders( $image );
+		$expected = '<img src="image.jpg" width="200" height="200" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image is-placeholder do-pulse" style=" /* jetpack-lazy-images */ width:200px; padding-bottom: 100%;"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" /></noscript>';
+
+		$this->assertSame( $expected, $output );
+
+		add_filter( 'jetpack_lazy_images_do_placholder', '__return_false' );
+
+		$output   = $instance->add_image_placeholders( $image );
+		$expected = '<img src="image.jpg" width="200" height="200" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" /></noscript>';
+
+		$this->assertSame( $expected, $output );
+	}
+
+	function test_process_image_placeholder_no_pulse() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$image    = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" />';
+		$output   = $instance->add_image_placeholders( $image );
+		$expected = '<img src="image.jpg" width="200" height="200" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image is-placeholder do-pulse" style=" /* jetpack-lazy-images */ width:200px; padding-bottom: 100%;"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" /></noscript>';
+
+		$this->assertSame( $expected, $output );
+
+		add_filter( 'jetpack_lazy_images_use_pulsing_placeholder', '__return_false' );
+
+		$output   = $instance->add_image_placeholders( $image );
+		$expected = '<img src="image.jpg" width="200" height="200" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image is-placeholder" style=" /* jetpack-lazy-images */ width:200px; padding-bottom: 100%;"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" width="200" height="200" /></noscript>';
+
+		$this->assertSame( $expected, $output );
 	}
 
 	/*
