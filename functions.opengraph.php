@@ -272,7 +272,10 @@ function jetpack_og_tags() {
  *
  * @return array The source ('src'), 'width', and 'height' of the image.
  */
-function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) {
+function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null ) {
+	if ( ! empty( $deprecated ) ) {
+		_deprecated_argument( __FUNCTION__, '6.6.0' );
+	}
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
