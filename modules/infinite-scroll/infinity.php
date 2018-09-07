@@ -1541,7 +1541,7 @@ class The_Neverending_Home_Page {
 	 *
 	 */
 	private function default_footer() {
-		if ( function_exists( 'get_privacy_policy_url' ) && (get_privacy_policy_url() !== '') ) {
+		if ( function_exists( 'get_privacy_policy_url' ) && ( '' !== get_privacy_policy_url() ) ) {
 			$credits = get_the_privacy_policy_link() . '<span role="separator" aria-hidden="true"> / </span>';
 		} else {
 			$credits = '';
