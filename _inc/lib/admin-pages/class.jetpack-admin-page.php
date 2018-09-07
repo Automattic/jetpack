@@ -230,7 +230,6 @@ abstract class Jetpack_Admin_Page {
 			#wpcontent {
 				padding-left: 0 !important;
 			}
-
 			#wpbody-content {
 				background-color: #f3f6f8;
 			}
@@ -242,6 +241,20 @@ abstract class Jetpack_Admin_Page {
 			}
 			#jp-plugin-container.is-wide .wrap {
 				max-width: 1040px;
+			}
+			.wp-admin #dolly {
+			    float: none;
+			    position: relative;
+			    right: 0;
+			    left: 0;
+			    top: 0;
+			    padding: .625rem;
+			    text-align: right;
+			    background: #fff;
+			    font-size: .75rem;
+			    font-style: italic;
+			    color: #87a6bc;
+			    border-bottom: 1px #e9eff3 solid;
 			}
 		';
 		wp_add_inline_style( 'dops-css', $custom_css );
