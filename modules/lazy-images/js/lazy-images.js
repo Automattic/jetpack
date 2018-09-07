@@ -112,6 +112,7 @@ var jetpackLazyImagesModule = function( $ ) {
 		// Remove lazy attributes from the clone.
 		theClone.removeAttr( 'data-lazy-srcset' ),
 		theClone.removeAttr( 'data-lazy-sizes' );
+		theClone.removeAttr( 'data-lazy-src' );
 
 		// Add the attributes we want on the finished image.
 		theClone.addClass( 'jetpack-lazy-image--handled' );
