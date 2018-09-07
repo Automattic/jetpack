@@ -577,7 +577,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		global $_wp_theme_features;
 
 		$theme_support = array();
-		
+
 		// We are trying to get the current theme info.
 		if ( $theme === null ) {
 			$theme = wp_get_theme();
