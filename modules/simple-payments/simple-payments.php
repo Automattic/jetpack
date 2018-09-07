@@ -351,7 +351,7 @@ class Jetpack_Simple_Payments {
 			'edit_post'             => 'edit_posts',
 			'read_post'             => 'read_private_posts',
 			'delete_post'           => 'delete_posts',
-			'edit_posts'            => 'edit_posts',
+			'edit_posts'            => 'publish_posts',
 			'edit_others_posts'     => 'edit_others_posts',
 			'publish_posts'         => 'publish_posts',
 			'read_private_posts'    => 'read_private_posts',
