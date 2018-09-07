@@ -261,7 +261,18 @@ function jetpack_og_tags() {
 	echo $og_output;
 }
 
-function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
+/**
+ * Returns an image used in social shares.
+ *
+ * @since 2.0.0
+ *
+ * @param int $width Minimum width for the image. Default is 200 based on Facebook's requirement.
+ * @param int $height Minimum height for the image. Default is 200 based on Facebook's requirement.
+ * @param null $deprecated Deprecated.
+ *
+ * @return array The source ('src'), 'width', and 'height' of the image.
+ */
+function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) {
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
