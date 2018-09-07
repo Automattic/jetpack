@@ -84,7 +84,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 					'height' => 10,
 					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
 					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
+					'class' => ' jetpack-lazy-image is-placeholder do-pulse',
+					'style' => ' /* jetpack-lazy-images */ width:10px; padding-bottom: 100%;',
 				),
 			),
 			'img_with_srcset' => array(
@@ -101,7 +102,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 					'data-lazy-srcset' => 'medium.jpg 1000w, large.jpg 2000w',
 					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
 					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
+					'class' => ' jetpack-lazy-image is-placeholder do-pulse',
+					'style' => ' /* jetpack-lazy-images */ width:10px; padding-bottom: 100%;',
 				)
 			),
 			'img_with_sizes' => array(
@@ -118,7 +120,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 					'data-lazy-sizes' => '(min-width: 36em) 33.3vw, 100vw',
 					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
 					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
+					'class' => ' jetpack-lazy-image is-placeholder do-pulse',
+					'style' => ' /* jetpack-lazy-images */ width:10px; padding-bottom: 100%;',
 				)
 			),
 			'gazette_theme_featured_image' => array(
@@ -197,7 +200,16 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	function test_add_image_placeholders() {
-		$this->assertSame( $this->__get_output_content(), Jetpack_Lazy_Images::instance()->add_image_placeholders( $this->__get_input_content() ) );
+		$expected_content  = $this->__get_output_content();
+		$processed_content = Jetpack_Lazy_Images::instance()->add_image_placeholders( $this->__get_input_content() );
+
+		// Let's account for minor differences in padding-bottom by removin the `.` and all after it.
+		foreach ( array( 'expected_content', 'processed_content' ) as $content )  {
+			// The $$ is here on purpose. It's taking the variable name as a string and referencing the actual variable.
+			$$content = preg_replace( '/(padding-bottom:\s\d+)(\.\d+)?%/m', '$1', $$content );
+		}
+
+		$this->assertSame( $expected_content, $processed_content );
 	}
 
 	/**
