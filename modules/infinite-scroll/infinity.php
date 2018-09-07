@@ -1538,9 +1538,15 @@ class The_Neverending_Home_Page {
 	 *
 	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
+	 *
 	 */
 	private function default_footer() {
-		$credits = sprintf(
+		if ( function_exists( 'get_privacy_policy_url' ) && ( '' !== get_privacy_policy_url() ) ) {
+			$credits = get_the_privacy_policy_link() . '<span role="separator" aria-hidden="true"> / </span>';
+		} else {
+			$credits = '';
+		}
+		$credits .= sprintf(
 			'<a href="https://wordpress.org/" rel="noopener noreferrer" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
