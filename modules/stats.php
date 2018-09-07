@@ -547,7 +547,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 
 function jetpack_admin_ui_stats_report_page_wrapper()  {
 	if( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
-		Jetpack_Admin_Page::wrap_ui( 'stats_reports_page' );
+		Jetpack_Admin_Page::wrap_ui( 'stats_reports_page', array( 'is-wide' => true ) );
 	} else {
 		stats_reports_page();
 	}

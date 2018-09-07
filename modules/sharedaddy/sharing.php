@@ -181,7 +181,7 @@ class Sharing_Admin {
 	}
 
 	public function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ) );
+		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ), array( 'is-wide' =>true ) );
 	}
 
 	public function management_page() {

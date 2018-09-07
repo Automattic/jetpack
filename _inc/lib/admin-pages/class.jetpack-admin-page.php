@@ -240,15 +240,22 @@ abstract class Jetpack_Admin_Page {
 				max-width:45rem;
 				padding: 0 1.5rem;
 			}
+			#jp-plugin-container.is-wide .wrap {
+				max-width: 1040px;
+			}
 		';
 		wp_add_inline_style( 'dops-css', $custom_css );
 	}
 
-	static function wrap_ui( $callback ) {
+	static function wrap_ui( $callback, $args = array() ) {
+		$defaults = array(
+			'is-wide' => false,
+		);
+		$args = wp_parse_args( $args, $defaults );
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 
 		?>
-		<div id="jp-plugin-container">
+		<div id="jp-plugin-container" class="<?php if ( $args['is-wide'] ) { echo "is-wide"; } ?>">
 
 			<div class="jp-masthead">
 				<div class="jp-masthead__inside-container">
