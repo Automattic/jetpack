@@ -1547,7 +1547,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * Filter the contact form submit button class attribute.
 			 *
 			 * @module contact-form
-			 * @since 5.5.0
+			 *
+			 * @since 6.6.0
 			 *
 			 * @param string $class Additional CSS classes for button attribute.
 			 */
@@ -2567,7 +2568,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 * Filters the "class" attribute of the contact form input
 		 *
 		 * @module contact-form
-		 * @since 5.5.0
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param string $class Additional CSS classes for input class attribute.
 		 */
