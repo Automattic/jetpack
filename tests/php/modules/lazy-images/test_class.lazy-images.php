@@ -404,6 +404,61 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$this->assertSame( $expected, $output );
 	}
 
+	/**
+	 * @dataProvider get_test_image_detail_data
+	 */
+	function test_get_image_detail( $expected, $attributes, $attachment = null, $size = null ) {
+		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
+		$detail = Jetpack_Lazy_Images::get_image_detail( $attributes, $attachment, $size );
+		$this->assertSame( $detail, $expected );
+	}
+
+	function get_test_image_detail_data() {
+		$attachment = get_post(
+			$this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 )
+		);
+		return array(
+			'no_attributes_no_attachment' => array(
+				false,
+				array(),
+			),
+			'attachment_data_fallback_no_size' => array(
+				array(
+					'width'        => 500,
+					'height'       => 500,
+					'aspect_ratio' => 100,
+				),
+				array(),
+				$attachment,
+			),
+			'attachment_data_fallback_with_size_array' => array(
+				array(
+					'width'        => 25, // This occurs because this is the closest defined size.
+					'height'       => 25,
+					'aspect_ratio' => 100,
+				),
+				array(),
+				$attachment,
+				array(
+					100,
+					25
+				),
+			),
+			'attributes_contain_width_height' => array(
+				array(
+					'width'        => 400,
+					'height'       => 300,
+					'aspect_ratio' => 75.0,
+				),
+				array(
+					'width'  => 400,
+					'height' => 300,
+				),
+				$attachment
+			),
+		);
+	}
+
 	/*
 	 * Helpers
 	 */
