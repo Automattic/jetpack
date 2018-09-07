@@ -1,12 +1,12 @@
 <?php
 
-if ( ! class_exists( 'CrowdSignalShortcode' ) ) {
+if ( ! class_exists( 'CrowdsignalShortcode' ) ) {
 
 /**
-* Class wrapper for Crowd Signal shortcodes
+* Class wrapper for Crowdsignal shortcodes
 */
 
-class CrowdSignalShortcode {
+class CrowdsignalShortcode {
 
 	static $add_script = false;
 	static $scripts = false;
@@ -78,7 +78,7 @@ CONTAINER;
 	}
 
 	/*
-	 * Crowd Signal Poll Embed script - transforms code that looks like that:
+	 * Crowdsignal Poll Embed script - transforms code that looks like that:
 	 * <script type="text/javascript" charset="utf-8" async src="http://static.polldaddy.com/p/123456.js"></script>
 	 * <noscript><a href="http://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
 	 * into the [crowdsignal poll=...] shortcode format
@@ -152,7 +152,7 @@ CONTAINER;
 		), $atts, 'crowdsignal' ) );
 
 		if ( ! is_array( $atts ) ) {
-			return '<!-- Crowd Signal shortcode passed invalid attributes -->';
+			return '<!-- Crowdsignal shortcode passed invalid attributes -->';
 		}
 
 		$inline          = ! in_the_loop();
@@ -563,7 +563,7 @@ SCRIPT;
 }
 
 // kick it all off
-new CrowdSignalShortcode();
+new CrowdsignalShortcode();
 
 if ( ! function_exists( 'polldaddy_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
