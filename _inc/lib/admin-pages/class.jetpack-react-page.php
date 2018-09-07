@@ -314,6 +314,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_external_services_connect_urls() {
 		$connect_urls = array();
+		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name ) {
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name );
 		}
