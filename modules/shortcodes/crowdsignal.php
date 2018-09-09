@@ -22,7 +22,7 @@ class CrowdsignalShortcode {
 			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 		}
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
-		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
+		add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
 	}
 
 	private function get_async_code( array $settings, $survey_link ) {
@@ -532,7 +532,7 @@ CONTAINER;
 	 * This hooks in late (priority 11) to infinite_scroll_render to determine
 	 * a posteriori if a shortcode has been called.
 	 */
-	function polldaddy_shortcode_infinite() {
+	function crowdsignal_shortcode_infinite() {
 		// only try to load if a shortcode has been called and theme supports infinite scroll
 		if( self::$add_script ) {
 			$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
@@ -565,15 +565,15 @@ SCRIPT;
 // kick it all off
 new CrowdsignalShortcode();
 
-if ( ! function_exists( 'polldaddy_link' ) ) {
+if ( ! function_exists( 'crowdsignal_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
-	function polldaddy_link( $content ) {
+	function crowdsignal_link( $content ) {
 		return jetpack_preg_replace_outside_tags( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' async src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content, 'polldaddy.com/poll' );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it
-	add_filter( 'the_content', 'polldaddy_link', 1 );
-	add_filter( 'the_content_rss', 'polldaddy_link', 1 );
+	add_filter( 'the_content', 'crowdsignal_link', 1 );
+	add_filter( 'the_content_rss', 'crowdsignal_link', 1 );
 }
 
 wp_oembed_add_provider( '#http://poll\.fm/.*#i', 'http://polldaddy.com/oembed/', true );
