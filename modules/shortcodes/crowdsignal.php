@@ -45,12 +45,12 @@ CONTAINER;
 		$include = $this->compress_it( $include );
 
 		$placeholder =
-			'<div class="pd-embed" data-settings="'
+			'<div class="cs-embed pd-embed" data-settings="'
 			. esc_attr( json_encode( $settings ) )
 			. '"></div>';
 		if ( 'button' === $settings['type'] ) {
 			$placeholder =
-				'<a class="pd-embed" href="'
+				'<a class="cs-embed pd-embed" href="'
 				. esc_attr( $survey_link )
 				. '" data-settings="'
 				. esc_attr( json_encode( $settings ) )
@@ -219,7 +219,7 @@ CONTAINER;
 
 			if ( $inline ) {
 				return <<<SCRIPT
-<div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
+<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
 PDRTJS_settings_{$rating}{$item_id}={$settings};
 //--><!]]></script>
@@ -240,11 +240,11 @@ SCRIPT;
 
 				if ( $infinite_scroll ) {
 					return <<<CONTAINER
-<div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}" data-settings="{$data}"></div>
+<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}" data-settings="{$data}"></div>
 CONTAINER;
 				} else {
 					return <<<CONTAINER
-<div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
+<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 CONTAINER;
 				}
 			}
@@ -308,7 +308,7 @@ CONTAINER;
 						$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
 						$str = <<<CONTAINER
 <a name="pd_a_{$poll}"></a>
-<div class="PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
+<div class="CSS_Poll PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <noscript>{$poll_link}</noscript>
 CONTAINER;
@@ -338,7 +338,7 @@ SCRIPT;
 
 						return <<<CONTAINER
 <a id="pd_a_{$poll}"></a>
-<div class="PDS_Poll" id="PDI_container{$poll}" style="display:inline-block;{$float}{$margins}"></div>
+<div class="CSS_Poll PDS_Poll" id="PDI_container{$poll}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <script type="text/javascript" charset="UTF-8" async src="{$poll_js}{$cb}"></script>
 <noscript>{$poll_link}</noscript>
