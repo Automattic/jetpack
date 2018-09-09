@@ -401,11 +401,11 @@ CONTAINER;
 						$auto_src = parse_url( $auto_src );
 
 						if ( ! is_array( $auto_src ) || count( $auto_src ) == 0 ) {
-							return '<!-- no polldaddy output -->';
+							return '<!-- no crowdsignal output -->';
 						}
 
 						if ( ! isset( $auto_src['host'] ) || ! isset( $auto_src['path'] ) ) {
-							return '<!-- no polldaddy output -->';
+							return '<!-- no crowdsignal output -->';
 						}
 
 						$domain   = $auto_src['host'].'/s/';
@@ -473,13 +473,13 @@ CONTAINER;
 				}
 
 				if ( empty( $settings ) ) {
-					return '<!-- no polldaddy output -->';
+					return '<!-- no crowdsignal output -->';
 				}
 
 				return $this->get_async_code( $settings, $survey_link );
 			}
 		} else {
-			return '<!-- no polldaddy output -->';
+			return '<!-- no crowdsignal output -->';
 		}
 	}
 
