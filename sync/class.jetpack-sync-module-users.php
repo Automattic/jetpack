@@ -407,7 +407,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	protected function get_reassigned_network_user_id() {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.PHP.NewFunctionParameters.debug_backtrace_optionsFound
 		foreach ( $backtrace as $call ) {
 			if (
 				'remove_user_from_blog' === $call['function'] &&

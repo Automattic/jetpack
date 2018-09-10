@@ -24,7 +24,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility.PHP.NewClosure.Found
 						return $named_args[ $url_arg ];
 					}, 11 );
 				} elseif ( ! defined( $constant_name ) ) {

@@ -1909,6 +1909,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	protected function is_file_supported_for_sideloading( $file ) {
 		if ( class_exists( 'finfo' ) ) { // php 5.3+
+			// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
 			$finfo = new finfo( FILEINFO_MIME );
 			$mime = explode( '; ', $finfo->file( $file ) );
 			$type = $mime[0];

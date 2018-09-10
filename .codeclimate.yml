@@ -40,7 +40,7 @@ exclude_paths:
   - "**.gif"
   - "gulpfile.js"
   - "composer.lock"
-  - "phpcs.xml"
+  - ".phpcs.xml.dist"
   - "**.json"
   - "**.jshintrc"
   - "**.jshintignore"
