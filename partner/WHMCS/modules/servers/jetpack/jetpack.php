@@ -325,7 +325,7 @@ function validate_required_fields(array $params)
  */
 function get_authentication_errors_from_response($response)
 {
-    $response_message = isset($response->error_description) ? $response->error_description :
+    $response_message = isset($response->error_description) ? $response->error_description . '. ' :
         'No error was returned. ';
     if ($response->http_status == 400) {
         return 'JETPACK MODULE: There was a problem getting an access token for your Jetpack hosting partner 
@@ -335,7 +335,7 @@ function get_authentication_errors_from_response($response)
         return 'JETPACK MODULE: There was an error communicating with the server. Please try again later.';
     }
     return 'JETPACK MODULE: There was an error getting an access token. The following error was returned - '
-        . $response_message . 'Please contact us for assistance.';
+        . $response_message . ' Please contact us for assistance.';
 }
 
 /**
@@ -351,14 +351,14 @@ function get_authentication_errors_from_response($response)
  */
 function get_provisioning_errors_from_response($response)
 {
-    $response_message = isset($response->message) ? $response->message : 'No error was returned. ';
+    $response_message = isset($response->message) ? $response->message . '. ' : 'No error was returned. ';
     if ($response->http_status == 400 || $response->http_status == 403) {
         return 'JETPACK MODULE: The following error was returned trying to provision a plan - ' . $response_message;
     } elseif ($response->http_status >= 500) {
         return 'JETPACK MODULE: There was an error communicating with the server. Please try again later.';
     }
     return 'JETPACK MODULE: There was an error provisioning the Jetpack plan. The following error was returned - '
-        . $response_message . 'Please contact us for assistance.';
+        . $response_message . ' Please contact us for assistance.';
 }
 
 
@@ -371,7 +371,7 @@ function get_provisioning_errors_from_response($response)
  */
 function get_cancellation_errors_from_response($response)
 {
-    $response_message = isset($response->message) ? $response->message : 'No error was returned. ';
+    $response_message = isset($response->message) ? $response->message . '. ' : 'No error was returned. ';
     if ($response->http_status == 404) {
         return 'JETPACK MODULE: The http response was a 404 which likely means the site url attempting to be cancelled
         is invalid';
@@ -379,5 +379,5 @@ function get_cancellation_errors_from_response($response)
         return 'JETPACK MODULE: There was an error communicating with the server. Please try again later.';
     }
     return 'JETPACK MODULE: There was an error cancelling the Jetpack plan. The following error was returned  - '
-        . $response_message . 'Please contact us for assistance.';
+        . $response_message . ' Please contact us for assistance.';
 }
