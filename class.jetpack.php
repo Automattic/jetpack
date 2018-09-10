@@ -1516,6 +1516,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'premium';
 		}
 
@@ -1532,6 +1533,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'business';
 		}
 
