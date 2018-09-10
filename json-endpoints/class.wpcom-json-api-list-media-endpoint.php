@@ -1,6 +1,6 @@
 <?php
 
-new WPCOM_JSON_API_List_Media_Endpoint( array(
+new BROKEN_WPCOM_JSON_API_List_Media_Endpoint( array(
 	'description' => 'Get a list of items in the media library.',
 	'group'       => 'media',
 	'stat'        => 'media',
