@@ -17,6 +17,8 @@ Jetpack::dns_prefetch( array(
 ) );
 
 class Jetpack_Photon_Static_Assets_CDN {
+    const CDN = 'https://c0.wp.com/';
+
 	public static function go() {
 		add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_print_styles',  array( __CLASS__, 'cdnize_assets' ) );
@@ -63,25 +65,25 @@ class Jetpack_Photon_Static_Assets_CDN {
 		}
 
 		foreach ( $wp_scripts->registered as $handle => $thing ) {
-			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+			if ( wp_startswith( $thing->src, self::CDN ) ) {
 				continue;
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
 				if ( in_array( $local_path, $assets ) ) {
-					$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+					$wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
 			}
 		}
 		foreach ( $wp_styles->registered as $handle => $thing ) {
-			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
+			if ( wp_startswith( $thing->src, self::CDN ) ) {
 				continue;
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
 				if ( in_array( $local_path, $assets ) ) {
-					$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+					$wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
 			}
