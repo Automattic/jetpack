@@ -113,6 +113,10 @@ class Jetpack_Photon_Static_Assets_CDN {
 		require_once( ABSPATH . 'wp-admin/includes/update.php' );
 		$checksums = get_core_checksums( $version, $locale );
 
+		if ( empty( $checksums ) ) {
+		    return false;
+        }
+
 		$return = array_filter( array_keys( $checksums ), array( __CLASS__, 'is_js_or_css_file' ) );
 
 		if ( ! isset( $cache['core'][ $version ] ) ) {
