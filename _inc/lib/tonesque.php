@@ -86,7 +86,7 @@ class Tonesque {
 	 *
 	 * Construct object from image.
 	 *
-	 * @param optional $type (hex, rgb, hsl)
+	 * @param optional $type (hex, rgb, hsv)
 	 * @return color as a string formatted as $type
 	 *
  	 */
