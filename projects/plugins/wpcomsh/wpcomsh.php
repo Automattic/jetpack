@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.3.22
+ * Version: 2.3.26
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.3.22' );
+define( 'WPCOMSH_VERSION', '2.3.26' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -71,7 +71,9 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'google-captcha/google-captcha.php' => '"google-captcha" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'file-manager-advanced/file_manager_advanced.php' => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'file-manager/file-manager.php' => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'plugins-garbage-collector/plugins-garbage-collector.php' => '"plugins-garbage-collector" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset-wp/reset-wp.php' => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'ultimate-wp-reset/ultimate-wordpress-reset.php' => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wd-youtube/wd-youtube.php' => '"wd-youtube" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'wordpress-database-reset/wp-reset.php' => '"wordpress-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wordpress-reset/wordpress-reset.php' => '"wordpress-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -92,6 +94,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-db-backup/wp-db-backup.php' => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
 		// caching
+		'cache-enabler/cache-enabler.php' => '"cache-enabler" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'comet-cache/comet-cache.php' => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'hyper-cache/plugin.php' => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'quick-cache/quick-cache.php' => '"quick-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
@@ -99,6 +102,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-cache/wp-cache.php' => '"wp-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-fastest-cache/wpFastestCache.php' => '"wp-fastest-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-rocket/wp-rocket.php' => '"wp-rocket" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-speed-of-light/wp-speed-of-light.php' => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-super-cache/wp-cache.php' => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 
 		// sql heavy
@@ -134,9 +138,12 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-staging/wp-staging.php' => 'wp-staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
 
 		// misc
+		'anywhere-elementor/anywhere-elementor.php' => '"anywhere-elementor" is not supported on WordPress.com.',
+		'anywhere-elementor-pro/anywhere-elementor-pro.php' => '"anywhere-elementor-pro" is not supported on WordPress.com.',
 		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
 		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
 		'cryptocurrency-pricing-list/cryptocurrency-pricing-list-and-ticker.php' => '"cryptocurrency-pricing-list" is not supported on WordPress.com.',
+		'fast-velocity-minify/fvm.php' => '"fast-velocity-minify" is not supported on WordPress.com.',
 		'nginx-helper/nginx-helper.php' => '"nginx-helper" is not supported on WordPress.com.',
 		'porn-embed/Porn-Embed.php' => '"porn-embed" is not supported on WordPress.com.',
 		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
@@ -144,6 +151,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'woozone/plugin.php' => '"woozone" is not supported on WordPress.com.',
 		'wp-cleanfix/index.php' => '"wp-cleanfix" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
+		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
