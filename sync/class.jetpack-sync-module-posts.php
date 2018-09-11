@@ -294,7 +294,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			'editpost' === $_POST['action'] &&
 			'1' === $_GET['classic-editor'] &&
 			'1' === $_GET['meta_box'] &&
-			is_plugin_active( 'gutenberg/gutenberg.php' )
+			Jetpack::is_gutenberg_available()
 		);
 	}
 
