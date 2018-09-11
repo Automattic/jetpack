@@ -20,4 +20,3 @@ Jetpack::dns_prefetch( array(
 ) );
 
 Jetpack_Photon::instance();
-
