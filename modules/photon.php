@@ -39,7 +39,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 				continue;
 			}
 			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-			if ( isset( $known_core_files[ $src ] ) ) {
+			if ( in_array( $src, $known_core_files ) ) {
 				$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
 				$wp_scripts->registered[ $handle ]->ver = null;
 			}
@@ -49,7 +49,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 				continue;
 			}
 			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-			if ( isset( $known_core_files[ $src ] ) ) {
+			if ( in_array( $src, $known_core_files ) ) {
 				$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
 				$wp_styles->registered[ $handle ]->ver = null;
 			}
@@ -61,13 +61,12 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function cdnize_plugin_assets( $plugin_slug, $current_version ) {
 		global $wp_scripts, $wp_styles;
 
-		$supported_versions = self::get_plugin_versions( $plugin_slug );
-		if ( ! in_array( $current_version, $supported_versions ) ) {
+		$assets = self::get_plugin_assets( $plugin_slug, $current_version );
+		$plugin_directory_url = plugins_url() . '/' . $plugin_slug . '/';
+
+		if ( is_wp_error( $assets ) ) {
 			return false;
 		}
-
-		$asset_hashes = self::get_plugin_checksums( $current_version, $plugin_slug );
-		$plugin_directory_url = plugins_url() . '/' . $plugin_slug . '/';
 
 		foreach ( $wp_scripts->registered as $handle => $thing ) {
 			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
@@ -75,7 +74,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
-				if ( isset( $asset_hashes[ $local_path ] ) ) {
+				if ( in_array( $local_path, $assets ) ) {
 					$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
@@ -87,7 +86,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
-				if ( isset( $asset_hashes[ $local_path ] ) ) {
+				if ( in_array( $local_path, $assets ) ) {
 					$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
@@ -96,49 +95,53 @@ class Jetpack_Photon_Static_Assets_CDN {
 	}
 
 	/**
-	 * Returns MD5 checksums (boo, hiss)
-	 * @todo CACHING
+	 * Returns cdn-able assets for core.
 	 *
 	 * @param null $version
 	 * @param null $locale
 	 * @return array|bool
 	 */
-	public static function get_core_checksums( $version = null, $locale = null ) {
+	public static function get_core_assets( $version = null, $locale = null ) {
 		if ( empty( $version ) ) {
 			$version = $GLOBALS['wp_version'];
 		}
 		if ( empty( $locale ) ) {
 			$locale = get_locale();
 		}
-		require_once( ABSPATH . 'wp-admin/includes/update.php' );
-		return get_core_checksums( $version, $locale );
-	}
 
-	/**
-	 * @todo CACHING
-	 *
-	 * @param string $plugin
-	 * @return array
-	 */
-	public static function get_plugin_versions( $plugin = 'jetpack' ) {
-		$response = wp_remote_get( sprintf( 'https://api.wordpress.org/plugins/info/1.0/%s.json', esc_url( $plugin ) ) );
-		$body = trim( wp_remote_retrieve_body( $response ) );
-		$body = json_decode( $body, true );
-		return array_keys( $body['versions'] );
-	}
-
-	/**
-	 * Returns SHA-256 checksums
-	 * @todo CACHING
-	 *
-	 * @param null $version
-	 * @param string $plugin
-	 * @return array
-	 */
-	public static function get_plugin_checksums( $version = null, $plugin = 'jetpack' ) {
-		if ( empty( $version ) ) {
-			$version = JETPACK__VERSION;
+		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
+		if ( isset( $cache['core'][ $version ][ $locale ] ) ) {
+			return $cache['core'][ $version ][ $locale ];
 		}
+
+		require_once( ABSPATH . 'wp-admin/includes/update.php' );
+		$checksums = get_core_checksums( $version, $locale );
+
+		$return = array_filter( array_keys( $checksums ), array( __CLASS__, 'is_js_or_css_file' ) );
+
+		if ( ! isset( $cache['core'][ $version ] ) ) {
+			$cache['core'] = array();
+			$cache['core'][ $version ] = array();
+		}
+		$cache['core'][ $version ][ $locale ] = $return;
+		Jetpack_Options::update_option( 'static_asset_cdn_files', $cache, true );
+
+		return $return;
+	}
+
+	/**
+	 * Returns cdn-able assets for a given plugin.
+	 *
+	 * @param string $plugin
+	 * @param string $version
+	 * @return array
+	 */
+	public static function get_plugin_assets( $plugin, $version ) {
+		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
+		if ( isset( $cache[ $plugin ][ $version ] ) ) {
+			return $cache[ $plugin ][ $version ];
+		}
+
 		$url = sprintf( 'http://downloads.wordpress.org/plugin-checksums/%s/%s.json', $plugin, $version );
 
 		if ( wp_http_supports( array( 'ssl' ) ) ) {
@@ -150,15 +153,17 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$body = trim( wp_remote_retrieve_body( $response ) );
 		$body = json_decode( $body, true );
 
-		$return = array();
+		$return = array_filter( array_keys( $body['files'] ), array( __CLASS__, 'is_js_or_css_file' ) );
 
-		foreach ( $body['files'] as $file => $hashes ) {
-			if ( in_array( substr( $file, -3 ), array( 'css', '.js' ) ) ) {
-				$return[ $file ] = $hashes['sha256'];
-			}
-		}
+		$cache[ $plugin ] = array();
+		$cache[ $plugin ][ $version ] = $return;
+		Jetpack_Options::update_option( 'static_asset_cdn_files', $cache, true );
 
 		return $return;
+	}
+
+	public static function is_js_or_css_file( $path ) {
+		return in_array( substr( $path, -3 ), array( 'css', '.js' ) );
 	}
 }
 Jetpack_Photon_Static_Assets_CDN::go();
