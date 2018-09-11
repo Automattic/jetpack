@@ -119,11 +119,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_update_post( $this->post );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
 		$this->assertEquals( false, $event->args[3]['is_gutenberg_meta_box_update'] );
 
 		$this->post->post_content = "Updated using Gutenberg editor";
+		$plugins = is_multisite() ?
+			get_site_option( 'active_sitewide_plugins') :
+			get_option( 'active_plugins' );
+
+		$updated_plugins = array_merge( $plugins, array( 'gutenberg/gutenberg.php' ) );
+
+		if ( is_multisite() ) {
+			update_site_option( 'active_sitewide_plugins', $updated_plugins );
+		} else {
+			update_option( 'active_plugins', $updated_plugins  );
+		}
+
 		$_POST['action'] = 'editpost';
 		$_GET['classic-editor'] = '1';
 		$_GET['meta_box'] = '1';
@@ -131,13 +143,19 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_update_post( $this->post );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
 		$this->assertEquals( true, $event->args[3]['is_gutenberg_meta_box_update'] );
 
 		unset( $_POST['action'] );
 		unset( $_GET['classic-editor'] );
 		unset( $_GET['meta_box'] );
+
+		if ( is_multisite() ) {
+			update_site_option( 'active_sitewide_plugins', $plugins );
+		} else {
+			update_option( 'active_plugins', $plugins  );
+		}
 	}
 
 	public function test_update_post_updates_data() {
