@@ -79,6 +79,11 @@ class Jetpack_RelatedPosts {
 		if ( function_exists( 'register_rest_field' ) ) {
 			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
 		}
+
+		// Register Related Posts Gutenberg block
+		if ( function_exists( 'register_block_type' ) ) {
+			add_action( 'init', array( $this, 'register_block' ) );
+		}
 	}
 
 	/**
@@ -86,6 +91,44 @@ class Jetpack_RelatedPosts {
 	 * ACTIONS & FILTERS
 	 * =================
 	 */
+
+	/**
+	 * Register the Related Posts Gutenberg block on server.
+	 *
+	 * @action init
+	 * @uses add_settings_field, __, register_setting, add_action
+	 * @return null
+	 */
+	public function register_block() {
+		register_block_type(
+			'jetpack/related-posts',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
+		);
+	}
+
+	public function render_block( $attributes ) {
+		$shortcode_atts = array(
+			'enabled' => true,
+			'show_headline' => isset( $attributes['headline'] ) && strlen( $attributes['headline'] ) > 0,
+			'show_thumbnails' => ! empty( $attributes['displayThumbnails'] ),
+			'show_date' => ! empty( $attributes['displayDate'] ),
+			'show_context' => ! empty( $attributes['displayContext'] ),
+			'layout' => ! empty( $attributes['postLayout'] ) ? $attributes['postLayout'] : 'grid',
+			'headline' => isset( $attributes['headline'] ) ? $attributes['headline'] : '',
+			'size' => ! empty( $attributes['postsToShow'] ) ? $attributes['postsToShow'] : 3,
+		);
+
+		$parsed_atts = array();
+		foreach ( $shortcode_atts as $attribute => $value ) {
+			$parsed_atts[] = $attribute . '="' . esc_attr( $value ) . '"';
+		}
+
+		$string_atts = implode( ' ', $parsed_atts );
+
+		return '[' . self::SHORTCODE . ' ' . $string_atts . ']';
+	}
 
 	/**
 	 * Add a checkbox field to Settings > Reading for enabling related posts.
