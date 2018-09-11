@@ -1,4 +1,4 @@
-.eslintrc
+.eslintrc.js
 .eslintignore
 .git
 .gitignore
@@ -9,7 +9,6 @@
 .npmrc
 .nvmrc
 .eslines.json
-.eslintrc
 .eslintcache
 readme.md
 .github
