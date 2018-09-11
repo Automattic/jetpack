@@ -646,8 +646,6 @@ class Jetpack {
 		add_filter( 'plugins_url',       array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
 		add_action( 'style_loader_src',  array( 'Jetpack', 'set_suffix_on_min' ),  10, 2 );
 		add_filter( 'style_loader_tag',  array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
-		add_filter( 'style_loader_tag',  array( 'Jetpack', 'maybe_sri_style' ),    10, 2 );
-		add_filter( 'script_loader_tag', array( 'Jetpack', 'maybe_sri_script' ),   10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
@@ -6570,54 +6568,6 @@ p {
 			}
 		}
 
-		return $tag;
-	}
-
-	/**
-	 * @param $tag string
-	 * @param $handle string
-	 * @return string string
-	 */
-	public static function maybe_sri_style( $tag, $handle ) {
-		global $wp_styles;
-		$item = $wp_styles->registered[ $handle ];
-		return self::maybe_sri_asset( $tag, $item );
-	}
-
-	/**
-	 * @param $tag string
-	 * @param $handle string
-	 * @return string string
-	 */
-	public static function maybe_sri_script( $tag, $handle ) {
-		global $wp_scripts;
-		$item = $wp_scripts->registered[ $handle ];
-		return self::maybe_sri_asset( $tag, $item );
-	}
-
-	/**
-	 * Maybe add Subresource Integrity data to tag.
-	 *
-	 * @see https://www.w3.org/TR/SRI/
-	 *
-	 * @param $tag string
-	 * @param $item object
-	 * @return string
-	 */
-	public static function maybe_sri_asset( $tag, $item ) {
-		if ( ! isset( $item->extra['integrity'] ) || ! $item->extra['integrity'] ) {
-			return $tag;
-		}
-
-		if ( false !== ( $pos = strpos( $tag, '<link ' ) ) ) {
-			$pos += 6;
-		} elseif ( false !== ( $pos = strpos( $tag, '<script ' ) ) ) {
-			$pos += 8;
-		} else {
-			return $tag;
-		}
-
-		$tag = substr( $tag, 0, $pos ) . 'integrity="' . esc_attr( $item->extra['integrity'] ) . '" ' . substr( $tag, $pos );
 		return $tag;
 	}
 

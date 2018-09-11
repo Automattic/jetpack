@@ -42,7 +42,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 			if ( isset( $known_core_files[ $src ] ) ) {
 				$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
 				$wp_scripts->registered[ $handle ]->ver = null;
-				wp_script_add_data( $handle, 'integrity', 'md5-' . base64_encode( $known_core_files[ $src ] ) );
 			}
 		}
 		foreach ( $wp_styles->registered as $handle => $thing ) {
@@ -53,7 +52,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 			if ( isset( $known_core_files[ $src ] ) ) {
 				$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
 				$wp_styles->registered[ $handle ]->ver = null;
-				wp_style_add_data( $handle, 'integrity', 'md5-' . base64_encode( $known_core_files[ $src ] ) );
 			}
 		}
 
@@ -80,7 +78,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 				if ( isset( $asset_hashes[ $local_path ] ) ) {
 					$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_scripts->registered[ $handle ]->ver = null;
-					wp_script_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $asset_hashes[ $local_path ] ) );
 				}
 			}
 		}
@@ -93,7 +90,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 				if ( isset( $asset_hashes[ $local_path ] ) ) {
 					$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_styles->registered[ $handle ]->ver = null;
-					wp_style_add_data( $handle, 'integrity', 'sha256-' . base64_encode( $asset_hashes[ $local_path ] ) );
 				}
 			}
 		}
