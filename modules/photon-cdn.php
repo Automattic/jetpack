@@ -28,28 +28,31 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles, $wp_version;
 
-		$known_core_files = self::get_core_checksums();
-		$site_url = trailingslashit( site_url() );
-		foreach ( $wp_scripts->registered as $handle => $thing ) {
-			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-				continue;
-			}
-			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-			if ( in_array( $src, $known_core_files ) ) {
-				$wp_scripts->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
-				$wp_scripts->registered[ $handle ]->ver = null;
-			}
-		}
-		foreach ( $wp_styles->registered as $handle => $thing ) {
-			if ( wp_startswith( $thing->src, 'https://c0.wp.com/' ) ) {
-				continue;
-			}
-			$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-			if ( in_array( $src, $known_core_files ) ) {
-				$wp_styles->registered[ $handle ]->src = sprintf('https://c0.wp.com/c/%1$s/%2$s', $wp_version, $src );
-				$wp_styles->registered[ $handle ]->ver = null;
-			}
-		}
+		$known_core_files = self::get_core_assets();
+
+		if ( ! empty( $known_core_files ) && is_array( $known_core_files ) ) {
+            $site_url = trailingslashit( site_url() );
+            foreach ( $wp_scripts->registered as $handle => $thing ) {
+                if ( wp_startswith( $thing->src, self::CDN ) ) {
+                    continue;
+                }
+                $src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
+                if ( in_array( $src, $known_core_files ) ) {
+                    $wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $wp_version, $src );
+                    $wp_scripts->registered[ $handle ]->ver = null;
+                }
+            }
+            foreach ( $wp_styles->registered as $handle => $thing ) {
+                if ( wp_startswith( $thing->src, self::CDN ) ) {
+                    continue;
+                }
+                $src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
+                if ( in_array( $src, $known_core_files ) ) {
+                    $wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $wp_version, $src );
+                    $wp_styles->registered[ $handle ]->ver = null;
+                }
+            }
+        }
 
 		self::cdnize_plugin_assets( 'jetpack', JETPACK__VERSION );
 	}
