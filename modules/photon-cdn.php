@@ -140,6 +140,11 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return array
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
+	    if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
+	        include( JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php' );
+	        return $assets;
+        }
+
 		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
 		if ( isset( $cache[ $plugin ][ $version ] ) ) {
 			return $cache[ $plugin ][ $version ];
