@@ -53,7 +53,6 @@ class Jetpack_RelatedPosts {
 	protected $_convert_charset;
 	protected $_previous_post_id;
 	protected $_found_shortcode = false;
-	protected $block_attributes = array();
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -275,47 +274,101 @@ EOT;
 	}
 
 	/**
-	 * Overwrite the current related posts options and render the related posts shortcode.
+	 * Render the related posts markup.
 	 *
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$headline = isset( $attributes['headline'] ) ? $attributes['headline'] : esc_html__( 'Related', 'jetpack' );
+		$headline = isset( $attributes['headline'] ) ? $attributes['headline'] : __( 'Related', 'jetpack' );
 		$block_attributes = array(
-			'enabled' => true,
-			'show_headline' => strlen( $headline ) > 0,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
 			'show_date' => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : true,
-			'layout' => ! empty( $attributes['postLayout'] ) ? $attributes['postLayout'] : 'grid',
+			'layout' => isset( $attributes['postLayout'] ) && $attributes['postLayout'] === 'list' ? $attributes['postLayout'] : 'grid',
 			'headline' => $headline,
 			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$this->set_block_attributes( $block_attributes );
+		$related_posts = $this->get_for_post_id( get_the_ID(), array(
+			'size' => $block_attributes['size'],
+		) );
 
-		add_filter( 'jetpack_relatedposts_filter_options', array( $this, 'get_block_attributes' ) );
+		if ( ! $related_posts ) {
+			return '';
+		}
 
-		return '[' . self::SHORTCODE . ']';
-	}
+		ob_start();
+		?>
+		<div id="jp-relatedposts" class="jp-relatedposts" style="display: block;">
+			<?php if ( strlen( $headline ) > 0 ): ?>
+				<h3 class="jp-relatedposts-headline">
+					<em><?php echo esc_html( $headline ); ?></em>
+				</h3>
+			<?php endif; ?>
 
-	/**
-	 * Returns the current Gutenberg block attributes
-	 *
-	 * @return array
-	 */
-	public function get_block_attributes() {
-		return $this->block_attributes;
-	}
+			<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
+				<?php foreach ( $related_posts as $index => $related_post ): 
+					$classes = array_filter( array(
+						'jp-relatedposts-post',
+						'jp-relatedposts-post' . $index,
+						! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
+					) );
+					?>
+					<div
+						class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
+						data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
+						data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
+					>
+						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ): ?>
+							<a class="jp-relatedposts-post-a"
+								href="<?php echo esc_url( $related_post['url'] ) ?>"
+								title="<?php echo esc_attr( $related_post['title'] ) ?>"
+								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+							>
+								<img class="jp-relatedposts-post-img"
+									src="<?php echo esc_url( $related_post['img']['src'] ) ?>"
+									width="<?php echo esc_attr( $related_post['img']['width'] ) ?>"
+									alt="<?php echo esc_attr( $related_post['title'] ) ?>"
+								/>
+							</a>
+						<?php endif; ?>
 
-	/**
-	 * Updates the current Gutenberg block attributes
-	 *
-	 * @param $attributes string
-	 * @return void
-	 */
-	public function set_block_attributes( $attributes = array() ) {
-		$this->block_attributes = $attributes;
+						<h4 class="jp-relatedposts-post-title">
+							<a
+								class="jp-relatedposts-post-a"
+								href="<?php echo esc_url( $related_post['url'] ) ?>"
+								title="<?php echo esc_attr( $related_post['title'] ) ?>"
+								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+							>
+								<?php echo esc_html( $related_post['title'] ); ?>
+							</a>
+						</h4>
+
+						<p class="jp-relatedposts-post-excerpt"><?php echo esc_html( $related_post['excerpt'] ); ?></p>
+
+						<?php if ( $block_attributes['show_date'] ): ?>
+							<p class="jp-relatedposts-post-date" style="display: block;">
+								<?php echo esc_html( $related_post['date'] ); ?>
+							</p>
+						<?php endif; ?>
+
+						<?php if ( $block_attributes['show_context'] ): ?>
+							<p class="jp-relatedposts-post-context">
+								<?php echo esc_html( $related_post['context'] ); ?>
+							</p>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php
+		$html = ob_get_clean();
+
+		return $html;
 	}
 
 	/**
