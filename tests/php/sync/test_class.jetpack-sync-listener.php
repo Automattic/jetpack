@@ -100,6 +100,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => 'http://127.0.0.1',
 		);
 
 		$all = $queue->get_all();
