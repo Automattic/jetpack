@@ -321,16 +321,16 @@ EOT;
 					>
 						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ): ?>
 							<a class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ) ?>"
-								title="<?php echo esc_attr( $related_post['title'] ) ?>"
+								href="<?php echo esc_url( $related_post['url'] ); ?>"
+								title="<?php echo esc_attr( $related_post['title'] ); ?>"
 								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
 							>
 								<img class="jp-relatedposts-post-img"
-									src="<?php echo esc_url( $related_post['img']['src'] ) ?>"
-									width="<?php echo esc_attr( $related_post['img']['width'] ) ?>"
-									alt="<?php echo esc_attr( $related_post['title'] ) ?>"
+									src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
+									width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
+									alt="<?php echo esc_attr( $related_post['title'] ); ?>"
 								/>
 							</a>
 						<?php endif; ?>
@@ -338,8 +338,8 @@ EOT;
 						<h4 class="jp-relatedposts-post-title">
 							<a
 								class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ) ?>"
-								title="<?php echo esc_attr( $related_post['title'] ) ?>"
+								href="<?php echo esc_url( $related_post['url'] ); ?>"
+								title="<?php echo esc_attr( $related_post['title'] ); ?>"
 								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
