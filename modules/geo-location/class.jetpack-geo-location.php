@@ -33,6 +33,15 @@
 class Jetpack_Geo_Location {
 	private static $instance;
 
+	/**
+	 * Whether dashicons are enqueued.
+	 *
+	 * @since 6.6.0
+	 *
+	 * @var bool
+	 */
+	private static $style_enqueued = false;
+
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Geo_Location();
@@ -52,7 +61,6 @@ class Jetpack_Geo_Location {
 		add_action( 'init', array( $this, 'wordpress_init' ) );
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_filter( 'the_content', array( $this, 'the_content_microformat' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		$this->register_rss_hooks();
 	}
@@ -150,6 +158,12 @@ class Jetpack_Geo_Location {
 
 		if ( ! $meta_values['is_public'] ) {
 			return;
+		}
+
+		if ( ! self::$style_enqueued ) {
+			// only enqueue scripts and styles when needed.
+			self::enqueue_scripts();
+			self::$style_enqueued = true;
 		}
 
 		echo "\n<!-- Jetpack Geo-location Tags -->\n";
@@ -262,7 +276,7 @@ class Jetpack_Geo_Location {
 	/**
 	 * Enqueue CSS for rendering post flair with geo-location.
 	 */
-	public function enqueue_scripts() {
+	private static function enqueue_scripts() {
 		wp_enqueue_style( 'dashicons' );
 	}
 
