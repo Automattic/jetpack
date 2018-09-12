@@ -86,6 +86,10 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 		$current_user  = wp_get_current_user();
+
+		global $wp;
+		$current_url = add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -100,7 +104,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
-			'from_url'         => 'http://127.0.0.1',
+			'from_url'         => $current_url,
 		);
 
 		$all = $queue->get_all();
