@@ -304,7 +304,6 @@ class Jetpack_Sync_Listener {
 	}
 
 	function get_request_url() {
-		global $wp;
-		return add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }
