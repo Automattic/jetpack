@@ -123,6 +123,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$current_user = wp_get_current_user();
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 
+		global $wp;
+		$current_url = add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -139,6 +142,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'ip'               => jetpack_protect_get_ip(),
 			'user_agent'       => 'Jetpack Unit Tests',
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $current_url,
 		);
 
 		$all = $queue->get_all();
@@ -158,6 +162,10 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
+
+		global $wp;
+		$current_url = add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -172,6 +180,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $current_url,
 		);
 
 		$all = $queue->get_all();
