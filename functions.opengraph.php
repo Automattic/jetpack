@@ -261,12 +261,26 @@ function jetpack_og_tags() {
 	echo $og_output;
 }
 
-function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
+/**
+ * Returns an image used in social shares.
+ *
+ * @since 2.0.0
+ *
+ * @param int  $width Minimum width for the image. Default is 200 based on Facebook's requirement.
+ * @param int  $height Minimum height for the image. Default is 200 based on Facebook's requirement.
+ * @param null $deprecated Deprecated.
+ *
+ * @return array The source ('src'), 'width', and 'height' of the image.
+ */
+function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null ) {
+	if ( ! empty( $deprecated ) ) {
+		_deprecated_argument( __FUNCTION__, '6.6.0' );
+	}
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
 		// Grab obvious image if post is an attachment page for an image
-		if ( is_attachment( get_the_ID() ) && 'image' == substr( get_post_mime_type(), 0, 5 ) ) {
+		if ( is_attachment( get_the_ID() ) && 'image' === substr( get_post_mime_type(), 0, 5 ) ) {
 			$image['src'] = wp_get_attachment_url( get_the_ID() );
 		}
 
@@ -284,7 +298,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			}
 		}
 	} elseif ( is_author() ) {
-		$author = get_queried_object();
+		$author       = get_queried_object();
 		$image['src'] = get_avatar_url( $author->user_email, array(
 			'size' => $width,
 		) );
@@ -303,28 +317,28 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	// Second fall back, Site Logo.
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
 		$image_id = jetpack_get_site_logo( 'id' );
-		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		$logo     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
 			isset( $logo[0], $logo[1], $logo[2] )
 			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
 		) {
-			$image['src']     = $logo[0];
-			$image['width']   = $logo[1];
-			$image['height']  = $logo[2];
+			$image['src']    = $logo[0];
+			$image['width']  = $logo[1];
+			$image['height'] = $logo[2];
 		}
 	}
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
 		$image_id = get_option( 'site_icon' );
-		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
 			isset( $icon[0], $icon[1], $icon[2] )
 			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
 		) {
-			$image['src']     = $icon[0];
-			$image['width']   = $icon[1];
-			$image['height']  = $icon[2];
+			$image['src']    = $icon[0];
+			$image['width']  = $icon[1];
+			$image['height'] = $icon[2];
 		}
 	}
 
