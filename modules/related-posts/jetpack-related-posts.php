@@ -53,6 +53,7 @@ class Jetpack_RelatedPosts {
 	protected $_convert_charset;
 	protected $_previous_post_id;
 	protected $_found_shortcode = false;
+	protected $block_attributes = array();
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -91,44 +92,6 @@ class Jetpack_RelatedPosts {
 	 * ACTIONS & FILTERS
 	 * =================
 	 */
-
-	/**
-	 * Register the Related Posts Gutenberg block on server.
-	 *
-	 * @action init
-	 * @uses add_settings_field, __, register_setting, add_action
-	 * @return null
-	 */
-	public function register_block() {
-		register_block_type(
-			'jetpack/related-posts',
-			array(
-				'render_callback' => array( $this, 'render_block' ),
-			)
-		);
-	}
-
-	public function render_block( $attributes ) {
-		$shortcode_atts = array(
-			'enabled' => true,
-			'show_headline' => isset( $attributes['headline'] ) && strlen( $attributes['headline'] ) > 0,
-			'show_thumbnails' => ! empty( $attributes['displayThumbnails'] ),
-			'show_date' => ! empty( $attributes['displayDate'] ),
-			'show_context' => ! empty( $attributes['displayContext'] ),
-			'layout' => ! empty( $attributes['postLayout'] ) ? $attributes['postLayout'] : 'grid',
-			'headline' => isset( $attributes['headline'] ) ? $attributes['headline'] : '',
-			'size' => ! empty( $attributes['postsToShow'] ) ? $attributes['postsToShow'] : 3,
-		);
-
-		$parsed_atts = array();
-		foreach ( $shortcode_atts as $attribute => $value ) {
-			$parsed_atts[] = $attribute . '="' . esc_attr( $value ) . '"';
-		}
-
-		$string_atts = implode( ' ', $parsed_atts );
-
-		return '[' . self::SHORTCODE . ' ' . $string_atts . ']';
-	}
 
 	/**
 	 * Add a checkbox field to Settings > Reading for enabling related posts.
@@ -287,6 +250,72 @@ EOT;
 			return '';
 		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
+	}
+
+	/**
+	 * ===============
+	 * GUTENBERG BLOCK
+	 * ===============
+	 */
+
+	/**
+	 * Register the Related Posts Gutenberg block on server.
+	 *
+	 * @action init
+	 * @uses register_block_type
+	 * @return null
+	 */
+	public function register_block() {
+		register_block_type(
+			'a8c/related-posts',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
+		);
+	}
+
+	/**
+	 * Overwrite the current related posts options and render the related posts shortcode.
+	 *
+	 * @return string
+	 */
+	public function render_block( $attributes ) {
+		$headline = isset( $attributes['headline'] ) ? $attributes['headline'] : esc_html__( 'Related', 'jetpack' );
+		$block_attributes = array(
+			'enabled' => true,
+			'show_headline' => strlen( $headline ) > 0,
+			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
+			'show_date' => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
+			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : true,
+			'layout' => ! empty( $attributes['postLayout'] ) ? $attributes['postLayout'] : 'grid',
+			'headline' => $headline,
+			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
+		);
+
+		$this->set_block_attributes( $block_attributes );
+
+		add_filter( 'jetpack_relatedposts_filter_options', array( $this, 'get_block_attributes' ) );
+
+		return '[' . self::SHORTCODE . ']';
+	}
+
+	/**
+	 * Returns the current Gutenberg block attributes
+	 *
+	 * @return array
+	 */
+	public function get_block_attributes() {
+		return $this->block_attributes;
+	}
+
+	/**
+	 * Updates the current Gutenberg block attributes
+	 *
+	 * @param $attributes string
+	 * @return void
+	 */
+	public function set_block_attributes( $attributes = array() ) {
+		$this->block_attributes = $attributes;
 	}
 
 	/**
