@@ -14,8 +14,37 @@ class Jetpack_Keyring_Service_Helper {
 		return self::$instance;
 	}
 
+	public static $SERVICES = array(
+		'facebook',
+		'twitter',
+		'linkedin',
+		'tumblr',
+		'path',
+		'google_plus',
+		'google_site_verification',
+	);
+
 	private function __construct() {
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
+	}
+
+	function get_services( $filter = 'all' ) {
+		$services = array(
+
+		);
+
+		if ( 'all' == $filter ) {
+			return $services;
+		} else {
+			$connected_services = array();
+			foreach ( $services as $service => $empty ) {
+				$connections = $this->get_connections( $service );
+				if ( $connections ) {
+					$connected_services[ $service ] = $connections;
+				}
+			}
+			return $connected_services;
+		}
 	}
 
 	/**

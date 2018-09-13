@@ -123,3 +123,7 @@ export function getActiveFeatures( state ) {
 export function getAvailablePlans( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePlans' ] );
 }
+
+export function getSiteID( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
+}

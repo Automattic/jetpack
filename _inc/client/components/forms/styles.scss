@@ -79,6 +79,22 @@
 	}
 }
 
+.jp-form-input-suffix {
+	text-align: center;
+	background: #f3f6f8;
+	border: 1px solid #c8d7e1;
+	color: #4f748e;
+	padding: rem( 8px ) rem( 14px );
+	white-space: nowrap;
+	flex: 1 0 auto;
+	display: flex;
+}
+
+button.jp-form-input-suffix {
+	background: initial;
+	border-radius: 0;
+}
+
 .jp-form-has-child {
 	margin-bottom: rem( 24px );
 

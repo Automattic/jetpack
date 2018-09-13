@@ -247,6 +247,14 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchPluginsData: () => getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
 			.then( checkStatus )
+			.then( parseJsonResponse ),
+
+		fetchVerifySiteGoogleStatus: () => getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
+		verifySiteGoogle: () => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams )
+			.then( checkStatus )
 			.then( parseJsonResponse )
 	};
 

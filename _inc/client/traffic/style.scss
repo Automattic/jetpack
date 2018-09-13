@@ -1,0 +1,9 @@
+@import "../scss/variables/_colors";
+
+.jp-form-suffix-site-verification-verified {
+	color: $green-primary;
+
+	.gridicon:first-child {
+		margin-right: 5px;
+	}
+}

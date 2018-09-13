@@ -308,7 +308,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl' => esc_url( $last_post ),
+			'externalServicesConnectUrls' => $this->get_external_services_connect_urls()
 		) );
+	}
+
+	function get_external_services_connect_urls() {
+		$connect_urls = array();
+		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name ) {
+			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name );
+		}
+		return $connect_urls;
 	}
 
 	/**
