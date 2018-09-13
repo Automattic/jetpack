@@ -5,7 +5,7 @@
  * Sort Order: 26
  * Recommendation Order: 1
  * First Introduced: 6.6
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
