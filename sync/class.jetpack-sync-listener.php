@@ -269,6 +269,7 @@ class Jetpack_Sync_Listener {
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'is_wp_admin'      => is_admin(),
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_request_url(),
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
@@ -300,5 +301,9 @@ class Jetpack_Sync_Listener {
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
+	}
+
+	function get_request_url() {
+		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }
