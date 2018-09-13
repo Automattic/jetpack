@@ -7,6 +7,7 @@ import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 import { connect } from 'react-redux';
 
 /**
@@ -105,6 +106,8 @@ class VerificationServicesComponent extends React.Component {
 		if ( this.props.fetchingSiteData || this.props.fetchingGoogleSiteVerify ) {
 			return;
 		}
+
+		analytics.tracks.recordJetpackClick( 'google_verify' );
 
 		if ( ! this.props.isConnectedToGoogle ) {
 			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
