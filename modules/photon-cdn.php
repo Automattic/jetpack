@@ -132,7 +132,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * @param array $values array( $version  = core assets version, i.e. 4.9.1, $locale = desired locale )
 		 */
 		list( $version, $locale ) = apply_filters(
-			'jetpack_cdn_plugin_slug_and_version',
+			'jetpack_cdn_core_version_and_locale',
 			array( $version, $locale )
 		);
 
