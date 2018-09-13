@@ -177,6 +177,18 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function is_js_or_css_file( $path ) {
 		return in_array( substr( $path, -3 ), array( 'css', '.js' ) );
 	}
+
+	public static function is_public_version( $version, $include_beta_and_rc = false ) {
+		if ( preg_match( '/^\d+(\.\d+)+$/', $version ) ) {
+			// matches `1` `1.2` `1.2.3`
+			return true;
+		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc)\d?)$/i', $version ) ) {
+			// matches `1.2.3` `1.2.3-beta` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`
+			return true;
+		}
+		// unrecognized version
+		return false;
+	}
 }
 Jetpack_Photon_Static_Assets_CDN::go();
 
