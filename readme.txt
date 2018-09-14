@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Verification Tools: enable one-click site verification and sitemap.xml registration with Google.
 
 **Enhancements**
 

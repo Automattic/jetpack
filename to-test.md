@@ -1,5 +1,15 @@
 ## 6.6
 
+### Verification Tools
+
+We've made a big improvement to the process needed to verify a site with Google. Here are the details steps you can follow to test the new process:
+
+1. On a brand new site that has not been verified yet, go to Jetpack -> Settings -> Traffic
+2. Click "Verify with Google" in the input box in the Verification Tools.
+3. You will be prompted to authorize the connection in a popup
+4. The UI should change to tell you that your site was verified.
+5. Check and make sure the tag has been added to your site's head, and that the site is marked as verified in your Google Search Console.
+
 ### Infinite Scroll
 
 Infinite Scroll was not fully compatible with the Privacy options that were recently added to WordPress. We've fixed that! To test, try the following:
