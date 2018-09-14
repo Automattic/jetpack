@@ -80,8 +80,14 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
+WP_HOST_PORT=":$HOST_PORT"
+
+if [ 80 -eq "$HOST_PORT" ]; then
+	WP_HOST_PORT=""
+fi
+
 echo
-echo "Open http://${WP_DOMAIN} to see your site!"
+echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo
 
 # Run apache in the foreground so the container keeps running
