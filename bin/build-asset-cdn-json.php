@@ -1,19 +1,18 @@
 <?php
 
 $path      = dirname( dirname( __FILE__ ) ) . '/';
-$exclude   = array( '.git', 'node_modules' );
 $directory = new RecursiveDirectoryIterator( $path );
 $iterator  = new RecursiveIteratorIterator( $directory );
 $regex     = new RegexIterator( $iterator, '/^.+\.(css|js)$/i', RecursiveRegexIterator::GET_MATCH );
 
 $manifest = array();
 foreach ( $regex as $file => $value ) {
-    $file = str_replace( $path, '', $file );
-    $directory = substr( $file, 0, strpos( $file, '/' ) );
-    if ( in_array( $directory, array( 'node_modules', 'tests' ) ) ) {
-        continue;
-    }
-    $manifest[] = $file;
+	$file = str_replace( $path, '', $file );
+	$directory = substr( $file, 0, strpos( $file, '/' ) );
+	if ( in_array( $directory, array( 'node_modules', 'tests' ) ) ) {
+		continue;
+	}
+	$manifest[] = $file;
 }
 
 $export = var_export( $manifest, true );
