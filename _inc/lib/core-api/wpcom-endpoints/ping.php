@@ -16,8 +16,7 @@ class WPCOM_REST_API_V2_Endpoint_Ping {
 	}
 
 	public function get_data( $request ) {
-		sleep(3);
-		return array( 'end' => time() );
+		return array( 'current_time' => time() );
 	}
 }
 
