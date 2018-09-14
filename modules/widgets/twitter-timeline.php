@@ -208,7 +208,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$height = (int) $new_instance['height'];
 		if ( $height ) {
 			// From publish.twitter.com: height >= 200
-			$instance['height'] = max( $height, 200 );
+			$instance['height'] = min( $height, 200 );
 		} else {
 			$instance['height'] = '';
 		}
