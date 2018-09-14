@@ -117,6 +117,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Sync: avoid PHP notices when synchronizing user information.
+
 --------
 
 [See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/changelog.txt).
