@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Search: improve the feature activation process.
 * Sync: log action when an attachment is added to a post for the first time.
 * Sync: add URL details to synchronization requests.
+* Sync: detect if a post is saved via Gutenberg when synchronizing post events.
 
 **Improved compatibility**
 
