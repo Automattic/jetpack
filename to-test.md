@@ -13,4 +13,19 @@ In addition to this, you can make the following tests:
 3. View source on page load and ensure that the placeholder is loaded via the `srcset` attribute
 4. After scrolling down, ensure the image loads properly and the `srcset` attribute now contains the actual images OR the `srcset` attribute has been removed in favor of just using `src`.
 
+### Search
+
+We have made some changes to the Search feature and how it could be enabled in this release. Try starting from a brand new site, with a free plan. Look at the different prompts to upgrade to a Professional plan to get Jetpack Search, and make sure everything looks good.
+
+Then, try the following:
+
+1. Upgrade to a Professional plan.
+2. Go to https://wordpress.com/settings/traffic/{your site}
+3. Make sure Jetpack Search (bottom of page) is disabled
+4. Go to {your site}/wp-admin/widgets.php
+5. Add the "Search (Jetpack)" widget.
+6. Go back to https://wordpress.com/settings/traffic/{your site} (reload the page)
+7. (Wait a second or two)
+8. See that Jetpack Search is enabled.
+
 **Thank you for all your help!**
