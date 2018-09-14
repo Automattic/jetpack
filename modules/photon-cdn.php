@@ -30,6 +30,19 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 		$known_core_files = self::get_core_assets();
 
+		/**
+		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
+		 * that Jetpack uses to retrieve assets. Expects the values to be returned in an array.
+		 *
+		 * @since 6.6
+		 *
+		 * @param array $values array( $version  = core assets version, i.e. 4.9.8, $locale = desired locale )
+		 */
+		list( $version, $locale ) = apply_filters(
+			'jetpack_cdn_core_version_and_locale',
+			array( $wp_version, get_locale() )
+		);
+
 		if ( ! empty( $known_core_files ) && is_array( $known_core_files ) ) {
 			$site_url = trailingslashit( site_url() );
 			foreach ( $wp_scripts->registered as $handle => $thing ) {
@@ -38,7 +51,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
 				if ( in_array( $src, $known_core_files ) ) {
-					$wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $wp_version, $src );
+					$wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
 			}
@@ -48,7 +61,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
 				if ( in_array( $src, $known_core_files ) ) {
-					$wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $wp_version, $src );
+					$wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
 			}
@@ -123,14 +136,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			$locale = get_locale();
 		}
 
-		/**
-		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
-		 * that Jetpack uses to retrieve assets. Expects the values to be returned in an array.
-		 *
-		 * @since 6.6
-		 *
-		 * @param array $values array( $version  = core assets version, i.e. 4.9.1, $locale = desired locale )
-		 */
+		/** This filter is already documented in modules/photon-cdn.php */
 		list( $version, $locale ) = apply_filters(
 			'jetpack_cdn_core_version_and_locale',
 			array( $version, $locale )
