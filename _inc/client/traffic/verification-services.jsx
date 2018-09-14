@@ -35,9 +35,11 @@ import {
 	isFetchingGoogleSiteVerify,
 	isConnectedToGoogleSiteVerificationAPI,
 	isSiteVerifiedWithGoogle,
-	isVerifyingGoogleSite
+	isVerifyingGoogleSite,
+	getGoogleSiteVerificationError,
 } from 'state/site-verify';
 import { userCanManageOptions } from 'state/initial-state';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 
 class VerificationServicesComponent extends React.Component {
 	static serviceIds = {
@@ -88,8 +90,6 @@ class VerificationServicesComponent extends React.Component {
 			if ( token !== this.props.getSettingCurrentValue( 'google' ) ) {
 				return this.props.updateOptions( { google: token } );
 			}
-		} ).catch( () => {
-			// ignore error
 		} );
 	}
 
@@ -100,10 +100,23 @@ class VerificationServicesComponent extends React.Component {
 			}
 		} ).then( () => {
 			if ( ! this.props.isSiteVerifiedWithGoogle ) {
-				this.props.verifySiteGoogle();
+				this.props.verifySiteGoogle().then( () => {
+					if ( this.props.googleSiteVerificationError ) {
+						this.props.createNotice(
+							'is-error',
+							__( 'Site failed to verify: %(error)s', {
+								args: {
+									error: this.props.googleSiteVerificationError.message
+								}
+							} ),
+							{
+								id: 'verify-site-google-error',
+								duration: 5000
+							}
+						);
+					}
+				} );
 			}
-		} ).catch( () => {
-			// ignore error
 		} );
 	}
 
@@ -307,11 +320,13 @@ export const VerificationServices = connect(
 			isConnectedToGoogle: isConnectedToGoogleSiteVerificationAPI( state ),
 			isSiteVerifiedWithGoogle: isSiteVerifiedWithGoogle( state ),
 			isVerifyingGoogleSite: isVerifyingGoogleSite( state ),
-			userCanManageOptions: userCanManageOptions( state )
+			userCanManageOptions: userCanManageOptions( state ),
+			googleSiteVerificationError: getGoogleSiteVerificationError( state ),
 		};
 	},
 	{
 		checkVerifyStatusGoogle,
+		createNotice,
 		verifySiteGoogle,
 	}
 )( moduleSettingsForm( VerificationServicesComponent ) );

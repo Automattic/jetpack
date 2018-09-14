@@ -90,3 +90,7 @@ export function isConnectedToGoogleSiteVerificationAPI( state ) {
 export function isSiteVerifiedWithGoogle( state ) {
 	return get( state, 'jetpack.siteVerify.google.verified', false );
 }
+
+export function getGoogleSiteVerificationError( state ) {
+	return get( state, 'jetpack.siteVerify.google.error', null );
+}
