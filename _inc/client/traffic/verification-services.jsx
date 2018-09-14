@@ -263,10 +263,11 @@ class VerificationServicesComponent extends React.Component {
 								value={ this.getSiteVerificationValue( 'google' ) }
 								placeholder={ this.getMetaTag( 'google', '1234' ) }
 								className="code"
-								disabled={ this.props.isUpdating( 'google' ) || this.props.isSiteVerifiedWithGoogle }
+								disabled={ this.props.isUpdating( 'google' ) }
 								onChange={ this.props.onOptionChange } />
 							{ this.renderGoogleVerifyButton() }
 						</FormLabel>
+						<div>hello</div>
 						<FormLabel
 							className="jp-form-input-with-prefix"
 							key="verification_service_bing">
