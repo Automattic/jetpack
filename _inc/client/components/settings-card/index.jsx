@@ -193,7 +193,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Faster, more relevant and more powerful sitewide search.' ) }
+						title={ __( 'Add faster, more advanced searching to your site with Jetpack Professional.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -257,13 +257,6 @@ export const SettingsCard = props => {
 
 			case FEATURE_SEO_TOOLS_JETPACK:
 				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
-					return false;
-				}
-
-				break;
-
-			case FEATURE_SEARCH_JETPACK:
-				if ( 'is-business-plan' !== planClass ) {
 					return false;
 				}
 
