@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+- Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
 
 **Improved compatibility**
 
