@@ -280,6 +280,24 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->previous_status[ $post->ID ] = $old_status;
 	}
 
+	/*
+	 * When publishing or updating a post, the Gutenberg editor sends two requests:
+	 * 1. sent to WP REST API endpoint `wp-json/wp/v2/posts/$id`
+	 * 2. sent to wp-admin/post.php `?post=$id&action=edit&classic-editor=1&meta_box=1`
+	 *
+	 * The 2nd request is to update post meta, which is not supported on WP REST API.
+	 * When syncing post data, we will include if this was a meta box update.
+	 */
+	public function is_gutenberg_meta_box_update() {
+		return (
+			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
+			'editpost' === $_POST['action'] &&
+			'1' === $_GET['classic-editor'] &&
+			'1' === $_GET['meta_box'] &&
+			Jetpack::is_gutenberg_available()
+		);
+	}
+
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
@@ -301,7 +319,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$state = array(
 			'is_auto_save' => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
 			'previous_status' => $previous_status,
-			'just_published' => $just_published
+			'just_published' => $just_published,
+			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),
 		);
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published

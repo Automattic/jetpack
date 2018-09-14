@@ -113,6 +113,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 	}
 
+	public function test_update_post_includes_gutenberg_info_in_state() {
+		$this->post->post_content = "Updated using classic editor";
+
+		wp_update_post( $this->post );
+
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+
+		$this->assertEquals( false, $event->args[3]['is_gutenberg_meta_box_update'] );
+	}
+
 	public function test_update_post_updates_data() {
 		$this->post->post_content = "foo bar";
 
