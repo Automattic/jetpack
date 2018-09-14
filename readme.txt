@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: fix layout of legend that prompts the user to solve the math fallback so it works better in all languages.
 * Simple Payments: Stop contributors from creating inaccessible buttons with a "pending" post status.
 * Sync: avoid PHP notices when synchronizing user information.
+* VideoPress: avoid duplicate rel attributes in links.
 
 --------
 
