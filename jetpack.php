@@ -121,7 +121,7 @@ if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 }
 
-if ( JETPACK__SANDBOX_DOMAIN ) {
+if ( defined( JETPACK__SANDBOX_DOMAIN ) && JETPACK__SANDBOX_DOMAIN ) {
 	require_once( JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php' );
 }
 
