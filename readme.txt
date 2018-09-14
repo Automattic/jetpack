@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Masterbar: add link to Activity Log.
 * Search: improve the feature activation process.
 * Sync: log action when an attachment is added to a post for the first time.
+* Sync: add URL details to synchronization requests.
 
 **Improved compatibility**
 
