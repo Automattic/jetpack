@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Geo Location: only enqueue Dashicons when necessary.
 * Infinite Scroll: add a Privacy Link to the site's footer if a Privacy Policy was set up via WordPress's privacy options.
 * Protect: fix layout of legend that prompts the user to solve the math fallback so it works better in all languages.
 * Simple Payments: Stop contributors from creating inaccessible buttons with a "pending" post status.
