@@ -47,7 +47,7 @@ class Search extends React.Component {
 							activated={ module_enabled }
 							toggling={ this.props.isSavingAnyOption( 'search' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Replace WordPress built-in search with an advanced search experience' ) }
+							{ __( 'Replace WordPress built-in search with Jetpack Search, an advanced search experience' ) }
 						</ModuleToggle>
 					) }
 					{ plan_is_business && module_enabled && (

@@ -25,7 +25,7 @@ import { getPlanClass } from 'lib/plans/constants';
  */
 const renderCard = ( props ) => (
 	<DashItem
-		label={ __( 'Search' ) }
+		label={ __( 'Jetpack Search' ) }
 		module="search"
 		support={ {
 			text: __( 'Jetpack Search is a powerful replacement for the search capability built into WordPress.' ),
@@ -109,7 +109,7 @@ class DashSearch extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
-			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with an advanced search experience.', {
+			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.', {
 				components: {
 					a: <a href="javascript:void(0)" onClick={ activateSearch } />
 				}
