@@ -12,7 +12,10 @@ License: GPLv2 or later
 
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'GRUNION_RECAPTCHA_ENABLED',  ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) );
+
+if ( ! defined( 'GRUNION_RECAPTCHA_ENABLED' ) ) {
+	define( 'GRUNION_RECAPTCHA_ENABLED', false );
+}
 
 if ( is_admin() ) {
 	require_once GRUNION_PLUGIN_DIR . 'admin.php';
@@ -432,15 +435,9 @@ class Grunion_Contact_Form_Plugin {
 		$form = false;
 
 		/**
-		 * Filter for Enable/Disable reCaptcha for Contact Form.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 6.2
-		 *
-		 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
+		 * Enable/Disable reCaptcha Flag for Contact Form.
 		 */
-		$is_recaptcha_enabled = apply_filters( 'grunion_contact_form_enable_recaptcha', constant( 'GRUNION_RECAPTCHA_ENABLED' ) );
+		$is_recaptcha_enabled = constant( 'GRUNION_RECAPTCHA_ENABLED' ) && defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' );
 
 		if ( $is_recaptcha_enabled ) {
 			$recaptcha_response = $_POST['g-recaptcha-response'];
