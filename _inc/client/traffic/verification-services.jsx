@@ -84,10 +84,16 @@ class VerificationServicesComponent extends React.Component {
 	}
 
 	componentWillMount() {
-		this.checkVerifySite();
+		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
+			if ( token !== this.props.getSettingCurrentValue( 'google' ) ) {
+				return this.props.updateOptions( { google: token } );
+			}
+		} ).catch( () => {
+			// ignore error
+		} );
 	}
 
-	checkVerifySite() {
+	checkAndVerifySite() {
 		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
 			if ( token !== this.props.getSettingCurrentValue( 'google' ) ) {
 				return this.props.updateOptions( { google: token } );
@@ -108,12 +114,12 @@ class VerificationServicesComponent extends React.Component {
 
 		if ( ! this.props.isConnectedToGoogle ) {
 			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
-				this.checkVerifySite();
+				this.checkAndVerifySite();
 			} );
 			return;
 		}
 
-		this.checkVerifySite();
+		this.checkAndVerifySite();
 	};
 
 	renderGoogleVerifyButton() {
