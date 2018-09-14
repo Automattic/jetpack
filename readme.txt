@@ -108,8 +108,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-- API: add flags to determine if Jetpack Search is enabled and supported.
-- Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
+* API: add flags to determine if Jetpack Search is enabled and supported.
+* Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
+* Masterbar: add link to Activity Log.
 
 **Improved compatibility**
 
