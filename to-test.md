@@ -1,5 +1,14 @@
 ## 6.6
 
+### Infinite Scroll
+
+Infinite Scroll was not fully compatible with the Privacy options that were recently added to WordPress. We've fixed that! To test, try the following:
+
+1. Publish a privacy policy page on your site.
+2. Enable infinite scroll.
+3. Scroll down to display the infinite footer.
+4. Confirm that it now includes a link to the privacy policy page.
+
 ### Lazy Images
 
 We've made some changes to the Lazy Images feature in this release. You'll want to make sure none of the images on your site are broken after this release.
