@@ -51,6 +51,27 @@ You should follow [Jetpack’s development documentation](../docs/development-en
 
 WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
+## Environment Variables, `.env` Files, and Ports
+
+You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
+1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
+2. The containers' environments.
+
+### Host Environment
+
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 yarn docker:up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+
+* `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
+* `PORT_MYSQL`: (default=`3306`) The port on your host machine connected to the MySQL container's MySQL server.
+* `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
+* `PORT_SMTP`: (default=`25`) The port on your host machine connected to the MailDev container's SMTP server.
+* `PORT_SFTP`: (default=`1022`) The port on your host machine connected to the SFTP container's SFTP server.
+
+### Container Environments
+
+Configurable settings are documented in the [`./docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
+Customizations should go into a `./docker/.env` file you create, though, not in the `./docker/default.env` file.
+
 ## Working with containers
 
 ### Quick install WordPress

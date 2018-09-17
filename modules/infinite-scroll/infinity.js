@@ -486,6 +486,14 @@ Scroller.prototype.checkViewportOnLoad = function( ev ) {
 	ev.data.self.ensureFilledViewport();
 }
 
+function fullscreenState() {
+	return document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement
+		? 1
+		: 0;
+}
+
+var previousFullScrenState = fullscreenState();
+
 /**
  * Identify archive page that corresponds to majority of posts shown in the current browser window.
  */
@@ -496,7 +504,20 @@ Scroller.prototype.determineURL = function () {
 		windowSize   = windowBottom - windowTop,
 		setsInView   = [],
 		setsHidden   = [],
-		pageNum      = false;
+		pageNum      = false,
+		currentFullScreenState = fullscreenState();
+
+	// xor - check if the state has changed
+	if ( previousFullScrenState ^ currentFullScreenState ) {
+		// If we just switched to/from fullscreen,
+		// don't do the div clearing/caching or the
+		// URL setting. Doing so can break video playback
+		// if the video goes to fullscreen.
+
+		previousFullScrenState = currentFullScreenState;
+		return;
+	}
+	previousFullScrenState = currentFullScreenState;
 
 	// Find out which sets are in view
 	$( '.' + self.wrapperClass ).each( function() {

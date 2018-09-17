@@ -357,7 +357,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_full_sync_theme_data', $callable );
 	}
 
-	public function sync_theme_support( $new_name, $new_theme, $old_theme = null ) {
+	public function sync_theme_support( $new_name, $new_theme = null, $old_theme = null ) {
 		// Previous theme support got added in WP 4.5
 		$previous_theme = false;
 		if ( $old_theme instanceof WP_Theme ) {

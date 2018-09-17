@@ -12,24 +12,20 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
-		return add_submenu_page( null, __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'render' ) );
+		return add_submenu_page(
+			null,
+			__( 'Jetpack Settings', 'jetpack' ),
+			__( 'Settings', 'jetpack' ),
+			'jetpack_manage_modules',
+			'jetpack_modules',
+			array( $this, 'render' )
+		);
 	}
 
 	// Renders the module list table where you can use bulk action or row
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
-
-		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' );
-
-		// If static.html isn't there, there's nothing else we can do.
-		if ( false === $static_html ) {
-			echo '<p>';
-			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>yarn distclean && yarn build</code>';
-			echo '</p>';
-			return;
-		}
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
@@ -79,10 +75,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			esc_html__( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ),
 			$ie_notice
 		);
-
-		ob_start();
-
-		$this->admin_page_top();
 
 		if ( $this->is_wp_version_too_old() ) {
 			echo $version_notice;
@@ -152,17 +144,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		</div><!-- /.content -->
 		<?php
 
-		$this->admin_page_bottom();
-
-		$page_content = ob_get_contents();
-		ob_end_clean();
-
-		echo str_replace(
-			'<div class="jp-loading-placeholder"><span class="dashicons dashicons-wordpress-alt"></span></div>',
-			$page_content,
-			$static_html
-		);
-
 		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
 	}
 
@@ -172,9 +153,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function additional_styles() {
-		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	// Javascript logic specific to the list table
