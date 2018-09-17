@@ -76,6 +76,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		}
 
 		self::cdnize_plugin_assets( 'jetpack', JETPACK__VERSION );
+		if ( class_exists( 'WooCommerce' ) ) {
+			self::cdnize_plugin_assets( 'woocommerce', WC_VERSION );
+		}
 	}
 
 	/**
