@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d22726b56e9e3c20f584ec4a2b981e6",
+    "content-hash": "f3b00fd8363dadbab93a2acf60c059ff",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,16 +30,16 @@
         },
         {
             "name": "automattic/calypsoify",
-            "version": "v0.1.4",
+            "version": "v0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/calypsoify",
-                "reference": "4749985c6564842e163ab12200af1b35935634a6"
+                "reference": "03fdbb85ba07ed25135b45fc70b444d21521f90c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/calypsoify/zipball/4749985c6564842e163ab12200af1b35935634a6",
-                "reference": "4749985c6564842e163ab12200af1b35935634a6",
+                "url": "https://api.github.com/repos/Automattic/calypsoify/zipball/03fdbb85ba07ed25135b45fc70b444d21521f90c",
+                "reference": "03fdbb85ba07ed25135b45fc70b444d21521f90c",
                 "shasum": ""
             },
             "type": "library",
@@ -48,7 +48,7 @@
                     "index.php"
                 ]
             },
-            "time": "2018-08-02T18:46:02+00:00"
+            "time": "2018-09-11T11:28:26+00:00"
         },
         {
             "name": "automattic/custom-fonts",
