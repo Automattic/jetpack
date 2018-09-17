@@ -613,9 +613,10 @@ function sharing_add_footer() {
 
 		wp_enqueue_script( 'sharing-js' );
 		$sharing_js_options = array(
-			'lang'   => get_base_recaptcha_lang_code(),
+			'lang'            => get_base_recaptcha_lang_code(),
 			/** This filter is documented in modules/sharedaddy/sharing-service.php */
-			'counts' => apply_filters( 'jetpack_sharing_counts', true ),
+			'counts'          => apply_filters( 'jetpack_sharing_counts', true ),
+			'is_stats_active' => Jetpack::is_module_active( 'stats' ),
 		);
 		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options );
 	}
