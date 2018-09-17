@@ -60,6 +60,16 @@ export const verifySiteGoogle = () => {
 				error: error.response,
 			} );
 
+			dispatch( createNotice(
+				'is-error',
+				__( 'There was an error trying to verify your site. %(error)s', {
+					args: {
+						error: error
+					}
+				} ),
+				{ id: 'verify-site-google-verify-fail' }
+			) );
+
 			return Promise.reject( error.response );
 		} );
 	};
