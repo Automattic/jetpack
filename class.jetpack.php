@@ -7379,17 +7379,17 @@ p {
 		);
 
 		 wp_register_script(
-		   'jetpack-blocks-view',
-		   $block_script,
-		   array(),
-		   $version
+			'jetpack-blocks-view',
+			$view_script,
+			array(),
+			$version
 		 );
 
 		 wp_register_style(
-		   'jetpack-blocks-view',
-		   $block_style,
-		   array(),
-		   $version
+			'jetpack-blocks-view',
+			$view_style,
+			array(),
+			$version
 		 );
 
 		register_block_type( 'jetpack/blocks', array(
