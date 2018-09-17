@@ -25,6 +25,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function go() {
 		add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_print_styles', array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'admin_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'admin_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
 	}
 
