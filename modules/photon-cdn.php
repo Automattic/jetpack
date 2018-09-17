@@ -196,6 +196,10 @@ class Jetpack_Photon_Static_Assets_CDN {
 			return $assets;
 		}
 
+		if ( ! self::is_public_version( $version ) ) {
+			return false;
+		}
+
 		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
 		if ( isset( $cache[ $plugin ][ $version ] ) ) {
 			return $cache[ $plugin ][ $version ];
