@@ -196,6 +196,21 @@ class Jetpack_Photon_Static_Assets_CDN {
 			return $assets;
 		}
 
+		/**
+		 * Used for other plugins to provide their bundled assets via filter to
+		 * prevent the need of storing them in an option or an external api request
+		 * to w.org.
+		 *
+		 * @since 6.6
+		 *
+		 * @param array $assets The assets array for the plugin.
+		 * @param string $version The version of the plugin being requested.
+		 */
+		$assets = apply_filters( "jetpack_cdn_plugin_assets-{$plugin}", null, $version );
+		if ( is_array( $assets ) ) {
+			return $assets;
+		}
+
 		if ( ! self::is_public_version( $version ) ) {
 			return false;
 		}
