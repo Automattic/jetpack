@@ -106,7 +106,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$assets               = self::get_plugin_assets( $plugin_slug, $current_version );
 		$plugin_directory_url = plugins_url() . '/' . $plugin_slug . '/';
 
-		if ( is_wp_error( $assets ) ) {
+		if ( is_wp_error( $assets ) || ! is_array( $assets ) ) {
 			return false;
 		}
 
@@ -217,7 +217,15 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
 		if ( isset( $cache[ $plugin ][ $version ] ) ) {
-			return $cache[ $plugin ][ $version ];
+			if ( is_array( $cache[ $plugin ][ $version ] ) ) {
+				return $cache[ $plugin ][ $version ];
+			}
+			if ( is_numeric( $cache[ $plugin ][ $version ] ) ) {
+				// Cache an empty result for up to 24h.
+				if ( intval( $cache[ $plugin ][ $version ] ) + DAY_IN_SECONDS > time() ) {
+					return array();
+				}
+			}
 		}
 
 		$url = sprintf( 'http://downloads.wordpress.org/plugin-checksums/%s/%s.json', $plugin, $version );
@@ -231,11 +239,10 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$body = trim( wp_remote_retrieve_body( $response ) );
 		$body = json_decode( $body, true );
 
-		if ( ! is_array( $body ) ) {
-			return array();
+		$return = time();
+		if ( is_array( $body ) ) {
+			$return = array_filter( array_keys( $body['files'] ), array( __CLASS__, 'is_js_or_css_file' ) );
 		}
-
-		$return = array_filter( array_keys( $body['files'] ), array( __CLASS__, 'is_js_or_css_file' ) );
 
 		$cache[ $plugin ]             = array();
 		$cache[ $plugin ][ $version ] = $return;
