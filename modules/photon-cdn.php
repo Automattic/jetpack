@@ -19,12 +19,18 @@ Jetpack::dns_prefetch( array(
 class Jetpack_Photon_Static_Assets_CDN {
 	const CDN = 'https://c0.wp.com/';
 
+	/**
+	 * Sets up action handlers needed for Jetpack CDN.
+	 */
 	public static function go() {
 		add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
-		add_action( 'wp_print_styles',  array( __CLASS__, 'cdnize_assets' ) );
-		add_action( 'wp_footer',        array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'wp_print_styles', array( __CLASS__, 'cdnize_assets' ) );
+		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
 	}
 
+	/**
+	 * Sets up CDN URLs for assets that are enqueued by the WordPress Core.
+	 */
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles, $wp_version;
 
@@ -50,8 +56,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( in_array( $src, $known_core_files ) ) {
-					$wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $version, $src );
+				if ( in_array( $src, $known_core_files, true ) ) {
+					$wp_scripts->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
 			}
@@ -60,8 +66,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( in_array( $src, $known_core_files ) ) {
-					$wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'c/%1$s/%2$s', $version, $src );
+				if ( in_array( $src, $known_core_files, true ) ) {
+					$wp_styles->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
 			}
@@ -70,6 +76,13 @@ class Jetpack_Photon_Static_Assets_CDN {
 		self::cdnize_plugin_assets( 'jetpack', JETPACK__VERSION );
 	}
 
+	/**
+	 * Sets up CDN URLs for supported plugin assets.
+	 *
+	 * @param String $plugin_slug plugin slug string.
+	 * @param String $current_version plugin version string.
+	 * @return null|bool
+	 */
 	public static function cdnize_plugin_assets( $plugin_slug, $current_version ) {
 		global $wp_scripts, $wp_styles;
 
@@ -88,7 +101,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			array( $plugin_slug, $current_version )
 		);
 
-		$assets = self::get_plugin_assets( $plugin_slug, $current_version );
+		$assets               = self::get_plugin_assets( $plugin_slug, $current_version );
 		$plugin_directory_url = plugins_url() . '/' . $plugin_slug . '/';
 
 		if ( is_wp_error( $assets ) ) {
@@ -101,8 +114,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
-				if ( in_array( $local_path, $assets ) ) {
-					$wp_scripts->registered[ $handle ]->src = sprintf(self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+				if ( in_array( $local_path, $assets, true ) ) {
+					$wp_scripts->registered[ $handle ]->src = sprintf( self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
 			}
@@ -113,8 +126,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 			if ( wp_startswith( $thing->src, $plugin_directory_url ) ) {
 				$local_path = substr( $thing->src, strlen( $plugin_directory_url ) );
-				if ( in_array( $local_path, $assets ) ) {
-					$wp_styles->registered[ $handle ]->src = sprintf(self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
+				if ( in_array( $local_path, $assets, true ) ) {
+					$wp_styles->registered[ $handle ]->src = sprintf( self::CDN . 'p/%1$s/%2$s/%3$s', $plugin_slug, $current_version, $local_path );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
 			}
@@ -124,8 +137,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 	/**
 	 * Returns cdn-able assets for core.
 	 *
-	 * @param null $version
-	 * @param null $locale
+	 * @param String $version Core version number string.
+	 * @param String $locale locale string, for example, en_US.
 	 * @return array|bool
 	 */
 	public static function get_core_assets( $version = null, $locale = null ) {
@@ -147,7 +160,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			return $cache['core'][ $version ][ $locale ];
 		}
 
-		require_once( ABSPATH . 'wp-admin/includes/update.php' );
+		require_once ABSPATH . 'wp-admin/includes/update.php';
 		$checksums = get_core_checksums( $version, $locale );
 
 		if ( empty( $checksums ) ) {
@@ -157,7 +170,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$return = array_filter( array_keys( $checksums ), array( __CLASS__, 'is_js_or_css_file' ) );
 
 		if ( ! isset( $cache['core'][ $version ] ) ) {
-			$cache['core'] = array();
+			$cache['core']             = array();
 			$cache['core'][ $version ] = array();
 		}
 		$cache['core'][ $version ][ $locale ] = $return;
@@ -169,13 +182,15 @@ class Jetpack_Photon_Static_Assets_CDN {
 	/**
 	 * Returns cdn-able assets for a given plugin.
 	 *
-	 * @param string $plugin
-	 * @param string $version
+	 * @param string $plugin plugin slug string.
+	 * @param string $version plugin version number string.
 	 * @return array
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
 		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
-			include( JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php' );
+			$assets = array(); // The variable will be redefined in the included file.
+
+			include JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php';
 			return $assets;
 		}
 
@@ -195,32 +210,45 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$body = trim( wp_remote_retrieve_body( $response ) );
 		$body = json_decode( $body, true );
 
-		if( ! is_array( $body ) ) {
+		if ( ! is_array( $body ) ) {
 			return array();
 		}
 
 		$return = array_filter( array_keys( $body['files'] ), array( __CLASS__, 'is_js_or_css_file' ) );
 
-		$cache[ $plugin ] = array();
+		$cache[ $plugin ]             = array();
 		$cache[ $plugin ][ $version ] = $return;
 		Jetpack_Options::update_option( 'static_asset_cdn_files', $cache, true );
 
 		return $return;
 	}
 
+	/**
+	 * Checks a path whether it is a JS or CSS file.
+	 *
+	 * @param String $path file path.
+	 * @return Boolean whether the file is a JS or CSS.
+	 */
 	public static function is_js_or_css_file( $path ) {
-		return in_array( substr( $path, -3 ), array( 'css', '.js' ) );
+		return in_array( substr( $path, -3 ), array( 'css', '.js' ), true );
 	}
 
+	/**
+	 * Checks whether the version string indicates a production version.
+	 *
+	 * @param String  $version the version string.
+	 * @param Boolean $include_beta_and_rc whether to count beta and RC versions as production.
+	 * @return Boolean
+	 */
 	public static function is_public_version( $version, $include_beta_and_rc = false ) {
 		if ( preg_match( '/^\d+(\.\d+)+$/', $version ) ) {
-			// matches `1` `1.2` `1.2.3`
+			// matches `1` `1.2` `1.2.3`.
 			return true;
 		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc)\d?)$/i', $version ) ) {
-			// matches `1.2.3` `1.2.3-beta` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`
+			// matches `1.2.3` `1.2.3-beta` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
 			return true;
 		}
-		// unrecognized version
+		// unrecognized version.
 		return false;
 	}
 }
