@@ -48,7 +48,7 @@ exclude_paths:
   - "**.travis.yml"
   - "**.npmrc"
   - "**.gitignore"
-  - "**.eslintrc"
+  - "**.eslintrc.js"
   - "**.editorconfig"
   - "**.pot"
   - "**.txt"

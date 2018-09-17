@@ -1,4 +1,4 @@
-{
+module.exports = {
 	"parser": "babel-eslint",
 	"extends": "wpcalypso/react-a11y",
 	"env": {
