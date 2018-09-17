@@ -60,6 +60,8 @@ class Jetpack {
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
+		'jetpack-widget-social-icons-styles',
+		'jetpack-authors-widget',
 	);
 
 	/**
