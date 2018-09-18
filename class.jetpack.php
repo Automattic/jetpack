@@ -7320,7 +7320,7 @@ p {
 		 *
 		 * @param bool false Whether to load Gutenberg blocks
 		 */
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
+		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
 
@@ -7331,7 +7331,7 @@ p {
 		 *
 		 * @param bool true Whether to load Gutenberg blocks from CDN
 		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
+		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
 			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
 
@@ -7348,6 +7348,9 @@ p {
 			$editor_style = plugins_url( '_inc/blocks/jetpack-editor.css', JETPACK__PLUGIN_FILE );
 			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
 		}
+
+		$block_script = plugins_url( '_inc/blocks/jetpack-block.js', JETPACK__PLUGIN_FILE );
+		$block_style = plugins_url( '_inc/blocks/jetpack-block.css', JETPACK__PLUGIN_FILE );
 
 		wp_register_script(
 			'jetpack-blocks-editor',
@@ -7372,7 +7375,23 @@ p {
 			$version
 		);
 
+		wp_register_script(
+			'jetpack-blocks',
+			$block_script,
+			array(),
+			$version
+		);
+
+		wp_register_style(
+			'jetpack-blocks',
+			$block_style,
+			array(),
+			$version
+		);
+
 		register_block_type( 'jetpack/blocks', array(
+				'script'        => 'jetpack-blocks',
+				'style'         => 'jetpack-blocks',
 				'editor_script' => 'jetpack-blocks-editor',
 				'editor_style'  => 'jetpack-blocks-editor',
 		) );
