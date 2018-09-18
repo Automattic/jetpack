@@ -570,6 +570,7 @@ class Jetpack_Portfolio {
 			'showposts'       => -1,
 			'order'           => 'asc',
 			'orderby'         => 'date',
+			'size'		      => 'thumbnail',
 		), $atts, 'portfolio' );
 
 		// A little sanitization
@@ -629,6 +630,7 @@ class Jetpack_Portfolio {
 				$atts['orderby'] = implode( ' ', $parsed );
 			}
 		}
+        	$atts['size'] = sanitize_html_class( $atts['size'] );
 
 		// enqueue shortcode styles when shortcode is used
 		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
@@ -716,7 +718,7 @@ class Jetpack_Portfolio {
 					<header class="portfolio-entry-header">
 					<?php
 					// Featured image
-					echo self::get_portfolio_thumbnail_link( $post_id );
+					echo self::get_portfolio_thumbnail_link( $post_id, $atts['size'] );
 					?>
 
 					<h2 class="portfolio-entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></h2>
@@ -907,7 +909,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @return html
 	 */
-	static function get_portfolio_thumbnail_link( $post_id ) {
+	static function get_portfolio_thumbnail_link( $post_id, $size = 'thumbnail' ) {
 		if ( has_post_thumbnail( $post_id ) ) {
 			/**
 			 * Change the Portfolio thumbnail size.
@@ -918,7 +920,7 @@ class Jetpack_Portfolio {
 			 *
 			 * @param string|array $var Either a registered size keyword or size array.
 			 */
-			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_portfolio_thumbnail_size', 'large' ) ) . '</a>';
+			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_portfolio_thumbnail_size', $size ) ) . '</a>';
 		}
 	}
 }
