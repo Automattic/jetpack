@@ -224,8 +224,8 @@ class PlanBody extends React.Component {
 						( 'is-business-plan' === planClass ) && ! this.props.getModuleOverride( 'search' ) &&
 						( 'inactive' !== this.props.getModuleOverride( 'search' ) ) && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Search' ) }</h3>
-								<p>{ __( 'Replace the default WordPress search with better results that will help your users find what they are looking for.' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Search' ) }</h3>
+								<p>{ __( 'Replace the built-in search with a fast, scalable, customizable, and highly-relevant search hosted in the WordPress.com cloud.' ) }</p>
 								{
 									this.props.isModuleActivated( 'search' ) ? (
 										<Button onClick={ this.handleButtonClickForTracking( 'search_customize' ) } href={ this.props.siteAdminUrl + 'widgets.php' } className="is-primary">
