@@ -111,9 +111,9 @@ class Publicize_UI {
 			<p><?php
 
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$platform =  __( 'WordPress.com', 'jetpack' );
+				$platform =  'WordPress.com';
 			} else {
-				$platform = __( 'Jetpack', 'jetpack' );
+				$platform = 'Jetpack';
 			}
 
 			printf(
