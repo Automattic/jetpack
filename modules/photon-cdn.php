@@ -38,8 +38,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles, $wp_version;
 
-		$known_core_files = self::get_core_assets();
-
 		/**
 		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
 		 * that Jetpack uses to retrieve assets. Expects the values to be returned in an array.
@@ -53,14 +51,14 @@ class Jetpack_Photon_Static_Assets_CDN {
 			array( $wp_version, get_locale() )
 		);
 
-		if ( ! empty( $known_core_files ) && is_array( $known_core_files ) ) {
+		if ( self::is_public_version( $version ) ) {
 			$site_url = trailingslashit( site_url() );
 			foreach ( $wp_scripts->registered as $handle => $thing ) {
 				if ( wp_startswith( $thing->src, self::CDN ) ) {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( in_array( $src, $known_core_files, true ) ) {
+				if ( in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ) ) ) {
 					$wp_scripts->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_scripts->registered[ $handle ]->ver = null;
 				}
@@ -70,7 +68,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 					continue;
 				}
 				$src = ltrim( str_replace( $site_url, '', $thing->src ), '/' );
-				if ( in_array( $src, $known_core_files, true ) ) {
+				if ( in_array( substr( $src, 0, 9 ), array( 'wp-admin/', 'wp-includ' ) ) ) {
 					$wp_styles->registered[ $handle ]->src = sprintf( self::CDN . 'c/%1$s/%2$s', $version, $src );
 					$wp_styles->registered[ $handle ]->ver = null;
 				}
@@ -139,51 +137,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Returns cdn-able assets for core.
-	 *
-	 * @param String $version Core version number string.
-	 * @param String $locale locale string, for example, en_US.
-	 * @return array|bool
-	 */
-	public static function get_core_assets( $version = null, $locale = null ) {
-		if ( empty( $version ) ) {
-			$version = $GLOBALS['wp_version'];
-		}
-		if ( empty( $locale ) ) {
-			$locale = get_locale();
-		}
-
-		/** This filter is already documented in modules/photon-cdn.php */
-		list( $version, $locale ) = apply_filters(
-			'jetpack_cdn_core_version_and_locale',
-			array( $version, $locale )
-		);
-
-		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
-		if ( isset( $cache['core'][ $version ][ $locale ] ) ) {
-			return $cache['core'][ $version ][ $locale ];
-		}
-
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-		$checksums = get_core_checksums( $version, $locale );
-
-		if ( empty( $checksums ) ) {
-			return false;
-		}
-
-		$return = array_filter( array_keys( $checksums ), array( __CLASS__, 'is_js_or_css_file' ) );
-
-		if ( ! isset( $cache['core'][ $version ] ) ) {
-			$cache['core']             = array();
-			$cache['core'][ $version ] = array();
-		}
-		$cache['core'][ $version ][ $locale ] = $return;
-		Jetpack_Options::update_option( 'static_asset_cdn_files', $cache, true );
-
-		return $return;
 	}
 
 	/**
