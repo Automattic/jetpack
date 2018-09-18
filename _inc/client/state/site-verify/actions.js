@@ -32,6 +32,8 @@ export const checkVerifyStatusGoogle = () => {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,
 				error: error.response,
 			} );
+
+			return error.response;
 		} );
 	};
 };
@@ -57,6 +59,8 @@ export const verifySiteGoogle = () => {
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
 				error: error.response,
 			} );
+
+			return error.response;
 		} );
 	};
 };

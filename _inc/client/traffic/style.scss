@@ -1,9 +1,37 @@
 @import "../scss/variables/_colors";
 
-.jp-form-suffix-site-verification-verified {
+.jp-form-google-label-unverified {
+	.dops-button {
+		margin: 0 15px;
+	}
+
+	.jp-form-google-separator {
+		padding: .5rem 0;
+	}
+}
+
+.jp-form-site-verification-verified {
+	background-color: $white;
 	color: $green-primary;
+	display: inline-block;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 7px 14px;
+	font-size: 16px;
+	line-height: 1.5;
+	border: 1px solid #c8d7e1;
+	width: 100%;
 
 	.gridicon:first-child {
 		margin-right: 5px;
 	}
+}
+
+.jp-form-site-verification-edit-button {
+	margin-left: 10px;
+	overflow: visible;
+}
+
+.jp-form-site-verification-verified-note {
+	font-size: 0.7em;
 }
