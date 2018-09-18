@@ -31,6 +31,9 @@
 	text-decoration: none;
 	width: auto;
 }
+.tiled-gallery .tiled-gallery-item figure {
+	margin: 0;
+}
 .tiled-gallery .tiled-gallery-item img,
 .tiled-gallery .tiled-gallery-item img:hover { /* Needs to reset some properties for theme compatibility */
 	background: none;
