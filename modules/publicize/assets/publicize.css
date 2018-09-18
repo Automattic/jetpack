@@ -49,11 +49,6 @@ div#tumblr:before {
 	content: '\f214';
 }
 
-div#path:before {
-	color: #df3b2f;
-	content: '\f219';
-}
-
 div#google_plus:before {
 	color: #dd4b39;
 	content: '\f206';
