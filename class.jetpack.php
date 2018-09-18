@@ -7352,7 +7352,7 @@ p {
 			$editor_style = plugins_url( "_inc/blocks/jetpack-editor$rtl.css", JETPACK__PLUGIN_FILE );
 			$view_script = plugins_url( '_inc/blocks/jetpack-view.js', JETPACK__PLUGIN_FILE );
 			$view_style = plugins_url( "_inc/blocks/jetpack-view$rtl.css", JETPACK__PLUGIN_FILE );
-			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
+			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
 		}
 
 		wp_register_script(
