@@ -99,6 +99,7 @@ body div.slideshow-window * img {
 	-webkit-transition: 300ms opacity ease-out;
 	-moz-transition: 300ms opacity ease-out;
 	transition: 300ms opacity ease-out;
+	direction: ltr;
 }
 
 .slideshow-window:hover .slideshow-controls {
