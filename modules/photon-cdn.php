@@ -12,6 +12,8 @@
  * Additional Search Queries: photon, image, cdn, performance, speed, assets
  */
 
+$GLOBALS['concatenate_scripts'] = false;
+
 Jetpack::dns_prefetch( array(
 	'//c0.wp.com',
 ) );
