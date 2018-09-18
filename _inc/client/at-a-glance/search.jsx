@@ -25,10 +25,10 @@ import { getPlanClass } from 'lib/plans/constants';
  */
 const renderCard = ( props ) => (
 	<DashItem
-		label={ __( 'Search' ) }
+		label={ __( 'Jetpack Search' ) }
 		module="search"
 		support={ {
-			text: __( 'Jetpack’s Search module is a powerful replacement for the search capability built into WordPress.' ),
+			text: __( 'Jetpack Search is a powerful replacement for the search capability built into WordPress.' ),
 			link: 'https://jetpack.com/support/search/',
 		} }
 		className={ props.className }
@@ -73,7 +73,7 @@ class DashSearch extends Component {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
-				content: __( 'Give your visitors {{a}}a great search experience{{/a}}.', {
+				content: __( 'Replace the built-in search with a fast, scalable, customizable, and highly-relevant search {{a}}hosted in the WordPress.com cloud{{/a}}.', {
 					components: {
 						a: <a
 							href={ 'https://jetpack.com/features/design/elasticsearch-powered-search/' }
@@ -91,7 +91,7 @@ class DashSearch extends Component {
 					label={ __( 'Search' ) }
 					module="search"
 					support={ {
-						text: __( 'Jetpack’s Search module is a powerful replacement for the search capability built into WordPress.' ),
+						text: __( 'Jetpack Search is a powerful replacement for the search capability built into WordPress.' ),
 						link: 'https://jetpack.com/support/search/',
 					} }
 					className="jp-dash-item__is-active"
@@ -109,7 +109,7 @@ class DashSearch extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
-			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with an improved search experience.', {
+			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.', {
 				components: {
 					a: <a href="javascript:void(0)" onClick={ activateSearch } />
 				}

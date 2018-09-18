@@ -65,13 +65,6 @@ export class Traffic extends React.Component {
 			<div>
 				<QuerySite />
 				{
-					foundStats && (
-						<SiteStats
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
 					foundSearch && (
 						<Search
 							{ ...commonProps }
@@ -110,6 +103,13 @@ export class Traffic extends React.Component {
 						<GoogleAnalytics
 							{ ...commonProps }
 							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics' }
+						/>
+					)
+				}
+				{
+					foundStats && (
+						<SiteStats
+							{ ...commonProps }
 						/>
 					)
 				}
