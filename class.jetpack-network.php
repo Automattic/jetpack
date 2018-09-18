@@ -201,7 +201,7 @@ class Jetpack_Network {
 		$wp_admin_bar->add_node( array(
 			'parent' => 'network-admin',
 			'id'     => 'network-admin-jetpack',
-			'title'  => __( 'Jetpack', 'jetpack' ),
+			'title'  => 'Jetpack',
 			'href'   => $this->get_url( 'network_admin_page' ),
 		) );
 	}
@@ -267,7 +267,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
+		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
 		$jetpack_sites_page_hook = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
 		add_action( "admin_print_styles-$jetpack_sites_page_hook",  array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
