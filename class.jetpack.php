@@ -7295,10 +7295,10 @@ p {
 	 *
 	 *
 	 * Loading blocks is disabled by default and enabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+	 *   add_filter( 'jetpack_gutenberg', '__return_true' );
 	 *
 	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
-	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
 	 *
 	 * Note that when loaded locally, you need to build the files yourself:
 	 * - _inc/blocks/jetpack-editor.js
@@ -7334,10 +7334,10 @@ p {
 		 */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
 			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
-			$editor_script = "$cdn_base/jetpack-editor.js";
-			$editor_style = "$cdn_base/jetpack-editor$rtl.css";
-			$view_script = "$cdn_base/jetpack-view.js";
-			$view_style = "$cdn_base/jetpack-view$rtl.css";
+			$editor_script = "$cdn_base/editor.js";
+			$editor_style = "$cdn_base/editor$rtl.css";
+			$view_script = "$cdn_base/view.js";
+			$view_style = "$cdn_base/view$rtl.css";
 
 			/**
 			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
@@ -7348,11 +7348,13 @@ p {
 			 */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
-			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style = plugins_url( "_inc/blocks/jetpack-editor$rtl.css", JETPACK__PLUGIN_FILE );
-			$view_script = plugins_url( '_inc/blocks/jetpack-view.js', JETPACK__PLUGIN_FILE );
-			$view_style = plugins_url( "_inc/blocks/jetpack-view$rtl.css", JETPACK__PLUGIN_FILE );
-			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
+			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
+			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
+			$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
+			$view_style = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
+			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+				: JETPACK__VERSION;
 		}
 
 		wp_register_script(
