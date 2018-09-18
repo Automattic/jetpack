@@ -10,10 +10,17 @@
 	}
 }
 
+
+// we want to place.jp-form-input-with-prefix's margin after this element
+.jp-form-input-with-prefix-bottom-message {
+	top: rem( -24px );
+	position: relative;
+}
+
+
 .jp-form-site-verification-verified {
 	background-color: $white;
 	color: $green-primary;
-	display: inline-block;
 	box-sizing: border-box;
 	margin: 0;
 	padding: 7px 14px;
@@ -21,6 +28,10 @@
 	line-height: 1.5;
 	border: 1px solid #c8d7e1;
 	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
 
 	.gridicon:first-child {
 		margin-right: 5px;

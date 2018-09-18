@@ -133,11 +133,11 @@ class GoogleVerificationServiceComponent extends React.Component {
 						className="jp-form-input-with-prefix"
 						key="verification_service_google">
 						<span>{ __( 'Google' ) }</span>
-						<span className="jp-form-site-verification-verified">
+						<div className="jp-form-site-verification-verified">
 							<Gridicon icon="checkmark-circle" size={ 20 } />
 							{ ' ' }
-							{ __( 'Your site is verified with Google' ) }
-						</span>
+							<span>{ __( 'Your site is verified with Google' ) }</span>
+						</div>
 						<Button
 							type="button"
 							className="jp-form-site-verification-edit-button"
@@ -145,7 +145,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							{ __( 'Edit' ) }
 						</Button>
 					</div>
-					<div>
+					<div className="jp-form-input-with-prefix-bottom-message" >
 						{
 							__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}", {
 								components: {
