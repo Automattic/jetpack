@@ -9,10 +9,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	protected $is_redirecting = false;
 
 	function get_page_hook() {
-		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
-
 		// Add the main admin Jetpack menu
-		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
+		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {

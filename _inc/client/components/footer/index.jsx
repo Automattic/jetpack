@@ -160,7 +160,7 @@ export class Footer extends React.Component {
 							{
 								version
 									? __( 'Jetpack version %(version)s', { args: { version } } )
-									: __( 'Jetpack' )
+									: 'Jetpack'
 							}
 						</a>
 					</li>
