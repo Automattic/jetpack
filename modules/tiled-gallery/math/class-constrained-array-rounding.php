@@ -36,8 +36,8 @@ class Jetpack_Constrained_Array_Rounding {
 
 	private static function get_int_floor_array( $bound_array ) {
 		$bound_array_int_floor = array();
-		foreach ( $bound_array as $i => $value ){
-			$bound_array_int_floor[$i] = array(
+		foreach ( $bound_array as $i => $value ) {
+			$bound_array_int_floor[ $i ] = array(
 				'floor'    => (int) floor( $value ),
 				'fraction' => $value - floor( $value ),
 				'index'    => $i,
@@ -50,8 +50,8 @@ class Jetpack_Constrained_Array_Rounding {
 	private static function adjust_constrained_array( &$bound_array_int, $adjustment ) {
 		usort( $bound_array_int, array( 'self', 'cmp_desc_fraction' ) );
 
-		$start = 0;
-		$end = $adjustment - 1;
+		$start  = 0;
+		$end    = $adjustment - 1;
 		$length = count( $bound_array_int );
 
 		for ( $i = $start; $i <= $end; $i++ ) {
@@ -62,14 +62,16 @@ class Jetpack_Constrained_Array_Rounding {
 	}
 
 	private static function cmp_desc_fraction( $a, $b ) {
-		if ( $a['fraction'] == $b['fraction'] )
+		if ( $a['fraction'] == $b['fraction'] ) {
 			return 0;
+		}
 		return $a['fraction'] > $b['fraction'] ? -1 : 1;
 	}
 
 	private static function cmp_asc_index( $a, $b ) {
-		if ( $a['index'] == $b['index'] )
+		if ( $a['index'] == $b['index'] ) {
 			return 0;
+		}
 		return $a['index'] < $b['index'] ? -1 : 1;
 	}
 }

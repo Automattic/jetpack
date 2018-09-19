@@ -3,7 +3,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	static $shapes_used = array();
 
 	public function __construct( $images ) {
-		$this->images = $images;
+		$this->images      = $images;
 		$this->images_left = count( $images );
 	}
 
@@ -48,7 +48,7 @@ class Jetpack_Tiled_Gallery_Three extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 1, 1 );
 
 	public function is_possible() {
-		$ratio = $this->sum_ratios( 3 );
+		$ratio             = $this->sum_ratios( 3 );
 		$has_enough_images = $this->images_left >= 3 && ! in_array( $this->images_left, array( 4, 6 ) );
 		return $has_enough_images && $this->is_not_as_previous( 3 ) &&
 			( ( $ratio < 2.5 ) || ( $ratio < 5 && $this->next_images_are_symmetric() ) || $this->is_wide_theme() );
@@ -173,9 +173,9 @@ class Jetpack_Tiled_Gallery_Three_Columns extends Jetpack_Tiled_Gallery_Shape {
 	public function __construct( $images ) {
 		parent::__construct( $images );
 
-		$total_ratio = $this->sum_ratios( $this->images_left );
+		$total_ratio              = $this->sum_ratios( $this->images_left );
 		$approximate_column_ratio = $total_ratio / 3;
-		$column_one_images = $column_two_images = $column_three_images = $sum = 0;
+		$column_one_images        = $column_two_images = $column_three_images = $sum = 0;
 
 		foreach ( $this->images as $image ) {
 			if ( $sum <= $approximate_column_ratio ) {
