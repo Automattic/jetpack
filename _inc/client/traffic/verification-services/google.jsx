@@ -40,7 +40,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	componentDidMount() {
 		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
-			if ( token !== this.props.value ) {
+			if ( ! this.props.getOptionValue( 'google' ) && token ) {
 				return this.props.updateOptions( { google: token } );
 			}
 		} );
