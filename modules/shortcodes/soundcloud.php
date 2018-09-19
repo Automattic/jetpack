@@ -27,7 +27,8 @@ All custom modifs are annoted with "A8C" keyword in comment.
  * Register oEmbed provider
  */
 
-/* A8C: oEmbed is handled now in core; see wp-includes/class-oembed.php
+/*
+ A8C: oEmbed is handled now in core; see wp-includes/class-oembed.php
 wp_oembed_add_provider( '#https?://(?:api\.)?soundcloud\.com/.*#i', 'http://soundcloud.com/oembed', true );
 */
 
@@ -59,8 +60,9 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	}
 	$shortcode_options['params'] = $shortcode_params;
 
-	/* A8C: The original plugin exposes options we don't. SoundCloud omits "visual" shortcode
-	        option when false, so if logic here remains, impossible to have non-visual shortcode.
+	/*
+	 A8C: The original plugin exposes options we don't. SoundCloud omits "visual" shortcode
+			option when false, so if logic here remains, impossible to have non-visual shortcode.
 	$player_type = soundcloud_get_option( 'player_type', 'visual' );
 	$isIframe    = $player_type !== 'flash';
 	$isVisual    = ! $player_type || $player_type === 'visual' || $shortcode_options['visual'];
@@ -128,7 +130,8 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	$options['params'] = array_merge(
 		array(
 			'url' => $options['url'],
-		), $options['params']
+		),
+		$options['params']
 	);
 
 	// Return html embed code
@@ -232,12 +235,20 @@ function soundcloud_flash_widget( $options ) {
 	$height = isset( $options['height'] ) && $options['height'] !== 0 ? $options['height'] : ( soundcloud_url_has_tracklist( $options['url'] ) ? '255' : '81' );
 
 	return preg_replace(
-		'/\s\s+/', '', sprintf(
+		'/\s\s+/',
+		'',
+		sprintf(
 			'<object width="%s" height="%s">
 				<param name="movie" value="%s" />
 				<param name="allowscriptaccess" value="always" />
 				<embed width="%s" height="%s" src="%s" allowscriptaccess="always" type="application/x-shockwave-flash"></embed>
-			</object>', $width, $height, $url, $width, $height, $url
+			</object>',
+			$width,
+			$height,
+			$url,
+			$width,
+			$height,
+			$url
 		)
 	);
 }
@@ -257,7 +268,8 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 		return $content;
 	}
 
-	/* Sample embed code:
+	/*
+	 Sample embed code:
 
 		<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/150745932&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
 	*/

@@ -57,6 +57,8 @@ class Jetpack_Shortcode_Unavailable {
 	}
 }
 
-new Jetpack_Shortcode_Unavailable( array(
-	'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
-) );
+new Jetpack_Shortcode_Unavailable(
+	array(
+		'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
+	)
+);

@@ -22,12 +22,12 @@ add_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_lin
  */
 
 class Filter_Embedded_HTML_Objects {
-	static public $strpos_filters = array();
-	static public $regexp_filters = array();
-	static public $current_element = false;
+	static public $strpos_filters      = array();
+	static public $regexp_filters      = array();
+	static public $current_element     = false;
 	static public $html_strpos_filters = array();
 	static public $html_regexp_filters = array();
-	static public $failed_embeds = array();
+	static public $failed_embeds       = array();
 
 	/**
 	 * Store tokens found in Syntax Highlighter.
@@ -47,13 +47,13 @@ class Filter_Embedded_HTML_Objects {
 	 *
 	 * @return string
 	 */
-	static public function sh_regexp_callback( $match ) {
-		$token = '[prekses-filter-token-' . mt_rand() . '-' . md5( $match[0] ) . '-' . mt_rand() . ']';
-		self::$sh_unfiltered_content_tokens[$token] = $match[0];
+	public static function sh_regexp_callback( $match ) {
+		$token                                        = '[prekses-filter-token-' . mt_rand() . '-' . md5( $match[0] ) . '-' . mt_rand() . ']';
+		self::$sh_unfiltered_content_tokens[ $token ] = $match[0];
 		return $token;
 	}
 
-	static public function filter( $html ) {
+	public static function filter( $html ) {
 		if ( ! $html || ! is_string( $html ) ) {
 			return $html;
 		}
@@ -66,21 +66,22 @@ class Filter_Embedded_HTML_Objects {
 			'script' => '%<script[^>]*+>(?>[^<]*+(?><(?!/script>)[^<]*+)*)</script>%i',
 		);
 
-		$unfiltered_content_tokens = array();
+		$unfiltered_content_tokens          = array();
 		self::$sh_unfiltered_content_tokens = array();
 
 		// Check here to make sure that SyntaxHighlighter is still used. (Just a little future proofing)
 		if ( class_exists( 'SyntaxHighlighter' ) ) {
 			// Replace any "code" shortcode blocks with a token that we'll later replace with its original text.
 			// This will keep the contents of the shortcode from being filtered
-
 			global $SyntaxHighlighter;
 
 			// Check to see if the $SyntaxHighlighter object has been created and is ready for use
 			if ( isset( $SyntaxHighlighter ) && is_array( $SyntaxHighlighter->shortcodes ) ) {
-				$shortcode_regex = implode( '|', array_map( 'preg_quote', $SyntaxHighlighter->shortcodes ) );
-				$html            = preg_replace_callback(
-					'/\[(' . $shortcode_regex . ')(\s[^\]]*)?\][\s\S]*?\[\/\1\]/m', array( __CLASS__, 'sh_regexp_callback' ), $html
+				$shortcode_regex           = implode( '|', array_map( 'preg_quote', $SyntaxHighlighter->shortcodes ) );
+				$html                      = preg_replace_callback(
+					'/\[(' . $shortcode_regex . ')(\s[^\]]*)?\][\s\S]*?\[\/\1\]/m',
+					array( __CLASS__, 'sh_regexp_callback' ),
+					$html
 				);
 				$unfiltered_content_tokens = self::$sh_unfiltered_content_tokens;
 			}
@@ -111,7 +112,7 @@ class Filter_Embedded_HTML_Objects {
 		return $html;
 	}
 
-	static public function regexp_entities( $regexp ) {
+	public static function regexp_entities( $regexp ) {
 		return preg_replace(
 			'/\[\^&([^\]]+)\]\*\+/',
 			'(?>[^&]*+(?>&(?!\1)[^&])*+)*+',
@@ -119,28 +120,28 @@ class Filter_Embedded_HTML_Objects {
 		);
 	}
 
-	static public function register( $match, $callback, $is_regexp = false, $is_html_filter = false ) {
+	public static function register( $match, $callback, $is_regexp = false, $is_html_filter = false ) {
 		if ( $is_html_filter ) {
 			if ( $is_regexp ) {
-				self::$html_regexp_filters[$match] = $callback;
+				self::$html_regexp_filters[ $match ] = $callback;
 			} else {
-				self::$html_strpos_filters[$match] = $callback;
+				self::$html_strpos_filters[ $match ] = $callback;
 			}
 		} else {
 			if ( $is_regexp ) {
-				self::$regexp_filters[$match] = $callback;
+				self::$regexp_filters[ $match ] = $callback;
 			} else {
-				self::$strpos_filters[$match] = $callback;
+				self::$strpos_filters[ $match ] = $callback;
 			}
 		}
 	}
 
-	static public function unregister( $match ) {
+	public static function unregister( $match ) {
 		// Allow themes/plugins to remove registered embeds
-		unset( self::$regexp_filters[$match] );
-		unset( self::$strpos_filters[$match] );
-		unset( self::$html_regexp_filters[$match] );
-		unset( self::$html_strpos_filters[$match] );
+		unset( self::$regexp_filters[ $match ] );
+		unset( self::$strpos_filters[ $match ] );
+		unset( self::$html_regexp_filters[ $match ] );
+		unset( self::$html_strpos_filters[ $match ] );
 	}
 
 	static function dispatch_entities( $matches ) {
@@ -154,7 +155,7 @@ class Filter_Embedded_HTML_Objects {
 		$attrs = self::get_attrs( $html );
 		if ( isset( $attrs['src'] ) ) {
 			$src = $attrs['src'];
-		} else if ( isset( $attrs['movie'] ) ) {
+		} elseif ( isset( $attrs['movie'] ) ) {
 			$src = $attrs['movie'];
 		} else {
 			// no src found, search html
@@ -229,7 +230,7 @@ class Filter_Embedded_HTML_Objects {
 		}
 
 		foreach ( self::$failed_embeds as $entry ) {
-			$html   = sprintf( '<a href="%s">%s</a>', esc_url( $entry['src'] ), esc_url( $entry['src'] ) );
+			$html = sprintf( '<a href="%s">%s</a>', esc_url( $entry['src'] ), esc_url( $entry['src'] ) );
 			// Check if the string doesn't contain iframe, before replace.
 			if ( ! preg_match( '/<iframe /', $string ) ) {
 				$string = str_replace( $entry['match'], $html, $string );
@@ -247,12 +248,12 @@ class Filter_Embedded_HTML_Objects {
 			return array();
 		}
 		// We have to go through DOM, since it can load non-well-formed XML (i.e. HTML).  SimpleXML cannot.
-		$dom = new DOMDocument;
+		$dom = new DOMDocument();
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
-		libxml_use_internal_errors( TRUE );
+		libxml_use_internal_errors( true );
 		@$dom->loadHTML( $html ); // suppress parser warnings
-		libxml_use_internal_errors( FALSE );
+		libxml_use_internal_errors( false );
 		$xml = false;
 		foreach ( $dom->childNodes as $node ) {
 			// find the root node (html)
@@ -273,18 +274,18 @@ class Filter_Embedded_HTML_Objects {
 
 		// <param> elements
 		foreach ( $xml->param as $param ) {
-			$attrs[(string) $param['name']] = (string) $param['value'];
+			$attrs[ (string) $param['name'] ] = (string) $param['value'];
 		}
 
 		// <object> attributes
 		foreach ( $xml->attributes() as $name => $attr ) {
-			$attrs[$name] = (string) $attr;
+			$attrs[ $name ] = (string) $attr;
 		}
 
 		// <embed> attributes
 		if ( $xml->embed ) {
 			foreach ( $xml->embed->attributes() as $name => $attr ) {
-				$attrs[$name] = (string) $attr;
+				$attrs[ $name ] = (string) $attr;
 			}
 		}
 

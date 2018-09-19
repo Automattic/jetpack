@@ -14,8 +14,8 @@
 wp_oembed_add_provider( '#https?://(.+?\.)?houzz\.(com|co\.uk|com\.au|de|fr|ru|jp|it|es|dk|se)/.*#i', 'https://www.houzz.com/oembed', true );
 
 // Create Shortcode
-function jetpack_houzz_shortcode( $atts, $content=null ) {
-	$url = substr( $atts[0], 1 );
+function jetpack_houzz_shortcode( $atts, $content = null ) {
+	$url  = substr( $atts[0], 1 );
 	$args = array();
 	if ( isset( $atts['w'] ) && is_numeric( $atts['w'] ) ) {
 		$args['width'] = $atts['w'];

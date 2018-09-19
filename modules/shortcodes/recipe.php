@@ -37,7 +37,7 @@ class Jetpack_Recipes {
 					array(
 						'class'    => array(),
 						'itemprop' => array(),
-						'datetime'  => array(),
+						'datetime' => array(),
 					)
 				);
 			}
@@ -47,9 +47,9 @@ class Jetpack_Recipes {
 				$allowedtags,
 				'div',
 				array(
-					'class'    => array(),
+					'class'     => array(),
 					'itemscope' => array(),
-					'itemtype' => array(),
+					'itemtype'  => array(),
 				)
 			);
 		endif;
@@ -140,7 +140,7 @@ class Jetpack_Recipes {
 			'jetpack_recipes_vars',
 			array(
 				'pageTitle' => $title_var,
-				'loadCSS' => $print_css_var,
+				'loadCSS'   => $print_css_var,
 			)
 		);
 	}
@@ -166,7 +166,9 @@ class Jetpack_Recipes {
 				'sourceurl'   => '', // string.
 				'image'       => '', // string.
 				'description' => '', // string.
-			), $atts, 'recipe'
+			),
+			$atts,
+			'recipe'
 		);
 
 		return self::recipe_shortcode_html( $atts, $content );
@@ -305,9 +307,13 @@ class Jetpack_Recipes {
 	 * @return string HTML for recipe notes shortcode.
 	 */
 	static function recipe_notes_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts( array(
-			'title' => '', // string.
-		), $atts, 'recipe-notes' );
+		$atts = shortcode_atts(
+			array(
+				'title' => '', // string.
+			),
+			$atts,
+			'recipe-notes'
+		);
 
 		$html = '';
 
@@ -340,9 +346,13 @@ class Jetpack_Recipes {
 	 * @return string HTML for recipe ingredients shortcode.
 	 */
 	static function recipe_ingredients_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts( array(
-			'title' => esc_html_x( 'Ingredients', 'recipe', 'jetpack' ), // string.
-		), $atts, 'recipe-ingredients' );
+		$atts = shortcode_atts(
+			array(
+				'title' => esc_html_x( 'Ingredients', 'recipe', 'jetpack' ), // string.
+			),
+			$atts,
+			'recipe-ingredients'
+		);
 
 		$html = '<div class="jetpack-recipe-ingredients">';
 
@@ -381,12 +391,12 @@ class Jetpack_Recipes {
 		$html = '';
 
 		switch ( $type ) {
-			case 'directions' :
+			case 'directions':
 				$list_item_replacement = '<li class="jetpack-recipe-directions">${1}</li>';
 				$itemprop              = ' itemprop="recipeInstructions"';
 				$listtype              = 'ol';
 				break;
-			case 'ingredients' :
+			case 'ingredients':
 				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
 				$itemprop              = '';
 				$listtype              = 'ul';
@@ -401,11 +411,11 @@ class Jetpack_Recipes {
 		if (
 			strpos( $content, '&#8211;' ) !== false ||
 			strpos( $content, '&#8212;' ) !== false ||
-			strpos( $content, '-' )       !== false ||
-			strpos( $content, '*' )       !== false ||
-			strpos( $content, '#' )       !== false ||
-			strpos( $content, '–' )       !== false || // ndash.
-			strpos( $content, '—' )       !== false || // mdash.
+			strpos( $content, '-' ) !== false ||
+			strpos( $content, '*' ) !== false ||
+			strpos( $content, '#' ) !== false ||
+			strpos( $content, '–' ) !== false || // ndash.
+			strpos( $content, '—' ) !== false || // mdash.
 			preg_match( '/\d+\.\s/', $content )
 		) {
 			// Remove breaks and extra whitespace.
@@ -421,10 +431,10 @@ class Jetpack_Recipes {
 			if ( 0 !== count( $ul_matches[0] ) || 0 !== count( $ol_matches[0] ) ) {
 
 				if ( 0 !== count( $ol_matches[0] ) ) {
-					$listtype = 'ol';
+					$listtype          = 'ol';
 					$list_item_pattern = $ol_pattern;
 				} else {
-					$listtype = 'ul';
+					$listtype          = 'ul';
 					$list_item_pattern = $ul_pattern;
 				}
 				$html .= '<' . $listtype . $itemprop . '>';
@@ -433,7 +443,7 @@ class Jetpack_Recipes {
 
 				// Strip out any empty <p> tags and stray </p> tags, because those are just silly.
 				$empty_p_pattern = '/(<p>)*\s*<\/p>/mi';
-				$html = preg_replace( $empty_p_pattern, '', $html );
+				$html            = preg_replace( $empty_p_pattern, '', $html );
 			} else {
 				$html .= do_shortcode( $content );
 			}
@@ -455,9 +465,13 @@ class Jetpack_Recipes {
 	 * @return string HTML for recipe directions shortcode.
 	 */
 	static function recipe_directions_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts( array(
+		$atts = shortcode_atts(
+			array(
 				'title' => esc_html_x( 'Directions', 'recipe', 'jetpack' ), // string.
-		), $atts, 'recipe-directions' );
+			),
+			$atts,
+			'recipe-directions'
+		);
 
 		$html = '<div class="jetpack-recipe-directions">';
 

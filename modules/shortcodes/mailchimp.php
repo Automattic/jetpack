@@ -7,7 +7,6 @@
  *
  * Embed code example:
  * <script type="text/javascript" src="//downloads.mailchimp.com/js/signup-forms/popup/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b"}) })</script>
- *
  */
 
 /**
@@ -16,14 +15,20 @@
  * @since 4.5.0
  */
 function jetpack_mailchimp_subscriber_popup() {
-	add_shortcode( 'mailchimp_subscriber_popup', array(
-		'MailChimp_Subscriber_Popup',
-		'shortcode'
-	) );
-	add_filter( 'pre_kses', array(
-		'MailChimp_Subscriber_Popup',
-		'reversal'
-	) );
+	add_shortcode(
+		'mailchimp_subscriber_popup',
+		array(
+			'MailChimp_Subscriber_Popup',
+			'shortcode',
+		)
+	);
+	add_filter(
+		'pre_kses',
+		array(
+			'MailChimp_Subscriber_Popup',
+			'reversal',
+		)
+	);
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -87,7 +92,7 @@ class MailChimp_Subscriber_Popup {
 			return $content;
 		}
 
-		require_once( ABSPATH . WPINC . '/class-json.php' );
+		require_once ABSPATH . WPINC . '/class-json.php';
 		$wp_json = new Services_JSON();
 
 		// loop through our rules and find valid embeds
@@ -99,12 +104,12 @@ class MailChimp_Subscriber_Popup {
 
 			foreach ( $matches[3] as $index => $js_vars ) {
 				// the regex rule for a specific embed
-				$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $matches[0][$index], '#' ) );
+				$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $matches[0][ $index ], '#' ) );
 
 				$attrs = $wp_json->decode( '{' . $js_vars . '}' );
 
-				if ( $matches[2][$index] ) {
-					$config_attrs = $wp_json->decode( '{' . $matches[2][$index] . '}' );
+				if ( $matches[2][ $index ] ) {
+					$config_attrs = $wp_json->decode( '{' . $matches[2][ $index ] . '}' );
 					foreach ( $config_attrs as $key => $value ) {
 						$attrs->$key = ( 1 == $value ) ? 'true' : 'false';
 					}

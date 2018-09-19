@@ -22,7 +22,7 @@ wp_embed_register_handler(
 
 function pinterest_embed_handler( $matches, $attr, $url ) {
 	// Pinterest's JS handles making the embed
-    $script_src = '//assets.pinterest.com/js/pinit.js';
+	$script_src = '//assets.pinterest.com/js/pinit.js';
 	wp_enqueue_script( 'pinterest-embed', $script_src, array(), false, true );
 
 	$path = parse_url( $url, PHP_URL_PATH );

@@ -21,11 +21,12 @@ function vine_embed_video( $matches, $attr, $url, $rawattr ) {
 	static $vine_flag_embedded_script;
 
 	$max_height = 300;
-	$type = 'simple';
+	$type       = 'simple';
 
 	// Only allow 'postcard' or 'simple' types
-	if ( isset( $rawattr['type'] ) && $rawattr['type'] === 'postcard' )
+	if ( isset( $rawattr['type'] ) && $rawattr['type'] === 'postcard' ) {
 		$type = 'postcard';
+	}
 
 	$vine_size = Jetpack::get_content_width();
 
@@ -39,11 +40,11 @@ function vine_embed_video( $matches, $attr, $url, $rawattr ) {
 		$vine_size = $max_height;
 	}
 
-	$url = 'https://vine.co/v/' . $matches[1] . '/embed/' . $type;
+	$url       = 'https://vine.co/v/' . $matches[1] . '/embed/' . $type;
 	$vine_html = sprintf( '<span class="embed-vine" style="display: block;"><iframe class="vine-embed" src="%s" width="%s" height="%s" frameborder="0"></iframe></span>', esc_url( $url ), (int) $vine_size, (int) $vine_size );
 
 	if ( $vine_flag_embedded_script !== true ) {
-		$vine_html .= '<script async src="//platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
+		$vine_html                .= '<script async src="//platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
 		$vine_flag_embedded_script = true;
 	}
 
@@ -54,11 +55,13 @@ wp_embed_register_handler( 'jetpack_vine', '#https?://vine.co/v/([a-z0-9]+).*#i'
 function vine_shortcode( $atts ) {
 	global $wp_embed;
 
-	if ( empty( $atts['url'] ) )
+	if ( empty( $atts['url'] ) ) {
 		return '';
+	}
 
-	if ( ! preg_match( '#https?://vine.co/v/([a-z0-9]+).*#i', $atts['url'] ) )
+	if ( ! preg_match( '#https?://vine.co/v/([a-z0-9]+).*#i', $atts['url'] ) ) {
 		return '';
+	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }

@@ -123,7 +123,7 @@ function jetpack_lytro_shortcode_handler( $atts ) {
 	$attributes = jetpack_lytro_shortcode_attributes();
 	foreach ( $attributes as $key => $attribute ) {
 		if ( isset( $attribute['default'] ) ) {
-			$defaults[$key] = $attribute['default'];
+			$defaults[ $key ] = $attribute['default'];
 		}
 	}
 
@@ -141,12 +141,12 @@ function jetpack_lytro_shortcode_handler( $atts ) {
 
 	// Validate all attributes by callable function or regular expression.
 	foreach ( $atts as $key => $value ) {
-		$attribute = $attributes[$key];
+		$attribute = $attributes[ $key ];
 		if ( isset( $attribute['validate'] ) ) {
 			$validate = $attribute['validate'];
 			$valid    = is_callable( $validate ) ? call_user_func( $validate, $value ) : preg_match( $validate, $value );
 			if ( ! $valid ) {
-				$atts[$key] = $defaults[$key];
+				$atts[ $key ] = $defaults[ $key ];
 			}
 		}
 	}
@@ -159,9 +159,9 @@ function jetpack_lytro_shortcode_handler( $atts ) {
 	// Build a query which is then appended to the iframe src.
 	$query_args = array();
 	foreach ( $atts as $key => $value ) {
-		$attribute = $attributes[$key];
+		$attribute = $attributes[ $key ];
 		if ( isset( $attribute['query_arg'] ) && ! empty( $attribute['query_arg'] ) && ! empty( $value ) ) {
-			$query_args[$attribute['query_arg']] = $value;
+			$query_args[ $attribute['query_arg'] ] = $value;
 		}
 	}
 
@@ -209,7 +209,7 @@ function jetpack_lytro_shortcode_url_to_atts( $url ) {
 		// Get the attributes with query_args and fill in the $atts array
 		foreach ( $attributes as $key => $attribute ) {
 			if ( isset( $attribute['query_arg'] ) && in_array( $attribute['query_arg'], array_keys( $qargs ) ) ) {
-				$atts[$key] = $qargs[$attribute['query_arg']];
+				$atts[ $key ] = $qargs[ $attribute['query_arg'] ];
 			}
 		}
 	}
