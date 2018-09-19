@@ -99,7 +99,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'jetpack',
 			'wordpress',
 			'twitter',
-			'facebook'
+			'facebook',
 		);
 	}
 
@@ -115,7 +115,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Selfishly add only our actions back to the comment form
 		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
-		add_action( 'comment_form_after',  array( $this, 'comment_form_after'  ), 1 ); // Set very early since we remove everything outputed before our action.
+		add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
 
 		// Before a comment is posted
 		add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post' ), 1 );
@@ -271,9 +271,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 			}
 		} else {
-			$commenter = wp_get_current_commenter();
+			$commenter                     = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
-			$params['has_cookie_consent'] = (int) ! empty( $commenter['comment_author_email'] );
+			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
 		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
@@ -314,7 +314,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				</h3>
 			<?php endif; ?>
 			<form id="commentform" class="comment-form">
-				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"></iframe>
+				<iframe title="<?php esc_attr_e( 'Comment Form', 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"></iframe>
 				<?php if ( ! Jetpack_AMP_Support::is_amp_request() ) : ?>
 					<!--[if !IE]><!-->
 					<script>
@@ -498,26 +498,28 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$comment_meta = array();
 
 		switch ( $this->is_highlander_comment_post() ) {
-			case 'facebook' :
+			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
-			case 'twitter' :
+			case 'twitter':
 				$comment_meta['hc_post_as']         = 'twitter';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
-			case 'wordpress' :
+			// phpcs:ignore WordPress.WP.CapitalPDangit
+			case 'wordpress':
+				// phpcs:ignore WordPress.WP.CapitalPDangit
 				$comment_meta['hc_post_as']         = 'wordpress';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				$comment_meta['hc_wpcom_id_sig']    = stripslashes( $_POST['hc_wpcom_id_sig'] ); //since 1.9
 				break;
 
-			case 'jetpack' :
+			case 'jetpack':
 				$comment_meta['hc_post_as']         = 'jetpack';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
