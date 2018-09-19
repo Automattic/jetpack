@@ -146,7 +146,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 								components: {
 									a: <ExternalLink
 										icon={ true }
-										iconSize={ 12 }
+										iconSize={ 16 }
 										target="_blank" rel="noopener noreferrer"
 										href={ 'https://search.google.com/search-console?resource_id=https://' + this.props.rawUrl }
 									/>
