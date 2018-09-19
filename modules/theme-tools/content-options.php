@@ -32,7 +32,6 @@
 			'fallback-default'  => true, // the default setting for featured image fallbacks: true or false (only required if false)
 		),
 	) );
- *
  */
 
 /**
@@ -47,35 +46,35 @@ function jetpack_content_options_init() {
 	}
 
 	// Load the Customizer options.
-	require( dirname( __FILE__ ) . '/content-options/customizer.php' );
+	require dirname( __FILE__ ) . '/content-options/customizer.php';
 
 	// Load Blog Display function.
-	require( dirname( __FILE__ ) . '/content-options/blog-display.php' );
+	require dirname( __FILE__ ) . '/content-options/blog-display.php';
 
 	// Load Author Bio function.
-	require( dirname( __FILE__ ) . '/content-options/author-bio.php' );
+	require dirname( __FILE__ ) . '/content-options/author-bio.php';
 
 	// Load Post Details function.
-	require( dirname( __FILE__ ) . '/content-options/post-details.php' );
+	require dirname( __FILE__ ) . '/content-options/post-details.php';
 
 	// Load Featured Images function.
 	if ( jetpack_featured_images_should_load() ) {
-		require( dirname( __FILE__ ) . '/content-options/featured-images.php' );
+		require dirname( __FILE__ ) . '/content-options/featured-images.php';
 	}
 
 	// Load Featured Images Fallback function.
 	if ( jetpack_featured_images_fallback_should_load() ) {
-		require( dirname( __FILE__ ) . '/content-options/featured-images-fallback.php' );
+		require dirname( __FILE__ ) . '/content-options/featured-images-fallback.php';
 	}
 }
 add_action( 'init', 'jetpack_content_options_init' );
 
 function jetpack_featured_images_get_settings() {
-	$options         = get_theme_support( 'jetpack-content-options' );
+	$options = get_theme_support( 'jetpack-content-options' );
 
 	$featured_images = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
 
-	$settings        = array(
+	$settings = array(
 		'archive'           => ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null,
 		'post'              => ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null,
 		'page'              => ( ! empty( $featured_images['page'] ) ) ? $featured_images['page'] : null,
@@ -88,13 +87,16 @@ function jetpack_featured_images_get_settings() {
 		'fallback-default'  => ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1,
 	);
 
-	$settings        = array_merge( $settings, array(
-		'archive-option'   => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
-		'post-option'      => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
-		'page-option'      => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
-		'portfolio-option' => get_option( 'jetpack_content_featured_images_portfolio', $settings['portfolio-default'] ),
-		'fallback-option'  => get_option( 'jetpack_content_featured_images_fallback', $settings['fallback-default'] ),
-	) );
+	$settings = array_merge(
+		$settings,
+		array(
+			'archive-option'   => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
+			'post-option'      => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
+			'page-option'      => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
+			'portfolio-option' => get_option( 'jetpack_content_featured_images_portfolio', $settings['portfolio-default'] ),
+			'fallback-option'  => get_option( 'jetpack_content_featured_images_fallback', $settings['fallback-default'] ),
+		)
+	);
 
 	return $settings;
 }
