@@ -116,14 +116,14 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		if ( ! empty( $instance['icons'] ) ) :
 
 			// Get supported social icons.
-			$social_icons  = $this->get_supported_icons();
-			$default_icon  = $this->get_svg_icon( array( 'icon' => 'chain' ) );
+			$social_icons = $this->get_supported_icons();
+			$default_icon = $this->get_svg_icon( array( 'icon' => 'chain' ) );
 
 			// Set target attribute for the link
 			if ( true === $instance['new-tab'] ) {
 				$target = '_blank';
 			} else {
-				$target = '_self';				
+				$target = '_self';
 			}
 		?>
 
@@ -137,18 +137,18 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 								<?php
 									$found_icon = false;
 
-									foreach( $social_icons as $social_icon ) {
-										if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
-											echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-											echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-											$found_icon = true;
-											break;
-										}
+								foreach ( $social_icons as $social_icon ) {
+									if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
+										echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
+										echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
+										$found_icon = true;
+										break;
 									}
+								}
 
-									if ( ! $found_icon ) {
-										echo $default_icon;
-									}
+								if ( ! $found_icon ) {
+									echo $default_icon;
+								}
 								?>
 							</a>
 						</li>
@@ -189,7 +189,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$icon_count          = count( $new_instance['url-icons'] );
 		$instance['icons']   = array();
 
-		foreach( $new_instance['url-icons'] as $url ) {
+		foreach ( $new_instance['url-icons'] as $url ) {
 			$url = filter_var( $url, FILTER_SANITIZE_URL );
 
 			if ( ! empty( $url ) ) {
@@ -242,13 +242,15 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		>
 
 			<?php
-				foreach ( $instance['icons'] as $icon ) {
-					self::render_icons_template( array(
+			foreach ( $instance['icons'] as $icon ) {
+				self::render_icons_template(
+					array(
 						'url-icon-id'   => $this->get_field_id( 'url-icons' ),
 						'url-icon-name' => $this->get_field_name( 'url-icons' ),
 						'url-value'     => $icon['url'],
-					) );
-				}
+					)
+				);
+			}
 			?>
 
 		</div>
@@ -260,18 +262,18 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<?php
-			switch ( get_locale() ) {
-				case 'es':
-					$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
-					break;
+		switch ( get_locale() ) {
+			case 'es':
+				$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
+				break;
 
-				case 'pt-br':
-					$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
-					break;
+			case 'pt-br':
+				$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
+				break;
 
-				default:
-					$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
-			}
+			default:
+				$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
+		}
 		?>
 
 		<p>
@@ -309,7 +311,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 				<p class="jetpack-widget-social-icons-url">
 					<?php
-						printf( '<input class="widefat id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
+						printf(
+							'<input class="widefat id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
 							esc_attr( $args['url-icon-id'] ),
 							esc_attr( $args['url-icon-name'] ),
 							esc_attr__( 'Account URL', 'jetpack' ),

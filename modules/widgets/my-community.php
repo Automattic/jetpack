@@ -36,7 +36,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( "Display members of your site's community.", 'jetpack' ),
+				'description'                 => esc_html__( "Display members of your site's community.", 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -66,7 +66,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @return string|void
 	 */
 	function form( $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
+		$title = isset( $instance['title'] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}
@@ -76,8 +76,8 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			$number = 10;
 		}
 
-		$include_likers     = isset( $instance['include_likers'] )     ? (bool) $instance['include_likers']     : true;
-		$include_followers  = isset( $instance['include_followers'] )  ? (bool) $instance['include_followers']  : true;
+		$include_likers     = isset( $instance['include_likers'] ) ? (bool) $instance['include_likers'] : true;
+		$include_followers  = isset( $instance['include_followers'] ) ? (bool) $instance['include_followers'] : true;
 		$include_commenters = isset( $instance['include_commenters'] ) ? (bool) $instance['include_commenters'] : true;
 		?>
 
@@ -129,14 +129,14 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	function update( $new_instance, $old_instance ) {
-		$instance = array();
+		$instance          = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		if ( $instance['title'] === $this->default_title ) {
 			$instance['title'] = false; // Store as false in case of language change
 		}
 
 		$instance['number'] = (int) $new_instance['number'];
-		if ( !in_array( $instance['number'], array( 10, 50 ) ) ) {
+		if ( ! in_array( $instance['number'], array( 10, 50 ) ) ) {
 			$instance['number'] = 10;
 		}
 
@@ -158,13 +158,15 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	function widget( $args, $instance ) {
-		$instance = wp_parse_args( $instance, array(
-			'title'              => false,
-			'number'             => true,
-			'include_likers'     => true,
-			'include_followers'  => true,
-			'include_commenters' => true,
-		) );
+		$instance = wp_parse_args(
+			$instance, array(
+				'title'              => false,
+				'number'             => true,
+				'include_likers'     => true,
+				'include_followers'  => true,
+				'include_commenters' => true,
+			)
+		);
 
 		$title = $instance['title'];
 
@@ -216,7 +218,8 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			$my_community = '<div class="widgets-multi-column-grid"><ul>';
 
 			foreach ( $members as $member ) {
-				$my_community .= sprintf( '<li><a href="%s" %s><img alt="" src="%s" class="avatar avatar-240" height="48" width="48" originals="240" scale="1" /></a></li>',
+				$my_community .= sprintf(
+					'<li><a href="%s" %s><img alt="" src="%s" class="avatar avatar-240" height="48" width="48" originals="240" scale="1" /></a></li>',
 					$member->profile_URL,
 					empty( $member->name ) ? '' : 'title="' . $member->name . '"',
 					$member->avatar_URL
@@ -227,10 +230,13 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				$my_community = '<p>' . wp_kses( sprintf( __( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
+				$my_community = '<p>' . wp_kses(
+					sprintf(
+						__( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
 						admin_url( 'widgets.php' ),
 						'https://jetpack.com/support/getting-more-views-and-traffic/'
-					), array( 'a' => array( 'href' => true ) ) ) . '</p>';
+					), array( 'a' => array( 'href' => true ) )
+				) . '</p>';
 			} else {
 				$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';
 			}
@@ -250,7 +256,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 */
 	function fetch_remote_community( $query ) {
 		$jetpack_blog_id = Jetpack_Options::get_option( 'id' );
-		$url = add_query_arg(
+		$url             = add_query_arg(
 			array(
 				'number'     => $query['number'],
 				'likers'     => (int) $query['include_likers'],
@@ -259,8 +265,8 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			),
 			"https://public-api.wordpress.com/rest/v1.1/sites/$jetpack_blog_id/community"
 		);
-		$response = wp_remote_get( $url );
-		$response_body = wp_remote_retrieve_body( $response );
+		$response        = wp_remote_get( $url );
+		$response_body   = wp_remote_retrieve_body( $response );
 
 		if ( empty( $response_body ) ) {
 			return array();

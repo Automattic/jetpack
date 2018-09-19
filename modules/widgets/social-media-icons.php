@@ -47,7 +47,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons (Deprecated)', 'jetpack' ) ),
 			array(
-				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ),
+				'description'                 => __( 'A simple widget that displays social media icons.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -129,8 +129,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		if ( ! $this->check_genericons() ) {
 			wp_enqueue_style( 'genericons' );
 		}
-		$index = 10;
-		$html = array();
+		$index    = 10;
+		$html     = array();
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
@@ -141,7 +141,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			if ( empty( $username ) ) {
 				continue;
 			}
-			$index += 10;
+			$index         += 10;
 			$predefined_url = false;
 
 			/** Check if full URL entered in configuration, use it instead of tinkering **/
@@ -158,7 +158,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				$alt_text = '%2$s';
 			}
 
-
 			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
 				&& substr( $username, 0, 1 ) !== '+'
@@ -167,7 +166,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			}
 			if ( 'youtube' === $service && 'UC' === substr( $username, 0, 2 ) ) {
 				$link_username = 'channel/' . $username;
-			} else if ( 'youtube' === $service ) {
+			} elseif ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
 			}
 
@@ -186,7 +185,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			 * @param string $url the currently processed URL
 			 * @param string $service the lowercase service slug, e.g. 'facebook', 'youtube', etc.
 			 */
-			$link = apply_filters(
+			$link           = apply_filters(
 				'jetpack_social_media_icons_widget_profile_link',
 				$predefined_url,
 				$service
@@ -330,7 +329,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
  * @return void
  */
 function wpcom_social_media_icons_widget_load_widget() {
-	$transient = 'wpcom_social_media_icons_widget::is_active';
+	$transient  = 'wpcom_social_media_icons_widget::is_active';
 	$has_widget = get_transient( $transient );
 
 	if ( false === $has_widget ) {
