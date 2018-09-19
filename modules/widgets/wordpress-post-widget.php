@@ -45,7 +45,7 @@ function jetpack_display_posts_widget_cron_intervals( $current_schedules ) {
 	if ( ! isset( $current_schedules['minutes_10'] ) ) {
 		$current_schedules['minutes_10'] = array(
 			'interval' => 10 * MINUTE_IN_SECONDS,
-			'display'  => 'Every 10 minutes'
+			'display'  => 'Every 10 minutes',
 		);
 	}
 

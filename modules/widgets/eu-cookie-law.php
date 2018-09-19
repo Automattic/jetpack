@@ -81,7 +81,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', esc_html__( 'Cookies & Consents Banner', 'jetpack' ) ),
 				array(
-					'description' => esc_html__( 'Display a banner for EU Cookie Law and GDPR compliance.', 'jetpack' ),
+					'description'                 => esc_html__( 'Display a banner for EU Cookie Law and GDPR compliance.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				),
 				array()
@@ -154,7 +154,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$classes = array();
+			$classes         = array();
 			$classes['hide'] = 'hide-on-' . esc_attr( $instance['hide'] );
 			if ( 'negative' === $instance['color-scheme'] ) {
 				$classes['negative'] = 'negative';
@@ -165,7 +165,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			}
 
 			if ( Jetpack::is_module_active( 'wordads' ) ) {
-				$classes['ads'] = 'ads-active';
+				$classes['ads']  = 'ads-active';
 				$classes['hide'] = 'hide-on-button';
 			}
 
