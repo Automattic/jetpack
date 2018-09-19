@@ -96,11 +96,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	};
 
-	quickSave = event => {
-		this.props.onSubmit( event );
-		this.toggleVerifyMethod();
-	};
-
 	render() {
 		if ( this.state.inputVisible ) {
 			return (
@@ -119,7 +114,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 						primary
 						type="button"
 						className="jp-form-site-verification-edit-button"
-						onClick={ this.quickSave }>
+						onClick={ this.props.onSubmit }>
 						{ __( 'Save' ) }
 					</Button>
 				</FormLabel>
