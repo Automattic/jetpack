@@ -123,6 +123,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
 			),
 
+			'photon-cdn' => array(
+				'name' => _x( 'Photon CDN', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Serve static assets from our servers', 'Module Description', 'jetpack' ),
+			),
+
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Serve images from our servers', 'Module Description', 'jetpack' ),
@@ -271,6 +276,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/shortcodes.php
 			//  - modules/tiled-gallery.php
@@ -297,6 +303,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/infinite-scroll.php
 			//  - modules/lazy-images.php
 			//  - modules/minileven.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/seo-tools.php
 			//  - modules/shortcodes.php
@@ -316,6 +323,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/protect.php
 			//  - modules/publicize.php
