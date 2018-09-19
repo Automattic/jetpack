@@ -220,7 +220,10 @@ function shortcode_handler_bandcamp( $atts ) {
 		$extraAttrs = '';
 	}
 
-	return "<iframe width='" . esc_attr( $width ) . "' height='" . esc_attr( $height ) . "' style='position: relative; display: block; width: " . esc_attr( $csswidth ) . '; height: ' . esc_attr( $cssheight ) . ";' src='" . esc_url( $url ) . "' allowtransparency='true' frameborder='0'" . $extraAttrs . '></iframe>';
+	$iframe = '<iframe width="%s" height="%s" style="position: relative; display: block; width: %s; height: %s;" src="%s" allowtransparency="true" frameborder="0"%s></iframe>';
+	$iframe = sprintf( $iframe, esc_attr( $width ), esc_attr( $height ), esc_attr( $csswidth ), esc_attr( $cssheight ), esc_url( $url ), $extraAttrs );
+
+	return $iframe;
 }
 
 add_shortcode( 'bandcamp', 'shortcode_handler_bandcamp' );
