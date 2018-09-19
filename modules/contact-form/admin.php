@@ -3,20 +3,20 @@
  * Add a contact form button to the post composition screen
  */
 add_action( 'media_buttons', 'grunion_media_button', 999 );
-function grunion_media_button( ) {
+function grunion_media_button() {
 	global $post_ID, $temp_ID, $pagenow;
 
 	if ( 'press-this.php' === $pagenow ) {
 		return;
 	}
 
-	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
-	$title = __( 'Add Contact Form', 'jetpack' );
-	$plugin_url = esc_url( GRUNION_PLUGIN_URL );
-	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
+	$iframe_post_id = (int) ( 0 == $post_ID ? $temp_ID : $post_ID );
+	$title          = __( 'Add Contact Form', 'jetpack' );
+	$plugin_url     = esc_url( GRUNION_PLUGIN_URL );
+	$site_url       = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 	?>
 
-	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php echo esc_attr( $title ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
+	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php echo esc_attr( $title ); ?>" data-editor="content" href="<?php echo $site_url; ?>&id=add_form">
 		<span class="jetpack-contact-form-icon"></span> <?php echo esc_html( $title ); ?>
 	</a>
 
@@ -105,14 +105,14 @@ function grunion_add_bulk_edit_option() {
 	// When viewing anything we want to be able to bulk move to spam
 	if ( isset( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) {
 		// Create Delete Permanently bulk item
-		$option_val = 'delete';
-		$option_txt = __( 'Delete Permanently', 'jetpack' );
+		$option_val      = 'delete';
+		$option_txt      = __( 'Delete Permanently', 'jetpack' );
 		$pseudo_selector = 'last-child';
 
 	} else {
 		// Create Mark Spam bulk item
-		$option_val = 'spam';
-		$option_txt = __( 'Mark as Spam', 'jetpack' );
+		$option_val      = 'spam';
+		$option_txt      = __( 'Mark as Spam', 'jetpack' );
 		$pseudo_selector = 'first-child';
 	}
 
@@ -146,7 +146,7 @@ function grunion_add_empty_spam_button() {
 	}
 
 	// Get HTML for the button
-	$button_html = wp_nonce_field( 'bulk-destroy', '_destroy_nonce', true, false );
+	$button_html  = wp_nonce_field( 'bulk-destroy', '_destroy_nonce', true, false );
 	$button_html .= get_submit_button( __( 'Empty Spam', 'jetpack' ), 'apply', 'delete_all', false );
 
 	// Add the button next to the filter button via js
@@ -167,18 +167,20 @@ function grunion_handle_bulk_spam() {
 	global $pagenow;
 
 	if ( 'edit.php' != $pagenow
-	|| ( empty( $_REQUEST['post_type'] ) || 'feedback' != $_REQUEST['post_type'] ) )
+	|| ( empty( $_REQUEST['post_type'] ) || 'feedback' != $_REQUEST['post_type'] ) ) {
 		return;
+	}
 
 	// Slip in a success message
-	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] )
+	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] ) {
 		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
+	}
 
 	if ( ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' != $_REQUEST['action2'] ) ) {
 		return;
 	}
 
-	check_admin_referer('bulk-posts');
+	check_admin_referer( 'bulk-posts' );
 
 	if ( empty( $_REQUEST['post'] ) ) {
 		wp_safe_redirect( wp_get_referer() );
@@ -187,15 +189,15 @@ function grunion_handle_bulk_spam() {
 
 	$post_ids = array_map( 'intval', $_REQUEST['post'] );
 
-	foreach( $post_ids as $post_id ) {
-		if ( ! current_user_can( "edit_page", $post_id ) ) {
+	foreach ( $post_ids as $post_id ) {
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
 			wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
 		}
 
-		$post = array(
-				'ID'           => $post_id,
-				'post_status'  => 'spam',
-			);
+		$post           = array(
+			'ID'          => $post_id,
+			'post_status' => 'spam',
+		);
 		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		wp_update_post( $post );
 
@@ -233,8 +235,9 @@ function grunion_admin_menu() {
 add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 function grunion_admin_bulk_actions( $actions ) {
 	global $current_screen;
-	if ( 'edit-feedback' != $current_screen->id )
+	if ( 'edit-feedback' != $current_screen->id ) {
 		return $actions;
+	}
 
 	unset( $actions['edit'] );
 	return $actions;
@@ -243,14 +246,16 @@ function grunion_admin_bulk_actions( $actions ) {
 add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
 function grunion_admin_view_tabs( $views ) {
 	global $current_screen;
-	if ( 'edit-feedback' != $current_screen->id )
+	if ( 'edit-feedback' != $current_screen->id ) {
 		return $views;
+	}
 
 	unset( $views['publish'] );
 
 	preg_match( '|post_type=feedback\'( class="current")?\>(.*)\<span class=|', $views['all'], $match );
-	if ( !empty( $match[2] ) )
+	if ( ! empty( $match[2] ) ) {
 		$views['all'] = str_replace( $match[2], __( 'Messages', 'jetpack' ) . ' ', $views['all'] );
+	}
 
 	return $views;
 }
@@ -258,10 +263,10 @@ function grunion_admin_view_tabs( $views ) {
 add_filter( 'manage_feedback_posts_columns', 'grunion_post_type_columns_filter' );
 function grunion_post_type_columns_filter( $cols ) {
 	$cols = array(
-		'cb'	=> '<input type="checkbox" />',
-		'feedback_from'		=> __( 'From', 'jetpack' ),
-		'feedback_message'		=> __( 'Message', 'jetpack' ),
-		'feedback_date'			=> __( 'Date', 'jetpack' )
+		'cb'               => '<input type="checkbox" />',
+		'feedback_from'    => __( 'From', 'jetpack' ),
+		'feedback_message' => __( 'Message', 'jetpack' ),
+		'feedback_date'    => __( 'Date', 'jetpack' ),
 	);
 
 	return $cols;
@@ -289,20 +294,21 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
-			if ( !empty( $author_name ) ) {
-				if ( !empty( $author_email ) )
+			if ( ! empty( $author_name ) ) {
+				if ( ! empty( $author_email ) ) {
 					$author_name_line = get_avatar( $author_email, 32 );
+				}
 
-				$author_name_line .= sprintf( "<strong>%s</strong><br />", esc_html( $author_name ) );
+				$author_name_line .= sprintf( '<strong>%s</strong><br />', esc_html( $author_name ) );
 			}
 
 			$author_email_line = '';
-			if ( !empty( $author_email ) ) {
-				$author_email_line = sprintf( "<a href='%1\$s' target='_blank'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
+			if ( ! empty( $author_email ) ) {
+				$author_email_line = sprintf( "<a href='%1\$s' target='_blank'>%2\$s</a><br />", esc_url( 'mailto:' . $author_email ), esc_html( $author_email ) );
 			}
 
 			$author_url_line = '';
-			if ( !empty( $author_url ) ) {
+			if ( ! empty( $author_url ) ) {
 				$author_url_line = sprintf( "<a href='%1\$s'>%1\$s</a><br />", esc_url( $author_url ) );
 			}
 
@@ -310,7 +316,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo $author_email_line;
 			echo $author_url_line;
 			echo "<a href='edit.php?post_type=feedback&s=" . urlencode( $author_ip );
-			echo "&mode=detail'>" . esc_html( $author_ip ) . "</a><br />";
+			echo "&mode=detail'>" . esc_html( $author_ip ) . '</a><br />';
 			if ( $form_url ) {
 				echo '<a href="' . esc_url( $form_url ) . '">' . esc_html( $form_url ) . '</a>';
 			}
@@ -327,13 +333,13 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo sanitize_text_field( get_the_content( '' ) );
 			echo '<br />';
 
-			$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', TRUE );
-			if ( !empty( $extra_fields ) ) {
+			$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
+			if ( ! empty( $extra_fields ) ) {
 				echo '<br /><hr />';
 				echo '<table cellspacing="0" cellpadding="0" style="">' . "\n";
 				foreach ( (array) $extra_fields as $k => $v ) {
 					// Remove prefix from exta fields
-					echo "<tr><td align='right'><b>". esc_html( preg_replace( '#^\d+_#', '', $k ) ) ."</b></td><td>". sanitize_text_field( $v ) ."</td></tr>\n";
+					echo "<tr><td align='right'><b>" . esc_html( preg_replace( '#^\d+_#', '', $k ) ) . '</b></td><td>' . sanitize_text_field( $v ) . "</td></tr>\n";
 				}
 				echo '</table>';
 			}
@@ -349,7 +355,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo "<span class='delete'> <a class='submitdelete' title='";
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
-				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . "</a></span>";
+				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
 ?>
 
 <script>
@@ -448,7 +454,7 @@ jQuery(document).ready( function($) {
 				echo "'> <a class='submitdelete' title='";
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
-				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . "</a></span>";
+				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
 ?>
 
 <script>
@@ -479,10 +485,9 @@ jQuery(document).ready( function($) {
 			break;
 
 		case 'feedback_date':
-
 			$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
 			$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
-			$time = date_i18n( $date_time_format, get_the_time( 'U' ) );
+			$time             = date_i18n( $date_time_format, get_the_time( 'U' ) );
 
 			echo $time;
 			break;
@@ -499,8 +504,9 @@ function grunion_esc_attr( $attr ) {
 }
 
 function grunion_sort_objects( $a, $b ) {
-	if ( isset($a['order']) && isset($b['order']) )
+	if ( isset( $a['order'] ) && isset( $b['order'] ) ) {
 		return $a['order'] - $b['order'];
+	}
 	return 0;
 }
 
@@ -516,8 +522,8 @@ function grunion_ajax_shortcode() {
 	$attributes = array();
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
-		if ( isset( $_POST[$attribute] ) && strlen( $_POST[$attribute] ) ) {
-			$attributes[$attribute] = stripslashes( $_POST[$attribute] );
+		if ( isset( $_POST[ $attribute ] ) && strlen( $_POST[ $attribute ] ) ) {
+			$attributes[ $attribute ] = stripslashes( $_POST[ $attribute ] );
 		}
 	}
 
@@ -535,8 +541,8 @@ function grunion_ajax_shortcode() {
 			}
 
 			foreach ( array( 'options', 'label', 'type' ) as $attribute ) {
-				if ( isset( $field[$attribute] ) ) {
-					$field_attributes[$attribute] = $field[$attribute];
+				if ( isset( $field[ $attribute ] ) ) {
+					$field_attributes[ $attribute ] = $field[ $attribute ];
 				}
 			}
 
@@ -562,7 +568,7 @@ function grunion_ajax_shortcode_to_json() {
 		die( '-1' );
 	}
 
-	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
+	if ( ! isset( $_POST['content'] ) || ! is_numeric( $_POST['post_id'] ) ) {
 		die( '-1' );
 	}
 
@@ -586,17 +592,17 @@ function grunion_ajax_shortcode_to_json() {
 	);
 
 	foreach ( $grunion->fields as $field ) {
-		$out['fields'][$field->get_attribute( 'id' )] = $field->attributes;
+		$out['fields'][ $field->get_attribute( 'id' ) ] = $field->attributes;
 	}
 
-	$to = $grunion->get_attribute( 'to' );
+	$to      = $grunion->get_attribute( 'to' );
 	$subject = $grunion->get_attribute( 'subject' );
 	foreach ( array( 'to', 'subject' ) as $attribute ) {
 		$value = $grunion->get_attribute( $attribute );
-		if ( isset( $grunion->defaults[$attribute] ) && $value == $grunion->defaults[$attribute] ) {
+		if ( isset( $grunion->defaults[ $attribute ] ) && $value == $grunion->defaults[ $attribute ] ) {
 			$value = '';
 		}
-		$out[$attribute] = $value;
+		$out[ $attribute ] = $value;
 	}
 
 	die( json_encode( $out ) );
@@ -618,7 +624,7 @@ function grunion_ajax_spam() {
 
 	$post_id = (int) $_POST['post_id'];
 	check_ajax_referer( 'grunion-post-status-' . $post_id );
-	if ( ! current_user_can( "edit_page", $post_id ) ) {
+	if ( ! current_user_can( 'edit_page', $post_id ) ) {
 		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
 	}
 
@@ -628,42 +634,39 @@ function grunion_ajax_spam() {
 	if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', $_POST['sub_menu'] ) ) {
 		if ( preg_match( '|post_status=spam|', $_POST['sub_menu'] ) ) {
 			$current_menu = 'spam';
-		}
-		elseif ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) ) {
+		} elseif ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) ) {
 			$current_menu = 'trash';
-		}
-		else {
+		} else {
 			$current_menu = 'messages';
 		}
-
 	}
 
-	$post = get_post( $post_id );
+	$post             = get_post( $post_id );
 	$post_type_object = get_post_type_object( $post->post_type );
-	$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', TRUE );
+	$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
 	if ( $_POST['make_it'] == 'spam' ) {
 		$post->post_status = 'spam';
-		$status = wp_insert_post( $post );
+		$status            = wp_insert_post( $post );
 		wp_transition_post_status( 'spam', 'publish', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
 		$post->post_status = 'publish';
-		$status = wp_insert_post( $post );
+		$status            = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
-		$blog_url = parse_url( site_url() );
+		$blog_url             = parse_url( site_url() );
 
 		// resend the original email
-		$email = get_post_meta( $post_id, '_feedback_email', TRUE );
+		$email          = get_post_meta( $post_id, '_feedback_email', true );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 
-		if ( ! empty( $email ) && !empty( $content_fields ) ) {
+		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
 			if ( isset( $content_fields['_feedback_author_email'] ) ) {
 				$comment_author_email = $content_fields['_feedback_author_email'];
 			}
@@ -678,22 +681,20 @@ function grunion_ajax_spam() {
 
 			if ( isset( $email['headers'] ) ) {
 				$headers = $email['headers'];
-			}
-			else {
-				$headers = 'From: "' . $content_fields['_feedback_author'] .'" <wordpress@' . $blog_url['host']  . ">\r\n";
+			} else {
+				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
 
-				if ( ! empty( $comment_author_email ) ){
+				if ( ! empty( $comment_author_email ) ) {
 					$reply_to_addr = $comment_author_email;
-				}
-				elseif ( is_array( $to ) ) {
+				} elseif ( is_array( $to ) ) {
 					$reply_to_addr = $to[0];
 				}
 
 				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] .'" <' . $reply_to_addr . ">\r\n";
+					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
 				}
 
-				$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
+				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
 			}
 
 			/**
@@ -710,27 +711,25 @@ function grunion_ajax_spam() {
 
 			Grunion_Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
-	} elseif( $_POST['make_it'] == 'publish' ) {
-		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
+	} elseif ( $_POST['make_it'] == 'publish' ) {
+		if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
 			wp_die( __( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );
 		}
 
-		if ( ! wp_untrash_post($post_id) ) {
+		if ( ! wp_untrash_post( $post_id ) ) {
 			wp_die( __( 'Error in restoring from Trash.', 'jetpack' ) );
 		}
-
-	} elseif( $_POST['make_it'] == 'trash' ) {
-		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
+	} elseif ( $_POST['make_it'] == 'trash' ) {
+		if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
 			wp_die( __( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
 		}
 
-		if ( ! wp_trash_post($post_id) ) {
+		if ( ! wp_trash_post( $post_id ) ) {
 			wp_die( __( 'Error in moving to Trash.', 'jetpack' ) );
 		}
-
 	}
 
-	$sql = "
+	$sql          = "
 		SELECT post_status,
 			COUNT( * ) AS post_count
 		FROM `{$wpdb->posts}`
@@ -739,10 +738,10 @@ function grunion_ajax_spam() {
 	";
 	$status_count = (array) $wpdb->get_results( $sql, ARRAY_A );
 
-	$status = array();
+	$status      = array();
 	$status_html = '';
 	foreach ( $status_count as $i => $row ) {
-		$status[$row['post_status']] = $row['post_count'];
+		$status[ $row['post_status'] ] = $row['post_count'];
 	}
 
 	if ( isset( $status['publish'] ) ) {
@@ -758,21 +757,24 @@ function grunion_ajax_spam() {
 
 	if ( isset( $status['trash'] ) ) {
 		$status_html .= '<li><a href="edit.php?post_status=trash&amp;post_type=feedback"';
-		if ( $current_menu == 'trash' )
+		if ( $current_menu == 'trash' ) {
 			$status_html .= ' class="current"';
+		}
 
 		$status_html .= '>' . __( 'Trash', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['trash'] ) . ')';
 		$status_html .= '</span></a>';
-		if ( isset( $status['spam'] ) )
+		if ( isset( $status['spam'] ) ) {
 			$status_html .= ' |';
+		}
 		$status_html .= '</li>';
 	}
 
 	if ( isset( $status['spam'] ) ) {
 		$status_html .= '<li><a href="edit.php?post_status=spam&amp;post_type=feedback"';
-		if ( $current_menu == 'spam' )
+		if ( $current_menu == 'spam' ) {
 			$status_html .= ' class="current"';
+		}
 
 		$status_html .= '>' . __( 'Spam', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['spam'] ) . ')';
@@ -822,7 +824,7 @@ add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
  */
 function grunion_check_for_spam_button() {
 	// Get HTML for the button
-	$button_html = get_submit_button(
+	$button_html  = get_submit_button(
 		__( 'Check for Spam', 'jetpack' ),
 		'secondary',
 		'jetpack-check-feedback-spam',
@@ -871,15 +873,22 @@ function grunion_recheck_queue() {
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $meta );
 
 		if ( $is_spam ) {
-			wp_update_post( array( 'ID' => $feedback->ID, 'post_status' => 'spam' ) );
+			wp_update_post(
+				array(
+					'ID'          => $feedback->ID,
+					'post_status' => 'spam',
+				)
+			);
 			/** This action is already documented in modules/contact-form/admin.php */
 			do_action( 'contact_form_akismet', 'spam', $meta );
 		}
 	}
 
-	wp_send_json( array(
-		'processed' => count( $approved_feedbacks ),
-	) );
+	wp_send_json(
+		array(
+			'processed' => count( $approved_feedbacks ),
+		)
+	);
 }
 
 add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
