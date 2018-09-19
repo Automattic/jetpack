@@ -182,8 +182,8 @@ class VideoPress_Shortcode {
 			foreach ( $url_keys as $key ) {
 				if ( isset( $attr[ $key ] ) ) {
 					$url = $attr[ $key ];
-
-					if ( preg_match( '@videos.(videopress\.com|files\.WordPress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
+					// phpcs:ignore WordPress.WP.CapitalPDangit
+					if ( preg_match( '@videos.(videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
 						$videopress_guid = $matches[2];
 					}
 
