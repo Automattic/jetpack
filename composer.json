@@ -12,7 +12,7 @@
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-        "wp-coding-standards/wpcs": "^0.14.0",
+        "wp-coding-standards/wpcs": "^1.1.0",
         "sirbrillig/phpcs-variable-analysis": "^2.0",
         "phpcompatibility/phpcompatibility-wp": "^1.0"
     },
