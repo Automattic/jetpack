@@ -55,10 +55,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function wp_head_top() {
 		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
-			$prevent_referrer_code = "<script>window._wca_prevent_referrer = true;</script>";
+			$prevent_referrer_code = '<script>window._wca_prevent_referrer = true;</script>';
 			echo "$prevent_referrer_code\r\n";
 		}
-		$wca_code = "<script>window._wca = window._wca || [];</script>";
+		$wca_code = '<script>window._wca = window._wca || [];</script>';
 		echo "$wca_code\r\n";
 	}
 
@@ -67,7 +67,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Place script to call s.js, Store Analytics
 	 */
 	public function wp_head_bottom() {
-		$filename = 's-' . gmdate( 'YW' ) . '.js';
+		$filename   = 's-' . gmdate( 'YW' ) . '.js';
 		$async_code = "<script async src='https://stats.wp.com/" . $filename . "'></script>";
 		echo "$async_code\r\n";
 	}
@@ -76,7 +76,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
 	 */
 	public function loop_session_events() {
-		$blogid   = Jetpack::get_option( 'id' );
+		$blogid = Jetpack::get_option( 'id' );
 
 		// check for previous add-to-cart cart events
 		$data = WC()->session->get( 'wca_session_data' );
@@ -179,7 +179,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function capture_product_view() {
 
 		global $product;
-		$blogid = Jetpack::get_option( 'id' );
+		$blogid          = Jetpack::get_option( 'id' );
 		$product_details = $this->get_product_details( $product );
 
 		wc_enqueue_js(
@@ -270,7 +270,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function remove_from_cart_via_quantity() {
 		$blogid = Jetpack::get_option( 'id' );
 
-		wc_enqueue_js( "
+		wc_enqueue_js(
+			"
 			jQuery( 'button[name=update_cart]' ).on( 'click', function() {
 				var cartItems = jQuery( '.cart_item' );
 				cartItems.each( function( item ) {
@@ -286,7 +287,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					}
 				} );
 			} );
-		" );
+		"
+		);
 	}
 
 	/**
@@ -298,19 +300,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		if ( is_user_logged_in() ) {
 			$blogid = Jetpack::get_option( 'id' );
 			$userid = get_current_user_id();
-			return $blogid . ":" . $userid;
+			return $blogid . ':' . $userid;
 		}
 		return 'null';
 	}
 
 	/**
-		* @param $cart_item_key
-		* @param $product_id
-		* @param $quantity
-		* @param $variation_id
-		* @param $variation
-		* @param $cart_item_data
-		*/
+	 * @param $cart_item_key
+	 * @param $product_id
+	 * @param $quantity
+	 * @param $variation_id
+	 * @param $variation
+	 * @param $cart_item_data
+	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
 		// if the referring post is not a product OR the product being added is not the same as post
@@ -344,9 +346,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		// extract new event data
 		$new_data = array(
-			'event' => $event,
+			'event'      => $event,
 			'product_id' => (string) $product_id,
-			'quantity' => (string) $quantity,
+			'quantity'   => (string) $quantity,
 		);
 
 		// append new data
@@ -371,7 +373,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
 			$line = wc_get_formatted_variation( $variation_data, true );
 		} else {
-			$out = array();
+			$out        = array();
 			$categories = get_the_terms( $product->get_id(), 'product_cat' );
 			if ( $categories ) {
 				foreach ( $categories as $category ) {
