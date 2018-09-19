@@ -44,7 +44,8 @@ function slideshare_shortcode( $atts ) {
 			'sc'    => '',
 			'pro'   => '',
 			'style' => '',
-		), $arguments
+		),
+		$arguments
 	);
 
 	// check that the Slideshare ID contains letters, numbers and query strings

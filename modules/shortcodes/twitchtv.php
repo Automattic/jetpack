@@ -7,7 +7,7 @@
 
 /**
  * (Live URL) http://www.twitch.tv/paperbat
- * 
+ *
  * <iframe src="https://player.twitch.tv/?autoplay=false&#038;muted=false&#038;channel=paperbat" width="620" height="378" frameborder="0" scrolling="no" allowfullscreen></iframe>
  *
  * (Archive URL) http://www.twitch.tv/paperbat/v/323486192
@@ -26,8 +26,9 @@ function wpcom_twitchtv_shortcode( $atts ) {
 			'url'      => '',
 			'autoplay' => 'false',
 			'muted'    => 'false',
-			'time'     => null
-		), $atts
+			'time'     => null,
+		),
+		$atts
 	);
 
 	if ( empty( $attr['url'] ) ) {
@@ -39,11 +40,11 @@ function wpcom_twitchtv_shortcode( $atts ) {
 	$url_args = array(
 		'autoplay' => ( false !== $attr['autoplay'] && 'false' !== $attr['autoplay'] ) ? 'true' : 'false',
 		'muted'    => ( false !== $attr['muted'] && 'false' !== $attr['muted'] ) ? 'true' : 'false',
-		'time'     => $attr['time']
+		'time'     => $attr['time'],
 	);
 
-	$width    = intval( $attr['width'] );
-	$height   = intval( $attr['height'] );
+	$width  = intval( $attr['width'] );
+	$height = intval( $attr['height'] );
 
 	$user_id  = $match[1];
 	$video_id = 0;

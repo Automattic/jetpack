@@ -2,7 +2,6 @@
 
 /**
  * Embed WordAds 'ad' in post
- *
  */
 class Jetpack_WordAds_Shortcode {
 
@@ -34,7 +33,7 @@ class Jetpack_WordAds_Shortcode {
 	 * @return string HTML for WordAds shortcode.
 	 */
 	static function wordads_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts( array(), $atts, 'wordads');
+		$atts = shortcode_atts( array(), $atts, 'wordads' );
 
 		return self::wordads_shortcode_html( $atts, $content );
 	}

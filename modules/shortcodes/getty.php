@@ -21,8 +21,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 function jetpack_getty_enable_embeds() {
 
 	// Support their oEmbed Endpoint
-	wp_oembed_add_provider( '#https?://www\.gettyimages\.com/detail/.*#i', "https://embed.gettyimages.com/oembed/", true );
-	wp_oembed_add_provider( '#https?://(www\.)?gty\.im/.*#i',              "https://embed.gettyimages.com/oembed/", true );
+	wp_oembed_add_provider( '#https?://www\.gettyimages\.com/detail/.*#i', 'https://embed.gettyimages.com/oembed/', true );
+	wp_oembed_add_provider( '#https?://(www\.)?gty\.im/.*#i', 'https://embed.gettyimages.com/oembed/', true );
 
 	// Allow iframes to be filtered to short code (so direct copy+paste can be done)
 	add_filter( 'pre_kses', 'wpcom_shortcodereverse_getty' );
@@ -86,13 +86,12 @@ function wpcom_shortcodereverse_getty( $content ) {
 		return $content;
 	}
 
-	$regexp = '!<iframe\s+src=[\'"](https?:)?//embed\.gettyimages\.com/embed(/|/?\?assets=)([a-z0-9_-]+(,[a-z0-9_-]+)*)[^\'"]*?[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
+	$regexp     = '!<iframe\s+src=[\'"](https?:)?//embed\.gettyimages\.com/embed(/|/?\?assets=)([a-z0-9_-]+(,[a-z0-9_-]+)*)[^\'"]*?[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
-
 
 	// Markup pattern for 2017 embed syntax with significant differences from
 	// the prior pattern:
-	$regexp_2017 = '!<a.+?class=\'gie-(single|slideshow)\'.+?gie\.widgets\.load\({([^}]+)}\).+?embed-cdn\.gettyimages\.com/widgets\.js.+?</script>!';
+	$regexp_2017     = '!<a.+?class=\'gie-(single|slideshow)\'.+?gie\.widgets\.load\({([^}]+)}\).+?embed-cdn\.gettyimages\.com/widgets\.js.+?</script>!';
 	$regexp_2017_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp_2017, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp_2017', 'regexp_2017_ent', 'regexp', 'regexp_ent' ) as $reg ) {
@@ -110,10 +109,18 @@ function wpcom_shortcodereverse_getty( $content ) {
 
 				foreach ( $key_matches as $key_match ) {
 					switch ( $key_match['key'] ) {
-						case 'items': $ids = $key_match['value']; break;
-						case 'w': $width = (int) $key_match['value']; break;
-						case 'h': $height = (int) $key_match['value']; break;
-						case 'tld': $tld = $key_match['value']; break;
+						case 'items':
+							$ids = $key_match['value'];
+							break;
+						case 'w':
+							$width = (int) $key_match['value'];
+							break;
+						case 'h':
+							$height = (int) $key_match['value'];
+							break;
+						case 'tld':
+							$tld = $key_match['value'];
+							break;
 					}
 				}
 			} else {
@@ -123,8 +130,8 @@ function wpcom_shortcodereverse_getty( $content ) {
 				}
 				$params = wp_kses_hair( $params, array( 'http' ) );
 
-				$ids = esc_html( $match[3] );
-				$width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
+				$ids    = esc_html( $match[3] );
+				$width  = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
 				$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 			}
 
@@ -142,7 +149,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 			// While it does not appear to have any practical impact, Getty has
 			// requested that we include TLD in the embed request
 			if ( ! empty( $tld ) ) {
-				$shortcode .= ' tld="' . esc_attr( $tld ). '"';
+				$shortcode .= ' tld="' . esc_attr( $tld ) . '"';
 			}
 			$shortcode .= ']';
 
@@ -151,7 +158,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 	}
 
 	// strip out enclosing div and any other markup
-	$regexp = '%<div class="getty\s[^>]*+>.*?<div[^>]*+>(\[getty[^\]]*+\])\s*</div>.*?</div>%is';
+	$regexp     = '%<div class="getty\s[^>]*+>.*?<div[^>]*+>(\[getty[^\]]*+\])\s*</div>.*?</div>%is';
 	$regexp_ent = str_replace( array( '&amp;#0*58;', '[^&gt;]' ), array( '&amp;#0*58;|&#0*58;', '[^&]' ), htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
@@ -196,7 +203,7 @@ function jetpack_getty_shortcode( $atts, $content = '' ) {
 
 	$params = array(
 		'width'  => isset( $atts['width'] ) ? (int) $atts['width'] : null,
-		'height' => isset( $atts['height'] ) ? (int) $atts['height'] : null
+		'height' => isset( $atts['height'] ) ? (int) $atts['height'] : null,
 	);
 
 	if ( ! empty( $atts['tld'] ) ) {

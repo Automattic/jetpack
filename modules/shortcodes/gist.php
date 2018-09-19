@@ -75,8 +75,8 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
 	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $id ) . '"></div>';
 
-	if ( isset( $_POST[ 'type' ] ) && 'embed' === $_POST[ 'type' ] &&
-		 isset( $_POST[ 'action' ] ) && 'parse-embed' === $_POST['action'] ) {
+	if ( isset( $_POST['type'] ) && 'embed' === $_POST['type'] &&
+		 isset( $_POST['action'] ) && 'parse-embed' === $_POST['action'] ) {
 		return github_gist_simple_embed( $id );
 	}
 
