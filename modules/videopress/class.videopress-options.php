@@ -18,7 +18,7 @@ class VideoPress_Options {
 		}
 
 		$defaults = array(
-			'meta'           => array(
+			'meta' => array(
 				'max_upload_size' => 0,
 			),
 		);

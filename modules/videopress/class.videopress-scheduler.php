@@ -22,10 +22,10 @@ class VideoPress_Scheduler {
 	 * @var array
 	 */
 	protected $crons = array(
-//		'cleanup' => array(
-//			'method' => self::CLEANUP_CRON_METHOD,
-//			'interval' => 'minutes_30',
-//		),
+	// 'cleanup' => array(
+	// 'method' => self::CLEANUP_CRON_METHOD,
+	// 'interval' => 'minutes_30',
+	// ),
 	);
 
 
@@ -54,7 +54,7 @@ class VideoPress_Scheduler {
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new VideoPress_Scheduler;
+			self::$instance = new VideoPress_Scheduler();
 		}
 
 		return self::$instance;
@@ -73,7 +73,7 @@ class VideoPress_Scheduler {
 		if ( ! isset( $current_schedules['minutes_30'] ) ) {
 			$current_schedules['minutes_30'] = array(
 				'interval' => 30 * MINUTE_IN_SECONDS,
-				'display'  => 'Every 30 minutes'
+				'display'  => 'Every 30 minutes',
 			);
 		}
 
