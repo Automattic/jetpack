@@ -54,6 +54,7 @@ class Jetpack_Options {
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
 				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
+				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
 			);
 
 		case 'private' :
