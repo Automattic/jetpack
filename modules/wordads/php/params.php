@@ -20,7 +20,7 @@ class WordAds_Params {
 			'wordads_display_post'       => true,
 			'wordads_display_page'       => true,
 			'wordads_display_archive'    => true,
-			'wordads_custom_adstxt'      => ''
+			'wordads_custom_adstxt'      => '',
 		);
 
 		// grab settings, or set as default if it doesn't exist
@@ -33,7 +33,7 @@ class WordAds_Params {
 				$option = $default;
 			}
 
-			$this->options[$setting] = 'wordads_custom_adstxt' !== $setting ? (bool) $option : $option;
+			$this->options[ $setting ] = 'wordads_custom_adstxt' !== $setting ? (bool) $option : $option;
 		}
 
 		$host = 'localhost';
@@ -46,16 +46,16 @@ class WordAds_Params {
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
 
-		$this->cloudflare = self::is_cloudflare();
-		$this->blog_id = Jetpack::get_option( 'id', 0 );
-		$this->mobile_device = jetpack_is_mobile( 'any', true );
+		$this->cloudflare     = self::is_cloudflare();
+		$this->blog_id        = Jetpack::get_option( 'id', 0 );
+		$this->mobile_device  = jetpack_is_mobile( 'any', true );
 		$this->targeting_tags = array(
-			'WordAds'   => 1,
-			'BlogId'    => Jetpack::is_development_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
-			'Domain'    => esc_js( parse_url( home_url(), PHP_URL_HOST ) ),
-			'PageURL'   => esc_js( $this->url ),
-			'LangId'    => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
-			'AdSafe'    => 1, // TODO
+			'WordAds' => 1,
+			'BlogId'  => Jetpack::is_development_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
+			'Domain'  => esc_js( parse_url( home_url(), PHP_URL_HOST ) ),
+			'PageURL' => esc_js( $this->url ),
+			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
+			'AdSafe'  => 1, // TODO
 		);
 	}
 
@@ -97,6 +97,7 @@ class WordAds_Params {
 
 	/**
 	 * Returns the user's device (see user-agent.php) or 'desktop'
+	 *
 	 * @return string user device
 	 *
 	 * @since 4.5.0
@@ -127,17 +128,17 @@ class WordAds_Params {
 
 		if ( self::is_static_home() ) {
 			$this->page_type = 'static_home';
-		} else if ( is_home() ) {
+		} elseif ( is_home() ) {
 			$this->page_type = 'home';
-		} else if ( is_page() ) {
+		} elseif ( is_page() ) {
 			$this->page_type = 'page';
-		} else if ( is_single() ) {
+		} elseif ( is_single() ) {
 			$this->page_type = 'post';
-		} else if ( is_search() ) {
+		} elseif ( is_search() ) {
 			$this->page_type = 'search';
-		} else if ( is_category() ) {
+		} elseif ( is_category() ) {
 			$this->page_type = 'category';
-		} else if ( is_archive() ) {
+		} elseif ( is_archive() ) {
 			$this->page_type = 'archive';
 		} else {
 			$this->page_type = 'wtf';
@@ -159,15 +160,15 @@ class WordAds_Params {
 		$page_type_ipw = 6;
 		if ( self::is_static_home() || is_home() || is_front_page() ) {
 			$page_type_ipw = 0;
-		} else if ( is_page() ) {
+		} elseif ( is_page() ) {
 			$page_type_ipw = 2;
-		} else if ( is_singular() ) {
+		} elseif ( is_singular() ) {
 			$page_type_ipw = 1;
-		} else if ( is_search() ) {
+		} elseif ( is_search() ) {
 			$page_type_ipw = 4;
-		} else if ( is_category() || is_tag() || is_archive() || is_author() ) {
+		} elseif ( is_category() || is_tag() || is_archive() || is_author() ) {
 			$page_type_ipw = 3;
-		} else if ( is_404() ) {
+		} elseif ( is_404() ) {
 			$page_type_ipw = 5;
 		}
 
@@ -177,6 +178,7 @@ class WordAds_Params {
 
 	/**
 	 * Returns true if page is static home
+	 *
 	 * @return boolean true if page is static home
 	 *
 	 * @since 4.5.0

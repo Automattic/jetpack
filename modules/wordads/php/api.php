@@ -11,6 +11,7 @@ class WordAds_API {
 
 	/**
 	 * Returns site's WordAds status
+	 *
 	 * @return array boolean values for 'approved' and 'active'
 	 *
 	 * @since 4.5.0
@@ -28,13 +29,13 @@ class WordAds_API {
 			return self::$wordads_status;
 		}
 
-		$endpoint = sprintf( '/sites/%d/wordads/status', Jetpack::get_option( 'id' ) );
+		$endpoint                = sprintf( '/sites/%d/wordads/status', Jetpack::get_option( 'id' ) );
 		$wordads_status_response = $response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'api_error', __( 'Error connecting to API.', 'jetpack' ), $response );
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		$body                 = json_decode( wp_remote_retrieve_body( $response ) );
 		self::$wordads_status = array(
 			'approved' => $body->approved,
 			'active'   => $body->active,
@@ -47,24 +48,26 @@ class WordAds_API {
 
 	/**
 	 * Returns the ads.txt content needed to run WordAds.
+	 *
 	 * @return array string contents of the ads.txt file.
 	 *
 	 * @since 6.1.0
 	 */
 	public static function get_wordads_ads_txt() {
-		$endpoint = sprintf( '/sites/%d/wordads/ads-txt', Jetpack::get_option( 'id' ) );
+		$endpoint                = sprintf( '/sites/%d/wordads/ads-txt', Jetpack::get_option( 'id' ) );
 		$wordads_status_response = $response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'api_error', __( 'Error connecting to API.', 'jetpack' ), $response );
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		$body    = json_decode( wp_remote_retrieve_body( $response ) );
 		$ads_txt = str_replace( '\\n', PHP_EOL, $body->adstxt );
 		return $ads_txt;
 	}
 
 	/**
 	 * Returns status of WordAds approval.
+	 *
 	 * @return boolean true if site is WordAds approved
 	 *
 	 * @since 4.5.0
@@ -79,6 +82,7 @@ class WordAds_API {
 
 	/**
 	 * Returns status of WordAds active.
+	 *
 	 * @return boolean true if ads are active on site
 	 *
 	 * @since 4.5.0
@@ -93,6 +97,7 @@ class WordAds_API {
 
 	/**
 	 * Returns status of WordAds house ads.
+	 *
 	 * @return boolean true if WP.com house ads should be shown
 	 *
 	 * @since 4.5.0
@@ -108,6 +113,7 @@ class WordAds_API {
 
 	/**
 	 * Returns whether or not this site is safe to run ads on.
+	 *
 	 * @return boolean true if ads shown not be shown on this site.
 	 *
 	 * @since 6.5.0
