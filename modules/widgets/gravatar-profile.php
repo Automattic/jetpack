@@ -413,7 +413,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				return 'Yahoo!';
 			case 'youtube':
 				return 'YouTube';
-			case 'WordPress':
+			// phpcs:ignore WordPress.WP.CapitalPDangit
+			case 'wordpress':
 				return 'WordPress';
 			case 'tripit':
 				return 'TripIt';
