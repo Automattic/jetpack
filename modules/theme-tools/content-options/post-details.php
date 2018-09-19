@@ -11,7 +11,7 @@ function jetpack_post_details_enqueue_scripts() {
 	}
 
 	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
-	list( $date, $categories, $tags, $author, $comment ) = $definied;
+	list( $date, $categories, $tags, $author, $comment )                                    = $definied;
 
 	$elements = array();
 
@@ -63,7 +63,7 @@ function jetpack_post_details_body_classes( $classes ) {
 	}
 
 	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
-	list( $date, $categories, $tags, $author, $comment ) = $definied;
+	list( $date, $categories, $tags, $author, $comment )                                    = $definied;
 
 	// If date option is unticked, add a class of 'date-hidden' to the body.
 	if ( 1 != $date_option && ! empty( $date ) ) {
