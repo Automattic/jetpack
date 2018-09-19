@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
 import { connect } from 'react-redux';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -75,10 +76,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	}
 
-	handleClickGoogleVerify = () => {
+	handleClickAutoVerify = () => {
 		if ( this.props.fetchingSiteData || this.props.fetchingGoogleSiteVerify ) {
 			return;
 		}
+
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_auto_verify_click' );
 
 		if ( ! this.props.isConnectedToGoogle ) {
 			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
@@ -88,6 +91,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 		}
 
 		this.checkAndVerifySite();
+	};
+
+	handleClickSetManually = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click' );
+
+		this.toggleVerifyMethod( event );
 	};
 
 	toggleVerifyMethod = () => {
@@ -169,7 +178,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 					primary
 					type="button"
 					disabled={ disabled }
-					onClick={ this.handleClickGoogleVerify }>
+					onClick={ this.handleClickAutoVerify }>
 						{ __( 'Auto verify with Google' ) }
 				</Button>
 				<span className="jp-form-google-separator">
@@ -178,7 +187,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 				<Button
 					type="button"
 					disabled={ disabled }
-					onClick={ this.toggleVerifyMethod }>
+					onClick={ this.handleClickSetManually }>
 					{ __( 'Manually verify with Google' ) }
 				</Button>
 			</div>
