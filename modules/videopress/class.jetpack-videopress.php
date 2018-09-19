@@ -2,7 +2,6 @@
 
 /**
  * VideoPress in Jetpack
- *
  */
 class Jetpack_VideoPress {
 	/** @var string */
@@ -18,7 +17,7 @@ class Jetpack_VideoPress {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_VideoPress;
+			$instance = new Jetpack_VideoPress();
 		}
 
 		return $instance;
@@ -30,7 +29,7 @@ class Jetpack_VideoPress {
 	 * Sets up the initializer and makes sure that videopress activates and deactivates properly.
 	 */
 	private function __construct() {
-		//$this->version = time(); // <s>ghost</s> cache busters!
+		// $this->version = time(); // <s>ghost</s> cache busters!
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
 	}
@@ -82,7 +81,6 @@ class Jetpack_VideoPress {
 		}
 
 		// Additional and internal caps checks
-
 		if ( ! user_can( $user_id, 'upload_files' ) ) {
 			return false;
 		}
@@ -136,7 +134,7 @@ class Jetpack_VideoPress {
 				),
 				array(
 					'jquery',
-					'wp-plupload'
+					'wp-plupload',
 				),
 				$this->version
 			);
@@ -148,7 +146,7 @@ class Jetpack_VideoPress {
 					'modules/videopress/js/videopress-uploader.js'
 				),
 				array(
-					'videopress-plupload'
+					'videopress-plupload',
 				),
 				$this->version
 			);
@@ -179,7 +177,7 @@ class Jetpack_VideoPress {
 	 * This is an action proxy to the videopress_get_attachment_url() utility function.
 	 *
 	 * @param string $url
-	 * @param int $post_id
+	 * @param int    $post_id
 	 *
 	 * @return string
 	 */
@@ -232,7 +230,7 @@ class Jetpack_VideoPress {
 		);
 
 		// Only load on the post, new post, or upload pages.
-		if ( !in_array( $pagenow, $acceptable_pages ) ) {
+		if ( ! in_array( $pagenow, $acceptable_pages ) ) {
 			return false;
 		}
 
@@ -258,7 +256,7 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
-		if ( ! isset ( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
+		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
 			return false;
 		}
 
@@ -281,7 +279,7 @@ class Jetpack_VideoPress {
 	 * @return array
 	 */
 	public function add_video_upload_mimes( $existing_mimes = array() ) {
-		$mime_types = wp_get_mime_types();
+		$mime_types  = wp_get_mime_types();
 		$video_types = array_filter( $mime_types, array( $this, 'filter_video_mimes' ) );
 
 		foreach ( $video_types as $key => $value ) {
@@ -302,12 +300,12 @@ class Jetpack_VideoPress {
 	 */
 	public function filter_video_mimes( $value ) {
 		return preg_match( '@^video/@', $value );
-  }
+	}
 
 	/**
 	 * @param string $icon
 	 * @param string $mime
-	 * @param int $post_id
+	 * @param int    $post_id
 	 *
 	 * @return string
 	 */
