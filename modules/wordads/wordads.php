@@ -499,7 +499,7 @@ HTML;
 	 * @since 4.5.0
 	 */
 	public function should_bail() {
-		return ! $this->option( 'wordads_approved' ) || ! ! $this->option( 'wordads_unsafe' );
+		return ! $this->option( 'wordads_approved' ) || (bool) $this->option( 'wordads_unsafe' );
 	}
 
 	/**
