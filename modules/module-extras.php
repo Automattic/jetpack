@@ -15,6 +15,7 @@ $tools = array(
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
+	'theme-tools/devicepx.php',
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',

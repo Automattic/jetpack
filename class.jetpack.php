@@ -628,9 +628,6 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
-		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
 		// gutenberg locale
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
@@ -1094,16 +1091,6 @@ class Jetpack {
 		}
 
 		return $locale;
-	}
-
-	/**
-	 * Device Pixels support
-	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
-	 */
-	function devicepx() {
-		if ( Jetpack::is_active() && current_theme_supports( 'jetpack-devicepx' ) ) {
-			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
-		}
 	}
 
 	/**
