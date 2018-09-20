@@ -7,8 +7,6 @@ require_once JETPACK__PLUGIN_DIR . '/modules/theme-tools/devicepx.php';
  */
 function test_devicepx_not_enqueued_by_default() {
 	$this->assertFalse( current_theme_supports( 'jetpack-devicepx' ) );
-
-	add_theme_supports( 'jetpack-devicepx' );
 }
 
 /**
