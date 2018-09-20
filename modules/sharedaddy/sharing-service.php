@@ -611,12 +611,19 @@ function sharing_add_footer() {
 			endif;
 		endif;
 
+		// Is the Stats module active? It is always active on WordPress.com.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$is_stats_active = true;
+		} else {
+			$is_stats_active = Jetpack::is_module_active( 'stats' );
+		}
+
 		wp_enqueue_script( 'sharing-js' );
 		$sharing_js_options = array(
 			'lang'            => get_base_recaptcha_lang_code(),
 			/** This filter is documented in modules/sharedaddy/sharing-service.php */
 			'counts'          => apply_filters( 'jetpack_sharing_counts', true ),
-			'is_stats_active' => Jetpack::is_module_active( 'stats' ),
+			'is_stats_active' => $is_stats_active,
 		);
 		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options );
 	}
