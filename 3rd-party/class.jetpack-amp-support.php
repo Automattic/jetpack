@@ -12,9 +12,6 @@ class Jetpack_AMP_Support {
 			return;
 		}
 
-		// Not supported on AMP.
-		remove_theme_support( 'jetpack-devicepx' );
-
 		// enable stats
 		if ( Jetpack::is_module_active( 'stats' ) ) {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
@@ -46,6 +43,17 @@ class Jetpack_AMP_Support {
 
 		// Add post template metadata for legacy AMP
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
+	}
+
+	/**
+	 * Disable theme features not supported by AMP.
+	 *
+	 * @uses remove_theme_support
+	 */
+	public function disable_theme_features() {
+		if ( self::is_amp_request() ) {
+			remove_theme_support( 'jetpack-devicepx' );
+		}
 	}
 
 	static function admin_init() {
@@ -351,6 +359,8 @@ class Jetpack_AMP_Support {
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 
 add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
+
+add_action( 'after_setup_theme', array( 'Jetpack_AMP_Support', 'disable_theme_features' ), 1 );
 
 // this is necessary since for better or worse Jetpack modules and widget files are loaded during plugins_loaded, which means we must
 // take the opportunity to intercept initialisation before that point, either by adding explicit detection into the module,
