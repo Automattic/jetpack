@@ -16,7 +16,7 @@ class SocialSeoAdsPrompt extends React.Component {
 			<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
 			<p>
 				{ __( 'Growing your following is easy with your Professional plan, thanks to content sharing and scheduling,' +
-					' SEO tools, and built-in subscription options. You can monetize your site with a simple payment button ' +
+					' SEO tools, and built-in subscription options. You can monetize your site with a Simple Payments button ' +
 					'and in-line ads, and monitor the success of your efforts by integrating with Google Analytics.'
 				) }
 			</p>
