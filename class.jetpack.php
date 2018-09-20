@@ -1101,7 +1101,7 @@ class Jetpack {
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		if ( Jetpack::is_active() && ! Jetpack_AMP_Support::is_amp_request() ) {
+		if ( Jetpack::is_active() && false !== get_theme_support( 'jetpack-devicepx' ) ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
 	}

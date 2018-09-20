@@ -12,6 +12,9 @@ class Jetpack_AMP_Support {
 			return;
 		}
 
+		// Not supported on AMP.
+		remove_theme_support( 'jetpack-devicepx' );
+
 		// enable stats
 		if ( Jetpack::is_module_active( 'stats' ) ) {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
