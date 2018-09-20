@@ -6,6 +6,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-simple-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-packager.php';
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -25,6 +26,7 @@ class Jetpack_Sync_Sender {
 	private $enqueue_wait_time;
 	private $sync_queue;
 	private $full_sync_queue;
+	private $packager;
 	private $codec;
 	private $old_user;
 
@@ -102,7 +104,12 @@ class Jetpack_Sync_Sender {
 		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
 	}
 
+	public function handle_packages() {
+		$this->packager->send_items_to_queue();
+	}
+
 	public function do_sync() {
+		$this->handle_packages();
 		return $this->do_sync_and_set_delays( $this->sync_queue );
 	}
 
@@ -375,6 +382,7 @@ class Jetpack_Sync_Sender {
 		$this->set_enqueue_wait_time( $settings['enqueue_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
 		$this->set_max_dequeue_time( Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->packager = Jetpack_Sync_Packager::get_instance();
 	}
 
 	function reset_data() {

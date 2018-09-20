@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-packager.php';
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
@@ -155,5 +156,11 @@ abstract class Jetpack_Sync_Module {
 		}
 
 		return $objects;
+	}
+
+	public function add_action_to_packager() {
+		$packager = Jetpack_Sync_Packager::get_instance();
+		$args = func_get_args();
+		$packager->add( current_filter(), $args );
 	}
 }

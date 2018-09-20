@@ -8,6 +8,7 @@ require_once $sync_dir . 'class.jetpack-sync-users.php';
 require_once $sync_dir . 'class.jetpack-sync-listener.php';
 require_once $sync_dir . 'class.jetpack-sync-sender.php';
 require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
+require_once $sync_dir . 'class.jetpack-sync-packager.php';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
@@ -24,6 +25,7 @@ require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $listener;
 	protected $sender;
+	protected $packager;
 
 	protected $server;
 	protected $server_replicator;
@@ -35,6 +37,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
+		$this->packager = Jetpack_Sync_Packager::get_instance();
 
 		parent::setUp();
 
@@ -72,7 +75,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 	}
 
 	public function test_pass() {

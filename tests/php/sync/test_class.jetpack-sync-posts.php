@@ -23,6 +23,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$events = $this->server_event_storage->get_all_events();
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
@@ -107,7 +108,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 
 		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
@@ -948,7 +949,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p><iframe width="200" height="113" #DIMENSIONS# src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>
@@ -964,12 +965,12 @@ That was a cool video.';
 		$this->assertContains(
 			$oembeded[0],
 			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
+			'$oembeded is NOT the same as filtered $this->post->post_content 1'
 		);
 		$this->assertContains(
 			$oembeded[1],
 			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
+			'$oembeded is NOT the same as filtered $this->post->post_content 2'
 		);
 
 		$this->sender->do_sync();

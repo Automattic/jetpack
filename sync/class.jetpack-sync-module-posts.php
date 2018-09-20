@@ -31,16 +31,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
-		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
+		add_action( 'jetpack_sync_save_post', array( $this, 'add_action_to_packager' ), 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
-		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'jetpack_published_post', array( $this, 'add_action_to_packager' ), 10, 2 );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
-		$this->init_listeners_for_meta_type( 'post', $callable );
+		$this->init_listeners_for_meta_type( 'post', array( $this, 'add_action_to_packager' ) );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
@@ -148,7 +148,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
-		if( $post->post_type ) {
+		if( isset( $post->post_type ) ) {
 			return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 		}
 		return false;
