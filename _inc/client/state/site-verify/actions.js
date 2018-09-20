@@ -23,7 +23,8 @@ export const checkVerifyStatusGoogle = () => {
 			dispatch( {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS,
 				verified: data.verified,
-				token: data.token
+				token: data.token,
+				google_search_console_url: data.google_search_console_url,
 			} );
 
 			return data;
@@ -46,6 +47,7 @@ export const verifySiteGoogle = () => {
 		return restApi.verifySiteGoogle().then( data => {
 			dispatch( {
 				verified: data.verified,
+				google_search_console_url: data.google_search_console_url,
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS,
 			} );
 

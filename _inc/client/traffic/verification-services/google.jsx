@@ -29,6 +29,7 @@ import {
 	isSiteVerifiedWithGoogle,
 	isVerifyingGoogleSite,
 	getGoogleSiteVerificationError,
+	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
 import { userCanManageOptions } from 'state/initial-state';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
@@ -149,20 +150,22 @@ class GoogleVerificationServiceComponent extends React.Component {
 							{ __( 'Edit' ) }
 						</Button>
 					</div>
-					<div className="jp-form-input-with-prefix-bottom-message" >
-						{
-							__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}", {
-								components: {
-									a: <ExternalLink
-										icon={ true }
-										iconSize={ 16 }
-										target="_blank" rel="noopener noreferrer"
-										href={ 'https://search.google.com/search-console?resource_id=https://' + this.props.rawUrl }
-									/>
-								}
-							} )
-						}
-					</div>
+					{ this.props.googleSearchConsoleUrl &&
+						<div className="jp-form-input-with-prefix-bottom-message" >
+							{
+								__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}", {
+									components: {
+										a: <ExternalLink
+											icon={ true }
+											iconSize={ 16 }
+											target="_blank" rel="noopener noreferrer"
+											href={ this.props.googleSearchConsoleUrl }
+										/>
+									}
+								} )
+							}
+						</div>
+					}
 				</div>
 			);
 		}
@@ -200,6 +203,7 @@ export default connect(
 		return {
 			fetchingSiteData: isFetchingSiteData( state ),
 			googleSiteVerificationConnectUrl: getExternalServiceConnectUrl( state, 'google_site_verification' ),
+			googleSearchConsoleUrl: getGoogleSearchConsoleUrl( state ),
 			fetchingGoogleSiteVerify: isFetchingGoogleSiteVerify( state ),
 			isConnectedToGoogle: isConnectedToGoogleSiteVerificationAPI( state ),
 			isSiteVerifiedWithGoogle: isSiteVerifiedWithGoogle( state ),
