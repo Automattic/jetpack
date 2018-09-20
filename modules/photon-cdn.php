@@ -4,15 +4,14 @@
  * Module Description: Serve static assets from our servers
  * Sort Order: 26
  * Recommendation Order: 1
- * First Introduced: 6.6
+ * First Introduced: 6.5-pressable
+ * Major Changes In: 6.5-pressable2
  * Requires Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
  * Additional Search Queries: photon, image, cdn, performance, speed, assets
  */
-
-$GLOBALS['concatenate_scripts'] = false;
 
 Jetpack::dns_prefetch( array(
 	'//c0.wp.com',
@@ -25,6 +24,12 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * Sets up action handlers needed for Jetpack CDN.
 	 */
 	public static function go() {
+		if ( defined( 'JETPACK__DISABLE_CDN' ) && true === JETPACK__DISABLE_CDN ) {
+			return;
+		}
+
+		$GLOBALS['concatenate_scripts'] = false;
+
 		add_action( 'wp_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'admin_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
@@ -238,4 +243,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		return false;
 	}
 }
+
 Jetpack_Photon_Static_Assets_CDN::go();
+
+
