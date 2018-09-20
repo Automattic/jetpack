@@ -5612,25 +5612,6 @@ p {
 			return null;
 		}
 
-		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['CONTENT_TYPE'];
-		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
-		}
-
-		if (
-			isset( $content_type ) &&
-			$content_type !== 'application/x-www-form-urlencoded' &&
-			$content_type !== 'application/json'
-		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This Content-Type is not supported.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
 		$verified = $this->verify_xml_rpc_signature();
 
 		if ( is_wp_error( $verified ) ) {
