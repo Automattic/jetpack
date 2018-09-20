@@ -189,6 +189,13 @@ EXPECTED;
 	}
 
 	/**
+	 * @covers Jetpack::devicepx
+	 */
+	public function test_devicepx_not_enqueued_by_default() {
+		$this->assertFalse( current_theme_supports( 'jetpack-devicepx' ) );
+	}
+
+	/**
 	 * @author georgestephanis
 	 * @covers Jetpack::dns_prefetch
 	 * @since 3.3.0
