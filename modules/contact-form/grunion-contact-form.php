@@ -2431,6 +2431,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'type'    => $field->attributes['type'],
 				'label'   => $field->attributes['label'],
 				'options' => $field->attributes['options'],
+				'post_id' => $post_id,
 
 			);
 		}
