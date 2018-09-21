@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
 * Masterbar: add link to Activity Log.
 * Search: improve the feature activation process.
+* Search: update the admin interface to give more information about what the feature does and how it can be used.
 * Sync: log action when an attachment is added to a post for the first time.
 * Sync: add URL details to synchronization requests.
 * Sync: detect if a post is saved via Gutenberg when synchronizing post events.
