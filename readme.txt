@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Geo Location: only enqueue Dashicons when necessary.
 * Google Analytics: do not output tracking code when the "Enhanced eCommerce" option is active, but the WooCommerce plugin is not.
 * Infinite Scroll: add a Privacy Link to the site's footer if a Privacy Policy was set up via WordPress's privacy options.
+* Infinite Scroll: fix video playback of VideoPress videos loaded via Infinite Scroll.
 * Protect: fix layout of legend that prompts the user to solve the math fallback so it works better in all languages.
 * Responsive Videos: avoid PHP notice.
 * Sharing: do not record stats if the stats module is disabled.
