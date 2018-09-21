@@ -149,7 +149,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 						<div className="jp-form-input-with-prefix-bottom-message">
 							<SimpleNotice
 								status="is-warning"
-								isCompact={ true }
+								isCompact
 								showDismiss={ false }
 								text={ __( 'Editing this HTML Tag code won’t unverify your site with your Google account.' ) }
 							>
@@ -192,7 +192,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 								__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}", {
 									components: {
 										a: <ExternalLink
-											icon={ true }
+											icon
 											iconSize={ 16 }
 											target="_blank" rel="noopener noreferrer"
 											href={ this.props.googleSearchConsoleUrl }
