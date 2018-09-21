@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Interface: update all Jetpack settings screens to use a similar design.
 * API: add flags to determine if Jetpack Search is enabled and supported.
+* CDN: First Beta version of the Photon CDN -- Speed up sites and increase max concurrent connections through Photon by cloud-hosting Jetpack and WordPress Core scripts, styles, and assets.
 * Contact Form: add filters to allow customizing the class attributes of inputs and buttons.
 * Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
 * Masterbar: add link to Activity Log.
@@ -126,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Geo Location: only enqueue Dashicons when necessary.
+* Google Analytics: do not output tracking code when the "Enhanced eCommerce" option is active, but the WooCommerce plugin is not.
 * Infinite Scroll: add a Privacy Link to the site's footer if a Privacy Policy was set up via WordPress's privacy options.
 * Protect: fix layout of legend that prompts the user to solve the math fallback so it works better in all languages.
 * Responsive Videos: avoid PHP notice.
