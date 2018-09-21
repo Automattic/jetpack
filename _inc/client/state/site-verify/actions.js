@@ -25,6 +25,7 @@ export const checkVerifyStatusGoogle = () => {
 				verified: data.verified,
 				token: data.token,
 				google_search_console_url: data.google_search_console_url,
+				google_verification_console_url: data.google_verification_console_url,
 			} );
 
 			return data;
@@ -48,6 +49,7 @@ export const verifySiteGoogle = () => {
 			dispatch( {
 				verified: data.verified,
 				google_search_console_url: data.google_search_console_url,
+				google_verification_console_url: data.google_verification_console_url,
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS,
 			} );
 

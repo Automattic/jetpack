@@ -33,6 +33,7 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 				fetching: false,
 				verified: action.verified,
 				google_search_console_url: action.google_search_console_url,
+				google_verification_console_url: action.google_verification_console_url,
 				token: action.token,
 				error: null,
 			} );
@@ -45,6 +46,7 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 				verifying: false,
 				verified: action.verified,
 				google_search_console_url: action.google_search_console_url,
+				google_verification_console_url: action.google_verification_console_url,
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL:
@@ -99,4 +101,8 @@ export function getGoogleSiteVerificationError( state ) {
 
 export function getGoogleSearchConsoleUrl( state ) {
 	return get( state, 'jetpack.siteVerify.google.google_search_console_url', null );
+}
+
+export function getGoogleVerificationConsoleUrl( state ) {
+	return get( state, 'jetpack.siteVerify.google.google_verification_console_url', null );
 }

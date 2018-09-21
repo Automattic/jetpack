@@ -30,10 +30,12 @@ import {
 	isVerifyingGoogleSite,
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
+	getGoogleVerificationConsoleUrl,
 } from 'state/site-verify';
 import { userCanManageOptions } from 'state/initial-state';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import { getSiteRawUrl } from 'state/initial-state';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 
 class GoogleVerificationServiceComponent extends React.Component {
 	state = {
@@ -106,28 +108,57 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	};
 
+	quickSave = event => {
+		this.props.onSubmit( event );
+		// revert back to the choice selection if field is empty
+		if ( ! this.props.value ) {
+			this.toggleVerifyMethod();
+		}
+	};
+
 	render() {
 		if ( this.state.inputVisible ) {
 			return (
-				<FormLabel
-					className="jp-form-input-with-prefix"
-					key="verification_service_google">
-					<span>{ __( 'Google' ) }</span>
-					<TextInput
-						name="google"
-						value={ this.props.value }
-						placeholder={ this.props.placeholder }
-						className="code"
-						disabled={ this.props.isUpdating( 'google' ) }
-						onChange={ this.props.onOptionChange } />
-					<Button
-						primary
-						type="button"
-						className="jp-form-site-verification-edit-button"
-						onClick={ this.props.onSubmit }>
-						{ __( 'Save' ) }
-					</Button>
-				</FormLabel>
+				<div>
+					<FormLabel
+						className="jp-form-input-with-prefix"
+						key="verification_service_google">
+						<span>{ __( 'Google' ) }</span>
+						<TextInput
+							name="google"
+							value={ this.props.value }
+							placeholder={ this.props.placeholder }
+							className="code"
+							disabled={ this.props.isUpdating( 'google' ) }
+							onChange={ this.props.onOptionChange } />
+						<Button
+							primary
+							type="button"
+							className="jp-form-site-verification-edit-button"
+							onClick={ this.quickSave }>
+							{ __( 'Save' ) }
+						</Button>
+					</FormLabel>
+					{ this.props.isSiteVerifiedWithGoogle && this.props.googleVerificationConsoleUrl &&
+						<div className="jp-form-input-with-prefix-bottom-message">
+							<SimpleNotice
+								status="is-warning"
+								isCompact={ true }
+								showDismiss={ false }
+								text={ __( 'Editing this HTML Tag code won’t unverify your site with your Google account.' ) }
+							>
+								<NoticeAction
+									external
+									href={ this.props.googleVerificationConsoleUrl }
+								>
+									{ __( 'Unverify with Google' ) }
+									<Gridicon icon="external" size={ this.props.iconSize } />
+								</NoticeAction>
+							</SimpleNotice>
+						</div>
+					}
+				</div>
+
 			);
 		}
 
@@ -204,13 +235,13 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state ),
 			googleSiteVerificationConnectUrl: getExternalServiceConnectUrl( state, 'google_site_verification' ),
 			googleSearchConsoleUrl: getGoogleSearchConsoleUrl( state ),
+			googleVerificationConsoleUrl: getGoogleVerificationConsoleUrl( state ),
 			fetchingGoogleSiteVerify: isFetchingGoogleSiteVerify( state ),
 			isConnectedToGoogle: isConnectedToGoogleSiteVerificationAPI( state ),
 			isSiteVerifiedWithGoogle: isSiteVerifiedWithGoogle( state ),
 			isVerifyingGoogleSite: isVerifyingGoogleSite( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 			googleSiteVerificationError: getGoogleSiteVerificationError( state ),
-			rawUrl: getSiteRawUrl( state ),
 		};
 	},
 	{
