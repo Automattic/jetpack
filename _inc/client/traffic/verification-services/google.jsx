@@ -43,18 +43,24 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	componentDidMount() {
-		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
-			if ( ! this.props.getOptionValue( 'google' ) && token ) {
-				return this.props.updateOptions( { google: token } );
+		this.props.checkVerifyStatusGoogle().then( response => {
+			if ( ! response ) {
+				return;
+			}
+			if ( ! this.props.getOptionValue( 'google' ) && response.token ) {
+				return this.props.updateOptions( { google: response.token } );
 			}
 		} );
 	}
 
 	checkAndVerifySite() {
 		this.props.createNotice( 'is-info', __( 'Verifying...' ), { id: 'verifying-site-google' } );
-		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
-			if ( token !== this.props.value ) {
-				return this.props.updateOptions( { google: token } );
+		this.props.checkVerifyStatusGoogle().then( response => {
+			if ( ! response ) {
+				return;
+			}
+			if ( response.token !== this.props.value ) {
+				return this.props.updateOptions( { google: response.token } );
 			}
 		} ).then( () => {
 			this.props.removeNotice( 'verifying-site-google' );
@@ -152,7 +158,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 									href={ this.props.googleVerificationConsoleUrl }
 								>
 									{ __( 'Unverify with Google' ) }
-									<Gridicon icon="external" size={ this.props.iconSize } />
 								</NoticeAction>
 							</SimpleNotice>
 						</div>
