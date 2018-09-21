@@ -4,7 +4,8 @@
  * Module Description: Serve static assets from our servers
  * Sort Order: 26
  * Recommendation Order: 1
- * First Introduced: 6.6
+ * First Introduced: 6.5-pressable
+ * Major Changes In: 6.5-pressable2
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Appearance, Recommended
