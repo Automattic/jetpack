@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Slideshows: ensure arrows point in the right direction for RTL Languages.
 * Sync: avoid PHP notices when synchronizing user information.
 * VideoPress: avoid duplicate rel attributes in links.
+* VideoPress: do not block access to the Video settings for our customers using a 2-year plan.
 
 --------
 
