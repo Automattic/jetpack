@@ -1117,7 +1117,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The image post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type string $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function image_post_to_sitemap_item( $post ) {
 
