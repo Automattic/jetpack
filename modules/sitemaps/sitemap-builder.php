@@ -1142,6 +1142,15 @@ class Jetpack_Sitemap_Builder {
 
 		$url = wp_get_attachment_url( $post->ID );
 
+		// Do not include the image if the attached parent is not published.
+		// Unattached will be published. Otherwise, will inherit parent status.
+		if ( 'publish' !== get_post_status( $post ) ) {
+			return array(
+				'xml'           => null,
+				'last_modified' => null,
+			);
+		}
+
 		$parent_url = get_permalink( get_post( $post->post_parent ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
 			$parent_url = get_permalink( $post );
