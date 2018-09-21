@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * API: add flags to determine if Jetpack Search is enabled and supported.
 * CDN: First Beta version of the Photon CDN -- Speed up sites and increase max concurrent connections through Photon by cloud-hosting Jetpack and WordPress Core scripts, styles, and assets.
 * Contact Form: add filters to allow customizing the class attributes of inputs and buttons.
+* Gutenberg: add infrastructure necessary to add new blocks via Jetpack.
 * Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
 * Masterbar: add link to Activity Log.
 * Publicize: the Path Social Network is closing in October. The option has consequently been removed from the Publicize interface.
