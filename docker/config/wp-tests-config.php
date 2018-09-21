@@ -25,6 +25,16 @@ define( 'WP_DEBUG', true );
 // Enable error logging for tests
 define( 'WP_DEBUG_LOG', true );
 
+// Additional constants for better error log
+@error_reporting( E_ALL );
+@ini_set( 'log_errors', true );
+@ini_set( 'log_errors_max_len', '0' );
+
+define( 'WP_DEBUG_DISPLAY', false );
+define( 'CONCATENATE_SCRIPTS', false );
+define( 'SCRIPT_DEBUG', true );
+define( 'SAVEQUERIES', true );
+
 // ** MySQL settings ** //
 
 // This configuration file will be used by the copy of WordPress being tested.
