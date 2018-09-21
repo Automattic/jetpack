@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: add filters to allow customizing the class attributes of inputs and buttons.
 * Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
 * Masterbar: add link to Activity Log.
+* Publicize: the Path Social Network is closing in October. The option has consequently been removed from the Publicize interface.
 * Search: improve the feature activation process.
 * Search: update the admin interface to give more information about what the feature does and how it can be used.
 * Sync: log action when an attachment is added to a post for the first time.
