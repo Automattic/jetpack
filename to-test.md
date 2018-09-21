@@ -1,5 +1,19 @@
 ## 6.6
 
+### Admin Page
+
+We've made some design changes to all the Jetpack settings screens in this release, so all the Jetpack pages share the same design as the main Jetpack dashboard.
+
+You can test this on different devices and browsers. The following pages were changed:
+
+- Jetpack > Site Stats
+- Jetpack > Site Stats > Configure
+- Jetpack > Debug
+- Jetpack > Debug > All Modules list
+- **Settings > Sharing**
+- On Multisite networks, we have updated Network > Jetpack Sites
+- Still on Multisite, check Network > Jetpack settings
+
 ### Verification Tools
 
 We've made a big improvement to the process needed to verify a site with Google. Here are the details steps you can follow to test the new process:

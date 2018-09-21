@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Interface: update all Jetpack settings screens to use a similar design.
 * API: add flags to determine if Jetpack Search is enabled and supported.
 * Contact Form: add filters to allow customizing the class attributes of inputs and buttons.
 * Lazy Images: load the placeholder via the `srcset` attribute instead of the `src` attribute.
