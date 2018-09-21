@@ -1040,7 +1040,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
-	 * @return array An array representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function post_to_sitemap_item( $post ) {
 
@@ -1118,7 +1120,7 @@ class Jetpack_Sitemap_Builder {
 	 * @param WP_Post $post The image post to be processed.
 	 *
 	 * @return array
-	 *              @type string $xml An XML fragment representing the post URL.
+	 *              @type array  $xml An XML fragment representing the post URL.
 	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function image_post_to_sitemap_item( $post ) {
@@ -1203,7 +1205,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The video post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function video_post_to_sitemap_item( $post ) {
 
