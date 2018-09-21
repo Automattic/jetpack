@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: do not record stats if the stats module is disabled.
 * Shortcodes: ensure we build minified and RTL stylesheets for slideshows.
 * Simple Payments: Stop contributors from creating inaccessible buttons with a "pending" post status.
+* Slideshows: ensure arrows point in the right direction for RTL Languages.
 * Sync: avoid PHP notices when synchronizing user information.
 * VideoPress: avoid duplicate rel attributes in links.
 
