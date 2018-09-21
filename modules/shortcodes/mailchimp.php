@@ -6,7 +6,8 @@
  * [mailchimp_subscriber_popup baseUrl="mc.us11.list-manage.com" uuid="1ca7856462585a934b8674c71" lid="2d24f1898b"]
  *
  * Embed code example:
- * <script type="text/javascript" src="//downloads.mailchimp.com/js/signup-forms/popup/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b"}) })</script>
+ * <script type="text/javascript" src="//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b","uniqueMethods":true}) })</script>
+ *
  */
 
 /**
@@ -51,9 +52,9 @@ class MailChimp_Subscriber_Popup {
 	 */
 	static $reversal_regexes = array(
 		/* raw examplejs */
-		'/<script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"><\/script><script type="text\/javascript">require\(\["mojo\/signup-forms\/Loader"\]\, function\(L\) { L\.start\({([^}]*?)}\) }\)<\/script>/s',
+		'/<script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/unique-methods\/embed\.js" data-dojo-config="([^"]*?)"><\/script><script type="text\/javascript">window.dojoRequire\(\["mojo\/signup-forms\/Loader"\]\, function\(L\) { L\.start\({([^}]*?)}\) }\)<\/script>/s',
 		/* visual editor */
-		'/&lt;script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"&gt;&lt;\/script&gt;&lt;script type="text\/javascript"&gt;require\(\["mojo\/signup-forms\/Loader"]\, function\(L\) { L\.start\({([^}]*?)}\) }\)&lt;\/script&gt;/s',
+		'/&lt;script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/unique-methods\/embed\.js" data-dojo-config="([^"]*?)"&gt;&lt;\/script&gt;&lt;script type="text\/javascript"&gt;window.dojoRequire\(\["mojo\/signup-forms\/Loader"]\, function\(L\) { L\.start\({([^}]*?)}\) }\)&lt;\/script&gt;/s',
 	);
 
 	/**
@@ -88,7 +89,7 @@ class MailChimp_Subscriber_Popup {
 	 */
 	static function reversal( $content ) {
 		// Bail without the js src
-		if ( ! is_string( $content ) || false === stripos( $content, 'downloads.mailchimp.com/js/signup-forms/popup/embed.js' ) ) {
+		if ( ! is_string( $content ) || false === stripos( $content, 'downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js' ) ) {
 			return $content;
 		}
 
@@ -199,11 +200,14 @@ class MailChimp_Subscriber_Popup {
 			return '<!-- Missing MailChimp baseUrl, uuid or lid -->';
 		}
 
+		// Add a uniqueMethods parameter if it is missing from the data we got from the embed code.
+		$js_vars['uniqueMethods'] = true;
+
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'mailchimp_subscriber_popup', 'view' );
 
 		$displayed_once = true;
 
-		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/embed.js", function( data, textStatus, jqxhr ) { require(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars ) . ') }); window.define.amd = undefined; } );</script>' . "\n\n";
+		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars ) . ') });} );</script>' . "\n\n";
 	}
 }
