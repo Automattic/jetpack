@@ -70,9 +70,9 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 
 		$input = $this->input();
 
-		if ( is_array( $input['comment_ids'] ) ) {
+		if ( isset( $input['comment_ids'] ) && is_array( $input['comment_ids'] ) ) {
 			$comment_ids = $input['comment_ids'];
-		} else if ( ! empty( $input['comment_ids'] ) ) {
+		} else if ( isset( $input['comment_ids'] ) && ! empty( $input['comment_ids'] ) ) {
 			$comment_ids = explode( ',', $input['comment_ids'] );
 		} else {
 			$comment_ids = array();
@@ -85,12 +85,12 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 		wp_defer_comment_counting( true );
 
 		if ( $this->api->ends_with( $path, '/delete' ) ) {
-			if ( $this->validate_empty_status_param( $input['empty_status'] ) ) {
+			if ( isset( $input['empty_status'] ) && $this->validate_empty_status_param( $input['empty_status'] ) ) {
 				$result['results'] = $this->delete_all( $input['empty_status'] );
 			} else {
 				$result['results'] = $this->bulk_delete_comments( $comment_ids );
 			}
-		} else {
+		} else if ( isset( $input['status'] ) ) {
 			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $input['status'] );
 		}
 
