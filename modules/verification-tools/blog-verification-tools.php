@@ -51,7 +51,16 @@ function jetpack_verification_print_meta() {
 				} else {
 					$verification_code = $verification_services_codes[ "$name" ];
 				}
-				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service['key'] ), esc_attr( $verification_code ) );
+				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_code ) );
+
+				if (
+					isset( $_SERVER['HTTP_USER_AGENT'] ) &&
+					preg_match( '/.*Google-Site-Verification.*/', $_SERVER['HTTP_USER_AGENT'] ) &&
+					'google-site-verification' === $service[ 'key' ]
+				) {
+					jetpack_require_lib( 'tracks/client' );
+					jetpack_tracks_record_event( wp_get_current_user(), 'jetpack_google_verification_attempt' );
+				}
 				/**
 				 * Filter the meta tag template used for all verification tools.
 				 *
