@@ -7320,6 +7320,9 @@ p {
 		 *
 		 * @param bool false Whether to load Gutenberg blocks
 		 */
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
 		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
 			return;
 		}
