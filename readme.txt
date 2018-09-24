@@ -126,10 +126,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-Shortcodes: update Mailchimp shortcode to match the new format offered by Mailchimp.
+* Shortcodes: update Mailchimp shortcode to match the new format offered by Mailchimp.
 
 **Bug fixes**
 
+* Featured Content: avoid registering duplicate Post Types.
 * Geo Location: only enqueue Dashicons when necessary.
 * Google Analytics: do not output tracking code when the "Enhanced eCommerce" option is active, but the WooCommerce plugin is not.
 * Infinite Scroll: add a Privacy Link to the site's footer if a Privacy Policy was set up via WordPress's privacy options.
