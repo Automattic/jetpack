@@ -1040,7 +1040,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
-	 * @return array An array representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function post_to_sitemap_item( $post ) {
 
@@ -1117,7 +1119,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The image post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function image_post_to_sitemap_item( $post ) {
 
@@ -1139,6 +1143,15 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		$url = wp_get_attachment_url( $post->ID );
+
+		// Do not include the image if the attached parent is not published.
+		// Unattached will be published. Otherwise, will inherit parent status.
+		if ( 'publish' !== get_post_status( $post ) ) {
+			return array(
+				'xml'           => null,
+				'last_modified' => null,
+			);
+		}
 
 		$parent_url = get_permalink( get_post( $post->post_parent ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
@@ -1192,7 +1205,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The video post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function video_post_to_sitemap_item( $post ) {
 
@@ -1207,6 +1222,15 @@ class Jetpack_Sitemap_Builder {
 		 * @param WP_POST $post Current post object.
 		 */
 		if ( apply_filters( 'jetpack_sitemap_video_skip_post', false, $post ) ) {
+			return array(
+				'xml'           => null,
+				'last_modified' => null,
+			);
+		}
+
+		// Do not include the video if the attached parent is not published.
+		// Unattached will be published. Otherwise, will inherit parent status.
+		if ( 'publish' !== get_post_status( $post ) ) {
 			return array(
 				'xml'           => null,
 				'last_modified' => null,
