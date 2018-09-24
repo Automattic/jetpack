@@ -115,7 +115,10 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	quickSave = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save' );
+
 		this.props.onSubmit( event );
+
 		// revert back to the choice selection if field is empty
 		if ( ! this.props.value ) {
 			this.toggleVerifyMethod();
