@@ -126,6 +126,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			// Themes can allow Featured Content pages
 			if ( isset( $theme_support[0]['post_types'] ) ) {
 				self::$post_types = array_merge( self::$post_types, (array) $theme_support[0]['post_types'] );
+				self::$post_types = array_unique( self::$post_types );
 
 				// register post_tag support for each post type
 				foreach ( self::$post_types as $post_type ) {
