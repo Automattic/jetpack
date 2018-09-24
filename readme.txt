@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: the Path Social Network is closing in October. The option has consequently been removed from the Publicize interface.
 * Search: improve the feature activation process.
 * Search: update the admin interface to give more information about what the feature does and how it can be used.
+* Simple Payments: update all mentions of the product for a more consistent naming convention and less confusion for both site owners and translators.
 * Sync: log action when an attachment is added to a post for the first time.
 * Sync: add URL details to synchronization requests.
 * Sync: detect if a post is saved via Gutenberg when synchronizing post events.
