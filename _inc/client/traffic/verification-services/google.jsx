@@ -148,25 +148,35 @@ class GoogleVerificationServiceComponent extends React.Component {
 							</Button>
 						}
 					</FormLabel>
-					{ this.props.isSiteVerifiedWithGoogle && this.props.googleVerificationConsoleUrl &&
+					{ this.props.isSiteVerifiedWithGoogle &&
 						<div className="jp-form-input-with-prefix-bottom-message">
-							<SimpleNotice
-								status="is-warning"
-								isCompact
-								showDismiss={ false }
-								text={ __( 'Editing this HTML Tag code won’t unverify your site with your Google account.' ) }
-							>
-								<NoticeAction
-									external
-									href={ this.props.googleVerificationConsoleUrl }
+							{ this.props.googleVerificationConsoleUrl &&
+								<SimpleNotice
+									status="is-warning"
+									isCompact
+									showDismiss={ false }
+									text={ __( 'Editing this HTML Tag code won’t unverify your site with your Google account.' ) }
 								>
-									{ __( 'Unverify with Google' ) }
-								</NoticeAction>
-							</SimpleNotice>
+									<NoticeAction
+										external
+										href={ this.props.googleVerificationConsoleUrl }
+									>
+										{ __( 'Unverify with Google' ) }
+									</NoticeAction>
+								</SimpleNotice>
+							}
+							{ ! this.props.googleVerificationConsoleUrl &&
+								<SimpleNotice
+									status="is-warning"
+									isCompact
+									showDismiss={ false }
+									text={ __( 'Editing this HTML Tag code won’t unverify your site with the Google account it is connected to.' ) }
+								>
+								</SimpleNotice>
+							}
 						</div>
 					}
 				</div>
-
 			);
 		}
 
