@@ -30,12 +30,9 @@ import {
 	isVerifyingGoogleSite,
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
-	getGoogleVerificationConsoleUrl,
 } from 'state/site-verify';
 import { userCanManageOptions } from 'state/initial-state';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
 
 class GoogleVerificationServiceComponent extends React.Component {
 	state = {
@@ -148,34 +145,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 							</Button>
 						}
 					</FormLabel>
-					{ this.props.isSiteVerifiedWithGoogle &&
-						<div className="jp-form-input-with-prefix-bottom-message">
-							{ this.props.googleVerificationConsoleUrl &&
-								<SimpleNotice
-									status="is-warning"
-									isCompact
-									showDismiss={ false }
-									text={ __( 'Editing this HTML Tag code won’t unverify your site with your Google account.' ) }
-								>
-									<NoticeAction
-										external
-										href={ this.props.googleVerificationConsoleUrl }
-									>
-										{ __( 'Unverify with Google' ) }
-									</NoticeAction>
-								</SimpleNotice>
-							}
-							{ ! this.props.googleVerificationConsoleUrl &&
-								<SimpleNotice
-									status="is-warning"
-									isCompact
-									showDismiss={ false }
-									text={ __( 'Editing this HTML Tag code won’t unverify your site with the Google account it is connected to.' ) }
-								>
-								</SimpleNotice>
-							}
-						</div>
-					}
 				</div>
 			);
 		}
@@ -253,7 +222,6 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state ),
 			googleSiteVerificationConnectUrl: getExternalServiceConnectUrl( state, 'google_site_verification' ),
 			googleSearchConsoleUrl: getGoogleSearchConsoleUrl( state ),
-			googleVerificationConsoleUrl: getGoogleVerificationConsoleUrl( state ),
 			fetchingGoogleSiteVerify: isFetchingGoogleSiteVerify( state ),
 			isConnectedToGoogle: isConnectedToGoogleSiteVerificationAPI( state ),
 			isSiteVerifiedWithGoogle: isSiteVerifiedWithGoogle( state ),
