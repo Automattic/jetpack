@@ -7362,6 +7362,8 @@ p {
 			'jetpack-blocks-editor',
 			$editor_script,
 			array(
+				'lodash',
+				'wp-api-fetch',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',
@@ -7369,6 +7371,7 @@ p {
 				'wp-date',
 				'wp-editor',
 				'wp-element',
+				'wp-hooks',
 				'wp-i18n',
 				'wp-plugins',
 			),
