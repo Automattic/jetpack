@@ -124,7 +124,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
-		if ( this.state.inputVisible || isForbidden ) {
+		if ( this.state.inputVisible || isForbidden || ! this.props.isCurrentUserLinked ) {
 			return (
 				<div>
 					<FormLabel
