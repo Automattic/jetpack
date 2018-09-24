@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: fix layout of legend that prompts the user to solve the math fallback so it works better in all languages.
 * Responsive Videos: avoid PHP notice.
 * Sharing: do not record stats if the stats module is disabled.
+* Sharing: allow saving sharing button options on media edit page as well.
 * Shortcodes: ensure we build minified and RTL stylesheets for slideshows.
 * Simple Payments: Stop contributors from creating inaccessible buttons with a "pending" post status.
 * Slideshows: ensure arrows point in the right direction for RTL Languages.
