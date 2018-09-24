@@ -119,10 +119,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 		this.props.onSubmit( event );
 
-		// revert back to the choice selection if field is empty
-		if ( ! this.props.value ) {
-			this.toggleVerifyMethod();
-		}
+		this.toggleVerifyMethod();
 	};
 
 	render() {
