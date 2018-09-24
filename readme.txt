@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+Shortcodes: update Mailchimp shortcode to match the new format offered by Mailchimp.
 
 **Bug fixes**
 
