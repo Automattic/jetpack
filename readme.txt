@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* CSS Concatenation: add Authors and Social Icons widgets to concatenated styles.
 * Featured Content: avoid registering duplicate Post Types.
 * Geo Location: only enqueue Dashicons when necessary.
 * Google Analytics: do not output tracking code when the "Enhanced eCommerce" option is active, but the WooCommerce plugin is not.
