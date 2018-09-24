@@ -82,7 +82,6 @@ body div.slideshow-window * img {
 	text-align: center;
 }
 
-/* @noflip */
 .slideshow-controls {
 	z-index: 1000;
 	position: absolute;
