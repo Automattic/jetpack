@@ -123,7 +123,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	render() {
-		if ( this.state.inputVisible ) {
+		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
+		if ( this.state.inputVisible || isForbidden ) {
 			return (
 				<div>
 					<FormLabel
@@ -137,13 +138,15 @@ class GoogleVerificationServiceComponent extends React.Component {
 							className="code"
 							disabled={ this.props.isUpdating( 'google' ) }
 							onChange={ this.props.onOptionChange } />
-						<Button
-							primary
-							type="button"
-							className="jp-form-site-verification-edit-button"
-							onClick={ this.quickSave }>
-							{ __( 'Save' ) }
-						</Button>
+						{ this.state.inputVisible &&
+							<Button
+								primary
+								type="button"
+								className="jp-form-site-verification-edit-button"
+								onClick={ this.quickSave }>
+								{ __( 'Save' ) }
+							</Button>
+						}
 					</FormLabel>
 					{ this.props.isSiteVerifiedWithGoogle && this.props.googleVerificationConsoleUrl &&
 						<div className="jp-form-input-with-prefix-bottom-message">
