@@ -224,7 +224,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 					type="button"
 					disabled={ disabled }
 					onClick={ this.handleClickAutoVerify }>
-						{ __( 'Auto verify with Google' ) }
+						{ __( 'Auto-verify with Google' ) }
 				</Button>
 				<span className="jp-form-google-separator">
 					{ __( 'or' ) }
