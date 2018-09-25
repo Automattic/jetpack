@@ -68,7 +68,8 @@ body, #wp-content-editor-tools {
 	border-bottom: 1px solid rgba(200,215,225,0.5);
 }
 
-#wpcontent {
+#wpcontent,
+#wpfooter {
 	margin-left: 272px;
 }
 
