@@ -187,8 +187,9 @@ class GoogleVerificationServiceComponent extends React.Component {
 									}
 									{ ' ' }
 									{
-										__( 'Note it will email you if any unusual events occur with your properties. \
-										Unusual events include indications that your website has been {{a1}}hacked{{/a1}}, or problems that Google had when {{a2}}crawling or indexing{{/a2}} your site.', {
+										__( 'Note it will email you if any unusual events occur with your properties. ' +
+										'Unusual events include indications that your website has been {{a1}}hacked{{/a1}}, ' +
+										'or problems that Google had when {{a2}}crawling or indexing{{/a2}} your site.', {
 											components: {
 												a1: <ExternalLink
 													icon
