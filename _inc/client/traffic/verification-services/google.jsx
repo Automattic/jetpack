@@ -96,6 +96,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_auto_verify_click' );
 
 		if ( ! this.props.isConnectedToGoogle ) {
+			analytics.tracks.recordEvent( 'jetpack_site_verification_google_authenticate' );
 			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
 				this.checkAndVerifySite();
 			} );
