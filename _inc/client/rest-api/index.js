@@ -2,9 +2,8 @@
  * External dependencies
  */
 require( 'es6-promise' ).polyfill();
+import apiFetch from '@wordpress/api-fetch';
 import assign from 'lodash/assign';
-
-const apiFetch = window.wp.apiFetch;
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -29,44 +28,38 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
 function JetpackRestApiClient() {
 	const methods = {
+		setApiRoot( newRoot ) {
+			apiFetch.use( apiFetch.createRootURLMiddleware( newRoot ) );
+		},
+		setApiNonce( newNonce ) {
+			apiFetch.use( apiFetch.createNonceMiddleware( newNonce ) );
+		},
+		fetchSiteConnectionStatus: () => getRequest( '/jetpack/v4/connection' ),
 
 		fetchSiteConnectionStatus: () => getRequest( '/jetpack/v4/connection' )
-			.then( parseJsonResponse ),
 
 		fetchSiteConnectionTest: () => getRequest( '/jetpack/v4/connection/test' )
-			.then( parseJsonResponse ),
 
-		fetchUserConnectionData: () => getRequest( '/jetpack/v4/connection/data' )
-			.then( parseJsonResponse ),
+		fetchUserConnectionData: () => getRequest( '/jetpack/v4/connection/data' ),
 
-		fetchUserTrackingSettings: () => getRequest( '/jetpack/v4/tracking/settings' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchUserTrackingSettings: () => getRequest( '/jetpack/v4/tracking/settings' ),
 
 		updateUserTrackingSettings: ( newSettings ) => postRequest(
 			'/jetpack/v4/tracking/settings',
 			{
-				body: JSON.stringify( newSettings )
+				body: newSettings
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
 		disconnectSite: () => postRequest( '/jetpack/v4/connection', {
-			body: JSON.stringify( { isActive: false } )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+			body: { isActive: false }
+		} ),
 
-		fetchConnectUrl: () => getRequest( '/jetpack/v4/connection/url' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchConnectUrl: () => getRequest( '/jetpack/v4/connection/url' ),
 
 		unlinkUser: () => postRequest( '/jetpack/v4/connection/user', {
-			body: JSON.stringify( { linked: false } )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+			body: { linked: false }
+		} ),
 
 		jumpStart: ( action ) => {
 			let active;
@@ -77,153 +70,105 @@ function JetpackRestApiClient() {
 				active = false;
 			}
 			return postRequest( '/jetpack/v4/jumpstart', {
-				body: JSON.stringify( { active } )
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse );
+				body: { active }
+			} );
 		},
 
-		fetchModules: () => getRequest( '/jetpack/v4/module/all' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchModules: () => getRequest( '/jetpack/v4/module/all' ),
 
-		fetchModule: ( slug ) => getRequest( `jetpack/v4/module/${ slug }` )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchModule: ( slug ) => getRequest( `jetpack/v4/module/${ slug }` ),
 
 		activateModule: ( slug ) => postRequest(
 			`jetpack/v4/module/${ slug }/active`,
 			{
-				body: JSON.stringify( { active: true } )
+				body: { active: true }
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
 		deactivateModule: ( slug ) => postRequest(
 			`jetpack/v4/module/${ slug }/active`,
 			{
-				body: JSON.stringify( { active: false } )
+				body: { active: false }
 			}
 		),
 
 		updateModuleOptions: ( slug, newOptionValues ) => postRequest(
 			`jetpack/v4/module/${ slug }`,
 			{
-				body: JSON.stringify( newOptionValues )
+				body: newOptionValues
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
 		updateSettings: ( newOptionValues ) => postRequest(
 			'/jetpack/v4/settings',
 			{
-				body: JSON.stringify( newOptionValues )
+				body: newOptionValues
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
-		getProtectCount: () => getRequest( '/jetpack/v4/module/protect/data' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getProtectCount: () => getRequest( '/jetpack/v4/module/protect/data' ),
 
 		resetOptions: ( options ) => postRequest(
 			`jetpack/v4/options/${ options }`,
 			{
-				body: JSON.stringify( { reset: true } )
+				body: { reset: true }
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
-		getVaultPressData: () => getRequest( '/jetpack/v4/module/vaultpress/data' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getVaultPressData: () => getRequest( '/jetpack/v4/module/vaultpress/data' ),
 
-		getAkismetData: () => getRequest( '/jetpack/v4/module/akismet/data' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getAkismetData: () => getRequest( '/jetpack/v4/module/akismet/data' ),
 
-		checkAkismetKey: () => getRequest( '/jetpack/v4/module/akismet/key/check' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		checkAkismetKey: () => getRequest( '/jetpack/v4/module/akismet/key/check' ),
 
 		checkAkismetKeyTyped: apiKey => postRequest(
 			'/jetpack/v4/module/akismet/key/check',
 			{
-				body: JSON.stringify( { api_key: apiKey } )
+				body: { api_key: apiKey }
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
 		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ) )
-			.then( checkStatus )
-			.then( parseJsonResponse )
 			.then( handleStatsResponseError ),
 
-		getPluginUpdates: () => getRequest( '/jetpack/v4/updates/plugins' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getPluginUpdates: () => getRequest( '/jetpack/v4/updates/plugins' ),
 
-		getPlans: () => getRequest( '/jetpack/v4/plans' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getPlans: () => getRequest( '/jetpack/v4/plans' ),
 
-		fetchSettings: () => getRequest( '/jetpack/v4/settings' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchSettings: () => getRequest( '/jetpack/v4/settings' ),
 
 		updateSetting: ( updatedSetting ) => postRequest( '/jetpack/v4/settings', {
-			body: JSON.stringify( updatedSetting )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+			body: updatedSetting
+		} ),
 
 		fetchSiteData: () => getRequest( '/jetpack/v4/site' )
-			.then( checkStatus )
-			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		fetchSiteFeatures: () => getRequest( '/jetpack/v4/site/features' )
-			.then( checkStatus )
-			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		fetchRewindStatus: () => getRequest( '/jetpack/v4/rewind' )
-			.then( checkStatus )
-			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		dismissJetpackNotice: ( notice ) => postRequest(
 			`/jetpack/v4/notice/${ notice }`,
 			{
-				body: JSON.stringify( { dismissed: true } )
+				body: { dismissed: true }
 			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		),
 
-		fetchPluginsData: () => getRequest( '/jetpack/v4/plugins' )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchPluginsData: () => getRequest( '/jetpack/v4/plugins' ),
 
 		fetchVerifySiteGoogleStatus: ( keyringId ) => {
 			const request = ( keyringId !== null )
 				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }` )
 				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google` );
 
-			return request
-				.then( checkStatus )
-				.then( parseJsonResponse );
+			return request;
 		}, 
 		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, {
 			body: JSON.stringify( { keyring_id: keyringId } ),
 		} )
-			.then( checkStatus )
-			.then( parseJsonResponse )
 	};
 
 	function getRequest( path ) {
@@ -232,11 +177,12 @@ function JetpackRestApiClient() {
 		} );
 	}
 
-	function postRequest( path, body ) {
+	function postRequest( path, { body: data } ) {
 		return apiFetch( {
 			path,
-			body,
-		} ).catch( catchNetworkErrors );
+			method: 'POST',
+			data,
+		} );
 	}
 
 	function statsDataUrl( range ) {
@@ -265,44 +211,3 @@ function JetpackRestApiClient() {
 const restApi = new JetpackRestApiClient();
 
 export default restApi;
-
-function checkStatus( response ) {
-	// Regular success responses
-	if ( response.status >= 200 && response.status < 300 ) {
-		return response;
-	}
-
-	if ( response.status === 404 ) {
-		return new Promise( () => {
-			const err = response.redirected
-				? new Api404AfterRedirectError( response.redirected )
-				: new Api404Error();
-			throw err;
-		} );
-	}
-
-	return response.json().then( json => {
-		const error = new Error( `${ json.message } (Status ${ response.status })` );
-		error.response = json;
-		throw error;
-	} );
-}
-
-function parseJsonResponse( response ) {
-	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
-}
-
-function catchJsonParseError( e, redirected, url ) {
-	const err = redirected
-		? new JsonParseAfterRedirectError( url )
-		: new JsonParseError();
-	throw err;
-}
-
-// Catches TypeError coming from the Fetch API implementation
-function catchNetworkErrors() {
-	//Either one of:
-	// * A preflight error like a redirection to an external site (which results in a CORS)
-	// * A preflight error like ERR_TOO_MANY_REDIRECTS
-	throw new FetchNetworkError();
-}
