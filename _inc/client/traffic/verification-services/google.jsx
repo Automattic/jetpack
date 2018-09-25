@@ -62,14 +62,17 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} ).then( () => {
 			this.props.removeNotice( 'verifying-site-google' );
 			if ( ! this.props.isSiteVerifiedWithGoogle ) {
-				this.props.verifySiteGoogle().then( response => {
+				this.props.verifySiteGoogle().then( () => {
 					if ( this.props.googleSiteVerificationError ) {
-						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error' );
+						const errorMessage = this.props.googleSiteVerificationError.message;
+						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error', {
+							message: errorMessage
+						} );
 						this.props.createNotice(
 							'is-error',
 							__( 'Site failed to verify: %(error)s', {
 								args: {
-									error: this.props.googleSiteVerificationError.message
+									error: errorMessage
 								}
 							} ),
 							{
@@ -77,7 +80,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 								duration: 5000
 							}
 						);
-					} else if ( response.verified ) {
+					} else if ( this.props.isSiteVerifiedWithGoogle ) {
 						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_success' );
 					}
 				} );
