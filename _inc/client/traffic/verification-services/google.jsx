@@ -131,6 +131,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 	quickSave = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
 			isOwner: this.isOwner(),
+			isEmpty: ! this.props.value
 		} );
 
 		this.props.onSubmit( event );
