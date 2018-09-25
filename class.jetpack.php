@@ -635,7 +635,7 @@ class Jetpack {
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
 		// gutenberg locale
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_assets' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -3864,11 +3864,22 @@ p {
 		return true;
 	}
 
-	function enqueue_gutenberg_locale() {
+	function enqueue_gutenberg_assets() {
 		wp_add_inline_script(
 			'wp-i18n',
 			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
 		);
+		wp_enqueue_script(
+			'jetpack-gutenberg',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/gutenberg.min.js',
+				'_inc/build/gutenberg.js'
+			),
+			array( 'wp-blocks', 'wp-element', 'wp-i18n' ),
+			JETPACK__VERSION,
+			true
+		);
+		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	function jetpack_menu_order( $menu_order ) {
