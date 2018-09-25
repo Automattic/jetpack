@@ -23,6 +23,8 @@ function jetpack_devicepx_init() {
 		add_action( 'admin_enqueue_scripts', 'jetpack_devicepx_enqueue' );
 	}
 }
+
+// Use a late priority to ensure that plugins and themes got a chance to disable it.
 add_action( 'init', 'jetpack_devicepx_init', 99 );
 
 /**
