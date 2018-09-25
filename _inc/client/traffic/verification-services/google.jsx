@@ -168,39 +168,45 @@ class GoogleVerificationServiceComponent extends React.Component {
 							{ __( 'Edit' ) }
 						</Button>
 					</div>
+
 					{ this.props.googleSearchConsoleUrl &&
 						<div className="jp-form-input-with-prefix-bottom-message" >
-							<p>{
-								__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}", {
-									components: {
-										a: <ExternalLink
-											icon
-											iconSize={ 16 }
-											target="_blank" rel="noopener noreferrer"
-											href={ this.props.googleSearchConsoleUrl }
-										/>
+							<div className="jp-form-setting-explanation" >
+								<p>
+									{
+										__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}.", {
+											components: {
+												a: <ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank" rel="noopener noreferrer"
+													href={ this.props.googleSearchConsoleUrl }
+												/>
+											}
+										} )
 									}
-								} )
-							}</p>
-							<p>{
-								__( 'Search Console will email you if any unusual events occur with your properties. \
-								Unusual events include indications that your website has been {{a1}}hacked{{/a1}} or problems that Google had when {{a2}}crawling or indexing{{/a2}} your site', {
-									components: {
-										a1: <ExternalLink
-											icon
-											iconSize={ 16 }
-											target="_blank" rel="noopener noreferrer"
-											href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
-										/>,
-										a2: <ExternalLink
-											icon
-											iconSize={ 16 }
-											target="_blank" rel="noopener noreferrer"
-											href={ 'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html' }
-										/>
+									{ ' ' }
+									{
+										__( 'Note it will email you if any unusual events occur with your properties. \
+										Unusual events include indications that your website has been {{a1}}hacked{{/a1}}, or problems that Google had when {{a2}}crawling or indexing{{/a2}} your site.', {
+											components: {
+												a1: <ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank" rel="noopener noreferrer"
+													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
+												/>,
+												a2: <ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank" rel="noopener noreferrer"
+													href={ 'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html' }
+												/>
+											}
+										} )
 									}
-								} )
-							}</p>
+								</p>
+							</div>
 						</div>
 					}
 				</div>
