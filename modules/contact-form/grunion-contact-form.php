@@ -2430,7 +2430,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'value'   => $field->value,
 				'type'    => $field->attributes['type'],
 				'label'   => $field->attributes['label'],
-				'options' => $field->attributes['options'],
+				'options' => isset( $field->attributes['options'] ) ? $field->attributes['options'] : '',
 				'post_id' => $post_id,
 
 			);
