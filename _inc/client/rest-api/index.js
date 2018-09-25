@@ -226,20 +226,6 @@ function JetpackRestApiClient() {
 			.then( parseJsonResponse )
 	};
 
-	function addCacheBuster( route ) {
-		const parts = route.split( '?' ),
-			query = parts.length > 1
-				? parts[ 1 ]
-				: '',
-			args = query.length
-				? query.split( '&' )
-				: [];
-
-		args.push( '_cacheBuster=' + new Date().getTime() );
-
-		return parts[ 0 ] + '?' + args.join( '&' );
-	}
-
 	function getRequest( path ) {
 		return apiFetch( {
 			path
