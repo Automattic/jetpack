@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 
 		$this->assertTrue(
 			current_theme_supports( 'jetpack-devicepx' ),
-			'Themes do not support devicepx by default'
+			'Support for devicepx has been enabled'
 		);
 
 		jetpack_devicepx_init();
