@@ -2,8 +2,9 @@
  * External dependencies
  */
 require( 'es6-promise' ).polyfill();
-import 'whatwg-fetch';
 import assign from 'lodash/assign';
+
+const apiFetch = window.wp.apiFetch;
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -26,61 +27,24 @@ export const Api404Error = createCustomError( 'Api404Error' );
 export const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
 export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
-function JetpackRestApiClient( root, nonce ) {
-	let apiRoot = root,
-		headers = {
-			'X-WP-Nonce': nonce
-		},
-		getParams = {
-			credentials: 'same-origin',
-			headers: headers
-		},
-		postParams = {
-			method: 'post',
-			credentials: 'same-origin',
-			headers: assign( {}, headers, {
-				'Content-type': 'application/json'
-			} )
-		};
-
+function JetpackRestApiClient() {
 	const methods = {
-		setApiRoot( newRoot ) {
-			apiRoot = newRoot;
-		},
-		setApiNonce( newNonce ) {
-			headers = {
-				'X-WP-Nonce': newNonce
-			};
-			getParams = {
-				credentials: 'same-origin',
-				headers: headers
-			};
-			postParams = {
-				method: 'post',
-				credentials: 'same-origin',
-				headers: assign( {}, headers, {
-					'Content-type': 'application/json'
-				} )
-			};
-		},
 
-		fetchSiteConnectionStatus: () => getRequest( `${ apiRoot }jetpack/v4/connection`, getParams )
+		fetchSiteConnectionStatus: () => getRequest( '/jetpack/v4/connection' )
 			.then( parseJsonResponse ),
 
-		fetchSiteConnectionTest: () => getRequest( `${ apiRoot }jetpack/v4/connection/test`, getParams )
-			.then( checkStatus )
+		fetchSiteConnectionTest: () => getRequest( '/jetpack/v4/connection/test' )
 			.then( parseJsonResponse ),
 
-		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
+		fetchUserConnectionData: () => getRequest( '/jetpack/v4/connection/data' )
 			.then( parseJsonResponse ),
 
-		fetchUserTrackingSettings: () => getRequest( `${ apiRoot }jetpack/v4/tracking/settings`, getParams )
+		fetchUserTrackingSettings: () => getRequest( '/jetpack/v4/tracking/settings' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
 		updateUserTrackingSettings: ( newSettings ) => postRequest(
-			`${ apiRoot }jetpack/v4/tracking/settings`,
-			postParams,
+			'/jetpack/v4/tracking/settings',
 			{
 				body: JSON.stringify( newSettings )
 			}
@@ -88,17 +52,17 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		disconnectSite: () => postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
+		disconnectSite: () => postRequest( '/jetpack/v4/connection', {
 			body: JSON.stringify( { isActive: false } )
 		} )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchConnectUrl: () => getRequest( `${ apiRoot }jetpack/v4/connection/url`, getParams )
+		fetchConnectUrl: () => getRequest( '/jetpack/v4/connection/url' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		unlinkUser: () => postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
+		unlinkUser: () => postRequest( '/jetpack/v4/connection/user', {
 			body: JSON.stringify( { linked: false } )
 		} )
 			.then( checkStatus )
@@ -112,24 +76,23 @@ function JetpackRestApiClient( root, nonce ) {
 			if ( action === 'deactivate' ) {
 				active = false;
 			}
-			return postRequest( `${ apiRoot }jetpack/v4/jumpstart`, postParams, {
+			return postRequest( '/jetpack/v4/jumpstart', {
 				body: JSON.stringify( { active } )
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse );
 		},
 
-		fetchModules: () => getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
+		fetchModules: () => getRequest( '/jetpack/v4/module/all' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchModule: ( slug ) => getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
+		fetchModule: ( slug ) => getRequest( `jetpack/v4/module/${ slug }` )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
 		activateModule: ( slug ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
-			postParams,
+			`jetpack/v4/module/${ slug }/active`,
 			{
 				body: JSON.stringify( { active: true } )
 			}
@@ -138,16 +101,14 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( parseJsonResponse ),
 
 		deactivateModule: ( slug ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
-			postParams,
+			`jetpack/v4/module/${ slug }/active`,
 			{
 				body: JSON.stringify( { active: false } )
 			}
 		),
 
 		updateModuleOptions: ( slug, newOptionValues ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }`,
-			postParams,
+			`jetpack/v4/module/${ slug }`,
 			{
 				body: JSON.stringify( newOptionValues )
 			}
@@ -156,8 +117,7 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( parseJsonResponse ),
 
 		updateSettings: ( newOptionValues ) => postRequest(
-			`${ apiRoot }jetpack/v4/settings`,
-			postParams,
+			'/jetpack/v4/settings',
 			{
 				body: JSON.stringify( newOptionValues )
 			}
@@ -165,13 +125,12 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		getProtectCount: () => getRequest( `${ apiRoot }jetpack/v4/module/protect/data`, getParams )
+		getProtectCount: () => getRequest( '/jetpack/v4/module/protect/data' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
 		resetOptions: ( options ) => postRequest(
-			`${ apiRoot }jetpack/v4/options/${ options }`,
-			postParams,
+			`jetpack/v4/options/${ options }`,
 			{
 				body: JSON.stringify( { reset: true } )
 			}
@@ -179,21 +138,20 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		getVaultPressData: () => getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
+		getVaultPressData: () => getRequest( '/jetpack/v4/module/vaultpress/data' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		getAkismetData: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
+		getAkismetData: () => getRequest( '/jetpack/v4/module/akismet/data' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		checkAkismetKey: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, getParams )
+		checkAkismetKey: () => getRequest( '/jetpack/v4/module/akismet/key/check' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
 		checkAkismetKeyTyped: apiKey => postRequest(
-			`${ apiRoot }jetpack/v4/module/akismet/key/check`,
-			postParams,
+			'/jetpack/v4/module/akismet/key/check',
 			{
 				body: JSON.stringify( { api_key: apiKey } )
 			}
@@ -201,47 +159,46 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ), getParams )
+		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ) )
 			.then( checkStatus )
 			.then( parseJsonResponse )
 			.then( handleStatsResponseError ),
 
-		getPluginUpdates: () => getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
+		getPluginUpdates: () => getRequest( '/jetpack/v4/updates/plugins' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		getPlans: () => getRequest( `${ apiRoot }jetpack/v4/plans`, getParams )
+		getPlans: () => getRequest( '/jetpack/v4/plans' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchSettings: () => getRequest( `${ apiRoot }jetpack/v4/settings`, getParams )
+		fetchSettings: () => getRequest( '/jetpack/v4/settings' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		updateSetting: ( updatedSetting ) => postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
+		updateSetting: ( updatedSetting ) => postRequest( '/jetpack/v4/settings', {
 			body: JSON.stringify( updatedSetting )
 		} )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchSiteData: () => getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
+		fetchSiteData: () => getRequest( '/jetpack/v4/site' )
 			.then( checkStatus )
 			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
-		fetchSiteFeatures: () => getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
+		fetchSiteFeatures: () => getRequest( '/jetpack/v4/site/features' )
 			.then( checkStatus )
 			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
-		fetchRewindStatus: () => getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+		fetchRewindStatus: () => getRequest( '/jetpack/v4/rewind' )
 			.then( checkStatus )
 			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		dismissJetpackNotice: ( notice ) => postRequest(
-			`${ apiRoot }jetpack/v4/notice/${ notice }`,
-			postParams,
+			`/jetpack/v4/notice/${ notice }`,
 			{
 				body: JSON.stringify( { dismissed: true } )
 			}
@@ -249,25 +206,24 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchPluginsData: () => getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
+		fetchPluginsData: () => getRequest( '/jetpack/v4/plugins' )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
 		fetchVerifySiteGoogleStatus: ( keyringId ) => {
 			const request = ( keyringId !== null )
-				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }`, getParams )
-				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams );
+				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }` )
+				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google` );
 
 			return request
 				.then( checkStatus )
 				.then( parseJsonResponse );
-		},
-
-		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
+		}, 
+		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, {
 			body: JSON.stringify( { keyring_id: keyringId } ),
 		} )
-		.then( checkStatus )
-		.then( parseJsonResponse )
+			.then( checkStatus )
+			.then( parseJsonResponse )
 	};
 
 	function addCacheBuster( route ) {
@@ -284,16 +240,21 @@ function JetpackRestApiClient( root, nonce ) {
 		return parts[ 0 ] + '?' + args.join( '&' );
 	}
 
-	function getRequest( route, params ) {
-		return fetch( addCacheBuster( route ), params );
+	function getRequest( path ) {
+		return apiFetch( {
+			path
+		} );
 	}
 
-	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
+	function postRequest( path, body ) {
+		return apiFetch( {
+			path,
+			body,
+		} ).catch( catchNetworkErrors );
 	}
 
 	function statsDataUrl( range ) {
-		let url = `${ apiRoot }jetpack/v4/module/stats/data`;
+		let url = '/jetpack/v4/module/stats/data';
 		if ( url.indexOf( '?' ) !== -1 ) {
 			url = url + `&range=${ encodeURIComponent( range ) }`;
 		} else {
