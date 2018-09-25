@@ -108,7 +108,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	handleClickSetManually = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
-			isOwner: this.isOwner(),
+			is_owner: this.isOwner(),
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -116,7 +116,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	handleClickEdit = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
-			isOwner: this.isOwner(),
+			is_owner: this.isOwner(),
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -130,8 +130,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	quickSave = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
-			isOwner: this.isOwner(),
-			isEmpty: ! this.props.value
+			is_owner: this.isOwner(),
+			is_empty: ! this.props.value
 		} );
 
 		this.props.onSubmit( event );
