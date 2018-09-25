@@ -18,11 +18,21 @@ You can test this on different devices and browsers. The following pages were ch
 
 We've made a big improvement to the process needed to verify a site with Google. Here are the details steps you can follow to test the new process:
 
-1. On a brand new site that has not been verified yet, go to Jetpack -> Settings -> Traffic
-2. Click "Verify with Google" in the input box in the Verification Tools.
-3. You will be prompted to authorize the connection in a popup
-4. The UI should change to tell you that your site was verified.
-5. Check and make sure the tag has been added to your site's head, and that the site is marked as verified in your Google Search Console.
+1. Open a brand new site ([you can use Jurassic Ninja for this](https://jurassic.ninja/create?jetpack-beta&branch=master&shortlived&wp-debug-log)
+2. Set Up Jetpack and connect to a WordPress.com account.
+3. Choose a Free Plan.
+4. Navigate to `https://[my-site].jurassic.ninja/wp-admin/admin.php?page=jetpack#/traffic`
+5. Scroll to the "Site verification" pane.
+6. Click "auto-verify with Google".
+7. Choose a Google Account and log into it.
+8. Confirm that the Google Site Verification field has a green check marks and the text "Your site is verified with Google".
+9. You should see a link to the Google Search Console, click on it and verify that you can access your site there.
+10. Click the "Edit" button and edit the text field, clear it, and click save.
+11. Navigate to https://www.google.com/webmasters/verification/home and confirm you can see your site.
+12. Click on  "Verification Details" to the right of your site.
+13. Click "Unverify" near the bottom right and "Unverify" in the dialog.
+14. Confirm that the site is removed from the list of properties and that no error appears
+15. Return to `https://[my-site].jurassic.ninja/wp-admin/admin.php?page=jetpack#/traffic` or refresh and confirm that the Google Site Verification field has reverted to its original two button layout. 
 
 ### Infinite Scroll
 
