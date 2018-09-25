@@ -90,8 +90,9 @@ class WPCOM_JSON_API_Bulk_Update_Comments_Endpoint extends WPCOM_JSON_API_Endpoi
 			} else {
 				$result['results'] = $this->bulk_delete_comments( $comment_ids );
 			}
-		} else if ( isset( $input['status'] ) ) {
-			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $input['status'] );
+		} else {
+			$status = isset( $input['status'] ) ? $input['status'] : '';
+			$result['results'] = $this->bulk_update_comments_status( $comment_ids, $status );
 		}
 
 		wp_defer_comment_counting( false );
