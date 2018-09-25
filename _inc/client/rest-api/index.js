@@ -5,27 +5,6 @@ require( 'es6-promise' ).polyfill();
 import apiFetch from '@wordpress/api-fetch';
 import assign from 'lodash/assign';
 
-/**
- * Helps create new custom error classes to better notify upper layers.
- * @param {String} name the Error name that will be availble in Error.name
- * @return {Error}      a new custom error class.
- */
-function createCustomError( name ) {
-	class CustomError extends Error {
-		constructor( ...args ) {
-			super( ...args );
-			this.name = name;
-		}
-	}
-	return CustomError;
-}
-
-export const JsonParseError = createCustomError( 'JsonParseError' );
-export const JsonParseAfterRedirectError = createCustomError( 'JsonParseAfterRedirectError' );
-export const Api404Error = createCustomError( 'Api404Error' );
-export const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
-export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
-
 function JetpackRestApiClient() {
 	const methods = {
 		setApiRoot( newRoot ) {
