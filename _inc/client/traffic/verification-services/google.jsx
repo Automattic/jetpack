@@ -107,7 +107,17 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	handleClickSetManually = event => {
-		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click' );
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
+			isOwner: this.isOwner(),
+		} );
+
+		this.toggleVerifyMethod( event );
+	};
+
+	handleClickEdit = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
+			isOwner: this.isOwner(),
+		} );
 
 		this.toggleVerifyMethod( event );
 	};
@@ -119,12 +129,18 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	quickSave = event => {
-		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save' );
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
+			isOwner: this.isOwner(),
+		} );
 
 		this.props.onSubmit( event );
 
 		this.toggleVerifyMethod();
 	};
+
+	isOwner() {
+		return !! this.props.googleSearchConsoleUrl;
+	}
 
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
@@ -171,12 +187,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 						<Button
 							type="button"
 							className="jp-form-site-verification-edit-button"
-							onClick={ this.toggleVerifyMethod }>
+							onClick={ this.handleClickEdit }>
 							{ __( 'Edit' ) }
 						</Button>
 					</div>
 
-					{ this.props.googleSearchConsoleUrl &&
+					{ this.isOwner() &&
 						<div className="jp-form-input-with-prefix-bottom-message" >
 							<div className="jp-form-setting-explanation" >
 								<p>
