@@ -45,7 +45,8 @@ body, #wp-content-editor-tools {
 
 #adminmenu li.menu-top:hover, 
 #adminmenu li.opensub>a.menu-top, #adminmenu li>a.menu-top:focus,
-#adminmenu li.wp-menu-open {
+#adminmenu li.wp-menu-open,
+#adminmenu a:hover {
 	background: #f3f6f8;
 }
 
