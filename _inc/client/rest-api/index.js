@@ -46,20 +46,14 @@ function JetpackRestApiClient() {
 
 		updateUserTrackingSettings: ( newSettings ) => postRequest(
 			'/jetpack/v4/tracking/settings',
-			{
-				body: newSettings
-			}
+			newSettings
 		),
 
-		disconnectSite: () => postRequest( '/jetpack/v4/connection', {
-			body: { isActive: false }
-		} ),
+		disconnectSite: () => postRequest( '/jetpack/v4/connection', { isActive: false } ),
 
 		fetchConnectUrl: () => getRequest( '/jetpack/v4/connection/url' ),
 
-		unlinkUser: () => postRequest( '/jetpack/v4/connection/user', {
-			body: { linked: false }
-		} ),
+		unlinkUser: () => postRequest( '/jetpack/v4/connection/user', { linked: false } ),
 
 		jumpStart: ( action ) => {
 			let active;
@@ -69,9 +63,7 @@ function JetpackRestApiClient() {
 			if ( action === 'deactivate' ) {
 				active = false;
 			}
-			return postRequest( '/jetpack/v4/jumpstart', {
-				body: { active }
-			} );
+			return postRequest( '/jetpack/v4/jumpstart', { active } );
 		},
 
 		fetchModules: () => getRequest( '/jetpack/v4/module/all' ),
@@ -80,39 +72,29 @@ function JetpackRestApiClient() {
 
 		activateModule: ( slug ) => postRequest(
 			`jetpack/v4/module/${ slug }/active`,
-			{
-				body: { active: true }
-			}
+			{ active: true }
 		),
 
 		deactivateModule: ( slug ) => postRequest(
 			`jetpack/v4/module/${ slug }/active`,
-			{
-				body: { active: false }
-			}
+			{ active: false }
 		),
 
 		updateModuleOptions: ( slug, newOptionValues ) => postRequest(
 			`jetpack/v4/module/${ slug }`,
-			{
-				body: newOptionValues
-			}
+			newOptionValues
 		),
 
 		updateSettings: ( newOptionValues ) => postRequest(
 			'/jetpack/v4/settings',
-			{
-				body: newOptionValues
-			}
+			newOptionValues
 		),
 
 		getProtectCount: () => getRequest( '/jetpack/v4/module/protect/data' ),
 
 		resetOptions: ( options ) => postRequest(
 			`jetpack/v4/options/${ options }`,
-			{
-				body: { reset: true }
-			}
+			{ reset: true }
 		),
 
 		getVaultPressData: () => getRequest( '/jetpack/v4/module/vaultpress/data' ),
@@ -123,9 +105,7 @@ function JetpackRestApiClient() {
 
 		checkAkismetKeyTyped: apiKey => postRequest(
 			'/jetpack/v4/module/akismet/key/check',
-			{
-				body: { api_key: apiKey }
-			}
+			{ api_key: apiKey }
 		),
 
 		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ) )
@@ -137,9 +117,7 @@ function JetpackRestApiClient() {
 
 		fetchSettings: () => getRequest( '/jetpack/v4/settings' ),
 
-		updateSetting: ( updatedSetting ) => postRequest( '/jetpack/v4/settings', {
-			body: updatedSetting
-		} ),
+		updateSetting: ( updatedSetting ) => postRequest( '/jetpack/v4/settings', updatedSetting ),
 
 		fetchSiteData: () => getRequest( '/jetpack/v4/site' )
 			.then( body => JSON.parse( body.data ) ),
@@ -150,12 +128,7 @@ function JetpackRestApiClient() {
 		fetchRewindStatus: () => getRequest( '/jetpack/v4/rewind' )
 			.then( body => JSON.parse( body.data ) ),
 
-		dismissJetpackNotice: ( notice ) => postRequest(
-			`/jetpack/v4/notice/${ notice }`,
-			{
-				body: { dismissed: true }
-			}
-		),
+		dismissJetpackNotice: ( notice ) => postRequest( `/jetpack/v4/notice/${ notice }`, { dismissed: true } ),
 
 		fetchPluginsData: () => getRequest( '/jetpack/v4/plugins' ),
 
@@ -177,7 +150,7 @@ function JetpackRestApiClient() {
 		} );
 	}
 
-	function postRequest( path, { body: data } ) {
+	function postRequest( path, data ) {
 		return apiFetch( {
 			path,
 			method: 'POST',
