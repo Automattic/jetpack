@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 	 */
 	public function test_devicepx_can_be_enabled() {
 		// Enable the feature.
-		add_theme_supports( 'jetpack-devicepx' );
+		add_theme_support( 'jetpack-devicepx' );
 
 		$this->assertTrue(
 			current_theme_supports( 'jetpack-devicepx' ),
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 		);
 
 		// Remove to not mess with other tests.
-		remove_theme_supports( 'jetpack-devicepx' );
+		remove_theme_support( 'jetpack-devicepx' );
 	}
 
 }
