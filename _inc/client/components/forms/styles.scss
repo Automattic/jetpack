@@ -57,11 +57,7 @@
 .jp-form-input-with-prefix {
 	display: inline-flex;
 	width: 100%;
-	margin-top: rem( 24px );
-
-	&:first-of-type {
-		margin-top: 0;
-	}
+	margin-bottom: rem( 24px );
 
 	span:first-child {
 		min-width: rem( 60px );

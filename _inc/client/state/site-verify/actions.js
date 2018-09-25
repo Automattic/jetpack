@@ -23,7 +23,9 @@ export const checkVerifyStatusGoogle = () => {
 			dispatch( {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS,
 				verified: data.verified,
-				token: data.token
+				token: data.token,
+				searchConsoleUrl: data.google_search_console_url,
+				verificationConsoleUrl: data.google_verification_console_url,
 			} );
 
 			return data;
@@ -32,8 +34,6 @@ export const checkVerifyStatusGoogle = () => {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,
 				error: error.response,
 			} );
-
-			return Promise.reject( error.response );
 		} );
 	};
 };
@@ -46,6 +46,8 @@ export const verifySiteGoogle = () => {
 		return restApi.verifySiteGoogle().then( data => {
 			dispatch( {
 				verified: data.verified,
+				searchConsoleUrl: data.google_search_console_url,
+				verificationConsoleUrl: data.google_verification_console_url,
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS,
 			} );
 
@@ -59,8 +61,6 @@ export const verifySiteGoogle = () => {
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
 				error: error.response,
 			} );
-
-			return Promise.reject( error.response );
 		} );
 	};
 };
