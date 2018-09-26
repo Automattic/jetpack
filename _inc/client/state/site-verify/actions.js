@@ -24,6 +24,7 @@ export const checkVerifyStatusGoogle = ( keyringId = null ) => {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS,
 				verified: data.verified,
 				token: data.token,
+				isOwner: data.is_owner,
 				searchConsoleUrl: data.google_search_console_url,
 				verificationConsoleUrl: data.google_verification_console_url,
 			} );

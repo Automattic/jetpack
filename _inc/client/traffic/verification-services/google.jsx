@@ -28,6 +28,7 @@ import {
 	isConnectedToGoogleSiteVerificationAPI,
 	isSiteVerifiedWithGoogle,
 	isVerifyingGoogleSite,
+	isGoogleSiteVerificationOwner,
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
@@ -104,7 +105,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	handleClickSetManually = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -112,7 +113,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	handleClickEdit = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -126,7 +127,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	quickSave = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 			is_empty: ! this.props.value
 		} );
 
@@ -134,10 +135,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 		this.toggleVerifyMethod();
 	};
-
-	isOwner() {
-		return !! this.props.googleSearchConsoleUrl;
-	}
 
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
@@ -189,7 +186,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 						</Button>
 					</div>
 
-					{ this.isOwner() &&
+					{ this.props.isOwner &&
 						<div className="jp-form-input-with-prefix-bottom-message" >
 							<div className="jp-form-setting-explanation" >
 								<p>
@@ -274,6 +271,7 @@ export default connect(
 			isVerifyingGoogleSite: isVerifyingGoogleSite( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 			googleSiteVerificationError: getGoogleSiteVerificationError( state ),
+			isOwner: isGoogleSiteVerificationOwner( state ),
 		};
 	},
 	{

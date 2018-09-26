@@ -32,6 +32,7 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 			return assign( {}, state, {
 				fetching: false,
 				verified: action.verified,
+				isOwner: action.isOwner,
 				searchConsoleUrl: action.searchConsoleUrl,
 				verificationConsoleUrl: action.verificationConsoleUrl,
 				token: action.token,
@@ -105,4 +106,8 @@ export function getGoogleSearchConsoleUrl( state ) {
 
 export function getGoogleVerificationConsoleUrl( state ) {
 	return get( state, 'jetpack.siteVerify.google.verificationConsoleUrl', null );
+}
+
+export function isGoogleSiteVerificationOwner( state ) {
+	return get( state, 'jetpack.siteVerify.google.isOwner', false );
 }
