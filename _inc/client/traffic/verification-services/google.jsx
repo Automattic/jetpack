@@ -64,11 +64,15 @@ class GoogleVerificationServiceComponent extends React.Component {
 			if ( ! this.props.isSiteVerifiedWithGoogle ) {
 				this.props.verifySiteGoogle().then( () => {
 					if ( this.props.googleSiteVerificationError ) {
+						const errorMessage = this.props.googleSiteVerificationError.message;
+						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error', {
+							message: errorMessage
+						} );
 						this.props.createNotice(
 							'is-error',
 							__( 'Site failed to verify: %(error)s', {
 								args: {
-									error: this.props.googleSiteVerificationError.message
+									error: errorMessage
 								}
 							} ),
 							{
@@ -76,6 +80,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 								duration: 5000
 							}
 						);
+					} else if ( this.props.isSiteVerifiedWithGoogle ) {
+						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_success' );
 					}
 				} );
 			}
@@ -90,6 +96,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_auto_verify_click' );
 
 		if ( ! this.props.isConnectedToGoogle ) {
+			analytics.tracks.recordEvent( 'jetpack_site_verification_google_authenticate' );
 			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
 				this.checkAndVerifySite();
 			} );
@@ -100,7 +107,17 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	handleClickSetManually = event => {
-		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click' );
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
+			is_owner: this.isOwner(),
+		} );
+
+		this.toggleVerifyMethod( event );
+	};
+
+	handleClickEdit = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
+			is_owner: this.isOwner(),
+		} );
 
 		this.toggleVerifyMethod( event );
 	};
@@ -112,12 +129,19 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	quickSave = event => {
-		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save' );
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
+			is_owner: this.isOwner(),
+			is_empty: ! this.props.value
+		} );
 
 		this.props.onSubmit( event );
 
 		this.toggleVerifyMethod();
 	};
+
+	isOwner() {
+		return !! this.props.googleSearchConsoleUrl;
+	}
 
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
@@ -164,12 +188,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 						<Button
 							type="button"
 							className="jp-form-site-verification-edit-button"
-							onClick={ this.toggleVerifyMethod }>
+							onClick={ this.handleClickEdit }>
 							{ __( 'Edit' ) }
 						</Button>
 					</div>
 
-					{ this.props.googleSearchConsoleUrl &&
+					{ this.isOwner() &&
 						<div className="jp-form-input-with-prefix-bottom-message" >
 							<div className="jp-form-setting-explanation" >
 								<p>
