@@ -1208,10 +1208,10 @@ That was a cool video.';
 		add_post_meta( $post_id, '_feedback_all_fields', $feedback_fields );
 
 		$this->sender->do_sync();
-		$events = $this->server_event_storage->get_all_events( 'added_post_meta' );
+		$event = $this->server_event_storage->get_most_recent_event( 'added_post_meta' );
 
-		$this->assertEquals( $events[0]->args[2], '_feedback_all_fields' );
-		$this->assertEquals( $events[0]->args[3], $feedback_fields );
+		$this->assertEquals( $event->args[2], '_feedback_all_fields' );
+		$this->assertEquals( $event->args[3], $feedback_fields );
 	}
 
 	function add_a_hello_post_type() {
