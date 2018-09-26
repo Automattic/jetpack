@@ -168,8 +168,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'value'   => 'John Doe',
 				'type'    => 'name',
 				'label'   => 'Name',
-				'options' => array
-				(),
+				'options' => array(),
 				'post_id' => 5
 			),
 			'g4-dropdown' => array
@@ -206,8 +205,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'value'   => 'Texty text',
 				'type'    => 'text',
 				'label'   => 'Text',
-				'options' => array
-				(),
+				'options' => array(),
 				'post_id' => 5
 			)
 		);
