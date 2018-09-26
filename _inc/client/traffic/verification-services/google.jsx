@@ -28,6 +28,7 @@ import {
 	isConnectedToGoogleSiteVerificationAPI,
 	isSiteVerifiedWithGoogle,
 	isVerifyingGoogleSite,
+	isGoogleSiteVerificationOwner,
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
@@ -50,9 +51,9 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	}
 
-	checkAndVerifySite() {
+	checkAndVerifySite( keyringId ) {
 		this.props.createNotice( 'is-info', __( 'Verifying...' ), { id: 'verifying-site-google' } );
-		this.props.checkVerifyStatusGoogle().then( response => {
+		this.props.checkVerifyStatusGoogle( keyringId ).then( response => {
 			if ( ! response ) {
 				return;
 			}
@@ -62,7 +63,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} ).then( () => {
 			this.props.removeNotice( 'verifying-site-google' );
 			if ( ! this.props.isSiteVerifiedWithGoogle ) {
-				this.props.verifySiteGoogle().then( () => {
+				this.props.verifySiteGoogle( keyringId ).then( () => {
 					if ( this.props.googleSiteVerificationError ) {
 						const errorMessage = this.props.googleSiteVerificationError.message;
 						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error', {
@@ -95,20 +96,16 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_auto_verify_click' );
 
-		if ( ! this.props.isConnectedToGoogle ) {
-			analytics.tracks.recordEvent( 'jetpack_site_verification_google_authenticate' );
-			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
-				this.checkAndVerifySite();
-			} );
-			return;
-		}
-
-		this.checkAndVerifySite();
+		requestExternalAccess( this.props.googleSiteVerificationConnectUrl, ( keyringId ) => {
+			if ( keyringId ) {
+				this.checkAndVerifySite( keyringId );
+			}
+		} );
 	};
 
 	handleClickSetManually = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -116,7 +113,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	handleClickEdit = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 		} );
 
 		this.toggleVerifyMethod( event );
@@ -130,7 +127,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	quickSave = event => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
-			is_owner: this.isOwner(),
+			is_owner: this.props.isOwner,
 			is_empty: ! this.props.value
 		} );
 
@@ -138,10 +135,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 		this.toggleVerifyMethod();
 	};
-
-	isOwner() {
-		return !! this.props.googleSearchConsoleUrl;
-	}
 
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
@@ -193,7 +186,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 						</Button>
 					</div>
 
-					{ this.isOwner() &&
+					{ this.props.isOwner &&
 						<div className="jp-form-input-with-prefix-bottom-message" >
 							<div className="jp-form-setting-explanation" >
 								<p>
@@ -278,6 +271,7 @@ export default connect(
 			isVerifyingGoogleSite: isVerifyingGoogleSite( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 			googleSiteVerificationError: getGoogleSiteVerificationError( state ),
+			isOwner: isGoogleSiteVerificationOwner( state ),
 		};
 	},
 	{
