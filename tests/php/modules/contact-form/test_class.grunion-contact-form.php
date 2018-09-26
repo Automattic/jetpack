@@ -162,16 +162,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$all_fields = get_post_meta( $submission->ID, '_feedback_all_fields', true );
 
 		$expected = array(
-			'g' . $submission->ID . '-name' => array
-			(
+			array(
 				'key'     => 'g4-name',
 				'value'   => 'John Doe',
 				'type'    => 'name',
 				'label'   => 'Name',
 				'options' => array(),
 			),
-			'g' . $submission->ID . '-dropdown' => array
-			(
+			array(
 				'key'     => 'g4-dropdown',
 				'value'   => 'First option',
 				'type'    => 'select',
@@ -183,8 +181,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'Third option',
 				),
 			),
-			'g' . $submission->ID . '-radio' => array
-			(
+			array(
 				'key'     => 'g4-radio',
 				'value'   => 'Second option',
 				'type'    => 'radio',
@@ -196,8 +193,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'Third option'
 				),
 			),
-			'g' . $submission->ID . '-text' => array
-			(
+			array(
 				'key'     => 'g4-text',
 				'value'   => 'Texty text',
 				'type'    => 'text',
@@ -206,7 +202,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertEquals( $expected, $all_fields );
+		$this->assertEquals( $expected, array_values( $all_fields ) );
 	}
 
 	/**
