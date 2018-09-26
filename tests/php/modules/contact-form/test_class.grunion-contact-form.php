@@ -169,7 +169,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'type'    => 'name',
 				'label'   => 'Name',
 				'options' => array(),
-				'post_id' => 5
+				'post_id' => $submission->ID
 			),
 			'g4-dropdown' => array
 			(
@@ -183,7 +183,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'Second option',
 					'Third option',
 				),
-				'post_id' => 5
+				'post_id' => $submission->ID
 			),
 			'g4-radio' => array
 			(
@@ -197,7 +197,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					'Second option',
 					'Third option'
 				),
-				'post_id' => 5
+				'post_id' => $submission->ID
 			),
 			'g4-text' => array
 			(
@@ -206,7 +206,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'type'    => 'text',
 				'label'   => 'Text',
 				'options' => array(),
-				'post_id' => 5
+				'post_id' => $submission->ID
 			)
 		);
 
