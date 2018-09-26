@@ -327,18 +327,14 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 */
 	public function test_jetpack_rest_api_post_multipart_authentication_success() {
 		$_SERVER['HTTP_CONTENT_TYPE'] = 'multipart/form-data; boundary=------------------------test';
-		// Making a valid multipart/form-data body isn't that important here.
-		// Since we pass it straight to both the body hash and the request's ->set_body(),
-		// the hashes should match no matter what we send in.
-		$body =   '--------------------------test' . chr( 13 ) . chr( 10 )
-			. 'Content-Disposition: form-data; name="modules[]"' . chr( 13 ) . chr( 10 )
-			. '' . chr( 13 ) . chr( 10 )
-			. 'nope' . chr( 13 ) . chr( 10 )
-			. '--------------------------test' . chr( 13 ) . chr( 10 )
-			. 'Content-Disposition: form-data; name="_jetpack_is_multipart"' . chr( 13 ) . chr( 10 )
-			. '' . chr( 13 ) . chr( 10 )
-			. '1' . chr( 13 ) . chr( 10 )
-			. '--------------------------test--';
+
+		// Even though we're sending multipart/form-data, Jetpack always signs
+		// application/x-www-form-urlencoded-like data (typically generated from $_POST).
+		$body = '_jetpack_is_multipart=1&modules%5B0%5D=nope';
+
+		// Populate $_POST like Jetpack expects
+		$original_post = isset( $_POST ) ? $_POST : 'unset';
+		parse_str( $body, $GLOBALS['_POST'] );
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 
@@ -360,11 +356,17 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
 		$this->request->set_header( 'Content-Type', $_SERVER['HTTP_CONTENT_TYPE'] );
-		$this->request->set_body( $body );
-		$this->request->set_body_params( array( 'modules' => array( 'nope' ), '_jetpack_is_multipart' => 1 ) );
+		$this->request->set_body( '' ); // file_get_contents( 'php://input' ) returns '' for multipart/form-data
+		$this->request->set_body_params( $_POST );
 
 		$response = $this->server->dispatch( $this->request );
 		$data = $response->get_data();
+
+		if ( 'unset' === $original_post ) {
+			unset( $GLOBALS['_POST'] );
+		} else {
+			$GLOBALS['_POST'] = $original_post;
+		}
 
 		// "Success" here is a 400, since we passed in an invalid module name.
 		// Check error code and params info to make sure we've made it through
