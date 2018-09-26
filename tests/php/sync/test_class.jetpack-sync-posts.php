@@ -1164,7 +1164,6 @@ That was a cool video.';
 				'type'    => 'name',
 				'label'   => 'Name',
 				'options' => array(),
-				'post_id' => $post_id
 			),
 			'g4-dropdown' => array
 			(
@@ -1178,7 +1177,6 @@ That was a cool video.';
 					'Second option',
 					'Third option',
 				),
-				'post_id' => $post_id
 			),
 			'g4-radio' => array
 			(
@@ -1192,7 +1190,6 @@ That was a cool video.';
 					'Second option',
 					'Third option'
 				),
-				'post_id' => $post_id
 			),
 			'g4-text' => array
 			(
@@ -1201,7 +1198,6 @@ That was a cool video.';
 				'type'    => 'text',
 				'label'   => 'Text',
 				'options' => array(),
-				'post_id' => $post_id
 			)
 		);
 

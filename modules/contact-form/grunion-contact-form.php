@@ -2431,8 +2431,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'type'    => $field->attributes['type'],
 				'label'   => $field->attributes['label'],
 				'options' => isset( $field->attributes['options'] ) ? $field->attributes['options'] : '',
-				'post_id' => $post_id,
-
 			);
 		}
 		// capture all feedback keys, values, and types so we have it with delimiters in the future
