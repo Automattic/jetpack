@@ -47,6 +47,7 @@ export const verifySiteGoogle = ( keyringId ) => {
 		return restApi.verifySiteGoogle( keyringId ).then( data => {
 			dispatch( {
 				verified: data.verified,
+				isOwner: data.is_owner,
 				searchConsoleUrl: data.google_search_console_url,
 				verificationConsoleUrl: data.google_verification_console_url,
 				type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS,

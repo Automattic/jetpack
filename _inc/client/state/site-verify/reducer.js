@@ -46,6 +46,7 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 			return assign( {}, state, {
 				verifying: false,
 				verified: action.verified,
+				isOwner: action.isOwner,
 				searchConsoleUrl: action.searchConsoleUrl,
 				verificationConsoleUrl: action.verificationConsoleUrl,
 				error: null,
