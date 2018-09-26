@@ -50,9 +50,9 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	}
 
-	checkAndVerifySite() {
+	checkAndVerifySite( keyringId ) {
 		this.props.createNotice( 'is-info', __( 'Verifying...' ), { id: 'verifying-site-google' } );
-		this.props.checkVerifyStatusGoogle().then( response => {
+		this.props.checkVerifyStatusGoogle( keyringId ).then( response => {
 			if ( ! response ) {
 				return;
 			}
@@ -62,7 +62,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} ).then( () => {
 			this.props.removeNotice( 'verifying-site-google' );
 			if ( ! this.props.isSiteVerifiedWithGoogle ) {
-				this.props.verifySiteGoogle().then( () => {
+				this.props.verifySiteGoogle( keyringId ).then( () => {
 					if ( this.props.googleSiteVerificationError ) {
 						const errorMessage = this.props.googleSiteVerificationError.message;
 						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error', {
@@ -102,8 +102,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 			} );
 			return;
 		}
-
-		this.checkAndVerifySite();
 	};
 
 	handleClickSetManually = event => {
