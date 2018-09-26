@@ -72,3 +72,14 @@
 .jp-form-site-verification-verified-note {
 	font-size: 0.7em;
 }
+
+.jp-form-google-label-unverified-actions {
+	display: flex;
+	align-content: center;
+
+	.dops-button {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+}
+
