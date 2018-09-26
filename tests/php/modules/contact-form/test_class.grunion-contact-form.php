@@ -161,7 +161,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$all_fields = get_post_meta( $submission->ID, '_feedback_all_fields', true );
 
-		$id = $submission->ID - 1;
+		$id = $submission->post_parent;
 		$key_prefix = 'g' . $id;
 		$expected = array(
 			$key_prefix . '-name' => array(
