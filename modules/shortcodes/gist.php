@@ -54,6 +54,49 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		return '<!-- Invalid Gist ID -->';
 	}
 
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		/*
+		 * According to <https://www.ampproject.org/docs/reference/components/amp-gist#height-(required)>:
+		 *
+		 * > Note: You must find the height of the gist by inspecting it with your browser (e.g., Chrome Developer Tools).
+		 *
+		 * However, this does not seem to be the case any longer. The actual height of the content does get set in the
+		 * page after loading. So this is just the initial height.
+		 * See <https://github.com/ampproject/amphtml/pull/17738>.
+		 */
+		$height = 240;
+
+		$parsed_url = wp_parse_url( $id );
+
+		// Strip Github user name.
+		$id = preg_replace( '#^.*/(?=[a-z0-9]+)#', '', $parsed_url['path'] );
+
+		$file = null;
+		if ( ! empty( $parsed_url['query'] ) ) {
+			$query_args = wp_parse_args( $parsed_url['query'] );
+			if ( isset( $query_args['file'] ) ) {
+				$file = $query_args['file'];
+			}
+		}
+		if ( ! $file && ! empty( $parsed_url['fragment'] ) && preg_match( '#^file-(.+)#', $parsed_url['fragment'], $matches ) ) {
+			$file = $matches[1];
+
+			// Make best guess of file for fragment that was slugified.
+			$file = preg_replace( '/-(\w+)/', '.$1', $file );
+		}
+
+		$amp_tag = sprintf(
+			'<amp-gist layout="fixed-height" data-gistid="%s" height="%s"',
+			esc_attr( basename( $id, '.json' ) ),
+			esc_attr( $height )
+		);
+		if ( ! empty( $file ) ) {
+			$amp_tag .= sprintf( ' data-file="%s"', esc_attr( $file ) );
+		}
+		$amp_tag .= '></amp-gist>';
+		return $amp_tag;
+	}
+
 	wp_enqueue_script(
 		'jetpack-gist-embed',
 		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
