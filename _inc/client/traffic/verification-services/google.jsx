@@ -231,7 +231,10 @@ class GoogleVerificationServiceComponent extends React.Component {
 			);
 		}
 
-		const disabled = this.props.fetchingSiteData || this.props.fetchingGoogleSiteVerify || this.props.isVerifyingGoogleSite;
+		const disabled = this.props.fetchingSiteData ||
+			this.props.fetchingGoogleSiteVerify ||
+			this.props.isVerifyingGoogleSite ||
+			this.props.isUpdating( 'google' );
 
 		return (
 			<div
