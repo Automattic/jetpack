@@ -7285,8 +7285,12 @@ p {
 	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
 	 *
 	 * Note that when loaded locally, you need to build the files yourself:
-	 * - _inc/blocks/jetpack-editor.js
-	 * - _inc/blocks/jetpack-editor.css
+	 * - _inc/blocks/editor.js
+	 * - _inc/blocks/editor.css
+	 * - _inc/blocks/editor.rtl.css
+	 * - _inc/blocks/view.js
+	 * - _inc/blocks/view.css
+	 * - _inc/blocks/view.rtl.css
 	 *
 	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
 	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
