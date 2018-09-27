@@ -7366,7 +7366,7 @@ p {
 
 		$script = sprintf(
 			'var JETPACK_BLOCK_ASSETS_BASE_URL = %s;',
-			wp_json_encode( plugins_url( "_inc/blocks/", JETPACK__PLUGIN_FILE ) )
+			wp_json_encode( plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE ) )
 		);
 		wp_add_inline_script( 'jetpack-blocks-editor', $script, 'before' );
 
