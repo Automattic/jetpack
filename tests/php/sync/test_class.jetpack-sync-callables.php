@@ -720,7 +720,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
 
 		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
-		$callables_module->set_plugin_action_links();
+		set_current_screen( 'plugins' );
+		$callables_module->set_plugin_action_links( get_current_screen() );
 		// Let's see if the original values get synced
 		$this->sender->do_sync();
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
@@ -777,10 +778,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		add_filter( 'plugin_action_links', array( $this, 'cause_fatal_error' ) );
 		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
-		$callables_module->set_plugin_action_links();
+		set_current_screen( 'plugins' );
+		$callables_module->set_plugin_action_links( get_current_screen() );
 
 		$this->resetCallableAndConstantTimeouts();
-		$callables_module->set_plugin_action_links();
+		$callables_module->set_plugin_action_links( get_current_screen() );
 		$this->sender->do_sync();
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ) );
