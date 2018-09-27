@@ -5,7 +5,7 @@
  * Sort Order: 26
  * Recommendation Order: 1
  * First Introduced: 6.5-pressable
- * Major Changes In: 6.5-pressable2
+ * Major Changes In: 6.5-pressable3
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Appearance, Recommended
