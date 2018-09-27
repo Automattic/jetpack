@@ -249,13 +249,21 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		fetchVerifySiteGoogleStatus: () => getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchVerifySiteGoogleStatus: ( keyringId ) => {
+			const request = ( keyringId !== null )
+				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }`, getParams )
+				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams );
 
-		verifySiteGoogle: () => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams )
-			.then( checkStatus )
-			.then( parseJsonResponse )
+			return request
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
+
+		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
+			body: JSON.stringify( { keyring_id: keyringId } ),
+		} )
+		.then( checkStatus )
+		.then( parseJsonResponse )
 	};
 
 	function addCacheBuster( route ) {
