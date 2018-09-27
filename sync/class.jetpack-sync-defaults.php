@@ -364,7 +364,6 @@ class Jetpack_Sync_Defaults {
 
 	static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
-		'_feedback_all_fields',
 		'_feedback_email',
 		'_feedback_extra_fields',
 		'_g_feedback_shortcode',
