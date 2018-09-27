@@ -294,3 +294,6 @@ class Jetpack_Tiled_Gallery {
 }
 
 add_action( 'init', array( 'Jetpack_Tiled_Gallery', 'init' ) );
+add_action( 'init', function() {
+	Jetpack::load_jetpack_gutenberg( '/tiled-gallery' );
+ } );
