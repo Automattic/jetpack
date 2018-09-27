@@ -42,6 +42,11 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 	componentDidMount() {
 		this.props.checkVerifyStatusGoogle().then( response => {
+			// if the site is not in google search console anymore, reset the verification token
+			// and call checkVerifyStatusGoogle to unverify it
+			if ( this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'unverify-site-error' ) {
+				this.props.updateOptions( { google: '' } ).then( () => this.props.checkVerifyStatusGoogle() );
+			}
 			if ( ! response ) {
 				return;
 			}
