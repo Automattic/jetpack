@@ -75,7 +75,7 @@ done
 echo "Done!"
 
 echo "Generating Jetpack CDN Manifest"
-php ./bin/build-asset-cdn-json.php
+php ./trunk/bin/build-asset-cdn-json.php
 echo "Done!"
 
 # Tag the release.
