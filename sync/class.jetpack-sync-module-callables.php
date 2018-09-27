@@ -122,7 +122,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 	}
 
-	public function set_plugin_action_links( $current_screen ) {
+	public function set_plugin_action_links() {
 		if (
 			! class_exists( 'DOMDocument' ) ||
 			! function_exists ( 'libxml_use_internal_errors' ) ||
