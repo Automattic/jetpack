@@ -1141,6 +1141,75 @@ That was a cool video.';
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 
+	public function test_sync_feedback_fields_when_feedback_submitted() {
+		/*
+		 * Note that a test for ensuring the proper meta is set when the feedback
+		 * form is submitted was added here,
+		 *
+		 * tests/php/modules/contact-form/test_class.grunion-contact-form.php
+		 * test_process_submission_will_store_all_field_metadata()
+		 *
+		 * In the test below, we will just set the meta and ensure it is
+		 * synced, rather than duplicate the feedback form test
+		 */
+
+		$user_id = $this->factory->user->create();
+		$post_id = $this->factory->post->create( array( 'post_author' => $user_id, 'post_type' => 'feedback' ) );
+
+		$feedback_fields = array(
+			'g4-name' => array
+			(
+				'key'     => 'g4-name',
+				'value'   => 'John Doe',
+				'type'    => 'name',
+				'label'   => 'Name',
+				'options' => array(),
+			),
+			'g4-dropdown' => array
+			(
+				'key'     => 'g4-dropdown',
+				'value'   => 'First option',
+				'type'    => 'select',
+				'label'   => 'Dropdown',
+				'options' => array
+				(
+					'First option',
+					'Second option',
+					'Third option',
+				),
+			),
+			'g4-radio' => array
+			(
+				'key'     => 'g4-radio',
+				'value'   => 'Second option',
+				'type'    => 'radio',
+				'label'   => 'Radio',
+				'options' => array
+				(
+					'First option',
+					'Second option',
+					'Third option'
+				),
+			),
+			'g4-text' => array
+			(
+				'key'     => 'g4-text',
+				'value'   => 'Texty text',
+				'type'    => 'text',
+				'label'   => 'Text',
+				'options' => array(),
+			)
+		);
+
+		add_post_meta( $post_id, '_feedback_all_fields', $feedback_fields );
+
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'added_post_meta' );
+
+		$this->assertEquals( $event->args[2], '_feedback_all_fields' );
+		$this->assertEquals( $event->args[3], $feedback_fields );
+	}
+
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {
 			$this->test_already = true;

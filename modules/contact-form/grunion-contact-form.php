@@ -2452,6 +2452,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
+		$form_data = array();
+		foreach ( $this->fields as $key => $field ) {
+			$form_data[ $key ] = array(
+				'key'     => $key,
+				'value'   => $field->value,
+				'type'    => $field->attributes['type'],
+				'label'   => $field->attributes['label'],
+				'options' => isset( $field->attributes['options'] ) ? $field->attributes['options'] : '',
+			);
+		}
+		// capture all feedback keys, values, and types so we have it with delimiters in the future
+		update_post_meta( $post_id, '_feedback_all_fields', $this->addslashes_deep( $form_data ) );
+
 		if ( 'publish' == $feedback_status ) {
 			// Increase count of unread feedback.
 			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
