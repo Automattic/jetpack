@@ -245,22 +245,24 @@ class GoogleVerificationServiceComponent extends React.Component {
 				className="jp-form-input-with-prefix jp-form-google-label-unverified"
 				key="verification_service_google">
 				<span>{ __( 'Google' ) }</span>
-				<Button
-					primary
-					type="button"
-					disabled={ disabled }
-					onClick={ this.handleClickAutoVerify }>
-						{ __( 'Auto-verify with Google' ) }
-				</Button>
-				<span className="jp-form-google-separator">
-					{ __( 'or' ) }
-				</span>
-				<Button
-					type="button"
-					disabled={ disabled }
-					onClick={ this.handleClickSetManually }>
-					{ __( 'Manually verify with Google' ) }
-				</Button>
+				<div className="jp-form-google-label-unverified-actions" >
+					<Button
+						primary
+						type="button"
+						disabled={ disabled }
+						onClick={ this.handleClickAutoVerify }>
+							{ __( 'Auto-verify with Google' ) }
+					</Button>
+					<span className="jp-form-google-separator">
+						{ __( 'or' ) }
+					</span>
+					<Button
+						type="button"
+						disabled={ disabled }
+						onClick={ this.handleClickSetManually }>
+						{ __( 'Manually verify with Google' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}

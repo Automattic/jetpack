@@ -1,12 +1,23 @@
 @import "../scss/variables/_colors";
+@import "../scss/mixin_breakpoint";
 
 .jp-form-google-label-unverified {
 	.dops-button {
 		margin: 0 15px;
+
+		@include breakpoint( '<660px' ) {
+			margin-top: 10px;
+			width: 40%;
+		}
 	}
 
 	.jp-form-google-separator {
 		padding: .5rem 0;
+
+		@include breakpoint( '<660px' ) {
+			margin: 25px 0 0;
+			display: inline-block;
+		}
 	}
 }
 
@@ -29,7 +40,6 @@
 	font-size: 16px;
 	line-height: 1.5;
 	border: 1px solid #c8d7e1;
-	border-left: 0;
 	width: 100%;
 	display: flex;
 	flex-direction: row;
@@ -39,13 +49,37 @@
 	.gridicon:first-child {
 		margin-right: 5px;
 	}
+
+	@include breakpoint( '>660px' ) {
+		border-left: 0;
+	}
+
+	@include breakpoint( '<660px' ) {
+		border-top: 0;
+	}
 }
 
 .jp-form-site-verification-edit-button {
 	margin-left: 10px;
 	overflow: visible;
+
+	@include breakpoint( '<660px' ) {
+		margin-left: 0;
+		margin-top: 5px;
+	}
 }
 
 .jp-form-site-verification-verified-note {
 	font-size: 0.7em;
 }
+
+.jp-form-google-label-unverified-actions {
+	display: flex;
+	align-content: center;
+
+	.dops-button {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+}
+
