@@ -20,6 +20,19 @@ export const checkVerifyStatusGoogle = ( keyringId = null ) => {
 			type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH
 		} );
 		return restApi.fetchVerifySiteGoogleStatus( keyringId ).then( data => {
+			if ( data.errors && data.errors.length > 0 ) {
+				const errorCode = Object.keys( data.errors )[ 0 ];
+				const errorMessage = data.errors[ errorCode ];
+				dispatch( {
+					type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,
+					error: {
+						code: errorCode,
+						message: errorMessage,
+					}
+				} );
+				return data;
+			}
+
 			dispatch( {
 				type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS,
 				verified: data.verified,
@@ -45,6 +58,19 @@ export const verifySiteGoogle = ( keyringId ) => {
 			type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST
 		} );
 		return restApi.verifySiteGoogle( keyringId ).then( data => {
+			if ( data.errors && data.errors.length > 0 ) {
+				const errorCode = Object.keys( data.errors )[ 0 ];
+				const errorMessage = data.errors[ errorCode ];
+				dispatch( {
+					type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
+					error: {
+						code: errorCode,
+						message: errorMessage,
+					}
+				} );
+				return data;
+			}
+
 			dispatch( {
 				verified: data.verified,
 				isOwner: data.is_owner,
