@@ -58,7 +58,7 @@ class VerificationServicesComponent extends React.Component {
 	getSiteVerificationValue( service ) {
 		const optionValue = this.props.getOptionValue( service );
 		// if current value is equal to the initial value, update format for display
-		if ( ! this.props.isDirty() ) {
+		if ( optionValue === this.props.getSettingCurrentValue( service ) ) {
 			return this.getMetaTag( service, optionValue );
 		}
 
