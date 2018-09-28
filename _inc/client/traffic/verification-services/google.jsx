@@ -141,6 +141,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod();
 	};
 
+	handleOnTextInputKeyPress = event => {
+		if ( event.key === 'Enter' ) {
+			this.quickSave();
+		}
+	};
+
 	render() {
 		const isForbidden = this.props.googleSiteVerificationError && this.props.googleSiteVerificationError.code === 'forbidden';
 		if ( this.state.inputVisible || isForbidden || ! this.props.isCurrentUserLinked ) {
@@ -156,7 +162,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 							placeholder={ this.props.placeholder }
 							className="code"
 							disabled={ this.props.isUpdating( 'google' ) }
-							onChange={ this.props.onOptionChange } />
+							onChange={ this.props.onOptionChange }
+							onKeyPress={ this.handleOnTextInputKeyPress } />
 						{ this.state.inputVisible &&
 							<Button
 								primary
