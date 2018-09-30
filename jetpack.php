@@ -11,7 +11,7 @@
  * Text Domain: jetpack
  * Domain Path: /languages/
  */
-// Hello
+// Helloo
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.8' );
 
 define( 'JETPACK__VERSION',            '6.6-alpha' );
