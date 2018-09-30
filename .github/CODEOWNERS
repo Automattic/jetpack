@@ -3,8 +3,8 @@
 #  or disavow any section of the codebase. #
 ############################################
 
-# Catch-all owners, the Jetpack Pit Crew
-* @automattic/jetpack
+# Catch-all owners, the Jetpack Crew
+* @automattic/jetpack-crew
 
 # Individual Modules:
 /modules/contact-form/    @georgestephanis
