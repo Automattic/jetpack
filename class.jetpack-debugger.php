@@ -2,22 +2,6 @@
 
 class Jetpack_Debugger {
 
-	private static function is_jetpack_support_open() {
-		try {
-			$url = add_query_arg( 'ver', JETPACK__VERSION, 'https://jetpack.com/is-support-open/' );
-			$response = wp_remote_request( esc_url_raw( $url ) );
-			if ( is_wp_error( $response ) ) {
-				return false;
-			}
-			$body = wp_remote_retrieve_body( $response );
-			$json = json_decode( $body );
-			return ( ( bool ) $json->is_support_open );
-		}
-		catch ( Exception $e ) {
-			return true;
-		}
-	}
-
 	private static function what_jetpack_plan() {
 		$plan = Jetpack::get_active_plan();
 		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
@@ -308,10 +292,8 @@ class Jetpack_Debugger {
 						</li>
 					<?php endif; ?>
 				</ol>
-				<?php if ( self::is_jetpack_support_open() ): ?>
 				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
 				</p>
-				<?php endif; ?>
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
@@ -342,7 +324,6 @@ class Jetpack_Debugger {
 				} ?>
 			</div>
 			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
-			<?php if ( self::is_jetpack_support_open() ): ?>
 				<form id="contactme" method="post" action="https://jetpack.com/contact-support/">
 					<input type="hidden" name="action" value="submit">
 					<input type="hidden" name="jetpack" value="needs-service">
@@ -435,7 +416,6 @@ class Jetpack_Debugger {
 					</div>
 					<div style="clear: both;"></div>
 				</form>
-			<?php endif; ?>
 		</div> <!-- contact-message, hidden by default. -->
 		<hr />
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
