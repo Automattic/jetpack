@@ -163,7 +163,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							onKeyPress={ this.handleOnTextInputKeyPress } />
 						{ this.state.inputVisible &&
 							<Button
-								scary
+								primary
 								type="button"
 								className="jp-form-site-verification-edit-button"
 								onClick={ this.handleClickCancel }>
