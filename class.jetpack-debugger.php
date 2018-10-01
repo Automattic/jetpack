@@ -10,11 +10,11 @@ class Jetpack_Debugger {
 
 	static function seconds_to_time( $seconds ) {
 		$units = array(
-			"week"   => 7*24*3600,
-			"day"    =>   24*3600,
-			"hour"   =>      3600,
-			"minute" =>        60,
-			"second" =>         1,
+			"week"   => WEEK_IN_SECONDS,
+			"day"    => DAY_IN_SECONDS,
+			"hour"   => HOUR_IN_SECONDS,
+			"minute" => MINUTE_IN_SECONDS,
+			"second" => 1,
 		);
 		// specifically handle zero
 		if ( $seconds == 0 ) return "0 seconds";
