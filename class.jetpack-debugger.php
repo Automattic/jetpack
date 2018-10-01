@@ -306,19 +306,6 @@ class Jetpack_Debugger {
 						</li>
 					<?php endif; ?>
 				</ol>
-				<p class="jetpack-show-contact-form">
-				<?php
-				echo sprintf(
-					__( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ),
-					Jetpack::admin_url(
-						array(
-							'page'    => 'jetpack-debugger',
-							'contact' => true,
-						)
-					)
-				);
-				?>
-				</p>
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
@@ -358,105 +345,6 @@ class Jetpack_Debugger {
 				}
 				?>
 			</div>
-			<div id="contact-message" 
-			<?php
-			if ( ! isset( $_GET['contact'] ) ) {
-				?>
-				  style="display:none" <?php } ?>>
-				<form id="contactme" method="post" action="https://jetpack.com/contact-support/">
-					<input type="hidden" name="action" value="submit">
-					<input type="hidden" name="jetpack" value="needs-service">
-
-					<input type="hidden" name="contact_form" id="contact_form" value="1">
-					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
-					<?php
-						$subject_line = sprintf(
-							/* translators: %s is the URL of the site */
-							_x( 'from: %s Jetpack contact form', 'Support request email subject line', 'jetpack' ),
-							esc_attr( site_url() )
-						);
-
-					if ( Jetpack::is_development_version() ) {
-						$subject_line = 'BETA ' . $subject_line;
-					}
-
-						$subject_line_input = printf(
-							'<input type="hidden" name="subject" id="subject" value="%s"">',
-							$subject_line
-						);
-					?>
-					<div id="category_div" class="formbox">
-						<label class="h" for="category"><?php esc_html_e( 'What do you need help with?', 'jetpack' ); ?></label>
-						<ul>
-						<?php
-						/**
-						 * Set up an array of ticket categories.
-						 * (reasons why a user would contact us.)
-						 */
-						$categories = array(
-							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com.", 'jetpack' ),
-							'Billing'    => esc_html__( 'I have an issue with a current plan.', 'jetpack' ),
-							'Presales'   => esc_html__( 'I have questions about buying a plan.', 'jetpack' ),
-							'Backups'    => esc_html__( 'I need help with backing up my site.', 'jetpack' ),
-							'Restores'   => esc_html__( 'I have a problem restoring my site.', 'jetpack' ),
-							'Security'   => esc_html__( 'I have security concerns / my site is hacked.', 'jetpack' ),
-							'Priority'   => esc_html__( "My site is down / I can't access my site.", 'jetpack' ),
-							/* translators: Last item in a list of reasons to contact Jetpack support. */
-							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
-						);
-
-						foreach ( $categories as $value => $label ) {
-							?>
-							<li><label for="<?php echo esc_attr( $value ); ?>">
-								<input
-									id="<?php echo esc_attr( $value ); ?>"
-									name="category"
-									type="radio"
-									value="<?php echo esc_attr( $value ); ?>"
-									<?php checked( esc_attr( $value ), 'Other' ); ?>
-								/>
-								<?php echo esc_html( $label ); ?>
-							</label></li>
-						<?php } ?>
-						</ul>
-					</div>
-
-					<div class="formbox">
-						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
-						<textarea name="message" cols="40" rows="7" id="did"></textarea>
-					</div>
-
-					<div id="name_div" class="formbox">
-						<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
-						  <span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
-						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name, 'jetpack' ); ?>" size="40">
-					</div>
-
-					<div id="email_div" class="formbox">
-						<label class="h" for="your_email"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
-						  <span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
-						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack' ); ?>" size="40">
-					</div>
-
-					<div id="toggle_debug_form_info" class="formbox">
-						<p><?php _e( 'The test results and some other useful debug information will be sent to the support team. Please feel free to <a href="#">review/modify</a> this information.', 'jetpack' ); ?></p>
-					</div>
-
-					<div id="debug_info_form_div" class="formbox" style="display:none">
-						<label class="h" for="debug_info"><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></label>
-						  <textarea name="debug_info" cols="40" rows="7" id="debug_form_info"><?php echo esc_attr( $debug_info ); ?></textarea>
-					</div>
-
-					<div style="clear: both;"></div>
-
-					<div id="blog_div" class="formbox">
-						<div id="submit_div" class="contact-support">
-						<input type="submit" name="submit" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
-						</div>
-					</div>
-					<div style="clear: both;"></div>
-				</form>
-		</div> <!-- contact-message, hidden by default. -->
 		<hr />
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
 			<div id="debug_info_div" style="display:none">
@@ -513,24 +401,6 @@ class Jetpack_Debugger {
 				float: right;
 			}
 
-			form#contactme {
-				border: 1px solid #dfdfdf;
-				background: #eaf3fa;
-				padding: 20px;
-				margin: 10px;
-				background-color: #eaf3fa;
-				border-radius: 5px;
-				font-size: 15px;
-			}
-
-			form#contactme label.h {
-				color: #444;
-				display: block;
-				font-weight: bold;
-				margin: 0 0 7px 10px;
-				text-shadow: 1px 1px 0 #fff;
-			}
-
 			.formbox {
 				margin: 0 0 25px 0;
 			}
@@ -580,16 +450,6 @@ class Jetpack_Debugger {
 				display: block;
 			}
 
-			#contact-message ul {
-				margin: 0 0 20px 10px;
-			}
-
-			#contact-message li {
-				margin: 0 0 10px 10px;
-				list-style: disc;
-				display: list-item;
-			}
-
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
 				font-size: 12px;
 			}
@@ -610,11 +470,6 @@ class Jetpack_Debugger {
 				return false;
 			} );
 
-			$( '.jetpack-show-contact-form a' ).on( 'click', function() {
-				$( '#contact-message' ).slideToggle();
-				return false;
-			} );
-
 			$( '#toggle_debug_info a' ).on( 'click', function() {
 				$( '#debug_info_div' ).slideToggle();
 				return false;
@@ -624,27 +479,6 @@ class Jetpack_Debugger {
 				$( '#debug_info_form_div' ).slideToggle();
 				return false;
 			} );
-
-			$( 'form#contactme' ).on( "submit", function(e){
-				var form = $( this );
-				var message = form.find( '#did' );
-				var name = form.find( '#your_name' );
-				var email = form.find( '#your_email' )
-				var validation_error = false;
-				if( !name.val() ) {
-					name.parents( '.formbox' ).addClass( 'error' );
-					validation_error = true;
-				}
-				if( !email.val() ) {
-					email.parents( '.formbox' ).addClass( 'error' );
-					validation_error = true;
-				}
-				if ( validation_error ) {
-					return false;
-				}
-				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_form_info').val()  );
-				return true;
-			});
 
 		} );
 		</script>
