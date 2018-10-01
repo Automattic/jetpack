@@ -346,8 +346,8 @@ class Jetpack_Debugger {
 				?>
 			</div>
 		<hr />
-		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
-			<div id="debug_info_div" style="display:none">
+		<div id="toggle_debug_info"><?php _e( 'Advanced Debug Results', 'jetpack' ); ?></div>
+			<div id="debug_info_div">
 			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
 			<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
 		</div>
@@ -467,16 +467,6 @@ class Jetpack_Debugger {
 
 			$( '.jetpack-test-error .jetpack-test-heading' ).on( 'click', function() {
 				$( this ).parents( '.jetpack-test-error' ).find( '.jetpack-test-details' ).slideToggle();
-				return false;
-			} );
-
-			$( '#toggle_debug_info a' ).on( 'click', function() {
-				$( '#debug_info_div' ).slideToggle();
-				return false;
-			} );
-
-			$( '#toggle_debug_form_info a' ).on( 'click', function() {
-				$( '#debug_info_form_div' ).slideToggle();
 				return false;
 			} );
 
