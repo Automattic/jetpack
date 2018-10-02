@@ -42,6 +42,7 @@ export const Publicize = moduleSettingsForm(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackClickConfigure }
+							target="_blank"
 							href={ 'https://wordpress.com/sharing/' + siteRawUrl }>
 							{ __( 'Connect your social media accounts' ) }
 						</Card>

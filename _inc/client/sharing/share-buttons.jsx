@@ -37,7 +37,7 @@ export const ShareButtons = moduleSettingsForm(
 				}
 
 				if ( isLinked ) {
-					return <Card compact className="jp-settings-card__configure-link" onClick={ this.trackClickConfigure } href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
+					return <Card compact className="jp-settings-card__configure-link" onClick={ this.trackClickConfigure } target="_blank" href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
 				}
 
 				return <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;
