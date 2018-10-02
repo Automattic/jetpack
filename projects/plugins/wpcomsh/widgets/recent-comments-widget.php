@@ -271,7 +271,8 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 						if ( empty( $post_title ) )
 							$post_title = '&hellip;';
 
-						printf( esc_html_x( '%1$s on %2$s', 'Recent Comments Widget' ), $authorlink, '<a href="' . get_comment_link( $comment ) . "\">$post_title</a>" );
+						/* translators: comments widget: 1: comment author, 2: post link */
+						printf( esc_html_x( '%1$s on %2$s', 'widgets' ), $authorlink, '<a href="' . get_comment_link( $comment ) . "\">$post_title</a>" );
 
 						echo '</td></tr>';
 
@@ -303,7 +304,8 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							<?php
 
 							printf(
-								_x( '%1$s on %2$s', 'Comment Widget. 1=comment author, 2=post link', 'widgets' ),
+								/* translators: comments widget: 1: comment author, 2: post link */
+								_x( '%1$s on %2$s', 'widgets' ),
 								get_comment_author_link( $comment->comment_ID ),
 								'<a href="' . esc_url( get_comment_link( $comment ) ) . '">' . get_the_title( $comment->comment_post_ID ) . '</a>'
 							);
