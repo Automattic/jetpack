@@ -1,9 +1,10 @@
 ## FOLDERS
 /.sass-cache/
-/node_modules
+node_modules
 /vendor/
 /wpcom-test-backup/
 /.vscode/
+.cache
 
 
 ## FILES
