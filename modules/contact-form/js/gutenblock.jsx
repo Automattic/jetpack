@@ -8,7 +8,7 @@
 		CheckboxControl
 	} = wp.components;
 	const { registerBlockType } = wp.blocks;
-	const { InnerBlocks, InspectorControls, BlockControls, RichText } = wp.editor;
+	const { InnerBlocks, InspectorControls } = wp.editor;
 	const { Component, Fragment } = wp.element;
 	const { __ } = wp.i18n;
 
@@ -147,9 +147,6 @@
 		save : function() {
 			return null;
 		},
-		onLabelChange : function( newLabel ) {
-			console.log( newLabel );
-		}
 	};
 
 	registerBlockType( 'grunion/field-name', _.defaults({
@@ -159,6 +156,7 @@
 			return ( <GrunionField
 				type="text"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -169,6 +167,7 @@
 			return ( <GrunionField
 				type="text"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -179,6 +178,7 @@
 			return ( <GrunionField
 				type="textarea"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -190,6 +190,7 @@
 			return ( <GrunionField
 				type="email"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -201,6 +202,7 @@
 			return ( <GrunionField
 				type="url"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -212,6 +214,7 @@
 			return ( <GrunionField
 				type="text"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -223,6 +226,7 @@
 			return ( <GrunionField
 				type="tel"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -233,6 +237,7 @@
 			return ( <GrunionField
 				type="radio"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -243,6 +248,7 @@
 			return ( <GrunionField
 				type="select"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -254,6 +260,7 @@
 			return ( <GrunionField
 				type="checkbox"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
@@ -265,6 +272,7 @@
 			return ( <GrunionField
 				type="checkbox-multiple"
 				label={ props.attributes.label }
+				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 			/> );
 		}
 	}, FieldDefaults ) );
