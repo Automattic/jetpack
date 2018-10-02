@@ -1,19 +1,34 @@
 ( function( wp, _ ) {
 
-	const { Button } = wp.components;
+	const { Button, PanelBody, TextControl } = wp.components;
 	const { registerBlockType } = wp.blocks;
-	const { InnerBlocks } = wp.editor;
-	const { Component } = wp.element;
+	const { InnerBlocks, InspectorControls, BlockControls } = wp.editor;
+	const { Component, Fragment } = wp.element;
 	const { __ } = wp.i18n;
 
 	class GrunionForm extends Component {
-		render() {
-			return (
-				<div className="grunion-form">
-					<h4>before</h4>
-					{this.props.children}
-					<Button isPrimary isDefault>Submit</Button>
-				</div>
+		render( /* { setState } */ ) {
+		    return (
+			    <Fragment>
+                    <InspectorControls>
+                        <PanelBody title={ __( 'Submission Details', 'jetpack' ) }>
+                            <TextControl
+                                label={ __( 'What would you like the subject of the email to be?' ) }
+                                value={ this.props.subject }
+							//	onChange={ ( subject ) => setState( { subject : subject } ) }
+                            />
+                            <TextControl
+                                label={ __( 'Which email address should we send the submissions to?' ) }
+                                value={ this.props.to }
+                            //    onChange={ ( to ) => setState( { to : to } ) }
+                            />
+                        </PanelBody>
+                    </InspectorControls>
+                    <div className="grunion-form">
+                        {this.props.children}
+                        <Button isPrimary isDefault>Submit</Button>
+                    </div>
+                </Fragment>
 			);
 		}
 	}
@@ -25,19 +40,27 @@
 		supportHTML : false,
 
 		attributes : {
+		    subject : {
+		        type    : 'string',
+                default : null
+            },
 			to : {
 				type    : 'string',
 				default : null
-			},
+			}
 		},
 
 		edit: function( props ) {
 			return (
-				<GrunionForm className={props.className}>
-					<p>foo</p>
-					<InnerBlocks />
-				</GrunionForm>
-			);
+                <GrunionForm key="grunion/form" className={props.className}>
+                    <InnerBlocks
+						allowedBlocks={ [
+                            'grunion/field-text',
+                            'grunion/field-email'
+						] }
+					/>
+                </GrunionForm>
+            );
 		},
 
 		save: function( props ) {
@@ -49,35 +72,105 @@
 
 	class GrunionField extends Component {
 		render() {
+			console.log( this.props );
 			return (
-				<div className="grunion-field">
-					field
-				</div>
+				<Fragment>
+					<div className="grunion-field">
+                        <TextControl
+							type={ this.props.type }
+                            label={ this.props.type + this.props.label }
+							disabled={true}
+                        />
+					</div>
+				</Fragment>
 			);
 		}
 	}
 
-	registerBlockType( 'grunion/field', {
-		title       : __( 'Input Field', 'jetpack' ),
+	const FieldDefaults = {
 		icon        : 'feedback',
 		category    : 'widgets',
 		parent      : [ 'grunion/form' ],
 		supportHTML : false,
-
-		attributes : {
-			type : {
-				type    : 'string',
-				default : 'text'
-			},
+		attributes  : {
+			label : {
+				type : 'string',
+				default: __( 'Type here...' )
+			}
 		},
-
-		edit: function( props ) {
-			return ( <GrunionField /> );
-		},
-
-		save: function( props ) {
+		save : function() {
 			return null;
 		}
-	} );
+	};
+
+    registerBlockType( 'grunion/field-name', _.defaults({
+        title       : __( 'Name', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="text" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+	registerBlockType( 'grunion/field-text', _.defaults({
+		title       : __( 'Text', 'jetpack' ),
+		edit: function( props ) {
+			return ( <GrunionField type="text" label={ props.label } /> );
+		}
+	}, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-email', _.defaults({
+        title       : __( 'Email', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="email" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-url', _.defaults({
+        title       : __( 'URL', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="url" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-date', _.defaults({
+        title       : __( 'Date', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="text" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-telephone', _.defaults({
+        title       : __( 'Telephone', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="tel" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-radio', _.defaults({
+        title       : __( 'Date', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="radio" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-select', _.defaults({
+        title       : __( 'Date', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="select" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-checkbox', _.defaults({
+        title       : __( 'Date', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="checkbox" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
+
+    registerBlockType( 'grunion/field-checkbox-multiple', _.defaults({
+        title       : __( 'Date', 'jetpack' ),
+        edit: function( props ) {
+            return ( <GrunionField type="checkbox-multiple" label={ props.label } /> );
+        }
+    }, FieldDefaults ) );
 
 } )( window.wp, _ );
