@@ -88,20 +88,20 @@
 			switch ( this.props.type ) {
 				case 'checkbox' :
 					field = ( <CheckboxControl
-						label={this.props.type + this.props.label}
+						label={this.props.label}
 						disabled={true}
 					/> );
 					break;
 				case 'textarea' :
 					field = (<TextareaControl
-						label={this.props.type + this.props.label}
+						label={this.props.label}
 						disabled={true}
 					/> );
 					break;
 				default :
 					field = ( <TextControl
 						type={this.props.type}
-						label={this.props.type + this.props.label}
+						label={this.props.label}
 						disabled={true}
 					/> );
 			}
@@ -136,21 +136,21 @@
 		title       : __( 'Name', 'jetpack' ),
 		icon        : 'admin-users',
 		edit: function( props ) {
-			return ( <GrunionField type="text" label={ props.label } /> );
+			return ( <GrunionField type="text" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-text', _.defaults({
 		title       : __( 'Text', 'jetpack' ),
 		edit: function( props ) {
-			return ( <GrunionField type="text" label={ props.label } /> );
+			return ( <GrunionField type="text" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-textarea', _.defaults({
 		title       : __( 'Textarea', 'jetpack' ),
 		edit: function( props ) {
-			return ( <GrunionField type="textarea" label={ props.label } /> );
+			return ( <GrunionField type="textarea" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -158,7 +158,7 @@
 		title       : __( 'Email', 'jetpack' ),
 		icon        : 'email',
 		edit: function( props ) {
-			return ( <GrunionField type="email" label={ props.label } /> );
+			return ( <GrunionField type="email" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -166,7 +166,7 @@
 		title       : __( 'URL', 'jetpack' ),
 		icon        : 'share-alt2',
 		edit: function( props ) {
-			return ( <GrunionField type="url" label={ props.label } /> );
+			return ( <GrunionField type="url" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -174,7 +174,7 @@
 		title       : __( 'Date', 'jetpack' ),
 		icon        : 'calendar-alt',
 		edit: function( props ) {
-			return ( <GrunionField type="text" label={ props.label } /> );
+			return ( <GrunionField type="text" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -182,21 +182,21 @@
 		title       : __( 'Telephone', 'jetpack' ),
 		icon        : 'phone',
 		edit: function( props ) {
-			return ( <GrunionField type="tel" label={ props.label } /> );
+			return ( <GrunionField type="tel" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-radio', _.defaults({
 		title       : __( 'Radio', 'jetpack' ),
 		edit: function( props ) {
-			return ( <GrunionField type="radio" label={ props.label } /> );
+			return ( <GrunionField type="radio" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-select', _.defaults({
 		title       : __( 'Select', 'jetpack' ),
 		edit: function( props ) {
-			return ( <GrunionField type="select" label={ props.label } /> );
+			return ( <GrunionField type="select" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -204,7 +204,7 @@
 		title       : __( 'Checkbox', 'jetpack' ),
 		icon        : 'forms',
 		edit: function( props ) {
-			return ( <GrunionField type="checkbox" label={ props.label } /> );
+			return ( <GrunionField type="checkbox" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
@@ -212,7 +212,7 @@
 		title       : __( 'Checkbox Multiple', 'jetpack' ),
 		icon        : 'forms',
 		edit: function( props ) {
-			return ( <GrunionField type="checkbox-multiple" label={ props.label } /> );
+			return ( <GrunionField type="checkbox-multiple" label={ props.attributes.label } /> );
 		}
 	}, FieldDefaults ) );
 
