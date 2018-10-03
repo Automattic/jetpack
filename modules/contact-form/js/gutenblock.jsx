@@ -6,7 +6,8 @@
 		TextControl,
 		TextareaControl,
 		CheckboxControl,
-		ToggleControl
+		ToggleControl,
+		RadioControl
 	} = wp.components;
 
 	const {
@@ -160,27 +161,6 @@
 							/>}
 							disabled={true}
 						/>
-					</div>
-				</Fragment>
-			);
-		}
-	}
-
-	class GrunionFieldRadio extends Component {
-		render() {
-			return (
-				<Fragment>
-					<GrunionFieldSettings
-						required={this.props.required}
-						onRequiredChange={this.props.onRequiredChange}
-					/>
-					<div className="grunion-field">
-						<GrunionFieldLabel
-							required={this.props.required}
-							label={this.props.label}
-							onLabelChange={this.props.onLabelChange}
-						/>
-						<br />Radio
 					</div>
 				</Fragment>
 			);
@@ -426,12 +406,37 @@
 	registerBlockType( 'grunion/field-radio', _.defaults({
 		title       : __( 'Radio', 'jetpack' ),
 		edit: function( props ) {
-			return ( <GrunionFieldRadio
-				label={ props.attributes.label }
-				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
-				required={ props.attributes.required }
-				onRequiredChange={ (x)=>props.setAttributes({required:x}) }
-			/> );
+			return ( <Fragment>
+                <GrunionFieldSettings
+					required={props.attributes.required}
+					onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+				/>
+				<div className="grunion-field">
+					<GrunionFieldLabel
+						required={props.attributes.required}
+						label={props.attributes.label}
+						onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+					/>
+					<br />
+					<RadioControl
+                        options={_.map(props.attributes.options, (option)=>({
+							label: (<input
+								className='option'
+								value={option}
+								onChange={function (x) {
+									const $options = jQuery(x.target).closest('.components-radio-control').find('input.option');
+									props.setAttributes({
+										options: _.pluck($options.toArray(), 'value')
+									});
+								}}
+							/>),
+							value: option
+						}))}
+						disabled={true}
+					/>
+                    <a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>Add New</a>
+				</div>
+            </Fragment> );
 		}
 	}, FieldDefaults ) );
 
