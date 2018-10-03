@@ -8,10 +8,24 @@
 		CheckboxControl,
 		ToggleControl
 	} = wp.components;
-	const { registerBlockType } = wp.blocks;
-	const { InnerBlocks, InspectorControls } = wp.editor;
-	const { Component, Fragment } = wp.element;
-	const { __ } = wp.i18n;
+
+	const {
+		registerBlockType
+	} = wp.blocks;
+
+	const {
+		InnerBlocks,
+		InspectorControls
+	} = wp.editor;
+
+	const {
+		Component,
+		Fragment
+	} = wp.element;
+
+	const {
+		__
+	} = wp.i18n;
 
 	class GrunionForm extends Component {
 		render() {
