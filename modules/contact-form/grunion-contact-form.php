@@ -233,21 +233,63 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-        add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		if ( function_exists( 'register_block_type' ) ) {
+			register_block_type( 'grunion/form', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+			) );
+
+			// These can all use a common render method.
+			register_block_type( 'grunion/field-text', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+			register_block_type( 'grunion/field-name', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+			register_block_type( 'grunion/field-email', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+			register_block_type( 'grunion/field-url', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+			register_block_type( 'grunion/field-date', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+			register_block_type( 'grunion/field-telephone', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
+			) );
+
+			// Special per-field-type render methods.
+			register_block_type( 'grunion/field-textarea', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
+			) );
+		}
 	}
 
 	public static function enqueue_block_editor_assets() {
-        wp_enqueue_script( 'grunion-gutenblock', plugins_url( 'js/gutenblock.js', __FILE__ ), array(
-            'wp-blocks',
-            'wp-i18n',
-            'wp-element',
-            'underscore',
-        ), filemtime( dirname( __FILE__ ) . '/js/gutenblock.js' ) );
+		wp_enqueue_script( 'grunion-gutenblock', plugins_url( 'js/gutenblock.js', __FILE__ ), array(
+			'wp-blocks',
+			'wp-i18n',
+			'wp-element',
+			'underscore',
+		), filemtime( dirname( __FILE__ ) . '/js/gutenblock.js' ) );
 
-        wp_enqueue_style( 'grunion-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(
-            'wp-blocks',
-        ), filemtime( dirname( __FILE__ ) . '/css/gutenblock.css' ) );
-    }
+		wp_enqueue_style( 'grunion-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(
+			'wp-blocks',
+		), filemtime( dirname( __FILE__ ) . '/css/gutenblock.css' ) );
+	}
+
+	public static function gutenblock_render_form( $atts, $content ) {
+		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+	}
+
+	public static function gutenblock_render_field( $atts, $content ) {
+		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+	}
+
+	public static function gutenblock_render_field_textarea( $atts, $content ) {
+		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+	}
 
 	/**
 	 * Add the 'Export' menu item as a submenu of Feedback.
