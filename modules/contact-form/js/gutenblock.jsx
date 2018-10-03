@@ -70,14 +70,14 @@
 	class GrunionFieldLabel extends Component {
 		render() {
 			return (
-                <Fragment>
-                    <input
-                        type='text'
-                        value={this.props.label}
-                        onChange={ this.props.onLabelChange }
-                    />
-                    {this.props.required && <span className='required'>{ __( '(required)' ) }</span>}
-                </Fragment>
+				<Fragment>
+					<input
+						type='text'
+						value={this.props.label}
+						onChange={ this.props.onLabelChange }
+					/>
+					{this.props.required && <span className='required'>{ __( '(required)' ) }</span>}
+				</Fragment>
 			);
 		}
 	}
@@ -116,11 +116,11 @@
 					/>
 					<div className="grunion-field">
 						<TextareaControl
-                            label={<GrunionFieldLabel
-                                required={this.props.required}
-                                label={this.props.label}
-                                onLabelChange={this.props.onLabelChange}
-                            />}
+							label={<GrunionFieldLabel
+								required={this.props.required}
+								label={this.props.label}
+								onLabelChange={this.props.onLabelChange}
+							/>}
 							disabled={true}
 						/>
 					</div>
@@ -139,11 +139,11 @@
 					/>
 					<div className="grunion-field">
 						<CheckboxControl
-                            label={<GrunionFieldLabel
-                                required={this.props.required}
-                                label={this.props.label}
-                                onLabelChange={this.props.onLabelChange}
-                            />}
+							label={<GrunionFieldLabel
+								required={this.props.required}
+								label={this.props.label}
+								onLabelChange={this.props.onLabelChange}
+							/>}
 							disabled={true}
 						/>
 					</div>
@@ -161,7 +161,7 @@
 						onRequiredChange={this.props.onRequiredChange}
 					/>
 					<div className="grunion-field">
-                        <GrunionFieldLabel
+						<GrunionFieldLabel
 							required={this.props.required}
 							label={this.props.label}
 							onLabelChange={this.props.onLabelChange}
@@ -405,7 +405,7 @@
 					</ol>
 					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>Add New</a>
 				</div>
-            </Fragment> );
+			</Fragment> );
 		}
 	}, FieldDefaults ) );
 
