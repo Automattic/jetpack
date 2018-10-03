@@ -242,7 +242,7 @@ CONTAINER;
 		} elseif ( intval( $poll ) > 0 ) { //poll embed
 
 			$poll      = intval( $poll );
-			$poll_url  = sprintf( 'https://polldaddy.com/poll/%d', $poll );
+			$poll_url  = sprintf( 'https://poll.fm/%d', $poll );
 			$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
 			$poll_link = sprintf( '<a href="%s" target="_blank">Take Our Poll</a>', $poll_url );
 
@@ -352,7 +352,7 @@ CONTAINER;
 					$inline = false;
 
 				$survey      = preg_replace( '/[^a-f0-9]/i', '', $survey );
-				$survey_url  = esc_url( "https://polldaddy.com/s/{$survey}" );
+				$survey_url  = esc_url( "https://survey.fm/{$survey}" );
 				$survey_link = sprintf( '<a href="%s" target="_blank">%s</a>', $survey_url, esc_html( $title ) );
 
 				$settings = array();
@@ -388,7 +388,7 @@ CONTAINER;
 						$domain = preg_replace( '/[^a-z0-9\-]/i', '', $domain );
 						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
 
-						$auto_src = esc_url( "https://{$domain}.polldaddy.com/s/{$id}" );
+						$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
 						$auto_src = parse_url( $auto_src );
 
 						if ( ! is_array( $auto_src ) || count( $auto_src ) == 0 ) {
@@ -399,8 +399,8 @@ CONTAINER;
 							return '<!-- no crowdsignal output -->';
 						}
 
-						$domain   = $auto_src['host'].'/s/';
-						$id       = str_ireplace( '/s/', '', $auto_src['path'] );
+						$domain   = $auto_src['host'] . '/';
+						$id       = $auto_src['path'];
 
 						$settings = array(
 							'type'       => $type,
@@ -553,7 +553,7 @@ new CrowdsignalShortcode();
 if ( ! function_exists( 'crowdsignal_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function crowdsignal_link( $content ) {
-		return jetpack_preg_replace_outside_tags( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' async src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content, 'polldaddy.com/poll' );
+		return jetpack_preg_replace_outside_tags( '!(?:\n|\A)http://(polldaddy.com/poll|poll.fm)/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' async src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content, 'polldaddy.com/poll' );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it
