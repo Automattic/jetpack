@@ -377,7 +377,6 @@
 		title       : __( 'Checkbox Multiple', 'jetpack' ),
 		icon        : 'forms',
 		edit: function( props ) {
-			console.log( props.attributes.options );
 			return ( <Fragment>
 				<GrunionFieldSettings
 					required={props.attributes.required}
@@ -389,14 +388,21 @@
 						label={props.attributes.label}
 						onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
 					/>
-					<hr />
-					{_.map(props.attributes.options, (option)=>(<CheckboxControl
-						label={<input
-							value={option}
-							onChange={(x)=>console.log(x)}
-						/>}
-						disabled={true}
-					/>))}
+					<ol>
+						{_.map(props.attributes.options, (option)=>(<li><CheckboxControl
+							label={<input
+								className='option'
+								value={option}
+								onChange={function(x){
+									const $options = jQuery(x.target).closest('ol').find('input.option');
+									props.setAttributes({
+										options : _.pluck( $options.toArray(), 'value' )
+									});
+								}}
+							/>}
+							disabled={true}
+						/></li>))}
+					</ol>
 					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>Add New</a>
 				</div>
             </Fragment> );
