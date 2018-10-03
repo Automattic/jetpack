@@ -26,15 +26,12 @@ class CrowdsignalShortcode {
 	}
 
 	private function get_async_code( array $settings, $survey_link ) {
-		$embed_src     = 'http://i0.poll.fm/survey.js';
-		$embed_src_ssl = 'https://polldaddy.com/survey.js';
-
 		$include = <<<CONTAINER
 ( function( d, c, j ) {
   if ( !d.getElementById( j ) ) {
     var pd = d.createElement( c ), s;
     pd.id = j;
-    pd.src = ( 'https:' == d.location.protocol ) ? '{$embed_src_ssl}' : '{$embed_src}';
+    pd.src = 'https://polldaddy.com/survey.js';
     s = d.getElementsByTagName( c )[0];
     s.parentNode.insertBefore( pd, s );
   }
@@ -211,19 +208,13 @@ CONTAINER;
 
 			$item_id = esc_js( $item_id );
 
-			if ( is_ssl() ) {
-				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
-			} else {
-				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
-			}
-
 			if ( $inline ) {
 				return <<<SCRIPT
 <div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
 PDRTJS_settings_{$rating}{$item_id}={$settings};
 //--><!]]></script>
-<script type="text/javascript" charset="UTF-8" async src="{$rating_js_file}"></script>
+<script type="text/javascript" charset="UTF-8" async src="https://polldaddy.com/js/rating/rating.js"></script>
 SCRIPT;
 			} else {
 				if ( false === self::$scripts ) {
@@ -251,8 +242,8 @@ CONTAINER;
 		} elseif ( intval( $poll ) > 0 ) { //poll embed
 
 			$poll      = intval( $poll );
-			$poll_url  = sprintf( 'http://polldaddy.com/poll/%d', $poll );
-			$poll_js   = sprintf( '%s.polldaddy.com/p/%d.js', ( is_ssl() ? 'https://secure' : 'http://static' ), $poll );
+			$poll_url  = sprintf( 'https://polldaddy.com/poll/%d', $poll );
+			$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
 			$poll_link = sprintf( '<a href="%s" target="_blank">Take Our Poll</a>', $poll_url );
 
 			if ( $no_script ) {
@@ -361,7 +352,7 @@ CONTAINER;
 					$inline = false;
 
 				$survey      = preg_replace( '/[^a-f0-9]/i', '', $survey );
-				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
+				$survey_url  = esc_url( "https://polldaddy.com/s/{$survey}" );
 				$survey_link = sprintf( '<a href="%s" target="_blank">%s</a>', $survey_url, esc_html( $title ) );
 
 				$settings = array();
@@ -397,7 +388,7 @@ CONTAINER;
 						$domain = preg_replace( '/[^a-z0-9\-]/i', '', $domain );
 						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
 
-						$auto_src = esc_url( "http://{$domain}.polldaddy.com/s/{$id}" );
+						$auto_src = esc_url( "https://{$domain}.polldaddy.com/s/{$id}" );
 						$auto_src = parse_url( $auto_src );
 
 						if ( ! is_array( $auto_src ) || count( $auto_src ) == 0 ) {
@@ -487,18 +478,12 @@ CONTAINER;
 		$script = '';
 
 		if ( is_array( self::$scripts ) ) {
-			if ( is_ssl() ) {
-				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
-			} else {
-				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
-			}
-
 			if ( isset( self::$scripts['rating'] ) ) {
 				$script = "<script type='text/javascript' charset='UTF-8' id='polldaddyRatings'><!--//--><![CDATA[//><!--\n";
 				foreach( self::$scripts['rating'] as $rating ) {
 					$script .= "PDRTJS_settings_{$rating['id']}{$rating['item_id']}={$rating['settings']}; if ( typeof PDRTJS_RATING !== 'undefined' ){if ( typeof PDRTJS_{$rating['id']}{$rating['item_id']} == 'undefined' ){PDRTJS_{$rating['id']}{$rating['item_id']} = new PDRTJS_RATING( PDRTJS_settings_{$rating['id']}{$rating['item_id']} );}}";
 				}
-				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' async src='{$rating_js_file}'></script>";
+				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' async src='https://polldaddy.com/js/rating/rating.js'></script>";
 
 			}
 
