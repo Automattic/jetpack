@@ -67,6 +67,21 @@
 		}
 	}
 
+	class GrunionFieldLabel extends Component {
+		render() {
+			return (
+                <Fragment>
+                    <input
+                        type='text'
+                        value={this.props.label}
+                        onChange={ this.props.onLabelChange }
+                    />
+                    {this.props.required && <span className='required'>{ __( '(required)' ) }</span>}
+                </Fragment>
+			);
+		}
+	}
+
 	class GrunionField extends Component {
 		render() {
 			return (
@@ -78,16 +93,11 @@
 					<div className="grunion-field">
 						<TextControl
 							type={this.props.type}
-							label={
-								<Fragment>
-									<input
-										type='text'
-										value={this.props.label}
-										onChange={ this.props.onLabelChange }
-									/>
-									{this.props.required && <span className='required'>(required)</span>}
-								</Fragment>
-							}
+							label={<GrunionFieldLabel
+								required={this.props.required}
+								label={this.props.label}
+								onLabelChange={this.props.onLabelChange}
+							/>}
 							disabled={true}
 						/>
 					</div>
@@ -106,16 +116,11 @@
 					/>
 					<div className="grunion-field">
 						<TextareaControl
-							label={
-								<Fragment>
-									<input
-										type='text'
-										value={this.props.label}
-										onChange={ this.props.onLabelChange }
-									/>
-									{this.props.required && <span className='required'>(required)</span>}
-								</Fragment>
-							}
+                            label={<GrunionFieldLabel
+                                required={this.props.required}
+                                label={this.props.label}
+                                onLabelChange={this.props.onLabelChange}
+                            />}
 							disabled={true}
 						/>
 					</div>
@@ -134,16 +139,11 @@
 					/>
 					<div className="grunion-field">
 						<CheckboxControl
-							label={
-								<Fragment>
-									<input
-										type='text'
-										value={this.props.label}
-										onChange={ this.props.onLabelChange }
-									/>
-									{this.props.required && <span className='required'>(required)</span>}
-								</Fragment>
-							}
+                            label={<GrunionFieldLabel
+                                required={this.props.required}
+                                label={this.props.label}
+                                onLabelChange={this.props.onLabelChange}
+                            />}
 							disabled={true}
 						/>
 					</div>
@@ -161,14 +161,11 @@
 						onRequiredChange={this.props.onRequiredChange}
 					/>
 					<div className="grunion-field">
-						<Fragment>
-							<input
-								type='text'
-								value={this.props.label}
-								onChange={ this.props.onLabelChange }
-							/>
-							{this.props.required && <span className='required'>(required)</span>}
-						</Fragment>
+                        <GrunionFieldLabel
+							required={this.props.required}
+							label={this.props.label}
+							onLabelChange={this.props.onLabelChange}
+						/>
 						<br />CheckboxMultiple
 					</div>
 				</Fragment>
@@ -185,14 +182,11 @@
 						onRequiredChange={this.props.onRequiredChange}
 					/>
 					<div className="grunion-field">
-						<Fragment>
-							<input
-								type='text'
-								value={this.props.label}
-								onChange={ this.props.onLabelChange }
-							/>
-							{this.props.required && <span className='required'>(required)</span>}
-						</Fragment>
+                        <GrunionFieldLabel
+							required={this.props.required}
+							label={this.props.label}
+							onLabelChange={this.props.onLabelChange}
+						/>
 						<br />Radio
 					</div>
 				</Fragment>
@@ -209,14 +203,11 @@
 						onRequiredChange={this.props.onRequiredChange}
 					/>
 					<div className="grunion-field">
-						<Fragment>
-							<input
-								type='text'
-								value={this.props.label}
-								onChange={ this.props.onLabelChange }
-							/>
-							{this.props.required && <span className='required'>(required)</span>}
-						</Fragment>
+						<GrunionFieldLabel
+							required={this.props.required}
+							label={this.props.label}
+							onLabelChange={this.props.onLabelChange}
+						/>
 						<br />Select
 					</div>
 				</Fragment>
