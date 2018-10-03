@@ -152,27 +152,6 @@
 		}
 	}
 
-	class GrunionFieldCheckboxMultiple extends Component {
-		render() {
-			return (
-				<Fragment>
-					<GrunionFieldSettings
-						required={this.props.required}
-						onRequiredChange={this.props.onRequiredChange}
-					/>
-					<div className="grunion-field">
-                        <GrunionFieldLabel
-							required={this.props.required}
-							label={this.props.label}
-							onLabelChange={this.props.onLabelChange}
-						/>
-						<br />CheckboxMultiple
-					</div>
-				</Fragment>
-			);
-		}
-	}
-
 	class GrunionFieldRadio extends Component {
 		render() {
 			return (
@@ -276,6 +255,10 @@
 			required : {
 				type : 'boolean',
 				default : false
+			},
+			options : {
+				type : 'array',
+				default : []
 			}
 		},
 		save : function() {
@@ -394,12 +377,29 @@
 		title       : __( 'Checkbox Multiple', 'jetpack' ),
 		icon        : 'forms',
 		edit: function( props ) {
-			return ( <GrunionFieldCheckboxMultiple
-				label={ props.attributes.label }
-				onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
-				required={ props.attributes.required }
-				onRequiredChange={ (x)=>props.setAttributes({required:x}) }
-			/> );
+			console.log( props.attributes.options );
+			return ( <Fragment>
+				<GrunionFieldSettings
+					required={props.attributes.required}
+					onRequiredChange={(x)=>props.setAttributes({required:x})}
+				/>
+				<div className="grunion-field">
+					<GrunionFieldLabel
+						required={props.attributes.required}
+						label={props.attributes.label}
+						onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
+					/>
+					<hr />
+					{_.map(props.attributes.options, (option)=>(<CheckboxControl
+						label={<input
+							value={option}
+							onChange={(x)=>console.log(x)}
+						/>}
+						disabled={true}
+					/>))}
+					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>Add New</a>
+				</div>
+            </Fragment> );
 		}
 	}, FieldDefaults ) );
 
