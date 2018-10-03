@@ -130,6 +130,7 @@ function jetpack_migrate_image_widget() {
 			),
 			'post_status' => 'inherit',
 			'post_type'   => 'attachment',
+			'suppress_filters' => false,
 		) );
 
 		foreach ( $attachment_ids as $attachment_id ) {

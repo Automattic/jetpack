@@ -259,13 +259,25 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// this is just here to support checksum histograms
 	function get_post_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ get_current_blog_id() ][ 'post' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
+		$matching_metas = array();
+		$metas = $this->meta[ get_current_blog_id() ]['post'];
+		foreach ( $metas as $m ) {
+			if ( $m->meta_id === $meta_id ) {
+				$matching_metas[] = $m;
+			}
+		}
 		return reset( $matching_metas );
 	}
 
 	// this is just here to support checksum histograms
 	function get_comment_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ get_current_blog_id() ][ 'comment' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
+		$matching_metas = array();
+		$metas = $this->meta[ get_current_blog_id() ]['comment'];
+		foreach ( $metas as $m ) {
+			if ( $m->meta_id === $meta_id ) {
+				$matching_metas[] = $m;
+			}
+		}
 		return reset( $matching_metas );
 	}
 
@@ -300,6 +312,24 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			unset( $this->meta[ get_current_blog_id() ][ $type ][ $meta_id ] );
 		}
 	}
+
+	public function delete_batch_metadata( $type, $object_ids, $meta_key ) {
+		$meta_ids = array();
+		foreach ( $this->meta[ get_current_blog_id() ][ $type ] as $meta_id => $meta_data ) {
+			if (
+				$meta_data->meta_key === $meta_key &&
+				in_array( $meta_data->object_id, $object_ids )
+			) {
+			$meta_ids[] = $meta_id;
+			}
+		}
+
+		foreach ( $meta_ids as $meta_id ) {
+			unset( $this->meta[ get_current_blog_id() ][ $type ][ $meta_id ] );
+		}
+	}
+
+
 
 	// constants
 	public function get_constant( $constant ) {
@@ -559,12 +589,32 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
+	function object_id( $o ) {
+		return $o->ID;
+	}
+
+	function is_comment( $m ) {
+		return 'comment' === $m->type;
+	}
+
+	function is_post( $m ) {
+		return 'post' === $m->type;
+	}
+
+	function comment_id( $o ) {
+		return $o->comment_ID;
+	}
+
+	function meta_id( $o ) {
+		return $o->meta_id;
+	}
+
 	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $fields = null ) {
 		// divide all IDs into the number of buckets
 		switch ( $object_type ) {
 			case 'posts':
 				$posts         = $this->get_posts( null, $start_id, $end_id );
-				$all_ids      = array_map( create_function( '$o', 'return $o->ID;' ), $posts );
+				$all_ids      = array_map( array( $this, 'object_id' ), $posts );
 				$id_field      = 'ID';
 				$get_function  = 'get_post';
 
@@ -574,8 +624,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 				break;
 			case 'post_meta':
-				$post_meta = array_filter( $this->meta[ get_current_blog_id() ][ 'post' ], create_function( '$m', 'return $m->type === \'post\';' ) );
-				$all_ids  = array_values( array_map( create_function( '$o', 'return $o->meta_id;' ), $post_meta ) );
+				$post_meta = array_filter( $this->meta[ get_current_blog_id() ]['post'], array( $this, 'is_post' ) );
+				$all_ids  = array_values( array_map( array( $this, 'meta_id' ), $post_meta ) );
 				$id_field     = 'meta_id';
 				$get_function = 'get_post_meta_by_id';
 
@@ -585,7 +635,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				break;
 			case 'comments':
 				$comments     = $this->get_comments( null, $start_id, $end_id );
-				$all_ids  = array_map( create_function( '$o', 'return $o->comment_ID;' ), $comments );
+				$all_ids  = array_map( array( $this, 'comment_id' ), $comments );
 				$id_field     = 'comment_ID';
 				$get_function = 'get_comment';
 
@@ -594,8 +644,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				}
 				break;
 			case 'comment_meta':
-				$comment_meta = array_filter( $this->meta[ get_current_blog_id() ][ 'comment' ], create_function( '$m', 'return $m->type === \'comment\';' ) );
-				$all_ids  = array_values( array_map( create_function( '$o', 'return $o->meta_id;' ), $comment_meta ) );
+				$comment_meta = array_filter( $this->meta[ get_current_blog_id() ]['comment'], array( $this, 'is_comment' ) );
+				$all_ids  = array_values( array_map( array( $this, 'meta_id' ), $comment_meta ) );
 				$id_field     = 'meta_id';
 				$get_function = 'get_comment_meta_by_id';
 

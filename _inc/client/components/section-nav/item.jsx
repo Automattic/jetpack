@@ -3,47 +3,47 @@
 /**
  * External Dependencies
  */
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal Dependencies
  */
-var Count = require( 'components/count' );
+const Count = require( 'components/count' );
 
 /**
  * Main
  */
-var NavItem = React.createClass( {
-
+const NavItem = createReactClass( {
+	displayName: 'NavItem',
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		itemType: React.PropTypes.string,
-		path: React.PropTypes.string,
-		selected: React.PropTypes.bool,
-		tabIndex: React.PropTypes.number,
-		onClick: React.PropTypes.func,
-		isExternalLink: React.PropTypes.bool,
-		disabled: React.PropTypes.bool,
-		count: React.PropTypes.number
+		itemType: PropTypes.string,
+		path: PropTypes.string,
+		selected: PropTypes.bool,
+		tabIndex: PropTypes.number,
+		onClick: PropTypes.func,
+		isExternalLink: PropTypes.bool,
+		disabled: PropTypes.bool,
+		count: PropTypes.number
 	},
 
 	render: function() {
-		var itemClassPrefix = this.props.itemType
+		const itemClassPrefix = this.props.itemType
 			? this.props.itemType
-			: 'tab',
-
-			itemClassName, target, onClick,
-
-			itemClasses = {
-				'is-selected': this.props.selected,
-				'is-external': this.props.isExternalLink
-			};
-
+			: 'tab';
+		const itemClasses = {
+			'is-selected': this.props.selected,
+			'is-external': this.props.isExternalLink
+		};
 		itemClasses[ 'dops-section-nav-' + itemClassPrefix ] = true;
-		itemClassName = classNames( itemClasses );
+		const itemClassName = classNames( itemClasses );
+		let target, onClick;
 
 		if ( this.props.isExternalLink ) {
 			target = '_blank';
@@ -74,7 +74,7 @@ var NavItem = React.createClass( {
 				</a>
 			</li>
 		);
-	}
+	},
 } );
 
 module.exports = NavItem;

@@ -49,7 +49,7 @@ $ git checkout update/my-changes
 
 # Ask git to bring in the changes that are currently on original Jetpack repo's master branch and
 # put them in your local copy of the repo before your commits.
-$ git fetch
+$ git fetch jetpack
 $ git rebase jetpack/master
 
 # Make more changes and commit OR resolve conflicts.

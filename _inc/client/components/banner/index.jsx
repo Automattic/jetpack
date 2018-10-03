@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import noop from 'lodash/noop';
 import size from 'lodash/size';
@@ -23,7 +23,7 @@ class Banner extends Component {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
-		description: PropTypes.string,
+		description: PropTypes.node,
 		event: PropTypes.string,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
@@ -164,8 +164,5 @@ class Banner extends Component {
 
 }
 
-const mapStateToProps = () => ( {} );
+export default Banner;
 
-export default connect(
-	mapStateToProps
-)( Banner );

@@ -36,6 +36,7 @@
 			var target = $( this ).get( 0 ).target;
 			if ( url && target && '_self' !== target ) {
 				var newTabWindow = window.open( '', target );
+				newTabWindow.opener = null;
 			}
 
 			event.preventDefault();

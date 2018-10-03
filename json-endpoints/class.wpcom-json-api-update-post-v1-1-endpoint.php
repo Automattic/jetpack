@@ -321,8 +321,12 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
+			// Similarly, scheduled posts that are manually published before their scheduled date should have the date reset.
 			$date_in_past = ( strtotime($post->post_date_gmt) < time() );
-			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past ) {
+			$reset_draft_date     = 'publish' === $new_status && 'draft'  === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past;
+			$reset_scheduled_date = 'publish' === $new_status && 'future' === $last_status && ! isset( $input['date_gmt'] ) && ! $date_in_past;
+
+			if ( $reset_draft_date || $reset_scheduled_date ) {
 				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
 			}
 		}

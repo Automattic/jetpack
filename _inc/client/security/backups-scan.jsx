@@ -21,12 +21,12 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
 	getVaultPressData,
-	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
 } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { isFetchingRewindStatus } from 'state/rewind';
+import { getSitePlan } from 'state/site';
 import includes from 'lodash/includes';
+import { isModuleActivated } from 'state/modules';
+import { showBackups } from 'state/initial-state';
 
 class LoadingCard extends Component {
 	render() {
@@ -34,11 +34,16 @@ class LoadingCard extends Component {
 			<SettingsCard
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				hideButton
+				action="scan"
 			>
 				<SettingsGroup
 					disableInDevMode
 					module={ { module: 'backups' } }
-					support="https://help.vaultpress.com/get-to-know/">
+					support={ {
+						text: __( 'Backs up your site to the global WordPress.com servers, ' +
+							'allowing you to restore your content in the event of an emergency or error.' ),
+						link: 'https://help.vaultpress.com/get-to-know/',
+					} }>
 					{
 						__( 'Checking site status…' )
 					}
@@ -60,7 +65,7 @@ class BackupsScanRewind extends Component {
 			feature={ 'rewind' }
 			description={ __( 'Your site is being backed up in real time and regularly scanned for security threats.' ) }
 			className="is-upgrade-premium jp-banner__no-border"
-			href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl }
+			href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
 		/>;
 	};
 
@@ -119,9 +124,8 @@ export const BackupsScan = moduleSettingsForm(
 						<br />
 						{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } ) }
 					</div>;
-				} else {
-					return __( 'Your site is backed up and threat-free.' );
 				}
+				return __( 'Your site is backed up and threat-free.' );
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan.  If they're on a higher plan,
@@ -147,11 +151,16 @@ export const BackupsScan = moduleSettingsForm(
 		}
 
 		render() {
+			if ( ! this.props.showBackups ) {
+				return null;
+			}
+
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
-			const isFetchingData = this.props.isFetchingSiteData || this.props.isFetchingVaultPressData || this.props.isFetchingRewindData;
+			const hasRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false );
+			const hasVpData = this.props.vaultPressData !== 'N/A' && false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( isFetchingData ) {
+			if ( ! hasRewindData || ( this.props.vaultPressActive && ! hasVpData ) ) {
 				return <LoadingCard />;
 			}
 
@@ -169,7 +178,11 @@ export const BackupsScan = moduleSettingsForm(
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
-						support="https://help.vaultpress.com/get-to-know/">
+						support={ {
+							text: __( 'Backs up your site to the global WordPress.com servers, ' +
+								'allowing you to restore your content in the event of an emergency or error.' ),
+							link: 'https://help.vaultpress.com/get-to-know/',
+						} }>
 						{
 							this.getCardText()
 						}
@@ -188,10 +201,9 @@ export const BackupsScan = moduleSettingsForm(
 export default connect( state => {
 	return {
 		sitePlan: getSitePlan( state ),
-		isFetchingSiteData: isFetchingSiteData( state ),
 		vaultPressData: getVaultPressData( state ),
-		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		hasThreats: getVaultPressScanThreatCount( state ),
-		isFetchingRewindData: isFetchingRewindStatus( state ),
+		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
+		showBackups: showBackups( state ),
 	};
 } )( BackupsScan );

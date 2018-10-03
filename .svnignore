@@ -1,4 +1,4 @@
-.eslintrc
+.eslintrc.js
 .eslintignore
 .git
 .gitignore
@@ -8,15 +8,18 @@
 .travis.yml
 .npmrc
 .nvmrc
-.eslintrc
+.eslines.json
+.eslintcache
 readme.md
 .github
 phpunit.xml.dist
+dangerfile.js
 docs
 tests
 tools
+vendor
+composer.lock
 package.json
-Gruntfile.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
@@ -24,6 +27,7 @@ languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
 to-test.md
+webpack.config.js
 .editorconfig
 _inc/client
 _inc/build/*.js.map
@@ -31,3 +35,7 @@ _inc/build/*.css.map
 _inc/build/maps
 .codeclimate.yml
 yarn.lock
+docker
+bin/pre-commit-hook.js
+bin/travis_install.sh
+yarn-error.log

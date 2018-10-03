@@ -43,7 +43,9 @@ const concat_list = [
 	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
-	'modules/widgets/flickr/style.css'
+	'modules/widgets/flickr/style.css',
+	'modules/widgets/search/css/search-widget-frontend.css',
+	'modules/widgets/simple-payments/style.css',
 ];
 
 /**

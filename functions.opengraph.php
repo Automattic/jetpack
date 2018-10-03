@@ -257,15 +257,30 @@ function jetpack_og_tags() {
 			}
 		}
 	}
+	$og_output .= "\n<!-- End Jetpack Open Graph Tags -->\n";
 	echo $og_output;
 }
 
-function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
+/**
+ * Returns an image used in social shares.
+ *
+ * @since 2.0.0
+ *
+ * @param int  $width Minimum width for the image. Default is 200 based on Facebook's requirement.
+ * @param int  $height Minimum height for the image. Default is 200 based on Facebook's requirement.
+ * @param null $deprecated Deprecated.
+ *
+ * @return array The source ('src'), 'width', and 'height' of the image.
+ */
+function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null ) {
+	if ( ! empty( $deprecated ) ) {
+		_deprecated_argument( __FUNCTION__, '6.6.0' );
+	}
 	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
 		// Grab obvious image if post is an attachment page for an image
-		if ( is_attachment( get_the_ID() ) && 'image' == substr( get_post_mime_type(), 0, 5 ) ) {
+		if ( is_attachment( get_the_ID() ) && 'image' === substr( get_post_mime_type(), 0, 5 ) ) {
 			$image['src'] = wp_get_attachment_url( get_the_ID() );
 		}
 
@@ -283,7 +298,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			}
 		}
 	} elseif ( is_author() ) {
-		$author = get_queried_object();
+		$author       = get_queried_object();
 		$image['src'] = get_avatar_url( $author->user_email, array(
 			'size' => $width,
 		) );
@@ -293,69 +308,37 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
-			$img_width  = '';
-			$img_height = '';
-
-			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-
-			/**
-			 * Build a hash of the Image URL. We'll use it later when building the transient.
-			 *
-			 * Transient names are 45 chars max.
-			 * Let's generate a hash that's never more than 40 chars long.
-			 */
-			$image_hash = sha1( $image_url );
-
-			// Look for data in our transient. If nothing, let's get an attachment ID.
-			$cached_image_id = get_transient( 'jp_' . $image_hash );
-			if ( ! is_int( $cached_image_id ) ) {
-				$image_id = attachment_url_to_postid( $image_url );
-				set_transient( 'jp_' . $image_hash, $image_id );
-			} else {
-				$image_id = $cached_image_id;
-			}
-
-			$image_size = wp_get_attachment_image_src( $image_id, $width >= 512
-				? 'full'
-				: array( $width, $width ) );
-			if ( isset( $image_size[1], $image_size[2] ) ) {
-				$img_width  = $image_size[1];
-				$img_height = $image_size[2];
-			}
-
-			if ( _jetpack_og_get_image_validate_size( $img_width, $img_height, $width, $height ) ) {
-				$image['src']    = $image_url;
-				$image['width']  = $img_width;
-				$image['height'] = $img_height;
-			}
+			$image['src']    = blavatar_url( $blavatar_domain, 'img', $width, false, true );
+			$image['width']  = $width;
+			$image['height'] = $height;
 		}
 	}
 
 	// Second fall back, Site Logo.
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
 		$image_id = jetpack_get_site_logo( 'id' );
-		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		$logo     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
 			isset( $logo[0], $logo[1], $logo[2] )
 			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
 		) {
-			$image['src']     = $logo[0];
-			$image['width']   = $logo[1];
-			$image['height']  = $logo[2];
+			$image['src']    = $logo[0];
+			$image['width']  = $logo[1];
+			$image['height'] = $logo[2];
 		}
 	}
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
 		$image_id = get_option( 'site_icon' );
-		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
 			isset( $icon[0], $icon[1], $icon[2] )
 			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
 		) {
-			$image['src']     = $icon[0];
-			$image['width']   = $icon[1];
-			$image['height']  = $icon[2];
+			$image['src']    = $icon[0];
+			$image['width']  = $icon[1];
+			$image['height'] = $icon[2];
 		}
 	}
 

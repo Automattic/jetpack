@@ -3,18 +3,20 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-var SelectDropdown = require( 'components/select-dropdown' ),
+const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	DropdownLabel = require( 'components/select-dropdown/label' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
-var SelectDropdownDemo = React.createClass( {
+const SelectDropdownDemo = createReactClass( {
 	displayName: 'SelectDropdown',
 
 	mixins: [ PureRenderMixin ],
@@ -40,12 +42,19 @@ var SelectDropdownDemo = React.createClass( {
 		};
 	},
 
+	handleSelectItem: function( childSelected, count ) {
+		return event => {
+			event.preventDefault();
+			this.selectItem( childSelected, count );
+		};
+	},
+
 	toggleButtons: function() {
 		this.setState( { compactButtons: ! this.state.compactButtons } );
 	},
 
 	render: function() {
-		var toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
+		const toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
 
 		return (
 			<div className="design-assets__group">
@@ -73,7 +82,7 @@ var SelectDropdownDemo = React.createClass( {
 					<DropdownItem
 						count={ 10 }
 						selected={ this.state.childSelected === 'Published' }
-						onClick={ this.selectItem.bind( this, 'Published', 10 ) }
+						onClick={ this.handleSelectItem( 'Published', 10 ) }
 					>
 						Published
 					</DropdownItem>
@@ -81,14 +90,14 @@ var SelectDropdownDemo = React.createClass( {
 					<DropdownItem
 						count={ 4 }
 						selected={ this.state.childSelected === 'Scheduled' }
-						onClick={ this.selectItem.bind( this, 'Scheduled', 4 ) }
+						onClick={ this.handleSelectItem( 'Scheduled', 4 ) }
 					>
 						Scheduled
 					</DropdownItem>
 
 					<DropdownItem
 						selected={ this.state.childSelected === 'Drafts' }
-						onClick={ this.selectItem.bind( this, 'Drafts', null ) }
+						onClick={ this.handleSelectItem( 'Drafts', null ) }
 					>
 						Drafts
 					</DropdownItem>
@@ -98,7 +107,7 @@ var SelectDropdownDemo = React.createClass( {
 					<DropdownItem
 						count={ 3 }
 						selected={ this.state.childSelected === 'Trashed' }
-						onClick={ this.selectItem.bind( this, 'Trashed', 3 ) }
+						onClick={ this.handleSelectItem( 'Trashed', 3 ) }
 					>
 						Trashed
 					</DropdownItem>
@@ -107,9 +116,7 @@ var SelectDropdownDemo = React.createClass( {
 		);
 	},
 
-	selectItem: function( childSelected, count, event ) {
-		event.preventDefault();
-
+	selectItem: function( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
 			selectedCount: count

@@ -1,6 +1,7 @@
 <?php
 
-/* Scribd Short Code
+/*
+ Scribd Short Code
 Author: Nick Momrik
 
 [scribd id=DOCUMENT_ID key=DOCUMENT_KEY mode=MODE]
@@ -12,11 +13,15 @@ MODE can be 'list', 'book', 'slide', 'slideshow', or 'tile'
 */
 
 function scribd_shortcode_handler( $atts ) {
-	$atts = shortcode_atts( array(
-		'id'   => 0,
-		'key'  => 0,
-		'mode' => '',
-	), $atts, 'scribd' );
+	$atts = shortcode_atts(
+		array(
+			'id'   => 0,
+			'key'  => 0,
+			'mode' => '',
+		),
+		$atts,
+		'scribd'
+	);
 
 	$modes = array( 'list', 'book', 'slide', 'slideshow', 'tile' );
 

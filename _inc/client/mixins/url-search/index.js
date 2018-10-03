@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-var debug = require( 'debug' )( 'calypso:url-search' ),
+const debug = require( 'debug' )( 'calypso:url-search' ),
 	page = require( 'page' );
 
 /**
  * Internal dependencies
  */
-var buildUrl = require( './build-url' );
+const buildUrl = require( './build-url' );
 
 module.exports = {
 
@@ -26,7 +26,7 @@ module.exports = {
 	},
 
 	doSearch: function( keywords ) {
-		var searchURL;
+		let searchURL;
 
 		this.setState( {
 			searchOpen: ( false !== keywords )

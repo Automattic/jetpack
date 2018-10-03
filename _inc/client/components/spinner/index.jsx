@@ -3,39 +3,31 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 require( './style.scss' );
 
-/**
- * Module variables
- */
-var Spinner;
+class Spinner extends React.Component {
+	static propTypes = {
+		className: PropTypes.string,
+		size: PropTypes.number,
+		duration: PropTypes.number
+	};
 
-Spinner = React.createClass( {
-	propTypes: {
-		className: React.PropTypes.string,
-		size: React.PropTypes.number,
-		duration: React.PropTypes.number
-	},
+	static instances = 0;
 
-	statics: {
-		instances: 0
-	},
+	static defaultProps = {
+		size: 20,
+		duration: 3000
+	};
 
-	getDefaultProps: function() {
-		return {
-			size: 20,
-			duration: 3000
-		};
-	},
-
-	componentWillMount: function() {
+	componentWillMount() {
 		this.setState( {
 			instanceId: ++Spinner.instances
 		} );
-	},
+	}
 
 	/**
 	 * Returns whether the current browser supports CSS animations for SVG
@@ -46,19 +38,19 @@ Spinner = React.createClass( {
 	 * @return {Boolean} True if the browser supports CSS animations for SVG
 	 *                   elements, or false otherwise.
 	 */
-	isSVGCSSAnimationSupported: function() {
+	isSVGCSSAnimationSupported = () => {
 		const navigator = global.window ? global.window.navigator.userAgent : ''; // FIXME: replace with UA from server
 		return ! /(MSIE |Trident\/)/.test( navigator );
-	},
+	};
 
-	getClassName: function() {
+	getClassName = () => {
 		return classNames( 'dops-spinner', this.props.className, {
 			'is-fallback': ! this.isSVGCSSAnimationSupported()
 		} );
-	},
+	};
 
-	renderFallback: function() {
-		var style = {
+	renderFallback = () => {
+		const style = {
 			width: this.props.size,
 			height: this.props.size
 		};
@@ -69,10 +61,10 @@ Spinner = React.createClass( {
 				<span className="dops-spinner__progress is-right"></span>
 			</div>
 		);
-	},
+	};
 
-	render: function() {
-		var instanceId = parseInt( this.state.instanceId, 10 );
+	render() {
+		const instanceId = parseInt( this.state.instanceId, 10 );
 
 		if ( ! this.isSVGCSSAnimationSupported() ) {
 			return this.renderFallback();
@@ -121,6 +113,6 @@ Spinner = React.createClass( {
 		);
 		/*eslint-enable react/no-danger*/
 	}
-} );
+}
 
 module.exports = Spinner;

@@ -11,9 +11,8 @@ import classNames from 'classnames';
  */
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-export const InlineExpand = React.createClass( {
-
-	propTypes: {
+export class InlineExpand extends React.Component {
+	static propTypes = {
 		label: PropTypes.string.isRequired,
 		icon: PropTypes.string,
 		cardKey: PropTypes.string,
@@ -22,26 +21,22 @@ export const InlineExpand = React.createClass( {
 		onClick: PropTypes.func,
 		onClose: PropTypes.func,
 		onOpen: PropTypes.func
-	},
+	};
 
-	getInitialState: function() {
-		return {
-			expanded: this.props.expanded
-		};
-	},
+	static defaultProps = {
+		icon: '',
+		onOpen: () => false,
+		onClose: () => false,
+		cardKey: '',
+		disabled: false,
+		expanded: false
+	};
 
-	getDefaultProps: function() {
-		return {
-			icon: '',
-			onOpen: () => false,
-			onClose: () => false,
-			cardKey: '',
-			disabled: false,
-			expanded: false
-		};
-	},
+	state = {
+		expanded: this.props.expanded
+	};
 
-	onClick: function() {
+	onClick = () => {
 		if ( ! this.props.disabled ) {
 			if ( this.props.children ) {
 				this.setState( { expanded: ! this.state.expanded } );
@@ -57,9 +52,9 @@ export const InlineExpand = React.createClass( {
 				this.props.onOpen( this.props.cardKey );
 			}
 		}
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			<div className={ classNames( 'jp-inline-expand', this.props.className, { 'is-expanded': this.state.expanded } ) }>
 				{
@@ -89,6 +84,6 @@ export const InlineExpand = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default InlineExpand;

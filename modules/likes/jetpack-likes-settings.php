@@ -43,7 +43,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'advanced', 'high' );
+			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default' );
 		}
 	}
 
@@ -56,8 +56,9 @@ class Jetpack_Likes_Settings {
 		$disabled        = ! $this->is_enabled_sitewide();
 		$switched_status = get_post_meta( $post_id, 'switch_like_status', true );
 
-		if ( $disabled && empty( $switched_status ) || false == $disabled && !empty( $switched_status ) )
+		if ( $disabled && empty( $switched_status ) || ! $disabled && $switched_status === '0' ) {
 			$checked = false;
+		}
 
 		/**
 		 * Fires before the Likes meta box content in the post editor.
@@ -135,14 +136,39 @@ class Jetpack_Likes_Settings {
 		}
 
 		// Record a change in like status for this post - only if it contradicts the
-		// site like setting.
-		if ( ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) || ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) ) {
+		// site like setting. If it doesn't contradict, then we delete the new individual status.
+		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
+			// Likes turned on for individual posts. User wants to add the button to a single post
 			update_post_meta( $post_id, 'switch_like_status', 1 );
-		} else {
+		} else if ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
+			// Likes turned on for all posts. User wants to remove the button from a single post
+			update_post_meta( $post_id, 'switch_like_status', 0 );
+		} else if (
+			( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
+			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
+		) {
+			// User wants to update the likes button status for an individual post, but the new status
+			// is the same as if they're asking for the default behaviour according to the current Likes setting.
+			// So we delete the meta.
 			delete_post_meta( $post_id, 'switch_like_status' );
 		}
 
 		return $post_id;
+	}
+
+	/**
+	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
+	 */
+	public function sharing_meta_box_content( $post ) {
+		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
+		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
+		<p>
+			<label for="wpl_enable_post_sharing">
+				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
+				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
+			</label>
+			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
+		</p> <?php
 	}
 
 	/**
@@ -216,9 +242,9 @@ class Jetpack_Likes_Settings {
 		}
 
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
-		$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
+		$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 
-		return $post_likes_switched xor $sitewide_likes_enabled;
+		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 	}
 
 	/**

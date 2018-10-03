@@ -1,6 +1,7 @@
 /**
  * External Dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import debugModule from 'debug';
 
@@ -12,40 +13,45 @@ import NoticeAction from 'components/notice/notice-action';
 import notices from 'notices';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { removeNotice } from './state/notices/actions'
+import { removeNotice } from './state/notices/actions';
 
 const debug = debugModule( 'calypso:notices' );
 
 require( './style.scss' );
 
-const NoticesList = React.createClass( {
+class NoticesList extends React.Component {
+	static displayName = 'NoticesList';
 
-	displayName: 'NoticesList',
-
-	propTypes: {
-		id: React.PropTypes.string,
-		notices: React.PropTypes.oneOfType( [
-			React.PropTypes.object,
-			React.PropTypes.array
+	static propTypes = {
+		id: PropTypes.string,
+		notices: PropTypes.oneOfType( [
+			PropTypes.object,
+			PropTypes.array
 		] )
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			id: 'overlay-notices',
-			notices: Object.freeze( [] )
-		};
-	},
+	static defaultProps = {
+		id: 'overlay-notices',
+		notices: Object.freeze( [] )
+	};
 
 	componentWillMount() {
 		debug( 'Mounting Global Notices React component.' );
-	},
+	}
 
-	removeNotice( notice ) {
+	removeNotice = ( notice ) => {
 		if ( notice ) {
 			notices.removeNotice( notice );
 		}
-	},
+	};
+
+	handleLocalNoticeDismissClick = ( notice ) => {
+		return () => this.removeNotice( notice );
+	};
+
+	handleReduxNoticeDismissClick = ( noticeId ) => {
+		return () => this.props.removeNotice( noticeId );
+	};
 
 	render() {
 		const noticesRaw = this.props.notices[ this.props.id ] || [];
@@ -57,7 +63,7 @@ const NoticesList = React.createClass( {
 					duration={ notice.duration || null }
 					text={ notice.text }
 					isCompact={ notice.isCompact }
-					onDismissClick={ this.removeNotice.bind( this, notice ) }
+					onDismissClick={ this.handleLocalNoticeDismissClick( notice ) }
 					showDismiss={ notice.showDismiss }
 				>
 					{ notice.button &&
@@ -81,7 +87,7 @@ const NoticesList = React.createClass( {
 					status={ notice.status }
 					duration = { notice.duration || null }
 					showDismiss={ notice.showDismiss }
-					onDismissClick={ this.props.removeNotice.bind( this, notice.noticeId ) }
+					onDismissClick={ this.handleReduxNoticeDismissClick( notice.noticeId ) }
 					text={ notice.text }>
 				</SimpleNotice>
 			);
@@ -97,7 +103,7 @@ const NoticesList = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

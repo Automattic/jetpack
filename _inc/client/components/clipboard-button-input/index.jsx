@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import classnames from 'classnames';
 import omit from 'lodash/omit';
 
@@ -13,37 +14,33 @@ import TextInput from 'components/text-input';
 
 require( './style.scss' );
 
-export default React.createClass( {
-	displayName: 'ClipboardButtonInput',
+export default class ClipboardButtonInput extends React.Component {
+	static displayName = 'ClipboardButtonInput';
 
-	propTypes: {
+	static propTypes = {
 		value: PropTypes.string,
 		disabled: PropTypes.bool,
 		className: PropTypes.string,
 		copied: PropTypes.string,
 		copy: PropTypes.string,
 		prompt: PropTypes.string
-	},
+	};
 
-	getInitialState() {
-		return {
-			isCopied: false,
-			disabled: false
-		};
-	},
+	static defaultProps = {
+		value: ''
+	};
 
-	getDefaultProps() {
-		return {
-			value: ''
-		};
-	},
+	state = {
+		isCopied: false,
+		disabled: false
+	};
 
 	componentWillUnmount() {
 		clearTimeout( this.confirmationTimeout );
 		delete this.confirmationTimeout;
-	},
+	}
 
-	showConfirmation() {
+	showConfirmation = () => {
 		this.setState( {
 			isCopied: true
 		} );
@@ -53,7 +50,7 @@ export default React.createClass( {
 				isCopied: false
 			} );
 		}, 4000 );
-	},
+	};
 
 	render() {
 		const forwardedProps = omit( this.props,
@@ -86,4 +83,4 @@ export default React.createClass( {
 			</span>
 		);
 	}
-} );
+}

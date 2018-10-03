@@ -85,7 +85,6 @@ body div.slideshow-window * img {
 	text-align: center;
 }
 
-/* @noflip */
 .slideshow-controls {
 	z-index: 1000;
 	position: absolute;
@@ -95,6 +94,7 @@ body div.slideshow-window * img {
 	width: 100%;
 	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	opacity: 0.5;
+	/*rtl:ignore*/
 	direction:ltr;
 	-webkit-transition: 300ms opacity ease-out;
 	-moz-transition: 300ms opacity ease-out;

@@ -20,11 +20,13 @@ add_shortcode( 'googleplus', 'jetpack_googleplus_shortcode_handler' );
 function jetpack_googleplus_shortcode_handler( $atts ) {
 	global $wp_embed;
 
-	if ( empty( $atts['url'] ) )
+	if ( empty( $atts['url'] ) ) {
 		return;
+	}
 
-	if ( ! preg_match( JETPACK_GOOGLEPLUS_EMBED_REGEX, $atts['url'] ) )
+	if ( ! preg_match( JETPACK_GOOGLEPLUS_EMBED_REGEX, $atts['url'] ) ) {
 		return;
+	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }

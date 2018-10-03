@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -39,7 +40,7 @@ export const items = ( state = {}, action ) => {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let updatedModule = assign( {}, state[ action.module ] );
+			const updatedModule = assign( {}, state[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
 			} );
@@ -61,10 +62,10 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
-			return assign( {}, state, { fetchingModulesList: true} );
+			return assign( {}, state, { fetchingModulesList: true } );
 		case JETPACK_MODULES_LIST_FETCH_FAIL:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, state, { fetchingModulesList: false} );
+			return assign( {}, state, { fetchingModulesList: false } );
 		case JETPACK_MODULE_ACTIVATE:
 			return assign( {}, state, {
 				activating: assign( {}, state.activating, {
@@ -92,7 +93,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTIONS:
-			let updatingOption = assign( {}, state.updatingOption );
+			const updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				updatingOption[ action.module ][ key ] = true;
@@ -102,7 +103,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let _updatingOption = assign( {}, state.updatingOption );
+			const _updatingOption = assign( {}, state.updatingOption );
 			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				_updatingOption[ action.module ][ key ] = false;
@@ -237,4 +238,49 @@ export function getModulesThatRequireConnection( state ) {
  */
 export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
+}
+
+/**
+ * Returns true if the module is available.
+ * @param  {Object}  state      Global state tree.
+ * @param  {String}  moduleSlug The slug of a module.
+ * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
+ */
+export function isModuleAvailable( state, moduleSlug ) {
+	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
+}
+
+/**
+ * Returns the module override for a given module slug.
+ *
+ * Expected values are false if no override, 'active' if module forced on,
+ * or 'inactive' if module forced off.
+ *
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
+ *
+ * @return {Boolean|String} Whether the module is overriden, and if so, how.
+ */
+export function getModuleOverride( state, name ) {
+	return get( state.jetpack.modules.items, [ name, 'override' ], false );
+}
+
+/**
+ * Returns true if the module is forced to be active.
+ * @param {Object}   state Global state tree
+ * @param {String}   name  A module's name
+ * @return {Boolean}       Whether the module is forced to be active.
+ */
+export function isModuleForcedActive( state, name ) {
+	return getModuleOverride( state, name ) === 'active';
+}
+
+/**
+* Returns true if the module is forced to be inactive.
+* @param {Object}   state Global state tree
+* @param {String}   name  A module's name
+* @return {Boolean}       Whether the module is forced to be inactive.
+*/
+export function isModuleForcedInactive( state, name ) {
+	return getModuleOverride( state, name ) === 'inactive';
 }

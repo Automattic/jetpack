@@ -3,19 +3,21 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 
 require( './style.scss' );
 
-export default React.createClass( {
+export default createReactClass( {
 
 	displayName: 'Count',
 
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		count: React.PropTypes.number.isRequired,
+		count: PropTypes.number.isRequired,
 	},
 
 	render() {

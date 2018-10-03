@@ -676,4 +676,101 @@ class Jetpack_Widgets {
 	public static function validate_id_base( $id_base ) {
 		return ( false !== self::get_registered_widget_object( $id_base ) );
 	}
+
+	/**
+	 * Insert a new widget in a given sidebar.
+	 *
+	 * @param string $widget_id ID of the widget.
+	 * @param array $widget_options Content of the widget.
+ 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+ 	 *
+ 	 * @return WP_Error|true True when data has been saved correctly, error otherwise.
+	*/
+	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+
+		// Retrieve the key of the next widget instance
+		$numeric_keys = array_filter( array_keys( $widget_instances ), 'is_int' );
+		$next_key = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
+
+		// Add this widget to the sidebar
+		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+			$sidebars_widgets[ $sidebar ] = array();
+		}
+		$sidebars_widgets[ $sidebar ][] = $widget_id . '-' . $next_key;
+
+		// Add the new widget instance
+		$widget_instances[ $next_key ] = $widget_options;
+
+		// Store updated sidebars, widgets and their instances
+		if (
+			! ( update_option( 'sidebars_widgets', $sidebars_widgets ) )
+			|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) )
+		) {
+			return new WP_Error( 'widget_update_failed', 'Failed to update widget or sidebar.', 400 );
+		};
+
+		return true;
+	}
+
+	/**
+	 * Update the content of an existing widget in a given sidebar.
+	 *
+	 * @param string $widget_id ID of the widget.
+	 * @param array $widget_options New content for the update.
+ 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+ 	 *
+ 	 * @return WP_Error|true True when data has been updated correctly, error otherwise.
+	*/
+	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+
+		// Retrieve index of first widget instance in that sidebar
+		$widget_key = false;
+		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+			if ( strpos( $widget, $widget_id ) !== false ) {
+				$widget_key = absint( str_replace( $widget_id . '-', '', $widget ) );
+				break;
+			}
+		}
+
+		// There is no widget instance
+		if ( ! $widget_key ) {
+			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
+		}
+
+		// Update the widget instance and option if the data has changed
+		if ( $widget_instances[ $widget_key ]['title'] !== $widget_options['title']
+			|| $widget_instances[ $widget_key ]['address'] !== $widget_options['address']
+		) {
+
+			$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
+
+			// Store updated widget instances and return Error when not successful
+			if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
+				return new WP_Error( 'widget_update_failed', 'Failed to update widget.', 400 );
+			};
+		};
+		return true;
+	}
+
+	/**
+	 * Retrieve the first active sidebar.
+	 *
+	 * @return string|WP_Error First active sidebar, error if none exists.
+	*/
+	static function get_first_sidebar() {
+		$active_sidebars = get_option( 'sidebars_widgets', array() );
+		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
+
+		if ( empty( $active_sidebars ) ) {
+			return false;
+		}
+		$active_sidebars_keys = array_keys( $active_sidebars );
+		return array_shift( $active_sidebars_keys );
+	}
 }

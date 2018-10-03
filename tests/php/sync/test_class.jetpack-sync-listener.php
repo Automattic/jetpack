@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	// This is trickier than you would expect because we only check against
 	// maximum queue size periodically (to avoid a counts on every request), and then
 	// we cache the "blocked on queue size" status.
-	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost) 
+	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost)
 	// item in the queue is gt 15 minutes old.
 	function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
 		$this->listener->get_sync_queue()->reset();
@@ -86,6 +86,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 		$current_user  = wp_get_current_user();
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -93,13 +94,84 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'user_email'       => $current_user->user_email,
 			'user_roles'       => $current_user->roles,
 			'translated_role'  => Jetpack::translate_current_user_to_role(),
-			'ip'               => $_SERVER['REMOTE_ADDR'],
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'      => is_admin(),
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
+		);
+
+		$all = $queue->get_all();
+		foreach ( $all as $queue_item ) {
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			$this->assertEquals( $actor, $example_actor );
+		}
+	}
+
+	function test_does_listener_add_actor_user_data_for_login_events() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$this->listener->get_sync_queue()->reset();
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset(); // remove any actions that already got queued
+		$current_user = wp_get_current_user();
+		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
+
+		$example_actor = array(
+			'wpcom_user_id'    => null,
+			'external_user_id' => $current_user->ID,
+			'display_name'     => $current_user->display_name,
+			'user_email'       => $current_user->user_email,
+			'user_roles'       => $current_user->roles,
+			'translated_role'  => Jetpack::translate_current_user_to_role(),
+			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
+			'is_wp_admin'      => is_admin(),
+			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
+			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
+			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
+			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'ip'               => jetpack_protect_get_ip(),
+			'user_agent'       => 'Jetpack Unit Tests',
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
+		);
+
+		$all = $queue->get_all();
+		foreach ( $all as $queue_item ) {
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			$this->assertEquals( $actor, $example_actor );
+		}
+	}
+
+	function test_does_listener_exclude_actor_ip_if_filter_is_present() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$this->listener->get_sync_queue()->reset();
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset(); // remove any actions that already got queued
+		$current_user = wp_get_current_user();
+		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
+		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
+		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
+
+		$example_actor = array(
+			'wpcom_user_id'    => null,
+			'external_user_id' => $current_user->ID,
+			'display_name'     => $current_user->display_name,
+			'user_email'       => $current_user->user_email,
+			'user_roles'       => $current_user->roles,
+			'translated_role'  => Jetpack::translate_current_user_to_role(),
+			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
+			'is_wp_admin'      => is_admin(),
+			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
+			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
+			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
+			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
 		);
 
 		$all = $queue->get_all();
@@ -116,7 +188,11 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
-		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->silent );
+		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
+		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
+	}
+
+	function get_page_url() {
+		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }

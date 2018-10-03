@@ -30,23 +30,41 @@
 // [1] https://github.com/Automattic/wp-calypso/blob/master/docs/coding-guidelines/css.md#media-queries
 //
 function isWithinBreakpoint( breakpoint ) {
-	var screenWidth = getWindowInnerWidth(),
+	const screenWidth = getWindowInnerWidth(),
 		breakpoints = {
-			'<480px': function() { return screenWidth <= 480; },
-			'<660px': function() { return screenWidth <= 660; },
-			'<960px': function() { return screenWidth <= 960; },
-			'>480px': function() { return screenWidth > 480; },
-			'>660px': function() { return screenWidth > 660; },
-			'>960px': function() { return screenWidth > 960; },
-			'480px-660px': function() { return screenWidth > 480 && screenWidth <= 660; },
-			'660px-960px': function() { return screenWidth > 660 && screenWidth <= 960; },
-			'480px-960px': function() { return screenWidth > 480 && screenWidth <= 960; },
+			'<480px': function() {
+				return screenWidth <= 480;
+			},
+			'<660px': function() {
+				return screenWidth <= 660;
+			},
+			'<960px': function() {
+				return screenWidth <= 960;
+			},
+			'>480px': function() {
+				return screenWidth > 480;
+			},
+			'>660px': function() {
+				return screenWidth > 660;
+			},
+			'>960px': function() {
+				return screenWidth > 960;
+			},
+			'480px-660px': function() {
+				return screenWidth > 480 && screenWidth <= 660;
+			},
+			'660px-960px': function() {
+				return screenWidth > 660 && screenWidth <= 960;
+			},
+			'480px-960px': function() {
+				return screenWidth > 480 && screenWidth <= 960;
+			},
 		};
 
 	if ( ! breakpoints.hasOwnProperty( breakpoint ) ) {
-		try{
+		try {
 			global.window.console.warn( 'Undefined breakpoint used in `mobile-first-breakpoint`', breakpoint );
-		}catch( e ){}
+		} catch ( e ) {}
 		return undefined;
 	}
 	return breakpoints[ breakpoint ]();

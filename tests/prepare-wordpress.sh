@@ -29,6 +29,12 @@ for WP_SLUG in 'master' 'latest' 'previous'; do
 		;;
 	esac
 
+	clone_exit_code=$?
+	if [ $clone_exit_code -ne 0 ]; then
+		echo "Failed to clone WordPress from develop.git.wordpress.org"
+		exit 1
+	fi
+
 	cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_SLUG/src/wp-content/plugins/$PLUGIN_SLUG"
 	cd /tmp/wordpress-$WP_SLUG
 

@@ -1,23 +1,24 @@
 /** External Dependencies **/
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
-module.exports = React.createClass( {
-	displayName: 'Label',
+export default class Label extends React.Component {
+	static displayName = 'Label';
 
-	propTypes: {
-		style: React.PropTypes.any,
-		label: React.PropTypes.any,
-		labelSuffix: React.PropTypes.any,
-		labelClassName: React.PropTypes.string,
-		description: React.PropTypes.string,
-		htmlFor: React.PropTypes.string,
-		required: React.PropTypes.any,
-		inline: React.PropTypes.any
-	},
+	static propTypes = {
+		style: PropTypes.any,
+		label: PropTypes.any,
+		labelSuffix: PropTypes.any,
+		labelClassName: PropTypes.string,
+		description: PropTypes.string,
+		htmlFor: PropTypes.string,
+		required: PropTypes.any,
+		inline: PropTypes.any
+	};
 
-	render: function() {
-		var label = this.props.label,
+	render() {
+		const label = this.props.label,
 			className = classNames( {
 				'dops-form-label': true,
 				'dops-form-inline': this.props.inline,
@@ -36,8 +37,8 @@ module.exports = React.createClass( {
 
 				{ ( ! this.props.inline || ! label ) && this.props.children }
 
-				{ this.props.description && <p className='dops-field-description'>{ this.props.description }</p> }
+				{ this.props.description && <p className="dops-field-description">{ this.props.description }</p> }
 			</div>
 		);
 	}
-} );
+}

@@ -1,125 +1,120 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
+	PropTypes = require( 'prop-types' ),
 	noop = require( 'lodash/noop' ),
 	throttle = require( 'lodash/throttle' );
 
 /**
  * Internal dependencies
  */
-var BarContainer = require( './bar-container' ),
+const BarContainer = require( './bar-container' ),
 	touchDetect = require( 'lib/touch-detect' );
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChart',
+export default class ModuleChart extends React.Component {
+	static displayName = 'ModuleChart';
 
-	propTypes: {
-		loading: React.PropTypes.bool,
-		data: React.PropTypes.array,
-		minTouchBarWidth: React.PropTypes.number,
-		minBarWidth: React.PropTypes.number,
-		barClick: React.PropTypes.func
-	},
+	static propTypes = {
+		loading: PropTypes.bool,
+		data: PropTypes.array,
+		minTouchBarWidth: PropTypes.number,
+		minBarWidth: PropTypes.number,
+		barClick: PropTypes.func
+	};
 
-	getInitialState: function() {
-		return {
-			maxBars: 100, // arbitrarily high number. This will be calculated by resize method
-			width: 650
-		};
-	},
+	static defaultProps = {
+		minTouchBarWidth: 42,
+		minBarWidth: 15,
+		barClick: noop
+	};
 
-	getDefaultProps: function() {
-		return {
-			minTouchBarWidth: 42,
-			minBarWidth: 15,
-			barClick: noop
-		};
-	},
+	state = {
+		maxBars: 100, // arbitrarily high number. This will be calculated by resize method
+		width: 650
+	};
 
-	// Add listener for window resize
-	componentDidMount: function() {
+    // Add listener for window resize
+	componentDidMount() {
 		this.resize = throttle( this.resize, 400 );
 		window.addEventListener( 'resize', this.resize );
 		this.resize();
-	},
+	}
 
-	// Remove listener
-	componentWillUnmount: function() {
+    // Remove listener
+	componentWillUnmount() {
 		window.removeEventListener( 'resize', this.resize );
-	},
+	}
 
-	componentWillReceiveProps: function( nextProps ) {
+	componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
-	},
+	}
 
-	resize: function() {
-		if ( this.isMounted() ) {
-			var node = this.refs.chart,
-				width = node.clientWidth - 82,
-				maxBars;
+	resize = () => {
+		const node = this.refs.chart;
+		let width = node.clientWidth - 82,
+			maxBars;
 
-			if ( touchDetect.hasTouch() ) {
-				width = ( width <= 0 ) ? 350 : width; // mobile safari bug with zero width
-				maxBars = Math.floor( width / this.props.minTouchBarWidth );
-			} else {
-				maxBars = Math.floor( width / this.props.minBarWidth );
-			}
-
-			this.setState( {
-				maxBars: maxBars,
-				width: width
-			} );
+		if ( touchDetect.hasTouch() ) {
+			width = ( width <= 0 ) ? 350 : width; // mobile safari bug with zero width
+			maxBars = Math.floor( width / this.props.minTouchBarWidth );
+		} else {
+			maxBars = Math.floor( width / this.props.minBarWidth );
 		}
-	},
 
-	getYAxisMax: function( values ) {
-		var max = Math.max.apply( null, values ),
-			operand = Math.pow( 10, ( max.toString().length - 1 ) ),
-			rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
+		this.setState( {
+			maxBars: maxBars,
+			width: width
+		} );
+	};
+
+	getYAxisMax = ( values ) => {
+		const max = Math.max.apply( null, values ),
+			operand = Math.pow( 10, ( max.toString().length - 1 ) );
+		let rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
 
 		if ( rounded < 10 ) {
 			rounded = 10;
 		}
 
 		return rounded;
-	},
+	};
 
-	getData: function() {
-		var data = this.props.data;
+	getData = () => {
+		let data = this.props.data;
 
 		data = data.slice( 0 - this.state.maxBars );
 
 		return data;
-	},
+	};
 
-	getValues: function() {
-		var data = this.getData();
+	getValues = () => {
+		let data = this.getData();
 
-		data = data.map( function ( item ) {
+		data = data.map( function( item ) {
 			return item.value;
 		}, this );
 
 		return data;
-	},
+	};
 
-	isEmptyChart: function( values ) {
+	isEmptyChart = ( values ) => {
 		values = values.filter( function( value ) {
 			return value > 0;
 		}, this );
 
 		return values.length === 0;
-	},
+	};
 
-	render: function() {
-		var values = this.getValues(),
+	render() {
+		const values = this.getValues(),
 			yAxisMax = this.getYAxisMax( values ),
-			data = this.getData(),
-			emptyChart;
+			data = this.getData();
+		let emptyChart;
 
 		// If we have an empty chart, show a message
 		// @todo this message needs to either use a <Notice> or make a custom "chart__notice" class
@@ -135,7 +130,7 @@ module.exports = React.createClass( {
 		}
 
 		return (
-			<div ref="chart" className='dops-chart'>
+			<div ref="chart" className="dops-chart">
 				<div className="dops-chart__y-axis-markers">
 					<div className="dops-chart__y-axis-marker is-hundred"></div>
 					<div className="dops-chart__y-axis-marker is-fifty"></div>
@@ -152,4 +147,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

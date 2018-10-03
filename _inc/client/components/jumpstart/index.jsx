@@ -4,10 +4,8 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Card from 'components/card';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
 
 /**
  * Internal dependencies
@@ -18,14 +16,13 @@ import {
 	isJumpstarting as _isJumpstarting
 } from 'state/jumpstart';
 import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
-import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
+import JetpackDialogue from 'components/jetpack-dialogue';
 
-const JumpStart = React.createClass( {
+class JumpStart extends React.Component {
+	static displayName = 'JumpStart';
 
-	displayName: 'JumpStart',
-
-	activateButton: function() {
+	activateButton = () => {
 		return <Button
 			primary={ true }
 			onClick={ this.props.jumpStartActivate }
@@ -33,9 +30,10 @@ const JumpStart = React.createClass( {
 		>
 			{ this.props.isJumpstarting ? __( 'Activating recommended features…' ) : __( 'Activate recommended features' ) }
 		</Button>;
-	},
+	};
 
-	render: function() {
+	renderInnerContent() {
+		/* eslint-disable react/no-danger */
 		const jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
@@ -50,56 +48,48 @@ const JumpStart = React.createClass( {
 				</div>
 			</div>
 		) );
+		/* eslint-enable react/no-danger */
 
 		return (
-			<div className="jp-jumpstart-full__container">
-				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
-				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
-				<Gridicon
-					icon="cross-small"
-					className="jp-jumpstart-full__dismiss"
-					tabIndex="0"
-					onKeyDown={ onKeyDownCallback( this.props.jumpStartSkip ) }
-					onClick={ this.props.jumpStartSkip }
-				/>
+			<div className="jp-jumpstart">
+				<p>
+					{ __( "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard." ) }
+				</p>
 
-				<div className="jp-jumpstart">
-					<img src={ imagePath + 'man-and-laptop.svg' } width="199" height="153" alt={ __( 'Person with laptop' ) } />
+				<p>
+					{ this.activateButton() }
+				</p>
 
-					<h1 className="jp-jumpstart__title">
-						{ __( 'Your Jetpack site is ready to go!' ) }
-					</h1>
+				<div>
+					<h2 className="jp-jumpstart__feature-heading">
+						{ __( "Jetpack's recommended features include:" ) }
+					</h2>
 
-					<Card className="jp-jumpstart__description">
-						<p>
-							{ __( "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard." ) }
-						</p>
-					</Card>
+					<div className="jp-jumpstart__feature-list">
+						{ jumpstartModules }
+					</div>
 
-					<Card>
-						{ this.activateButton() }
-					</Card>
+					{ this.activateButton() }
 
-					<Card>
-						<h2 className="jp-jumpstart__feature-heading">
-							{ __( "Jetpack's recommended features include:" ) }
-						</h2>
-
-						<div className="jp-jumpstart__feature-list">
-							{ jumpstartModules }
-						</div>
-
-						{ this.activateButton() }
-
-						<p className="jp-jumpstart__note">
-							{ __( 'Features can be activated or deactivated at any time.' ) }
-						</p>
-					</Card>
+					<p className="jp-jumpstart__note">
+						{ __( 'Features can be activated or deactivated at any time.' ) }
+					</p>
 				</div>
 			</div>
 		);
 	}
-} );
+
+	render() {
+		return (
+			<JetpackDialogue
+				svg={ <img src={ imagePath + 'man-and-laptop.svg' } width="199" height="153" alt={ __( 'Person with laptop' ) } /> }
+				title={ __( 'Your Jetpack site is ready to go!' ) }
+				content={ this.renderInnerContent() }
+				dismiss={ this.props.jumpStartSkip }
+			/>
+		);
+	}
+}
 
 export default connect(
 	state => {

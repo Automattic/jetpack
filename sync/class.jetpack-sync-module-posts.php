@@ -5,9 +5,11 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
-	private $just_trashed = array();
+	private $previous_status = array();
 	private $action_handler;
 	private $import_end = false;
+
+	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	public function name() {
 		return 'posts';
@@ -21,10 +23,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	public function set_defaults() {
-		$this->import_end = false;
-	}
-
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
@@ -33,87 +31,42 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
+		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
-		add_action( 'jetpack_trashed_post', $callable, 10, 2 );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
-		add_action( 'export_wp', $callable );
-		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
+		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
+		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
+		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
 
-		// Movable type, RSS, Livejournal
-		add_action( 'import_done', array( $this, 'sync_import_done' ) );
-
-		// WordPress, Blogger, Livejournal, woo tax rate
-		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 	}
 
-	public function sync_import_done( $importer ) {
-		// We already ran an send the import
-		if ( $this->import_end ) {
-			return;
-		}
 
-		$importer_name = $this->get_importer_name( $importer );
-
+	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
+		remove_action( 'deleted_post_meta', $this->action_handler );
 		/**
-		 * Sync Event that tells that the import is finished
+		 * Used for syncing deletion of batch post meta
 		 *
-		 * @since 5.0.0
+		 * @since 6.1.0
 		 *
-		 * $param string $importer
+		 * @module sync
+		 *
+		 * $param array $feedback_ids feedback post IDs
+		 * $param string $meta_key to be deleted
 		 */
-		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
-		$this->import_end = true;
+		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values');
 	}
 
-	public function sync_import_end() {
-		// We already ran an send the import
-		if ( $this->import_end ) {
-			return;
-		}
-
-		$this->import_end = true;
-		$importer         = 'unknown';
-		$backtrace        = wp_debug_backtrace_summary( null, 0, false );
-		if ( $this->is_importer( $backtrace, 'Blogger_Importer' ) ) {
-			$importer = 'blogger';
-		}
-
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WC_Tax_Rate_Importer' ) ) {
-			$importer = 'woo-tax-rate';
-		}
-
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WP_Import' ) ) {
-			$importer = 'wordpress';
-		}
-
-		$importer_name = $this->get_importer_name( $importer );
-
-		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
-		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
-	}
-
-	private function get_importer_name( $importer ) {
-		$importers = get_importers();
-		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
-	}
-
-	private function is_importer( $backtrace, $class_name ) {
-		foreach ( $backtrace as $trace ) {
-			if ( strpos( $trace, $class_name ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
+	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {
+		add_action( 'deleted_post_meta', $this->action_handler );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -121,7 +74,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -164,14 +117,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 *
 	 * @return array
 	 */
-	function expand_wp_insert_post( $args ) {
-		$post_id      = $args[0];
-		$post         = $args[1];
-		$update       = $args[2];
-		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
-		$just_published = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
-
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published );
+	function expand_jetpack_sync_save_post( $args ) {
+		list( $post_id, $post, $update, $previous_state ) = $args;
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -199,9 +147,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	function is_post_type_allowed( $post_id ) {
-		$post = get_post( $post_id );
-
-		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
+		$post = get_post( intval( $post_id ) );
+		if( $post->post_type ) {
+			return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
+		}
+		return false;
 	}
 
 	function remove_embed() {
@@ -315,17 +265,37 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post->permalink = get_permalink( $post->ID );
 		$post->shortlink = wp_get_shortlink( $post->ID );
 
+		if ( function_exists( 'amp_get_permalink' ) ) {
+			$post->amp_permalink = amp_get_permalink( $post->ID );
+		}
+
 		return $post;
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published[] = $post->ID;
+			$this->just_published[ $post->ID ] = true;
 		}
 
-		if ( 'trash' === $new_status && 'trash' !== $old_status ) {
-			$this->just_trashed[] = $post->ID;
-		}
+		$this->previous_status[ $post->ID ] = $old_status;
+	}
+
+	/*
+	 * When publishing or updating a post, the Gutenberg editor sends two requests:
+	 * 1. sent to WP REST API endpoint `wp-json/wp/v2/posts/$id`
+	 * 2. sent to wp-admin/post.php `?post=$id&action=edit&classic-editor=1&meta_box=1`
+	 *
+	 * The 2nd request is to update post meta, which is not supported on WP REST API.
+	 * When syncing post data, we will include if this was a meta box update.
+	 */
+	public function is_gutenberg_meta_box_update() {
+		return (
+			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
+			'editpost' === $_POST['action'] &&
+			'1' === $_GET['classic-editor'] &&
+			'1' === $_GET['meta_box'] &&
+			Jetpack::is_gutenberg_available()
+		);
 	}
 
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
@@ -333,30 +303,44 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) ) {
-			$is_auto_save = true;
-		} else {
-			$is_auto_save = false;
-		}
-
-		if ( ! in_array( $post_ID, $this->just_published ) ) {
-			$just_published = false;
-		} else {
-			$just_published = true;
-		}
-
 		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
 
-		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
+		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
+			$this->previous_status[ $post_ID ] :
+			self::DEFAULT_PREVIOUS_STATE;
+
+		$just_published = isset( $this->just_published[ $post_ID ] ) ?
+			$this->just_published[ $post_ID ] :
+			false;
+
+		$state = array(
+			'is_auto_save' => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
+			'previous_status' => $previous_status,
+			'just_published' => $just_published,
+			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),
+		);
+		/**
+		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param int $post_ID the post ID
+		 * @param mixed $post WP_POST object
+		 * @param bool  $update Whether this is an existing post being updated or not.
+		 * @param mixed $state state
+		 *
+		 * @module sync
+		 */
+		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
+		unset( $this->previous_status[ $post_ID ] );
 		$this->send_published( $post_ID, $post );
-		$this->send_trashed( $post_ID, $post );
 	}
 
 	public function send_published( $post_ID, $post ) {
-		if ( ! in_array( $post_ID, $this->just_published ) ) {
+		if ( ! isset( $this->just_published[ $post_ID ] ) ) {
 			return;
 		}
 
@@ -399,29 +383,34 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
-	}
-
-	public function send_trashed( $post_ID, $post ) {
-		if ( ! in_array( $post_ID, $this->just_trashed ) ) {
-			return;
-		}
-
-		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
-			return;
-		}
+		unset( $this->just_published[ $post_ID ] );
 
 		/**
-		 * Action that gets synced when a post type gets trashed.
-		 *
-		 * @since 4.9.0
-		 *
-		 * @param int $post_ID
+		 * Send additional sync action for Activity Log when post is a Customizer publish
 		 */
-		do_action( 'jetpack_trashed_post', $post_ID, $post->post_type );
+		if ( 'customize_changeset' == $post->post_type ) {
+			$post_content = json_decode( $post->post_content, true );
+			foreach ( $post_content as $key => $value ) {
+				//Skip if it isn't a widget
+				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
+					continue;
+				}
+				// Change key from "widget_archives[2]" to "archives-2"
+				$key = str_replace( 'widget_', '', $key );
+				$key = str_replace( '[', '-', $key );
+				$key = str_replace( ']', '', $key );
 
-		$this->just_trashed = array_diff( $this->just_trashed, array( $post_ID ) );
+				global $wp_registered_widgets;
+				if ( isset( $wp_registered_widgets[ $key ] ) ) {
+					$widget_data = array(
+						'name'    => $wp_registered_widgets[ $key ]['name'],
+						'id'      => $key,
+						'title'   => $value['value']['title'],
+					);
+					do_action( 'jetpack_widget_edited', $widget_data );
+				}
+			}
+		}
 	}
 
 	public function expand_post_ids( $args ) {

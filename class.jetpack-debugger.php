@@ -60,6 +60,21 @@ class Jetpack_Debugger {
 		}
 	}
 
+	public static function run_self_test() {
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+
+		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		return $response;
+
+	}
+
 	public static function jetpack_debug_display_handler() {
 		if ( ! current_user_can( 'manage_options' ) )
 			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
@@ -100,17 +115,20 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "PLAN: " . self::what_jetpack_plan() );
 
 		$debug_info .= "\r\n";
+
+		$debug_info .= "\r\n" .  "-- SYNC Status -- ";
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		$sync_statuses = $sync_module->get_status();
-		$human_readable_sync_status = array();
-		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
-			$human_readable_sync_status[ $sync_status ] =
-				in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
-				? date( 'r', $sync_status_value ) : $sync_status_value ;
+		if ( $sync_module ) {
+			$sync_statuses = $sync_module->get_status();
+			$human_readable_sync_status = array();
+			foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
+				$human_readable_sync_status[ $sync_status ] =
+					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
+						? date( 'r', $sync_status_value ) : $sync_status_value ;
+			}
+			$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 		}
-
-		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
 
@@ -192,24 +210,17 @@ class Jetpack_Debugger {
 		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
 		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
 
-		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+		$tests['SELF']['result'] = self::run_self_test();
 
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
-
-		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
-		$tests['SELF']['result'] = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 		if ( is_wp_error( $tests['SELF']['result'] ) && 0 == strpos( $tests['SELF']['result']->get_error_message(), 'Operation timed out' ) ){
 			$tests['SELF']['fail_message'] = esc_html__( 'Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server.', 'jetpack' );
 		} else {
 			$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
 		}
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
 		?>
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
+			<h2><?php esc_html_e( 'Debugging Center', 'jetpack' ); ?></h2>
 			<?php if ( isset( $can_disconnect ) && $can_disconnect ) : ?>
 				<div id="message" class="updated notice notice-success is-dismissible"><p><?php esc_html_e( 'This site was successfully disconnected.', 'jetpack' ) ?> <a href="<?php echo esc_url( Jetpack::admin_url() ); ?>"><?php esc_html_e( 'Go to connection screen.', 'jetpack' ); ?></a></p>
 					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'jetpack' ); ?></span></button></div>
@@ -363,12 +374,13 @@ class Jetpack_Debugger {
 						 * (reasons why a user would contact us.)
 						 */
 						$categories = array(
-							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com", 'jetpack' ),
-							'Billing'    => esc_html__( 'I have a billing or plans question', 'jetpack' ),
+							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com.", 'jetpack' ),
+							'Billing'    => esc_html__( 'I have an issue with a current plan.', 'jetpack' ),
+							'Presales'   => esc_html__( 'I have questions about buying a plan.', 'jetpack' ),
 							'Backups'    => esc_html__( 'I need help with backing up my site.', 'jetpack' ),
 							'Restores'   => esc_html__( 'I have a problem restoring my site.', 'jetpack' ),
-							'Security'   => esc_html__( 'I have security concerns / my site is hacked', 'jetpack' ),
-							'Priority'   => esc_html__( "My site is down / I can't access my site", 'jetpack' ),
+							'Security'   => esc_html__( 'I have security concerns / my site is hacked.', 'jetpack' ),
+							'Priority'   => esc_html__( "My site is down / I can't access my site.", 'jetpack' ),
 							/* translators: Last item in a list of reasons to contact Jetpack support. */
 							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
 						);
@@ -436,6 +448,8 @@ class Jetpack_Debugger {
 	}
 
 	public static function jetpack_debug_admin_head() {
+
+		Jetpack_Admin_Page::load_wrapper_styles();
 		?>
 		<style type="text/css">
 

@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
@@ -31,7 +32,8 @@ import { isModuleActivated, getModules } from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
-export const NavigationSettings = React.createClass( {
+export const NavigationSettings = createReactClass( {
+	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
 	moduleList: [],
 
@@ -60,7 +62,7 @@ export const NavigationSettings = React.createClass( {
 		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
-					onClick={ () => this.trackNavClick( 'search' ) }
+					onClick={ this.handleClickForTracking( 'search' ) }
 					pinned={ true }
 					fitsContainer={ true }
 					placeholder={ __( 'Search for a Jetpack feature.' ) }
@@ -81,7 +83,7 @@ export const NavigationSettings = React.createClass( {
 		} );
 	},
 
-	/**
+    /**
 	 * The UrlSearch mixin callback to form a new location href string.
 	 *
 	 * @param {string} href the current location string
@@ -96,7 +98,7 @@ export const NavigationSettings = React.createClass( {
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
-	/**
+    /**
 	 * Check that the module list includes at least one of these modules.
 	 *
 	 * @param  {array}   modules Modules that are probably included in the module list.
@@ -105,6 +107,10 @@ export const NavigationSettings = React.createClass( {
 	 */
 	hasAnyOfThese( modules = [] ) {
 		return 0 < intersection( this.moduleList, modules ).length;
+	},
+
+	handleClickForTracking( target ) {
+		return () => this.trackNavClick( target );
 	},
 
 	render: function() {
@@ -126,7 +132,7 @@ export const NavigationSettings = React.createClass( {
 						] ) && (
 							<NavItem
 								path="#writing"
-								onClick={ () => this.trackNavClick( 'writing' ) }
+								onClick={ this.handleClickForTracking( 'writing' ) }
 								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 								{ __( 'Writing', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -140,7 +146,7 @@ export const NavigationSettings = React.createClass( {
 						] ) && (
 							<NavItem
 								path="#sharing"
-								onClick={ () => this.trackNavClick( 'sharing' ) }
+								onClick={ this.handleClickForTracking( 'sharing' ) }
 								selected={ this.props.route.path === '/sharing' }>
 								{ __( 'Sharing', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -155,7 +161,7 @@ export const NavigationSettings = React.createClass( {
 						] ) && (
 							<NavItem
 								path="#discussion"
-								onClick={ () => this.trackNavClick( 'discussion' ) }
+								onClick={ this.handleClickForTracking( 'discussion' ) }
 								selected={ this.props.route.path === '/discussion' }>
 								{ __( 'Discussion', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -173,7 +179,7 @@ export const NavigationSettings = React.createClass( {
 						] ) && (
 							<NavItem
 								path="#traffic"
-								onClick={ () => this.trackNavClick( 'traffic' ) }
+								onClick={ this.handleClickForTracking( 'traffic' ) }
 								selected={ this.props.route.path === '/traffic' }>
 								{ __( 'Traffic', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -187,7 +193,7 @@ export const NavigationSettings = React.createClass( {
 						] ) || this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
 							<NavItem
 								path="#security"
-								onClick={ () => this.trackNavClick( 'security' ) }
+								onClick={ this.handleClickForTracking( 'security' ) }
 								selected={ this.props.route.path === '/security' }>
 								{ __( 'Security', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -206,7 +212,7 @@ export const NavigationSettings = React.createClass( {
 				] ) && (
 					<NavItem
 						path="#sharing"
-						onClick={ () => this.trackNavClick( 'sharing' ) }
+						onClick={ this.handleClickForTracking( 'sharing' ) }
 						selected={ this.props.route.path === '/sharing' }>
 						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -221,7 +227,7 @@ export const NavigationSettings = React.createClass( {
 						] ) && (
 							<NavItem
 								path="#writing"
-								onClick={ () => this.trackNavClick( 'writing' ) }
+								onClick={ this.handleClickForTracking( 'writing' ) }
 								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 								{ __( 'Writing', { context: 'Navigation item.' } ) }
 							</NavItem>
@@ -236,7 +242,7 @@ export const NavigationSettings = React.createClass( {
 		}
 
 		return (
-			<div className="dops-navigation">
+			<div id="jp-navigation" className="dops-navigation">
 				<QuerySitePlugins />
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }

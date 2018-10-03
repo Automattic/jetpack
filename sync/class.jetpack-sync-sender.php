@@ -3,6 +3,7 @@
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-simple-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
@@ -25,6 +26,7 @@ class Jetpack_Sync_Sender {
 	private $sync_queue;
 	private $full_sync_queue;
 	private $codec;
+	private $old_user;
 
 	// singleton functions
 	private static $instance;
@@ -44,8 +46,29 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function init() {
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
+		}
+	}
+
+	public function maybe_set_user_from_token( ) {
+		$jetpack = Jetpack::init();
+		$verified_user = $jetpack->verify_xml_rpc_signature();
+		if ( Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
+			! is_wp_error( $verified_user )
+			&& $verified_user
+		) {
+			$old_user = wp_get_current_user();
+			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
+			wp_set_current_user( $verified_user['user_id'] );
+		}
+	}
+
+	public function maybe_clear_user_from_token() {
+		if ( isset( $this->old_user ) ) {
+			wp_set_current_user( $this->old_user );
 		}
 	}
 
@@ -194,22 +217,26 @@ class Jetpack_Sync_Sender {
 		$checkout_duration = microtime( true ) - $checkout_start_time;
 
 		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $this->get_items_to_send( $buffer, true );
-
-		/**
-		 * Fires when data is ready to send to the server.
-		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
-		 * The items will be automatically re-sent later
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param array $data The action buffer
-		 * @param string $codec The codec name used to encode the data
-		 * @param double $time The current time
-		 * @param string $queue The queue used to send ('sync' or 'full_sync')
-		 */
-		Jetpack_Sync_Settings::set_is_sending( true );
-		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
-		Jetpack_Sync_Settings::set_is_sending( false );
+		if ( ! empty( $items_to_send ) ) {
+			/**
+			 * Fires when data is ready to send to the server.
+			 * Return false or WP_Error to abort the sync (e.g. if there's an error)
+			 * The items will be automatically re-sent later
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param array $data The action buffer
+			 * @param string $codec The codec name used to encode the data
+			 * @param double $time The current time
+			 * @param string $queue The queue used to send ('sync' or 'full_sync')
+			 */
+			Jetpack_Sync_Settings::set_is_sending( true );
+			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
+			Jetpack_Sync_Settings::set_is_sending( false );
+		} else {
+			$processed_item_ids = $skipped_items_ids;
+			$skipped_items_ids = array();
+		}
 
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
 			$checked_in_item_ids = $queue->checkin( $buffer );
@@ -263,6 +290,13 @@ class Jetpack_Sync_Sender {
 
 	function get_codec() {
 		return $this->codec;
+	}
+	function set_codec() {
+		if ( function_exists( 'gzinflate' ) ) {
+			$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		} else {
+			$this->codec           = new Jetpack_Sync_Simple_Codec();
+		}
 	}
 
 	function send_checksum() {
@@ -324,10 +358,12 @@ class Jetpack_Sync_Sender {
 		$this->max_dequeue_time = $seconds;
 	}
 
+
+
 	function set_defaults() {
 		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		$this->set_codec();
 
 		// saved settings
 		Jetpack_Sync_Settings::set_importing( null );

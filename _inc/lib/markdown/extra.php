@@ -36,7 +36,7 @@ define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
 @define( 'MARKDOWN_FN_BACKLINK_CLASS',     "" );
 
 # Optional class prefix for fenced code block.
-@define( 'MARKDOWN_CODE_CLASS_PREFIX',     "" );
+@define( 'MARKDOWN_CODE_CLASS_PREFIX',     "language-" );
 
 # Class attribute for code blocks goes on the `code` tag;
 # setting this to true will put attributes on the `pre` tag instead.
@@ -61,6 +61,19 @@ function Markdown($text) {
 
 	# Transform text using parser.
 	return $parser->transform($text);
+}
+
+/**
+ * Returns the length of $text loosely counting the number of UTF-8 characters with regular expression.
+ * Used by the Markdown_Parser class when mb_strlen is not available.
+ *
+ * @since 5.9
+ *
+ * @return string Length of the multibyte string
+ *
+ */
+function jetpack_utf8_strlen( $text ) {
+	return preg_match_all( "/[\\x00-\\xBF]|[\\xC0-\\xFF][\\x80-\\xBF]*/", $text, $m );
 }
 
 #
@@ -1518,14 +1531,14 @@ class Markdown_Parser {
 	function _initDetab() {
 	#
 	# Check for the availability of the function in the `utf8_strlen` property
-	# (initially `mb_strlen`). If the function is not available, create a
-	# function that will loosely count the number of UTF-8 characters with a
+	# (initially `mb_strlen`). If the function is not available, use jetpack_utf8_strlen 
+	# that will loosely count the number of UTF-8 characters with a
 	# regular expression.
 	#
-		if (function_exists($this->utf8_strlen)) return;
-		$this->utf8_strlen = create_function('$text', 'return preg_match_all(
-			"/[\\\\x00-\\\\xBF]|[\\\\xC0-\\\\xFF][\\\\x80-\\\\xBF]*/",
-			$text, $m);');
+		if ( function_exists( $this->utf8_strlen ) )  {
+			return;
+		}
+		$this->utf8_strlen = 'jetpack_utf8_strlen';
 	}
 
 

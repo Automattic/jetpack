@@ -6,19 +6,28 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
 import QueryProtectCount from 'components/data/query-dash-protect';
-import { getModules } from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { getProtectCount } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 
 class DashProtect extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		protectCount: PropTypes.any.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
+
 	getContent() {
-		const activateProtect = () => this.props.updateOptions( { 'protect': true } );
+		const support = {
+			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
+			link: 'https://jetpack.com/support/protect/',
+		};
+		const activateProtect = () => this.props.updateOptions( { protect: true } );
 
 		if ( this.props.getOptionValue( 'protect' ) ) {
 			const protectCount = this.props.protectCount;
@@ -28,6 +37,7 @@ class DashProtect extends Component {
 					<DashItem
 						label="Protect"
 						module="protect"
+						support={ support }
 						status="is-working"
 						className="jp-dash-item__recently-activated"
 					>
@@ -42,6 +52,7 @@ class DashProtect extends Component {
 				<DashItem
 					label="Protect"
 					module="protect"
+					support={ support }
 					status="is-working"
 				>
 					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
@@ -54,6 +65,7 @@ class DashProtect extends Component {
 			<DashItem
 				label="Protect"
 				module="protect"
+				support={ support }
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">{
@@ -70,12 +82,7 @@ class DashProtect extends Component {
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'protect' ) ) {
-			return null;
-		}
-
-		return (
+		return this.props.isModuleAvailable && (
 			<div className="jp-dash-item__interior">
 				<QueryProtectCount />
 				{ this.getContent() }
@@ -84,17 +91,10 @@ class DashProtect extends Component {
 	}
 }
 
-DashProtect.propTypes = {
-	isDevMode: PropTypes.bool.isRequired,
-	protectCount: PropTypes.any.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			protectCount: getProtectCount( state ),
-			isDevMode: isDevMode( state ),
-			moduleList: getModules( state )
-		};
-	}
+	state => ( {
+		protectCount: getProtectCount( state ),
+		isDevMode: isDevMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'protect' ),
+	} )
 )( DashProtect );

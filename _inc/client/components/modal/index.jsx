@@ -3,19 +3,21 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),
-	assign = require( 'lodash/assign' );
+	assign = require( 'lodash/assign' ),
+	omit = require( 'lodash/omit' );
 
-var focusTrap = require( 'focus-trap' );
+const focusTrap = require( 'focus-trap' );
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
 // e.g. Modal.preventClose();
 //      Modal.allowClose();
 // this is for important processes that must not be interrupted, e.g. payments
-var preventCloseFlag = false;
+let preventCloseFlag = false;
 
 require( './style.scss' );
 
@@ -27,30 +29,25 @@ function allowClose() {
 	preventCloseFlag = false;
 }
 
-let Modal = React.createClass( {
+class Modal extends React.Component {
+	static propTypes = {
+		style: PropTypes.object,
+		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),
+		className: PropTypes.string,
+		title: PropTypes.string,
+		initialFocus: PropTypes.string,
+		onRequestClose: PropTypes.func
+	};
 
-	propTypes: {
-		style: React.PropTypes.object,
-		width: React.PropTypes.oneOf( ['wide', 'medium', 'narrow'] ),
-		className: React.PropTypes.string,
-		title: React.PropTypes.string,
-		initialFocus: React.PropTypes.string,
-		onRequestClose: React.PropTypes.func
-	},
+	static defaultProps = {
+		style: {}
+	};
 
-	getInitialState: function() {
-		return {
-			overlayMouseDown: false
-		};
-	},
+	state = {
+		overlayMouseDown: false
+	};
 
-	getDefaultProps: function() {
-		return {
-			style: {}
-		};
-	},
-
-	componentDidMount: function() {
+	componentDidMount() {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
@@ -61,9 +58,9 @@ let Modal = React.createClass( {
 		} catch ( e ) {
 			//noop
 		}
-	},
+	}
 
-	componentWillUnmount: function() {
+	componentWillUnmount() {
 		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
@@ -71,47 +68,47 @@ let Modal = React.createClass( {
 		} catch ( e ) {
 			//noop
 		}
-	},
+	}
 
-	handleEscapeKey: function( e ) {
+	handleEscapeKey = ( e ) => {
 		if ( e.keyCode === 27 ) { // escape key maps to keycode `27`
 			this.maybeClose();
 		}
-	},
+	};
 
-	maybeClose: function() {
-		if ( this.props.onRequestClose && !preventCloseFlag ) {
+	maybeClose = () => {
+		if ( this.props.onRequestClose && ! preventCloseFlag ) {
 			this.props.onRequestClose();
 		}
-	},
+	};
 
 	// this exists so we can differentiate between click events on the background
 	// which initiated there vs. drags that ended there (most notably from the slider in a modal)
-	handleMouseDownOverlay: function( e ) {
+	handleMouseDownOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
 		this.setState( { overlayMouseDown: true } );
-	},
+	};
 
-	handleClickOverlay: function( e ) {
+	handleClickOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
-		if ( this.state.overlayMouseDown && this.props.onRequestClose && !preventCloseFlag ) {
+		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
 			this.setState( { overlayMouseDown: false } );
 			this.props.onRequestClose();
 		}
-	},
+	};
 
 	// prevent clicks from propagating to background
-	handleMouseEventModal: function( e ) {
+	handleMouseEventModal = ( e ) => {
 		e.stopPropagation();
-	},
+	};
 
-	render: function() {
-		var containerStyle, combinedStyle;
+	render() {
+		let containerStyle;
 
-		var { style, className, width, title, ...other } = this.props;
-
+		const { style, className, width, title, ...other } = this.props;
+		const { forwardedProps } = omit( other, 'onRequestClose' );
 		switch ( width ) {
 			case 'wide':
 				containerStyle = { maxWidth: 'inherit', width: 'inherit' };
@@ -123,23 +120,23 @@ let Modal = React.createClass( {
 				containerStyle = {};
 		}
 
-		combinedStyle = assign( {}, style, containerStyle );
+		const combinedStyle = assign( {}, style, containerStyle );
 		return (
-			<div className="dops-modal-wrapper" onClick={this.handleClickOverlay} onMouseDown={this.handleMouseDownOverlay}>
-				<div className={classNames( 'dops-modal', className )}
-					style={combinedStyle}
-					onClick={this.handleMouseEventModal}
-					onMouseDown={this.handleMouseEventModal}
-					onMouseUp={this.handleMouseEventModal}
+			<div className="dops-modal-wrapper" onClick={ this.handleClickOverlay } onMouseDown={ this.handleMouseDownOverlay }>
+				<div className={ classNames( 'dops-modal', className ) }
+					style={ combinedStyle }
+					onClick={ this.handleMouseEventModal }
+					onMouseDown={ this.handleMouseEventModal }
+					onMouseUp={ this.handleMouseEventModal }
 					role="dialog"
-					aria-label={title}
-					{ ...other }>
+					aria-label={ title }
+					{ ...forwardedProps }>
 					{this.props.children}
 				</div>
 			</div>
 		);
 	}
-} );
+}
 
 Modal.preventClose = preventClose;
 Modal.allowClose = allowClose;

@@ -58,7 +58,7 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 			return assign( {}, state, action.userConnectionData );
 
 		case UNLINK_USER_SUCCESS:
-			let currentUser = assign( {}, state.currentUser, { isConnected: false } );
+			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
@@ -152,8 +152,8 @@ export function isSiteConnected( state ) {
  * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
  */
 export function getSiteDevMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive'] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode'] );
+	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive' ] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode' ] );
 	}
 	return false;
 }

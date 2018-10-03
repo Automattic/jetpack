@@ -15,7 +15,7 @@ import classNames from 'classnames';
  */
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
-//import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY } from 'lib/plans/constants';
+//import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP } from 'lib/plans/constants';
 
 class DashActivity extends Component {
 	static propTypes = {
@@ -33,8 +33,8 @@ class DashActivity extends Component {
 	render() {
 		const { siteRawUrl, inDevMode } = this.props;
 		// const sitePlan = get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
-		const activityLogLink = <a href={ `https://wordpress.com/stats/activity/${ siteRawUrl }` } />;
-		// const hasBackups = includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY ], sitePlan );
+		const activityLogLink = <a href={ `https://wordpress.com/activity-log/${ siteRawUrl }` } />;
+		// const hasBackups = includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP ], sitePlan );
 		// const maybeUpgrade = hasBackups
 		// 	? __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and rewind them if you need to.", {
 		// 		components: {

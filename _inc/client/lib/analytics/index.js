@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-var debug = require( 'debug' )( 'dops:analytics' ),
+const debug = require( 'debug' )( 'dops:analytics' ),
 	assign = require( 'lodash/assign' );
 
 /**
  * Internal dependencies
  */
-var config = require( 'config' ),
-	_superProps,
+const config = require( 'config' );
+let _superProps,
 	_user;
 
 // Load tracking scripts
@@ -22,10 +22,10 @@ window.ga.l = +new Date();
 // loadScript( '//www.google-analytics.com/analytics.js' );
 
 function buildQuerystring( group, name ) {
-	var uriComponent = '';
+	let uriComponent = '';
 
 	if ( 'object' === typeof group ) {
-		for ( var key in group ) {
+		for ( const key in group ) {
 			uriComponent += '&x_' + encodeURIComponent( key ) + '=' + encodeURIComponent( group[ key ] );
 		}
 		debug( 'Bumping stats %o', group );
@@ -38,10 +38,10 @@ function buildQuerystring( group, name ) {
 }
 
 function buildQuerystringNoPrefix( group, name ) {
-	var uriComponent = '';
+	let uriComponent = '';
 
 	if ( 'object' === typeof group ) {
-		for ( var key in group ) {
+		for ( const key in group ) {
 			uriComponent += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( group[ key ] );
 		}
 		debug( 'Built stats %o', group );
@@ -53,7 +53,7 @@ function buildQuerystringNoPrefix( group, name ) {
 	return uriComponent;
 }
 
-var analytics = {
+const analytics = {
 
 	initialize: function( userId, username, superProps ) {
 		analytics.setUser( userId, username );
@@ -71,7 +71,7 @@ var analytics = {
 
 	mc: {
 		bumpStat: function( group, name ) {
-			var uriComponent = buildQuerystring( group, name ); // prints debug info
+			const uriComponent = buildQuerystring( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
 				new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + uriComponent + '&t=' + Math.random();
 			}
@@ -79,7 +79,7 @@ var analytics = {
 
 		bumpStatWithPageView: function( group, name ) {
 			// this function is fairly dangerous, as it bumps page views for wpcom and should only be called in very specific cases.
-			var uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
+			const uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
 				new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom' + uriComponent + '&t=' + Math.random();
 			}
@@ -102,7 +102,7 @@ var analytics = {
 
 	tracks: {
 		recordEvent: function( eventName, eventProperties ) {
-			var superProperties;
+			let superProperties;
 
 			eventProperties = eventProperties || {};
 
@@ -122,9 +122,7 @@ var analytics = {
 		},
 
 		recordJetpackClick: function( target ) {
-			const props = 'object' === typeof target ?
-				target :
-				{ target: target };
+			const props = 'object' === typeof target ? target : { target: target };
 
 			analytics.tracks.recordEvent( 'jetpack_wpa_click', props );
 		},
@@ -134,6 +132,11 @@ var analytics = {
 				path: urlPath
 			} );
 		},
+
+		setOptOut: function( isOptingOut ) {
+			debug( 'Pushing setOptOut: %o', isOptingOut );
+			window._tkq.push( [ 'setOptOut', isOptingOut ] );
+		},
 	},
 
 	// Google Analytics usage and event stat tracking
@@ -142,7 +145,7 @@ var analytics = {
 		initialized: false,
 
 		initialize: function() {
-			var parameters = {};
+			let parameters = {};
 			if ( ! analytics.ga.initialized ) {
 				if ( _user ) {
 					parameters = {
@@ -174,7 +177,7 @@ var analytics = {
 		recordEvent: function( category, action, label, value ) {
 			analytics.ga.initialize();
 
-			var debugText = 'Recording Event ~ [Category: ' + category + '] [Action: ' + action + ']';
+			let debugText = 'Recording Event ~ [Category: ' + category + '] [Action: ' + action + ']';
 
 			if ( 'undefined' !== typeof label ) {
 				debugText += ' [Option Label: ' + label + ']';

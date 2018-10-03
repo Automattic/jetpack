@@ -1,21 +1,20 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	classnames = require( 'classnames' ),
 	omit = require( 'lodash/omit' );
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
+export default class Textarea extends React.Component {
+	static displayName = 'Textarea';
 
-	displayName: 'Textarea',
-
-	render: function() {
+	render() {
 		return (
 			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'dops-textarea' ) } >
 				{ this.props.children }
 			</textarea>
 		);
 	}
-} );
+}

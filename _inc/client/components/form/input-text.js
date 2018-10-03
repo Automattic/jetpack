@@ -1,37 +1,38 @@
 /** External Dependencies **/
-var React = require( 'react' ),
+const React = require( 'react' ),
 	Formsy = require( 'formsy-react' ),
 	classNames = require( 'classnames' ),
 	Payment = require( 'payment' );
-
+const createReactClass = require( 'create-react-class' );
+const PropTypes = require( 'prop-types' );
 /** Internal Dependencies **/
-var Label = require( './label' ),
+const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-module.exports = React.createClass( {
+module.exports = createReactClass( {
 	displayName: 'TextInput',
 
-	mixins: [Formsy.Mixin],
+	mixins: [ Formsy.Mixin ],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		className: React.PropTypes.any,
-		style: React.PropTypes.any,
-		floatingLabel: React.PropTypes.any,
-		label: React.PropTypes.any,
-		type: React.PropTypes.string,
-		formatter: React.PropTypes.oneOf( ['cardNumber', 'cardExpiry', 'cardCVV', 'cardCVC'] ),
-		labelSuffix: React.PropTypes.any,
-		required: React.PropTypes.any,
-		validations: React.PropTypes.oneOfType( [
-			React.PropTypes.string,
-			React.PropTypes.object
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		className: PropTypes.any,
+		style: PropTypes.any,
+		floatingLabel: PropTypes.any,
+		label: PropTypes.any,
+		type: PropTypes.string,
+		formatter: PropTypes.oneOf( [ 'cardNumber', 'cardExpiry', 'cardCVV', 'cardCVC' ] ),
+		labelSuffix: PropTypes.any,
+		required: PropTypes.any,
+		validations: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.object
 		] ),
-		validationError: React.PropTypes.string,
-		onChange: React.PropTypes.func
+		validationError: PropTypes.string,
+		onChange: PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -44,7 +45,7 @@ module.exports = React.createClass( {
 	},
 
 	componentDidMount: function() {
-		var el = this.refs.input.getDOMNode();
+		const el = this.refs.input.getDOMNode();
 		switch ( this.props.formatter ) {
 			case 'cardNumber':
 				Payment.formatCardNumber( el );
@@ -68,7 +69,7 @@ module.exports = React.createClass( {
 	},
 
 	changeValue: function( event ) {
-		var inputValue = event.target.value;
+		const inputValue = event.target.value;
 
 		this.setValue( inputValue );
 		if ( this.props.onChange ) {
@@ -77,21 +78,20 @@ module.exports = React.createClass( {
 
 		// handle floating label animation
 		if ( this.props.floatingLabel ) {
-			if ( !inputValue.length ) {
-				this.setState( {floated: false, animating: false} );
+			if ( ! inputValue.length ) {
+				this.setState( { floated: false, animating: false } );
 				return;
 			}
-			this.setState( {animating: true} );
+			this.setState( { animating: true } );
 			requestAnimationFrame( function() {
-				this.setState( {floated: true} );
+				this.setState( { floated: true } );
 			}.bind( this ) );
 		}
 	},
 
 	render: function() {
-		var labelClass;
-
-		let { style, labelSuffix, label, className, ...other } = this.props;
+		const { style, labelSuffix, label, ...other } = this.props;
+		let className, labelClass;
 
 		className = classNames( 'dops-field', 'dops-field-' + this.props.name, className );
 
@@ -106,7 +106,7 @@ module.exports = React.createClass( {
 
 		if ( this.props.label ) {
 			return (
-				<Label className={className} labelClassName={labelClass} style={style} label={label} labelSuffix={labelSuffix} htmlFor={this.state.uniqueId} required={this.props.required} description={ this.props.description }>
+				<Label className={ className } labelClassName={ labelClass } style={ style } label={ label } labelSuffix={ labelSuffix } htmlFor={ this.state.uniqueId } required={ this.props.required } description={ this.props.description }>
 					{this._renderInput( this.props.label, null, null, ...other )}
 				</Label>
 			);
@@ -115,39 +115,39 @@ module.exports = React.createClass( {
 	},
 
 	_renderInput: function( label, style, extraClassName, ...other ) {
-		var errorMessage;
+		let errorMessage;
 
 		style = style || {};
 
-		if ( !this.isPristine() ) {
+		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
-			if ( !errorMessage ) {
+			if ( ! errorMessage ) {
 				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
 			}
 		}
 
-		let className = classNames( {
+		const className = classNames( {
 			'dops-form-text': true,
 			'dops-form-error': errorMessage,
 		} );
 
 		return (
-			<div className={className} style={style}>
+			<div className={ className } style={ style }>
 				<input
 					ref="input"
-					className='dops-form-input'
-					type={this.props.type}
-					id={this.state.uniqueId}
+					className="dops-form-input"
+					type={ this.props.type }
+					id={ this.state.uniqueId }
 					{ ...other }
-					placeholder={this.props.placeholder}
-					onChange={this.changeValue}
+					placeholder={ this.props.placeholder }
+					onChange={ this.changeValue }
 					onClick={ this.props.onClick }
-					value={this.getValue()} />
+					value={ this.getValue() } />
 
 				{this.props.children}
 				<div className="clear"></div>
 				<div role="alert">
-					{errorMessage && ( <FormInputValidation text={errorMessage} isError={ true }/> )}
+					{errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> )}
 				</div>
 			</div>
 		);

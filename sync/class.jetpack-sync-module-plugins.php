@@ -4,6 +4,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	private $action_handler;
 	private $plugin_info = array();
+	private $plugins = array();
 
 	public function name() {
 		return 'plugins';
@@ -16,8 +17,11 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
-		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
-		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
+		add_filter( 'upgrader_pre_install', array( $this, 'populate_plugins' ), 10, 1 );
+		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_completion' ), 10, 2 );
+		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
+		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
+		add_action( 'jetpack_plugins_updated', $callable, 10, 2 );
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
@@ -28,33 +32,121 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
 	}
-
-	public function check_upgrader( $upgrader, $details) {
-
-		if ( ! isset( $details['type'] ) ||
-			'plugin' !== $details['type'] ||
-			is_wp_error( $upgrader->skin->result ) ||
-			! method_exists( $upgrader, 'plugin_info' )
-		) {
+	public function populate_plugins( $response ) {
+		$this->plugins = get_plugins();
+		return $response;
+	}
+	public function on_upgrader_completion( $upgrader, $details ) {
+		if ( ! isset( $details['type'] ) ) {
+			return;
+		}
+		if ( 'plugin' != $details['type'] ) {
 			return;
 		}
 
-		if ( 'install' === $details['action'] ) {
-			$plugin_path = $upgrader->plugin_info();
-			$plugins = get_plugins();
-			$plugin_info = $plugins[ $plugin_path ];
+		if ( ! isset( $details['action'] ) ) {
+			return;
+		}
 
+		$plugins = ( isset( $details['plugins'] ) ? $details['plugins'] : null );
+		if ( empty( $plugins ) ) {
+			$plugins = ( isset( $details['plugin'] ) ? array( $details['plugin'] ) : null );
+		}
+
+		// for plugin installer
+		if ( empty( $plugins ) && method_exists( $upgrader, 'plugin_info' ) ) {
+			$plugins = array( $upgrader->plugin_info() );
+		}
+
+		if ( empty( $plugins ) ) {
+			return; // We shouldn't be here
+		}
+
+		switch ( $details['action'] ) {
+			case 'update':
+				$state  = array(
+					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
+				);
+				$errors = $this->get_errors( $upgrader->skin );
+				if ( $errors ) {
+					foreach ( $plugins as $slug ) {
+						/**
+						 * Sync that a plugin update failed
+						 *
+						 * @since  5.8.0
+						 *
+						 * @module sync
+						 *
+						 * @param string $plugin , Plugin slug
+						 * @param        string  Error code
+						 * @param        string  Error message
+						 */
+						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $state );
+					}
+
+					return;
+				}
+				/**
+				 * Sync that a plugin update
+				 *
+				 * @since  5.8.0
+				 *
+				 * @module sync
+				 *
+				 * @param array () $plugin, Plugin Data
+				 */
+				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ), $state );
+				break;
+			case 'install':
+
+		}
+
+		if ( 'install' === $details['action'] ) {
 			/**
 			 * Signals to the sync listener that a plugin was installed and a sync action
 			 * reflecting the installation and the plugin info should be sent
 			 *
-			 * @since 4.9.0
+			 * @since  5.8.0
 			 *
-			 * @param string $plugin_path Path of plugin installed
-			 * @param mixed $plugin_info Array of info describing plugin installed
+			 * @module sync
+			 *
+			 * @param array () $plugin, Plugin Data
 			 */
-			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
+			do_action( 'jetpack_plugin_installed', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
+
+			return;
 		}
+	}
+
+	private function get_plugin_info( $slug ) {
+		$plugins = get_plugins(); // Get the most up to date info
+		if ( isset( $plugins[ $slug ] ) ) {
+			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
+		};
+		// Try grabbing the info from before the update 
+		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ): array( 'slug' => $slug );
+	}
+
+	private function get_errors( $skin ) {
+		$errors = method_exists( $skin, 'get_errors' ) ? $skin->get_errors() : null;
+		if ( is_wp_error( $errors ) ) {
+			$error_code = $errors->get_error_code();
+			if ( ! empty( $error_code ) ) {
+				return array( 'code' => $error_code, 'message' => $errors->get_error_message() );
+			}
+		}
+
+		if ( isset( $skin->result ) ) {
+			$errors = $skin->result;
+			if ( is_wp_error( $errors ) ) {
+				return array( 'code' => $errors->get_error_code(), 'message' => $errors->get_error_message() );
+			}
+
+			if ( false == $skin->result ) {
+				return array( 'code' => 'unknown', 'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ) );
+			}
+		}
+		return false;
 	}
 
 	public function check_plugin_edit() {
@@ -134,7 +226,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		if ( false === $file_pointer ) {
 			return;
 		}
-
+		fclose( $file_pointer );
 		/**
 		 * This action is documented already in this file
 		 */

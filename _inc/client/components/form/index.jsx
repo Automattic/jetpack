@@ -1,10 +1,11 @@
 /** External Dependencies **/
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
 	Formsy = require( 'formsy-react' );
 
 /** Internal Dependencies **/
-var ActionBar = require( './action-bar' ),
+const ActionBar = require( './action-bar' ),
 	Section = require( './section' ),
 	Row = require( './row' ),
 	Label = require( './label' ),
@@ -20,44 +21,41 @@ var ActionBar = require( './action-bar' ),
 require( './style.scss' );
 
 // very thin wrapper for Formsy.Form
-let Form = React.createClass( {
+class Form extends React.Component {
+	static propTypes = {
+		style: PropTypes.object,
+		onValidSubmit: PropTypes.func,
+		onInvalidSubmit: PropTypes.func,
+		onValid: PropTypes.func,
+		onInvalid: PropTypes.func,
+		validationErrors: PropTypes.object
+	};
 
-	propTypes: {
-		style: React.PropTypes.object,
-		onValidSubmit: React.PropTypes.func,
-		onInvalidSubmit: React.PropTypes.func,
-		onValid: React.PropTypes.func,
-		onInvalid: React.PropTypes.func,
-		validationErrors: React.PropTypes.object
-	},
+	state = {};
 
-	getInitialState: function() {
-		return {};
-	},
-
-	isValid: function() {
+	isValid = () => {
 		return this.refs.form.state.isValid;
-	},
+	};
 
-	getCurrentValues: function() {
+	getCurrentValues = () => {
 		return this.refs.form.getCurrentValues();
-	},
+	};
 
-	submit: function() {
+	submit = () => {
 		this.refs.form.submit();
-	},
+	};
 
-	render: function() {
-		var { style, ...other } = this.props;
+	render() {
+		const { style, ...other } = this.props;
 		return (
-			<div className="dops-form" style={style}>
-				<Formsy.Form ref="form" {...other}>
+			<div className="dops-form" style={ style }>
+				<Formsy.Form ref="form" { ...other }>
 					{this.props.children}
 				</Formsy.Form>
 			</div>
 		);
 	}
-} );
+}
 
 // from: https://gist.github.com/ShirtlessKirk/2134376
 /**
@@ -65,21 +63,21 @@ let Form = React.createClass( {
  * @author ShirtlessKirk. Copyright ( c ) 2012.
  * @license WTFPL ( http://www.wtfpl.net/txt/copying )
  */
-let luhnChk = ( function( arr ) {
+const luhnChk = ( function( arr ) {
 	return function( ccNum ) {
-		var len = ccNum.length,
+		let len = ccNum.length,
 			bit = 1,
 			sum = 0,
 			val;
 
 		while ( len ) {
 			val = parseInt( ccNum.charAt( --len ), 10 );
-			sum += ( bit ^= 1 ) ? arr[val] : val;
+			sum += ( bit ^= 1 ) ? arr[ val ] : val;
 		}
 
 		return sum && sum % 10 === 0;
 	};
-}( [0, 2, 4, 6, 8, 1, 3, 5, 7, 9] ) );
+}( [ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 ] ) );
 
 // To find out more about validators, see:
 // https://github.com/christianalfoni/formsy-react/blob/master/API.md#validators

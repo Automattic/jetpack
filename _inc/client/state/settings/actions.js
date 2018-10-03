@@ -87,7 +87,10 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 		let messages = {
 				progress: __( 'Updating settings…' ),
 				success: __( 'Updated settings.' ),
-				error: error => __( 'Error updating settings. (%(error)s)', { args: { error: error.name || error } } )
+				// We try to get a message or an error code if this is an unexpected WP_Error coming from the API.
+				// Otherwise we try to show error.name (coming from the custom errors defined in rest-api/index.js and if that's not useful
+				// then we try to let Javascript stringify the error object.
+				error: error => __( 'Error updating settings. %(error)s', { args: { error: error.message || error.code || error.name || error } } )
 			},
 			updatedOptionsSuccess = () => newOptionValues;
 

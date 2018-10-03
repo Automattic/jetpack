@@ -49,6 +49,7 @@ $alert-purple:           #855DA6;
 $link-highlight:         tint($blue-medium, 20%);
 
 // Essentials
+$black:                  #000000;
 $white:                  rgba(255,255,255,1);
 $transparent:            rgba(255,255,255,0);
 
@@ -61,6 +62,8 @@ $sidebar-bg-color:         lighten( $gray, 30% );
 $sidebar-text-color:       $gray-dark;
 $sidebar-selected-color:   $gray;
 
+// Dashboard
+$dashboard-number-border: #CBD7E1;
 
 //Social media colors
 $color-facebook: #39579a;
@@ -87,7 +90,8 @@ $color-whatsapp: #43d854;
 // ==========================================================================
 
 $green-primary: 		#00BE28;
-$green-secondary: 		#72af3a;
+$green-secondary: 		#00a523;
+$green-dark: 			#008b1d;
 
 // ==========================================================================
 // WP-ADMIN Specific Colors

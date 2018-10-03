@@ -82,13 +82,13 @@ function jetpack_get_module_i18n( $key ) {
 
 			'lazy-images' => array(
 				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Improve performance by loading images just before they scroll into view', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Lazy load images', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Lazy-loading images improve your site\'s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'manage' => array(
@@ -123,9 +123,14 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
 			),
 
+			'photon-cdn' => array(
+				'name' => _x( 'Photon CDN', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Serve static assets from our servers', 'Module Description', 'jetpack' ),
+			),
+
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Speed up images and photos', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Serve images from our servers', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -163,7 +168,6 @@ function jetpack_get_module_i18n( $key ) {
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'sharedaddy' => array(
@@ -272,6 +276,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/shortcodes.php
 			//  - modules/tiled-gallery.php
@@ -298,6 +303,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/infinite-scroll.php
 			//  - modules/lazy-images.php
 			//  - modules/minileven.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/seo-tools.php
 			//  - modules/shortcodes.php
@@ -317,6 +323,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/protect.php
 			//  - modules/publicize.php

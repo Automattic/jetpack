@@ -4,9 +4,8 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 **Recommended Environment**
 
-* node 8.x, aka `lts/carbon`
-* npm 3.8.x
-* yarn 0.24.4
+* Node.js 10
+* Yarn 1.7
 
 ## A note on Node versions used for the build tasks
 
@@ -31,10 +30,9 @@ $ yarn distclean
 	$ cd jetpack
 	```
 
-3. Install [yarn](https://www.npmjs.com/package/yarn) package.
-    ```
-    npm install -g yarn@0.24.4
-    ```
+3. Install yarn
+
+Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
 4. Make sure the Jetpack plugin is active and run
 
@@ -68,7 +66,7 @@ $ yarn watch
 The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching sourcemap and language files.
 
 ```
-$ yarn build-production
+$ NODE_ENV=production yarn build-client
 ```
 
 ## Unit-testing
@@ -109,9 +107,12 @@ phpunit --filter my_test_name
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
-## Unit-testing the JS Admin Page
+## Unit-testing the JS code
 
-You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source code.
+Jetpack includes also several [Mocha](https://mochajs.org/) based unit tests.
+To execute them in your local environment, you can use the following commands.
+
+### Admin Page unit tests
 
 Standing on your jetpack directory, run
 
@@ -121,9 +122,90 @@ $ yarn test-client
 $ yarn test-gui
 ```
 
+### Jetpack modules unit tests
+
+Standing on your jetpack directory, run
+
+```
+$ yarn
+$ yarn test-modules
+```
+
+You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
+
+```
+$ yarn test-gui -g 'my custom pattern to filter tests'
+```
+
+To use a custom reporter, pass the argument `-R, --reporter <name>`:
+
+```
+$ yarn test-client -R 'my_reporter'
+```
+
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
 - You can find [Code Sniffer rules for WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) here. Once you've installed these rulesets, you can [follow the instructions here](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#how-to-use) to configure your IDE.
-- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc` file that defines our coding standards.
+- For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
+
+### Linting Jetpack's PHP
+
+You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code:
+
+This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
+
+```sh
+$ composer install
+```
+
+This runs the actual linting task.
+
+```sh
+$ composer php:lint
+```
+
+_There's also a handy `yarn php:lint` that will run `composer php:lint` if you prefer_.
+
+```sh
+$ yarn php:lint
+```
+
+### Checking Jetpack's PHP for PHP 5.2 Compatibility
+
+We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.2
+
+```sh
+$ composer php:5.2-compatibility .
+```
+
+_There's also a handy `yarn php:5.2-compatibility` that will run `composer php:5.2-compatibility` if you prefer_.
+
+```sh
+$ yarn php:5.2-compatibility .
+```
+
+### Linting Jetpack's JavaScript
+
+`yarn lint` will check syntax and style in the following JavaScript pieces:
+
+* All the frontend JavaScript that Jetpack relies on.
+* All the JavaScript present in the Admin Page Single Page App for Jetpack.
+
+```sh
+$ yarn lint
+```
+
+_If you haven't done it yet, you may need to run `yarn` before `yarn lint` for installing node modules for this task_.
+
+## Developing and contributing code to Jetpack from a Windows machine
+
+When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
+
+
+## Developing with docker
+
+We provide a standard installation of WordPress for making Jetpack development easier.
+
+You can read the details in [docker/README.md](../docker/README.md)

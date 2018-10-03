@@ -1,35 +1,34 @@
 /**
 * External dependencies
 */
-var ReactDom = require( 'react-dom' ),
+const PropTypes = require( 'prop-types' );
+const ReactDom = require( 'react-dom' ),
 	React = require( 'react' );
 
 /**
 * Internal dependencies
 */
-var Popover = require( 'components/popover' );
+const Popover = require( 'components/popover' );
 
-var PopoverMenu = React.createClass( {
-	propTypes: {
-		isVisible: React.PropTypes.bool.isRequired,
-		onClose: React.PropTypes.func.isRequired,
-		position: React.PropTypes.string,
-		className: React.PropTypes.string
-	},
+class PopoverMenu extends React.Component {
+	static propTypes = {
+		isVisible: PropTypes.bool.isRequired,
+		onClose: PropTypes.func.isRequired,
+		position: PropTypes.string,
+		className: PropTypes.string
+	};
 
-	getDefaultProps: function() {
-		return {
-			position: 'top'
-		};
-	},
+	static defaultProps = {
+		position: 'top'
+	};
 
-	componentWillUnmount: function() {
+	componentWillUnmount() {
 		// Make sure we don't hold on to reference to the DOM reference
 		this._previouslyFocusedElement = null;
-	},
+	}
 
-	render: function() {
-		var children = React.Children.map( this.props.children, this._setPropsOnChild, this );
+	render() {
+		const children = React.Children.map( this.props.children, this._setPropsOnChild, this );
 
 		return (
 			<Popover
@@ -44,15 +43,15 @@ var PopoverMenu = React.createClass( {
 				</div>
 			</Popover>
 		);
-	},
+	}
 
-	_setPropsOnChild: function( child ) {
+	_setPropsOnChild = ( child ) => {
 		if ( child == null ) {
 			return child;
 		}
 
-		let boundOnClose = this._onClose.bind( this, child.props.action ),
-			onClick = boundOnClose;
+		const boundOnClose = this._onClose.bind( this, child.props.action );
+		let onClick = boundOnClose;
 
 		if ( child.props.onClick ) {
 			onClick = child.props.onClick.bind( null, boundOnClose );
@@ -61,21 +60,21 @@ var PopoverMenu = React.createClass( {
 		return React.cloneElement( child, {
 			onClick: onClick
 		} );
-	},
+	};
 
-	_onShow: function() {
-		var elementToFocus = ReactDom.findDOMNode( this.refs.menu );
+	_onShow = () => {
+		const elementToFocus = ReactDom.findDOMNode( this.refs.menu );
 
 		this._previouslyFocusedElement = document.activeElement;
 
 		if ( elementToFocus ) {
 			elementToFocus.focus();
 		}
-	},
+	};
 
-	_isInvalidTarget: function( target ) {
+	_isInvalidTarget = ( target ) => {
 		return target.tagName === 'HR';
-	},
+	};
 
 	/*
 	 * Warning:
@@ -83,7 +82,7 @@ var PopoverMenu = React.createClass( {
 	 * This doesn't cover crazy things like a separator at the very top or
 	 * bottom.
 	 */
-	_getClosestSibling: function( target, isDownwardMotion = true ) {
+	_getClosestSibling = ( target, isDownwardMotion = true ) => {
 		const menu = ReactDom.findDOMNode( this.refs.menu );
 
 		let first = menu.firstChild,
@@ -98,19 +97,18 @@ var PopoverMenu = React.createClass( {
 			return first;
 		}
 
-		const closest = target[ isDownwardMotion ?
-			'nextSibling' : 'previousSibling' ];
+		const closest = target[ isDownwardMotion ? 'nextSibling' : 'previousSibling' ];
 
 		const sibling = closest || last;
 
-		return this._isInvalidTarget( sibling ) ?
-			this._getClosestSibling( sibling, isDownwardMotion ) :
-			sibling;
-	},
+		return this._isInvalidTarget( sibling )
+			? this._getClosestSibling( sibling, isDownwardMotion )
+			: sibling;
+	};
 
-	_onKeyDown: function( event ) {
-		var handled = false,
-			target = event.target,
+	_onKeyDown = ( event ) => {
+		const target = event.target;
+		let handled = false,
 			elementToFocus;
 
 		switch ( event.keyCode ) {
@@ -137,9 +135,9 @@ var PopoverMenu = React.createClass( {
 		if ( handled ) {
 			event.preventDefault();
 		}
-	},
+	};
 
-	_onClose: function( action ) {
+	_onClose = ( action ) => {
 		if ( this._previouslyFocusedElement ) {
 			this._previouslyFocusedElement.focus();
 			this._previouslyFocusedElement = null;
@@ -148,7 +146,7 @@ var PopoverMenu = React.createClass( {
 		if ( this.props.onClose ) {
 			this.props.onClose( action );
 		}
-	}
-} );
+	};
+}
 
 module.exports = PopoverMenu;

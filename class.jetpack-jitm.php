@@ -67,7 +67,6 @@ class Jetpack_JITM {
 	 */
 	function prepare_jitms( $screen ) {
 		if ( ! in_array( $screen->id, array(
-			'toplevel_page_jetpack',
 			'jetpack_page_stats',
 			'jetpack_page_akismet-key-config',
 			'admin_page_jetpack_modules'
@@ -138,12 +137,13 @@ class Jetpack_JITM {
 	function ajax_message() {
 		$message_path = $this->get_message_path();
 		$query_string = _http_build_query( $_GET, '', ',' );
-
+		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
 		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
 		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
 		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
+		     data-redirect="<?php echo urlencode_deep( $current_screen ) ?>"
 		></div>
 		<?php
 	}
@@ -343,7 +343,8 @@ class Jetpack_JITM {
 
 			// no point in showing an empty message
 			if ( empty( $envelope->content->message ) ) {
-				return array();
+				unset( $envelopes[ $idx ] );
+				continue;
 			}
 
 			switch ( $envelope->content->icon ) {

@@ -13,6 +13,9 @@ import analytics from 'lib/analytics';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
+import VideoPressPrompt from './videopress-prompt';
+import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
+import InlineModuleToggle from 'components/module-settings/inline-module-toggle';
 
 class WelcomePremium extends Component {
 	constructor( props ) {
@@ -41,14 +44,14 @@ class WelcomePremium extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing a Jetpack Premium plan. Jetpack is now backing up your site, scanning for' +
+					{ __( 'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
 						' security threats, and enabling monetization features.'
 					) }
 				</p>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
-						' appearance with one of more than 200 free themes, or enhance your content with up to 13 GB of HD video ' +
+						' appearance with one of more than 100 free themes, or enhance your content with unlimited HD video ' +
 						'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
@@ -59,13 +62,10 @@ class WelcomePremium extends Component {
 						'following, you can grow your business with tools like payment buttons and ads.'
 					) }
 				</p>
-				<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
-				<p>
-					{ __( 'Keeping your hard work safe is important, too. Jetpack Premium gives you brute force' +
-						' login protection, automated spam filtering, and malware scanning. You also get daily backups ' +
-						' with hassle-free restores, just in case you need them.'
-					) }
-				</p>
+				<InlineModuleToggle module_slug="publicize" />
+				<InlineModuleToggle module_slug="wordads" />
+				<VideoPressPrompt />
+				<MonitorAkismetBackupsPrompt />
 				<p>
 					{ __( 'Start exploring Jetpack Premium now to see all the benefits of your new plan.' ) }
 				</p>
@@ -76,14 +76,6 @@ class WelcomePremium extends Component {
 	renderBelowContent() {
 		return (
 			<div>
-				<Card
-					href={ '#/writing' }
-					compact
-					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismissVideo }
-				>
-					{ __( 'Enable premium video player' ) }
-				</Card>
 				<Card
 					href={ '#/traffic' }
 					compact

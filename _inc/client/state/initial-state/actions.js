@@ -9,5 +9,5 @@ export const setInitialState = () => {
 			type: JETPACK_SET_INITIAL_STATE,
 			initialState: window.Initial_State
 		} );
-	}
-}
+	};
+};

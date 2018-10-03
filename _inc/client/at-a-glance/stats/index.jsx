@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';
@@ -13,7 +14,6 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -29,12 +29,21 @@ import {
 	getStatsData,
 	statsSwitchTab,
 	fetchStatsData,
-	getActiveStatsTab as _getActiveStatsTab
+	getActiveStatsTab
 } from 'state/at-a-glance';
-import { getModules } from 'state/modules';
+import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
-class DashStats extends Component {
+export class DashStats extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
+		statsData: PropTypes.any.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
+
 	constructor( props ) {
 		super( props );
 		this.state = {
@@ -117,7 +126,7 @@ class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						0 < chartData.length ? '' : <Spinner />
+						0 === chartData.length && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
@@ -148,7 +157,7 @@ class DashStats extends Component {
 				</p>
 				<Button
 					onClick={ dismissCard }
-					primary={ true }
+					primary
 				>
 					{ __( 'Okay, got it!' ) }
 				</Button>
@@ -160,8 +169,7 @@ class DashStats extends Component {
 		const activateStats = () => this.props.updateOptions( { stats: true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
-			const statsErrors = this.statsErrors();
-			if ( statsErrors ) {
+			if ( this.statsErrors() ) {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
@@ -177,14 +185,14 @@ class DashStats extends Component {
 				);
 			}
 
-			const statsChart = this.statsChart( this.props.activeTab() ),
+			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = chartData.length > 0 && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats = chartData.length && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					{ ! showEmptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
+					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}
@@ -206,11 +214,11 @@ class DashStats extends Component {
 					}
 				</div>
 				{
-					this.props.isDevMode ? '' : (
+					! this.props.isDevMode && (
 						<div className="jp-at-a-glance__stats-inactive-button">
 							<Button
 								onClick={ activateStats }
-								primary={ true }
+								primary
 							>
 								{ __( 'Activate Site Stats' ) }
 							</Button>
@@ -222,6 +230,12 @@ class DashStats extends Component {
 	}
 
 	maybeShowStatsTabs() {
+		const statsChart = this.statsChart( this.props.activeTab );
+
+		if ( false === statsChart.totalViews && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
+			return false;
+		}
+
 		const switchToDay = () => {
 				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
 				this.props.switchView( 'day' );
@@ -262,21 +276,22 @@ class DashStats extends Component {
 	}
 
 	getClass( view ) {
-		return this.props.activeTab() === view
+		return this.props.activeTab === view
 			? 'jp-at-a-glance__stats-view-link is-current'
 			: 'jp-at-a-glance__stats-view-link';
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'stats' ) ) {
-			return null;
+		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
+			return (
+				<div>
+					<ModuleOverriddenBanner moduleName={ __( 'Site Stats' ) } />
+				</div>
+			);
 		}
-
-		const range = this.props.activeTab();
-		return (
+		return this.props.isModuleAvailable && (
 			<div>
-				<QueryStatsData range={ range } />
+				<QueryStatsData range={ this.props.activeTab } />
 				<DashSectionHeader label={ __( 'Site Stats' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
@@ -288,33 +303,19 @@ class DashStats extends Component {
 	}
 }
 
-DashStats.propTypes = {
-	isDevMode: PropTypes.bool.isRequired,
-	siteRawUrl: PropTypes.string.isRequired,
-	siteAdminUrl: PropTypes.string.isRequired,
-	statsData: PropTypes.any.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			moduleList: getModules( state ),
-			activeTab: () => _getActiveStatsTab( state ),
-			isDevMode: isDevMode( state ),
-			isLinked: isCurrentUserLinked( state ),
-			connectUrl: getConnectUrl( state ),
-			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
-			isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
-		};
-	},
-	( dispatch ) => {
-		return {
-			switchView: ( tab ) => {
-				return dispatch( statsSwitchTab( tab ) );
-			},
-			fetchStatsData: ( range ) => {
-				return dispatch( fetchStatsData( range ) );
-			}
-		};
-	}
+	state => ( {
+		isModuleAvailable: isModuleAvailable( state, 'stats' ),
+		activeTab: getActiveStatsTab( state ),
+		isDevMode: isDevMode( state ),
+		isLinked: isCurrentUserLinked( state ),
+		connectUrl: getConnectUrl( state ),
+		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
+		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	} ),
+	dispatch => ( {
+		switchView: tab => dispatch( statsSwitchTab( tab ) ),
+		fetchStatsData: range => dispatch( fetchStatsData( range ) ),
+	} )
 )( DashStats );

@@ -1,56 +1,136 @@
 <?php
+/**
+ * Jetpack Search: Main Jetpack_Search class
+ *
+ * @package    Jetpack
+ * @subpackage Jetpack Search
+ * @since      5.0.0
+ */
 
+/**
+ * The main class for the Jetpack Search module.
+ *
+ * @since 5.0.0
+ */
 class Jetpack_Search {
 
+	/**
+	 * The number of found posts.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var int
+	 */
 	protected $found_posts = 0;
 
 	/**
-	 * The maximum offset ('from' param), since deep pages get exponentially slower.
+	 * The search result, as returned by the WordPress.com REST API.
 	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html
+	 * @since 5.0.0
+	 *
+	 * @var array
 	 */
-	protected $max_offset = 200;
-
 	protected $search_result;
 
-	protected $original_blog_id;
+	/**
+	 * This site's blog ID on WordPress.com.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var int
+	 */
 	protected $jetpack_blog_id;
 
+	/**
+	 * The Elasticsearch aggregations (filters).
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var array
+	 */
 	protected $aggregations = array();
+
+	/**
+	 * The maximum number of aggregations allowed.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var int
+	 */
 	protected $max_aggregations_count = 100;
 
-	// used to output query meta into page
-	protected $last_query_info;
-	protected $last_query_failure_info;
+	/**
+	 * Statistics about the last Elasticsearch query.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @var array
+	 */
+	protected $last_query_info = array();
 
+	/**
+	 * Statistics about the last Elasticsearch query failure.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @var array
+	 */
+	protected $last_query_failure_info = array();
+
+	/**
+	 * The singleton instance of this class.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var Jetpack_Search
+	 */
 	protected static $instance;
 
-	//Languages with custom analyzers, other languages are supported,
-	// but are analyzed with the default analyzer.
+	/**
+	 * Languages with custom analyzers. Other languages are supported, but are analyzed with the default analyzer.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var array
+	 */
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
-	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
-
+	/**
+	 * Jetpack_Search constructor.
+	 *
+	 * @since 5.0.0
+	 *
+	 * Doesn't do anything. This class needs to be initialized via the instance() method instead.
+	 */
 	protected function __construct() {
-		/* Don't do anything, needs to be initialized via instance() method */
 	}
 
+	/**
+	 * Prevent __clone()'ing of this class.
+	 *
+	 * @since 5.0.0
+	 */
 	public function __clone() {
 		wp_die( "Please don't __clone Jetpack_Search" );
 	}
 
+	/**
+	 * Prevent __wakeup()'ing of this class.
+	 *
+	 * @since 5.0.0
+	 */
 	public function __wakeup() {
 		wp_die( "Please don't __wakeup Jetpack_Search" );
 	}
 
 	/**
-	 * Get singleton instance of Jetpack_Search
+	 * Get singleton instance of Jetpack_Search.
 	 *
-	 * Instantiates and sets up a new instance if needed, or returns the singleton
+	 * Instantiates and sets up a new instance if needed, or returns the singleton.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @return Jetpack_Search The Jetpack_Search singleton
+	 * @return Jetpack_Search The Jetpack_Search singleton.
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -63,11 +143,11 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Perform various setup tasks for the class
+	 * Perform various setup tasks for the class.
 	 *
-	 * Checks various pre-requisites and adds hooks
+	 * Checks various pre-requisites and adds hooks.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 */
 	public function setup() {
 		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
@@ -80,38 +160,54 @@ class Jetpack_Search {
 			return;
 		}
 
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+
 		$this->init_hooks();
 	}
 
 	/**
-	 * Setup the various hooks needed for the plugin to take over Search duties
+	 * Setup the various hooks needed for the plugin to take over search duties.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 */
 	public function init_hooks() {
-		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
-
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
 
-			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ),  10, 2 );
+			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ), 10, 2 );
 
-			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
+			add_action( 'did_jetpack_search_query', array( $this, 'store_last_query_info' ) );
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
+
+			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
+		} else {
+			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
+
+		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
 	/**
-	 * Print query info as a HTML comment in the footer
+	 * When an Elasticsearch query fails, this stores it and enqueues some debug information in the footer.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @param array $meta Information about the failure.
 	 */
-
 	public function store_query_failure( $meta ) {
 		$this->last_query_failure_info = $meta;
 		add_action( 'wp_footer', array( $this, 'print_query_failure' ) );
 	}
 
+	/**
+	 * Outputs information about the last Elasticsearch failure.
+	 *
+	 * @since 5.6.0
+	 */
 	public function print_query_failure() {
 		if ( $this->last_query_failure_info ) {
 			printf(
@@ -123,11 +219,23 @@ class Jetpack_Search {
 		}
 	}
 
-	public function store_query_success( $meta ) {
+	/**
+	 * Stores information about the last Elasticsearch query and enqueues some debug information in the footer.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @param array $meta Information about the query.
+	 */
+	public function store_last_query_info( $meta ) {
 		$this->last_query_info = $meta;
 		add_action( 'wp_footer', array( $this, 'print_query_success' ) );
 	}
 
+	/**
+	 * Outputs information about the last Elasticsearch search.
+	 *
+	 * @since 5.6.0
+	 */
 	public function print_query_success() {
 		if ( $this->last_query_info ) {
 			printf(
@@ -138,76 +246,85 @@ class Jetpack_Search {
 		}
 	}
 
-	function are_filters_by_widget_disabled() {
-		/**
-		 * Allows developers to disable filters being set by widget, in favor of manually
-		 * setting filters via `Jetpack_Search::set_filters()`.
-		 *
-		 * @module search
-		 *
-		 * @since 5.7.0
-		 *
-		 * @param bool false
-		 */
-		return apply_filters( 'jetpack_search_disable_widget_filters', false );
+	/**
+	 * Returns the last query information, or false if no information was stored.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return bool|array
+	 */
+	public function get_last_query_info() {
+		return empty( $this->last_query_info ) ? false : $this->last_query_info;
 	}
 
 	/**
-	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
+	 * Returns the last query failure information, or false if no failure information was stored.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return bool|array
+	 */
+	public function get_last_query_failure_info() {
+		return empty( $this->last_query_failure_info ) ? false : $this->last_query_failure_info;
+	}
+
+	/**
+	 * Wraps a WordPress filter called "jetpack_search_disable_widget_filters" that allows
+	 * developers to disable filters supplied by the search widget. Useful if filters are
+	 * being defined at the code level.
+	 *
+	 * @since      5.7.0
+	 * @deprecated 5.8.0 Use Jetpack_Search_Helpers::are_filters_by_widget_disabled() directly.
+	 *
+	 * @return bool
+	 */
+	public function are_filters_by_widget_disabled() {
+		return Jetpack_Search_Helpers::are_filters_by_widget_disabled();
+	}
+
+	/**
+	 * Retrieves a list of known Jetpack search filters widget IDs, gets the filters for each widget,
 	 * and applies those filters to this Jetpack_Search object.
 	 *
 	 * @since 5.7.0
-	 *
-	 * @return void
 	 */
-	function set_filters_from_widgets() {
-		if ( $this->are_filters_by_widget_disabled() ) {
+	public function set_filters_from_widgets() {
+		if ( Jetpack_Search_Helpers::are_filters_by_widget_disabled() ) {
 			return;
 		}
 
-		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
-
-		if ( empty( $widget_options ) ) {
-			return;
-		}
-
-		// We don't need this
-		if ( isset( $widget_options['_multiwidget'] ) ) {
-			unset( $widget_options['_multiwidget'] );
-		}
-
-		$filters = array();
-
-		foreach ( (array) $widget_options as $number => $settings ) {
-			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
-			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
-				continue;
-			}
-
-			if ( empty( $settings['use_filters'] ) ) {
-				continue;
-			}
-
-			foreach ( (array) $settings['filters'] as $widget_filter ) {
-				$widget_filter['widget_id'] = $widget_id;
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
-				$filters[ $key ] = $widget_filter;
-			}
-		}
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
 		}
 	}
 
+	/**
+	 * Restricts search results to certain post types via a GET argument.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param WP_Query $query A WP_Query instance.
+	 */
+	public function maybe_add_post_type_as_var( WP_Query $query ) {
+		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
+			$post_types = ( is_string( $_GET['post_type'] ) && false !== strpos( $_GET['post_type'], ',' ) )
+				? $post_type = explode( ',', $_GET['post_type'] )
+				: (array) $_GET['post_type'];
+			$post_types = array_map( 'sanitize_key', $post_types );
+			$query->set( 'post_type', $post_types );
+		}
+	}
+
 	/*
-	 * Run a search on the WP.com public API.
+	 * Run a search on the WordPress.com public API.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $es_args Args conforming to the WP.com /sites/<blog_id>/search endpoint
+	 * @param array $es_args Args conforming to the WP.com /sites/<blog_id>/search endpoint.
 	 *
-	 * @return object|WP_Error The response from the public api, or a WP_Error
+	 * @return object|WP_Error The response from the public API, or a WP_Error.
 	 */
 	public function search( array $es_args ) {
 		$endpoint    = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
@@ -231,7 +348,7 @@ class Jetpack_Search {
 			'user-agent' => 'jetpack_search',
 		);
 
-		$request_body = json_encode( $es_args );
+		$request_body = wp_json_encode( $es_args );
 
 		$start_time = microtime( true );
 
@@ -254,35 +371,24 @@ class Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
+
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
-		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			/**
-			 * Fires after a search query request has failed
-			 *
-			 * @module search
-			 *
-			 * @since 5.6.0
-			 *
-			 * @param array Array containing the response code and response from the failed search query
-			 */
-			do_action( 'failed_jetpack_search_query', array( 'response_code' => $response_code, 'json' => $response ) );
-			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
-		}
-
-		$took = is_array( $response ) && $response['took'] ? $response['took'] : null;
+		$took = is_array( $response ) && ! empty( $response['took'] )
+			? $response['took']
+			: null;
 
 		$query = array(
 			'args'          => $es_args,
 			'response'      => $response,
 			'response_code' => $response_code,
-			'elapsed_time'   => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms
+			'elapsed_time'  => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms.
 			'es_time'       => $took,
 			'url'           => $service_url,
 		);
 
 		/**
-		 * Fires after a search request has been performed
+		 * Fires after a search request has been performed.
 		 *
 		 * Includes the following info in the $query parameter:
 		 *
@@ -295,36 +401,56 @@ class Jetpack_Search {
 		 *
 		 * @module search
 		 *
-		 * @since 5.0.0
+		 * @since  5.0.0
+		 * @since  5.8.0 This action now fires on all queries instead of just successful queries.
 		 *
 		 * @param array $query Array of information about the query performed
 		 */
 		do_action( 'did_jetpack_search_query', $query );
 
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			/**
+			 * Fires after a search query request has failed
+			 *
+			 * @module search
+			 *
+			 * @since  5.6.0
+			 *
+			 * @param array Array containing the response code and response from the failed search query
+			 */
+			do_action( 'failed_jetpack_search_query', array(
+				'response_code' => $response_code,
+				'json'          => $response,
+			) );
+
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
+
 		return $response;
 	}
 
 	/**
-	 * Bypass the normal Search query and offload it to Jetpack servers
+	 * Bypass the normal Search query and offload it to Jetpack servers.
 	 *
-	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query
+	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $posts Current array of posts (still pre-query)
-	 * @param WP_Query $query The WP_Query being filtered
+	 * @param array    $posts Current array of posts (still pre-query).
+	 * @param WP_Query $query The WP_Query being filtered.
 	 *
-	 * @return array Array of matching posts
+	 * @return array Array of matching posts.
 	 */
 	public function filter__posts_pre_query( $posts, $query ) {
 		/**
-		 * Determine whether a given WP_Query should be handled by ElasticSearch
+		 * Determine whether a given WP_Query should be handled by ElasticSearch.
 		 *
 		 * @module search
 		 *
-		 * @since 5.6.0
-		 * @param bool $should_handle Should be handled by Jetpack Search
-		 * @param WP_Query $query The wp_query object
+		 * @since  5.6.0
+		 *
+		 * @param bool     $should_handle Should be handled by Jetpack Search.
+		 * @param WP_Query $query         The WP_Query object.
 		 */
 		if ( ! apply_filters( 'jetpack_search_should_handle_query', ( $query->is_main_query() && $query->is_search() ), $query ) ) {
 			return $posts;
@@ -349,15 +475,17 @@ class Jetpack_Search {
 
 		// Query all posts now
 		$args = array(
-			'post__in'  => $post_ids,
-			'perm'      => 'readable',
-			'post_type' => 'any',
+			'post__in'            => $post_ids,
+			'orderby'             => 'post__in',
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
 		);
 
 		$posts_query = new WP_Query( $args );
 
-		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to
-		// do these manually
+		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
 		$query->found_posts   = $this->found_posts;
 		$query->max_num_pages = ceil( $this->found_posts / $query->get( 'posts_per_page' ) );
 
@@ -365,22 +493,30 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Build up the search, then run it against the Jetpack servers
+	 * Build up the search, then run it against the Jetpack servers.
 	 *
-	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
+	 * @since 5.0.0
+	 *
+	 * @param WP_Query $query The original WP_Query to use for the parameters of our search.
 	 */
 	public function do_search( WP_Query $query ) {
-		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
-
-		$posts_per_page = $query->get( 'posts_per_page' );
-
-		// ES API does not allow more than 15 results at a time
-		if ( $posts_per_page > 15 ) {
-			$posts_per_page = 15;
+		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+			return;
 		}
 
-		// Start building the WP-style search query args
-		// They'll be translated to ES format args later
+		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
+
+		// Get maximum allowed offset and posts per page values for the API.
+		$max_offset         = Jetpack_Search_Helpers::get_max_offset();
+		$max_posts_per_page = Jetpack_Search_Helpers::get_max_posts_per_page();
+
+		$posts_per_page = $query->get( 'posts_per_page' );
+		if ( $posts_per_page > $max_posts_per_page ) {
+			$posts_per_page = $max_posts_per_page;
+		}
+
+		// Start building the WP-style search query args.
+		// They'll be translated to ES format args later.
 		$es_wp_query_args = array(
 			'query'          => $query->get( 's' ),
 			'posts_per_page' => $posts_per_page,
@@ -399,9 +535,7 @@ class Jetpack_Search {
 		}
 
 		$es_wp_query_args['post_type'] = $this->get_es_wp_query_post_type_for_query( $query );
-
 		$es_wp_query_args['terms']     = $this->get_es_wp_query_terms_for_query( $query );
-
 
 		/**
 		 * Modify the search query parameters, such as controlling the post_type.
@@ -410,30 +544,30 @@ class Jetpack_Search {
 		 *
 		 * @module search
 		 *
-		 * @since 5.0.0
+		 * @since  5.0.0
 		 *
-		 * @param array $es_wp_query_args The current query args, in WP_Query format
-		 * @param WP_Query $query The original query object
+		 * @param array    $es_wp_query_args The current query args, in WP_Query format.
+		 * @param WP_Query $query            The original WP_Query object.
 		 */
 		$es_wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $es_wp_query_args, $query );
 
 		// If page * posts_per_page is greater than our max offset, send a 404. This is necessary because the offset is
-		// capped at $this->max_offset, so a high page would always return the last page of results otherwise
-		if ( ( $es_wp_query_args['paged'] * $es_wp_query_args['posts_per_page'] ) > $this->max_offset ) {
+		// capped at Jetpack_Search_Helpers::get_max_offset(), so a high page would always return the last page of results otherwise.
+		if ( ( $es_wp_query_args['paged'] * $es_wp_query_args['posts_per_page'] ) > $max_offset ) {
 			$query->set_404();
 
 			return;
 		}
 
 		// If there were no post types returned, then 404 to avoid querying against non-public post types, which could
-		// happen if we don't add the post type restriction to the ES query
+		// happen if we don't add the post type restriction to the ES query.
 		if ( empty( $es_wp_query_args['post_type'] ) ) {
 			$query->set_404();
 
 			return;
 		}
 
-		// Convert the WP-style args into ES args
+		// Convert the WP-style args into ES args.
 		$es_query_args = $this->convert_wp_es_to_es_args( $es_wp_query_args );
 
 		//Only trust ES to give us IDs, not the content since it is a mirror
@@ -448,10 +582,10 @@ class Jetpack_Search {
 		 *
 		 * @module search
 		 *
-		 * @since 5.0.0
+		 * @since  5.0.0
 		 *
-		 * @param array $es_query_args The raw ES query args
-		 * @param WP_Query $query The original query object
+		 * @param array    $es_query_args The raw Elasticsearch query args.
+		 * @param WP_Query $query         The original WP_Query object.
 		 */
 		$es_query_args = apply_filters( 'jetpack_search_es_query_args', $es_query_args, $query );
 
@@ -464,27 +598,48 @@ class Jetpack_Search {
 			return;
 		}
 
-		// If we have aggregations, fix the ordering to match the input order (ES doesn't
-		// guarantee the return order)
+		// If we have aggregations, fix the ordering to match the input order (ES doesn't guarantee the return order).
 		if ( isset( $this->search_result['results']['aggregations'] ) && ! empty( $this->search_result['results']['aggregations'] ) ) {
 			$this->search_result['results']['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['results']['aggregations'], $this->aggregations );
 		}
 
-		// Total number of results for paging purposes. Capped at $this->>max_offset + $posts_per_page, as deep paging
-		// gets quite expensive
-		$this->found_posts = min( $this->search_result['results']['total'], $this->max_offset + $posts_per_page );
-
-		return;
+		// Total number of results for paging purposes. Capped at $max_offset + $posts_per_page, as deep paging gets quite expensive.
+		$this->found_posts = min( $this->search_result['results']['total'], $max_offset + $posts_per_page );
 	}
 
 	/**
-	 * Given a WP_Query, convert its WP_Tax_Query (if present) into the WP-style ES term arguments for the search
+	 * If the query has already been run before filters have been updated, then we need to re-run the query
+	 * to get the latest aggregations.
 	 *
-	 * @module search
+	 * This is especially useful for supporting widget management in the customizer.
 	 *
-	 * @param WP_Query $query The original WP_Query object for which to parse the taxonomy query
+	 * @since 5.8.0
 	 *
-	 * @return array The new WP-style ES arguments (that will be converted into 'real' ES arguments)
+	 * @return bool Whether the query was successful or not.
+	 */
+	public function update_search_results_aggregations() {
+		if ( empty( $this->last_query_info ) || empty( $this->last_query_info['args'] ) ) {
+			return false;
+		}
+
+		$es_args = $this->last_query_info['args'];
+		$builder = new Jetpack_WPES_Query_Builder();
+		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
+		$es_args['aggregations'] = $builder->build_aggregation();
+
+		$this->search_result = $this->search( $es_args );
+
+		return ! is_wp_error( $this->search_result );
+	}
+
+	/**
+	 * Given a WP_Query, convert its WP_Tax_Query (if present) into the WP-style Elasticsearch term arguments for the search.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param WP_Query $query The original WP_Query object for which to parse the taxonomy query.
+	 *
+	 * @return array The new WP-style Elasticsearch arguments (that will be converted into 'real' Elasticsearch arguments).
 	 */
 	public function get_es_wp_query_terms_for_query( WP_Query $query ) {
 		$args = array();
@@ -521,20 +676,20 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Parse out the post type from a WP_Query
+	 * Parse out the post type from a WP_Query.
 	 *
-	 * Only allows post types that are not marked as 'exclude_from_search'
+	 * Only allows post types that are not marked as 'exclude_from_search'.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param WP_Query $query Original WP_Query object
+	 * @param WP_Query $query Original WP_Query object.
 	 *
-	 * @return array Array of searchable post types corresponding to the original query
+	 * @return array Array of searchable post types corresponding to the original query.
 	 */
 	public function get_es_wp_query_post_type_for_query( WP_Query $query ) {
 		$post_types = $query->get( 'post_type' );
 
-		// If we're searching 'any', we want to only pass searchable post types to ES
+		// If we're searching 'any', we want to only pass searchable post types to Elasticsearch.
 		if ( 'any' === $post_types ) {
 			$post_types = array_values( get_post_types( array(
 				'exclude_from_search' => false,
@@ -549,7 +704,7 @@ class Jetpack_Search {
 
 		$sanitized_post_types = array();
 
-		// Make sure the post types are queryable
+		// Make sure the post types are queryable.
 		foreach ( $post_types as $post_type ) {
 			if ( ! $post_type ) {
 				continue;
@@ -567,24 +722,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Initialze widgets for the Search module
+	 * Get the Elasticsearch result.
 	 *
-	 * @module search
-	 */
-	public function action__widgets_init() {
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
-
-		register_widget( 'Jetpack_Search_Widget_Filters' );
-	}
-
-	/**
-	 * Get the Elasticsearch result
+	 * @since 5.0.0
 	 *
-	 * @module search
+	 * @param bool $raw If true, does not check for WP_Error or return the 'results' array - the JSON decoded HTTP response.
 	 *
-	 * @param bool $raw If true, does not check for WP_Error or return the 'results' array - the JSON decoded HTTP response
-	 *
-	 * @return array|bool The search results, or false if there was a failure
+	 * @return array|bool The search results, or false if there was a failure.
 	 */
 	public function get_search_result( $raw = false ) {
 		if ( $raw ) {
@@ -595,12 +739,14 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Add the date portion of a WP_Query onto the query args
+	 * Add the date portion of a WP_Query onto the query args.
 	 *
-	 * @param array    $es_wp_query_args
-	 * @param WP_Query $query The original WP_Query
+	 * @since 5.0.0
 	 *
-	 * @return array The es wp query args, with date filters added (as needed)
+	 * @param array    $es_wp_query_args The Elasticsearch query arguments in WordPress form.
+	 * @param WP_Query $query            The original WP_Query.
+	 *
+	 * @return array The es wp query args, with date filters added (as needed).
 	 */
 	public function filter__add_date_filter_to_query( array $es_wp_query_args, WP_Query $query ) {
 		if ( $query->get( 'year' ) ) {
@@ -636,41 +782,31 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Converts WP_Query style args to ES args
+	 * Converts WP_Query style args to Elasticsearch args.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $args Array of WP_Query style arguments
+	 * @param array $args Array of WP_Query style arguments.
 	 *
-	 * @return array Array of ES style query arguments
+	 * @return array Array of ES style query arguments.
 	 */
-	function convert_wp_es_to_es_args( array $args ) {
-		jetpack_require_lib( 'jetpack-wpes-query-builder' );
-
-		$builder = new Jetpack_WPES_Query_Builder();
+	public function convert_wp_es_to_es_args( array $args ) {
+		jetpack_require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-query-parser' );
 
 		$defaults = array(
 			'blog_id'        => get_current_blog_id(),
-
 			'query'          => null,    // Search phrase
-			'query_fields'   => array( 'title', 'content', 'author', 'tag', 'category' ),
-
-			'post_type'      => null,  // string or an array
+			'query_fields'   => array(), //list of fields to search
+			'post_type'      => null,    // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
-
 			'author'         => null,    // id or an array of ids
 			'author_name'    => array(), // string or an array
-
 			'date_range'     => null,    // array( 'field' => 'date', 'gt' => 'YYYY-MM-dd', 'lte' => 'YYYY-MM-dd' ); date formats: 'YYYY-MM-dd' or 'YYYY-MM-dd HH:MM:SS'
-
 			'orderby'        => null,    // Defaults to 'relevance' if query is set, otherwise 'date'. Pass an array for multiple orders.
 			'order'          => 'DESC',
-
 			'posts_per_page' => 10,
-
 			'offset'         => null,
 			'paged'          => null,
-
 			/**
 			 * Aggregations. Examples:
 			 * array(
@@ -678,10 +814,136 @@ class Jetpack_Search {
 			 *     'Post Type' => array( 'type' => 'post_type', 'count' => 10 ) ),
 			 * );
 			 */
-			'aggregations'         => null,
+			'aggregations'   => null,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
+
+		if ( empty( $args['query_fields'] ) ) {
+			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+				// VIP indices do not have per language fields
+				$match_fields        = array(
+					'title^0.1',
+					'content^0.1',
+					'excerpt^0.1',
+					'tag.name^0.1',
+					'category.name^0.1',
+					'author_login^0.1',
+					'author^0.1',
+				);
+				$boost_fields        = array(
+					'title^2',
+					'tag.name',
+					'category.name',
+					'author_login',
+					'author',
+				);
+				$boost_phrase_fields = array(
+					'title',
+					'content',
+					'excerpt',
+					'tag.name',
+					'category.name',
+					'author',
+				);
+			} else {
+				$match_fields = $parser->merge_ml_fields(
+					array(
+						'title'         => 0.1,
+						'content'       => 0.1,
+						'excerpt'       => 0.1,
+						'tag.name'      => 0.1,
+						'category.name' => 0.1,
+					),
+					array(
+						'author_login^0.1',
+						'author^0.1',
+					)
+				);
+
+				$boost_fields = $parser->merge_ml_fields(
+					array(
+						'title'         => 2,
+						'tag.name'      => 1,
+						'category.name' => 1,
+					),
+					array(
+						'author_login',
+						'author',
+					)
+				);
+
+				$boost_phrase_fields = $parser->merge_ml_fields(
+					array(
+						'title'         => 1,
+						'content'       => 1,
+						'excerpt'       => 1,
+						'tag.name'      => 1,
+						'category.name' => 1,
+					),
+					array(
+						'author',
+					)
+				);
+			}
+		} else {
+			// If code is overriding the fields, then use that. Important for backwards compatibility.
+			$match_fields        = $args['query_fields'];
+			$boost_phrase_fields = $match_fields;
+			$boost_fields        = null;
+		}
+
+		$parser->phrase_filter( array(
+			'must_query_fields'  => $match_fields,
+			'boost_query_fields' => null,
+		) );
+		$parser->remaining_query( array(
+			'must_query_fields'  => $match_fields,
+			'boost_query_fields' => $boost_fields,
+		) );
+
+		// Boost on phrase matches
+		$parser->remaining_query( array(
+			'boost_query_fields' => $boost_phrase_fields,
+			'boost_query_type'   => 'phrase',
+		) );
+
+		/**
+		 * Modify the recency decay parameters for the search query.
+		 *
+		 * The recency decay lowers the search scores based on the age of a post relative to an origin date. Basic adjustments:
+		 *  - origin: A date. Posts with this date will have the highest score and no decay applied. Default is today.
+		 *  - offset: Number of days/months/years (eg 30d). All posts within this time range of the origin (before and after) will have no decay applied. Default is no offset.
+		 *  - scale: The number of days/months/years from the origin+offset at which the decay will equal the decay param. Default 360d
+		 *  - decay: The amount of decay applied at offset+scale. Default 0.9.
+		 *
+		 * The curve applied is a Gaussian. More details available at {@see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay}
+		 *
+		 * @module search
+		 *
+		 * @since  5.8.0
+		 *
+		 * @param array $decay_params The decay parameters.
+		 * @param array $args         The WP query parameters.
+		 */
+		$decay_params = apply_filters(
+			'jetpack_search_recency_score_decay',
+			array(
+				'origin' => date( 'Y-m-d' ),
+				'scale'  => '360d',
+				'decay'  => 0.9,
+			),
+			$args
+		);
+
+		if ( ! empty( $decay_params ) ) {
+			// Newer content gets weighted slightly higher
+			$parser->add_decay( 'gauss', array(
+				'date_gmt' => $decay_params
+			) );
+		}
 
 		$es_query_args = array(
 			'blog_id' => absint( $args['blog_id'] ),
@@ -695,9 +957,7 @@ class Jetpack_Search {
 			$es_query_args['from'] = max( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
 		}
 
-		// Limit the offset to $this->max_offset posts, as deep pages get exponentially slower
-		// See https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html
-		$es_query_args['from'] = min( $es_query_args['from'], $this->max_offset );
+		$es_query_args['from'] = min( $es_query_args['from'], Jetpack_Search_Helpers::get_max_offset() );
 
 		if ( ! is_array( $args['author_name'] ) ) {
 			$args['author_name'] = array( $args['author_name'] );
@@ -723,26 +983,25 @@ class Jetpack_Search {
 		// Filters rock because they are cached from one query to the next
 		// but they are cached as individual filters, rather than all combined together.
 		// May get performance boost by also caching the top level boolean filter too.
-		$filters = array();
 
 		if ( $args['post_type'] ) {
 			if ( ! is_array( $args['post_type'] ) ) {
 				$args['post_type'] = array( $args['post_type'] );
 			}
 
-			$filters[] = array(
+			$parser->add_filter( array(
 				'terms' => array(
 					'post_type' => $args['post_type'],
 				),
-			);
+			) );
 		}
 
 		if ( $args['author_name'] ) {
-			$filters[] = array(
+			$parser->add_filter( array(
 				'terms' => array(
 					'author_login' => $args['author_name'],
 				),
-			);
+			) );
 		}
 
 		if ( ! empty( $args['date_range'] ) && isset( $args['date_range']['field'] ) ) {
@@ -750,11 +1009,11 @@ class Jetpack_Search {
 
 			unset( $args['date_range']['field'] );
 
-			$filters[] = array(
+			$parser->add_filter( array(
 				'range' => array(
 					$field => $args['date_range'],
 				),
-			);
+			) );
 		}
 
 		if ( is_array( $args['terms'] ) ) {
@@ -780,35 +1039,20 @@ class Jetpack_Search {
 					}
 
 					foreach ( $terms as $term ) {
-						$filters[] = array(
+						$parser->add_filter( array(
 							'term' => array(
 								$tax_fld => $term,
 							),
-						);
+						) );
 					}
 				}
 			}
 		}
 
-		if ( $args['query'] ) {
-			$query = array(
-				'multi_match' => array(
-					'query'    => $args['query'],
-					'fields'   => $args['query_fields'],
-					'operator' => 'and',
-					'type'     => 'cross_fields',
-				),
-			);
-
-			$builder->add_query( $query );
-
-			Jetpack_Search::score_query_by_recency( $builder );
-
-			if ( ! $args['orderby'] ) {
+		if ( ! $args['orderby'] ) {
+			if ( $args['query'] ) {
 				$args['orderby'] = array( 'relevance' );
-			}
-		} else {
-			if ( ! $args['orderby'] ) {
+			} else {
 				$args['orderby'] = array( 'date' );
 			}
 		}
@@ -873,34 +1117,25 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
-		if ( ! empty( $filters ) && is_array( $filters ) ) {
-			foreach ( $filters as $filter ) {
-				$builder->add_filter( $filter );
-			}
-
-			$es_query_args['filter'] = $builder->build_filter();
-		}
-
-		$es_query_args['query'] = $builder->build_query();
-
 		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
-			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $builder );
-
-			$es_query_args['aggregations'] = $builder->build_aggregation();
+			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $parser );
 		}
+
+		$es_query_args['filter']       = $parser->build_filter();
+		$es_query_args['query']        = $parser->build_query();
+		$es_query_args['aggregations'] = $parser->build_aggregation();
 
 		return $es_query_args;
 	}
 
 	/**
-	 * Given an array of aggregations, parse and add them onto the Jetpack_WPES_Query_Builder object for use in ES
+	 * Given an array of aggregations, parse and add them onto the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $aggregations Array of Aggregations (filters) to add to the Jetpack_WPES_Query_Builder
-	 *
-	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
+	 * @param array                      $aggregations Array of aggregations (filters) to add to the Jetpack_WPES_Query_Builder.
+	 * @param Jetpack_WPES_Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_aggregations_to_es_query_builder( array $aggregations, Jetpack_WPES_Query_Builder $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
@@ -924,13 +1159,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual taxonomy aggregation, add it to the Jetpack_WPES_Query_Builder object for use in ES
+	 * Given an individual taxonomy aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param string $label The 'label' (unique id) for this aggregation
-	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$field = null;
@@ -952,37 +1187,37 @@ class Jetpack_Search {
 		$builder->add_aggs( $label, array(
 			'terms' => array(
 				'field' => $field . '.slug',
-				'size' => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+				'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
 			),
-		));
+		) );
 	}
 
 	/**
-	 * Given an individual post_type aggregation, add it to the Jetpack_WPES_Query_Builder object for use in ES
+	 * Given an individual post_type aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param string $label The 'label' (unique id) for this aggregation
-	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$builder->add_aggs( $label, array(
 			'terms' => array(
 				'field' => 'post_type',
-				'size' => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+				'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
 			),
-		));
+		) );
 	}
 
 	/**
-	 * Given an individual date_histogram aggregation, add it to the Jetpack_WPES_Query_Builder object for use in ES
+	 * Given an individual date_histogram aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param string $label The 'label' (unique id) for this aggregation
-	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$args = array(
@@ -998,7 +1233,7 @@ class Jetpack_Search {
 
 		$builder->add_aggs( $label, array(
 			'date_histogram' => $args,
-		));
+		) );
 	}
 
 	/**
@@ -1006,12 +1241,12 @@ class Jetpack_Search {
 	 *
 	 * Attempts to optimize the filters somewhat.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $curr_filter The existing filters to build upon
-	 * @param array $filters The new filters to add
+	 * @param array $curr_filter The existing filters to build upon.
+	 * @param array $filters     The new filters to add.
 	 *
-	 * @return array The resulting merged filters
+	 * @return array The resulting merged filters.
 	 */
 	public static function and_es_filters( array $curr_filter, array $filters ) {
 		if ( ! is_array( $curr_filter ) || isset( $curr_filter['match_all'] ) ) {
@@ -1030,44 +1265,18 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Add a recency score to a given Jetpack_WPES_Query_Builder object, for emphasizing newer posts in results
+	 * Set the available filters for the search.
 	 *
-	 * Internally uses a gauss decay function
-	 *
-	 * @module search
-	 *
-	 * @param Jetpack_WPES_Query_Builder $builder The Jetpack_WPES_Query_Builder to add the recency score to
-	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay
-	 */
-	public static function score_query_by_recency( Jetpack_WPES_Query_Builder &$builder ) {
-		//Newer content gets weighted slightly higher
-		$date_scale  = '360d';
-		$date_decay  = 0.9;
-		$date_origin = date( 'Y-m-d' );
-
-		$builder->add_decay( 'gauss', array(
-			'date_gmt' => array(
-				'origin' => $date_origin,
-				'scale'  => $date_scale,
-				'decay'  => $date_decay,
-			),
-		));
-	}
-
-	/**
-	 * Set the available filters for the search
-	 *
-	 * These get rendered via the Jetpack_Search_Widget_Filters() widget
+	 * These get rendered via the Jetpack_Search_Widget() widget.
 	 *
 	 * Behind the scenes, these are implemented using Elasticsearch Aggregations.
 	 *
 	 * If you do not require counts of how many documents match each filter, please consider using regular WP Query
 	 * arguments instead, such as via the jetpack_search_es_wp_query_args filter
 	 *
-	 * @module search
+	 * @see    https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
 	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
+	 * @since  5.0.0
 	 *
 	 * @param array $aggregations Array of filters (aggregations) to apply to the search
 	 */
@@ -1081,15 +1290,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Set the search's facets (deprecated)
+	 * Set the search's facets (deprecated).
 	 *
-	 * @module search
+	 * @deprecated 5.0 Please use Jetpack_Search::set_filters() instead.
 	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::set_filters() instead
+	 * @see        Jetpack_Search::set_filters()
 	 *
-	 * @see Jetpack_Search::set_filters()
-	 *
-	 * @param array $facets Array of facets to apply to the search
+	 * @param array $facets Array of facets to apply to the search.
 	 */
 	public function set_facets( array $facets ) {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::set_filters()' );
@@ -1098,13 +1305,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the raw Aggregation results from the ES response
+	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
-	 * @module search
+	 * @since  5.0.0
 	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
+	 * @see    https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
 	 *
-	 * @return array Array of Aggregations performed on the search
+	 * @return array Array of Aggregations performed on the search.
 	 */
 	public function get_search_aggregations_results() {
 		$aggregations = array();
@@ -1119,15 +1326,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the raw Facet results from the ES response
+	 * Get the raw Facet results from the Elasticsearch response.
 	 *
-	 * @module search
+	 * @deprecated 5.0 Please use Jetpack_Search::get_search_aggregations_results() instead.
 	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::get_search_aggregations_results() instead
+	 * @see        Jetpack_Search::get_search_aggregations_results()
 	 *
-	 * @see Jetpack_Search::get_search_aggregations_results()
-	 *
-	 * @return array Array of Facets performed on the search
+	 * @return array Array of Facets performed on the search.
 	 */
 	public function get_search_facets() {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_search_aggregations_results()' );
@@ -1136,19 +1341,19 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the results of the Filters performed, including the number of matching documents
+	 * Get the results of the Filters performed, including the number of matching documents.
 	 *
 	 * Returns an array of Filters (keyed by $label, as passed to Jetpack_Search::set_filters()), containing the Filter and all resulting
 	 * matching buckets, the url for applying/removing each bucket, etc.
 	 *
 	 * NOTE - if this is called before the search is performed, an empty array will be returned. Use the $aggregations class
-	 * member if you need to access the raw filters set in Jetpack_Search::set_filters()
+	 * member if you need to access the raw filters set in Jetpack_Search::set_filters().
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query
+	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query.
 	 *
-	 * @return array Array of Filters applied and info about them
+	 * @return array Array of filters applied and info about them.
 	 */
 	public function get_filters( WP_Query $query = null ) {
 		if ( ! $query instanceof WP_Query ) {
@@ -1185,10 +1390,10 @@ class Jetpack_Search {
 
 			// Figure out which terms are active in the query, for this taxonomy
 			if ( 'taxonomy' === $this->aggregations[ $label ]['type'] ) {
-				$tax_query_var = $this->get_taxonomy_query_var(  $this->aggregations[ $label ]['taxonomy'] );
+				$tax_query_var = $this->get_taxonomy_query_var( $this->aggregations[ $label ]['taxonomy'] );
 
 				if ( ! empty( $query->tax_query ) && ! empty( $query->tax_query->queries ) && is_array( $query->tax_query->queries ) ) {
-					foreach( $query->tax_query->queries as $tax_query ) {
+					foreach ( $query->tax_query->queries as $tax_query ) {
 						if ( is_array( $tax_query ) && $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
 						     'slug' === $tax_query['field'] &&
 						     is_array( $tax_query['terms'] ) ) {
@@ -1198,8 +1403,7 @@ class Jetpack_Search {
 				}
 			}
 
-			// Now take the resulting found aggregation items and generate the additional info about them, such as
-			// activation/deactivation url, name, count, etc
+			// Now take the resulting found aggregation items and generate the additional info about them, such as activation/deactivation url, name, count, etc.
 			$buckets = array();
 
 			if ( ! empty( $aggregation['buckets'] ) ) {
@@ -1247,9 +1451,12 @@ class Jetpack_Search {
 							$slug_count = count( $existing_term_slugs );
 
 							if ( $slug_count > 1 ) {
-								$remove_url = add_query_arg( $tax_query_var, urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									$tax_query_var,
+									rawurlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( $tax_query_var );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( $tax_query_var );
 							}
 						}
 
@@ -1282,9 +1489,12 @@ class Jetpack_Search {
 
 							// For the right 'remove filter' url, we need to remove the post type from the array, or remove the param entirely if it's the only one
 							if ( $post_type_count > 1 ) {
-								$remove_url = add_query_arg( 'post_type', urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									'post_type',
+									rawurlencode( implode( ',', array_diff( $post_types, array( $item['key'] ) ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( 'post_type' );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 							}
 						}
 
@@ -1313,7 +1523,7 @@ class Jetpack_Search {
 								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
 								}
 
 								break;
@@ -1335,7 +1545,7 @@ class Jetpack_Search {
 								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
@@ -1359,7 +1569,7 @@ class Jetpack_Search {
 								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'day' ) );
 								}
 
 								break;
@@ -1378,7 +1588,7 @@ class Jetpack_Search {
 				$url_params = urlencode_deep( $query_vars );
 
 				$aggregation_data[ $label ]['buckets'][] = array(
-					'url'        => add_query_arg( $url_params ),
+					'url'        => Jetpack_Search_Helpers::add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['doc_count'],
@@ -1395,15 +1605,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the results of the Facets performed
+	 * Get the results of the facets performed.
 	 *
-	 * @module search
+	 * @deprecated 5.0 Please use Jetpack_Search::get_filters() instead.
 	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::get_filters() instead
+	 * @see        Jetpack_Search::get_filters()
 	 *
-	 * @see Jetpack_Search::get_filters()
-	 *
-	 * @return array $facets Array of Facets applied and info about them
+	 * @return array $facets Array of facets applied and info about them.
 	 */
 	public function get_search_facet_data() {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_filters()' );
@@ -1412,11 +1620,11 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the Filters that are currently applied to this search
+	 * Get the filters that are currently applied to this search.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @return array Array if Filters that were applied
+	 * @return array Array of filters that were applied.
 	 */
 	public function get_active_filter_buckets() {
 		$active_buckets = array();
@@ -1427,9 +1635,9 @@ class Jetpack_Search {
 			return $active_buckets;
 		}
 
-		foreach( $filters as $filter ) {
+		foreach ( $filters as $filter ) {
 			if ( isset( $filter['buckets'] ) && is_array( $filter['buckets'] ) ) {
-				foreach( $filter['buckets'] as $item ) {
+				foreach ( $filter['buckets'] as $item ) {
 					if ( isset( $item['active'] ) && $item['active'] ) {
 						$active_buckets[] = $item;
 					}
@@ -1441,11 +1649,13 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Get the Filters that are currently applied to this search
+	 * Get the filters that are currently applied to this search.
 	 *
-	 * @module search
+	 * @deprecated 5.0 Please use Jetpack_Search::get_active_filter_buckets() instead.
 	 *
-	 * @return array Array if Filters that were applied
+	 * @see        Jetpack_Search::get_active_filter_buckets()
+	 *
+	 * @return array Array of filters that were applied.
 	 */
 	public function get_current_filters() {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_active_filter_buckets()' );
@@ -1454,15 +1664,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Calculate the right query var to use for a given taxonomy
+	 * Calculate the right query var to use for a given taxonomy.
 	 *
-	 * Allows custom code to modify the GET var that is used to represent a given taxonomy, via the jetpack_search_taxonomy_query_var filter
+	 * Allows custom code to modify the GET var that is used to represent a given taxonomy, via the jetpack_search_taxonomy_query_var filter.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param string $taxonomy_name The name of the taxonomy for which to get the query var
+	 * @param string $taxonomy_name The name of the taxonomy for which to get the query var.
 	 *
-	 * @return bool|string The query var to use for this taxonomy, or false if none found
+	 * @return bool|string The query var to use for this taxonomy, or false if none found.
 	 */
 	public function get_taxonomy_query_var( $taxonomy_name ) {
 		$taxonomy = get_taxonomy( $taxonomy_name );
@@ -1476,9 +1686,9 @@ class Jetpack_Search {
 		 *
 		 * @module search
 		 *
-		 * @since 5.0.0
+		 * @since  5.0.0
 		 *
-		 * @param string $query_var The current query_var for the taxonomy
+		 * @param string $query_var     The current query_var for the taxonomy
 		 * @param string $taxonomy_name The taxonomy name
 		 */
 		return apply_filters( 'jetpack_search_taxonomy_query_var', $taxonomy->query_var, $taxonomy_name );
@@ -1486,17 +1696,17 @@ class Jetpack_Search {
 
 	/**
 	 * Takes an array of aggregation results, and ensures the array key ordering matches the key order in $desired
-	 * which is the input order
+	 * which is the input order.
 	 *
-	 * Necessary because ES does not always return Aggs in the same order that you pass them in, and it should be possible
-	 * to control the display order easily
+	 * Necessary because ES does not always return aggregations in the same order that you pass them in,
+	 * and it should be possible to control the display order easily.
 	 *
-	 * @module search
+	 * @since 5.0.0
 	 *
-	 * @param array $aggregations Agg results to be reordered
-	 * @param array $desired Array with keys representing the desired ordering
+	 * @param array $aggregations Aggregation results to be reordered.
+	 * @param array $desired      Array with keys representing the desired ordering.
 	 *
-	 * @return array A new array with reordered keys, matching those in $desired
+	 * @return array A new array with reordered keys, matching those in $desired.
 	 */
 	public function fix_aggregation_ordering( array $aggregations, array $desired ) {
 		if ( empty( $aggregations ) || empty( $desired ) ) {
@@ -1505,12 +1715,80 @@ class Jetpack_Search {
 
 		$reordered = array();
 
-		foreach( array_keys( $desired ) as $agg_name ) {
+		foreach ( array_keys( $desired ) as $agg_name ) {
 			if ( isset( $aggregations[ $agg_name ] ) ) {
 				$reordered[ $agg_name ] = $aggregations[ $agg_name ];
 			}
 		}
 
 		return $reordered;
+	}
+
+	/**
+	 * Sends events to Tracks when a search filters widget is updated.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $option    The option name. Only "widget_jetpack-search-filters" is cared about.
+	 * @param array  $old_value The old option value.
+	 * @param array  $new_value The new option value.
+	 */
+	public function track_widget_updates( $option, $old_value, $new_value ) {
+		if ( 'widget_jetpack-search-filters' !== $option ) {
+			return;
+		}
+
+		$event = Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value );
+		if ( ! $event ) {
+			return;
+		}
+
+		jetpack_tracks_record_event(
+			wp_get_current_user(),
+			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
+			$event['widget']
+		);
+	}
+
+	/**
+	 * Moves any active search widgets to the inactive category.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $module Unused. The Jetpack module being disabled.
+	 */
+	public function move_search_widgets_to_inactive( $module ) {
+		if ( ! is_active_widget( false, false, Jetpack_Search_Helpers::FILTER_WIDGET_BASE, true ) ) {
+			return;
+		}
+
+		$sidebars_widgets = wp_get_sidebars_widgets();
+
+		if ( ! is_array( $sidebars_widgets ) ) {
+			return;
+		}
+
+		$changed = false;
+
+		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+			if ( 'wp_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+				continue;
+			}
+
+			if ( is_array( $widgets ) ) {
+				foreach ( $widgets as $key => $widget ) {
+					if ( _get_widget_id_base( $widget ) == Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) {
+						$changed = true;
+
+						array_unshift( $sidebars_widgets['wp_inactive_widgets'], $widget );
+						unset( $sidebars_widgets[ $sidebar ][ $key ] );
+					}
+				}
+			}
+		}
+
+		if ( $changed ) {
+			wp_set_sidebars_widgets( $sidebars_widgets );
+		}
 	}
 }

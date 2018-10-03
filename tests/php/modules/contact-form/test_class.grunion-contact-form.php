@@ -985,4 +985,155 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
+	/**
+	 * @author jaswrks
+	 * @covers Grunion_Contact_Form::personal_data_exporter
+	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 */
+	public function test_personal_data_exporter() {
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'email'    => 'john@example.com',
+			'dropdown' => 'First option',
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
+		) );
+
+		for ( $i = 1; $i <= 2; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"john" <john@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+					[contact-field label="Dropdown" type="select" options="First option,Second option,Third option"/]
+					[contact-field label="Radio" type="radio" options="First option,Second option,Third option"/]
+					[contact-field label="Text" type="text"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$posts  = get_posts( array( 'post_type' => 'feedback' ) );
+		$export = $this->plugin->personal_data_exporter( 'john@example.com' );
+
+		$this->assertSame( 2, count( $posts ), 'posts count matches' );
+		$this->assertSame( 2, count( $export['data'] ), 'export[data] count matches' );
+
+		foreach ( $export['data'] as $data ) {
+			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
+			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
+			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
+			$this->assertSame( 6, count( $data['data'] ), 'has total expected data keys' );
+		}
+	}
+
+	/**
+	 * @author jaswrks
+	 * @covers Grunion_Contact_Form::personal_data_eraser
+	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 */
+	public function test_personal_data_eraser() {
+		$this->add_field_values( array(
+			'name'  => 'John Doe',
+			'email' => 'john@example.com',
+		) );
+
+		for ( $i = 1; $i <= 2; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"john" <john@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 2, count( $posts ), 'posts count matches before erasing' );
+
+		$this->plugin->personal_data_eraser( 'john@example.com' );
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 0, count( $posts ), 'posts count matches after erasing' );
+	}
+
+	public function test_personal_data_eraser_pagination() {
+		$this->add_field_values( array(
+			'name'  => 'Jane Doe',
+			'email' => 'jane_doe@example.com',
+		) );
+
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$form = new Grunion_Contact_Form(
+				array(
+					'to'      => '"jane" <jane_doe@example.com>',
+					'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+				),
+				'
+					[contact-field label="Name" type="name" required="1"/]
+					[contact-field label="Email" type="email" required="1"/]
+				'
+			);
+			$this->assertTrue(
+				is_string( $form->process_submission() ),
+				'form submission ' . $i
+			);
+		}
+
+		$this->add_field_values( array(
+			'name'  => 'Jane Doe Again',
+			'email' => 'jane@example.com',
+		) );
+
+
+		$form = new Grunion_Contact_Form(
+			array(
+				'to'      => '"jane" <jane@example.com>',
+				'subject' => 'Hello world! [ ' . mt_rand() .' ]',
+			),
+			'
+				[contact-field label="Name" type="name" required="1"/]
+				[contact-field label="Email" type="email" required="1"/]
+			'
+		);
+		$this->assertTrue(
+			is_string( $form->process_submission() ),
+			'form submission ' . $i
+		);
+
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 4, count( $posts ), 'posts count matches before erasing' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 1, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 3, count( $posts ), 'posts count matches after page 1' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 2, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 2, count( $posts ), 'posts count matches after page 2' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 3, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 1, count( $posts ), 'posts count matches after page 3' );
+
+		$this->plugin->_internal_personal_data_eraser( 'jane@example.com', 1, 1 );
+		$posts = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertSame( 0, count( $posts ), 'posts count matches after deleting the other feedback responder' );
+	}
+
 } // end class

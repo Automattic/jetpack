@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $new_url, $server_user->data->user_url );
 	}
 
-	public function test_update_user_password_is_not_synced() {
+	public function test_update_user_password_is_synced_without_user_save_event() {
 		$this->server_event_storage->reset();
 		$new_password = 'New PassWord';
 
@@ -70,11 +70,63 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			'ID'        => $this->user_id,
 			'user_pass' => $new_password
 		) );
+
 		$this->sender->do_sync();
 
 		// Don't sync the password changes since we don't track passwords
-		$events = $this->server_event_storage->get_all_events();
-		$this->assertEmpty( $events );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['password_changed'] );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+
+		// Only the sync save user event should be present.
+		$this->assertFalse( isset( $events[1] ) );
+	}
+
+	public function test_update_user_url_is_synced_and_password_is_changed() {
+		$this->server_event_storage->reset();
+		$new_url = 'http://jetpack.com';
+
+		wp_update_user( array(
+			'ID'       => $this->user_id,
+			'user_url' => $new_url,
+			'user_pass' => 'one,two,three'
+		) );
+
+		$this->sender->do_sync();
+
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+		$this->assertEquals( $new_url, $server_user->data->user_url );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['password_changed'] );
+
+		// Only the sync save user event should be present.
+		$this->assertFalse( isset( $events[1] ) );
+	}
+
+	public function test_confirm_user_email_flag_gets_synced() {
+		$this->server_event_storage->reset();
+		$new_email = 'nobody@automattic.com';
+
+		// Simulate waiting on email confirmation
+		update_user_meta( $this->user_id, '_new_email', 1 );
+
+		wp_update_user( array(
+			'ID'        => $this->user_id,
+			'user_email' => $new_email
+		) );
+
+		$this->sender->do_sync();
+
+		// Don't sync the password changes since we don't track passwords
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['email_changed'] );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+
+		// Only the sync save user event should be present.
+		$this->assertFalse( isset( $events[1] ) );
+
+		delete_user_meta( $this->user_id, '_new_email' );
 	}
 
 	public function test_delete_user_is_synced() {
@@ -84,11 +136,13 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// make sure user exists in replica
 		$this->assertUsersEqual( $user, $this->server_replica_storage->get_user( $this->user_id ) );
-
+		$this->server_event_storage->reset();
 		wp_delete_user( $this->user_id );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
+		$save_user_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( empty( $save_user_event ) );
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertNull( $event->args[1] ); //reassign user_id
 
@@ -109,6 +163,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
+
 		$this->assertEquals( 'jetpack_deleted_user', $event->action );
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertEquals( $reassign, $event->args[1] ); //reassign user_id
@@ -119,11 +174,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$this->assertFalse( $event->args[2] ); //is network delete
 		}
 	}
-	
-	// User meta not syncing 
+
+	// User meta not syncing
 	public function test_do_not_sync_user_data_on_user_meta_change() {
 		$this->server_event_storage->reset();
-		
+
 		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
@@ -142,7 +197,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	// Roles syncing
-
 	public function test_user_add_role_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_role( 'author' );
@@ -165,6 +219,28 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
 		$this->assertUsersEqual( $client_user, $server_user );
+	}
+
+	public function test_user_set_role_is_synced_in_wp_update_user_context() {
+		$this->server_event_storage->reset(); // reset all the events...
+		wp_update_user( array(
+			'ID'       => $this->user_id,
+			'user_url' => 'http://wordpress.com',
+			'role' => 'editor',
+		) );
+
+		$this->sender->do_sync();
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+
+		$client_user = get_user_by( 'id', $this->user_id );
+		unset( $client_user->data->user_pass );
+		$this->assertUsersEqual( $client_user, $server_user );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+
+		$this->assertTrue( $events[0]->args[1]['role_changed'] );
+		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber') );
+		$this->assertTrue( empty( $events[1] ) );
 	}
 
 	public function test_user_remove_role_is_synced() {
@@ -332,7 +408,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
-		
+
 		$add_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
 		$this->assertTrue( (bool) $add_event );
 
@@ -374,7 +450,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $event->args[0] );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-		
+
 	}
 
 	public function test_syncs_user_logout_event() {
@@ -476,7 +552,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
 
-	public function test_update_user_locale_is_synced() {
+	public function test_update_user_locale_changed_is_synced() {
 		global $wp_version;
 		if ( version_compare( $wp_version, 4.7, '<' ) ) {
 			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
@@ -486,8 +562,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		update_user_meta( $this->user_id, 'locale', 'en_GB' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
-		$this->assertNotEmpty( $event );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( $event->args[1]['locale_changed'] );
 
 		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
 		$this->assertEquals( get_user_locale( $this->user_id ), $server_user_local );
@@ -503,8 +579,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		delete_user_meta( $this->user_id, 'locale' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale_delete' );
-		$this->assertNotEmpty( $event );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( $event->args[1]['locale_changed'] );
 
 		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
 		$this->assertEquals( '', $server_user_local );
@@ -631,6 +707,43 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEmpty( $event );
 	}
 
+	public function test_invite_user_sync_invite_event() {
+		$this->server_event_storage->reset();
+		// Fake it till you make it
+		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		// We modify the input here to mimick the same call structure of the update user endpoint.
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		$this->sender->do_sync();
+
+		Jetpack_Constants::clear_constants();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertFalse( $event );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+
+		$this->assertTrue( $event->args[1]['invitation_accepted'] );
+		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
+	}
+
+	public function test_invite_user_sync_invite_event_false() {
+		$this->server_event_storage->reset();
+		// Fake it till we make it
+		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
+		// We modify the input here to mimick the same call structure of the update user endpoint.
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		$this->sender->do_sync();
+
+		Jetpack_Constants::clear_constants();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertFalse( $event );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+		$this->assertFalse( isset( $event->args[1]['invitation_accepted'] ) );
+		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
@@ -641,6 +754,20 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user2_array['user_pass'] );
 
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+	}
+
+	private function get_invite_user_data() {
+		return (object) array(
+			'ID'           => 1234,
+			'first_name'   => '',
+			'last_name'    => '',
+			'url'          => '',
+			'login'        => 'test_user_invite',
+			'email'        => 'test_user_invite@example.com',
+			'role'         => 'editor',
+			'display_name' => 'Gill',
+			'description'  => '',
+		);
 	}
 
 }

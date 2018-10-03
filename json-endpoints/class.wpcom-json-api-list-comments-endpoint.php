@@ -9,6 +9,10 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 	);
 
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
+		if ( ! is_array( $output ) ) {
+			$output = array();
+		}
+
 		$output[] = $object->comment_ID;
 	}
 

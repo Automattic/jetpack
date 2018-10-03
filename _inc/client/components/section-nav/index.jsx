@@ -3,14 +3,17 @@
 /**
  * External Dependencies
  */
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal Dependencies
  */
-var NavTabs = require( './tabs' ),
+const NavTabs = require( './tabs' ),
 	NavItem = require( './item' ),
 	Search = require( 'components/search' );
 
@@ -19,14 +22,15 @@ require( './style.scss' );
 /**
  * Main
  */
-var SectionNav = React.createClass( {
+const SectionNav = createReactClass( {
+	displayName: 'SectionNav',
 
 	propTypes: {
-		children: React.PropTypes.node,
-		selectedText: React.PropTypes.node,
-		selectedCount: React.PropTypes.number,
-		hasPinnedItems: React.PropTypes.bool,
-		onMobileNavPanelOpen: React.PropTypes.func
+		children: PropTypes.node,
+		selectedText: PropTypes.node,
+		selectedCount: PropTypes.number,
+		hasPinnedItems: PropTypes.bool,
+		onMobileNavPanelOpen: PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -58,8 +62,8 @@ var SectionNav = React.createClass( {
 	},
 
 	render: function() {
-		var children = this.getChildren(),
-			className;
+		const children = this.getChildren();
+		let className;
 
 		if ( ! children ) {
 			className = classNames( {
@@ -102,7 +106,7 @@ var SectionNav = React.createClass( {
 
 	getChildren: function() {
 		return React.Children.map( this.props.children, function( child ) {
-			var extraProps = {
+			const extraProps = {
 				hasSiblingControls: this.hasSiblingControls,
 				closeSectionNavMobilePanel: this.closeMobilePanel
 			};
@@ -146,7 +150,7 @@ var SectionNav = React.createClass( {
 	},
 
 	toggleMobileOpenState: function() {
-		var mobileOpen = ! this.state.mobileOpen;
+		const mobileOpen = ! this.state.mobileOpen;
 
 		this.setState( {
 			mobileOpen: mobileOpen
@@ -173,7 +177,7 @@ var SectionNav = React.createClass( {
 				this.hasSiblingControls = true;
 			}
 		}.bind( this ) );
-	}
+	},
 } );
 
 module.exports = SectionNav;

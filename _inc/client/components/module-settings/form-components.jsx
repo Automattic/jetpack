@@ -14,7 +14,7 @@ import {
 } from 'components/forms';
 import Checkbox from 'components/checkbox';
 
-export const ModuleSettingCheckbox = React.createClass( {
+export class ModuleSettingCheckbox extends React.Component {
 	render() {
 		const props = this.props;
 		return (
@@ -29,17 +29,17 @@ export const ModuleSettingCheckbox = React.createClass( {
 			</FormLabel>
 		);
 	}
-} );
+}
 
-export const ModuleSettingRadios = React.createClass( {
+export class ModuleSettingRadios extends React.Component {
 	render() {
-		let props = this.props;
-		let validValues = this.props.validValues;
+		const props = this.props;
+		const validValues = this.props.validValues;
 		return (
 			<div>
 				{
 				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${key}` } >
+					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
 						<FormRadio
 							name={ props.name }
 							checked={ key === props.getOptionValue( props.name ) }
@@ -53,56 +53,59 @@ export const ModuleSettingRadios = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
-export const ModuleSettingSelect = React.createClass( {
+export class ModuleSettingSelect extends React.Component {
 	render() {
-		let validValues = this.props.validValues;
+		const validValues = this.props.validValues;
 		return (
 			<select name={ this.props.name } value={ this.props.value } onBlur={ this.props.onOptionChange }>
 				{
 					Object.keys( validValues ).map( key => {
-						return <option value={ key } key={ `option-${ this.props.option_name }-${key}` } >{ validValues[ key ] }</option>;
+						return <option value={ key } key={ `option-${ this.props.option_name }-${ key }` } >{ validValues[ key ] }</option>;
 					} )
 				}
 			</select>
 		);
 	}
-} );
+}
 
-export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
-	getDefaultProps() {
-		return {
-			always_checked: []
-		}
-	},
-	onOptionChange( event ) {
+export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
+	static defaultProps = {
+		always_checked: []
+	};
+
+	onOptionChange = event => {
 		const justUpdated = event.target.value;
 		const currentValue = this.props.getOptionValue( this.props.name );
-		const newValue = currentValue.indexOf( justUpdated ) === -1 ?
-			concat( currentValue, justUpdated ) :
-			without( currentValue, justUpdated );
+		const newValue = currentValue.indexOf( justUpdated ) === -1
+			? concat( currentValue, justUpdated )
+			: without( currentValue, justUpdated );
 		this.props.updateFormStateOptionValue( this.props.name, newValue );
-	},
-	isAlwaysChecked( key ) {
+	};
+
+	isAlwaysChecked = key => {
 		return this.props.always_checked.indexOf( key ) !== -1;
-	},
-	shouldBeChecked( key ) {
+	};
+
+	shouldBeChecked = key => {
 		return this.isAlwaysChecked( key ) ||
 			this.props.getOptionValue( this.props.name ).indexOf( key ) !== -1;
-	},
-	shouldBeDisabled( key ) {
+	};
+
+	shouldBeDisabled = key => {
 		return this.isAlwaysChecked( key ) ||
 			this.props.isUpdating( this.props.name );
-	},
+	};
+
 	render() {
-		let props = this.props;
-		let validValues = this.props.validValues;
+		const props = this.props;
+		const validValues = this.props.validValues;
 		return (
 			<div>
 				{
 				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${key}` } >
+					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
 						<Checkbox
 							name={ props.name }
 							checked= { this.shouldBeChecked( key ) }
@@ -116,4 +119,4 @@ export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

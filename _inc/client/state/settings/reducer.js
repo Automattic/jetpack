@@ -35,7 +35,7 @@ export const items = ( state = {}, action ) => {
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
-			let key = Object.keys( action.updatedOption )[0];
+			const key = Object.keys( action.updatedOption )[ 0 ];
 			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ]
 			} );
@@ -128,7 +128,7 @@ export function getSetting( state, key, moduleName = '' ) {
  * @return {Boolean}       Whether settings are being requested
  */
 export function isFetchingSettingsList( state ) {
-	return !!state.jetpack.settings.requests.fetchingSettingsList;
+	return !! state.jetpack.settings.requests.fetchingSettingsList;
 }
 
 /**
@@ -163,16 +163,6 @@ export function isSettingActivated( state, name ) {
  */
 export function toggleSetting( state, name ) {
 	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
-}
-
-/**
- * Returns the slug of a general setting.
- * @param  {Object}  state Global state tree
- * @param  {String}  name  A setting's name
- * @return {String}       The setting name
- */
-export function getSettingName( state, name ) {
-	return get( state.jetpack.initialState.settingNames, [ name ] );
 }
 
 /**

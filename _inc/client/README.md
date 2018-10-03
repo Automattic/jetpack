@@ -112,7 +112,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getPluginUpdates( state )**
 * **getProtectCount( state )**
 * **getSearchTerm( state )**
-* **getSettingName( state, name )**
 * **getSettings( state )**
 * **getSiteAdminUrl( state )**
 * **getSiteConnectionStatus( state )**

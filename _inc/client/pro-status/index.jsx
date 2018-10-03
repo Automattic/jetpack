@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import analytics from 'lib/analytics';
 import get from 'lodash/get';
 
@@ -28,39 +27,51 @@ import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
 	isFetchingVaultPressData,
-	getAkismetData
+	getAkismetData,
+	isAkismetKeyValid,
+	isFetchingAkismetData
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
-import {
-	isAkismetKeyValid,
-	isFetchingAkismetData
-} from 'state/at-a-glance';
 
-const ProStatus = React.createClass( {
-	propTypes: {
+/**
+ * Track click on Pro status badge.
+ *
+ * @param {string} type    Status of a certain feature.
+ * @param {string} feature Slug of plugin or service.
+ *
+ * @returns {undefined}
+ */
+const trackProStatusClick = ( type, feature ) => analytics.tracks.recordJetpackClick( {
+	target: 'pro-status',
+	type: type,
+	feature: feature
+} );
+
+/**
+ * Build function to pass as onClick property.
+ *
+ * @param {string} type    Status of a certain feature.
+ * @param {string} feature Slug of plugin or service.
+ *
+ * @returns {function} Function to track a click.
+ */
+const handleClickForTracking = ( type, feature ) => ( () => trackProStatusClick( type, feature ) );
+
+class ProStatus extends React.Component {
+	static propTypes = {
 		isCompact: PropTypes.bool,
 		proFeature: PropTypes.string
-	},
+	};
 
-	getDefaultProps: function() {
-		return {
-			isCompact: true,
-			proFeature: ''
-		};
-	},
+	static defaultProps = {
+		isCompact: true,
+		proFeature: ''
+	};
 
-	trackProStatusClick: function( type, feature ) {
-		analytics.tracks.recordJetpackClick( {
-			target: 'pro-status',
-			type: type,
-			feature: feature
-		} );
-	},
-
-	getProActions( type, feature ) {
+	getProActions = ( type, feature ) => {
 		let status = '',
 			message = false,
 			action = false,
@@ -85,6 +96,12 @@ const ProStatus = React.createClass( {
 				}
 				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
 				actionUrl = 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl;
+				break;
+			case 'pro':
+				type = 'upgrade';
+				status = 'is-warning';
+				action = __( 'Upgrade', { context: 'Caption for a button to purchase a pro plan.' } );
+				actionUrl = 'https://jetpack.com/redirect/?source=plans-business&site=' + this.props.siteRawUrl;
 				break;
 			case 'secure':
 				status = 'is-success';
@@ -114,11 +131,11 @@ const ProStatus = React.createClass( {
 					message
 				}
 				{
-					action && <NoticeAction onClick={ () => this.trackProStatusClick( type, feature ) } href={ actionUrl }>{ action }</NoticeAction>
+					action && <a className="dops-notice__text-no-underline" onClick={ handleClickForTracking( type, feature ) } href={ actionUrl }>{ action }</a>
 				}
 			</SimpleNotice>
 		);
-	},
+	};
 
 	/**
 	 * Return a button to Set Up a feature.
@@ -127,10 +144,10 @@ const ProStatus = React.createClass( {
 	 *
 	 * @return {component} A Button component.
 	 */
-	getSetUpButton( feature ) {
+	getSetUpButton = feature => {
 		return (
 			<Button
-				onClick={ () => this.trackProStatusClick( 'set_up', feature ) }
+				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
 				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
@@ -138,86 +155,82 @@ const ProStatus = React.createClass( {
 				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
 			</Button>
 		);
-	},
+	};
 
 	render() {
 		const sitePlan = this.props.sitePlan(),
-			vpData = this.props.getVaultPressData(),
-			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature
-				? 'vaultpress/vaultpress.php'
-				: 'akismet/akismet.php';
+			vpData = this.props.getVaultPressData();
+		let pluginSlug = '';
+		if ( 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ) {
+			pluginSlug = 'vaultpress/vaultpress.php';
+		}
+		if ( 'akismet' === this.props.proFeature ) {
+			pluginSlug = 'akismet/akismet.php';
+		}
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
 			hasScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
 		const getStatus = ( feature, active, installed ) => {
-			if ( this.props.isDevMode ) {
-				return '';
-			}
+			switch ( feature ) {
+				case 'rewind':
+					return this.getProActions( 'rewind_connected', 'rewind' );
 
-			if ( 'rewind' === feature ) {
-				return this.getProActions( 'rewind_connected', 'rewind' );
-			}
-
-			if ( 'backups' === feature ) {
-				if ( hasFree && ! hasBackups ) {
-					if ( this.props.isCompact ) {
+				case 'backups':
+					if ( hasFree && ! hasBackups && this.props.isCompact ) {
 						return this.getProActions( 'free', 'backups' );
 					}
-				}
-			}
+					break;
 
-			if ( 'scan' === feature ) {
-				if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
-					return '';
-				}
-				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
-					if ( this.props.isCompact ) {
-						return this.getProActions( 'free', 'scan' );
-					} else if ( hasPersonal && ! hasBackups ) {
-						// Personal plans doesn't have scan but it does have backups.
-						return this.getSetUpButton( 'backups' );
+				case 'scan':
+					if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
+						return '';
+					}
+					if ( ( hasFree || hasPersonal ) && ! hasScan ) {
+						if ( this.props.isCompact ) {
+							return this.getProActions( 'free', 'scan' );
+						} else if ( hasPersonal && ! hasBackups ) {
+							// Personal plans doesn't have scan but it does have backups.
+							return this.getSetUpButton( 'backups' );
+						}
+						return '';
+					}
+					if ( 'N/A' !== vpData ) {
+						if ( ! hasScan ) {
+							return this.getSetUpButton( 'scan' );
+						}
+
+						return this.getProActions( 0 === this.props.getScanThreats() ? 'secure' : 'threats', 'scan' );
+					}
+					break;
+
+				case 'search':
+					if ( hasFree || hasPersonal || hasPremium ) {
+						return this.getProActions( 'pro' );
 					}
 					return '';
-				}
-				if ( 'N/A' !== vpData ) {
-					if ( ! hasScan ) {
-						return this.getSetUpButton( 'scan' );
+
+				case 'akismet':
+					if ( hasFree && ! ( active && installed ) ) {
+						return this.props.isCompact
+							? this.getProActions( 'free', 'anti-spam' )
+							: '';
 					}
 
-					const threatsCount = this.props.getScanThreats();
-					if ( 0 !== threatsCount ) {
-						return this.getProActions( 'threats', 'scan' );
+					if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingAkismetData && active && installed ) {
+						return this.getProActions( 'invalid_key', 'anti-spam' );
 					}
-					if ( 0 === threatsCount ) {
-						return this.getProActions( 'secure', 'scan' );
-					}
-				}
+					break;
 			}
 
-			if ( 'akismet' === feature ) {
-				if ( hasFree && ! ( active && installed ) ) {
-					if ( this.props.isCompact ) {
-						return this.getProActions( 'free', 'anti-spam' );
-					}
-					return '';
-				}
-
-				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingAkismetData && active && installed ) {
-					return this.getProActions( 'invalid_key', 'anti-spam' );
-				}
-			}
-
-			if ( sitePlan.product_slug ) {
-				if ( ! hasFree ) {
-					if ( active && installed ) {
-						return this.getProActions( 'active' );
-					}
-
-					return this.getSetUpButton( feature );
-				}
+			// Show set up or active status only for paid features that depend on a plugin, and only under a paid plan
+			if ( sitePlan.product_slug && pluginSlug && ! hasFree ) {
+				return active && installed
+					? this.getProActions( 'active' )
+					: this.getSetUpButton( feature );
 			}
 
 			return '';
@@ -228,7 +241,7 @@ const ProStatus = React.createClass( {
 				<QuerySitePlugins />
 				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
-				{ getStatus(
+				{ ! this.props.isDevMode && getStatus(
 					this.props.proFeature,
 					this.props.pluginActive( pluginSlug ),
 					this.props.pluginInstalled( pluginSlug )
@@ -236,7 +249,7 @@ const ProStatus = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

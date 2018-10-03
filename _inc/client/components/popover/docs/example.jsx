@@ -5,6 +5,7 @@
  * External dependencies
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 
 /**
@@ -14,7 +15,8 @@ import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
 
-const Popovers = React.createClass( {
+const Popovers = createReactClass( {
+	displayName: 'Popovers',
 	mixins: [ PureRenderMixin ],
 
 	getInitialState: function() {
@@ -141,6 +143,24 @@ const Popovers = React.createClass( {
 		);
 	},
 
+	handleClick( i, positions ) {
+		return event => {
+			const index = parseInt( event.currentTarget.innerText );
+			if ( i === 4 ) {
+				return null;
+			}
+
+			this.setState( {
+				showRubicPopover: ! this.state.showRubicPopover,
+				rubicPosition: positions[ index ]
+			} );
+		};
+	},
+
+	handleClose() {
+		this.setState( { showRubicPopover: false } );
+	},
+
 	renderPopoverRubic() {
 		const squares = [];
 		const width = 150;
@@ -174,17 +194,7 @@ const Popovers = React.createClass( {
 						boxSixing: 'border-box'
 					} }
 					key={ `rubic-${ i }` }
-					onClick={ event => {
-						const index = parseInt( event.currentTarget.innerText );
-						if ( i === 4 ) {
-							return null;
-						}
-
-						this.setState( {
-							showRubicPopover: ! this.state.showRubicPopover,
-							rubicPosition: positions[ index ]
-						} );
-					} }
+					onClick={ this.handleClick( i, positions ) }
 				>
 					{ i === 4 ? null : i }
 				</div>
@@ -206,9 +216,7 @@ const Popovers = React.createClass( {
 
 				<Popover
 					id="popover__rubic"
-					onClose={ () => {
-						this.setState( { showRubicPopover: false } );
-					} }
+					onClose={ this.handleClose }
 					isVisible={ this.state.showRubicPopover }
 					position={ this.state.rubicPosition }
 					context={ this.refs && this.refs[ 'popover-rubic-reference' ] }
@@ -338,7 +346,7 @@ const Popovers = React.createClass( {
 				{ this.renderMultipleTargetsPopover() }
 			</div>
 		);
-	}
+	},
 } );
 
 export default Popovers;

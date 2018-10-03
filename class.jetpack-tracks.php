@@ -9,7 +9,7 @@ class JetpackTracking {
 	static $product_name = 'jetpack';
 
 	static function track_jetpack_usage() {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::jetpack_tos_agreed() ) {
 			return;
 		}
 

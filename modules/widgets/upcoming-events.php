@@ -7,7 +7,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Upcoming Events', 'jetpack' ) ),
 			array(
-				'description' => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ),
+				'description'                 => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -31,9 +31,9 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 
 	function form( $instance ) {
 		$defaults = array(
-			'title' => __( 'Upcoming Events', 'jetpack' ),
+			'title'    => __( 'Upcoming Events', 'jetpack' ),
 			'feed-url' => '',
-			'count' => 3
+			'count'    => 3,
 		);
 		$instance = array_merge( $defaults, (array) $instance );
 ?>
@@ -51,29 +51,31 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		<p>
 		<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php _e( 'Items to show:', 'jetpack' ); ?></label>
 		<select id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>">
-			<?php $i = 1;
-			while ( $i <= 10 ) { ?>
-				<option <?php selected( $instance['count'], $i ) ?>><?php echo $i; ?></option>
+			<?php
+			$i = 1;
+			while ( $i <= 10 ) {
+			?>
+				<option <?php selected( $instance['count'], $i ); ?>><?php echo $i; ?></option>
 			<?php $i++; } ?>
-			<option value="0" <?php selected( $instance['count'], 0 ) ?>><?php _e( 'All' , 'jetpack' ) ?></option>
+			<option value="0" <?php selected( $instance['count'], 0 ); ?>><?php _e( 'All', 'jetpack' ); ?></option>
 		</select>
 		</p>
 <?php
 	}
 
 	function update( $new_instance, $old_instance ) {
-		$instance['title'] = strip_tags( $new_instance['title'] );
+		$instance['title']    = strip_tags( $new_instance['title'] );
 		$instance['feed-url'] = strip_tags( $new_instance['feed-url'] );
-		$instance['count'] = min( absint( $new_instance['count'] ), 10 ); // 10 or less
+		$instance['count']    = min( absint( $new_instance['count'] ), 10 ); // 10 or less
 		return $instance;
 	}
 
 	function widget( $args, $instance ) {
 		jetpack_require_lib( 'icalendar-reader' );
 
-		$ical = new iCalendarReader();
-		$events = $ical->get_events( $instance['feed-url'], $instance['count'] );
-		$events = $this->apply_timezone_offset( $events );
+		$ical           = new iCalendarReader();
+		$events         = $ical->get_events( $instance['feed-url'], $instance['count'] );
+		$events         = $this->apply_timezone_offset( $events );
 		$ical->timezone = null;
 
 		echo $args['before_widget'];
@@ -85,7 +87,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 
 		if ( ! $events ) : // nothing to display?
 ?>
-			<p><?php echo __( 'No upcoming events', 'jetpack' ) ?></p>
+			<p><?php echo __( 'No upcoming events', 'jetpack' ); ?></p>
 <?php
 		else :
 ?>

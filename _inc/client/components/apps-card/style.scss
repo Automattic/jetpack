@@ -17,7 +17,13 @@
 
 .jp-apps-card__top {
 	padding: rem( 40px ) 0 0;
-	background: $gray-dark;
+	background: #ffffff;
+	text-align: center;
+
+	img {
+		max-width: 40%;
+		padding-top: 10px;
+	}
 
 	svg {
 		position: relative;
@@ -48,14 +54,17 @@
 	max-width: 80%;
 	margin: 0 auto;
 	padding: rem( 24px );
-	font-size: rem( 14px );
 	line-height: 1.65;
-	color: $blue-text;
+	color: $black;
 	text-align: center;
 
 	.dops-button {
 		margin: 8px 0;
 	}
+}
+
+.jp-apps-card__paragraph {
+	font-size: rem( 15px );
 }
 
 .jp-apps-card__header {

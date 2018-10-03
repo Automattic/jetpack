@@ -3,58 +3,55 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal dependencies
  */
-var Tooltip = require( 'components/tooltip' ),
+const Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChartBar',
+export default class ModuleChartBar extends React.Component {
+	static displayName = 'ModuleChartBar';
 
-	propTypes: {
-		isTouch: React.PropTypes.bool,
-		tooltipPosition: React.PropTypes.string,
-		className: React.PropTypes.string,
-		clickHandler: React.PropTypes.func,
-		data: React.PropTypes.object.isRequired,
-		max: React.PropTypes.number,
-		count: React.PropTypes.number
-	},
+	static propTypes = {
+		isTouch: PropTypes.bool,
+		tooltipPosition: PropTypes.string,
+		className: PropTypes.string,
+		clickHandler: PropTypes.func,
+		data: PropTypes.object.isRequired,
+		max: PropTypes.number,
+		count: PropTypes.number
+	};
 
-	getInitialState: function() {
-		return { showPopover: false };
-	},
+	state = { showPopover: false };
 
-	buildSections: function() {
-		var value = this.props.data.value,
+	buildSections = () => {
+		const value = this.props.data.value,
 			max = this.props.max,
 			percentage = max ? Math.ceil( ( value / max ) * 10000 ) / 100 : 0,
 			remain = 100 - percentage,
 			remainFloor = Math.max( 1, Math.floor( remain ) ),
 			sections = [],
-			remainStyle,
-			valueStyle,
 			nestedValue = this.props.data.nestedValue,
-			nestedBar,
-			nestedPercentage,
-			nestedStyle,
 			spacerClassOptions = {
 				'dops-chart__bar-section': true,
 				'is-spacer': true,
 				'is-ghost': ( 100 === remain ) && ! this.props.active
 			};
+		let nestedBar,
+			nestedPercentage,
+			nestedStyle;
 
-		remainStyle = {
+		const remainStyle = {
 			height: remainFloor + '%'
 		};
 
 		sections.push( <div key="spacer" className={ classNames( spacerClassOptions ) } style={ remainStyle } /> );
 
-		valueStyle = {
+		const valueStyle = {
 			top: remainFloor + '%'
 		};
 
@@ -71,23 +68,23 @@ module.exports = React.createClass( {
 		sections.push( <div key="label" className="dops-chart__bar-label">{ this.props.label }</div> );
 
 		return sections;
-	},
+	};
 
-	clickHandler: function(){
+	clickHandler = () => {
 		if ( 'function' === typeof( this.props.clickHandler ) ) {
 			this.props.clickHandler( this.props.data );
 		}
-	},
+	};
 
-	mouseEnter: function(){
+	mouseEnter = () => {
 		this.setState( { showPopover: true } );
-	},
+	};
 
-	mouseLeave: function() {
+	mouseLeave = () => {
 		this.setState( { showPopover: false } );
-	},
+	};
 
-	renderTooltip() {
+	renderTooltip = () => {
 		if (
 			! this.props.data.tooltipData ||
 			! this.props.data.tooltipData.length ||
@@ -99,8 +96,8 @@ module.exports = React.createClass( {
 		const { tooltipData } = this.props.data;
 
 		const listItemElements = tooltipData.map( function( options, i ) {
-			var wrapperClasses = [ 'module-content-list-item' ],
-				gridiconSpan;
+			const wrapperClasses = [ 'module-content-list-item' ];
+			let gridiconSpan;
 
 			if ( options.icon ) {
 				gridiconSpan = ( <Gridicon icon={ options.icon } size={ 18 } /> );
@@ -110,9 +107,9 @@ module.exports = React.createClass( {
 
 			return (
 				<li key={ i } className={ wrapperClasses.join( ' ' ) } >
-					<span className='dops-wrapper'>
-						<span className='value'>{ options.value }</span>
-						<span className='label'>{ gridiconSpan }{ options.label }</span>
+					<span className="dops-wrapper">
+						<span className="value">{ options.value }</span>
+						<span className="label">{ gridiconSpan }{ options.label }</span>
 					</span>
 				</li>
 			);
@@ -132,20 +129,17 @@ module.exports = React.createClass( {
 				</ul>
 			</Tooltip>
 		);
-	},
+	};
 
-	render: function() {
-		var barStyle,
-			barClass,
-			count = this.props.count || 1;
+	render() {
+		const count = this.props.count || 1;
+		const barClass = { 'dops-chart__bar': true };
 
-		barClass = { 'dops-chart__bar': true };
-
-		if ( this.props.className ){
+		if ( this.props.className ) {
 			barClass[ this.props.className ] = true;
 		}
 
-		barStyle = {
+		const barStyle = {
 			width: ( ( 1 / count ) * 100 ) + '%'
 		};
 
@@ -163,4 +157,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

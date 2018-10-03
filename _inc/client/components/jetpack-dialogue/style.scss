@@ -9,6 +9,7 @@
 	background: rgba($gray-light, .95);
 	text-align: center;
 	padding: rem( 32px );
+	height: 100%;
 }
 
 .jp-dialogue {
@@ -46,8 +47,8 @@
 .jp-dialogue-full__dismiss {
 	cursor: pointer;
 	position: absolute;
-	right: 0;
-	top: 0;
+	right: -10px;
+	top: -10px;
 	fill: $gray;
 	padding: rem( 16px );
 	height: rem( 24px );
@@ -86,4 +87,24 @@
 
 .jp-dialogue__cta-container {
 	padding: rem( 8px ) 0 0;
+}
+
+.jp-upgrade-notice__enable-module {
+	margin-bottom: calc(1em + 8px);
+
+	.jp-form-settings-group {
+		margin: 0px auto;
+		max-width: 400px;
+		text-align: left;
+	}
+
+	.jp-form-has-child {
+		padding: 10px;
+		padding-right: 30px;
+	}
+
+	.jp-support-info {
+		top: rem( 15px );
+		right: rem( 15px );
+	}
 }

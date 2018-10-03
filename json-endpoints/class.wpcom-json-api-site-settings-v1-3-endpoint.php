@@ -1,11 +1,4 @@
 <?php
-/**
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- * @autounit api-v1 site-settings
- */
 
 new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
@@ -49,6 +42,8 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_search_enabled'               => '(bool) Enable Jetpack Search',
+		'jetpack_search_supported'             => '(bool) Jetpack Search supported',
 		'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
 		'infinite_scroll'                      => '(bool) Support infinite scroll of posts?',
 		'default_category'                     => '(int) Default post category',
@@ -86,7 +81,6 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'twitter_via'                          => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag'       => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'                 => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
-		'holidaysnow'                          => '(bool) Enable snowfall on front end of site?',
 		'timezone_string'                      => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                           => '(int) Site offset from UTC in hours',
 		'date_format'                          => '(string) PHP Date-compatible date format',
@@ -97,13 +91,16 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
-		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
 		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
+		'net_neutrality'                       => '(bool) Whether the net neutrality modal is enabled for this site',
+		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
+		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
 	),
 
 	'response_format' => array(
@@ -114,12 +111,14 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 ) );
 
 class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_2_Endpoint {
-	public static $wga_defaults = array(
-		'code'                 => '',
-		'anonymize_ip'         => false,
-		'ec_track_purchases'   => false,
-		'ec_track_add_to_cart' => false
-	);
+	protected function get_defaults() {
+		return array(
+			'code'                 => '',
+			'anonymize_ip'         => false,
+			'ec_track_purchases'   => false,
+			'ec_track_add_to_cart' => false
+		);
+	}
 
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );

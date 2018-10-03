@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { getPlanClass } from 'lib/plans/constants';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -23,28 +24,34 @@ import {
 	canDisplayDevCard,
 	disableDevCard,
 	switchUserPermission,
-	switchThreats
+	switchThreats,
+	switchRewindState,
 } from 'state/dev-version';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
+import { getRewindStatus } from 'state/rewind';
 
-export const DevCard = React.createClass( {
-	displayName: 'DevCard',
+export class DevCard extends React.Component {
+	static displayName = 'DevCard';
 
-	onPlanChange( event ) {
+	onPlanChange = event => {
 		this.props.switchPlanPreview( event.target.value );
-	},
+	};
 
-	onPermissionsChange( event ) {
+	onPermissionsChange = event => {
 		this.props.switchUserPermissions( event.target.value );
-	},
+	};
 
-	onThreatsChange( event ) {
+	onThreatsChange = event => {
 		this.props.switchThreats( event.target.value );
-	},
+	};
 
-	maybeShowStatsToggle() {
+	onRewindStatusChange = event => {
+		this.props.switchRewindState( event.target.value );
+	};
+
+	maybeShowStatsToggle = () => {
 		if ( ! this.props.isAdmin ) {
 			return (
 				<div>
@@ -80,9 +87,9 @@ export const DevCard = React.createClass( {
 				</div>
 			);
 		}
-	},
+	};
 
-	maybeShowIsLinkedToggle() {
+	maybeShowIsLinkedToggle = () => {
 		if ( ! this.props.isMaster ) {
 			return (
 				<div>
@@ -118,7 +125,7 @@ export const DevCard = React.createClass( {
 				</div>
 			);
 		}
-	},
+	};
 
 	render() {
 		if ( ! this.props.canDisplayDevCard ) {
@@ -131,6 +138,7 @@ export const DevCard = React.createClass( {
 		);
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
 
 		return (
 			<Card compact className={ classes }>
@@ -279,12 +287,55 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 				</ul>
+				<hr />
+				<ul>
+					<strong>Rewind</strong>
+					<li>
+						<label htmlFor="rewindUnavailable">
+							<input
+								type="radio"
+								id="rewindUnavailable"
+								value="unavailable"
+								name="unavailable"
+								checked={ 'unavailable' === rewindState }
+								onChange={ this.onRewindStatusChange }
+							/>
+							Unavailable
+						</label>
+					</li>
+					<li>
+						<label htmlFor="rewindAvailable">
+							<input
+								type="radio"
+								id="rewindAvailable"
+								value="available"
+								name="available"
+								checked={ 'unavailable' !== rewindState && 'active' !== rewindState }
+								onChange={ this.onRewindStatusChange }
+							/>
+							Available
+						</label>
+					</li>
+					<li>
+						<label htmlFor="rewindActive">
+							<input
+								type="radio"
+								id="rewindActive"
+								value="active"
+								name="active"
+								checked={ 'active' === rewindState }
+								onChange={ this.onRewindStatusChange }
+							/>
+							Active
+						</label>
+					</li>
+				</ul>
 				{ this.maybeShowStatsToggle() }
 				{ this.maybeShowIsLinkedToggle() }
 			</Card>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {
@@ -297,7 +348,8 @@ export default connect(
 			isMaster: userIsMaster( state ),
 			isAdmin: userCanDisconnectSite( state ),
 			canEditPosts: userCanEditPosts( state ),
-			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state )
+			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state ),
+			rewindStatus: getRewindStatus( state ),
 		};
 	},
 	( dispatch ) => {
@@ -313,6 +365,9 @@ export default connect(
 			},
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );
+			},
+			switchRewindState: ( rewindState ) => {
+				return dispatch( switchRewindState( rewindState ) );
 			}
 		};
 	}

@@ -1,28 +1,26 @@
 /**
  * External dependencies
  */
+const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Gridicon = require( 'components/gridicon' );
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
+export default class FormInputValidation extends React.Component {
+	static displayName = 'FormInputValidation';
 
-	displayName: 'FormInputValidation',
+	static propTypes = {
+		isError: PropTypes.bool,
+		isWarning: PropTypes.bool,
+		text: PropTypes.node,
+		icon: PropTypes.string
+	};
 
-	propTypes: {
-		isError: React.PropTypes.bool,
-		isWarning: React.PropTypes.bool,
-		text: React.PropTypes.node,
-		icon: React.PropTypes.string
-	},
+	static defaultProps = { isError: false };
 
-	getDefaultProps: function() {
-		return { isError: false };
-	},
-
-	render: function() {
+	render() {
 		const classes = classNames( {
 			'form-input-validation': true,
 			'is-warning': this.props.isWarning,
@@ -37,4 +35,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

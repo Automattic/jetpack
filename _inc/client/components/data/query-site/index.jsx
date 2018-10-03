@@ -10,6 +10,7 @@ import isEmpty from 'lodash/isEmpty';
  * Internal dependencies
  */
 import {
+	fetchAvailablePlans,
 	fetchSiteData,
 	fetchSiteFeatures,
 	isFetchingSiteData,
@@ -34,6 +35,7 @@ class QuerySite extends Component {
 		if ( ! this.props.isFetchingSiteData && ! this.props.isDevMode && isEmpty( this.props.sitePlan ) ) {
 			this.props.fetchSiteData();
 			this.props.fetchSiteFeatures();
+			this.props.fetchAvailablePlans();
 		}
 	}
 
@@ -53,7 +55,8 @@ export default connect(
 	( dispatch ) => {
 		return {
 			fetchSiteData: () => dispatch( fetchSiteData() ),
-			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() )
+			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() ),
+			fetchAvailablePlans: () => dispatch( fetchAvailablePlans() )
 		};
 	}
 )( QuerySite );

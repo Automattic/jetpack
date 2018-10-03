@@ -9,6 +9,7 @@
  * Module Tags: Photos and Videos
  * Feature: Writing
  * Additional Search Queries: video, videos, videopress
+ * Plans: business, premium
  */
 
 include_once dirname( __FILE__ ) . '/videopress/utility-functions.php';

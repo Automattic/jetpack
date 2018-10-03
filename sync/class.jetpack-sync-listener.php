@@ -144,6 +144,8 @@ class Jetpack_Sync_Listener {
 			 *
 			 * @since 4.2.0
 			 *
+			 * @module sync 
+			 *
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
@@ -170,6 +172,15 @@ class Jetpack_Sync_Listener {
 		if ( Jetpack_Sync_Settings::is_sending() ) {
 			return;
 		}
+
+		/**
+		 * Add an action hook to execute when anything on the whitelist gets sent to the queue to sync.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.9.0
+		 */
+		do_action( 'jetpack_sync_action_before_enqueue' );
 
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
@@ -256,11 +267,33 @@ class Jetpack_Sync_Listener {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
-			'ip'               => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null,
 			'is_wp_admin'      => is_admin(),
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_request_url(),
 		);
 
+		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
+			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
+			$actor['ip'] = jetpack_protect_get_ip();
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
+		}
+
 		return $actor;
+	}
+
+	function should_send_user_data_with_actor( $current_filter ) {
+		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
+		/**
+		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
+		 *
+		 * @since 5.8.0
+		 *
+		 * @module sync
+		 *
+		 * @param bool True if we should send user data
+		 * @param string The current filter that is performing the sync action
+		 */
+		return apply_filters( 'jetpack_sync_actor_user_data', $should_send, $current_filter );
 	}
 
 	function set_defaults() {
@@ -268,5 +301,9 @@ class Jetpack_Sync_Listener {
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
+	}
+
+	function get_request_url() {
+		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }

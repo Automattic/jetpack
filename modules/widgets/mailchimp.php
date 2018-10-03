@@ -46,7 +46,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 
 			// Regular expresion that will match maichimp shortcode.
-			$regex = "(\[mailchimp_subscriber_popup[^\]]+\])";
+			$regex = '(\[mailchimp_subscriber_popup[^\]]+\])';
 
 			// Check if the shortcode exists.
 			preg_match( $regex, $instance['code'], $matches );

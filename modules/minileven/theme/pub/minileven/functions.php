@@ -232,13 +232,14 @@ function minileven_get_gallery_images() {
 
 	if ( ! $images ) {
 		$images = get_posts( array(
-			'fields'         => 'ids',
-			'numberposts'    => 999,
-			'order'          => 'ASC',
-			'orderby'        => 'menu_order',
-			'post_mime_type' => 'image',
-			'post_parent'    => get_the_ID(),
-			'post_type'      => 'attachment',
+			'fields'           => 'ids',
+			'numberposts'      => 999,
+			'order'            => 'ASC',
+			'orderby'          => 'menu_order',
+			'post_mime_type'   => 'image',
+			'post_parent'      => get_the_ID(),
+			'post_type'        => 'attachment',
+			'suppress_filters' => false,
 		) );
 	}
 

@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
@@ -22,15 +22,17 @@ import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
 
-export const Traffic = React.createClass( {
-	displayName: 'TrafficSettings',
+export class Traffic extends React.Component {
+	static displayName = 'TrafficSettings';
 
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
+			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			getModuleOverride: this.props.getModuleOverride,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
@@ -63,8 +65,8 @@ export const Traffic = React.createClass( {
 			<div>
 				<QuerySite />
 				{
-					foundStats && (
-						<SiteStats
+					foundSearch && (
+						<Search
 							{ ...commonProps }
 						/>
 					)
@@ -92,7 +94,7 @@ export const Traffic = React.createClass( {
 					foundSeo && (
 						<SEO
 							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
+							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#seo' }
 						/>
 					)
 				}
@@ -100,7 +102,14 @@ export const Traffic = React.createClass( {
 					foundAnalytics && (
 						<GoogleAnalytics
 							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl }
+							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics' }
+						/>
+					)
+				}
+				{
+					foundStats && (
+						<SiteStats
+							{ ...commonProps }
 						/>
 					)
 				}
@@ -118,17 +127,10 @@ export const Traffic = React.createClass( {
 						/>
 					)
 				}
-				{
-					foundSearch && (
-						<Search
-							{ ...commonProps }
-						/>
-					)
-				}
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -138,7 +140,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
-			lastPostUrl: getLastPostUrl( state )
+			lastPostUrl: getLastPostUrl( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Traffic );

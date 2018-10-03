@@ -1,11 +1,11 @@
 <?php extract( $data ); ?>
 
 <?php if ( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) : ?>
-	<div class="updated"><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></div>
+	<div class="updated"><p><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></p></div>
 <?php endif; ?>
 
 <?php if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' == $_GET['error'] ) : ?>
-	<div class="error"><?php esc_html_e( 'One of your IP addresses was not valid.', 'jetpack' ); ?></div>
+	<div class="error"><p><?php esc_html_e( 'One of your IP addresses was not valid.', 'jetpack' ); ?></p></div>
 <?php endif; ?>
 
 <div class="wrap">

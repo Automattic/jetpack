@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -16,8 +16,8 @@ import { Comments } from './comments';
 import { Subscriptions } from './subscriptions';
 import { getConnectUrl } from 'state/connection';
 
-export const Discussion = React.createClass( {
-	displayName: 'DiscussionSettings',
+export class Discussion extends React.Component {
+	static displayName = 'DiscussionSettings';
 
 	render() {
 		const commonProps = {
@@ -47,6 +47,7 @@ export const Discussion = React.createClass( {
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }
+					getModuleOverride={ this.props.getModuleOverride }
 				/>
 				{
 					foundSubscriptions && (
@@ -61,7 +62,7 @@ export const Discussion = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -72,7 +73,8 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			connectUrl: getConnectUrl( state ),
-			isLinked: isCurrentUserLinked( state )
+			isLinked: isCurrentUserLinked( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Discussion );

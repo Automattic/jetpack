@@ -23,22 +23,20 @@ import {
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 
-export const JetpackDisconnectDialog = React.createClass( {
-	propTypes: {
+export class JetpackDisconnectDialog extends React.Component {
+	static propTypes = {
 		show: PropTypes.bool,
 		toggleModal: PropTypes.func,
 		disconnectSite: PropTypes.func
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			show: false,
-			toggleModal: noop,
-			disconnectSite: noop
-		};
-	},
+	static defaultProps = {
+		show: false,
+		toggleModal: noop,
+		disconnectSite: noop
+	};
 
-	getPlanFeatures() {
+	getPlanFeatures = () => {
 		switch ( getPlanClass( this.props.sitePlan.product_slug ) ) {
 			case 'is-personal-plan':
 				return [
@@ -106,7 +104,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						icon: 'stats-alt'
 					},
 					{
-						text: __( 'Brute force attack protection and uptime monitoring' ),
+						text: __( 'Brute force attack protection and downtime monitoring' ),
 						icon: 'lock'
 					},
 					{
@@ -115,25 +113,25 @@ export const JetpackDisconnectDialog = React.createClass( {
 					}
 				];
 		}
-	},
+	};
 
-	closeModal() {
+	closeModal = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
 			button: 'stay-connected'
 		} );
 
 		this.props.toggleModal();
-	},
+	};
 
-	disconnectSiteTrack() {
+	disconnectSiteTrack = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
 			button: 'disconnect-site'
 		} );
 
 		this.props.disconnectSite();
-	},
+	};
 
 	render() {
 		return this.props.show && (
@@ -151,7 +149,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						{
 							__( 'By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:', {
 								args: {
-									siteName: this.props.siteRawUrl.replace( '::', '/' )
+									siteName: this.props.siteRawUrl.replace( /::/g, '/' )
 								}
 							} )
 						}
@@ -194,7 +192,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 			</Modal>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

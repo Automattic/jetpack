@@ -14,7 +14,7 @@ import { getSettings } from 'state/settings';
 import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { userCanEditPosts } from 'state/initial-state';
-import { isModuleActivated } from 'state/modules';
+import { isModuleActivated, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getConnectUrl } from 'state/connection';
 import QuerySite from 'components/data/query-site';
@@ -25,9 +25,10 @@ import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
 import { isAtomicSite } from 'state/initial-state';
+import SpeedUpSite from './speed-up-site';
 
-export const Writing = React.createClass( {
-	displayName: 'WritingSettings',
+export class Writing extends React.Component {
+	static displayName = 'WritingSettings';
 
 	render() {
 		const commonProps = {
@@ -35,7 +36,8 @@ export const Writing = React.createClass( {
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
-			isLinked: this.props.isLinked
+			isLinked: this.props.isLinked,
+			getModuleOverride: this.props.getModuleOverride
 		};
 
 		const found = [
@@ -48,7 +50,8 @@ export const Writing = React.createClass( {
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
-			'videopress'
+			'videopress',
+			'lazy-images'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -78,6 +81,7 @@ export const Writing = React.createClass( {
 					)
 				}
 				<Media { ...commonProps } />
+				<SpeedUpSite { ...commonProps } />
 				{
 					this.props.isModuleFound( 'custom-content-types' ) && (
 						<CustomContentTypes { ...commonProps } />
@@ -102,7 +106,7 @@ export const Writing = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -117,7 +121,8 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isModuleFound: module_name => isModuleFound( state, module_name ),
-			connectUrl: getConnectUrl( state )
+			connectUrl: getConnectUrl( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Writing );

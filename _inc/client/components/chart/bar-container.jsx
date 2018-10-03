@@ -1,34 +1,33 @@
 /**
  * External dependencies
  */
-var React = require( 'react' );
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
 
 /**
  * Internal dependencies
  */
-var Bar = require( './bar' ),
+const Bar = require( './bar' ),
 	XAxis = require( './x-axis' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChartBarContainer',
+export default class ModuleChartBarContainer extends React.Component {
+	static displayName = 'ModuleChartBarContainer';
 
-	propTypes: {
-		isTouch: React.PropTypes.bool,
-		data: React.PropTypes.array,
-		yAxisMax: React.PropTypes.number,
-		width: React.PropTypes.number,
-		barClick: React.PropTypes.func
-	},
+	static propTypes = {
+		isTouch: PropTypes.bool,
+		data: PropTypes.array,
+		yAxisMax: PropTypes.number,
+		width: PropTypes.number,
+		barClick: PropTypes.func
+	};
 
-	buildBars: function( max ) {
-		var bars,
-			numberBars = this.props.data.length,
-			tooltipPosition = 'bottom right',
+	buildBars = ( max ) => {
+		const numberBars = this.props.data.length,
 			width = this.props.chartWidth,
 			barWidth = ( width / numberBars );
-
-		bars = this.props.data.map( function ( item, index ) {
-			var barOffset = barWidth * ( index + 1 );
+		let tooltipPosition = 'bottom right';
+		const bars = this.props.data.map( function( item, index ) {
+			const barOffset = barWidth * ( index + 1 );
 
 			if (
 					( ( barOffset + 230 ) > width ) &&
@@ -49,9 +48,9 @@ module.exports = React.createClass( {
 		}, this );
 
 		return bars;
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			<div>
 				<div className="dops-chart__bars">
@@ -61,4 +60,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

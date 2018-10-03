@@ -18,7 +18,7 @@ class JetpackBanner extends Banner {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
-		description: PropTypes.string,
+		description: PropTypes.node,
 		event: PropTypes.string,
 		feature: PropTypes.string,
 		href: PropTypes.string,
@@ -32,7 +32,7 @@ class JetpackBanner extends Banner {
 
 	static defaultProps = {
 		onClick: noop,
-		plan: false,
+		plan: '',
 	};
 
 	render() {

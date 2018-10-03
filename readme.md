@@ -2,6 +2,7 @@
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Code Climate](https://codeclimate.com/github/Automattic/jetpack/badges/gpa.svg)](https://codeclimate.com/github/Automattic/jetpack)
+[![Build Status](https://travis-ci.org/Automattic/jetpack.svg?branch=master)](https://travis-ci.org/Automattic/jetpack)
 
 [Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
@@ -50,16 +51,16 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Monitor Our Activity On This Repository
 
-[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/automattic/jetpack/metrics)
+[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/Automattic/jetpack/metrics/throughput)
 
 ## Team
 
-The Jetpack Pit Crew is comprised of @briancolinger, @dereksmart, @eliorivero, @georgestephanis, @oskosk, @rcoll, @samhotchkiss, @singerb, @thingalon, and @zinigor.
+Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @briancolinger, @dereksmart, @georgestephanis, @jeherve, @kraftbj, @mdawaffe, @oskosk, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @ebinnion, @enejb, @eoigal, @gibrown, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jeherve, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @kraftbj, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
-Our _awesome_ happiness engineers are @aheckler, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @codestor4, @csonnek, @danjjohnson, @davoraltman, @drpottex, @gaurav1984, @gregwp, @jamilabreu, @jeherve, @jenhooks, @joendotcom, @kraftbj, @lamdayap, @lschuyler, @macmanx2,  @madhattermattic, @mbhthompson, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @seejacobscott, @stefmattana, and @tmmbecker.
+Our _awesome_ happiness engineers are @a8ck3n, @aheckler, @almoyen, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @chickenn00dle, @coder-karen, @codestor4, @csonnek, @danjjohnson, @dericleeyy, @gaurav1984, @gsmumbo, @htdat, @jenhooks, @jeremypaavola, @joeboydston, @joendotcom, @lizthefair, @macmanx2, @madhattermattic, @mbhthompson, @mzakariya, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @snowmads, @stefmattana, and @tmmbecker.
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!

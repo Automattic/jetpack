@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
 
 class WelcomePersonal extends Component {
 	componentDidMount() {
@@ -25,7 +26,7 @@ class WelcomePersonal extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing a Jetpack Personal plan. Jetpack is now backing up your site and ' +
+					{ __( 'Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and ' +
 						'scanning for security threats.'
 					) }
 				</p>
@@ -36,20 +37,7 @@ class WelcomePersonal extends Component {
 						'new widgets.'
 					) }
 				</p>
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
-				<p>
-					{ __( 'Using Jetpack’s powerful Publicize feature and built-in sharing tools, you’ll find new ways ' +
-						'to grow your following and increase traffic. Automatically share your newest posts on social media, ' +
-						'or allow followers to subscribe via email for your latest content right in their inbox.'
-					) }
-				</p>
-				<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
-				<p>
-					{ __( 'Jetpack keeps you safe, too: you’re protected from spam in comments and contact forms, and our' +
-						' brute force login protection prevents hackers from accessing your data. And if something does go ' +
-						'wrong, you can restore a backup of your site in a single click.'
-					) }
-				</p>
+				<MonitorAkismetBackupsPrompt />
 				<Button
 					className="jp-welcome-new-plan__button"
 					href={ '#/traffic' }

@@ -6,7 +6,9 @@ import babel from 'gulp-babel';
 import banner from 'gulp-banner';
 import check from 'gulp-check';
 import cleanCSS from 'gulp-clean-css';
+import colors from 'ansi-colors';
 import del from 'del';
+import deleteLines from 'gulp-delete-lines';
 import fs from 'fs';
 import gulp from 'gulp';
 import eslint from 'gulp-eslint';
@@ -15,19 +17,17 @@ import jshint from 'gulp-jshint';
 import json_transform from 'gulp-json-transform';
 import phplint from 'gulp-phplint';
 import phpunit from 'gulp-phpunit';
+import PluginError from 'plugin-error';
 import po2json from 'gulp-po2json';
-import qunit from 'gulp-qunit';
 import rename from 'gulp-rename';
-import readline from 'readline';
 import request from 'request';
 import rtlcss from 'gulp-rtlcss';
 import sass from 'gulp-sass';
 import { spawn } from 'child_process';
-import Stream from 'stream';
 import sourcemaps from 'gulp-sourcemaps';
 import tap from 'gulp-tap';
 import uglify from 'gulp-uglify';
-import util from 'gulp-util';
+import log from 'fancy-log';
 import webpack from 'webpack';
 import gulpif from 'gulp-if';
 import saveLicense from 'uglify-save-license';
@@ -40,18 +40,21 @@ const meta = require( './package.json' );
 import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
 
+// These paths should alawys be ignored when watching files
+const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**' ];
+
 function onBuild( done ) {
 	return function( err, stats ) {
 		// Webpack doesn't populate err in case the build fails
 		// @see https://github.com/webpack/webpack/issues/708
 		if ( stats.compilation.errors && stats.compilation.errors.length ) {
 			if ( done ) {
-				done( new util.PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
+				done( new PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
 				return; // Otherwise gulp complains about done called twice
 			}
 		}
 
-		util.log( 'Building JS…', stats.toString( {
+		log( 'Building JS…', stats.toString( {
 			colors: true,
 			hash: true,
 			version: false,
@@ -68,12 +71,12 @@ function onBuild( done ) {
 		} ), '\nJS finished at', Date.now() );
 
 		if ( 'production' === process.env.NODE_ENV ) {
-			util.log( 'Uglifying JS...' );
+			log( 'Uglifying JS...' );
 			gulp.src( '_inc/build/admin.js' )
 				.pipe( uglify() )
 				.pipe( gulp.dest( '_inc/build' ) )
 				.on( 'end', function() {
-					util.log( 'Your JS is now uglified!' );
+					log( 'Your JS is now uglified!' );
 				} );
 		}
 
@@ -99,18 +102,21 @@ function onBuild( done ) {
 			'masterbar',
 			'videopress',
 			'comment-likes',
-			'lazy-images'
+			'lazy-images',
+			'wordads',
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
 		// more JS that we haven't pointed to in PHP yet.
 		// Example output: modules/(shortcodes|widgets)/**/*.js
-		const supportedModulesSource = `modules/@(${supportedModules.join( '|' ) })/**/*.js`;
+		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
+		// Skipping module unit test files.
 		const sources = [
 			'_inc/*.js',
-			supportedModulesSource
+			supportedModulesSource,
+			'!modules/**/test-*.js',
 		];
 
 		// Don't process minified JS in _inc or modules directories
@@ -128,7 +134,7 @@ function onBuild( done ) {
 			.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
-				util.log( 'Your other JS is now uglified!' );
+				log( 'Your other JS is now uglified!' );
 			} );
 
 		doSass( function() {
@@ -147,9 +153,9 @@ function getWebpackConfig() {
 
 function doSass( done ) {
 	if ( arguments.length && typeof arguments[ 0 ] !== 'function' ) {
-		util.log( 'Sass file ' + arguments[ 0 ].path + ' changed.' );
+		log( 'Sass file ' + arguments[ 0 ].path + ' changed.' );
 	}
-	util.log( 'Building Dashboard CSS bundle...' );
+	log( 'Building Dashboard CSS bundle...' );
 	gulp.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
@@ -157,15 +163,15 @@ function doSass( done ) {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			util.log( 'Dashboard CSS finished.' );
+			log( 'Dashboard CSS finished.' );
 			doRTL( 'main' );
 		} );
-	util.log( 'Building dops-components CSS bundle...' );
+	log( 'Building dops-components CSS bundle...' );
 	gulp.src( './_inc/build/*dops-style.css' )
 		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			util.log( 'dops-components CSS finished.' );
+			log( 'dops-components CSS finished.' );
 			doRTL( 'dops', done );
 		} );
 }
@@ -178,7 +184,7 @@ function doRTL( files, done ) {
 		.pipe( sourcemaps.write( './' ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			util.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
+			log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
 			if ( done && 'function' === typeof done ) {
 				done();
 			}
@@ -189,7 +195,7 @@ gulp.task( 'sass:build', [ 'react:build' ], doSass );
 
 gulp.task( 'sass:watch', function() {
 	doSass();
-	gulp.watch( [ './**/*.scss' ], doSass );
+	gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], doSass );
 } );
 
 gulp.task( 'react:build', function( done ) {
@@ -217,7 +223,7 @@ function doStatic( done ) {
 
 	const jsdom = require( 'jsdom' );
 
-	util.log( 'Building static HTML from built JS…' );
+	log( 'Building static HTML from built JS…' );
 
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
@@ -249,18 +255,18 @@ function doStatic( done ) {
 					fs.unlinkSync( file.path );
 				} ) )
 				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static.html', window.staticHtml );
+					fs.writeFileSync( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFileSync( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
 
 					if ( done ) {
 						done();
 					}
 				} );
 		} catch ( error ) {
-			util.log( util.colors.yellow(
-				"Warning: gulp was unable to update static HTML files.\n\n" +
+			log( colors.yellow(
+				'Warning: gulp was unable to update static HTML files.\n\n' +
 				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
 			) );
 		}
@@ -293,7 +299,7 @@ gulp.task( 'old-sass', function() {
 		.pipe( gulp.dest( './' ) )
 		.pipe( sourcemaps.write( '.' ) )
 		.on( 'end', function() {
-			util.log( 'Global admin CSS finished.' );
+			log( 'Global admin CSS finished.' );
 		} );
 } );
 
@@ -321,7 +327,7 @@ gulp.task( 'old-sass:rtl', function() {
 		.pipe( gulp.dest( './' ) )
 		// Finished
 		.on( 'end', function() {
-			util.log( 'Global admin RTL CSS finished.' );
+			log( 'Global admin RTL CSS finished.' );
 		} );
 } );
 
@@ -331,10 +337,10 @@ gulp.task( 'old-sass:rtl', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
-			util.log( util.colors.red( err ) );
+			log( colors.red( err ) );
 		} );
 } );
 
@@ -342,7 +348,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 
@@ -353,7 +359,7 @@ gulp.task( 'php:unit', function() {
 	return gulp.src( 'phpunit.xml.dist' )
 		.pipe( phpunit( 'phpunit', { colors: 'disabled' } ) )
 		.on( 'error', function( err ) {
-			util.log( util.colors.red( err ) );
+			log( colors.red( err ) );
 		} );
 } );
 
@@ -364,7 +370,8 @@ gulp.task( 'eslint', function() {
 	return gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js'
+		'!_inc/client/**/test/*.js',
+		'modules/**/*.jsx',
 	] )
 		.pipe( eslint() )
 		.pipe( eslint.format() )
@@ -390,14 +397,6 @@ gulp.task( 'js:hint', function() {
 } );
 
 /*
-	JS qunit
- */
-gulp.task( 'js:qunit', function() {
-	return gulp.src( 'tests/qunit/**/*.html' )
-		.pipe( qunit() );
-} );
-
-/*
 	I18n land
 */
 
@@ -412,14 +411,14 @@ gulp.task( 'languages:get', function( callback ) {
 	);
 
 	process.stderr.on( 'data', function( data ) {
-		util.log( data.toString() );
+		log( data.toString() );
 	} );
 	process.stdout.on( 'data', function( data ) {
-		util.log( data.toString() );
+		log( data.toString() );
 	} );
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
-			util.log( 'Failed getting languages: process exited with code ', code );
+			log( 'Failed getting languages: process exited with code ', code );
 			// Make the task fail if there was a problem as this could mean that we were going to ship a Jetpack version
 			// with the languages not properly built
 			return callback( new Error() );
@@ -429,58 +428,53 @@ gulp.task( 'languages:get', function( callback ) {
 } );
 
 gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
-	let terms = [];
-	const instream = fs.createReadStream( './_inc/jetpack-strings.php' );
-	const outstream = new Stream;
-	outstream.readable = true;
-	outstream.writable = true;
+	const terms = [];
 
-	const rl = readline.createInterface( {
-		input: instream,
-		output: outstream,
-		terminal: false
-	} );
+	// Defining global that will be used from jetpack-strings.js
+	global.$jetpack_strings = [];
+	global.array = function() {};
 
-	rl.on( 'line', function( line ) {
-		const brace_index = line.indexOf( '__(' );
+	// Plural gettext call doesn't make a difference for Jed, the singular value is still used as the key.
+	global.__ = global._n = function( term ) {
+		terms[ term ] = '';
+	};
 
-		// Skipping lines that do not call translation functions
-		if ( -1 === brace_index ) {
-			return;
-		}
+	// Context prefixes the term and is separated with a unicode character U+0004
+	global._x = function( term, context ) {
+		terms[ context + '\u0004' + term ] = '';
+	};
 
-		line = line
-			.slice( brace_index + 3, line.lastIndexOf( ')' ) )
-			.replace( /[\b\f\n\r\t]/g, ' ' );
+	gulp.src( [ '_inc/jetpack-strings.php' ] )
+		.pipe( deleteLines( {
+			filters: [ /<\?php/ ]
+		} ) )
+		.pipe( rename( 'jetpack-strings.js' ) )
+		.pipe( gulp.dest( '_inc' ) )
+		.on( 'end', function() {
+			// Requiring the file that will call __, _x and _n
+			require( './_inc/jetpack-strings.js' );
 
-		// Making the line look like a JSON array to parse it as such later
-		line = [ '[', line.trim(), ']' ].join( '' );
+			return gulp.src( [ 'languages/*.po' ] )
+				.pipe( po2json() )
+				.pipe( json_transform( function( data ) {
+					const filtered = {
+						'': data[ '' ]
+					};
 
-		terms.push( line );
-	} ).on( 'close', function() {
-		// Extracting only the first argument to the translation function
-		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
-			return term[ 0 ];
-		} );
+					Object.keys( data ).forEach( function( term ) {
+						if ( terms.hasOwnProperty( term ) ) {
+							filtered[ term ] = data[ term ];
+						}
+					} );
 
-		gulp.src( [ 'languages/*.po' ] )
-			.pipe( po2json() )
-			.pipe( json_transform( function( data ) {
-				const filtered = {
-					'': data[ '' ]
-				};
-
-				Object.keys( data ).forEach( function( term ) {
-					if ( -1 !== terms.indexOf( term ) ) {
-						filtered[ term ] = data[ term ];
-					}
+					return filtered;
+				} ) )
+				.pipe( gulp.dest( 'languages/json/' ) )
+				.on( 'end', function() {
+					fs.unlinkSync( './_inc/jetpack-strings.js' );
+					done();
 				} );
-
-				return filtered;
-			} ) )
-			.pipe( gulp.dest( 'languages/json/' ) )
-			.on( 'end', done );
-	} );
+		} );
 } );
 
 gulp.task( 'php:module-headings', function( callback ) {
@@ -492,14 +486,14 @@ gulp.task( 'php:module-headings', function( callback ) {
 	);
 
 	process.stderr.on( 'data', function( data ) {
-		util.log( data.toString() );
+		log( data.toString() );
 	} );
 	process.stdout.on( 'data', function( data ) {
-		util.log( data.toString() );
+		log( data.toString() );
 	} );
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
-			util.log( 'Failed building module headings translations: process exited with code ', code );
+			log( 'Failed building module headings translations: process exited with code ', code );
 		}
 		callback();
 	} );
@@ -521,10 +515,10 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 				language_packs.push( './languages/jetpack-' + language.language + '.*' );
 			} );
 
-			util.log( 'Cleaning up languages for which Jetpack has language packs:' );
+			log( 'Cleaning up languages for which Jetpack has language packs:' );
 			del( language_packs ).then( function( paths ) {
 				paths.forEach( function( item ) {
-					util.log( item );
+					log( item );
 				} );
 				done();
 			} );
@@ -558,7 +552,7 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
-	return gulp.src( '**/*/*block.jsx' )
+	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -569,13 +563,13 @@ gulp.task( 'gutenpack', function() {
 			],
 		} ) )
 		.on( 'error', function( err ) {
-			util.log( util.colors.red( err ) );
+			log( colors.red( err ) );
 		} )
 		.pipe( gulp.dest( './' ) );
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
+	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
 } );
 
 // Default task
@@ -600,6 +594,3 @@ gulp.task(
 	'languages',
 	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
 );
-
-// travis CI tasks.
-gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );

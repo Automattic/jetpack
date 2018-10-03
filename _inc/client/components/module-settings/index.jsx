@@ -23,7 +23,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 import ExternalLink from 'components/external-link';
 
-export let VideoPressSettings = React.createClass( {
+export class VideoPressSettings extends React.Component {
 	render() {
 		return (
 			<div>
@@ -34,13 +34,13 @@ export let VideoPressSettings = React.createClass( {
 					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
 				</p>
 			</div>
-		)
+		);
 	}
-} );
+}
 
 VideoPressSettings = moduleSettingsForm( VideoPressSettings );
 
-export let SharedaddySettings = React.createClass( {
+export class SharedaddySettings extends React.Component {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -52,14 +52,14 @@ export let SharedaddySettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
-} );
+}
 
 SharedaddySettings = moduleSettingsForm( SharedaddySettings );
 
-export let RelatedPostsSettings = React.createClass( {
-	renderPreviews() {
+export class RelatedPostsSettings extends React.Component {
+	renderPreviews = () => {
 		const show_headline = this.props.getOptionValue( 'show_headline' );
 		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
 		const previews = [ {
@@ -76,9 +76,9 @@ export let RelatedPostsSettings = React.createClass( {
 		return (
 			<div className="jp-related-posts-preview">
 				{
-					show_headline ?
-						<div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A header for a block of related posts.' } ) }</div> :
-						''
+					show_headline
+						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A heading for a block of related posts.' } ) }</div>
+						: ''
 				}
 				{
 					previews.map( ( preview, i ) => (
@@ -92,7 +92,8 @@ export let RelatedPostsSettings = React.createClass( {
 				}
 			</div>
 		);
-	},
+	};
+
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -112,11 +113,11 @@ export let RelatedPostsSettings = React.createClass( {
 					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
-						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
+						label={ __( 'Highlight related content with a heading' ) }
 						{ ...this.props } />
 					<ModuleSettingCheckbox
 						name={ 'show_thumbnails' }
-						label={ __( 'Use a large and visually striking layout' ) }
+						label={ __( 'Show a thumbnail image where available' ) }
 						{ ...this.props } />
 					<div className="jp-related-posts-settings__preview-label">{ __( 'Preview', { context: 'Noun, a header for a preview block in a configuration screen.' } ) }</div>
 					<Card>
@@ -130,11 +131,11 @@ export let RelatedPostsSettings = React.createClass( {
 			</form>
 		);
 	}
-} );
+}
 
 RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
-export let LikesSettings = React.createClass( {
+export class LikesSettings extends React.Component {
 	render() {
 		const old_sharing_settings_url = this.props.module.configure_url;
 		return (
@@ -160,13 +161,13 @@ export let LikesSettings = React.createClass( {
 					}
 				</p>
 			</form>
-		)
+		);
 	}
-} );
+}
 
 LikesSettings = moduleSettingsForm( LikesSettings );
 
-export let MonitorSettings = React.createClass( {
+export class MonitorSettings extends React.Component {
 	render() {
 		return (
 			<span className="jp-form-setting-explanation"><span>
@@ -174,18 +175,18 @@ export let MonitorSettings = React.createClass( {
 
 					__( '{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}', {
 						components: {
-							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
 					} )
 				}
 			</span></span>
-		)
+		);
 	}
-} );
+}
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
 
-export let WordAdsSettings = React.createClass( {
+export class WordAdsSettings extends React.Component {
 	render() {
 		return (
 			<div>
@@ -205,6 +206,6 @@ export let WordAdsSettings = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 WordAdsSettings = moduleSettingsForm( WordAdsSettings );

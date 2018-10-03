@@ -20,15 +20,15 @@ import {
 	getSiteRawUrl
 } from 'state/initial-state';
 
-const AllModuleSettingsComponent = React.createClass( {
+class AllModuleSettingsComponent extends React.Component {
 	render() {
-		let { module } = this.props;
+		const { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
 				return ( <VideoPressSettings module={ module } /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
-				return ( <MonitorSettings module={ module }  /> );
+				return ( <MonitorSettings module={ module } /> );
 			case 'scan':
 				return '' === module.configure_url ? (
 					<div>
@@ -60,15 +60,14 @@ const AllModuleSettingsComponent = React.createClass( {
 							{ __( 'Activate this module to use the advanced SEO tools.' ) }
 						</div>
 					);
-				} else {
-					return (
-						<div>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
-						</div>
-					);
 				}
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'likes':
-				return ( <LikesSettings module={ module }  /> );
+				return ( <LikesSettings module={ module } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
 			case 'google-analytics':
@@ -87,13 +86,12 @@ const AllModuleSettingsComponent = React.createClass( {
 							) }
 						</div>
 					);
-				} else {
-					return (
-						<div>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
-						</div>
-					);
 				}
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -109,10 +107,9 @@ const AllModuleSettingsComponent = React.createClass( {
 				return '' === module.configure_url ? (
 					<div>
 						{
-							module.module === 'akismet' ?
-								__( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.' )
-								:
-								__( 'Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.' )
+							module.module === 'akismet'
+								? __( 'Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.' )
+								: __( 'Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.' )
 						}
 					</div>
 				) : (
@@ -154,7 +151,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 		}
 	}
-} );
+}
 
 export const AllModuleSettings = connect(
 	( state ) => {

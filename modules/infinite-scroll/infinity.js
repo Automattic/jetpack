@@ -70,7 +70,7 @@ Scroller = function( settings ) {
 				self.thefooter();
 				// Fire the refresh
 				self.refresh();
-                self.determineURL(); // determine the url 
+                self.determineURL(); // determine the url
 			}
 		}, 250 );
 
@@ -131,13 +131,14 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page           : this.page,
-		currentday     : this.currentday,
-		order          : this.order,
-		scripts        : window.infiniteScroll.settings.scripts,
-		styles         : window.infiniteScroll.settings.styles,
-		query_args     : window.infiniteScroll.settings.query_args,
-		last_post_date : window.infiniteScroll.settings.last_post_date
+		page          : this.page + this.offset, // Load the next page.
+		currentday    : this.currentday,
+		order         : this.order,
+		scripts       : window.infiniteScroll.settings.scripts,
+		styles        : window.infiniteScroll.settings.styles,
+		query_args    : window.infiniteScroll.settings.query_args,
+		query_before  : window.infiniteScroll.settings.query_before,
+		last_post_date: window.infiniteScroll.settings.last_post_date
 	};
 };
 
@@ -318,7 +319,7 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// stash the response in the page cache
-				self.pageCache[self.page] = response;
+				self.pageCache[self.page+self.offset] = response;
 
 				// Increment the page number
 				self.page++;
@@ -485,6 +486,14 @@ Scroller.prototype.checkViewportOnLoad = function( ev ) {
 	ev.data.self.ensureFilledViewport();
 }
 
+function fullscreenState() {
+	return document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement
+		? 1
+		: 0;
+}
+
+var previousFullScrenState = fullscreenState();
+
 /**
  * Identify archive page that corresponds to majority of posts shown in the current browser window.
  */
@@ -495,7 +504,20 @@ Scroller.prototype.determineURL = function () {
 		windowSize   = windowBottom - windowTop,
 		setsInView   = [],
 		setsHidden   = [],
-		pageNum      = false;
+		pageNum      = false,
+		currentFullScreenState = fullscreenState();
+
+	// xor - check if the state has changed
+	if ( previousFullScrenState ^ currentFullScreenState ) {
+		// If we just switched to/from fullscreen,
+		// don't do the div clearing/caching or the
+		// URL setting. Doing so can break video playback
+		// if the video goes to fullscreen.
+
+		previousFullScrenState = currentFullScreenState;
+		return;
+	}
+	previousFullScrenState = currentFullScreenState;
 
 	// Find out which sets are in view
 	$( '.' + self.wrapperClass ).each( function() {
@@ -601,9 +623,6 @@ Scroller.prototype.determineURL = function () {
 	// If a page number could be determined, update the URL
 	// -1 indicates that the original requested URL should be used.
 	if ( 'number' == typeof pageNum ) {
-		if ( pageNum != -1 )
-			pageNum++;
-
 		self.updateURL( pageNum );
 	}
 }
@@ -618,8 +637,7 @@ Scroller.prototype.updateURL = function( page ) {
 		return;
 	}
 	var self = this,
-		offset = self.offset > 0 ? self.offset - 1 : 0,
-		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page + offset ) + self.history.parameters;
+		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page ) + self.history.parameters;
 
 	if ( window.location.href != pageSlug ) {
 		history.pushState( null, null, pageSlug );

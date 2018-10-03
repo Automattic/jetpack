@@ -24,6 +24,7 @@ import {
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
+	FEATURE_SEARCH_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
 
@@ -35,11 +36,14 @@ import {
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
-	isFetchingSiteData
+	isFetchingSiteData,
+	getActiveFeatures,
 } from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverridenBanner from 'components/module-overridden-banner';
+import { getModuleOverride, getModule } from 'state/modules';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -48,6 +52,10 @@ export const SettingsCard = props => {
 			feature: feature,
 			type: 'upgrade'
 		} );
+	};
+
+	const handleClickForTracking = feature => {
+		return () => trackBannerClick( feature );
 	};
 
 	const module = props.module
@@ -82,10 +90,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
-				) {
+				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
 					return '';
 				}
 
@@ -95,7 +100,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
 					/>
 				);
@@ -103,7 +108,8 @@ export const SettingsCard = props => {
 			case FEATURE_WORDADS_JETPACK:
 				if (
 					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
+					'is-business-plan' === planClass ||
+					-1 !== props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return '';
 				}
@@ -114,7 +120,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
 					/>
 				);
@@ -131,7 +137,7 @@ export const SettingsCard = props => {
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
-							onClick={ () => trackBannerClick( feature ) }
+							onClick={ handleClickForTracking( feature ) }
 							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
 						/>
 					);
@@ -143,27 +149,28 @@ export const SettingsCard = props => {
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
 					/>
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
 					return '';
 				}
+
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
 					return '';
 				}
 
@@ -171,10 +178,26 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
+						plan={ PLAN_JETPACK_PREMIUM }
+						feature={ feature }
+						onClick={ handleClickForTracking( feature ) }
+						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
+					/>
+				);
+
+			case FEATURE_SEARCH_JETPACK:
+				if ( 'is-business-plan' === planClass ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						callToAction={ upgradeLabel }
+						title={ __( 'Add faster, more advanced searching to your site with Jetpack Professional.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
+						onClick={ handleClickForTracking( feature ) }
+						href={ 'https://jetpack.com/redirect/?source=settings-search&site=' + siteRawUrl }
 					/>
 				);
 
@@ -217,7 +240,8 @@ export const SettingsCard = props => {
 			case FEATURE_WORDADS_JETPACK:
 				if (
 					'is-premium-plan' !== planClass &&
-					'is-business-plan' !== planClass
+					'is-business-plan' !== planClass &&
+					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return false;
 				}
@@ -225,14 +249,14 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass ) {
+				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
 					return false;
 				}
 
 				break;
 
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' !== planClass ) {
+				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
 					return false;
 				}
 
@@ -249,15 +273,57 @@ export const SettingsCard = props => {
 		return true;
 	};
 
-	return (
-		<form className="jp-form-settings-card">
+	const featureIsOverriden = () => {
+		switch ( feature ) {
+			case FEATURE_VIDEO_HOSTING_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'videopress' );
+			case FEATURE_WORDADS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'wordads' );
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'google-analytics' );
+			case FEATURE_SEO_TOOLS_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'seo-tools' );
+			case FEATURE_SEARCH_JETPACK:
+				return 'inactive' === props.getModuleOverride( 'search' );
+			default:
+				return false;
+		}
+	};
+
+	// We only want to show this banner for Google Analytics and SEO Tools because
+	// they don't use the ModuleToggle for their UI.
+	const getModuleOverridenBanner = () => {
+		if ( ! featureIsOverriden() ) {
+			return false;
+		}
+		switch ( feature ) {
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				const googleAnalytics = props.getModule( 'google-analytics' );
+				return <ModuleOverridenBanner moduleName={ googleAnalytics.name } />;
+			case FEATURE_SEO_TOOLS_JETPACK:
+				const seoTools = props.getModule( 'seo-tools' );
+				return <ModuleOverridenBanner moduleName={ seoTools.name } />;
+			default:
+				return null;
+		}
+	};
+
+	const children = showChildren() && props.children;
+	const banner = ! props.fetchingSiteData && ! featureIsOverriden() && getBanner();
+
+	if ( ! children && ! banner ) {
+		return null;
+	}
+
+	return getModuleOverridenBanner() || (
+		<form className="jp-form-settings-card" onSubmit={ ! isSaving && props.onSubmit } >
 			<SectionHeader label={ header }>
 				{
 					! props.hideButton && (
 						<Button
 							primary
 							compact
-							onClick={ isSaving ? () => {} : props.onSubmit }
+							type="submit"
 							disabled={ isSaving || ! props.isDirty() }>
 							{
 								isSaving
@@ -271,8 +337,8 @@ export const SettingsCard = props => {
 					props.action && <ProStatus proFeature={ props.action } siteAdminUrl={ props.siteAdminUrl } isCompact={ false } />
 				}
 			</SectionHeader>
-			{ showChildren() && props.children }
-			{ ! props.fetchingSiteData && getBanner( feature ) }
+			{ children }
+			{ banner }
 		</form>
 	);
 };
@@ -297,7 +363,10 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: getVaultPressData( state )
+			vaultPressData: getVaultPressData( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+			getModule: module_name => getModule( state, module_name ),
+			activeFeatures: getActiveFeatures( state ),
 		};
 	}
 )( SettingsCard );

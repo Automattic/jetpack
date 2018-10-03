@@ -140,7 +140,8 @@ function googleapps_shortcode( $atts ) {
 			'dir'    => 'document',
 			'query'  => '',
 			'src'    => '',
-		), $atts
+		),
+		$atts
 	);
 
 	if ( isset( $content_width ) && is_numeric( $attr['width'] ) && $attr['width'] > $content_width ) {

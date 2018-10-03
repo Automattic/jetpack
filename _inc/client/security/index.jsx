@@ -17,6 +17,7 @@ import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -68,20 +69,21 @@ export class Security extends Component {
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
-			hideVaultPressCards = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
+			foundMonitor = this.props.isModuleFound( 'monitor' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups ) {
+		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
 			return null;
 		}
 
 		return (
 			<div>
 				<QuerySite />
-				{ foundBackups && ! hideVaultPressCards && <BackupsScan { ...commonProps } /> }
+				{ foundBackups && <BackupsScan { ...commonProps } /> }
+				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet &&
 					<div>
 						<Antispam { ...commonProps } />

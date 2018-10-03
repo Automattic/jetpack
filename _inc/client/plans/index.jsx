@@ -23,9 +23,10 @@ import ThemesPromoCard from 'components/themes-promo-card';
 
 import PlanHeader from './plan-header';
 import PlanBody from './plan-body';
+import PlanGrid from './plan-grid';
 
-export const Plans = React.createClass( {
-	themesPromo() {
+export class Plans extends React.Component {
+	themesPromo = () => {
 		const sitePlan = this.props.sitePlan.product_slug || '';
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( sitePlan )
@@ -39,9 +40,9 @@ export const Plans = React.createClass( {
 		}
 
 		return null;
-	},
+	};
 
-	renderContent() {
+	renderContent = () => {
 		let sitePlan = this.props.sitePlan.product_slug || '',
 			availableFeatures = this.props.availableFeatures,
 			activeFeatures = this.props.activeFeatures,
@@ -64,12 +65,18 @@ export const Plans = React.createClass( {
 
 			// Don't show the rest of the promos if theme promo available and on Free plan.
 			if ( 'is-free-plan' === planClass ) {
-				return themePromo;
+				return (
+					<div>
+						<PlanGrid />
+						{ themePromo }
+					</div>
+				);
 			}
 		}
 
 		return (
 			<div>
+				<PlanGrid />
 				{ themePromo }
 				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
@@ -84,7 +91,7 @@ export const Plans = React.createClass( {
 				</div>
 			</div>
 		);
-	},
+	};
 
 	render() {
 		return (
@@ -94,7 +101,7 @@ export const Plans = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

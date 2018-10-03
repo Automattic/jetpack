@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	forEach = require( 'lodash/forEach' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-var SectionNav = require( 'components/section-nav' ),
+const SectionNav = require( 'components/section-nav' ),
 	NavTabs = require( 'components/section-nav/tabs' ),
 	NavSegmented = require( 'components/section-nav/segmented' ),
 	NavItem = require( 'components/section-nav/item' ),
@@ -17,7 +19,7 @@ var SectionNav = require( 'components/section-nav' ),
 /**
  * Main
  */
-var SectionNavigation = React.createClass( {
+const SectionNavigation = createReactClass( {
 	displayName: 'SectionNav',
 
 	mixins: [ PureRenderMixin ],
@@ -81,9 +83,9 @@ var SectionNavigation = React.createClass( {
 	},
 
 	render: function() {
-		var demoSections = {};
+		const demoSections = {};
 
-		forEach( this.props, function( prop, key ) {
+		forEach( this.props, ( prop, key ) => {
 			demoSections[ key ] = [];
 
 			prop.forEach( function( item, index ) {
@@ -98,7 +100,7 @@ var SectionNavigation = React.createClass( {
 					</NavItem>
 				) );
 			}, this );
-		}.bind( this ) );
+		} );
 
 		return (
 			<div className="design-assets__group">
@@ -151,14 +153,14 @@ var SectionNavigation = React.createClass( {
 	},
 
 	getSelectedText: function( section ) {
-		var selected = this.state[ section + 'SelectedIndex' ],
+		const selected = this.state[ section + 'SelectedIndex' ],
 			text = this.props[ section ][ selected ];
 
 		return 'object' === typeof text ? text.name : text;
 	},
 
 	getSelectedCount: function( section ) {
-		var selected = this.state[ section + 'SelectedIndex' ],
+		const selected = this.state[ section + 'SelectedIndex' ],
 			selectedItem = this.props[ section ][ selected ];
 
 		return 'object' === typeof selectedItem
@@ -177,7 +179,7 @@ var SectionNavigation = React.createClass( {
 
 	handleNavItemClick: function( section, index ) {
 		return function() {
-			var stateUpdate = {};
+			const stateUpdate = {};
 
 			stateUpdate[ section + 'SelectedIndex' ] = index;
 			this.setState( stateUpdate );
