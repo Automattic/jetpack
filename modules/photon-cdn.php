@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Photon CDN
+ * Module Name: Asset CDN
  * Module Description: Serve static assets from our servers
  * Sort Order: 26
  * Recommendation Order: 1
