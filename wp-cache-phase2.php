@@ -2760,7 +2760,7 @@ function wp_cache_post_edit( $post_id ) {
 
 	// Some users are inexplicibly seeing this error on scheduled posts.
 	// define this constant to disable the post status check.
-	if ( false == defined( 'WPSCFORCEUPDATE' ) && !in_array($post->post_status, array( 'publish', 'private' ) ) ) {
+	if ( ! defined( 'WPSCFORCEUPDATE' ) && ! in_array( get_post_status( $post ), array( 'publish', 'private' ), true ) ) {
 		wp_cache_debug( 'wp_cache_post_edit: draft post, not deleting any cache files. status: ' . $post->post_status, 4 );
 		return $post_id;
 	}
@@ -2825,17 +2825,24 @@ function wp_cache_post_change( $post_id ) {
 		wp_cache_debug( "wp_cache_post_change(${action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
-	$post = get_post( $post_id );
+
+	$post  = get_post( $post_id );
+	$ptype = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
+	if ( empty( $ptype ) || ! $ptype->public ) {
+		return $post_id;
+	}
+
 	// Some users are inexplicibly seeing this error on scheduled posts.
 	// define this constant to disable the post status check.
-	if ( false == defined( 'WPSCFORCEUPDATE' ) && is_object( $post ) && !in_array($post->post_status, array( 'publish', 'private' ) ) ) {
+	if ( ! defined( 'WPSCFORCEUPDATE' ) && ! in_array( get_post_status( $post ), array( 'publish', 'private' ), true ) ) {
 		wp_cache_debug( 'wp_cache_post_change: draft post, not deleting any cache files.', 4 );
 		return $post_id;
 	}
 	$last_processed = $post_id;
 
-	if( !wp_cache_writers_entry() )
+	if ( ! wp_cache_writers_entry() ) {
 		return $post_id;
+	}
 
 	if (
 		isset( $wp_cache_refresh_single_only ) &&
