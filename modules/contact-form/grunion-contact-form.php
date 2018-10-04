@@ -263,6 +263,18 @@ class Grunion_Contact_Form_Plugin {
 			register_block_type( 'grunion/field-textarea', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 			) );
+			register_block_type( 'grunion/field-checkbox', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
+			) );
+			register_block_type( 'grunion/field-checkbox-multiple', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
+			) );
+			register_block_type( 'grunion/field-radio', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			) );
+			register_block_type( 'grunion/field-select', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
+			) );
 		}
 	}
 
@@ -280,15 +292,31 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
-		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+		return Grunion_Contact_Form::parse( $atts, $content );
 	}
 
 	public static function gutenblock_render_field( $atts, $content ) {
-		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
-
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
-		return '<pre>' . print_r( [ $atts, $content ], true ) . '</pre>';
+		$atts['type'] = 'textarea';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox( $atts, $content ) {
+		$atts['type'] = 'checkbox';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
+		$atts['type'] = 'checkbox-multiple';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_radio( $atts, $content ) {
+		$atts['type'] = 'radio';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_select( $atts, $content ) {
+		$atts['type'] = 'select';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
