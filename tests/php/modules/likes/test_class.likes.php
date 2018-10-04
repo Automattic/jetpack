@@ -24,7 +24,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 
 		// This time there's a post set so return the HTML.
-		$this->assertContains( "<div class='sharedaddy sd-block", Jetpack_Likes::init()->post_likes( $content ) );
+		$this->assertContains( "<div class='sharingbuttons sd-block", Jetpack_Likes::init()->post_likes( $content ) );
 
 		// Disable likes
 		remove_filter( 'wpl_is_likes_visible', '__return_true' );

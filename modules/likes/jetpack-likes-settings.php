@@ -157,7 +157,7 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
+	 * WordPress.com: Metabox option for sharing (sharingbuttons will handle this on the JP blog)
 	 */
 	public function sharing_meta_box_content( $post ) {
 		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
@@ -173,7 +173,7 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Adds the 'sharing' menu to the settings menu.
-	 * Only ran if sharedaddy and publicize are not already active.
+	 * Only ran if sharingbuttons and publicize are not already active.
 	 */
 	function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
@@ -182,7 +182,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Provides a sharing page with the sharing_global_options hook
 	 * so we can display the setting.
-	 * Only ran if sharedaddy and publicize are not already active.
+	 * Only ran if sharingbuttons and publicize are not already active.
 	 */
 	function sharing_page() {
 		$this->updated_message(); ?>
@@ -190,7 +190,7 @@ class Jetpack_Likes_Settings {
 			<div class="icon32" id="icon-options-general"><br /></div>
 			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
 			<?php
-			/** This action is documented in modules/sharedaddy/sharing.php */
+			/** This action is documented in modules/sharingbuttons/sharing.php */
 			do_action( 'pre_admin_screen_sharing' );
 			?>
 			<?php $this->sharing_block(); ?>
@@ -215,7 +215,7 @@ class Jetpack_Likes_Settings {
 			<table class="form-table">
 				<tbody>
 				<?php
-				/** This action is documented in modules/sharedaddy/sharing.php */
+				/** This action is documented in modules/sharingbuttons/sharing.php */
 				do_action( 'sharing_global_options' );
 				?>
 				</tbody>
@@ -324,7 +324,7 @@ class Jetpack_Likes_Settings {
 		}
 
 		// Run through the sharing filters
-		/** This filter is documented in modules/sharedaddy/sharing-service.php */
+		/** This filter is documented in modules/sharingbuttons/sharing-service.php */
 		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
 		/**
@@ -581,12 +581,12 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
+	 * Adds the admin update hook so we can save settings even if Sharingbuttons is not enabled.
 	 */
-	function process_update_requests_if_sharedaddy_not_loaded() {
+	function process_update_requests_if_sharingbuttons_not_loaded() {
 		if ( isset( $_GET['page'] ) && ( $_GET['page'] == 'sharing.php' || $_GET['page'] == 'sharing' ) ) {
 			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
-				/** This action is documented in modules/sharedaddy/sharing.php */
+				/** This action is documented in modules/sharingbuttons/sharing.php */
 				do_action( 'sharing_admin_update' );
 				wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
 				die();
@@ -595,12 +595,12 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
+	 * If sharingbuttons is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 */
 	function admin_settings_showbuttonon_init() {
 		?>
 		<?php
-		/** This action is documented in modules/sharedaddy/sharing.php */
+		/** This action is documented in modules/sharingbuttons/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
 		?>
 		<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
@@ -622,14 +622,14 @@ class Jetpack_Likes_Settings {
 				<?php	$br = true; endforeach; ?>
 		</td>
 		<?php
-		/** This action is documented in modules/sharedaddy/sharing.php */
+		/** This action is documented in modules/sharingbuttons/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
 		?>
 	<?php
 	}
 
 	/**
-	 * If sharedaddy is not loaded, we still need to save the the settings of the "Show buttons on" option.
+	 * If sharingbuttons is not loaded, we still need to save the the settings of the "Show buttons on" option.
 	 */
 	function admin_settings_showbuttonon_callback() {
 		$options = get_option( 'sharing-options' );

@@ -24,7 +24,7 @@ const concat_list = [
 	'modules/infinite-scroll/infinity.css',
 	'modules/likes/style.css',
 	'modules/related-posts/related-posts.css',
-	'modules/sharedaddy/sharing.css',
+	'modules/sharingbuttons/sharing.css',
 	'modules/shortcodes/css/slideshow-shortcode.css',
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/shortcodes/css/quiz.css',

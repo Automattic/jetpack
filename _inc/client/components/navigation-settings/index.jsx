@@ -141,7 +141,7 @@ export const NavigationSettings = createReactClass( {
 					{
 						this.hasAnyOfThese( [
 							'publicize',
-							'sharedaddy',
+							'sharingbuttons',
 							'likes'
 						] ) && (
 							<NavItem

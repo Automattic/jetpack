@@ -11,20 +11,20 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Engagement, Jumpstart
- * Additional Search Queries: share, sharing, sharedaddy, buttons, icons, email, facebook, twitter, google+, linkedin, pinterest, pocket, press this, print, reddit, tumblr
+ * Additional Search Queries: share, sharing, sharingbuttons, buttons, icons, email, facebook, twitter, google+, linkedin, pinterest, pocket, press this, print, reddit, tumblr
  */
 
 if ( !function_exists( 'sharing_init' ) )
-	include dirname( __FILE__ ).'/sharedaddy/sharedaddy.php';
+	include dirname( __FILE__ ).'/sharingbuttons/sharingbuttons.php';
 
-add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );
+add_action( 'jetpack_modules_loaded', 'sharingbuttons_loaded' );
 
-function sharedaddy_loaded() {
+function sharingbuttons_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'sharedaddy_configuration_load' );
+	Jetpack::module_configuration_load( __FILE__, 'sharingbuttons_configuration_load' );
 }
 
-function sharedaddy_configuration_load() {
+function sharingbuttons_configuration_load() {
 	wp_safe_redirect( menu_page_url( 'sharing', false ) . "#sharing-buttons" );
 	exit;
 }

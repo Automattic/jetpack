@@ -13,7 +13,7 @@ abstract class Sharing_Source {
 		 *
 		 * By default, sharing links open in a new window.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.4.0
 		 *
@@ -46,7 +46,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing permalink.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.2.0
 		 *
@@ -62,7 +62,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing title.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 2.8.0
 		 *
@@ -99,7 +99,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display ID.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.4.0
 		 *
@@ -111,7 +111,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display link.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 2.8.0
 		 *
@@ -124,7 +124,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display link.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 2.8.0
 		 *
@@ -137,7 +137,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display query.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 2.8.0
 		 *
@@ -163,7 +163,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display classes.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.4.0
 		 *
@@ -176,7 +176,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display title.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.4.0
 		 *
@@ -189,7 +189,7 @@ abstract class Sharing_Source {
 		/**
 		 * Filter the sharing display text.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.4.0
 		 *
@@ -316,7 +316,7 @@ abstract class Sharing_Source {
 		/**
 		 * Fires when a post is shared via one of the sharing buttons.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -416,7 +416,7 @@ class Share_Email extends Sharing_Source {
 			/**
 			 * Allow plugins to stop the email sharing button from running the shared message through Akismet.
 			 *
-			 * @module sharedaddy
+			 * @module sharingbuttons
 			 *
 			 * @since 1.1.0
 			 *
@@ -436,7 +436,7 @@ class Share_Email extends Sharing_Source {
 				/**
 				 * Filter whether an email can be sent from the Email sharing button.
 				 *
-				 * @module sharedaddy
+				 * @module sharingbuttons
 				 *
 				 * @since 1.1.0
 				 *
@@ -449,7 +449,7 @@ class Share_Email extends Sharing_Source {
 					/**
 					 * Fires when an email is sent via the Email sharing button.
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 1.1.0
 					 *
@@ -520,7 +520,7 @@ class Share_Email extends Sharing_Source {
 				/**
 				 * Fires when the Email sharing dialog is loaded.
 				 *
-				 * @module sharedaddy
+				 * @module sharingbuttons
 				 *
 				 * @since 1.1.0
 				 *
@@ -583,7 +583,7 @@ class Share_Twitter extends Sharing_Source {
 		/**
 		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.0.0
 		 *
@@ -593,7 +593,7 @@ class Share_Twitter extends Sharing_Source {
 		$twitter_site_tag_value = apply_filters(
 			'jetpack_twitter_cards_site_tag',
 			'',
-			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			/** This action is documented in modules/sharingbuttons/sharing-sources.php */
 			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
 		);
 
@@ -609,7 +609,7 @@ class Share_Twitter extends Sharing_Source {
 		/**
 		 * Filters the Twitter username used as "via" in the Twitter sharing button.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.7.0
 		 *
@@ -634,7 +634,7 @@ class Share_Twitter extends Sharing_Source {
 		/**
 		 * Filter the list of related Twitter accounts added to the Twitter sharing button.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.7.0
 		 *
@@ -689,7 +689,7 @@ class Share_Twitter extends Sharing_Source {
 				/**
 				 * Allow plugins to disable sharing counts for specific sharing services.
 				 *
-				 * @module sharedaddy
+				 * @module sharingbuttons
 				 *
 				 * @since 3.0.0
 				 *
@@ -837,7 +837,7 @@ class Share_LinkedIn extends Sharing_Source {
 			$display = $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
 		}
 
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
+		/** This filter is already documented in modules/sharingbuttons/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -955,7 +955,7 @@ class Share_Facebook extends Sharing_Source {
 			/**
 			 * Filter the output of the Facebook Sharing button.
 			 *
-			 * @module sharedaddy
+			 * @module sharingbuttons
 			 *
 			 * @since 3.6.0
 			 *
@@ -965,7 +965,7 @@ class Share_Facebook extends Sharing_Source {
 			return apply_filters( 'jetpack_sharing_facebook_official_button_output', $fb_share_html, $share_url );
 		}
 
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
+		/** This filter is already documented in modules/sharingbuttons/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -1493,7 +1493,7 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filters the default image used by the Pinterest Pin It share button.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.6.0
 		 *
@@ -1508,7 +1508,7 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filters the Pinterest share URL used in sharing button output.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.6.0
 		 *
@@ -1523,7 +1523,7 @@ class Share_Pinterest extends Sharing_Source {
 		 *
 		 * @see https://business.pinterest.com/en/widget-builder
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.6.0
 		 *
@@ -1545,7 +1545,7 @@ class Share_Pinterest extends Sharing_Source {
 			$display = $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
 
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
+		/** This filter is already documented in modules/sharingbuttons/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -1570,7 +1570,7 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filter the Pin it button appearing when hovering over images when using the official button style.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.6.0
 		 *
@@ -1757,7 +1757,7 @@ class Share_Skype extends Sharing_Source {
 			return $skype_share_html;
 		}
 
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
+		/** This filter is already documented in modules/sharingbuttons/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}

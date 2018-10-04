@@ -29,7 +29,7 @@ export const ShareButtons = moduleSettingsForm(
 				siteRawUrl = this.props.siteRawUrl,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isDevMode = this.props.isDevMode,
-				isActive = this.props.getOptionValue( 'sharedaddy' );
+				isActive = this.props.getOptionValue( 'sharingbuttons' );
 
 			const configCard = () => {
 				if ( isDevMode ) {
@@ -58,9 +58,9 @@ export const ShareButtons = moduleSettingsForm(
 						} }
 						>
 						<ModuleToggle
-							slug="sharedaddy"
+							slug="sharingbuttons"
 							activated={ isActive }
-							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
+							toggling={ this.props.isSavingAnyOption( 'sharingbuttons' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 								{ __( 'Add sharing buttons to your posts' ) }
 							</ModuleToggle>

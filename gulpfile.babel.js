@@ -90,7 +90,7 @@ function onBuild( done ) {
 			'custom-css',
 			'publicize',
 			'custom-post-types',
-			'sharedaddy',
+			'sharingbuttons',
 			'contact-form',
 			'photon',
 			'carousel',

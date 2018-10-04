@@ -310,7 +310,7 @@ class Jetpack_AMP_Support {
 		}
 		$supported_services = array(
 			'facebook'      => array(
-				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+				/** This filter is documented in modules/sharingbuttons/sharing-sources.php */
 				'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
 			),
 			'twitter'       => array(),

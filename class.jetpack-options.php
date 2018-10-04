@@ -514,7 +514,7 @@ class Jetpack_Options {
 			'jetpack_testimonial',
 			'jetpack_testimonial_posts_per_page',
 			'wp_mobile_custom_css',
-			'sharedaddy_disable_resources',
+			'sharingbuttons_disable_resources',
 			'sharing-options',
 			'sharing-services',
 			'site_icon_temp_data',

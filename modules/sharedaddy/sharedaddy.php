@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Sharedaddy
+Plugin Name: Sharingbuttons
 Description: The most super duper sharing tool on the interwebs.
 Version: 0.3.1
 Author: Automattic, Inc.
@@ -54,7 +54,7 @@ function sharing_email_send_post( $data ) {
 	/**
 	 * Filter the Sharing Email Send Post Subject.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 5.8.0
 	 *
@@ -119,7 +119,7 @@ function sharing_add_meta_box() {
 	/**
 	 * Filter whether to display the Sharing Meta Box or not.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 3.8.0
 	 *
@@ -134,7 +134,7 @@ function sharing_add_meta_box() {
 	/**
 	 * Filter the Sharing Meta Box title.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 2.2.0
 	 *
@@ -153,7 +153,7 @@ function sharing_meta_box_content( $post ) {
 	/**
 	 * Fires before the sharing meta box content.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 2.2.0
 	 *
@@ -175,7 +175,7 @@ function sharing_meta_box_content( $post ) {
 	/**
 	 * Fires after the sharing meta box content.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 2.2.0
 	 *
@@ -229,7 +229,7 @@ function sharing_add_plugin_settings($links, $file) {
 }
 
 function sharing_init() {
-	if ( Jetpack_Options::get_option_and_ensure_autoload( 'sharedaddy_disable_resources', '0' ) ) {
+	if ( Jetpack_Options::get_option_and_ensure_autoload( 'sharingbuttons_disable_resources', '0' ) ) {
 		add_filter( 'sharing_js', 'sharing_disable_js' );
 		remove_action( 'wp_head', 'sharing_add_header', 1 );
 	}
@@ -240,7 +240,7 @@ function sharing_disable_js() {
 }
 
 function sharing_global_resources() {
-	$disable = get_option( 'sharedaddy_disable_resources' );
+	$disable = get_option( 'sharingbuttons_disable_resources' );
 ?>
 <tr valign="top">
 	<th scope="row"><label for="disable_css"><?php _e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
@@ -252,7 +252,7 @@ function sharing_global_resources() {
 }
 
 function sharing_global_resources_save() {
-	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
+	update_option( 'sharingbuttons_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
 }
 
 function sharing_email_dialog() {

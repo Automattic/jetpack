@@ -2456,7 +2456,7 @@ in to support it.
 * Bug Fix: Various fixes to Contact Form.
 * Bug Fix: Various fixes to oEmbed.
 * Bug Fix: Various fixes to Single Sign On.
-* Bug Fix: Fixed styles in ShareDaddy.
+* Bug Fix: Fixed styles in SharingButtons.
 * Bug Fix: Better match protocols (http/https) to the site.
 
 
@@ -2567,9 +2567,9 @@ Release Date: May 22, 2014
 * Bug Fix: AtD: A wpcom-only function got synced by mistake and caused a few
 errors. Fixed.
 * Bug Fix: Post By Email: Add static keyword to a function.
-* Bug Fix: ShareDaddy: In the admin-side configuration of sharing links, we
+* Bug Fix: SharingButtons: In the admin-side configuration of sharing links, we
 used a Path icon instead of Pinterest. Oops!
-* Bug Fix: ShareDaddy: We inadvertently appended `via @jetpack` to some
+* Bug Fix: SharingButtons: We inadvertently appended `via @jetpack` to some
 twitter shares. This is no longer the case.
 * Bug Fix: Related Posts: Tidying up and relocation of the `resync` button
 formerly on the more info modal.
@@ -3246,7 +3246,7 @@ so. Accounts for WP galleries whose individual items are linked to the
 original image files
 * Bug Fix: Publicize - Allows GLOBAL_CAP to be filtered, Adds an AYS to
 connection deletion, UI improvement for MP6 (and in general)
-* Bug Fix: Sharedaddy - Fire the sharing redirect earlier for increased plugin
+* Bug Fix: Sharingbuttons - Fire the sharing redirect earlier for increased plugin
 compatibility
 * Bug Fix: Stats - Move the display:none CSS output to wp_head so it gets
 written inside the HEAD tag if the option to hide the stats smilie is active
@@ -3268,7 +3268,7 @@ posts.
 plugin (HTML5 default player, various fixes).
 * Enhancement: Shortcodes: Subscriptions: Add a shortcode to enable placement
 of a subscription signup form in a post or page.
-* Enhancement: Sharedaddy: Allow selecting multiple images from a post using
+* Enhancement: Sharingbuttons: Allow selecting multiple images from a post using
 the Pinterest share button.
 * Enhancement: Contact Form: Allow feedbacks to be marked spam in bulk.
 * Enhancement: Widgets: Readmill Widget: Give your visitors a link to send
@@ -3338,9 +3338,9 @@ it.
 * Bug Fix: Photon: Resolve Photon / YouTube embed conflict.
 * Bug Fix: Photon: Fix dimension parsing from URLs.
 * Bug Fix: Photon: Make sure that width/height atts are greater than zero.
-* Bug Fix: Sharedaddy: Layout fixes for share buttons.
-* Bug Fix: Sharedaddy: Always send Facebook a language locale.
-* Bug Fix: Sharedaddy: Don't look up share counts for empty URLs.
+* Bug Fix: Sharingbuttons: Layout fixes for share buttons.
+* Bug Fix: Sharingbuttons: Always send Facebook a language locale.
+* Bug Fix: Sharingbuttons: Don't look up share counts for empty URLs.
 * Bug Fix: Shortcodes: Ensure that images don't overflow their containers in
 the slideshow shortcode.
 * Bug Fix: Shortcodes: only enqueue jquery if archive supports Infinite Scroll
@@ -3650,7 +3650,7 @@ the width.
 Javascript libraries.
 * Enhancement: Shortcodes: Youtube shortcode now has playlist support.
 * Enhancement: Add Gravatar Profile widget.
-* Enhancement: Update Sharedaddy to latest version, including Pinterest
+* Enhancement: Update Sharingbuttons to latest version, including Pinterest
 support.
 * Enhancement: Retinize Jetpack and much of WordPress.
 * Bug Fix: Shortcodes: Fix Audio shortcode color parameter and rename encoding
@@ -3828,7 +3828,7 @@ Release Post: http://wp.me/p1moTy-90
 * Bug Fix: Increase compatibility with Admin Bar.
 * Bug Fix: Stats: Improved performance when creating new posts.
 * Bug Fix: Twitter Widget: Fix PHP Notice.
-* Bug Fix: Sharedaddy: Fix PHP Warning.
+* Bug Fix: Sharingbuttons: Fix PHP Warning.
 * Enhancement: AtD: Add spellcheck button to Distraction Free Writing screen.
 * Translations: Added: Bosnian, Danish, German, Finnish, Galician, Croatian,
 Indonesian,  Macedonian, Norwegian (Bokmål), Russian, Slovak, Serbian, Swedish
@@ -3857,7 +3857,7 @@ and "error:14090086:lib(20):func(144):reason(134)" errors.
 did not respond. Please wait a few minutes and refresh this page." errors.
 * Enhancement: Slightly improved RTL experience. Jetpack 1.2 should include a
 much better fix.
-* Enhancement: Sharedaddy: Improve localization for Facebook Like button.
+* Enhancement: Sharingbuttons: Improve localization for Facebook Like button.
 * Enhancement: Gravatar Hovercards: Improved experience for Windows browsers.
 
 = 1.1.1 =
@@ -3868,7 +3868,7 @@ Release Post: http://wp.me/p1moTy-8i
 requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack
 has a glitch. Connecting this site with WordPress.com is not possible. This
 usually means your site is not publicly accessible (localhost)." errors.
-* Bug Fix: Sharedaddy: Fatal error under PHP4. Disable on PHP4 hosts.
+* Bug Fix: Sharingbuttons: Fatal error under PHP4. Disable on PHP4 hosts.
 * Bug Fix: Stats: Fatal error under PHP4. Rewrite to be PHP4 compatible.
 * Bug Fix: Stats: Fatal error on some sites modifying/removing core WordPress
 user roles. Add sanity check.

@@ -1,5 +1,5 @@
 /**
- * Sharedaddy Base Styles
+ * Sharingbuttons Base Styles
  *
  * Contains styles for modules, containers, buttons
  */
@@ -11,14 +11,14 @@
 }
 
 
-/* Overall Sharedaddy block title */
-div.sharedaddy,
-#content div.sharedaddy,
-#main div.sharedaddy {
+/* Overall Sharingbuttons block title */
+div.sharingbuttons,
+#content div.sharingbuttons,
+#main div.sharingbuttons {
 	clear: both;
 }
 
-div.sharedaddy h3.sd-title {
+div.sharingbuttons h3.sd-title {
 	margin: 0 0 1em 0;
 	display: inline-block;
 	line-height: 1.2;
@@ -26,7 +26,7 @@ div.sharedaddy h3.sd-title {
 	font-weight: bold;
 }
 
-div.sharedaddy h3.sd-title:before {
+div.sharingbuttons h3.sd-title:before {
 	content: "";
 	display: block;
 	width: 100%;
@@ -689,7 +689,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	text-align: left;
 }
 
-div.sharedaddy.sharedaddy-dark #sharing_email {
+div.sharingbuttons.sharingbuttons-dark #sharing_email {
 	border-color: #fff;
 }
 

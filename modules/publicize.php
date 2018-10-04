@@ -41,9 +41,9 @@ class Jetpack_Publicize {
 
 		// Jetpack specific checks / hooks
 		if ( $this->in_jetpack) {
-			// if sharedaddy isn't active, the sharing menu hasn't been added yet
+			// if sharingbuttons isn't active, the sharing menu hasn't been added yet
 			$active = Jetpack::get_active_modules();
-			if ( in_array( 'publicize', $active ) && !in_array( 'sharedaddy', $active ) )
+			if ( in_array( 'publicize', $active ) && !in_array( 'sharingbuttons', $active ) )
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 		}
 	}

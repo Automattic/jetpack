@@ -48,7 +48,7 @@ class Publicize_UI {
 	}
 
 	/**
-	* If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
+	* If the SharingButtons plugin is not active we need to add the sharing settings page to the menu still
 	*/
 	function sharing_menu() {
 		add_submenu_page(
@@ -65,7 +65,7 @@ class Publicize_UI {
 		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ), array( 'is-wide' => true ) );
 	}
 	/**
-	* Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
+	* Management page to load if Sharingbuttons is not active so the 'pre_admin_screen_sharing' action exists.
 	*/
 	function management_page() { ?>
 		<div class="wrap">
@@ -73,7 +73,7 @@ class Publicize_UI {
 			<h1><?php _e( 'Sharing Settings', 'jetpack' ); ?></h1>
 
 				<?php
-				/** This action is documented in modules/sharedaddy/sharing.php */
+				/** This action is documented in modules/sharingbuttons/sharing.php */
 				do_action( 'pre_admin_screen_sharing' );
 				?>
 

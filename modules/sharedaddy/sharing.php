@@ -25,8 +25,8 @@ class Sharing_Admin {
 		wp_enqueue_script(
 			'sharing-js',
 			Jetpack::get_file_url_for_environment(
-				'_inc/build/sharedaddy/admin-sharing.min.js',
-				'modules/sharedaddy/admin-sharing.js'
+				'_inc/build/sharingbuttons/admin-sharing.min.js',
+				'modules/sharingbuttons/admin-sharing.js'
 			),
 			array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ),
 			2
@@ -66,7 +66,7 @@ class Sharing_Admin {
 			/**
 			 * Fires when updating sharing settings.
 			 *
-			 * @module sharedaddy
+			 * @module sharingbuttons
 			 *
 			 * @since 1.1.0
 			 */
@@ -214,7 +214,7 @@ class Sharing_Admin {
 		/**
 		 * Fires at the top of the admin sharing settings screen.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.6.0
 		 */
@@ -295,7 +295,7 @@ class Sharing_Admin {
 					</td>
 					<td class="services">
 						<h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
-						<div class="sharedaddy sd-sharing-enabled">
+						<div class="sharingbuttons sd-sharing-enabled">
 							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
 							<?php endif; ?>
@@ -383,7 +383,7 @@ class Sharing_Admin {
 					/**
 					 * Filters the HTML at the beginning of the "Show button on" row.
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 2.1.0
 					 *
@@ -418,7 +418,7 @@ class Sharing_Admin {
 					/**
 					 * Filters the HTML at the end of the "Show button on" row.
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 2.1.0
 					 *
@@ -431,7 +431,7 @@ class Sharing_Admin {
 					/**
 					 * Fires at the end of the sharing global options settings table.
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 1.1.0
 					 */
@@ -485,7 +485,7 @@ class Sharing_Admin {
 					/**
 					 * Fires after the custom sharing service form
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 1.1.0
 					 */
@@ -498,7 +498,7 @@ class Sharing_Admin {
 		/**
 		 * Fires at the bottom of the admin sharing settings screen.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.6.0
 		 */

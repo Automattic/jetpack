@@ -914,7 +914,7 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( Jetpack::is_module_active( 'publicize' ) || Jetpack::is_module_active( 'sharedaddy' ) ) {
+			if ( Jetpack::is_module_active( 'publicize' ) || Jetpack::is_module_active( 'sharingbuttons' ) ) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'configuration',
 					'id'     => 'sharing',

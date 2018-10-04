@@ -735,7 +735,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertContains( 'div class=\'sharingbuttons', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -744,12 +744,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_sharedaddy_from_filtered_content() {
+	function test_remove_sharingbuttons_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing-service.php';
 
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
@@ -758,7 +758,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertContains( 'class="sharingbuttons sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 

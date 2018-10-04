@@ -158,7 +158,7 @@ class Jetpack_RelatedPosts {
 
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
-				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+				/** This filter is already documented in modules/sharingbuttons/sharing-service.php */
 				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
 				esc_html( $options['headline'] )
 			);

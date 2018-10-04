@@ -64,7 +64,7 @@ class Sharing_Service {
 		 * Filters if Email Sharing is enabled.
 		 *
 		 * E-Mail sharing is often problematic due to spam concerns, so this filter enables it to be quickly and simply toggled.
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 5.1.0
 		 *
@@ -89,7 +89,7 @@ class Sharing_Service {
 		/**
 		 * Filters the list of available Sharing Services.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -167,7 +167,7 @@ class Sharing_Service {
 		/**
 		 * Control the state of the list of sharing services.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -228,7 +228,7 @@ class Sharing_Service {
 			/**
 			 * Filters the list of default Sharing Services.
 			 *
-			 * @module sharedaddy
+			 * @module sharingbuttons
 			 *
 			 * @since 1.1.0
 			 *
@@ -270,7 +270,7 @@ class Sharing_Service {
 		/**
 		 * Filters the list of enabled Sharing Services.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -322,7 +322,7 @@ class Sharing_Service {
 		/**
 		 * Filters global sharing settings.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -419,7 +419,7 @@ class Sharing_Service {
 		/**
 		 * Get the state of a sharing button.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 1.1.0
 		 *
@@ -567,7 +567,7 @@ function sharing_maybe_enqueue_scripts() {
 	/**
 	 * Filter to decide when sharing scripts should be enqueued.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 3.2.0
 	 *
@@ -582,7 +582,7 @@ function sharing_add_footer() {
 	/**
 	 * Filter all JavaScript output by the sharing module.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 1.1.0
 	 *
@@ -593,7 +593,7 @@ function sharing_add_footer() {
 		/**
 		 * Filter the display of sharing counts next to the sharing buttons.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 3.2.0
 		 *
@@ -614,7 +614,7 @@ function sharing_add_footer() {
 		wp_enqueue_script( 'sharing-js' );
 		$sharing_js_options = array(
 			'lang'            => get_base_recaptcha_lang_code(),
-			/** This filter is documented in modules/sharedaddy/sharing-service.php */
+			/** This filter is documented in modules/sharingbuttons/sharing-service.php */
 			'counts'          => apply_filters( 'jetpack_sharing_counts', true ),
 			'is_stats_active' => Jetpack::is_module_active( 'stats' ),
 		);
@@ -636,7 +636,7 @@ function sharing_add_header() {
 	}
 
 	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
-		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
+		wp_enqueue_style( 'sharingbuttons', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
 		wp_enqueue_style( 'social-logos' );
 	}
 
@@ -720,7 +720,7 @@ function sharing_display( $text = '', $echo = false ) {
 	/**
 	 * Filter to decide if sharing buttons should be displayed.
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 1.1.0
 	 *
@@ -755,7 +755,7 @@ function sharing_display( $text = '', $echo = false ) {
 		/**
 		 * Filters the list of enabled Sharing Services.
 		 *
-		 * @module sharedaddy
+		 * @module sharingbuttons
 		 *
 		 * @since 2.2.3
 		 *
@@ -769,13 +769,13 @@ function sharing_display( $text = '', $echo = false ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper
-			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
+			$sharing_content .= '<div class="sharingbuttons sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
 			if ( $global['sharing_label'] != '' ) {
 				$sharing_content .= sprintf(
 					/**
 					 * Filter the sharing buttons' headline structure.
 					 *
-					 * @module sharedaddy
+					 * @module sharingbuttons
 					 *
 					 * @since 4.4.0
 					 *
@@ -858,8 +858,8 @@ function sharing_display( $text = '', $echo = false ) {
 			wp_register_script(
 				'sharing-js',
 				Jetpack::get_file_url_for_environment(
-					'_inc/build/sharedaddy/sharing.min.js',
-					'modules/sharedaddy/sharing.js'
+					'_inc/build/sharingbuttons/sharing.min.js',
+					'modules/sharingbuttons/sharing.js'
 				),
 				array( 'jquery' ),
 				$ver
@@ -873,7 +873,7 @@ function sharing_display( $text = '', $echo = false ) {
 	/**
 	 * Filters the content markup of the Jetpack sharing links
 	 *
-	 * @module sharedaddy
+	 * @module sharingbuttons
 	 *
 	 * @since 3.8.0
 	 * @since 6.2.0 Started sending $enabled as a second parameter.
