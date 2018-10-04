@@ -853,7 +853,7 @@ class Share_LinkedIn extends Sharing_Source {
 		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'https://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), 'https://www.linkedin.com/shareArticle?mini=true' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
