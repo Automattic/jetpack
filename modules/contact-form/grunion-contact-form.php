@@ -2115,11 +2115,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$att_strs = array();
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
-					if ( is_array( $val ) ) {
-						$att_strs[] = implode( ',', array_map( 'esc_html', $val ) );
-					} else {
-						$att_strs[] = esc_html( $val );
-					}
+                    $att_strs[] = esc_html( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
 					if ( is_array( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '=\'' . implode( ',', array_map( 'esc_html', $val ) ) . '\'';
