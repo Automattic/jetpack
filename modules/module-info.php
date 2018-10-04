@@ -687,7 +687,7 @@ add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommer
  * Assets CDN
  */
 function jetpack_assetcdn_more_link() {
-	echo 'http://jetpack.com/support/asset-cdn/';
+	echo 'https://jetpack.com/support/asset-cdn/';
 }
 add_action( 'jetpack_learn_more_button_photon-cdn', 'jetpack_assetcdn_more_link' );
 
