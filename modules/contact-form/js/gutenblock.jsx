@@ -386,7 +386,7 @@
 		title       : __( 'Radio', 'jetpack' ),
 		edit: function( props ) {
 			return ( <Fragment>
-                <GrunionFieldSettings
+				<GrunionFieldSettings
 					required={props.attributes.required}
 					onRequiredChange={ (x)=>props.setAttributes({required:x}) }
 				/>
@@ -398,7 +398,7 @@
 					/>
 					<br />
 					<RadioControl
-                        options={_.map(props.attributes.options, (option)=>({
+						options={_.map(props.attributes.options, (option)=>({
 							label: (<input
 								className='option'
 								value={option}
@@ -413,9 +413,9 @@
 						}))}
 						disabled={true}
 					/>
-                    <a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
+					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
 				</div>
-            </Fragment> );
+			</Fragment> );
 		}
 	}, FieldDefaults ) );
 
@@ -423,7 +423,7 @@
 		title       : __( 'Select', 'jetpack' ),
 		edit: function( props ) {
 			return ( <Fragment>
-                <GrunionFieldSettings
+				<GrunionFieldSettings
 					required={props.attributes.required}
 					onRequiredChange={ (x)=>props.setAttributes({required:x}) }
 				/>
@@ -433,8 +433,8 @@
 						label={props.attributes.label}
 						onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
 					/>
-                    <ol>
-                        {_.map(props.attributes.options, (option)=>(<li><input
+					<ol>
+						{_.map(props.attributes.options, (option)=>(<li><input
 							className='option'
 							value={option}
 							onChange={function(x){
@@ -444,10 +444,10 @@
 								});
 							}}
 						/></li>))}
-                    </ol>
-                    <a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
+					</ol>
+					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
 				</div>
-            </Fragment>);
+			</Fragment>);
 		}
 	}, FieldDefaults ) );
 
