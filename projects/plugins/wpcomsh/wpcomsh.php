@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.3.27
+ * Version: 2.3.29
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.3.28' );
+define( 'WPCOMSH_VERSION', '2.3.29' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -711,6 +711,9 @@ function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
 	return $exif_data;
 }
 add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializable_track_number' );
+
+// Jetpack for Atomic sites are always production version
+add_filter( 'jetpack_development_version', '__return_false' );
 
 // Initialize REST API
 add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
