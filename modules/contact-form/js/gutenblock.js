@@ -1922,6 +1922,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         return React.createElement(Fragment, null, React.createElement("input", {
           type: "text",
           value: this.props.label,
+          className: "grunion-field-label",
           onChange: this.props.onLabelChange
         }), this.props.required && React.createElement("span", {
           className: "required"
@@ -2051,6 +2052,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
           onLabelChange: this.props.onLabelChange
         }), React.createElement("ol", null, _.map(this.props.options, function (option) {
           return React.createElement("li", null, React.createElement("input", {
+            type: "text",
             className: "option",
             value: option,
             onChange: function (x) {
@@ -2125,7 +2127,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   var FieldDefaults = {
     icon: 'feedback',
     category: 'widgets',
-    parent: ['grunion/form'],
+    //	parent      : [ 'grunion/form' ],
     supportHTML: false,
     attributes: {
       label: {

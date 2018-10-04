@@ -89,6 +89,7 @@
 					<input
 						type='text'
 						value={this.props.label}
+						className='grunion-field-label'
 						onChange={ this.props.onLabelChange }
 					/>
 					{this.props.required && <span className='required'>{ __( '(required)' ) }</span>}
@@ -183,6 +184,7 @@
                         />
                         <ol>
                             {_.map( this.props.options, (option)=>(<li><input
+								type='text'
                                 className='option'
                                 value={option}
                                 onChange={function(x){
