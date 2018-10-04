@@ -167,6 +167,39 @@
 		}
 	}
 
+	class GrunionFieldMultiple extends Component {
+		render() {
+			return (
+                <Fragment>
+                    <GrunionFieldSettings
+                        required={ this.props.required }
+                        onRequiredChange={ this.props.onRequiredChange }
+                    />
+                    <div className="grunion-field">
+                        <GrunionFieldLabel
+                            required={ this.props.required }
+                            label={ this.props.label }
+                            onLabelChange={  this.props.onLabelChange }
+                        />
+                        <ol>
+                            {_.map( this.props.options, (option)=>(<li><input
+                                className='option'
+                                value={option}
+                                onChange={function(x){
+                                    const $options = jQuery(x.target).closest('ol').find('input.option');
+                                    this.props.setAttributes({
+                                        options : _.pluck( $options.toArray(), 'value' )
+                                    });
+                                }.bind(this)}
+                            /></li>))}
+                        </ol>
+                        <a href='#' onClick={()=>this.props.setAttributes({options:this.props.options.concat([''])})}>{ __( 'Add New' ) }</a>
+                    </div>
+                </Fragment>
+			)
+		}
+	}
+
 	registerBlockType( 'grunion/form', {
 		title       : __( 'Contact Form', 'jetpack' ),
 		icon        : 'feedback',
@@ -350,104 +383,42 @@
 		title       : __( 'Checkbox Multiple', 'jetpack' ),
 		icon        : 'forms',
 		edit: function( props ) {
-			return ( <Fragment>
-				<GrunionFieldSettings
-					required={props.attributes.required}
-					onRequiredChange={(x)=>props.setAttributes({required:x})}
-				/>
-				<div className="grunion-field">
-					<GrunionFieldLabel
-						required={props.attributes.required}
-						label={props.attributes.label}
-						onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
-					/>
-					<ol>
-						{_.map(props.attributes.options, (option)=>(<li><CheckboxControl
-							label={<input
-								className='option'
-								value={option}
-								onChange={function(x){
-									const $options = jQuery(x.target).closest('ol').find('input.option');
-									props.setAttributes({
-										options : _.pluck( $options.toArray(), 'value' )
-									});
-								}}
-							/>}
-							disabled={true}
-						/></li>))}
-					</ol>
-					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
-				</div>
-			</Fragment> );
+            return (<GrunionFieldMultiple
+                required={props.attributes.required}
+                onRequiredChange={(x)=>props.setAttributes({required:x})}
+                label={props.attributes.label}
+                onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
+                options={props.attributes.options}
+                setAttributes={props.setAttributes}
+            />);
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-radio', _.defaults({
 		title       : __( 'Radio', 'jetpack' ),
 		edit: function( props ) {
-			return ( <Fragment>
-				<GrunionFieldSettings
-					required={props.attributes.required}
-					onRequiredChange={ (x)=>props.setAttributes({required:x}) }
-				/>
-				<div className="grunion-field">
-					<GrunionFieldLabel
-						required={props.attributes.required}
-						label={props.attributes.label}
-						onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
-					/>
-					<br />
-					<RadioControl
-						options={_.map(props.attributes.options, (option)=>({
-							label: (<input
-								className='option'
-								value={option}
-								onChange={function (x) {
-									const $options = jQuery(x.target).closest('.components-radio-control').find('input.option');
-									props.setAttributes({
-										options: _.pluck($options.toArray(), 'value')
-									});
-								}}
-							/>),
-							value: option
-						}))}
-						disabled={true}
-					/>
-					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
-				</div>
-			</Fragment> );
+			return (<GrunionFieldMultiple
+				required={props.attributes.required}
+				onRequiredChange={(x)=>props.setAttributes({required:x})}
+				label={props.attributes.label}
+				onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
+				options={props.attributes.options}
+				setAttributes={props.setAttributes}
+            />);
 		}
 	}, FieldDefaults ) );
 
 	registerBlockType( 'grunion/field-select', _.defaults({
 		title       : __( 'Select', 'jetpack' ),
 		edit: function( props ) {
-			return ( <Fragment>
-				<GrunionFieldSettings
-					required={props.attributes.required}
-					onRequiredChange={ (x)=>props.setAttributes({required:x}) }
-				/>
-				<div className="grunion-field">
-					<GrunionFieldLabel
-						required={props.attributes.required}
-						label={props.attributes.label}
-						onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
-					/>
-					<ol>
-						{_.map(props.attributes.options, (option)=>(<li><input
-							className='option'
-							value={option}
-							onChange={function(x){
-								const $options = jQuery(x.target).closest('ol').find('input.option');
-								props.setAttributes({
-									options : _.pluck( $options.toArray(), 'value' )
-								});
-							}}
-						/></li>))}
-					</ol>
-					<a href='#' onClick={(x)=>props.setAttributes({options:props.attributes.options.concat([''])})}>{ __( 'Add New' ) }</a>
-				</div>
-			</Fragment>);
+            return (<GrunionFieldMultiple
+                required={props.attributes.required}
+                onRequiredChange={(x)=>props.setAttributes({required:x})}
+                label={props.attributes.label}
+                onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
+                options={props.attributes.options}
+                setAttributes={props.setAttributes}
+            />);
 		}
 	}, FieldDefaults ) );
 

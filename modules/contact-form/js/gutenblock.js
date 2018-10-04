@@ -2025,6 +2025,54 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     return GrunionFieldCheckbox;
   }(Component);
 
+  var GrunionFieldMultiple =
+  /*#__PURE__*/
+  function (_Component8) {
+    (0, _inherits2.default)(GrunionFieldMultiple, _Component8);
+
+    function GrunionFieldMultiple() {
+      (0, _classCallCheck2.default)(this, GrunionFieldMultiple);
+      return (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(GrunionFieldMultiple).apply(this, arguments));
+    }
+
+    (0, _createClass2.default)(GrunionFieldMultiple, [{
+      key: "render",
+      value: function render() {
+        var _this = this;
+
+        return React.createElement(Fragment, null, React.createElement(GrunionFieldSettings, {
+          required: this.props.required,
+          onRequiredChange: this.props.onRequiredChange
+        }), React.createElement("div", {
+          className: "grunion-field"
+        }, React.createElement(GrunionFieldLabel, {
+          required: this.props.required,
+          label: this.props.label,
+          onLabelChange: this.props.onLabelChange
+        }), React.createElement("ol", null, _.map(this.props.options, function (option) {
+          return React.createElement("li", null, React.createElement("input", {
+            className: "option",
+            value: option,
+            onChange: function (x) {
+              var $options = jQuery(x.target).closest('ol').find('input.option');
+              this.props.setAttributes({
+                options: _.pluck($options.toArray(), 'value')
+              });
+            }.bind(_this)
+          }));
+        })), React.createElement("a", {
+          href: "#",
+          onClick: function onClick() {
+            return _this.props.setAttributes({
+              options: _this.props.options.concat([''])
+            });
+          }
+        }, __('Add New'))));
+      }
+    }]);
+    return GrunionFieldMultiple;
+  }(Component);
+
   registerBlockType('grunion/form', {
     title: __('Contact Form', 'jetpack'),
     icon: 'feedback',
@@ -2264,133 +2312,64 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     title: __('Checkbox Multiple', 'jetpack'),
     icon: 'forms',
     edit: function edit(props) {
-      return React.createElement(Fragment, null, React.createElement(GrunionFieldSettings, {
+      return React.createElement(GrunionFieldMultiple, {
         required: props.attributes.required,
         onRequiredChange: function onRequiredChange(x) {
           return props.setAttributes({
             required: x
           });
-        }
-      }), React.createElement("div", {
-        className: "grunion-field"
-      }, React.createElement(GrunionFieldLabel, {
-        required: props.attributes.required,
+        },
         label: props.attributes.label,
         onLabelChange: function onLabelChange(x) {
           return props.setAttributes({
             label: x.target.value
           });
-        }
-      }), React.createElement("ol", null, _.map(props.attributes.options, function (option) {
-        return React.createElement("li", null, React.createElement(CheckboxControl, {
-          label: React.createElement("input", {
-            className: "option",
-            value: option,
-            onChange: function onChange(x) {
-              var $options = jQuery(x.target).closest('ol').find('input.option');
-              props.setAttributes({
-                options: _.pluck($options.toArray(), 'value')
-              });
-            }
-          }),
-          disabled: true
-        }));
-      })), React.createElement("a", {
-        href: "#",
-        onClick: function onClick(x) {
-          return props.setAttributes({
-            options: props.attributes.options.concat([''])
-          });
-        }
-      }, __('Add New'))));
+        },
+        options: props.attributes.options,
+        setAttributes: props.setAttributes
+      });
     }
   }, FieldDefaults));
   registerBlockType('grunion/field-radio', _.defaults({
     title: __('Radio', 'jetpack'),
     edit: function edit(props) {
-      return React.createElement(Fragment, null, React.createElement(GrunionFieldSettings, {
+      return React.createElement(GrunionFieldMultiple, {
         required: props.attributes.required,
         onRequiredChange: function onRequiredChange(x) {
           return props.setAttributes({
             required: x
           });
-        }
-      }), React.createElement("div", {
-        className: "grunion-field"
-      }, React.createElement(GrunionFieldLabel, {
-        required: props.attributes.required,
+        },
         label: props.attributes.label,
         onLabelChange: function onLabelChange(x) {
           return props.setAttributes({
             label: x.target.value
           });
-        }
-      }), React.createElement("br", null), React.createElement(RadioControl, {
-        options: _.map(props.attributes.options, function (option) {
-          return {
-            label: React.createElement("input", {
-              className: "option",
-              value: option,
-              onChange: function onChange(x) {
-                var $options = jQuery(x.target).closest('.components-radio-control').find('input.option');
-                props.setAttributes({
-                  options: _.pluck($options.toArray(), 'value')
-                });
-              }
-            }),
-            value: option
-          };
-        }),
-        disabled: true
-      }), React.createElement("a", {
-        href: "#",
-        onClick: function onClick(x) {
-          return props.setAttributes({
-            options: props.attributes.options.concat([''])
-          });
-        }
-      }, __('Add New'))));
+        },
+        options: props.attributes.options,
+        setAttributes: props.setAttributes
+      });
     }
   }, FieldDefaults));
   registerBlockType('grunion/field-select', _.defaults({
     title: __('Select', 'jetpack'),
     edit: function edit(props) {
-      return React.createElement(Fragment, null, React.createElement(GrunionFieldSettings, {
+      return React.createElement(GrunionFieldMultiple, {
         required: props.attributes.required,
         onRequiredChange: function onRequiredChange(x) {
           return props.setAttributes({
             required: x
           });
-        }
-      }), React.createElement("div", {
-        className: "grunion-field"
-      }, React.createElement(GrunionFieldLabel, {
-        required: props.attributes.required,
+        },
         label: props.attributes.label,
         onLabelChange: function onLabelChange(x) {
           return props.setAttributes({
             label: x.target.value
           });
-        }
-      }), React.createElement("ol", null, _.map(props.attributes.options, function (option) {
-        return React.createElement("li", null, React.createElement("input", {
-          className: "option",
-          value: option,
-          onChange: function onChange(x) {
-            var $options = jQuery(x.target).closest('ol').find('input.option');
-            props.setAttributes({
-              options: _.pluck($options.toArray(), 'value')
-            });
-          }
-        }));
-      })), React.createElement("a", {
-        href: "#",
-        onClick: function onClick(x) {
-          return props.setAttributes({
-            options: props.attributes.options.concat([''])
-          });
-        }
-      }, __('Add New'))));
+        },
+        options: props.attributes.options,
+        setAttributes: props.setAttributes
+      });
     }
   }, FieldDefaults));
 })(window.wp, _);
