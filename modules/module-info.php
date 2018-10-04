@@ -682,3 +682,20 @@ function jetpack_woocommerce_analytics_more_info() {
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_info' );
+
+/**
+ * Assets CDN
+ */
+function jetpack_assetcdn_more_link() {
+	echo 'http://jetpack.com/support/asset-cdn/';
+}
+add_action( 'jetpack_learn_more_button_photon-cdn', 'jetpack_assetcdn_more_link' );
+
+function jetpack_assetcdn_more_info() {
+	esc_html_e(
+		'Our asset CDN is a site acceleration service.
+		That means that we host static assets like JavaScript and CSS shipped with WordPress Core and Jetpack from our servers, alleviating the load on your server.',
+		'jetpack'
+	);
+}
+add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' );
