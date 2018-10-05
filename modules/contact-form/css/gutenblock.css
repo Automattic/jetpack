@@ -2,13 +2,26 @@
 
 .grunion-field-label.grunion-field-label.grunion-field-label {
     border-color: #fff;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 2px;
+    padding-left: 1px;
     width: calc( 100% - 100px );
-    margin-bottom: 1em;
 }
 
 .grunion-field-label.grunion-field-label.grunion-field-label:focus,
 .grunion-field-label.grunion-field-label.grunion-field-label:hover {
     border-color: #8d96a0;
+}
+
+.grunion-field input:disabled,
+.grunion-field textarea:disabled {
+    border-color: #8d96a0;
+    padding: 10px 8px;
+}
+
+.grunion-form .components-base-control * {
+    margin: 0;
 }
 
 span.required {
