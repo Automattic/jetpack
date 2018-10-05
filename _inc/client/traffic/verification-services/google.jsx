@@ -53,6 +53,11 @@ class GoogleVerificationServiceComponent extends React.Component {
 			if ( ! this.props.getOptionValue( 'google' ) && response.token ) {
 				return this.props.updateOptions( { google: response.token } );
 			}
+
+			// show manual box if we have a non-verified site but we do have a local token
+			if ( this.props.getOptionValue( 'google' ) && ! response.token && ! response.verified ) {
+				this.setState( { inputVisible: true } );
+			}
 		} );
 	}
 
