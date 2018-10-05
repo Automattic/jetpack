@@ -7364,11 +7364,11 @@ p {
 			$version
 		);
 
-		$script = sprintf(
-			'var JETPACK_BLOCK_ASSETS_BASE_URL = %s;',
-			wp_json_encode( plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE ) )
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'JETPACK_BLOCK_ASSETS_BASE_URL',
+			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
-		wp_add_inline_script( 'jetpack-blocks-editor', $script, 'before' );
 
 		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
