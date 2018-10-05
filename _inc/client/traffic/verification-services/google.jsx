@@ -138,6 +138,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 			is_owner: this.props.isOwner,
 		} );
 
+		this.props.updateFormStateOptionValue( 'google', this.props.getSettingCurrentValue( 'google' ) );
+		this.props.clearUnsavedSettingsFlag();
 		this.toggleVerifyMethod( event );
 	};
 
@@ -148,7 +150,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 
 		this.props.onSubmit( event );
-	}
+	};
 
 	toggleVerifyMethod = () => {
 		this.setState( {
