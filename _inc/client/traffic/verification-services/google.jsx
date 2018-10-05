@@ -203,8 +203,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{ __( 'Cancel' ) }
 									</Button>
 									: <Button
-										primary
 										type="button"
+										className="jp-form-site-verification-edit-button"
 										disabled={ this.props.isUpdating( 'google' ) }
 										onClick={ this.handleClickAutoVerify }>
 										{ __( 'Auto-Verify' ) }
