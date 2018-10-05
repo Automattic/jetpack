@@ -41,6 +41,10 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	componentDidMount() {
+		if ( ! this.props.isCurrentUserLinked ) {
+			return;
+		}
+
 		this.props.checkVerifyStatusGoogle().then( response => {
 			// if the site is not in google search console anymore, reset the verification token
 			// and call checkVerifyStatusGoogle to unverify it
