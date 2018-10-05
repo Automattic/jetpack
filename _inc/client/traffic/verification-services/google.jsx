@@ -37,7 +37,8 @@ import { createNotice, removeNotice } from 'components/global-notices/state/noti
 
 class GoogleVerificationServiceComponent extends React.Component {
 	state = {
-		inputVisible: false
+		inputVisible: false,
+		isVerified: false
 	};
 
 	componentDidMount() {
@@ -54,6 +55,9 @@ class GoogleVerificationServiceComponent extends React.Component {
 			if ( ! response ) {
 				return;
 			}
+
+			this.setState( { isVerified: response.verified } );
+
 			if ( ! this.props.getOptionValue( 'google' ) && response.token ) {
 				return this.props.updateOptions( { google: response.token } );
 			}
@@ -190,13 +194,22 @@ class GoogleVerificationServiceComponent extends React.Component {
 									onClick={ this.quickSave }>
 									{ __( 'Save' ) }
 								</Button>
-								<Button
-									type="button"
-									className="jp-form-site-verification-edit-button"
-									disabled={ this.props.isUpdating( 'google' ) }
-									onClick={ this.handleClickCancel }>
-									{ __( 'Cancel' ) }
-								</Button>
+								{ this.state.isVerified
+									? <Button
+										type="button"
+										className="jp-form-site-verification-edit-button"
+										disabled={ this.props.isUpdating( 'google' ) }
+										onClick={ this.handleClickCancel }>
+										{ __( 'Cancel' ) }
+									</Button>
+									: <Button
+										primary
+										type="button"
+										disabled={ this.props.isUpdating( 'google' ) }
+										onClick={ this.handleClickAutoVerify }>
+										{ __( 'Auto-Verify' ) }
+									</Button>
+								}
 							</div>
 						}
 					</FormLabel>
