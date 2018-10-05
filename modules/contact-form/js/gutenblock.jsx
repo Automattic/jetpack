@@ -206,7 +206,9 @@
 		title       : __( 'Contact Form', 'jetpack' ),
 		icon        : 'feedback',
 		category    : 'widgets',
-		supportHTML : false,
+        supports    : {
+			html : false
+        },
 
 		attributes : {
 			subject : {
@@ -252,9 +254,11 @@
 
 	const FieldDefaults = {
 		icon        : 'feedback',
-		category    : 'widgets',
+		category    : 'common',
 		parent      : [ 'grunion/form' ],
-		supportHTML : false,
+		supports    : {
+			html : false
+        },
 		attributes  : {
 			label : {
 				type : 'string',
