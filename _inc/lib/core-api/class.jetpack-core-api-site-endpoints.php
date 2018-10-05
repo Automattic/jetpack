@@ -101,7 +101,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-		$related_posts_ids = array_map( array( $this, 'get_related_post_id' ), $response_body['hits'] );
+		$related_posts_ids = array_map( array( 'Jetpack_Core_API_Site_Endpoint', 'get_related_post_id' ), $response_body['hits'] );
 
 		$related_posts = array();
 		$related_posts_instance = Jetpack_RelatedPosts::init();
@@ -136,7 +136,7 @@ class Jetpack_Core_API_Site_Endpoint {
 	 *
 	 * @return int
 	 */
-	public function get_related_post_id( $item ) {
+	public static function get_related_post_id( $item ) {
 		return $item['fields']['post_id'];
 	}
 }
