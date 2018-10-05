@@ -132,6 +132,15 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod( event );
 	};
 
+	quickSave = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
+			is_owner: this.props.isOwner,
+			is_empty: ! this.props.value
+		} );
+
+		this.props.onSubmit( event );
+	}
+
 	toggleVerifyMethod = () => {
 		this.setState( {
 			inputVisible: ! this.state.inputVisible,
@@ -162,13 +171,23 @@ class GoogleVerificationServiceComponent extends React.Component {
 							onChange={ this.props.onOptionChange }
 							onKeyPress={ this.handleOnTextInputKeyPress } />
 						{ this.state.inputVisible &&
-							<Button
-								primary
-								type="button"
-								className="jp-form-site-verification-edit-button"
-								onClick={ this.handleClickCancel }>
-								{ __( 'Cancel' ) }
-							</Button>
+							<div className="jp-form-site-verification-buttons">
+								<Button
+									primary
+									type="button"
+									className="jp-form-site-verification-edit-button"
+									disabled={ this.props.isUpdating( 'google' ) }
+									onClick={ this.quickSave }>
+									{ __( 'Save' ) }
+								</Button>
+								<Button
+									type="button"
+									className="jp-form-site-verification-edit-button"
+									disabled={ this.props.isUpdating( 'google' ) }
+									onClick={ this.handleClickCancel }>
+									{ __( 'Cancel' ) }
+								</Button>
+							</div>
 						}
 					</FormLabel>
 				</div>
