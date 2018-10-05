@@ -192,7 +192,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'sso' => array(
-				'name' => _x( 'Single Sign On', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow users to log into this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
