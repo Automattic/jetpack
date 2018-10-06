@@ -15,6 +15,7 @@
 
 * Admin Page: Added ability to disable backups UI by filter when VaultPress is not activated.
 * Comments: Moved the Subscription checkboxes on a comment form from after the submit button to before the submit button.
+* Site Verification: New, simpler "auto-verify" button for adding your site to Search Console and Google's search index
 * General: Removed the outdated "Site Verification Services" card in Tools.
 * General: Removed jetpack_enable_site_verification filter. We recommend filtering access to verification tools using jetpack_get_available_modules instead.
 * General: Simplified the logic of Jetpack's signed HTTP requests code.
