@@ -41,6 +41,10 @@ class GoogleVerificationServiceComponent extends React.Component {
 	};
 
 	componentDidMount() {
+		if ( ! this.props.isCurrentUserLinked ) {
+			return;
+		}
+
 		this.props.checkVerifyStatusGoogle().then( response => {
 			// if the site is not in google search console anymore, reset the verification token
 			// and call checkVerifyStatusGoogle to unverify it
@@ -52,6 +56,11 @@ class GoogleVerificationServiceComponent extends React.Component {
 			}
 			if ( ! this.props.getOptionValue( 'google' ) && response.token ) {
 				return this.props.updateOptions( { google: response.token } );
+			}
+
+			// show manual box if we have a non-verified site but we do have a local token
+			if ( this.props.getOptionValue( 'google' ) && ! response.token && ! response.verified ) {
+				this.setState( { inputVisible: true } );
 			}
 		} );
 	}
@@ -124,10 +133,13 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod( event );
 	};
 
-	toggleVerifyMethod = () => {
-		this.setState( {
-			inputVisible: ! this.state.inputVisible,
+	handleClickCancel = event => {
+		analytics.tracks.recordEvent( 'jetpack_site_verification_google_cancel_click', {
+			is_owner: this.props.isOwner,
 		} );
+
+		this.props.resetFormStateOption( 'google' );
+		this.toggleVerifyMethod( event );
 	};
 
 	quickSave = event => {
@@ -137,8 +149,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 
 		this.props.onSubmit( event );
+	};
 
-		this.toggleVerifyMethod();
+	toggleVerifyMethod = () => {
+		this.setState( {
+			inputVisible: ! this.state.inputVisible,
+		} );
 	};
 
 	handleOnTextInputKeyPress = event => {
@@ -165,13 +181,23 @@ class GoogleVerificationServiceComponent extends React.Component {
 							onChange={ this.props.onOptionChange }
 							onKeyPress={ this.handleOnTextInputKeyPress } />
 						{ this.state.inputVisible &&
-							<Button
-								primary
-								type="button"
-								className="jp-form-site-verification-edit-button"
-								onClick={ this.quickSave }>
-								{ __( 'Save' ) }
-							</Button>
+							<div className="jp-form-site-verification-buttons">
+								<Button
+									primary
+									type="button"
+									className="jp-form-site-verification-edit-button"
+									disabled={ this.props.isUpdating( 'google' ) }
+									onClick={ this.quickSave }>
+									{ __( 'Save' ) }
+								</Button>
+								<Button
+									type="button"
+									className="jp-form-site-verification-edit-button"
+									disabled={ this.props.isUpdating( 'google' ) }
+									onClick={ this.handleClickCancel }>
+									{ __( 'Cancel' ) }
+								</Button>
+							</div>
 						}
 					</FormLabel>
 				</div>

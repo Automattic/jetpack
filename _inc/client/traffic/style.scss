@@ -65,8 +65,13 @@
 
 	@include breakpoint( '<660px' ) {
 		margin-left: 0;
+		margin-right: 5px;
 		margin-top: 5px;
 	}
+}
+
+.jp-form-site-verification-buttons {
+	flex: 0 1 20em;
 }
 
 .jp-form-site-verification-verified-note {
