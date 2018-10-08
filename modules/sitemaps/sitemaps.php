@@ -387,6 +387,7 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			wp_schedule_single_event( time() + 60, 'jp_sitemap_cron_hook' );
 			wp_schedule_event(
 				time(),
 				'sitemap-interval',
