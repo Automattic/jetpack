@@ -16,6 +16,9 @@ class Jetpack_Recipes {
 	function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 
+		// Create our Gutenberg block.
+		add_action( 'init', array( $this, 'init_block' ) );
+
 		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
 	}
 
@@ -146,6 +149,56 @@ class Jetpack_Recipes {
 	}
 
 	/**
+	 * Register Gutenberg Block element.
+	 */
+	public static function init_block() {
+		// Bail early if Gutenberg is not installed.
+		if ( ! function_exists( 'register_block_type' ) ) {
+			return;
+		}
+
+		wp_register_script(
+			'jetpack-recipes-block-editor',
+			Jetpack::get_file_url_for_environment( '_inc/blocks/editor.js', '_inc/blocks/editor.js' ),
+			array( 'wp-element', 'wp-blocks', 'wp-editor', 'wp-components', 'wp-i18n' ),
+			JETPACK__VERSION,
+			false
+		);
+
+		wp_register_script(
+			'jetpack-recipes-block-view',
+			Jetpack::get_file_url_for_environment( '_inc/blocks/view.js', '_inc/blocks/view.js' ),
+			array( 'wp-element', 'wp-blocks', 'wp-editor', 'wp-components', 'wp-i18n' ),
+			JETPACK__VERSION,
+			false
+		);
+
+		wp_register_style(
+			'jetpack-recipes-block-view-styles',
+			Jetpack::get_file_url_for_environment( '_inc/blocks/view.css', '_inc/blocks/view.css' ),
+			array(),
+			JETPACK__VERSION
+		);
+
+		wp_register_style(
+			'jetpack-recipes-block-editor-styles',
+			Jetpack::get_file_url_for_environment( '_inc/blocks/editor.css', '_inc/blocks/editor.css' ),
+			array(),
+			JETPACK__VERSION
+		);
+
+		register_block_type(
+			'a8c/recipes',
+			array(
+				'script'        => 'jetpack-recipes-block-view',
+				'editor_script' => 'jetpack-recipes-block-editor',
+				'style'         => 'jetpack-recipes-block-view-styles',
+				'editor_style'  => 'jetpack-recipes-block-editor-styles',
+			)
+		);
+	}
+
+	/**
 	 * Our [recipe] shortcode.
 	 * Prints recipe data styled to look good on *any* theme.
 	 *
@@ -197,7 +250,7 @@ class Jetpack_Recipes {
 
 			if ( '' !== $atts['servings'] ) {
 				$html .= sprintf(
-					'<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
+					'<li class="jetpack-recipe-servings" itemprop=""><strong>%1$s: </strong>%2$s</li>',
 					esc_html_x( 'Servings', 'recipe', 'jetpack' ),
 					esc_html( $atts['servings'] )
 				);
