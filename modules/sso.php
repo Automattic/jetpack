@@ -3,7 +3,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
 
 /**
- * Module Name: Single Sign On
+ * Module Name: Secure Sign On
  * Module Description: Allow users to log into this site using WordPress.com accounts
  * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
@@ -195,7 +195,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Adds settings fields to Settings > General > Single Sign On that allows users to
+	 * Adds settings fields to Settings > General > Secure Sign On that allows users to
 	 * turn off the login form on wp-login.php
 	 *
 	 * @since 2.7
@@ -204,13 +204,13 @@ class Jetpack_SSO {
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Single Sign On' , 'jetpack' ),
+			__( 'Secure Sign On' , 'jetpack' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Single Sign On
+		 * Settings > General > Secure Sign On
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -228,7 +228,7 @@ class Jetpack_SSO {
 		);
 
 		/*
-		 * Settings > General > Single Sign On
+		 * Settings > General > Secure Sign On
 		 */
 		register_setting(
 			'jetpack-sso',
