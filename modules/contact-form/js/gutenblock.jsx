@@ -4,31 +4,31 @@
  * External Dependencies:
  */
 import {
-    Button,
-    PanelBody,
-    TextControl,
-    TextareaControl,
-    CheckboxControl,
-    ToggleControl
+	Button,
+	PanelBody,
+	TextControl,
+	TextareaControl,
+	CheckboxControl,
+	ToggleControl
 } from '@wordpress/components';
 
 import {
-    registerBlockType,
-    createBlock
+	registerBlockType,
+	createBlock
 } from '@wordpress/blocks';
 
 import {
-    InnerBlocks,
-    InspectorControls
+	InnerBlocks,
+	InspectorControls
 } from '@wordpress/editor';
 
 import {
-    Component,
-    Fragment
+	Component,
+	Fragment
 } from '@wordpress/element';
 
 import {
-    __
+	__
 } from '@wordpress/i18n';
 
 
