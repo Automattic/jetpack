@@ -117,11 +117,7 @@ class Jetpack_Sitemap_Builder {
 			$this->logger->report( '-- Updating...' );
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
-					__(
-						'-- WARNING: Jetpack can not load necessary XML manipulation libraries. '
-						. 'This can happen if XML support in PHP is not enabled on your server. '
-						. 'XML support is highly recommended for WordPress and Jetpack, please enable '
-						. 'it or contact your hosting provider about it.',
+					__( '-- WARNING: Jetpack can not load necessary XML manipulation libraries. This can happen if XML support in PHP is not enabled on your server. XML support is highly recommended for WordPress and Jetpack, please enable it or contact your hosting provider.',
 						'jetpack'
 					),
 					true
