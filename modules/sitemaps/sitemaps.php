@@ -470,10 +470,12 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @access public
 	 * @since 5.3.0
+	 * @since 6.7.0 Schedules a regeneration after 60 seconds.
 	 */
 	public function callback_action_purge_data() {
 		$this->callback_action_flush_news_sitemap_cache();
 		$this->librarian->delete_all_stored_sitemap_data();
+		wp_schedule_single_event( time() + 60, 'jp_sitemap_cron_hook' );
 	}
 
 	/**
