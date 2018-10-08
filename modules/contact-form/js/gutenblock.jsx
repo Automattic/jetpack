@@ -19,7 +19,8 @@ import {
 
 import {
 	InnerBlocks,
-	InspectorControls
+	InspectorControls,
+	RichText
 } from '@wordpress/editor';
 
 import {
@@ -57,7 +58,12 @@ class GrunionForm extends Component {
 				</InspectorControls>
 				<div className="grunion-form">
 					{this.props.children}
-					<Button isPrimary isDefault>Submit</Button>
+					<input
+						type="text"
+						className="button button-primary button-default"
+						value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
+						onChange={ this.props.onSubmitChange }
+					/>
 				</div>
 			</Fragment>
 		);
@@ -232,6 +238,10 @@ registerBlockType( 'grunion/form', {
 		to : {
 			type    : 'string',
 			default : null
+		},
+		submit : {
+			type    : 'string',
+			default : __( 'Submit' )
 		}
 	},
 
@@ -244,6 +254,8 @@ registerBlockType( 'grunion/form', {
 				onSubjectChange={ (x)=>props.setAttributes({subject:x}) }
 				to={props.attributes.to}
 				onToChange={ (x)=>props.setAttributes({to:x}) }
+				submit={props.attributes.submit}
+				onSubmitChange={ (x)=>props.setAttributes({submit:x.target.value}) }
 			>
 				<InnerBlocks
 					allowedBlocks={ [] }
