@@ -529,8 +529,8 @@ class Jetpack_Sitemap_Builder {
 			JP_SITEMAP_MAX_BYTES
 		);
 
-		// Add entry for the main page (only if we're at the first one).
-		if ( 1 === $number ) {
+		// Add entry for the main page (only if we're at the first one) and it isn't already going to be included as a page.
+		if ( 1 === $number && 'page' !== get_option( 'show_on_front' ) ) {
 			$item_array = array(
 				'url' => array(
 					'loc' => home_url(),
