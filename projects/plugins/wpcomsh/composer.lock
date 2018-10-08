@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3b00fd8363dadbab93a2acf60c059ff",
+    "content-hash": "e963752222b2c660a5968b3d499e6013",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,16 +30,16 @@
         },
         {
             "name": "automattic/calypsoify",
-            "version": "v0.2",
+            "version": "v0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/calypsoify",
-                "reference": "03fdbb85ba07ed25135b45fc70b444d21521f90c"
+                "reference": "d18566d31937cacc673f3e52eb04612ee4312b00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/calypsoify/zipball/03fdbb85ba07ed25135b45fc70b444d21521f90c",
-                "reference": "03fdbb85ba07ed25135b45fc70b444d21521f90c",
+                "url": "https://api.github.com/repos/Automattic/calypsoify/zipball/d18566d31937cacc673f3e52eb04612ee4312b00",
+                "reference": "d18566d31937cacc673f3e52eb04612ee4312b00",
                 "shasum": ""
             },
             "type": "library",
@@ -48,7 +48,7 @@
                     "index.php"
                 ]
             },
-            "time": "2018-09-11T11:28:26+00:00"
+            "time": "2018-09-26T16:33:23+00:00"
         },
         {
             "name": "automattic/custom-fonts",
