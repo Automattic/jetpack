@@ -39,8 +39,18 @@ function jetpack_sitemap_on_activate() {
 	wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );
 	wp_clear_scheduled_hook( 'jetpack_sitemap_generate_on_activate' );
 
-	$sitemap_builder = new Jetpack_Sitemap_Builder();
-	add_action( 'jetpack_sitemap_generate_on_activate', array( $sitemap_builder, 'update_sitemap' ) );
+	add_action( 'jetpack_sitemap_generate_on_activate', 'jetpack_sitemap_creation_job' );
 
 	wp_schedule_single_event( time() + 60, 'jetpack_sitemap_generate_on_activate' );
+}
+
+/**
+ * Initial sitemap creation
+ *
+ * @since 6.7.0
+ */
+
+function jetpack_sitemap_creation_job() {
+	$sitemap_builder = new Jetpack_Sitemap_Builder();
+	$sitemap_builder->update_sitemap();
 }
