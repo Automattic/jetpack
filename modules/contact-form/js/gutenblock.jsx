@@ -6,12 +6,12 @@
 		TextControl,
 		TextareaControl,
 		CheckboxControl,
-		ToggleControl,
-		RadioControl
+		ToggleControl
 	} = wp.components;
 
 	const {
-		registerBlockType
+		registerBlockType,
+		createBlock
 	} = wp.blocks;
 
 	const {
@@ -273,9 +273,20 @@
 				default : []
 			}
 		},
+		transforms : {
+			to : [
+				{
+					type      : 'block',
+					blocks    : [ 'grunion/field-text' ],
+					transform : ( attributes ) => {
+						return createBlock( 'grunion/field-text', attributes );
+                    }
+				}
+			]
+		},
 		save : function() {
 			return null;
-		},
+		}
 	};
 
 	registerBlockType( 'grunion/field-text', _.defaults({
