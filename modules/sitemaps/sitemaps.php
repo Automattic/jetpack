@@ -149,8 +149,15 @@ class Jetpack_Sitemap_Manager {
 		set_query_var( 'feed', 'sitemap' );
 
 		if ( '' === $the_content ) {
+			$error = __( 'No sitemap found. Please try again later.', 'jetpack' );
+			if ( current_user_can( 'manage_options' ) ) {
+				$next = date_i18n( 'F j, Y g:i a', wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+				/* translators: %s is a date/time for next sitemap generation. */
+				$error = sprintf( __( 'No sitemap found. The system will try to build it again at %s', 'jetpack' ), $next );
+			}
+
 			wp_die(
-				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
+				esc_html( $error ),
 				esc_html__( 'Sitemaps', 'jetpack' ),
 				array(
 					'response' => 404,
