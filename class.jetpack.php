@@ -33,7 +33,9 @@ class Jetpack {
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
-	 * @var array The handles of styles that are concatenated into jetpack.css
+	 * @var array The handles of styles that are concatenated into jetpack.css.
+	 *
+	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
 		'jetpack-carousel',

@@ -17,7 +17,11 @@ import util from 'gulp-util';
  */
 import { transformRelativePath } from './transform-relative-paths';
 
-/* Front-end CSS to be concatenated */
+/**
+ * Front-end CSS to be concatenated.
+ *
+ * When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
+ */
 const concat_list = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
@@ -46,6 +50,7 @@ const concat_list = [
 	'modules/widgets/flickr/style.css',
 	'modules/widgets/search/css/search-widget-frontend.css',
 	'modules/widgets/simple-payments/style.css',
+	'modules/widgets/social-icons/social-icons.css',
 ];
 
 /**
