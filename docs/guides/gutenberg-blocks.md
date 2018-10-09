@@ -5,20 +5,26 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 1.  Install & activate the [Gutenberg plugin](https://wordpress.org/plugins/gutenberg/).
 
     If you use Jetpack-Docker, you can use WP-CLI:
-
-        yarn docker:wp plugin install gutenberg --activate
+	
+    ```bash
+    yarn docker:wp plugin install gutenberg --activate
+    ```
 
 1.  In Jetpack, enable loading block assets by adding following filters to your local mu-plugins folder:
 
-        add_filter( 'jetpack_gutenberg', '__return_true', 10 );
-        add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+    ```php
+    add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+    add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+    ```
 
     If you use Jetpack-Docker, you could add these to `docker/mu-plugins/0-custom.php`
 
     Setting these might be useful for debugging:
 
-        define( 'SCRIPT_DEBUG', true );
-        define( 'GUTENBERG_DEVELOPMENT_MODE', true );
+    ```php
+    define( 'SCRIPT_DEBUG', true );
+    define( 'GUTENBERG_DEVELOPMENT_MODE', true );
+    ```
 
     If you use Jetpack-Docker, you could add these to `docker/wordpress/wp-config.php`
 
@@ -26,12 +32,14 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 1.  Jetpack will now load these files when editing posts in Gutenberg:
 
-        _inc/blocks/editor.css
-        _inc/blocks/editor.rtl.css
-        _inc/blocks/editor.js
-        _inc/blocks/view.css
-        _inc/blocks/view.rtl.css
-        _inc/blocks/view.js   
+    ```
+    _inc/blocks/editor.css
+    _inc/blocks/editor.rtl.css
+    _inc/blocks/editor.js
+    _inc/blocks/view.css
+    _inc/blocks/view.rtl.css
+    _inc/blocks/view.js
+    ```
 
     Without setting `jetpack_gutenberg_cdn` to false, Jetpack would load these assets from CDN with 24h cache buster:
 
@@ -55,10 +63,12 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 1.  With all this said and set up — to build a block and develop it with Jetpack, run:
 
-        npm run sdk -- gutenberg \
-        client/gutenberg/extensions/hello-dolly/ \
-        --output-dir=~/path/to/jetpack/_inc/blocks \
-        --watch
+    ```bash
+    npm run sdk -- gutenberg \
+    client/gutenberg/extensions/hello-dolly/ \
+    --output-dir=~/path/to/jetpack/_inc/blocks \
+    --watch
+    ```
 
     If you linked Calypso earlier, instead of `npm run sdk -- gutenberg` you can run `calypso-sdk gutenberg`.
 
@@ -66,7 +76,9 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 1. If the block you’re building requires Jetpack to be connected, you can use ngrok to open a public tunnel to your local development environment. For installation, refer to the Field Guide; running it is as simple as:
 
-        ngrok http 80
+    ```bash
+    ngrok http 80
+    ```
 
     Refer to [using ngrok with Jetpack](https://github.com/Automattic/jetpack/tree/master/docker#using-ngrok-with-jetpack) for more usage information.
 
