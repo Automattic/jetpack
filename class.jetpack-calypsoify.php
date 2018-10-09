@@ -8,8 +8,9 @@ Author URI: https://automattic.com
 Version: 0.2
 */
 
-if( ! defined( 'CALYPSOIFY_VER' ) )
+if ( ! defined( 'CALYPSOIFY_VER' ) ) {
 	define( 'CALYPSOIFY_VER', '0.2' );
+}
 
 class Jetpack_Calypsoify {
 	static $instance = false;
@@ -19,8 +20,9 @@ class Jetpack_Calypsoify {
 	}
 
 	public static function getInstance() {
-		if ( ! self::$instance )
-			self::$instance = new self;
+		if ( ! self::$instance ) {
+			self::$instance = new self();
+		}
 
 		return self::$instance;
 	}
@@ -60,74 +62,78 @@ class Jetpack_Calypsoify {
 		remove_menu_page( 'link-manager.php' );
 
 		// Core settings pages
-		remove_submenu_page( 'options-general.php', 'options-general.php' ); 
-		remove_submenu_page( 'options-general.php', 'options-writing.php' ); 
-		remove_submenu_page( 'options-general.php', 'options-reading.php' ); 
-		remove_submenu_page( 'options-general.php', 'options-discussion.php' ); 
-		remove_submenu_page( 'options-general.php', 'options-media.php' ); 
+		remove_submenu_page( 'options-general.php', 'options-general.php' );
+		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		remove_submenu_page( 'options-general.php', 'options-reading.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+		remove_submenu_page( 'options-general.php', 'options-media.php' );
 		remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 		remove_submenu_page( 'options-general.php', 'privacy.php' );
-		remove_submenu_page( 'options-general.php', 'sharing' ); 
+		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	public function add_plugin_menus() {
 		global $menu, $submenu;
 
-		add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1);
+		add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
 
 		// // Count the settings page submenus, if it's zero then don't show this.
 		if ( empty( $submenu['options-general.php'] ) ) {
-			remove_menu_page( 'options-general.php' ); 
+			remove_menu_page( 'options-general.php' );
 		} else {
 			// Rename and make sure the plugin settings menu is always last.
 			// Sneaky plugins seem to override this otherwise.
 			// Settings is always key 80.
-			$menu[80][0] = __( 'Plugin Settings', 'jetpack' );
-			$menu[max(array_keys($menu))+1] = $menu[80];
-			unset($menu[80]);
+			$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
+			$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
+			unset( $menu[80] );
 		}
 	}
 
 	public function enqueue() {
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style.css', false, CALYPSOIFY_VER );
-  		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, CALYPSOIFY_VER );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, CALYPSOIFY_VER );
 	}
-	
+
 	public function enqueue_for_gutenberg() {
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style-gutenberg.css', false, CALYPSOIFY_VER );
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods-gutenberg.js', false, CALYPSOIFY_VER );
-		wp_localize_script( 'calypsoify_wpadminmods_js', 'calypsoifyGutenberg', array(
-			'closeLabel' => __( 'Close', 'jetpack' ),
-			'closeUrl' => $this->get_close_gutenberg_url(),
-		) );
+		wp_localize_script(
+			'calypsoify_wpadminmods_js',
+			'calypsoifyGutenberg',
+			array(
+				'closeLabel' => __( 'Close', 'jetpack' ),
+				'closeUrl'   => $this->get_close_gutenberg_url(),
+			)
+		);
 	}
 
-  public function insert_sidebar_html() { ?>
-		<a href="<?php echo esc_url( "https://wordpress.com/stats/day/" . str_replace( 'https://', '', get_bloginfo('url') ) ) ?>" id="calypso-sidebar-header">
+	public function insert_sidebar_html() { ?>
+		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . str_replace( 'https://', '', get_bloginfo( 'url' ) ) ); ?>" id="calypso-sidebar-header">
 		  <svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 		  <ul>
-		    <li id="calypso-sitename"><?php bloginfo( 'name' ) ?></li>
-		    <li id="calypso-plugins"><?php esc_html_e( 'Plugins' ) ?></li>
+			<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
+			<li id="calypso-plugins"><?php esc_html_e( 'Plugins' ); ?></li>
 		  </ul>
-		</a><?php
+		</a>
+		<?php
 	}
 
 	public function modify_masterbar() {
 		global $wp_admin_bar;
 
 		// Add proper links to masterbar top sections.
-
-		$my_sites_node = $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = "https://wordpress.com/stats/day/" . str_replace( 'https://', '', get_bloginfo( 'url' ) );
+		$my_sites_node       = $wp_admin_bar->get_node( 'blog' );
+		$my_sites_node->href = 'https://wordpress.com/stats/day/' . str_replace( 'https://', '', get_bloginfo( 'url' ) );
 		$wp_admin_bar->add_node( $my_sites_node );
 
-		$reader_node = $wp_admin_bar->get_node( 'newdash' );
-		$reader_node->href = "https://wordpress.com";
+		$reader_node       = $wp_admin_bar->get_node( 'newdash' );
+		$reader_node->href = 'https://wordpress.com';
 		$wp_admin_bar->add_node( $reader_node );
 
-		$me_node = $wp_admin_bar->get_node( 'my-account' );
-		$me_node->href = "https://wordpress.com/me";
+		$me_node       = $wp_admin_bar->get_node( 'my-account' );
+		$me_node->href = 'https://wordpress.com/me';
 		$wp_admin_bar->add_node( $me_node );
 	}
 
@@ -145,7 +151,7 @@ class Jetpack_Calypsoify {
 			? $screen->post_type . 's'
 			: 'types/' . $screen->post_type;
 
-		return 'https://wordpress.com/' . $post_type . '/' . Jetpack::build_raw_urls( home_url() ) ;
+		return 'https://wordpress.com/' . $post_type . '/' . Jetpack::build_raw_urls( home_url() );
 	}
 
 	public function check_param() {
