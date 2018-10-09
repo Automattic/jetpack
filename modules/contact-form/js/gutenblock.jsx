@@ -1,10 +1,11 @@
+/*global jQuery _ wp*/
+/** @jsx wp.element.createElement */
 /** @format */
 
 /**
- * External Dependencies:
+ * External dependencies
  */
 import {
-	Button,
 	PanelBody,
 	TextControl,
 	TextareaControl,
@@ -19,8 +20,7 @@ import {
 
 import {
 	InnerBlocks,
-	InspectorControls,
-	RichText
+	InspectorControls
 } from '@wordpress/editor';
 
 import {
@@ -198,19 +198,21 @@ class GrunionFieldMultiple extends Component {
 						onLabelChange={  this.props.onLabelChange }
 					/>
 					<ol>
-						{_.map( this.props.options, (option)=>(<li><input
+						{ _.map( this.props.options, ( option )=>( <li><input
 							type='text'
 							className='option'
 							value={option}
-							onChange={function(x){
-								const $options = jQuery(x.target).closest('ol').find('input.option');
+							onChange={ function( x ) {
+								const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
 								this.props.setAttributes({
 									options : _.pluck( $options.toArray(), 'value' )
 								});
-							}.bind(this)}
+							}.bind( this ) }
 						/></li>))}
 					</ol>
-					<a href='#' onClick={()=>this.props.setAttributes({options:this.props.options.concat([''])})}>{ __( 'Add New' ) }</a>
+					<button onClick={ function() {
+						this.props.setAttributes( { options: this.props.options.concat( [ '' ] ) } );
+					} }>{ __( 'Add New' ) }</button>
 				</div>
 			</Fragment>
 		)
@@ -271,7 +273,7 @@ registerBlockType( 'grunion/form', {
 		);
 	},
 
-	save: function( props ) {
+	save: function() {
 		return (
 			<InnerBlocks.Content />
 		);
