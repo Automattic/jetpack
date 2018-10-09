@@ -387,9 +387,21 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
-			wp_schedule_single_event( time() + 60, 'jp_sitemap_cron_hook' );
+			/**
+			 * Filter maximum number of minutes to randomly wait until generating sitemaps. Default 15.
+			 *
+			 * This filter allows a site operator or hosting provider to potentialy spread out sitemap generation for a
+			 * lot of sites over time. By default, it will be randomly done over 15 minutes.
+			 *
+			 * @module sitemaps
+			 * @since 6.6.1
+			 *
+			 * @param int $maximum Maximum number of minutes.
+			 */
+			$randomness = MINUTE_IN_SECONDS * mt_rand( 1, apply_filters( 'jetpack_sitemap_generation_randomness', 15 ) ); // Randomly space it out to start within next fifteen minutes.
+			wp_schedule_single_event( time() + $randomness, 'jp_sitemap_cron_hook' );
 			wp_schedule_event(
-				time(),
+				time() + $randomness,
 				'sitemap-interval',
 				'jp_sitemap_cron_hook'
 			);
