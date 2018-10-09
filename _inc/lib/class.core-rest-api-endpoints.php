@@ -177,6 +177,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
 
+		// Get related posts of a certain site post
+		register_rest_route( 'jetpack/v4', '/site/posts/related', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $site_endpoint, 'get_related_posts' ),
+			'permission_callback' => array( $site_endpoint , 'can_request' ),
+		) );
+
 		// Confirm that a site in identity crisis should be in staging mode
 		register_rest_route( 'jetpack/v4', '/identity-crisis/confirm-safe-mode', array(
 			'methods' => WP_REST_Server::EDITABLE,
