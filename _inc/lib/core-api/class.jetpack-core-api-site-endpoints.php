@@ -49,6 +49,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 	/**
 	 * Returns the result of `/sites/%s/posts/%d/related` endpoint call.
+	 * Results are not cached and are retrieved in real time.
 	 *
 	 * @since 6.7.0
 	 *

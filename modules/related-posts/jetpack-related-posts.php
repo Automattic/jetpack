@@ -1536,6 +1536,7 @@ EOT;
 
 	/**
 	 * Build an array of Related Posts.
+	 * By default returns cached results that are stored for up to 12 hours.
 	 *
 	 * @since 4.4.0
 	 *
