@@ -46,6 +46,7 @@ class Jetpack {
 		'sharedaddy',
 		'jetpack-slideshow',
 		'presentations',
+		'quiz',
 		'jetpack-subscriptions',
 		'jetpack-responsive-videos-style',
 		'jetpack-social-menu',
@@ -57,13 +58,13 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'jetpack-authors-widget',
 		'wordads',
 		'eu-cookie-law-style',
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
-		'jetpack-authors-widget',
 	);
 
 	/**
