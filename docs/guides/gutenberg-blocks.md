@@ -47,7 +47,7 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
     This is great for letting team-outsiders test our current set of Jetpack blocks; let's deploy these when ever we have something to show.
 
-    There is a helper-script to produce these assets locally for your sandbox so that you can then commit+deploy: https://opengrok.a8c.com/source/xref/trunk/bin/calypso/build-a8c-gutenberg-blocks.sh 
+    Use the helper script introduced in D18479-code to produce these assets locally for your sandbox so that you can then commit and deploy.
 
     Note that we currently have a fixed list of dependencies which is just everything current trial blocks depend on: https://github.com/Automattic/jetpack/blob/b4a057fad975f3db8097fd62e702e276fd3d4389/class.jetpack.php#L7355-L7366
 
