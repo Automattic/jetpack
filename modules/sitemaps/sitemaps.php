@@ -476,8 +476,8 @@ class Jetpack_Sitemap_Manager {
 		$this->callback_action_flush_news_sitemap_cache();
 		$this->librarian->delete_all_stored_sitemap_data();
 		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$randomness = MINUTE_IN_SECONDS * mt_rand( 1, apply_filters( 'jetpack_sitemap_generation_randomness', 15 ) ); // Randomly space it out to start within next fifteen minutes.
-		wp_schedule_single_event( time() + $randomness, 'jp_sitemap_cron_hook' );
+		$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * mt_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
+		wp_schedule_single_event( time() + $delay, 'jp_sitemap_cron_hook' );
 	}
 
 	/**
