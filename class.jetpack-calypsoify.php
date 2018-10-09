@@ -5,12 +5,7 @@ Plugin URI: https://wordpress.com
 Description: WP-Admin skin and plugins only.
 Author: Automattic
 Author URI: https://automattic.com
-Version: 0.2
 */
-
-if ( ! defined( 'CALYPSOIFY_VER' ) ) {
-	define( 'CALYPSOIFY_VER', '0.2' );
-}
 
 class Jetpack_Calypsoify {
 	static $instance = false;
@@ -91,13 +86,17 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style.css', false, CALYPSOIFY_VER );
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, CALYPSOIFY_VER );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style.css', false, JETPACK__VERSION );
+		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
+
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, JETPACK__VERSION );
 	}
 
 	public function enqueue_for_gutenberg() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style-gutenberg.css', false, CALYPSOIFY_VER );
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods-gutenberg.js', false, CALYPSOIFY_VER );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style-gutenberg.css', false, JETPACK__VERSION );
+		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
+
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods-gutenberg.js', false, JETPACK__VERSION );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
