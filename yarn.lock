@@ -9,6 +9,10 @@
     loader-utils "^0.2.2"
     object-assign "^4.0.1"
 
+"@automattic/jetpack-blocks@^0.1.0-alpha.30639":
+  version "0.1.0-alpha.30639"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-0.1.0-alpha.30639.tgz#0d8a6b14b0a1fe5352b0320fb38ccc2994627729"
+
 "@octokit/rest@^15.5.0":
   version "15.9.0"
   resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-15.9.0.tgz#47863d114cd56a398b0774b4e6f9f942b3ffd2fd"
