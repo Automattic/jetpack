@@ -399,7 +399,6 @@ class Jetpack_Sitemap_Manager {
 			 * @param int $maximum Maximum number of minutes.
 			 */
 			$randomness = MINUTE_IN_SECONDS * mt_rand( 1, apply_filters( 'jetpack_sitemap_generation_randomness', 15 ) ); // Randomly space it out to start within next fifteen minutes.
-			wp_schedule_single_event( time() + $randomness, 'jp_sitemap_cron_hook' );
 			wp_schedule_event(
 				time() + $randomness,
 				'sitemap-interval',
