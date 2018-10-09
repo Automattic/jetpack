@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Photon CDN
+ * Module Name: Asset CDN
  * Module Description: Serve static assets from our servers
  * Sort Order: 26
  * Recommendation Order: 1
@@ -216,7 +216,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return Boolean whether the file is a JS or CSS.
 	 */
 	public static function is_js_or_css_file( $path ) {
-		return in_array( substr( $path, -3 ), array( 'css', '.js' ), true );
+		return ( false === strpos( $path, '?' ) ) && in_array( substr( $path, -3 ), array( 'css', '.js' ), true );
 	}
 
 	/**

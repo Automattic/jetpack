@@ -728,18 +728,19 @@ __( "Your Jetpack Professional plan is taking care of business!", "jetpack" ), /
 __( "Sharing", "jetpack" ), // _inc/client/components/welcome-new-plan/social-seo-ads-prompt.jsx:16
 __( "Growing your following is easy with your Professional plan, thanks to content sharing and scheduling, SEO tools, and built-in subscription options. You can monetize your site with a Simple Payments button and in-line ads, and monitor the success of your efforts by integrating with Google Analytics.", "jetpack" ), // _inc/client/components/welcome-new-plan/social-seo-ads-prompt.jsx:18
 __( "VideoPress allows you to upload videos from your computer to be hosted on WordPress.com, rather than on your host’s servers. You can then insert these on your self-hosted Jetpack site. ", "jetpack" ), // _inc/client/components/welcome-new-plan/videopress-prompt.jsx:16
-__( "Verifying...", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:60
-__( "Site failed to verify: %(error)s", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:79
-__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:152
-__( "Save", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:166
-__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:180
-__( "Your site is verified with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:184
-__( "Edit", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:190
-__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}.", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:199
-__( "Google will email about certain events that occur with your site, including indications that your website has been {{a1}}hacked{{/a1}}, or problems {{a2}}crawling or indexing{{/a2}} your site.", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:212
-__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:248
-__( "Verify with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:255
-__( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:258
-__( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:264
+__( "Verifying...", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:69
+__( "Site failed to verify: %(error)s", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:88
+__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:174
+__( "Save", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:191
+__( "Cancel", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:198
+__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:213
+__( "Your site is verified with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:217
+__( "Edit", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:223
+__( "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}.", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:232
+__( "Google will email about certain events that occur with your site, including indications that your website has been {{a1}}hacked{{/a1}}, or problems {{a2}}crawling or indexing{{/a2}} your site.", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:245
+__( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:281
+__( "Verify with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:288
+__( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:291
+__( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:297
 );
 /* THIS IS THE END OF THE GENERATED FILE */

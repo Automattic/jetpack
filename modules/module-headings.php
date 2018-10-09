@@ -124,7 +124,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'photon-cdn' => array(
-				'name' => _x( 'Photon CDN', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Serve static assets from our servers', 'Module Description', 'jetpack' ),
 			),
 
