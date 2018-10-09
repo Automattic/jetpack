@@ -114,13 +114,13 @@
 				enable_share_button();
 			}
 
-			$( '#live-preview div.sharedaddy' ).removeClass( 'sd-social-icon' );
+			$( '#live-preview div.sharingbuttons' ).removeClass( 'sd-social-icon' );
 			$( '#live-preview li.advanced' ).removeClass( 'no-icon' );
 
 			// Button style
 			if ( 'icon' === button_style ) {
 				$( '#live-preview ul.preview div span, .sharing-hidden .inner ul div span' ).html( '&nbsp;' ).parent().addClass( 'no-text' );
-				$( '#live-preview div.sharedaddy' ).addClass( 'sd-social-icon' );
+				$( '#live-preview div.sharingbuttons' ).addClass( 'sd-social-icon' );
 			} else if ( 'official' === button_style ) {
 				$( '#live-preview ul.preview .advanced, .sharing-hidden .inner ul .advanced' ).each( function( /*i*/ ) {
 					if ( !$( this ).hasClass( 'preview-press-this' ) &&

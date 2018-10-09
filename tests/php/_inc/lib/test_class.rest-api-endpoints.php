@@ -776,7 +776,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$user->add_cap( 'jetpack_activate_modules' );
 		wp_set_current_user( $user->ID );
 
-		Jetpack::update_active_modules( array( 'sharedaddy' ) );
+		Jetpack::update_active_modules( array( 'sharingbuttons' ) );
 
 		// Verify that saving another thing fails
 		$response = $this->create_and_get_request( 'settings', array( 'show' => 'post' ), 'POST' );

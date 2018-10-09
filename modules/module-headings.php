@@ -170,7 +170,7 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
 			),
 
-			'sharedaddy' => array(
+			'sharingbuttons' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow visitors to share your content.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
@@ -290,7 +290,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/likes.php
 			//  - modules/publicize.php
 			//  - modules/seo-tools.php
-			//  - modules/sharedaddy.php
+			//  - modules/sharingbuttons.php
 			//  - modules/shortcodes.php
 			//  - modules/shortlinks.php
 			//  - modules/subscriptions.php
@@ -328,7 +328,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/protect.php
 			//  - modules/publicize.php
 			//  - modules/related-posts.php
-			//  - modules/sharedaddy.php
+			//  - modules/sharingbuttons.php
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),

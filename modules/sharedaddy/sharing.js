@@ -128,13 +128,13 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		if ( 'undefined' !== typeof WPCOMSharing ) {
 			WPCOMSharing.get_counts();
 		}
-		$more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
+		$more_sharing_buttons = $( '.sharingbuttons a.sharing-anchor' );
 
 		$more_sharing_buttons.click( function() {
 			return false;
 		} );
 
-		$( '.sharedaddy a' ).each( function() {
+		$( '.sharingbuttons a' ).each( function() {
 			if ( $( this ).attr( 'href' ) && $( this ).attr( 'href' ).indexOf( 'share=' ) !== -1 ) {
 				$( this ).attr( 'href', $( this ).attr( 'href' ) + '&nb=1' );
 			}
@@ -269,12 +269,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			$more_sharing_buttons.data( 'timer', false );
 
 			// slide down forcibly
-			$( '.sharedaddy .inner' ).slideUp();
+			$( '.sharingbuttons .inner' ).slideUp();
 
 		});
 
 		// Add click functionality
-		$( '.sharedaddy ul' ).each( function() {
+		$( '.sharingbuttons ul' ).each( function() {
 
 			if ( 'yep' === $( this ).data( 'has-click-events' ) ) {
 				return;
@@ -343,7 +343,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				if ( $sharing_email.is( ':visible' ) ) {
 					$sharing_email.slideUp( 200 );
 				} else {
-					$( '.sharedaddy .inner' ).slideUp();
+					$( '.sharingbuttons .inner' ).slideUp();
 
 					$( '#sharing_email .response' ).remove();
 					$( '#sharing_email form' ).show();

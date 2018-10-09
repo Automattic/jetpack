@@ -30,7 +30,7 @@ const admincss = [
 	'modules/post-by-email/post-by-email.css',
 	'modules/publicize/assets/publicize.css',
 	'modules/protect/protect-dashboard-widget.css',
-	'modules/sharedaddy/admin-sharing.css',
+	'modules/sharingbuttons/admin-sharing.css',
 	'modules/videopress/videopress-admin.css',
 	'modules/videopress/css/editor.css',
 	'modules/videopress/css/videopress-editor-style.css',

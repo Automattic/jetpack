@@ -48,19 +48,19 @@ class Jetpack_Comment_Likes {
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
 			$active = Jetpack::get_active_modules();
 
-			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
+			if ( ! in_array( 'sharingbuttons', $active ) && ! in_array( 'publicize', $active ) ) {
 				// we don't have a sharing page yet
 				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
 			}
 
-			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
+			if ( in_array( 'publicize', $active ) && ! in_array( 'sharingbuttons', $active ) ) {
 				// we have a sharing page but not the global options area
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if( ! in_array( 'sharedaddy', $active ) ) {
-				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
+			if( ! in_array( 'sharingbuttons', $active ) ) {
+				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharingbuttons_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
 				add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );

@@ -271,7 +271,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'sharing_enabled' :
 				$show = true;
-				/** This filter is documented in modules/sharedaddy/sharing-service.php */
+				/** This filter is documented in modules/sharingbuttons/sharing-service.php */
 				$show = apply_filters( 'sharing_show', $show, $post );
 
 				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );

@@ -287,7 +287,7 @@ iframe[id*="twitter-widget-"] {
  * Sharing
  */
 
-.hentry div.sharedaddy h3.sd-title,
+.hentry div.sharingbuttons h3.sd-title,
 .hentry h3.sd-title {
 	font-family: "Noto Sans", sans-serif;
 	font-size: 12px;
@@ -737,7 +737,7 @@ iframe[id*="twitter-widget-"] {
 		margin-bottom: 1.6842em;
 	}
 
-	.hentry div.sharedaddy h3.sd-title,
+	.hentry div.sharingbuttons h3.sd-title,
 	.hentry div#jp-relatedposts h3.jp-relatedposts-headline {
 		font-size: 13px;
 		font-size: 1.3rem;

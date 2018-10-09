@@ -423,7 +423,7 @@ abstract class SAL_Post {
 
 	public function is_sharing_enabled() {
 		$show = true;
-		/** This filter is documented in modules/sharedaddy/sharing-service.php */
+		/** This filter is documented in modules/sharingbuttons/sharing-service.php */
 		$show = apply_filters( 'sharing_show', $show, $this->post );
 
 		$switched_status = get_post_meta( $this->post->ID, 'sharing_disabled', false );

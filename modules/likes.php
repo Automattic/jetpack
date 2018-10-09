@@ -52,19 +52,19 @@ class Jetpack_Likes {
 
 			$active = Jetpack::get_active_modules();
 
-			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
+			if ( ! in_array( 'sharingbuttons', $active ) && ! in_array( 'publicize', $active ) ) {
 				// we don't have a sharing page yet
 				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
 			}
 
-			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
+			if ( in_array( 'publicize', $active ) && ! in_array( 'sharingbuttons', $active ) ) {
 				// we have a sharing page but not the global options area
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if( ! in_array( 'sharedaddy', $active ) ) {
-				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
+			if( ! in_array( 'sharingbuttons', $active ) ) {
+				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharingbuttons_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
 				add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
@@ -169,7 +169,7 @@ class Jetpack_Likes {
 
 	/**
 	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
-	 * @param  string $html row heading for the sharedaddy "which page" setting
+	 * @param  string $html row heading for the sharingbuttons "which page" setting
 	 * @return string       html with the jetpack-targetable class and likes id. tbody gets closed after the like settings
 	 */
 	function configuration_target_area( $html = '' ) {
@@ -453,12 +453,12 @@ class Jetpack_Likes {
 		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
-			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+			/** This filter is already documented in modules/sharingbuttons/sharing-service.php */
 			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
 			esc_html__( 'Like this:', 'jetpack' )
 		);
 
-		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
+		$html  = "<div class='sharingbuttons sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
 		$html .= $headline;
 		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";

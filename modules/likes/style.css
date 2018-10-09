@@ -12,14 +12,14 @@
 	padding-top: .5em;
 }
 
-/* Overall Sharedaddy block title */
-div.sharedaddy,
-#content div.sharedaddy,
-#main div.sharedaddy {
+/* Overall Sharingbuttons block title */
+div.sharingbuttons,
+#content div.sharingbuttons,
+#main div.sharingbuttons {
 	clear: both;
 }
 
-div.sharedaddy h3.sd-title {
+div.sharingbuttons h3.sd-title {
 	margin: 0 0 1em 0;
 	display: inline-block;
 	line-height: 1.2;
@@ -27,7 +27,7 @@ div.sharedaddy h3.sd-title {
 	font-weight: bold;
 }
 
-div.sharedaddy h3.sd-title:before {
+div.sharingbuttons h3.sd-title:before {
 	content: "";
 	display: block;
 	width: 100%;
@@ -204,11 +204,11 @@ div.sd-box {
 }
 
 /* Like Special cases (display on it's own) */
-div.sharedaddy.sd-like-enabled .sd-like h3 {
+div.sharingbuttons.sd-like-enabled .sd-like h3 {
 	display: none;
 }
 
-div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
+div.sharingbuttons.sd-like-enabled .sd-like .post-likes-widget {
 	width: 100%;
 	float: none;
 	position: absolute; /* Need to abs position placeholder and iframe so there isn't a jarring jump */

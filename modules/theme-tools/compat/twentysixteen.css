@@ -652,13 +652,13 @@ iframe[src^="http://api.mixcloud.com/"] {
  * Sharing
  */
 
-.sharedaddy {
+.sharingbuttons {
 	padding: 1.75em 0;
 	position: relative;
 }
 
-.sharedaddy:before,
-.sharedaddy:last-child:after {
+.sharingbuttons:before,
+.sharingbuttons:last-child:after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -668,7 +668,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.sharedaddy:last-child:after {
+.sharingbuttons:last-child:after {
 	bottom: 0;
 	top: auto;
 }
@@ -681,7 +681,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	padding-bottom: 1.125em;
 }
 
-.hentry div.sharedaddy h3.sd-title,
+.hentry div.sharingbuttons h3.sd-title,
 .hentry h3.sd-title {
 	color: inherit;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
@@ -692,7 +692,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	margin-bottom: 1.076923077em;
 }
 
-.hentry div.sharedaddy h3.sd-title:before {
+.hentry div.sharingbuttons h3.sd-title:before {
 	display: none;
 }
 
@@ -809,12 +809,12 @@ iframe[src^="http://api.mixcloud.com/"] {
 }
 
 @media screen and (min-width: 61.5625em) {
-	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child,
+	body:not(.search-results) article:not(.type-page) .sharingbuttons:last-child,
 	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child {
 		padding-bottom: 0;
 	}
 
-	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child:after,
+	body:not(.search-results) article:not(.type-page) .sharingbuttons:last-child:after,
 	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child:after {
 		display: none;
 	}

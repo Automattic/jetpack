@@ -41,7 +41,7 @@ class Jetpack {
 		'the-neverending-homepage',
 		'jetpack_likes',
 		'jetpack_related-posts',
-		'sharedaddy',
+		'sharingbuttons',
 		'jetpack-slideshow',
 		'presentations',
 		'jetpack-subscriptions',
@@ -74,7 +74,7 @@ class Jetpack {
 	public $plugins_to_deactivate = array(
 		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+		'sharingbuttons'          => array( 'sharingbuttons/sharingbuttons.php', 'Sharingbuttons' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
@@ -84,7 +84,7 @@ class Jetpack {
 		'videopress'          => array( 'video/video.php', 'VideoPress' ),
 		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
 		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		'sharingbuttons'          => array( 'jetpack-sharing/sharingbuttons.php', 'Jetpack Sharing' ),
 		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
@@ -170,7 +170,7 @@ class Jetpack {
 			'Shareaholic'                          => 'shareaholic/shareaholic.php',
 			'Sexybookmarks'                        => 'sexybookmarks/shareaholic.php',
 		),
-		'sharedaddy'        => array(
+		'sharingbuttons'        => array(
 			'AddThis'                              => 'addthis/addthis_social_widget.php',
 			'Add To Any'                           => 'add-to-any/add-to-any.php',
 			'ShareThis'                            => 'share-this/sharethis.php',
@@ -1004,7 +1004,7 @@ class Jetpack {
 				true
 			);
 
-			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+			/** This filter is documented in modules/sharingbuttons/sharing-sources.php */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
 			if ( ! is_numeric( $fb_app_id ) ) {
 				$fb_app_id = '';
@@ -2038,7 +2038,7 @@ class Jetpack {
 	 * @return null
 	 */
 	public function check_open_graph() {
-		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) ) {
+		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharingbuttons', Jetpack::get_active_modules() ) ) {
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
@@ -2546,7 +2546,7 @@ class Jetpack {
 		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once.
 		 *     'Recommended' shows on the main Jetpack admin screen.
 		 *     'Other' should be the default if no other value is in the array.
-		 * @param string  $module The slug of the module, e.g. sharedaddy.
+		 * @param string  $module The slug of the module, e.g. sharingbuttons.
 		 * @param array   $mod All the currently assembled module data.
 		 */
 		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
@@ -2560,7 +2560,7 @@ class Jetpack {
 		 * @since 3.6.0
 		 *
 		 * @param array   $mod    The details of the requested module.
-		 * @param string  $module The slug of the module, e.g. sharedaddy
+		 * @param string  $module The slug of the module, e.g. sharingbuttons
 		 * @param string  $file   The path to the module source file.
 		 */
 		return apply_filters( 'jetpack_get_module', $mod, $module, $file );
@@ -6759,7 +6759,7 @@ p {
 		}
 
 		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
-		if ( get_option( 'sharedaddy_disable_resources' ) ) {
+		if ( get_option( 'sharingbuttons_disable_resources' ) ) {
 			return;
 		}
 

@@ -49,7 +49,7 @@ describe( 'SettingsCard', () => {
 			'infinite-scroll',
 			'gravatar-hovercards',
 			'custom-css',
-			'sharedaddy',
+			'sharingbuttons',
 			'widgets',
 			'shortcodes',
 			'related-posts',

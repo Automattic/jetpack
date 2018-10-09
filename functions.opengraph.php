@@ -14,7 +14,7 @@ function jetpack_og_tags() {
 	/**
 	 * Allow Jetpack to output Open Graph Meta Tags.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 2.0.0
 	 * @deprecated 2.0.3 Duplicative filter. Use `jetpack_enable_open_graph`.
@@ -35,7 +35,7 @@ function jetpack_og_tags() {
 	/**
 	 * Filter the minimum width of the images used in Jetpack Open Graph Meta Tags.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 2.0.0
 	 *
@@ -45,7 +45,7 @@ function jetpack_og_tags() {
 	/**
 	 * Filter the minimum height of the images used in Jetpack Open Graph Meta Tags.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 2.0.0
 	 *
@@ -111,7 +111,7 @@ function jetpack_og_tags() {
 				/**
 				 * Filter the fallback `og:description` used when no excerpt information is provided.
 				 *
-				 * @module sharedaddy, publicize
+				 * @module sharingbuttons, publicize
 				 *
 				 * @since 3.9.0
 				 *
@@ -137,7 +137,7 @@ function jetpack_og_tags() {
 	/**
 	 * Allow plugins to inject additional template-specific Open Graph tags.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 3.0.0
 	 *
@@ -153,7 +153,7 @@ function jetpack_og_tags() {
 	/**
 	 * Do not return any Open Graph Meta tags if we don't have any info about a post.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 3.0.0
 	 *
@@ -206,7 +206,7 @@ function jetpack_og_tags() {
 	/**
 	 * Allow the addition of additional Open Graph Meta tags, or modify the existing tags.
 	 *
-	 * @module sharedaddy, publicize
+	 * @module sharingbuttons, publicize
 	 *
 	 * @since 2.0.0
 	 *
@@ -232,7 +232,7 @@ function jetpack_og_tags() {
 			/**
 			 * Filter the HTML Output of each Open Graph Meta tag.
 			 *
-			 * @module sharedaddy, publicize
+			 * @module sharingbuttons, publicize
 			 *
 			 * @since 2.0.0
 			 *

@@ -1726,7 +1726,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'hidden'  => array(),
 				),
 				'validate_callback' => __CLASS__ . '::validate_services',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			'button_style' => array(
 				'description'       => esc_html__( 'Button Style', 'jetpack' ),
@@ -1745,7 +1745,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'official'  => esc_html__( 'Official buttons', 'jetpack' ),
 				),
 				'validate_callback' => __CLASS__ . '::validate_list_item',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			'sharing_label' => array(
 				'description'       => esc_html__( 'Sharing Label', 'jetpack' ),
@@ -1753,7 +1753,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_html',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			'show' => array(
 				'description'       => esc_html__( 'Views where buttons are shown', 'jetpack' ),
@@ -1763,7 +1763,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 				'default'           => array( 'post' ),
 				'validate_callback' => __CLASS__ . '::validate_sharing_show',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			'jetpack-twitter-cards-site-tag' => array(
 				'description'       => esc_html__( "The Twitter username of the owner of this site's domain.", 'jetpack' ),
@@ -1771,14 +1771,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_twitter_username',
 				'sanitize_callback' => 'esc_html',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
-			'sharedaddy_disable_resources' => array(
+			'sharingbuttons_disable_resources' => array(
 				'description'       => esc_html__( 'Disable CSS and JS', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			'custom' => array(
 				'description'       => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
@@ -1789,7 +1789,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'sharing_icon' => '',
 				),
 				'validate_callback' => __CLASS__ . '::validate_custom_service',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 			// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
 			'sharing_delete_service' => array(
@@ -1797,7 +1797,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_custom_service_id',
-				'jp_group'          => 'sharedaddy',
+				'jp_group'          => 'sharingbuttons',
 			),
 
 			// SSO
@@ -2456,7 +2456,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -2496,7 +2496,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 
@@ -2524,7 +2524,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing-service.php' ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -2711,16 +2711,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $code;
 				break;
 
-			case 'sharedaddy':
+			case 'sharingbuttons':
 				// It's local, but it must be broken apart since it's saved as an array.
-				if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+				if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharingbuttons/sharing-service.php' ) ) {
 					break;
 				}
 				$sharer = new Sharing_Service();
 				$options = self::split_options( $options, $sharer->get_global_options() );
 				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
-				$other_sharedaddy_options = array( 'jetpack-twitter-cards-site-tag', 'sharedaddy_disable_resources', 'sharing_delete_service' );
-				foreach ( $other_sharedaddy_options as $key ) {
+				$other_sharingbuttons_options = array( 'jetpack-twitter-cards-site-tag', 'sharingbuttons_disable_resources', 'sharing_delete_service' );
+				foreach ( $other_sharingbuttons_options as $key ) {
 					$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
 					$current_value = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );

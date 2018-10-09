@@ -39,8 +39,8 @@
         <testsuite name="publicize">
             <directory prefix="test_" suffix=".php">php/modules/publicize</directory>
         </testsuite>
-        <testsuite name="sharedaddy">
-            <directory prefix="test_" suffix=".php">php/modules/sharedaddy</directory>
+        <testsuite name="sharingbuttons">
+            <directory prefix="test_" suffix=".php">php/modules/sharingbuttons</directory>
         </testsuite>
         <testsuite name="shortcodes">
             <directory prefix="test_" suffix=".php">php/modules/shortcodes</directory>

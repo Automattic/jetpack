@@ -14,7 +14,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'forbidden', 'You do not have the capability to manage sharing buttons for this site', 403 );
 		} else if ( ! class_exists( 'Sharing_Service' ) || ! class_exists( 'Sharing_Source' ) ||
-				( method_exists( 'Jetpack', 'is_module_active' ) && ! Jetpack::is_module_active( 'sharedaddy' ) ) ) {
+				( method_exists( 'Jetpack', 'is_module_active' ) && ! Jetpack::is_module_active( 'sharingbuttons' ) ) ) {
 			return new WP_Error( 'missing_jetpack_module', 'The Sharing module must be activated in order to use this endpoint', 400 );
 		}
 	}

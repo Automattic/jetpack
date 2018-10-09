@@ -33,7 +33,7 @@ class Sharing extends Component {
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
-			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
+			foundSharing = this.props.isModuleFound( 'sharingbuttons' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {

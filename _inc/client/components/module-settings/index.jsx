@@ -40,7 +40,7 @@ export class VideoPressSettings extends React.Component {
 
 VideoPressSettings = moduleSettingsForm( VideoPressSettings );
 
-export class SharedaddySettings extends React.Component {
+export class SharingbuttonsSettings extends React.Component {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -56,7 +56,7 @@ export class SharedaddySettings extends React.Component {
 	}
 }
 
-SharedaddySettings = moduleSettingsForm( SharedaddySettings );
+SharingbuttonsSettings = moduleSettingsForm( SharingbuttonsSettings );
 
 export class RelatedPostsSettings extends React.Component {
 	renderPreviews = () => {

@@ -130,7 +130,7 @@ class AllModuleSettingsComponent extends React.Component {
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
-			case 'sharedaddy':
+			case 'sharingbuttons':
 			default:
 				if ( 'publicize' === module.module ) {
 					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
