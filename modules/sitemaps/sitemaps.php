@@ -475,7 +475,9 @@ class Jetpack_Sitemap_Manager {
 	public function callback_action_purge_data() {
 		$this->callback_action_flush_news_sitemap_cache();
 		$this->librarian->delete_all_stored_sitemap_data();
-		wp_schedule_single_event( time() + 60, 'jp_sitemap_cron_hook' );
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		$randomness = MINUTE_IN_SECONDS * mt_rand( 1, apply_filters( 'jetpack_sitemap_generation_randomness', 15 ) ); // Randomly space it out to start within next fifteen minutes.
+		wp_schedule_single_event( time() + $randomness, 'jp_sitemap_cron_hook' );
 	}
 
 	/**
