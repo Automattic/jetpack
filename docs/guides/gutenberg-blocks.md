@@ -64,7 +64,7 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
     If you then run that command from Jetpack folder, you can then simply do this with the output-dir:  `--output-dir=./_inc/blocks`
 
-1. If the block you’re building requires Jetpack to be connected, you can use ngrok to open a public tunnel to your local development environment. For installation, refer to the Field Guide (PCYsg-d3I-p2), and running it is as simple as:
+1. If the block you’re building requires Jetpack to be connected, you can use ngrok to open a public tunnel to your local development environment. For installation, refer to the Field Guide; running it is as simple as:
 
         ngrok http 80
 
