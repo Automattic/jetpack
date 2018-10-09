@@ -2,7 +2,7 @@
 
 _Note: Since the Gutenberg SDK is still being actively developed, the development workflow described here is subject to frequent change (as of October 2018). Notably, we're currently working on a different (lerna and npm based) deploy workflow. Be sure to check back frequently!_
 
-## Install & activate Gutenberg plugin.
+Install & activate the [Gutenberg plugin](https://wordpress.org/plugins/gutenberg/).
 
 If you use Jetpack-Docker, you can use WP-CLI:
 
