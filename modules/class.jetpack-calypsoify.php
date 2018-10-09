@@ -1,10 +1,7 @@
 <?php
 /*
-Plugin Name: Calypsoify
-Plugin URI: https://wordpress.com
-Description: WP-Admin skin and plugins only.
-Author: Automattic
-Author URI: https://automattic.com
+ * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
+ * Portted from an internal Automattic plugin.
 */
 
 class Jetpack_Calypsoify {

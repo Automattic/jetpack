@@ -89,7 +89,6 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-calypsoify.php'  );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
