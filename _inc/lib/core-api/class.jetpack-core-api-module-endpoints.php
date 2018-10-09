@@ -747,6 +747,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'pinterest':
 				case 'yandex':
 					$grouped_options          = $grouped_options_current = (array) get_option( 'verification_services_codes' );
+					$matches = array();
+					if ( preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $value, $matches ) ) {
+						$value = $matches[ 2 ];
+					}
 					$grouped_options[$option] = $value;
 
 					// If option value was the same, consider it done.
