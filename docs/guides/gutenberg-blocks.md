@@ -55,9 +55,9 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 1.  (optional) To run SDK CLI commands from anywhere in file system, type `npm link` in Calypso folder. You now have `calypso-sdk` command available.
 
-1.  All blocks currently live in the Calypso repo: https://github.com/Automattic/wp-calypso/tree/96b2d6a64f3d65fbadfbbf707d0d1cdaa23b942f/client/gutenberg/extensions
+1.  The source for Jetpack blocks lives in the Calypso repository: https://github.com/Automattic/wp-calypso/tree/96b2d6a64f3d65fbadfbbf707d0d1cdaa23b942f/client/gutenberg/extensions
 
-    We also have some block-bundles in `/presets` folder. Check e.g. the Jetpack one.
+    Bundled Jetpack blocks should be added to the corresponding [`jetpack` presets](https://github.com/Automattic/wp-calypso/tree/master/client/gutenberg/extensions/presets/jetpack).
 
     The SDK supports building code from external sources so you don't necessarily have to commit to Calypso until to the point you want to share your work.
 
@@ -88,6 +88,5 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 ## Other Resources
 
-- SDK documentation: https://wpcalypso.wordpress.com/devdocs/docs/sdk.md 
-- Jetpack Docker documentation: https://github.com/Automattic/jetpack/tree/master/docker#readme 
-- p9dueE-nY-p2
+- SDK documentation: https://wpcalypso.wordpress.com/devdocs/docs/sdk.md
+- Jetpack Docker documentation: https://github.com/Automattic/jetpack/tree/master/docker#readme
