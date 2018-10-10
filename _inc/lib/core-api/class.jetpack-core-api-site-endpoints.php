@@ -92,22 +92,15 @@ class Jetpack_Core_API_Site_Endpoint {
 		// Decode the results
 		$results = json_decode( $response['body'], true );
 
-		// Bail if there were no results returned
-		if ( ! isset( $results['hits'] ) || ! is_array( $results['hits'] ) ) {
-			return new WP_Error(
-				'no_related_posts_found',
-				esc_html__( 'No related posts found for the specified post.', 'jetpack' ),
-				array( 'status' => 404 )
-			);
-		}
-
-		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-		$related_posts_ids = array_map( array( 'Jetpack_Core_API_Site_Endpoint', 'get_related_post_id' ), $response_body['hits'] );
-
 		$related_posts = array();
-		$related_posts_instance = Jetpack_RelatedPosts::init();
-		foreach ( $related_posts_ids as $related_post_id ) {
-			$related_posts[] = $related_posts_instance->get_related_post_data_for_post( $related_post_id, 0, 0 );
+		if ( isset( $results['hits'] ) && is_array( $results['hits'] ) ) {
+			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+			$related_posts_ids = array_map( array( 'Jetpack_Core_API_Site_Endpoint', 'get_related_post_id' ), $response_body['hits'] );
+
+			$related_posts_instance = Jetpack_RelatedPosts::init();
+			foreach ( $related_posts_ids as $related_post_id ) {
+				$related_posts[] = $related_posts_instance->get_related_post_data_for_post( $related_post_id, 0, 0 );
+			}
 		}
 
 		return rest_ensure_response( array(
