@@ -7376,8 +7376,10 @@ p {
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
+		$view_script_dependencies = array( 'wp-blocks', 'jquery' );
+
 		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
+		wp_register_script( 'jetpack-blocks-view', $view_script, $view_script_dependencies, $version );
 		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
 
 		register_block_type( 'jetpack/blocks', array(
