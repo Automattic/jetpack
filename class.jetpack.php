@@ -7312,7 +7312,7 @@ p {
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
+		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
 
@@ -7325,7 +7325,7 @@ p {
 		 *
 		 * @param bool true Whether to load Gutenberg blocks from CDN
 		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
+		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
 			$editor_script = "$cdn_base/editor.js";
 			$editor_style = "$cdn_base/editor$rtl.css";
