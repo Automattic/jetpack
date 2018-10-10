@@ -7370,6 +7370,12 @@ p {
 			$version
 		);
 
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Block_Assets_Base_Url',
+			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+		);
+
 		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
 		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
