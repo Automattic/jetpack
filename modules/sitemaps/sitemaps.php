@@ -387,8 +387,20 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			/**
+			 * Filter the delay in seconds until sitemap generation cron job is started.
+			 *
+			 * This filter allows a site operator or hosting provider to potentialy spread out sitemap generation for a
+			 * lot of sites over time. By default, it will be randomly done over 15 minutes.
+			 *
+			 * @module sitemaps
+			 * @since 6.6.1
+			 *
+			 * @param int $delay Time to delay in seconds.
+			 */
+			$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * mt_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
 			wp_schedule_event(
-				time(),
+				time() + $delay,
 				'sitemap-interval',
 				'jp_sitemap_cron_hook'
 			);
