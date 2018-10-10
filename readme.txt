@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Sitemaps: improve initial sitemap creation process.
 * Widgets: fix missing CSS for the Social Icons Widgets.
 
 = 6.6 =
