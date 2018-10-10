@@ -470,7 +470,7 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @access public
 	 * @since 5.3.0
-	 * @since 6.7.0 Schedules a regeneration after 60 seconds.
+	 * @since 6.7.0 Schedules a regeneration.
 	 */
 	public function callback_action_purge_data() {
 		$this->callback_action_flush_news_sitemap_cache();
