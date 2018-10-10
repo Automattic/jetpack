@@ -69,6 +69,17 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
+		// Activate the Related Posts module if it's not currently active
+		if ( ! Jetpack::is_module_active( 'related-posts' ) ) {
+			if ( ! Jetpack::activate_module( 'related-posts' ) ) {
+				return new WP_Error(
+					'module_activation_error',
+					esc_html__( 'We were unable to activate the Related Posts module.', 'jetpack' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		// Make the API request
 		$request = sprintf( '/sites/%d/posts/%d/related', Jetpack_Options::get_option( 'id' ), $post_id );
 		$request_args = array(
