@@ -43,7 +43,7 @@ class Jetpack_Sitemap_State {
 	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
 	 */
-	private static function initial( $type = '' ) {
+	private static function initial( $type = JP_PAGE_SITEMAP_TYPE ) {
 		return array(
 			'sitemap-type'  => $type,
 			'last-added'    => 0,

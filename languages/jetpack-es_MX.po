@@ -11,15 +11,26 @@ msgstr ""
 "Language: es_MX\n"
 "Project-Id-Version: Plugins - Jetpack by WordPress.com - Development (trunk)\n"
 
-#: _inc/jetpack-strings.php:743
+#: modules/module-info.php:695
+msgid ""
+"Our asset CDN is a site acceleration service.\n"
+"\t\tThat means that we host static assets like JavaScript and CSS shipped with WordPress Core and Jetpack from our servers, alleviating the load on your server."
+msgstr ""
+
+#: modules/module-headings.php:127
+msgctxt "Module Name"
+msgid "Asset CDN"
+msgstr ""
+
+#: _inc/jetpack-strings.php:744
 msgid "Manually Verify "
 msgstr ""
 
-#: _inc/jetpack-strings.php:741
+#: _inc/jetpack-strings.php:742
 msgid "Verify with Google"
 msgstr ""
 
-#: _inc/jetpack-strings.php:739
+#: _inc/jetpack-strings.php:740
 msgid "Google will email about certain events that occur with your site, including indications that your website has been {{a1}}hacked{{/a1}}, or problems {{a2}}crawling or indexing{{/a2}} your site."
 msgstr ""
 
@@ -54,15 +65,15 @@ msgstr ""
 msgid "Manage your network's Jetpack Sites."
 msgstr ""
 
-#: _inc/jetpack-strings.php:742
+#: _inc/jetpack-strings.php:743
 msgid "or"
 msgstr ""
 
-#: _inc/jetpack-strings.php:738
+#: _inc/jetpack-strings.php:739
 msgid "Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}."
 msgstr ""
 
-#: _inc/jetpack-strings.php:736
+#: _inc/jetpack-strings.php:737
 msgid "Your site is verified with Google"
 msgstr ""
 
@@ -109,11 +120,6 @@ msgstr ""
 #: modules/module-headings.php:128
 msgctxt "Module Description"
 msgid "Serve static assets from our servers"
-msgstr ""
-
-#: modules/module-headings.php:127
-msgctxt "Module Name"
-msgid "Photon CDN"
 msgstr ""
 
 #: class.jetpack-cli.php:1312
@@ -8977,8 +8983,8 @@ msgctxt "share to"
 msgid "Google"
 msgstr "Google"
 
-#: _inc/jetpack-strings.php:733 _inc/jetpack-strings.php:735
-#: _inc/jetpack-strings.php:740 modules/sharedaddy/sharing-sources.php:1134
+#: _inc/jetpack-strings.php:733 _inc/jetpack-strings.php:736
+#: _inc/jetpack-strings.php:741 modules/sharedaddy/sharing-sources.php:1134
 msgid "Google"
 msgstr "Google"
 
@@ -11274,6 +11280,7 @@ msgstr "Ninguna"
 msgid "Preprocessor:"
 msgstr "Preprocesador:"
 
+#: _inc/jetpack-strings.php:735
 #: modules/contact-form/grunion-editor-view.php:288
 #: modules/custom-css/custom-css.php:1087
 #: modules/custom-css/custom-css.php:1178
@@ -12687,7 +12694,7 @@ msgstr "En esta página podrás ver los módulos disponibles en Jetpack, aprende
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack es un plugin de WordPress que permite que utilices el inmenso poder de la nube de WordPress.com en tu sitio WordPress.org."
 
-#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 6.6-beta2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 6.6)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: class.jetpack.php:3826 class.jetpack.php:3839
 msgid "Jetpack by WordPress.com"
@@ -12769,7 +12776,7 @@ msgstr "Sitios"
 msgid "Jetpack Sites"
 msgstr "Sitios de Jetpack "
 
-#: _inc/jetpack-strings.php:737 class.jetpack-network-sites-list-table.php:58
+#: _inc/jetpack-strings.php:738 class.jetpack-network-sites-list-table.php:58
 #: modules/custom-css/custom-css.php:1049
 #: modules/custom-css/custom-css.php:1162
 #: modules/custom-css/custom-css.php:1192 modules/minileven/minileven.php:279
