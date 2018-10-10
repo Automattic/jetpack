@@ -84,7 +84,7 @@ class Jetpack_Sitemap_State {
 	 */
 	public static function check_in( $state ) {
 		// Get the old max value.
-		$sitemap_old = get_option( 'jetpack-sitemap-state', self::initial() );
+		$sitemap_old  = get_option( 'jetpack-sitemap-state', self::initial() );
 		$state['max'] = $sitemap_old['max'];
 
 		// Update the max value of the current type.

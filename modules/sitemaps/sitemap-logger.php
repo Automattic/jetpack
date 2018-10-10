@@ -44,7 +44,7 @@ class Jetpack_Sitemap_Logger {
 	 * @param string $message An optional message string to be written to the debug log on initialization.
 	 */
 	public function __construct( $message = null ) {
-		$this->key = wp_generate_password( 5, false );
+		$this->key       = wp_generate_password( 5, false );
 		$this->starttime = microtime( true );
 		if ( ! is_null( $message ) ) {
 			$this->report( $message );

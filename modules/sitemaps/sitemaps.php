@@ -78,7 +78,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
-		$this->finder = new Jetpack_Sitemap_Finder();
+		$this->finder    = new Jetpack_Sitemap_Finder();
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
@@ -433,7 +433,7 @@ class Jetpack_Sitemap_Manager {
 		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
 
 		if ( true === $discover_sitemap ) {
-			$sitemap_url      = $this->finder->construct_sitemap_url( 'sitemap.xml' );
+			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $sitemap_url ) . "\n";
 		}
 
