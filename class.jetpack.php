@@ -7366,7 +7366,7 @@ p {
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
-			'JETPACK_BLOCK_ASSETS_BASE_URL',
+			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
