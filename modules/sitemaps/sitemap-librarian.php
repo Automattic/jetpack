@@ -10,6 +10,7 @@
  * @package Jetpack
  */
 
+/* Ensure sitemap constants are available. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 
 /**
@@ -166,9 +167,9 @@ class Jetpack_Sitemap_Librarian {
 		$any_left = true;
 
 		while ( true === $any_left ) {
-			$position += 1;
-			$name      = jp_sitemap_filename( $type, $position );
-			$any_left  = $this->delete_sitemap_data( $name, $type );
+			$position++;
+			$name     = jp_sitemap_filename( $type, $position );
+			$any_left = $this->delete_sitemap_data( $name, $type );
 		}
 	}
 
@@ -194,7 +195,7 @@ class Jetpack_Sitemap_Librarian {
 	 * @access protected
 	 * @since 5.3.0
 	 *
-	 * @param String $type
+	 * @param String $type Type of sitemap.
 	 */
 	protected function delete_sitemap_type_data( $type ) {
 		$ids = get_posts(

@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+/* Include standard constants and librarian. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 
@@ -75,12 +76,11 @@ class Jetpack_Sitemap_State {
 	 * @access public
 	 * @since 4.8.0
 	 *
-	 * @param array $state {
+	 * @param array $state Array of the Sitemap state details.
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
 	 *     @type int    number        The index of the last sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
-	 * }
 	 */
 	public static function check_in( $state ) {
 		// Get the old max value.

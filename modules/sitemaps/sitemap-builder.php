@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+/* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 
@@ -232,7 +233,7 @@ class Jetpack_Sitemap_Builder {
 				$finished = true;
 
 				break;
-		} // End switch().
+		} // End switch.
 
 		// Unlock the state.
 		Jetpack_Sitemap_State::unlock();
@@ -423,8 +424,6 @@ class Jetpack_Sitemap_Builder {
 			$state['number'] + 1,
 			$index_type
 		);
-
-		return;
 	}
 
 	/**
@@ -435,6 +434,9 @@ class Jetpack_Sitemap_Builder {
 	 * @since 4.8.0
 	 */
 	private function build_master_sitemap( $max ) {
+		$page  = array();
+		$image = array();
+		$video = array();
 		if ( $this->logger ) {
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
@@ -1047,7 +1049,7 @@ class Jetpack_Sitemap_Builder {
 				$the_stored_news_sitemap,
 				JP_NEWS_SITEMAP_INTERVAL
 			);
-		} // End if().
+		} // End if.
 
 		return $the_stored_news_sitemap;
 	}

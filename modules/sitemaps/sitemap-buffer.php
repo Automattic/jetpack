@@ -133,10 +133,9 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * don't do anything and report success.
 	 *
 	 * @since 4.8.0
+	 * @deprecated 5.3.0 Use Jetpack_Sitemap_Buffer::append.
 	 *
 	 * @param string $item The item to be added.
-	 *
-	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function try_to_add_item( $item ) {
 		_deprecated_function(
@@ -190,7 +189,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 */
 	public function contents() {
 		if ( $this->is_empty() ) {
-			// The sitemap should have at least the root element added to the DOM
+			// The sitemap should have at least the root element added to the DOM.
 			$this->get_root_element();
 		}
 		return $this->doc->saveXML();
