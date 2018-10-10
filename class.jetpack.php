@@ -7340,6 +7340,7 @@ p {
 			 * @param string
 			 */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
+			$blocks_public_path = $cdn_base . '/';
 		} else {
 			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
 			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
@@ -7348,6 +7349,7 @@ p {
 			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				: JETPACK__VERSION;
+			$blocks_public_path = plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE );
 		}
 
 		wp_register_script(
@@ -7373,7 +7375,7 @@ p {
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+			$blocks_public_path
 		);
 
 		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
