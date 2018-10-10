@@ -98,7 +98,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.6 =
+= 6.6.1 =
 
 * Release date: October 10, 2018
 * Release post: https://wp.me/p1moTy-aEt
