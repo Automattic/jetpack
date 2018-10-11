@@ -54,12 +54,16 @@ class GrunionForm extends Component {
 							value={ this.props.to }
 							onChange={ this.props.onToChange }
 						/>
+                        <TextControl
+							label={ __( 'What should the label on the form’s submit button say?' ) }
+                            value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
+                            onChange={ this.props.onSubmitChange }
+                        />
 					</PanelBody>
 				</InspectorControls>
 				<div className="grunion-form">
 					{this.props.children}
-					<input
-						type="text"
+					<TextControl
 						className="button button-primary button-default"
 						value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
 						onChange={ this.props.onSubmitChange }
@@ -198,7 +202,7 @@ class GrunionFieldMultiple extends Component {
 						onLabelChange={  this.props.onLabelChange }
 					/>
 					<ol>
-						{ _.map( this.props.options, ( option )=>( <li><input
+						{ _.map( this.props.options, ( option, key )=>( <li key={ key }><input
 							type='text'
 							className='option'
 							value={option}
@@ -210,9 +214,7 @@ class GrunionFieldMultiple extends Component {
 							}.bind( this ) }
 						/></li>))}
 					</ol>
-					<button onClick={ function() {
-						this.props.setAttributes( { options: this.props.options.concat( [ '' ] ) } );
-					} }>{ __( 'Add New' ) }</button>
+					<button onClick={ ()=>this.props.setAttributes( { options: this.props.options.concat( [ '' ] ) } ) }>{ __( 'Add New' ) }</button>
 				</div>
 			</Fragment>
 		)
@@ -251,13 +253,13 @@ registerBlockType( 'grunion/form', {
 		return (
 			<GrunionForm
 				key="grunion/form"
-				className={props.className}
-				subject={props.attributes.subject}
-				onSubjectChange={ (x)=>props.setAttributes({subject:x}) }
-				to={props.attributes.to}
-				onToChange={ (x)=>props.setAttributes({to:x}) }
-				submit={props.attributes.submit}
-				onSubmitChange={ (x)=>props.setAttributes({submit:x.target.value}) }
+				className={ props.className }
+				subject={ props.attributes.subject }
+				onSubjectChange={ ( x )=>props.setAttributes( { subject: x } ) }
+				to={ props.attributes.to }
+				onToChange={ ( x )=>props.setAttributes( { to: x } ) }
+				submit={ props.attributes.submit }
+				onSubmitChange={ ( x )=>props.setAttributes( { submit: x } ) }
 			>
 				<InnerBlocks
 					allowedBlocks={ [] }
@@ -322,9 +324,9 @@ registerBlockType( 'grunion/field-text', _.defaults({
 	edit: function( props ) {
 		return ( <GrunionField
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -336,9 +338,9 @@ registerBlockType( 'grunion/field-name', _.defaults({
 		return ( <GrunionField
 			type="text"
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -350,9 +352,9 @@ registerBlockType( 'grunion/field-email', _.defaults({
 		return ( <GrunionField
 			type="email"
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -364,9 +366,9 @@ registerBlockType( 'grunion/field-url', _.defaults({
 		return ( <GrunionField
 			type="url"
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -378,9 +380,9 @@ registerBlockType( 'grunion/field-date', _.defaults({
 		return ( <GrunionField
 			type="text"
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -392,9 +394,9 @@ registerBlockType( 'grunion/field-telephone', _.defaults({
 		return ( <GrunionField
 			type="tel"
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -404,9 +406,9 @@ registerBlockType( 'grunion/field-textarea', _.defaults({
 	edit: function( props ) {
 		return ( <GrunionFieldTextarea
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -417,9 +419,9 @@ registerBlockType( 'grunion/field-checkbox', _.defaults({
 	edit: function( props ) {
 		return ( <GrunionFieldCheckbox
 			label={ props.attributes.label }
-			onLabelChange={ (x)=>props.setAttributes({label:x.target.value}) }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
 			required={ props.attributes.required }
-			onRequiredChange={ (x)=>props.setAttributes({required:x}) }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
 		/> );
 	}
 }, FieldDefaults ) );
@@ -429,12 +431,12 @@ registerBlockType( 'grunion/field-checkbox-multiple', _.defaults({
 	icon        : 'forms',
 	edit: function( props ) {
 		return (<GrunionFieldMultiple
-			required={props.attributes.required}
-			onRequiredChange={(x)=>props.setAttributes({required:x})}
-			label={props.attributes.label}
-			onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
-			options={props.attributes.options}
-			setAttributes={props.setAttributes}
+			required={ props.attributes.required }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
+			label={ props.attributes.label }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
+			options={ props.attributes.options }
+			setAttributes={ props.setAttributes }
 		/>);
 	}
 }, FieldDefaults ) );
@@ -443,12 +445,12 @@ registerBlockType( 'grunion/field-radio', _.defaults({
 	title       : __( 'Radio', 'jetpack' ),
 	edit: function( props ) {
 		return (<GrunionFieldMultiple
-			required={props.attributes.required}
-			onRequiredChange={(x)=>props.setAttributes({required:x})}
-			label={props.attributes.label}
-			onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
-			options={props.attributes.options}
-			setAttributes={props.setAttributes}
+			required={ props.attributes.required }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
+			label={ props.attributes.label }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
+			options={ props.attributes.options }
+			setAttributes={ props.setAttributes }
 		/>);
 	}
 }, FieldDefaults ) );
@@ -457,12 +459,13 @@ registerBlockType( 'grunion/field-select', _.defaults({
 	title       : __( 'Select', 'jetpack' ),
 	edit: function( props ) {
 		return (<GrunionFieldMultiple
-			required={props.attributes.required}
-			onRequiredChange={(x)=>props.setAttributes({required:x})}
-			label={props.attributes.label}
-			onLabelChange={(x)=>props.setAttributes({label:x.target.value})}
-			options={props.attributes.options}
-			setAttributes={props.setAttributes}
+			required={ props.attributes.required }
+			onRequiredChange={ ( x )=>props.setAttributes( { required: x } ) }
+			label={ props.attributes.label }
+			onLabelChange={ ( x )=>props.setAttributes( { label: x.target.value } ) }
+			options={ props.attributes.options }
+			setAttributes={ props.setAttributes }
 		/>);
 	}
 }, FieldDefaults ) );
+
