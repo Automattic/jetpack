@@ -31,6 +31,7 @@
  * @author Automattic
  */
 
+/* Include all of the sitemap subclasses. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-stylist.php';
@@ -50,6 +51,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 class Jetpack_Sitemap_Manager {
 
 	/**
+	 * Librarian object for storing and retrieving sitemap data.
+	 *
 	 * @see Jetpack_Sitemap_Librarian
 	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Librarian $librarian Librarian object for storing and retrieving sitemap data.
@@ -57,6 +60,8 @@ class Jetpack_Sitemap_Manager {
 	private $librarian;
 
 	/**
+	 * Logger object for reporting debug messages.
+	 *
 	 * @see Jetpack_Sitemap_Logger
 	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Logger $logger Logger object for reporting debug messages.
@@ -64,9 +69,11 @@ class Jetpack_Sitemap_Manager {
 	private $logger;
 
 	/**
+	 * Finder object for handling sitemap URIs.
+	 *
 	 * @see Jetpack_Sitemap_Finder
 	 * @since 4.8.0
-	 * @var Jetpack_Sitemap_Finder $finder Finder object for dealing with sitemap URIs.
+	 * @var Jetpack_Sitemap_Finder $finder Finder object for handling with sitemap URIs.
 	 */
 	private $finder;
 
@@ -78,7 +85,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
-		$this->finder = new Jetpack_Sitemap_Finder();
+		$this->finder    = new Jetpack_Sitemap_Finder();
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
@@ -128,8 +135,6 @@ class Jetpack_Sitemap_Manager {
 			array( $this, 'callback_action_filter_sitemap_location' ),
 			999
 		);
-
-		return;
 	}
 
 	/**
@@ -344,9 +349,6 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 		}
-
-		// URL did not match any sitemap patterns.
-		return;
 	}
 
 	/**
@@ -386,7 +388,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	private function schedule_sitemap_generation() {
 		// Add cron schedule.
-		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) );
+		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
 		add_action(
 			'jp_sitemap_cron_hook',
@@ -405,7 +407,7 @@ class Jetpack_Sitemap_Manager {
 			 *
 			 * @param int $delay Time to delay in seconds.
 			 */
-			$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * mt_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
+			$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * wp_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
 			wp_schedule_event(
 				time() + $delay,
 				'sitemap-interval',
@@ -433,7 +435,7 @@ class Jetpack_Sitemap_Manager {
 		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
 
 		if ( true === $discover_sitemap ) {
-			$sitemap_url      = $this->finder->construct_sitemap_url( 'sitemap.xml' );
+			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $sitemap_url ) . "\n";
 		}
 
@@ -451,8 +453,6 @@ class Jetpack_Sitemap_Manager {
 			$news_sitemap_url = $this->finder->construct_sitemap_url( 'news-sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $news_sitemap_url ) . "\n";
 		}
-
-		return;
 	}
 
 	/**
@@ -470,13 +470,13 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @access public
 	 * @since 5.3.0
-	 * @since 6.7.0 Schedules a regeneration after 60 seconds.
+	 * @since 6.7.0 Schedules a regeneration.
 	 */
 	public function callback_action_purge_data() {
 		$this->callback_action_flush_news_sitemap_cache();
 		$this->librarian->delete_all_stored_sitemap_data();
 		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * mt_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
+		$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * wp_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
 		wp_schedule_single_event( time() + $delay, 'jp_sitemap_cron_hook' );
 	}
 
@@ -525,8 +525,6 @@ class Jetpack_Sitemap_Manager {
 				''
 			)
 		);
-
-		return;
 	}
 
 } // End Jetpack_Sitemap_Manager class.

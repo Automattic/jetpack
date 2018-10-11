@@ -8,6 +8,8 @@
  * Auto Activate: Public
  * Module Tags: Recommended, Traffic
  * Additional Search Queries: sitemap, traffic, search, site map, seo
+ *
+ * @package Jetpack
  */
 
 /**
@@ -17,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( '1' == get_option( 'blog_public' ) ) {
+if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
 	include_once 'sitemaps/sitemaps.php';
 }
 
