@@ -23,9 +23,9 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	protected $buffer;
 
 	public function __construct( $item_limit, $byte_limit, $time = '1970-01-01 00:00:00' ) {
-		$this->is_full_flag = false;
+		$this->is_full_flag  = false;
 		$this->is_empty_flag = true;
-		$this->timestamp = $time;
+		$this->timestamp     = $time;
 
 		$this->finder = new Jetpack_Sitemap_Finder();
 
@@ -59,9 +59,9 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 			return false;
 		} else {
 			$this->item_capacity -= 1;
-			$added_string = $this->array_to_xml_string( $array );
-			$this->buffer .= $added_string;
-			$this->is_empty_flag = false;
+			$added_string         = $this->array_to_xml_string( $array );
+			$this->buffer        .= $added_string;
+			$this->is_empty_flag  = false;
 
 			mbstring_binary_safe_encoding(); // So we can safely use strlen().
 			$this->byte_capacity -= strlen( $added_string );
@@ -136,7 +136,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
-			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
+			$key     = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
 			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
