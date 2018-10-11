@@ -7356,6 +7356,7 @@ p {
 			array(
 				'lodash',
 				'wp-api-fetch',
+				'wp-blob',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',
@@ -7365,7 +7366,9 @@ p {
 				'wp-element',
 				'wp-hooks',
 				'wp-i18n',
+				'wp-keycodes',
 				'wp-plugins',
+				'wp-token-list',
 			),
 			$version
 		);
