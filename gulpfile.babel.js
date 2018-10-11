@@ -41,7 +41,7 @@ import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
 
 // These paths should alawys be ignored when watching files
-const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**' ];
+const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**', '!modules/contact-form/gutenblock.js*' ];
 
 function onBuild( done ) {
 	return function( err, stats ) {
