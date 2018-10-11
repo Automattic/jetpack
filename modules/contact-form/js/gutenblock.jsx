@@ -203,17 +203,32 @@ class GrunionFieldMultiple extends Component {
 						setAttributes={ this.props.setAttributes }
 					/>
 					<ol>
-						{ _.map( this.props.options, ( option, key )=>( <li key={ key }><input
-							type='text'
-							className='option'
-							value={ option }
-							onChange={ function( x ) {
-								const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
-								this.props.setAttributes( {
-									options : _.pluck( $options.toArray(), 'value' )
-								} );
-							}.bind( this ) }
-						/></li>))}
+						{ _.map( this.props.options, ( option, key, list )=>(
+							<li key={ key }>
+								<input
+									type="text"
+									className="option"
+									value={ option }
+									onChange={ function( x ) {
+										const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
+										this.props.setAttributes( {
+											options: _.pluck( $options.toArray(), 'value' )
+										} );
+									}.bind( this ) }
+								/>
+								<IconButton
+									icon="no"
+									label={ __( 'Remove option' ) }
+									onClick={ function() {
+										const newArray = _.clone( list );
+										newArray.splice( key, 1 );
+										this.props.setAttributes( {
+											options: newArray
+										} );
+									}.bind( this ) }
+								/>
+							</li>
+						) ) }
 					</ol>
 					<IconButton
 						icon="insert"

@@ -47,7 +47,7 @@ span.required {
 
 .editor-block-list__block input.option {
     border-color: #fff;
-    width: calc( 100% - 5em );
+    width: calc( 100% - 7em );
     display: inline-block;
 }
 .editor-block-list__block input.option:focus,
@@ -61,6 +61,10 @@ span.required {
 }
 .editor-block-list__block[data-type="grunion/field-radio"] ol li:before {
     content: '🔘 ';
+}
+
+.editor-block-list__block ol li button.components-icon-button {
+    display: inline-block;
 }
 
 .grunion-submit-button {
