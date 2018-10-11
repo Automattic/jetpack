@@ -10,10 +10,9 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
     yarn docker:wp plugin install gutenberg --activate
     ```
 
-1.  In Jetpack, enable loading block assets by adding following filters to your local mu-plugins folder:
+1.  In Jetpack, enable loading local block assets by adding following filter to your local mu-plugins folder:
 
     ```php
-    add_filter( 'jetpack_gutenberg', '__return_true', 10 );
     add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
     ```
 
