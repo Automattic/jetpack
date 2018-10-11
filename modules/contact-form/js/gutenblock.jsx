@@ -65,7 +65,7 @@ class GrunionForm extends Component {
 				<div className="grunion-form">
 					{this.props.children}
 					<TextControl
-						className="button button-primary button-default"
+						className="button button-primary button-default grunion-submit-button"
 						value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
 						onChange={ ( x )=>this.props.setAttributes( { submit: x } ) }
 					/>
@@ -219,7 +219,7 @@ class GrunionFieldMultiple extends Component {
 						icon="insert"
 						label={ __( 'Insert option' ) }
 						onClick={ ()=>this.props.setAttributes( { options: this.props.options.concat( [ '' ] ) } ) }
-					/>
+					> { __( 'Add' ) }</IconButton>
 				</div>
 			</Fragment>
 		)

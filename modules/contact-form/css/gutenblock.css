@@ -33,8 +33,22 @@ span.required {
 .editor-block-list__block[data-type="grunion/field-select"] ol {
     list-style-type: none;
 }
+.editor-block-list__block[data-type="grunion/field-checkbox-multiple"] ol:empty,
+.editor-block-list__block[data-type="grunion/field-radio"] ol:empty,
+.editor-block-list__block[data-type="grunion/field-select"] ol:empty {
+    display: none;
+}
+.editor-block-list__block[data-type="grunion/field-select"] ol {
+    border: 1px solid #8d96a0;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+
 .editor-block-list__block input.option {
     border-color: #fff;
+    width: calc( 100% - 5em );
+    display: inline-block;
 }
 .editor-block-list__block input.option:focus,
 .editor-block-list__block input.option:hover {
@@ -48,9 +62,18 @@ span.required {
 .editor-block-list__block[data-type="grunion/field-radio"] ol li:before {
     content: '🔘 ';
 }
-.editor-block-list__block[data-type="grunion/field-select"] ol {
-    border: 1px solid #8d96a0;
-    border-radius: 4px;
-    padding: 4px;
-    display: table; /* so it's not full width */
+
+.grunion-submit-button {
+    padding: 5px;
+}
+.grunion-submit-button.grunion-submit-button .components-text-control__input {
+    background: transparent;
+    border: none;
+    outline: none;
+    text-align: center;
+    color: #fff;
+}
+
+.grunion-submit-button.grunion-submit-button .components-text-control__input:focus {
+    color: #fff;
 }
