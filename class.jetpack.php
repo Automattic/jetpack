@@ -7312,17 +7312,13 @@ p {
 
 		$rtl = is_rtl() ? '.rtl' : '';
 
-		$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
-		$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
-		$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
-		$view_style = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 			: JETPACK__VERSION;
 
 		wp_register_script(
 			'jetpack-blocks-editor',
-			$editor_script,
+			plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE ),
 			array(
 				'lodash',
 				'wp-api-fetch',
@@ -7339,16 +7335,15 @@ p {
 			),
 			$version
 		);
-
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
-		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
-		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
+		wp_register_style( 'jetpack-blocks-editor', plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE ), array(), $version );
+		wp_register_script( 'jetpack-blocks-view', plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE ), array(), $version );
+		wp_register_style( 'jetpack-blocks-view', plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE ), array(), $version );
 
 		register_block_type( 'jetpack/blocks', array(
 				'script'        => 'jetpack-blocks-view',
