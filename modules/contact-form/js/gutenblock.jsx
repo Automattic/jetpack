@@ -92,7 +92,7 @@ class GrunionFieldSettings extends Component {
 			<InspectorControls>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<GrunionFieldRequiredToggle
-						required={this.props.required}
+						required={ this.props.required }
 						onChange={ ( x )=>this.props.setAttributes( { required: x } ) }
 					/>
 				</PanelBody>
@@ -107,7 +107,7 @@ class GrunionFieldLabel extends Component {
 			<Fragment>
 				<input
 					type='text'
-					value={this.props.label}
+					value={ this.props.label }
 					className='grunion-field-label'
 					onChange={ ( x )=>this.props.setAttributes( { label: x.target.value } ) }
 				/>
@@ -205,12 +205,12 @@ class GrunionFieldMultiple extends Component {
 						{ _.map( this.props.options, ( option, key )=>( <li key={ key }><input
 							type='text'
 							className='option'
-							value={option}
+							value={ option }
 							onChange={ function( x ) {
 								const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
-								this.props.setAttributes({
+								this.props.setAttributes( {
 									options : _.pluck( $options.toArray(), 'value' )
-								});
+								} );
 							}.bind( this ) }
 						/></li>))}
 					</ol>
