@@ -24,7 +24,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 Install prerequisites and clone the repository:
 
 ```sh
-git clone https://github.com/Automattic/jetpack.git && cd jetpack
+git clone git@github.com:Automattic/jetpack.git && cd jetpack
 ```
 
 Optionally, copy settings file to modify it:
