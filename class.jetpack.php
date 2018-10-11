@@ -421,7 +421,7 @@ class Jetpack {
 
 		Jetpack::maybe_set_version_option();
 
-		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
+		if ( method_exists( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' ) ) {
 			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
 
