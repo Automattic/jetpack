@@ -209,6 +209,7 @@ class GrunionFieldMultiple extends Component {
 									type="text"
 									className="option"
 									value={ option }
+									placeholder={ __( 'Enter your option value here…' ) }
 									onChange={ function( x ) {
 										const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
 										this.props.setAttributes( {
