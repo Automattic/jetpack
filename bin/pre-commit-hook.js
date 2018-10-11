@@ -19,7 +19,7 @@ const jsLintResult = spawnSync( 'eslint-eslines', [ ...jsFiles, '--', '--diff=in
 
 let phpLintResult;
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'php:5.2-compatibility', ...phpFiles, ], {
+	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles, ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
