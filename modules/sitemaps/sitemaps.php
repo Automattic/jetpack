@@ -151,9 +151,9 @@ class Jetpack_Sitemap_Manager {
 		if ( '' === $the_content ) {
 			$error = __( 'No sitemap found. Please try again later.', 'jetpack' );
 			if ( current_user_can( 'manage_options' ) ) {
-				$next = date_i18n( 'F j, Y g:i a', wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
-				/* translators: %s is a date/time for next sitemap generation. */
-				$error = sprintf( __( 'No sitemap found. The system will try to build it again at %s', 'jetpack' ), $next );
+				$next = human_time_diff( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+				/* translators: %s is a human_time_diff until next sitemap generation. */
+				$error = sprintf( __( 'No sitemap found. The system will try to build it again in %s.', 'jetpack' ), $next );
 			}
 
 			wp_die(
