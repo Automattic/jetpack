@@ -7302,16 +7302,17 @@ p {
 	 * @return void
 	 */
 	public static function load_jetpack_gutenberg() {
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
+
 		/**
 		 * Filter to turn on loading Gutenberg blocks
 		 *
 		 * @since 6.5.0
 		 *
-		 * @param bool false Whether to load Gutenberg blocks
+		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		if ( ! Jetpack::is_active() ) {
-			return;
-		}
 		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
