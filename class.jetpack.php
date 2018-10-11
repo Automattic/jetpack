@@ -5480,6 +5480,14 @@ p {
 			$body = null;
 		}
 
+		// _jpobo: "Jetpack On Behald Of"
+		if ( isset( $_GET['_jpobo'] ) ) {
+			$verified_request_user_id = self::verify_request_on_behalf_of_client( $_GET['_jpobo'] );
+			if ( ! $verified_request_user_id || $verified_request_user_id !== $token->external_user_id ) {
+				return new WP_Error( 'invalid_client', __( 'This client is not authorized for this request' ), array( 'status' => 403 ) );
+			}
+		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -5536,6 +5544,60 @@ p {
 		);
 
 		return $this->xmlrpc_verification;
+	}
+
+	static function verify_request_on_behalf_of_client( $on_behalf_of ) {
+		foreach ( array( 'client_id', 'user_id', 'nonce', 'verify' ) as $key ) {
+			if ( ! isset( $on_behalf_of[$key] ) ) {
+				return false;
+			}
+		}
+
+		$user_id = (int) $on_behalf_of['user_id'];
+		if ( ! $user_id ) {
+			return false;
+		}
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user || is_wp_error( $user ) ) {
+			return false;
+		}
+
+		$client_id = (int) $on_behalf_of['client_id'];
+		if ( ! $client_id ) {
+			return false;
+		}
+
+		$nonce = (string) $on_behalf_of['nonce'];
+		if ( ! strlen( $nonce ) ){
+			return false;
+		}
+
+		$verify = (string) $on_behalf_of['verify'];
+		if ( 32 !== strlen( $verify ) ) {
+			return false;
+		}
+
+		$code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
+		if ( ! $code ) {
+			return false;
+		}
+
+		$token = Jetpack_Data::get_access_token( $user_id );
+		if ( ! $token ) {
+			return false;
+		}
+
+		$hmac = hash_hmac(
+			'md5',
+			json_encode( (object) compact( 'client_id', 'user_id', 'nonce', 'code' ) ),
+			$token->secret
+		);
+
+		if ( ! hash_equals( $hmac, $verify ) ) {
+			return false;
+		}
+
+		return $user_id;
 	}
 
 	/**

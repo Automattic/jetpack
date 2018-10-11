@@ -543,15 +543,6 @@ class Jetpack_XMLRPC_Server {
 		$nonce     = (string) $args[2];
 		$verify    = (string) $args[3];
 
-		if ( !$client_id || !$user_id || !strlen( $nonce ) || 32 !== strlen( $verify ) ) {
-			return false;
-		}
-
-		$user = get_user_by( 'id', $user_id );
-		if ( !$user || is_wp_error( $user ) ) {
-			return false;
-		}
-
 		/* debugging
 		error_log( "CLIENT: $client_id" );
 		error_log( "USER:   $user_id" );
@@ -559,25 +550,12 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = Jetpack_Data::get_access_token( $user_id );
-
-		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
-		if ( !$api_user_code ) {
-			return false;
-		}
-
-		$hmac = hash_hmac( 'md5', json_encode( (object) array(
-			'client_id' => (int) $client_id,
-			'user_id'   => (int) $user_id,
-			'nonce'     => (string) $nonce,
-			'code'      => (string) $api_user_code,
-		) ), $jetpack_token->secret );
-
-		if ( ! hash_equals( $hmac, $verify ) ) {
-			return false;
-		}
-
-		return $user_id;
+		return Jetpack::verify_request_on_behalf_of_client( compact(
+			'client_id',
+			'user_id',
+			'nonce',
+			'verify'
+		) );
 	}
 
 	/**
