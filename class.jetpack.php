@@ -7291,9 +7291,6 @@ p {
 	 * - _inc/blocks/view.css
 	 * - _inc/blocks/view.rtl.css
 	 *
-	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
-	 *
 	 * @since 6.5.0
 	 *
 	 * @return void
