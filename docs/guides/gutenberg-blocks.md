@@ -5,7 +5,7 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 1.  Install & activate the [Gutenberg plugin](https://wordpress.org/plugins/gutenberg/).
 
     If you use Jetpack-Docker, you can use WP-CLI:
-	
+
     ```bash
     yarn docker:wp plugin install gutenberg --activate
     ```
@@ -14,7 +14,6 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
     ```php
     add_filter( 'jetpack_gutenberg', '__return_true', 10 );
-    add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
     ```
 
     If you use Jetpack-Docker, you could add these to `docker/mu-plugins/0-custom.php`
@@ -41,15 +40,7 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
     _inc/blocks/view.js
     ```
 
-    Without setting `jetpack_gutenberg_cdn` to false, Jetpack would load these assets from CDN with 24h cache buster:
-
-    https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/
-
-    This is great for letting team-outsiders test our current set of Jetpack blocks; let's deploy these when ever we have something to show.
-
-    Use the helper script introduced in D18479-code to produce these assets locally for your sandbox so that you can then commit and deploy.
-
-    Note that we currently have a fixed list of dependencies which is just everything current trial blocks depend on: https://github.com/Automattic/jetpack/blob/b4a057fad975f3db8097fd62e702e276fd3d4389/class.jetpack.php#L7355-L7366
+    Note that we currently have a fixed list of dependencies which is just everything existing blocks depend on: https://github.com/Automattic/jetpack/blob/b4a057fad975f3db8097fd62e702e276fd3d4389/class.jetpack.php#L7355-L7366
 
     We don't have a mechanism in SDK to export these during compile time.
 
