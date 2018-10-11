@@ -796,7 +796,8 @@ class Jetpack_Search {
 		$defaults = array(
 			'blog_id'        => get_current_blog_id(),
 			'query'          => null,    // Search phrase
-			'query_fields'   => array(), //list of fields to search
+			'query_fields'   => array(), // list of fields to search
+			'excess_boost'   => array(), // map of field to excess boost values (multiply)
 			'post_type'      => null,    // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
 			'author'         => null,    // id or an array of ids
@@ -834,11 +835,11 @@ class Jetpack_Search {
 					'author^0.1',
 				);
 				$boost_fields        = array(
-					'title^2',
-					'tag.name',
-					'category.name',
-					'author_login',
-					'author',
+					'title^' . $this->_calc_boost_value( 'title', 2, $args['excess_boost'] ),
+					'tag.name^' . $this->_calc_boost_value( 'tag.name', 1, $args['excess_boost'] ),
+					'category.name^' . $this->_calc_boost_value( 'category.name', 1, $args['excess_boost'] ),
+					'author_login^' . $this->_calc_boost_value( 'author_login', 1, $args['excess_boost'] ),
+					'author^' . $this->_calc_boost_value( 'author', 1, $args['excess_boost'] ),
 				);
 				$boost_phrase_fields = array(
 					'title',
@@ -865,13 +866,13 @@ class Jetpack_Search {
 
 				$boost_fields = $parser->merge_ml_fields(
 					array(
-						'title'         => 2,
-						'tag.name'      => 1,
-						'category.name' => 1,
+						'title'         => $this->_calc_boost_value( 'title', 2, $args['excess_boost'] ),
+						'tag.name'      => $this->_calc_boost_value( 'tag.name', 1, $args['excess_boost'] ),
+						'category.name' => $this->_calc_boost_value( 'category.name', 1, $args['excess_boost'] ),
 					),
 					array(
-						'author_login',
-						'author',
+						'author_login^' . $this->_calc_boost_value( 'author_login', 1, $args['excess_boost'] ),
+						'author^' . $this->_calc_boost_value( 'author', 1, $args['excess_boost'] ),
 					)
 				);
 
@@ -1790,5 +1791,13 @@ class Jetpack_Search {
 		if ( $changed ) {
 			wp_set_sidebars_widgets( $sidebars_widgets );
 		}
+	}
+
+	private function _calc_boost_value( $field, $boost, array $add_boost ) {
+		if ( isset( $add_boost[ $field ] ) && $add_boost[ $field ] > 0 ) {
+			$boost *= $add_boost[ $field ];
+		}
+
+		return number_format( $boost, 3, '.', '' );
 	}
 }
