@@ -7356,7 +7356,6 @@ p {
 			array(
 				'lodash',
 				'wp-api-fetch',
-				'wp-blob',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',
