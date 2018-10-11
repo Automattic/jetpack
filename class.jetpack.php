@@ -7274,14 +7274,8 @@ p {
 	/**
 	 * Load Gutenberg editor blocks.
 	 *
-	 * This section meant for unstable phase of developing Jetpack's
-	 * Gutenberg extensions. If still around after Sep. 15, 2018 then
-	 * please file an issue to remove it; if nobody responds within one
-	 * week then please delete the code.
-	 *
-	 *
-	 * Loading blocks is disabled by default and enabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_true' );
+	 * Loading blocks is enabled by default and may be disabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
 	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
 	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
