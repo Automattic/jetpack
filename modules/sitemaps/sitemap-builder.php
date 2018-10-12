@@ -1027,6 +1027,11 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * This is served instead of a 404 when the master sitemap is requested
 	 * but not yet generated.
+	 *
+	 * @access public
+	 * @since 6.7.0
+	 *
+	 * @return string The empty sitemap xml.
 	 */
 	public function empty_sitemap_xml() {
 		$empty_sitemap = new Jetpack_Sitemap_Buffer_Empty();
