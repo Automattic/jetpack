@@ -53,16 +53,14 @@ const SpeedUpSite = moduleSettingsForm(
 							disableInDevMode
 							module={ photon }
 							support={ {
-								link: 'https://jetpack.com/support/photon/',
+								link: 'https://jetpack.com/support/image-cdn/',
 							} }
 							>
 							<p>
 								{ __(
 									"Jetpack's global Content Delivery Network (CDN) optimizes " +
 										'images so your visitors enjoy the fastest experience ' +
-										'regardless of device or location. It also helps you ' +
-										'save space on your hosting plan, since images are ' +
-										'stored on our servers.'
+										'regardless of device or location.'
 								) }
 							</p>
 							<ModuleToggle
