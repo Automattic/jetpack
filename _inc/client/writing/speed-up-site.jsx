@@ -19,7 +19,7 @@ const SpeedUpSite = moduleSettingsForm(
 	class extends Component {
 		toggleModule = ( name, value ) => {
 			if ( 'photon' === name ) {
-				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
+				// Tiled Galleries depends on Photon. Deactivate it if Photon is deactivated.
 				if ( false === ! value ) {
 					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
 				} else {
