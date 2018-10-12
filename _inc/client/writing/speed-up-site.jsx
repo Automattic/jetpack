@@ -33,16 +33,37 @@ const SpeedUpSite = moduleSettingsForm(
 		};
 
 		handleCdnChange = () => {
-			const currentPhoton = this.props.getOptionValue( 'photon' );
-			const currentCdn = this.props.getOptionValue( 'photon-cdn' );
+			// Check if any of the CDN options are on.
+			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
-			// Tiled Galleries depends on Photon. Deactivate it when Photon is deactivated.
-			this.props.updateOptions( {
-				photon: ! currentPhoton,
-				'tiled-gallery': ! currentPhoton,
-				tiled_galleries: ! currentPhoton,
-				'photon-cdn': ! currentCdn
-			} );
+			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
+			if ( false === ! CdnStatus ) {
+				if ( false === ! this.props.getOptionValue( 'photon' ) ) {
+					this.props.updateOptions( {
+						photon: false,
+						'tiled-gallery': false,
+						tiled_galleries: false
+					} );
+				}
+				if ( false === ! this.props.getOptionValue( 'photon-cdn' ) ) {
+					this.props.updateOptions( {
+						'photon-cdn': false
+					} );
+				}
+			} else {
+				if ( false === this.props.getOptionValue( 'photon' ) ) {
+					this.props.updateOptions( {
+						photon: true,
+						'tiled-gallery': true,
+						tiled_galleries: true
+					} );
+				}
+				if ( false === this.props.getOptionValue( 'photon-cdn' ) ) {
+					this.props.updateOptions( {
+						'photon-cdn': true
+					} );
+				}
+			}
 		};
 
 		render() {
