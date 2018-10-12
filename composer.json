@@ -17,7 +17,7 @@
         "phpcompatibility/phpcompatibility-wp": "^1.0"
     },
     "scripts": {
-      "php:5.2-compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+      "php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
       "php:lint": "composer install && vendor/bin/phpcs -p"
     }
 }
