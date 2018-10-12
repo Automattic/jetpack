@@ -1,6 +1,7 @@
 <?php
 
-if ( ! class_exists( 'CrowdsignalShortcode' ) ) {
+// Keep compatibility with polldaddy-plugin
+if ( ! class_exists( 'CrowdsignalShortcode' ) && ! class_exists( 'PolldaddyShortcode' ) ) {
 
 /**
 * Class wrapper for Crowdsignal shortcodes
