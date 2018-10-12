@@ -3,9 +3,6 @@
 #  or disavow any section of the codebase. #
 ############################################
 
-# Catch-all owners, the Jetpack Crew
-* @automattic/jetpack-crew
-
 # Individual Modules:
 /modules/contact-form/    @georgestephanis
 /modules/custom-css/      @georgestephanis
@@ -16,3 +13,7 @@
 docs/ @jeherve
 /_inc/lib/jetpack-wpes-query-builder/ @gibrown
 /class.jetpack-jitm.php @withinboredom
+
+# Catch-all owners, the Jetpack Crew
+# Please leave this at the bottom of the list
+* @automattic/jetpack-crew
