@@ -8,6 +8,8 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import { FormFieldset } from 'components/forms';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -30,16 +32,33 @@ const SpeedUpSite = moduleSettingsForm(
 			}
 		};
 
+		handleCdnChange = () => {
+			const currentPhoton = this.props.getOptionValue( 'photon' );
+			const currentCdn = this.props.getOptionValue( 'photon-cdn' );
+
+			// Tiled Galleries depends on Photon. Deactivate it when Photon is deactivated.
+			this.props.updateOptions( {
+				photon: ! currentPhoton,
+				'tiled-gallery': ! currentPhoton,
+				tiled_galleries: ! currentPhoton,
+				'photon-cdn': ! currentCdn
+			} );
+		};
+
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
+			const foundPhotonCdn = this.props.isModuleFound( 'photon-cdn' );
 			const foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundPhoton && ! foundLazyImages ) {
+			if ( ! foundPhoton && ! foundLazyImages && ! foundPhotonCdn ) {
 				return null;
 			}
 
 			const photon = this.props.module( 'photon' );
 			const lazyImages = this.props.module( 'lazy-images' );
+
+			// Check if any of the CDN options are on.
+			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
 			return (
 				<SettingsCard
@@ -47,10 +66,9 @@ const SpeedUpSite = moduleSettingsForm(
 					header={ __( 'Performance & speed' ) }
 					hideButton>
 
-					{ foundPhoton &&
+					{ foundPhoton && foundPhotonCdn &&
 						<SettingsGroup
 							hasChild
-							disableInDevMode
 							module={ photon }
 							support={ {
 								link: 'https://jetpack.com/support/image-cdn/',
@@ -59,21 +77,42 @@ const SpeedUpSite = moduleSettingsForm(
 							<p>
 								{ __(
 									"Jetpack's global Content Delivery Network (CDN) optimizes " +
-										'images so your visitors enjoy the fastest experience ' +
-										'regardless of device or location.'
+										'files and images so your visitors enjoy ' +
+										'the fastest experience regardless of device or location.'
 								) }
 							</p>
-							<ModuleToggle
-								slug="photon"
-								disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-								activated={ this.props.getOptionValue( 'photon' ) }
-								toggling={ this.props.isSavingAnyOption( 'photon' ) }
-								toggleModule={ this.toggleModule }
+							<CompactFormToggle
+								checked={ CdnStatus }
+								toggling={ this.props.isSavingAnyOption( [ 'photon', 'photon-cdn' ] ) && ! CdnStatus }
+								onChange={ this.handleCdnChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Serve images from our global CDN' ) }
+									{ __( 'Enable Site Accelerator' ) }
 								</span>
-							</ModuleToggle>
+							</CompactFormToggle>
+							<FormFieldset>
+								<ModuleToggle
+									slug="photon"
+									disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+									activated={ this.props.getOptionValue( 'photon' ) }
+									toggling={ this.props.isSavingAnyOption( 'photon' ) }
+									toggleModule={ this.toggleModule }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Speed up images' ) }
+									</span>
+								</ModuleToggle>
+								<ModuleToggle
+									slug="photon-cdn"
+									activated={ this.props.getOptionValue( 'photon-cdn' ) }
+									toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
+									toggleModule={ this.toggleModule }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Speed up all static files (CSS and JavaScript) for WordPress, WooCommerce, and Jetpack' ) }
+									</span>
+								</ModuleToggle>
+							</FormFieldset>
 						</SettingsGroup>
 					}
 
