@@ -1,6 +1,6 @@
-# REST API Endpoint Documentation
+# Partners REST API Endpoint Documentation
 
-An alternative to using the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts is to use our REST API directly. This file will document all applicable endpoints.
+An alternative to using the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts is to use our REST API directly.
 
 # Getting a Jetpack Partner access token
 
