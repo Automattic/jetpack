@@ -1,0 +1,1 @@
+https://public-api.wordpress.com/wpcom/v2/jetpack-partners/XX/key/XXXX/activations?page=1&per_page=10&activated_after&activated_before
