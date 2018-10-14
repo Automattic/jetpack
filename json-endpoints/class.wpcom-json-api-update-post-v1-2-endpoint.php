@@ -783,7 +783,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 				$unslashed_meta_key = wp_unslash( $meta->key ); // should match what the final key will be
 				$meta->key = wp_slash( $meta->key );
-				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
+				$unslashed_existing_meta_key = isset( $existing_meta_item->meta_key ) ? wp_unslash( $existing_meta_item->meta_key ) : '';
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
 
 				// make sure that the meta id passed matches the existing meta key

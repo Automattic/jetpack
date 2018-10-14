@@ -33,7 +33,9 @@ class Jetpack {
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
-	 * @var array The handles of styles that are concatenated into jetpack.css
+	 * @var array The handles of styles that are concatenated into jetpack.css.
+	 *
+	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
 		'jetpack-carousel',
@@ -60,6 +62,8 @@ class Jetpack {
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
+		'jetpack-widget-social-icons-styles',
+		'jetpack-authors-widget',
 	);
 
 	/**
@@ -5599,25 +5603,6 @@ p {
 			return null;
 		}
 
-		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['CONTENT_TYPE'];
-		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
-		}
-
-		if (
-			isset( $content_type ) &&
-			$content_type !== 'application/x-www-form-urlencoded' &&
-			$content_type !== 'application/json'
-		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This Content-Type is not supported.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
 		$verified = $this->verify_xml_rpc_signature();
 
 		if ( is_wp_error( $verified ) ) {
@@ -7289,8 +7274,12 @@ p {
 	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
 	 *
 	 * Note that when loaded locally, you need to build the files yourself:
-	 * - _inc/blocks/jetpack-editor.js
-	 * - _inc/blocks/jetpack-editor.css
+	 * - _inc/blocks/editor.js
+	 * - _inc/blocks/editor.css
+	 * - _inc/blocks/editor.rtl.css
+	 * - _inc/blocks/view.js
+	 * - _inc/blocks/view.css
+	 * - _inc/blocks/view.rtl.css
 	 *
 	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
 	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
@@ -7307,6 +7296,9 @@ p {
 		 *
 		 * @param bool false Whether to load Gutenberg blocks
 		 */
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
 		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
 			return;
 		}
@@ -7349,6 +7341,8 @@ p {
 			'jetpack-blocks-editor',
 			$editor_script,
 			array(
+				'lodash',
+				'wp-api-fetch',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',
@@ -7356,10 +7350,19 @@ p {
 				'wp-date',
 				'wp-editor',
 				'wp-element',
+				'wp-hooks',
 				'wp-i18n',
+				'wp-keycodes',
 				'wp-plugins',
+				'wp-token-list',
 			),
 			$version
+		);
+
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Block_Assets_Base_Url',
+			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
 		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );

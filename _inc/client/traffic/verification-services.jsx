@@ -7,14 +7,10 @@ import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
-import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
-import {
-	isFetchingSiteData,
-} from 'state/site';
 import {
 	FormFieldset,
 	FormLabel
@@ -23,21 +19,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import JetpackBanner from 'components/jetpack-banner';
-import Gridicon from 'components/gridicon';
-import Button from 'components/button';
-import { getSiteID } from 'state/site/reducer';
-// eslint-disable-next-line no-unused-vars
-import requestExternalAccess from 'lib/sharing';
-import { getExternalServiceConnectUrl } from 'state/publicize/reducer';
-import {
-	checkVerifyStatusGoogle,
-	verifySiteGoogle,
-	isFetchingGoogleSiteVerify,
-	isConnectedToGoogleSiteVerificationAPI,
-	isSiteVerifiedWithGoogle,
-	isVerifyingGoogleSite
-} from 'state/site-verify';
-import { userCanManageOptions } from 'state/initial-state';
+import GoogleVerificationService from './verification-services/google';
 
 class VerificationServicesComponent extends React.Component {
 	static serviceIds = {
@@ -76,80 +58,11 @@ class VerificationServicesComponent extends React.Component {
 	getSiteVerificationValue( service ) {
 		const optionValue = this.props.getOptionValue( service );
 		// if current value is equal to the initial value, update format for display
-		if ( ! this.props.isDirty() ) {
+		if ( optionValue === this.props.getSettingCurrentValue( service ) ) {
 			return this.getMetaTag( service, optionValue );
 		}
 
 		return optionValue;
-	}
-
-	componentWillMount() {
-		this.checkVerifySite();
-	}
-
-	checkVerifySite() {
-		this.props.checkVerifyStatusGoogle().then( ( { token } ) => {
-			if ( token !== this.props.getSettingCurrentValue( 'google' ) ) {
-				return this.props.updateOptions( { google: token } );
-			}
-		} ).then( () => {
-			if ( ! this.props.isSiteVerifiedWithGoogle ) {
-				this.props.verifySiteGoogle();
-			}
-		} ).catch( () => {
-			// ignore error
-		} );
-	}
-
-	handleClickGoogleVerify = () => {
-		if ( this.props.fetchingSiteData || this.props.fetchingGoogleSiteVerify ) {
-			return;
-		}
-
-		if ( ! this.props.isConnectedToGoogle ) {
-			requestExternalAccess( this.props.googleSiteVerificationConnectUrl, () => {
-				this.checkVerifySite();
-			} );
-			return;
-		}
-
-		this.checkVerifySite();
-	};
-
-	renderGoogleVerifyButton() {
-		if ( ! this.props.userCanManageOptions ) {
-			return null;
-		}
-
-		const disabled = this.props.fetchingSiteData || this.props.fetchingGoogleSiteVerify || this.props.isSiteVerifiedWithGoogle;
-
-		if ( this.props.isVerifyingGoogleSite ) {
-			return (
-				<span className="jp-form-input-suffix">
-					{ __( 'Verifying...' ) }
-				</span>
-			);
-		} else if ( ! this.props.isConnectedToGoogle ) {
-			return (
-				<Button className="jp-form-input-suffix" type="button" disabled={ disabled } onClick={ this.handleClickGoogleVerify }>
-					{ __( 'Connect with Google' ) }
-				</Button>
-			);
-		} else if ( this.props.isSiteVerifiedWithGoogle ) {
-			return (
-				<span className="jp-form-input-suffix jp-form-suffix-site-verification-verified">
-					<Gridicon icon="checkmark-circle" size={ 20 } />
-					{ ' ' }
-					{ __( 'Your site is verified with Google' ) }
-				</span>
-			);
-		}
-
-		return (
-			<Button className="jp-form-input-suffix" type="button" disabled={ disabled } onClick={ this.handleClickGoogleVerify }>
-				{ __( 'Click to Verify' ) }
-			</Button>
-		);
 	}
 
 	render() {
@@ -235,19 +148,11 @@ class VerificationServicesComponent extends React.Component {
 						) }
 					</p>
 					<FormFieldset>
-						<FormLabel
-							className="jp-form-input-with-prefix"
-							key="verification_service_google">
-							<span>{ __( 'Google' ) }</span>
-							<TextInput
-								name="google"
-								value={ this.getSiteVerificationValue( 'google' ) }
-								placeholder={ this.getMetaTag( 'google', '1234' ) }
-								className="code"
-								disabled={ this.props.isUpdating( 'google' ) || this.props.isSiteVerifiedWithGoogle }
-								onChange={ this.props.onOptionChange } />
-							{ this.renderGoogleVerifyButton() }
-						</FormLabel>
+						<GoogleVerificationService
+							value={ this.getSiteVerificationValue( 'google' ) }
+							placeholder={ this.getMetaTag( 'google', '1234' ) }
+							{ ...this.props }
+						/>
 						<FormLabel
 							className="jp-form-input-with-prefix"
 							key="verification_service_bing">
@@ -291,21 +196,4 @@ class VerificationServicesComponent extends React.Component {
 	}
 }
 
-export const VerificationServices = connect(
-	state => {
-		return {
-			fetchingSiteData: isFetchingSiteData( state ),
-			siteID: getSiteID( state ),
-			googleSiteVerificationConnectUrl: getExternalServiceConnectUrl( state, 'google_site_verification' ),
-			fetchingGoogleSiteVerify: isFetchingGoogleSiteVerify( state ),
-			isConnectedToGoogle: isConnectedToGoogleSiteVerificationAPI( state ),
-			isSiteVerifiedWithGoogle: isSiteVerifiedWithGoogle( state ),
-			isVerifyingGoogleSite: isVerifyingGoogleSite( state ),
-			userCanManageOptions: userCanManageOptions( state )
-		};
-	},
-	{
-		checkVerifyStatusGoogle,
-		verifySiteGoogle,
-	}
-)( moduleSettingsForm( VerificationServicesComponent ) );
+export const VerificationServices = moduleSettingsForm( VerificationServicesComponent );

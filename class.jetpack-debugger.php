@@ -115,17 +115,20 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "PLAN: " . self::what_jetpack_plan() );
 
 		$debug_info .= "\r\n";
+
+		$debug_info .= "\r\n" .  "-- SYNC Status -- ";
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		$sync_statuses = $sync_module->get_status();
-		$human_readable_sync_status = array();
-		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
-			$human_readable_sync_status[ $sync_status ] =
-				in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
-				? date( 'r', $sync_status_value ) : $sync_status_value ;
+		if ( $sync_module ) {
+			$sync_statuses = $sync_module->get_status();
+			$human_readable_sync_status = array();
+			foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
+				$human_readable_sync_status[ $sync_status ] =
+					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ) )
+						? date( 'r', $sync_status_value ) : $sync_status_value ;
+			}
+			$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 		}
-
-		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
 

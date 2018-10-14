@@ -126,6 +126,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			// Themes can allow Featured Content pages
 			if ( isset( $theme_support[0]['post_types'] ) ) {
 				self::$post_types = array_merge( self::$post_types, (array) $theme_support[0]['post_types'] );
+				self::$post_types = array_unique( self::$post_types );
 
 				// register post_tag support for each post type
 				foreach ( self::$post_types as $post_type ) {
@@ -383,7 +384,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function hide_featured_term( $terms, $taxonomies, $args ) {
 
 			// This filter is only appropriate on the front-end.
-			if ( is_admin() ) {
+			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
 				return $terms;
 			}
 

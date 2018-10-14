@@ -32,6 +32,9 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 			return assign( {}, state, {
 				fetching: false,
 				verified: action.verified,
+				isOwner: action.isOwner,
+				searchConsoleUrl: action.searchConsoleUrl,
+				verificationConsoleUrl: action.verificationConsoleUrl,
 				token: action.token,
 				error: null,
 			} );
@@ -43,6 +46,9 @@ export const google = ( state = { fetching: false, verifying: false, verified: f
 			return assign( {}, state, {
 				verifying: false,
 				verified: action.verified,
+				isOwner: action.isOwner,
+				searchConsoleUrl: action.searchConsoleUrl,
+				verificationConsoleUrl: action.verificationConsoleUrl,
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL:
@@ -89,4 +95,20 @@ export function isConnectedToGoogleSiteVerificationAPI( state ) {
 
 export function isSiteVerifiedWithGoogle( state ) {
 	return get( state, 'jetpack.siteVerify.google.verified', false );
+}
+
+export function getGoogleSiteVerificationError( state ) {
+	return get( state, 'jetpack.siteVerify.google.error', null );
+}
+
+export function getGoogleSearchConsoleUrl( state ) {
+	return get( state, 'jetpack.siteVerify.google.searchConsoleUrl', null );
+}
+
+export function getGoogleVerificationConsoleUrl( state ) {
+	return get( state, 'jetpack.siteVerify.google.verificationConsoleUrl', null );
+}
+
+export function isGoogleSiteVerificationOwner( state ) {
+	return get( state, 'jetpack.siteVerify.google.isOwner', false );
 }

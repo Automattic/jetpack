@@ -572,10 +572,15 @@ gulp.task( 'gutenpack:watch', function() {
 	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
 } );
 
+gulp.task( 'gutenpack:jetpack-blocks', function() {
+	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
+		.pipe( gulp.dest( '_inc/blocks' ) );
+} );
+
 // Default task
 gulp.task(
 	'default',
-	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack' ]
+	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' ]
 );
 gulp.task(
 	'watch',

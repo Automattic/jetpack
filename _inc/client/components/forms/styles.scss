@@ -57,11 +57,7 @@
 .jp-form-input-with-prefix {
 	display: inline-flex;
 	width: 100%;
-	margin-top: rem( 24px );
-
-	&:first-of-type {
-		margin-top: 0;
-	}
+	margin-bottom: rem( 24px );
 
 	span:first-child {
 		min-width: rem( 60px );
@@ -71,11 +67,26 @@
 		color: #4f748e;
 		padding: rem( 8px ) rem( 14px );
 		white-space: nowrap;
+
+		@include breakpoint( '<660px' ) {
+			display: block;
+			text-align: left;
+		}
 	}
 
 	input[type="text"] {
 		width: 100%;
-		border-left: 0;
+		@include breakpoint( '>660px' ) {
+			border-left: 0;
+		}
+		@include breakpoint( '<660px' ) {
+			border-top: 0;
+		}
+	}
+
+	@include breakpoint( '<660px' ) {
+		display: block;
+		box-sizing: border-box;
 	}
 }
 

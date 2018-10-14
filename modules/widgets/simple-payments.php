@@ -10,7 +10,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	/**
 	 * Simple Payments Button
 	 *
-	 * Display a Simple Payment Button as a Widget.
+	 * Display a Simple Payments Button as a Widget.
 	 */
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
 		// https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
@@ -51,7 +51,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				apply_filters( 'jetpack_widget_name', __( 'Simple Payments', 'jetpack' ) ),
 				array(
 					'classname'                   => 'jetpack-simple-payments',
-					'description'                 => __( 'Add a Simple Payment Button as a Widget.', 'jetpack' ),
+					'description'                 => __( 'Add a Simple Payments Button as a Widget.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				)
 			);
