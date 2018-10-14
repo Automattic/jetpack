@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 
 		$this->assertTrue(
 			wp_script_is( 'jetpack-devicepx', 'enqueued' ),
-			'devicepx script has been enquued'
+			'devicepx script has been enqueued'
 		);
 
 		// Remove to not mess with other tests.
