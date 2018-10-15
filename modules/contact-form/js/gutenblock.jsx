@@ -1,4 +1,4 @@
-/*global jQuery _ wp*/
+/*global _ wp*/
 /** @jsx wp.element.createElement */
 /** @format */
 
