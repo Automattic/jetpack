@@ -254,7 +254,7 @@ registerBlockType( 'grunion/form', {
 	supports: {
 		html: false
 	},
-
+	/* // not yet ready for prime time.
 	transforms: {
 		from: [
 			{
@@ -284,6 +284,7 @@ registerBlockType( 'grunion/form', {
 			}
 		]
 	},
+	*/
 
 	attributes: {
 		subject: {
@@ -357,37 +358,70 @@ const FieldDefaults = {
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-text' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-text', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-name' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-name', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-email' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-email', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-url' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-url', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-date' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-date', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-telephone' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-telephone', attributes )
 			},
 			{
 				type: 'block',
 				blocks: [ 'grunion/field-textarea' ],
+				isMatch: ( { options } ) => ! options.length,
 				transform: ( attributes )=>createBlock( 'grunion/field-textarea', attributes )
+			},
+			/* // not yet ready for prime time.
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-checkbox' ],
+				isMatch: ( { options } ) => 1 === options.length,
+				transform: ( attributes )=>createBlock( 'grunion/field-checkbox', attributes )
+			},
+			*/
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-checkbox-multiple' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: ( attributes )=>createBlock( 'grunion/field-checkbox-multiple', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-radio' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: ( attributes )=>createBlock( 'grunion/field-radio', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-select' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: ( attributes )=>createBlock( 'grunion/field-select', attributes )
 			}
 		]
 	},
