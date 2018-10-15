@@ -7318,7 +7318,7 @@ p {
 		 *
 		 * @since 6.5.0
 		 *
-		 * @param bool true Whether to load Gutenberg blocks from CDN
+		 * @param bool false Whether to load Gutenberg blocks from CDN
 		 */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
