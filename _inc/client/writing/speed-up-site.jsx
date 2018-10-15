@@ -11,7 +11,7 @@ import { translate as __ } from 'i18n-calypso';
 import { FormFieldset } from 'components/forms';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -36,29 +36,33 @@ const SpeedUpSite = moduleSettingsForm(
 			// Check if any of the CDN options are on.
 			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
+			// Are the modules available?
+			const photonStatus = this.props.getModuleOverride( 'photon' );
+			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( false === ! CdnStatus ) {
-				if ( false === ! this.props.getOptionValue( 'photon' ) ) {
+				if ( false === ! this.props.getOptionValue( 'photon' ) && 'active' !== photonStatus ) {
 					this.props.updateOptions( {
 						photon: false,
 						'tiled-gallery': false,
 						tiled_galleries: false
 					} );
 				}
-				if ( false === ! this.props.getOptionValue( 'photon-cdn' ) ) {
+				if ( false === ! this.props.getOptionValue( 'photon-cdn' ) && 'active' !== photonCdnStatus ) {
 					this.props.updateOptions( {
 						'photon-cdn': false
 					} );
 				}
 			} else {
-				if ( false === this.props.getOptionValue( 'photon' ) ) {
+				if ( false === this.props.getOptionValue( 'photon' ) && 'inactive' !== photonStatus ) {
 					this.props.updateOptions( {
 						photon: true,
 						'tiled-gallery': true,
 						tiled_galleries: true
 					} );
 				}
-				if ( false === this.props.getOptionValue( 'photon-cdn' ) ) {
+				if ( false === this.props.getOptionValue( 'photon-cdn' ) && 'inactive' !== photonCdnStatus ) {
 					this.props.updateOptions( {
 						'photon-cdn': true
 					} );
@@ -75,11 +79,15 @@ const SpeedUpSite = moduleSettingsForm(
 				return null;
 			}
 
-			const photon = this.props.module( 'photon' );
 			const lazyImages = this.props.module( 'lazy-images' );
 
 			// Check if any of the CDN options are on.
 			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
+
+			// Is at least one of the 2 modules available (not hidden via a module override)?
+			const photonStatus = this.props.getModuleOverride( 'photon' );
+			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+			const canDisplayCdnSettings = ( foundPhoton && foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
 
 			return (
 				<SettingsCard
@@ -87,10 +95,9 @@ const SpeedUpSite = moduleSettingsForm(
 					header={ __( 'Performance & speed' ) }
 					hideButton>
 
-					{ foundPhoton && foundPhotonCdn &&
+					{ ( foundPhoton || foundPhotonCdn ) &&
 						<SettingsGroup
 							hasChild
-							module={ photon }
 							support={ {
 								link: 'https://jetpack.com/support/image-cdn/',
 							} }
@@ -102,37 +109,44 @@ const SpeedUpSite = moduleSettingsForm(
 										'the fastest experience regardless of device or location.'
 								) }
 							</p>
-							<CompactFormToggle
-								checked={ CdnStatus }
-								toggling={ this.props.isSavingAnyOption( [ 'photon', 'photon-cdn' ] ) && ! CdnStatus }
-								onChange={ this.handleCdnChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable Site Accelerator' ) }
-								</span>
-							</CompactFormToggle>
+							{ foundPhoton && foundPhotonCdn &&
+								<CompactFormToggle
+									checked={ CdnStatus }
+									toggling={ this.props.isSavingAnyOption( [ 'photon', 'photon-cdn' ] ) && ! CdnStatus }
+									onChange={ this.handleCdnChange }
+									disabled={ ! canDisplayCdnSettings }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Enable Site Accelerator' ) }
+									</span>
+								</CompactFormToggle>
+							}
 							<FormFieldset>
-								<ModuleToggle
-									slug="photon"
-									disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-									activated={ this.props.getOptionValue( 'photon' ) }
-									toggling={ this.props.isSavingAnyOption( 'photon' ) }
-									toggleModule={ this.toggleModule }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Speed up images' ) }
-									</span>
-								</ModuleToggle>
-								<ModuleToggle
-									slug="photon-cdn"
-									activated={ this.props.getOptionValue( 'photon-cdn' ) }
-									toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
-									toggleModule={ this.toggleModule }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Speed up all static files (CSS and JavaScript) for WordPress, WooCommerce, and Jetpack' ) }
-									</span>
-								</ModuleToggle>
+								{ foundPhoton &&
+									<ModuleToggle
+										slug="photon"
+										disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+										activated={ this.props.getOptionValue( 'photon' ) }
+										toggling={ this.props.isSavingAnyOption( 'photon' ) }
+										toggleModule={ this.toggleModule }
+									>
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Speed up images' ) }
+										</span>
+									</ModuleToggle>
+								}
+								{ foundPhotonCdn &&
+									<ModuleToggle
+										slug="photon-cdn"
+										activated={ this.props.getOptionValue( 'photon-cdn' ) }
+										toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
+										toggleModule={ this.toggleModule }
+									>
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Speed up all static files (CSS and JavaScript) for WordPress, WooCommerce, and Jetpack' ) }
+										</span>
+									</ModuleToggle>
+								}
 							</FormFieldset>
 						</SettingsGroup>
 					}
@@ -175,7 +189,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
 		};
 	}
 )( SpeedUpSite );
