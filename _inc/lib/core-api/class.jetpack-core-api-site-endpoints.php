@@ -71,13 +71,16 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		// Activate the Related Posts module if it's not currently active
 		if ( ! Jetpack::is_module_active( 'related-posts' ) ) {
-			if ( ! Jetpack::activate_module( 'related-posts' ) ) {
+			if ( ! Jetpack::activate_module( 'related-posts', false, false ) ) {
 				return new WP_Error(
 					'module_activation_error',
 					esc_html__( 'We were unable to activate the Related Posts module.', 'jetpack' ),
 					array( 'status' => 400 )
 				);
 			}
+
+			// We need to load the modules again if we've just activated the Related Posts module
+			Jetpack::load_modules();
 		}
 
 		// Make the API request
