@@ -29,7 +29,7 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
 1.  The source for Jetpack blocks lives in the Calypso repository: https://github.com/Automattic/wp-calypso/tree/96b2d6a64f3d65fbadfbbf707d0d1cdaa23b942f/client/gutenberg/extensions
 
-    Bundled Jetpack blocks should be added to the corresponding [`Jetpack` preset](https://github.com/Automattic/wp-calypso/tree/master/client/gutenberg/extensions/presets/jetpack).
+    Bundled Jetpack blocks should be added to the corresponding [Jetpack preset](https://github.com/Automattic/wp-calypso/tree/master/client/gutenberg/extensions/presets/jetpack).
 
     The SDK supports building code from external sources so you don't necessarily have to commit to Calypso until to the point you want to share your work.
 
