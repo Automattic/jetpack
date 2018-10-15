@@ -90,12 +90,11 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Decode the results
-		$results = json_decode( $response['body'], true );
+		$results = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		$related_posts = array();
 		if ( isset( $results['hits'] ) && is_array( $results['hits'] ) ) {
-			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-			$related_posts_ids = array_map( array( 'Jetpack_Core_API_Site_Endpoint', 'get_related_post_id' ), $response_body['hits'] );
+			$related_posts_ids = array_map( array( 'Jetpack_Core_API_Site_Endpoint', 'get_related_post_id' ), $results['hits'] );
 
 			$related_posts_instance = Jetpack_RelatedPosts::init();
 			foreach ( $related_posts_ids as $related_post_id ) {
