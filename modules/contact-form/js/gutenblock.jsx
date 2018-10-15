@@ -183,9 +183,11 @@ class GrunionFieldMultiple extends Component {
 		this.onChangeOption = this.onChangeOption.bind( this );
 	}
 
-	onChangeOption( key, option = null ) {
+	onChangeOption( key = null, option = null ) {
 		const newOptions = this.props.options.slice( 0 );
-		if ( null === option ) {
+		if ( 'object' === typeof key ) {
+			newOptions.push( '' );
+		} else if ( null === option ) {
 			newOptions.splice( key, 1 );
 		} else {
 			newOptions.splice( key, 1, option );
@@ -219,7 +221,7 @@ class GrunionFieldMultiple extends Component {
 					<IconButton
 						icon="insert"
 						label={ __( 'Insert option' ) }
-						onClick={ ()=>this.props.setAttributes( { options: this.props.options.concat( [ '' ] ) } ) }
+						onClick={ this.onChangeOption }
 					> { __( 'Add' ) }</IconButton>
 				</div>
 			</Fragment>
