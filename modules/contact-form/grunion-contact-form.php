@@ -283,7 +283,6 @@ class Grunion_Contact_Form_Plugin {
 			'wp-blocks',
 			'wp-i18n',
 			'wp-element',
-			'underscore',
 		), filemtime( dirname( __FILE__ ) . '/js/gutenblock.js' ) );
 
 		wp_enqueue_style( 'grunion-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(

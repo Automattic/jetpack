@@ -1,4 +1,3 @@
-/*global _ wp*/
 /** @jsx wp.element.createElement */
 /** @format */
 
@@ -32,8 +31,6 @@ import {
 import {
 	__
 } from '@wordpress/i18n';
-
-
 
 /**
  * Components:
@@ -461,7 +458,7 @@ const FieldDefaults = {
 	}
 };
 
-registerBlockType( 'grunion/field-text', _.defaults({
+registerBlockType( 'grunion/field-text', Object.assign( {
 	title       : __( 'Text', 'jetpack' ),
 	edit: function( props ) {
 		return ( <GrunionField
@@ -472,7 +469,7 @@ registerBlockType( 'grunion/field-text', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-name', _.defaults({
+registerBlockType( 'grunion/field-name', Object.assign( {
 	title       : __( 'Name', 'jetpack' ),
 	icon        : 'admin-users',
 	edit: function( props ) {
@@ -485,7 +482,7 @@ registerBlockType( 'grunion/field-name', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-email', _.defaults({
+registerBlockType( 'grunion/field-email', Object.assign( {
 	title       : __( 'Email', 'jetpack' ),
 	icon        : 'email',
 	edit: function( props ) {
@@ -498,7 +495,7 @@ registerBlockType( 'grunion/field-email', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-url', _.defaults({
+registerBlockType( 'grunion/field-url', Object.assign( {
 	title       : __( 'URL', 'jetpack' ),
 	icon        : 'share-alt2',
 	edit: function( props ) {
@@ -511,7 +508,7 @@ registerBlockType( 'grunion/field-url', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-date', _.defaults({
+registerBlockType( 'grunion/field-date', Object.assign( {
 	title       : __( 'Date', 'jetpack' ),
 	icon        : 'calendar-alt',
 	edit: function( props ) {
@@ -524,7 +521,7 @@ registerBlockType( 'grunion/field-date', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-telephone', _.defaults({
+registerBlockType( 'grunion/field-telephone', Object.assign( {
 	title       : __( 'Telephone', 'jetpack' ),
 	icon        : 'phone',
 	edit: function( props ) {
@@ -537,7 +534,7 @@ registerBlockType( 'grunion/field-telephone', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-textarea', _.defaults({
+registerBlockType( 'grunion/field-textarea', Object.assign( {
 	title       : __( 'Textarea', 'jetpack' ),
 	edit: function( props ) {
 		return ( <GrunionFieldTextarea
@@ -548,7 +545,7 @@ registerBlockType( 'grunion/field-textarea', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-checkbox', _.defaults({
+registerBlockType( 'grunion/field-checkbox', Object.assign( {
 	title       : __( 'Checkbox', 'jetpack' ),
 	icon        : 'forms',
 	edit: function( props ) {
@@ -560,7 +557,7 @@ registerBlockType( 'grunion/field-checkbox', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-checkbox-multiple', _.defaults({
+registerBlockType( 'grunion/field-checkbox-multiple', Object.assign( {
 	title       : __( 'Checkbox Multiple', 'jetpack' ),
 	icon        : 'forms',
 	edit: function( props ) {
@@ -573,7 +570,7 @@ registerBlockType( 'grunion/field-checkbox-multiple', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-radio', _.defaults({
+registerBlockType( 'grunion/field-radio', Object.assign( {
 	title       : __( 'Radio', 'jetpack' ),
 	edit: function( props ) {
 		return (<GrunionFieldMultiple
@@ -585,7 +582,7 @@ registerBlockType( 'grunion/field-radio', _.defaults({
 	}
 }, FieldDefaults ) );
 
-registerBlockType( 'grunion/field-select', _.defaults({
+registerBlockType( 'grunion/field-select', Object.assign( {
 	title       : __( 'Select', 'jetpack' ),
 	edit: function( props ) {
 		return (<GrunionFieldMultiple
