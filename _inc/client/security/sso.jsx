@@ -72,6 +72,13 @@ export const SSO = moduleSettingsForm(
 							link: 'https://jetpack.com/support/sso/',
 						} }
 						>
+						<p>
+							{ __(
+							'Add an extra layer of security to your website by enabling WordPress.com log in and secure ' +
+							'authentication. If you have multiple sites with this option enabled, you will be able to log into every ' +
+							'one of them with the same credentials.'
+							) }
+						</p>
 						<ModuleToggle
 							slug="sso"
 							disabled={ unavailableInDevMode }
