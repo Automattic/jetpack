@@ -322,14 +322,42 @@ const FieldDefaults = {
 			default : []
 		}
 	},
-	transforms : {
-		to : [
+	transforms: {
+		to: [
 			{
-				type      : 'block',
-				blocks    : [ 'grunion/field-text' ],
-				transform : ( attributes ) => {
-					return createBlock( 'grunion/field-text', attributes );
-				}
+				type: 'block',
+				blocks: [ 'grunion/field-text' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-text', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-name' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-name', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-email' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-email', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-url' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-url', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-date' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-date', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-telephone' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-telephone', attributes )
+			},
+			{
+				type: 'block',
+				blocks: [ 'grunion/field-textarea' ],
+				transform: ( attributes )=>createBlock( 'grunion/field-textarea', attributes )
 			}
 		]
 	},
