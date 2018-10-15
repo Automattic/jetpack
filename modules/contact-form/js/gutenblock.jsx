@@ -99,6 +99,15 @@ class GrunionFieldSettings extends Component {
 }
 
 class GrunionFieldLabel extends Component {
+	constructor( ...args ) {
+		super( ...args );
+		this.onChangeLabel = this.onChangeLabel.bind( this );
+	}
+
+	onChangeLabel( x ) {
+		this.props.setAttributes( { label: x.target.value } );
+	}
+
 	render() {
 		return (
 			<Fragment>
@@ -106,7 +115,7 @@ class GrunionFieldLabel extends Component {
 					type='text'
 					value={ this.props.label }
 					className='grunion-field-label'
-					onChange={ ( x )=>this.props.setAttributes( { label: x.target.value } ) }
+					onChange={ this.onChangeLabel }
 				/>
 				{ this.props.required && <span className="required">{ __( '(required)' ) }</span> }
 			</Fragment>
