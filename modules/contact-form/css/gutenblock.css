@@ -78,6 +78,7 @@ span.required {
     color: #fff;
 }
 
-.grunion-submit-button.grunion-submit-button .components-text-control__input:focus {
-    color: #fff;
+.grunion-submit-button.grunion-submit-button .components-text-control__input:focus,
+.grunion-submit-button.grunion-submit-button .components-text-control__input::placeholder{
+	color: #fff;
 }

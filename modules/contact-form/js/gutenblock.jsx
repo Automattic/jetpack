@@ -74,7 +74,8 @@ class GrunionForm extends Component {
 						/>
 						<TextControl
 							label={ __( 'What should the label on the form’s submit button say?' ) }
-							value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
+							value={ this.props.submit_button_text }
+							placeholder={ __( 'Submit »' ) }
 							onChange={ this.onChangeSubmit }
 						/>
 					</PanelBody>
@@ -83,7 +84,8 @@ class GrunionForm extends Component {
 					{this.props.children}
 					<TextControl
 						className="button button-primary button-default grunion-submit-button"
-						value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
+						value={ this.props.submit_button_text }
+						placeholder={ __( 'Submit »' ) }
 						onChange={ this.onChangeSubmit }
 					/>
 				</div>
