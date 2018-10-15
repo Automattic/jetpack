@@ -7277,9 +7277,6 @@ p {
 	 * Loading blocks is enabled by default and may be disabled via filter:
 	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
-	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
-	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
-	 *
 	 * Note that when loaded locally, you need to build the files yourself:
 	 * - _inc/blocks/editor.js
 	 * - _inc/blocks/editor.css
