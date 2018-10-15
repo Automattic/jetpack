@@ -554,7 +554,7 @@ new CrowdsignalShortcode();
 if ( ! function_exists( 'crowdsignal_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function crowdsignal_link( $content ) {
-		return jetpack_preg_replace_outside_tags( '!(?:\n|\A)http://(polldaddy.com/poll|poll.fm)/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' async src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content, 'polldaddy.com/poll' );
+		return preg_replace( '!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' async src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", $content );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it
