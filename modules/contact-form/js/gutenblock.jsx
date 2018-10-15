@@ -72,16 +72,14 @@ class GrunionForm extends Component {
 	}
 }
 
-class GrunionFieldRequiredToggle extends Component {
-	render() {
-		return (
-			<ToggleControl
-				label={ __( 'Required' ) }
-				checked={ this.props.required }
-				onChange={ this.props.onChange }
-			/>
-		);
-	}
+function GrunionFieldRequiredToggle( props ) {
+	return (
+		<ToggleControl
+			label={ __( 'Required' ) }
+			checked={ props.required }
+			onChange={ props.onChange }
+		/>
+	);
 }
 
 class GrunionFieldSettings extends Component {
@@ -115,74 +113,68 @@ class GrunionFieldLabel extends Component {
 	}
 }
 
-class GrunionField extends Component {
-	render() {
-		return (
-			<Fragment>
-				<GrunionFieldSettings
-					required={ this.props.required }
-					setAttributes={ this.props.setAttributes }
+function GrunionField( props ) {
+	return (
+		<Fragment>
+			<GrunionFieldSettings
+				required={ props.required }
+				setAttributes={ props.setAttributes }
+			/>
+			<div className="grunion-field">
+				<TextControl
+					type={ props.type }
+					label={ <GrunionFieldLabel
+						required={ props.required }
+						label={ props.label }
+						setAttributes={ props.setAttributes }
+					/> }
+					disabled={ true }
 				/>
-				<div className="grunion-field">
-					<TextControl
-						type={ this.props.type }
-						label={ <GrunionFieldLabel
-							required={ this.props.required }
-							label={ this.props.label }
-							setAttributes={ this.props.setAttributes }
-						/> }
-						disabled={ true }
-					/>
-				</div>
-			</Fragment>
-		);
-	}
+			</div>
+		</Fragment>
+	);
 }
 
-class GrunionFieldTextarea extends Component {
-	render() {
-		return (
-			<Fragment>
-				<GrunionFieldSettings
-					required={ this.props.required }
-					setAttributes={ this.props.setAttributes }
+function GrunionFieldTextarea( props ) {
+	return (
+		<Fragment>
+			<GrunionFieldSettings
+				required={ props.required }
+				setAttributes={ props.setAttributes }
+			/>
+			<div className="grunion-field">
+				<TextareaControl
+					label={ <GrunionFieldLabel
+						required={ props.required }
+						label={ props.label }
+						setAttributes={ props.setAttributes }
+					/> }
+					disabled={ true }
 				/>
-				<div className="grunion-field">
-					<TextareaControl
-						label={ <GrunionFieldLabel
-							required={ this.props.required }
-							label={ this.props.label }
-							setAttributes={ this.props.setAttributes }
-						/> }
-						disabled={ true }
-					/>
-				</div>
-			</Fragment>
-		);
-	}
+			</div>
+		</Fragment>
+	);
 }
 
-class GrunionFieldCheckbox extends Component {
-	render() {
-		return (
-			<Fragment>
-				<GrunionFieldSettings
-					required={ this.props.required }
-					setAttributes={ this.props.setAttributes }
+function GrunionFieldCheckbox( props ) {
+	return (
+		<Fragment>
+			<GrunionFieldSettings
+				required={ props.required }
+				setAttributes={ props.setAttributes }
+			/>
+			<div className="grunion-field">
+				<CheckboxControl
+					label={ <GrunionFieldLabel
+						required={ props.required }
+						label={ props.label }
+						setAttributes={ props.setAttributes }
+					/> }
+					disabled={ true }
 				/>
-				<div className="grunion-field">
-					<CheckboxControl
-						label={ <GrunionFieldLabel
-							required={ this.props.required }
-							label={ this.props.label }
-							setAttributes={ this.props.setAttributes }
-						/> }
-						disabled={ true }
-					/>
-				</div>
-			</Fragment>
-		);
-	}
+			</div>
+		</Fragment>
+	);
 }
 
 class GrunionFieldMultiple extends Component {
