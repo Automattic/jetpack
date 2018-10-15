@@ -189,6 +189,21 @@ class GrunionFieldCheckbox extends Component {
 }
 
 class GrunionFieldMultiple extends Component {
+	constructor( ...args ) {
+		super( ...args );
+		this.onChangeOption = this.onChangeOption.bind( this );
+	}
+
+	onChangeOption( key, option = null ) {
+		const newOptions = _.clone( this.props.options );
+		if ( null === option ) {
+			newOptions.splice( key, 1 );
+		} else {
+			newOptions.splice( key, 1, option );
+		}
+		this.props.setAttributes( { options: newOptions } );
+	}
+
 	render() {
 		return (
 			<Fragment>
@@ -203,32 +218,13 @@ class GrunionFieldMultiple extends Component {
 						setAttributes={ this.props.setAttributes }
 					/>
 					<ol>
-						{ _.map( this.props.options, ( option, key, list )=>(
-							<li key={ key }>
-								<input
-									type="text"
-									className="option"
-									value={ option }
-									placeholder={ __( 'Enter your option value here…' ) }
-									onChange={ function( x ) {
-										const $options = jQuery( x.target ).closest( 'ol' ).find( 'input.option' );
-										this.props.setAttributes( {
-											options: _.pluck( $options.toArray(), 'value' )
-										} );
-									}.bind( this ) }
-								/>
-								<IconButton
-									icon="no"
-									label={ __( 'Remove option' ) }
-									onClick={ function() {
-										const newArray = _.clone( list );
-										newArray.splice( key, 1 );
-										this.props.setAttributes( {
-											options: newArray
-										} );
-									}.bind( this ) }
-								/>
-							</li>
+						{ _.map( this.props.options, ( option, index )=>(
+							<GrunionOption
+								key={ index }
+								option={ option }
+								index={ index }
+								onChangeOption={ this.onChangeOption }
+							/>
 						) ) }
 					</ol>
 					<IconButton
@@ -242,6 +238,40 @@ class GrunionFieldMultiple extends Component {
 	}
 }
 
+class GrunionOption extends Component {
+	constructor( ...args ) {
+		super( ...args );
+		this.onChangeOption = this.onChangeOption.bind( this );
+		this.onDeleteOption = this.onDeleteOption.bind( this );
+	}
+
+	onChangeOption( x ) {
+		this.props.onChangeOption( this.props.index, x.target.value );
+	}
+
+	onDeleteOption() {
+		this.props.onChangeOption( this.props.index );
+	}
+
+	render() {
+		return (
+			<li>
+				<input
+					type="text"
+					className="option"
+					value={ this.props.option }
+					placeholder={ __( 'Enter your option value here…' ) }
+					onChange={ this.onChangeOption }
+				/>
+				<IconButton
+					icon="no"
+					label={ __( 'Remove option' ) }
+					onClick={ this.onDeleteOption }
+				/>
+			</li>
+		);
+	}
+}
 
 /**
  * Block Registrations:
@@ -353,6 +383,7 @@ const FieldDefaults = {
 			'default': []
 		}
 	},
+
 	transforms: {
 		to: [
 			{
