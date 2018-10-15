@@ -562,7 +562,8 @@ if ( ! function_exists( 'crowdsignal_link' ) ) {
 	add_filter( 'the_content_rss', 'crowdsignal_link', 1 );
 }
 
-wp_oembed_add_provider( '#https?://.*\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
+wp_oembed_add_provider( '#https?://(.+\.)?polldaddy\.com/.*#i', 'https://api.crowdsignal.com/oembed', true );
+wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 wp_oembed_add_provider( '#https?://poll\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 
 }
