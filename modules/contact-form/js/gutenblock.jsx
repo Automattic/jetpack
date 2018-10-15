@@ -57,8 +57,8 @@ class GrunionForm extends Component {
 						/>
 						<TextControl
 							label={ __( 'What should the label on the form’s submit button say?' ) }
-							value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
-							onChange={ ( x )=>this.props.setAttributes( { submit: x } ) }
+							value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
+							onChange={ ( x )=>this.props.setAttributes( { submit_button_text: x } ) }
 						/>
 					</PanelBody>
 				</InspectorControls>
@@ -66,8 +66,8 @@ class GrunionForm extends Component {
 					{this.props.children}
 					<TextControl
 						className="button button-primary button-default grunion-submit-button"
-						value={ this.props.submit ? this.props.submit : __( 'Submit' ) }
-						onChange={ ( x )=>this.props.setAttributes( { submit: x } ) }
+						value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
+						onChange={ ( x )=>this.props.setAttributes( { submit_button_text: x } ) }
 					/>
 				</div>
 			</Fragment>
@@ -248,25 +248,55 @@ class GrunionFieldMultiple extends Component {
  */
 
 registerBlockType( 'grunion/form', {
-	title       : __( 'Contact Form', 'jetpack' ),
-	icon        : 'feedback',
-	category    : 'widgets',
-	supports    : {
-		html : false
+	title: __( 'Contact Form', 'jetpack' ),
+	icon: 'feedback',
+	category: 'widgets',
+	supports: {
+		html: false
 	},
 
-	attributes : {
-		subject : {
-			type    : 'string',
-			default : null
+	transforms: {
+		from: [
+			{
+				type: 'shortcode',
+				tag: 'contact-form',
+				attributes: {
+					subject: {
+						type: 'string',
+						shortcode: function( named ) {
+							return named.subject;
+						},
+					},
+					to: {
+						type: 'string',
+						shortcode: function( named ) {
+							return named.to;
+						},
+					},
+					submit_button_text: {
+						type: 'string',
+						shortcode: function( named ) {
+							return named.submit_button_text;
+						},
+					},
+				}
+
+			}
+		]
+	},
+
+	attributes: {
+		subject: {
+			type: 'string',
+			'default': null
 		},
-		to : {
-			type    : 'string',
-			default : null
+		to: {
+			type: 'string',
+			'default': null
 		},
-		submit : {
-			type    : 'string',
-			default : __( 'Submit' )
+		submit_button_text: {
+			type: 'string',
+			'default': __( 'Submit »' )
 		}
 	},
 
@@ -277,7 +307,7 @@ registerBlockType( 'grunion/form', {
 				className={ props.className }
 				subject={ props.attributes.subject }
 				to={ props.attributes.to }
-				submit={ props.attributes.submit }
+				submit_button_text={ props.attributes.submit_button_text }
 				setAttributes={ props.setAttributes }
 			>
 				<InnerBlocks
