@@ -38,6 +38,25 @@ import {
  */
 
 class GrunionForm extends Component {
+	constructor( ...args ) {
+		super( ...args );
+		this.onChangeSubject = this.onChangeSubject.bind( this );
+		this.onChangeTo = this.onChangeTo.bind( this );
+		this.onChangeSubmit = this.onChangeSubmit.bind( this );
+	}
+
+	onChangeSubject( x ) {
+		this.props.setAttributes( { subject: x } );
+	}
+
+	onChangeTo( x ) {
+		this.props.setAttributes( { to: x } );
+	}
+
+	onChangeSubmit( x ) {
+		this.props.setAttributes( { submit_button_text: x } );
+	}
+
 	render() {
 		return (
 			<Fragment>
@@ -46,17 +65,17 @@ class GrunionForm extends Component {
 						<TextControl
 							label={ __( 'What would you like the subject of the email to be?' ) }
 							value={ this.props.subject }
-							onChange={ ( x )=>this.props.setAttributes( { subject: x } ) }
+							onChange={ this.onChangeSubject }
 						/>
 						<TextControl
 							label={ __( 'Which email address should we send the submissions to?' ) }
 							value={ this.props.to }
-							onChange={ ( x )=>this.props.setAttributes( { to: x } ) }
+							onChange={ this.onChangeTo }
 						/>
 						<TextControl
 							label={ __( 'What should the label on the form’s submit button say?' ) }
 							value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
-							onChange={ ( x )=>this.props.setAttributes( { submit_button_text: x } ) }
+							onChange={ this.onChangeSubmit }
 						/>
 					</PanelBody>
 				</InspectorControls>
@@ -65,7 +84,7 @@ class GrunionForm extends Component {
 					<TextControl
 						className="button button-primary button-default grunion-submit-button"
 						value={ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit »' ) }
-						onChange={ ( x )=>this.props.setAttributes( { submit_button_text: x } ) }
+						onChange={ this.onChangeSubmit }
 					/>
 				</div>
 			</Fragment>
@@ -84,13 +103,22 @@ function GrunionFieldRequiredToggle( props ) {
 }
 
 class GrunionFieldSettings extends Component {
+	constructor( ...args ) {
+		super( ...args );
+		this.onChangeRequired = this.onChangeRequired.bind( this );
+	}
+
+	onChangeRequired( x ) {
+		this.props.setAttributes( { required: x } );
+	}
+
 	render() {
 		return (
 			<InspectorControls>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<GrunionFieldRequiredToggle
 						required={ this.props.required }
-						onChange={ ( x )=>this.props.setAttributes( { required: x } ) }
+						onChange={ this.onChangeRequired }
 					/>
 				</PanelBody>
 			</InspectorControls>
