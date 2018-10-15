@@ -7301,7 +7301,7 @@ p {
 		}
 
 		/**
-		 * Filter to turn on loading Gutenberg blocks
+		 * Filter to disable Gutenberg blocks
 		 *
 		 * @since 6.5.0
 		 *
