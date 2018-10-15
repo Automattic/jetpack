@@ -69,8 +69,6 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
 
   If you use Jetpack-Docker, you could add these to `docker/wordpress/wp-config.php`
 
-  Those filters take action here: https://github.com/Automattic/jetpack/blob/b4a057fad975f3db8097fd62e702e276fd3d4389/class.jetpack.php#L7272-L7381
-
 * To run SDK CLI commands from anywhere in file system, type `npm link` in Calypso folder. You now have `calypso-sdk` command available.
 
 ## Other Resources
