@@ -284,10 +284,10 @@ registerBlockType( 'grunion/form', {
 					allowedBlocks={ [] }
 					templateLock={false}
 					template={ [
-						[ 'grunion/field-name',     { label : __( 'Name' ) } ],
-						[ 'grunion/field-email',    { label : __( 'Email' ) } ],
-						[ 'grunion/field-text',     { label : __( 'Subject' ) } ],
-						[ 'grunion/field-textarea', { label : __( 'Message' ) } ]
+						[ 'grunion/field-name', { label: __( 'Name' ) } ],
+						[ 'grunion/field-email', { label: __( 'Email' ) } ],
+						[ 'grunion/field-text', { label: __( 'Subject' ) } ],
+						[ 'grunion/field-textarea', { label: __( 'Message' ) } ]
 					] }
 				/>
 			</GrunionForm>
@@ -302,24 +302,24 @@ registerBlockType( 'grunion/form', {
 } );
 
 const FieldDefaults = {
-	icon        : 'feedback',
-	category    : 'common',
-	parent      : [ 'grunion/form' ],
-	supports    : {
-		html : false
+	icon: 'feedback',
+	category: 'common',
+	parent: [ 'grunion/form' ],
+	supports: {
+		html: false
 	},
-	attributes  : {
-		label : {
-			type : 'string',
-			default : __( 'Type here...' )
+	attributes: {
+		label: {
+			type: 'string',
+			'default': __( 'Type here...' )
 		},
-		required : {
-			type : 'boolean',
-			default : false
+		required: {
+			type: 'boolean',
+			'default': false
 		},
-		options : {
-			type : 'array',
-			default : []
+		options: {
+			type: 'array',
+			'default': []
 		}
 	},
 	transforms: {
