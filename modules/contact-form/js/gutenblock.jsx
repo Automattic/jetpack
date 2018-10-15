@@ -218,7 +218,7 @@ class GrunionFieldMultiple extends Component {
 						setAttributes={ this.props.setAttributes }
 					/>
 					<ol>
-						{ _.map( this.props.options, ( option, index )=>(
+						{ this.props.options.map( ( option, index )=>(
 							<GrunionOption
 								key={ index }
 								option={ option }
