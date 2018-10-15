@@ -7274,17 +7274,8 @@ p {
 	/**
 	 * Load Gutenberg editor blocks.
 	 *
-	 * This section meant for unstable phase of developing Jetpack's
-	 * Gutenberg extensions. If still around after Sep. 15, 2018 then
-	 * please file an issue to remove it; if nobody responds within one
-	 * week then please delete the code.
-	 *
-	 *
-	 * Loading blocks is disabled by default and enabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_true' );
-	 *
-	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
-	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
+	 * Loading blocks is enabled by default and may be disabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
 	 * Note that when loaded locally, you need to build the files yourself:
 	 * - _inc/blocks/editor.js
@@ -7302,17 +7293,18 @@ p {
 	 * @return void
 	 */
 	public static function load_jetpack_gutenberg() {
-		/**
-		 * Filter to turn on loading Gutenberg blocks
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool false Whether to load Gutenberg blocks
-		 */
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
+
+		/**
+		 * Filter to disable Gutenberg blocks
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool true Whether to load Gutenberg blocks
+		 */
+		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
 
@@ -7323,9 +7315,9 @@ p {
 		 *
 		 * @since 6.5.0
 		 *
-		 * @param bool true Whether to load Gutenberg blocks from CDN
+		 * @param bool false Whether to load Gutenberg blocks from CDN
 		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
+		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
 			$editor_script = "$cdn_base/editor.js";
 			$editor_style = "$cdn_base/editor$rtl.css";
