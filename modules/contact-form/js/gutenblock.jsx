@@ -195,7 +195,7 @@ class GrunionFieldMultiple extends Component {
 	}
 
 	onChangeOption( key, option = null ) {
-		const newOptions = _.clone( this.props.options );
+		const newOptions = this.props.options.slice( 0 );
 		if ( null === option ) {
 			newOptions.splice( key, 1 );
 		} else {
