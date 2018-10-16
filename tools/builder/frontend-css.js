@@ -103,7 +103,7 @@ gulp.task( 'frontendcss', function() {
 		} );
 } );
 
-gulp.task( 'frontendcss:separate', gulp.series( 'frontendcss', function() {
+gulp.task( 'frontendcss:separate', function() {
 	return gulp.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
@@ -122,4 +122,10 @@ gulp.task( 'frontendcss:separate', gulp.series( 'frontendcss', function() {
 		.pipe( gulp.dest( function( file ) {
 			return path.dirname( file.path );
 		} ) );
-} ) );
+} );
+
+export default gulp.parallel(
+	'frontendcss',
+	'frontendcss:separate'
+);
+

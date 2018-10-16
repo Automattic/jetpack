@@ -28,10 +28,16 @@ const meta = require( './package.json' );
 
 import { alwaysIgnoredPaths } from './tools/builder/util';
 
-import {} from './tools/builder/frontend-css';
-import {} from './tools/builder/admin-css';
-import {} from './tools/builder/react';
-import {} from './tools/builder/sass';
+import frontendcss from './tools/builder/frontend-css';
+import admincss from './tools/builder/admin-css';
+import {
+    watch as react_watch,
+    build as react_build
+} from './tools/builder/react';
+import {
+    watch as sass_watch,
+    build as sass_build
+} from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
@@ -275,7 +281,7 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
+	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], gulp.parallel( 'gutenpack' ) );
 } );
 
 gulp.task( 'gutenpack:jetpack-blocks', function() {
@@ -283,10 +289,7 @@ gulp.task( 'gutenpack:jetpack-blocks', function() {
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
 
-gulp.task(
-	'old-styles',
-	gulp.parallel( 'frontendcss', 'admincss', 'admincss:rtl', 'sass:old' )
-);
+gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
 gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 gulp.task( 'php', gulp.parallel( 'php:lint', 'php:unit' ) );
 gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
@@ -294,12 +297,18 @@ gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' )
+	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' )
 );
 gulp.task(
 	'watch',
-	gulp.parallel( 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch' )
+	gulp.parallel( react_watch, sass_watch, 'old-styles:watch', 'gutenpack:watch' )
 );
+
+// Keeping explicit task names to allow for individual runs
+gulp.task( 'sass:build', sass_build );
+gulp.task( 'react:build', react_build );
+gulp.task( 'sass:watch', sass_watch );
+gulp.task( 'react:watch', react_watch );
 
 gulp.task(
 	'languages',

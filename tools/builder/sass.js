@@ -15,6 +15,7 @@ import sourcemaps from 'gulp-sourcemaps';
  * Internal dependencies
  */
 import { alwaysIgnoredPaths } from './util';
+import { build as build_react } from './react';
 
 gulp.task( 'sass:dashboard', function( done ) {
 	log( 'Building Dashboard CSS bundle...' );
@@ -104,14 +105,11 @@ gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
 		} );
 } ) );
 
-gulp.task(
-	'sass:build',
-	gulp.parallel(
-		gulp.series( 'react:build', 'sass:dashboard', 'sass:dops' ),
-		'sass:old'
-	)
+export const build = gulp.parallel(
+	gulp.series( build_react, 'sass:dashboard', 'sass:dops' ),
+	'sass:old'
 );
 
-gulp.task( 'sass:watch', function() {
+export const watch = function() {
 	return gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], gulp.parallel( 'sass:dashboard', 'sass:dops', 'sass:old' ) );
-} );
+};

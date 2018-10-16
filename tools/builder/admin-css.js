@@ -71,3 +71,5 @@ gulp.task( 'admincss:rtl', function() {
 			util.log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
+
+export default gulp.parallel( 'admincss', 'admincss:rtl' );

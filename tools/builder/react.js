@@ -18,7 +18,7 @@ function getWebpackConfig() {
 	return Object.create( require( './../../webpack.config.js' ) );
 }
 
-gulp.task( 'react:watch', function() {
+export const watch = function() {
 	const config = getWebpackConfig();
 
 	return webpack( config ).watch(
@@ -34,7 +34,7 @@ gulp.task( 'react:watch', function() {
 			}
 		)
 	);
-} );
+};
 
 gulp.task( 'react:master', function( done ) {
 	const config = getWebpackConfig();
@@ -153,9 +153,11 @@ function onBuild( done, err, stats ) {
 			log( 'Your other JS is now uglified!' );
 			done();
 		} );
-};
+}
 
-gulp.task( 'react:build', gulp.series( 'react:master', buildStatic ) );
+export const build = gulp.series( 'react:master', buildStatic );
+
+gulp.task( 'react:build', build );
 
 function buildStatic( done ) {
 	let path;
