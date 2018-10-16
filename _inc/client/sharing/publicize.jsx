@@ -52,6 +52,8 @@ export const Publicize = moduleSettingsForm(
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
+							target="_blank"
+							rel="noopener noreferrer"
 							href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }>
 							{ __( 'Connect your user account to WordPress.com to use this feature' ) }
 						</Card>
