@@ -45,16 +45,16 @@ class GrunionForm extends Component {
 		this.onChangeSubmit = this.onChangeSubmit.bind( this );
 	}
 
-	onChangeSubject( x ) {
-		this.props.setAttributes( { subject: x } );
+	onChangeSubject( subject ) {
+		this.props.setAttributes( { subject } );
 	}
 
-	onChangeTo( x ) {
-		this.props.setAttributes( { to: x } );
+	onChangeTo( to ) {
+		this.props.setAttributes( { to } );
 	}
 
-	onChangeSubmit( x ) {
-		this.props.setAttributes( { submit_button_text: x } );
+	onChangeSubmit( submit_button_text ) {
+		this.props.setAttributes( { submit_button_text } );
 	}
 
 	render() {
@@ -110,8 +110,8 @@ class GrunionFieldSettings extends Component {
 		this.onChangeRequired = this.onChangeRequired.bind( this );
 	}
 
-	onChangeRequired( x ) {
-		this.props.setAttributes( { required: x } );
+	onChangeRequired( required ) {
+		this.props.setAttributes( { required } );
 	}
 
 	render() {
@@ -134,8 +134,8 @@ class GrunionFieldLabel extends Component {
 		this.onChangeLabel = this.onChangeLabel.bind( this );
 	}
 
-	onChangeLabel( x ) {
-		this.props.setAttributes( { label: x.target.value } );
+	onChangeLabel( event ) {
+		this.props.setAttributes( { label: event.target.value } );
 	}
 
 	render() {
@@ -276,8 +276,8 @@ class GrunionOption extends Component {
 		this.onDeleteOption = this.onDeleteOption.bind( this );
 	}
 
-	onChangeOption( x ) {
-		this.props.onChangeOption( this.props.index, x.target.value );
+	onChangeOption( event ) {
+		this.props.onChangeOption( this.props.index, event.target.value );
 	}
 
 	onDeleteOption() {
