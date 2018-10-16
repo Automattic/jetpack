@@ -26,12 +26,7 @@ import { spawn } from 'child_process';
  */
 const meta = require( './package.json' );
 
-// These paths should alawys be ignored when watching files
-const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**' ];
-
-module.exports = {
-	alwaysIgnoredPaths: alwaysIgnoredPaths
-};
+import { alwaysIgnoredPaths } from './tools/builder/util';
 
 import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
