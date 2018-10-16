@@ -384,9 +384,9 @@ EOT;
 		$ui_settings = sprintf(
 			$ui_settings_template,
 			checked( $options['show_headline'], true, false ),
-			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+			esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
-			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+			esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 			checked( $options['show_date'], true, false ),
 			esc_html__( 'Show entry date', 'jetpack' ),
 			checked( $options['show_context'], true, false ),
@@ -591,11 +591,13 @@ EOT;
 	public function get_for_post_id( $post_id, array $args ) {
 		$options = $this->get_options();
 
-		if ( ! empty( $args['size'] ) )
+		if ( ! empty( $args['size'] ) ) {
 			$options['size'] = $args['size'];
+		}
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) )
+		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) || get_post_status( $post_id) !== 'publish' ) {
 			return array();
+		}
 
 		$defaults = array(
 			'size' => (int)$options['size'],
@@ -978,7 +980,7 @@ EOT;
 	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_post_data_for_post( $post_id, $position, $origin ) {
+	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 
 		return array(
@@ -1196,7 +1198,7 @@ EOT;
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
-			$related_posts[] = $this->_get_related_post_data_for_post( $hit['id'], $i, $post_id );
+			$related_posts[] = $this->get_related_post_data_for_post( $hit['id'], $i, $post_id );
 		}
 		return $related_posts;
 	}
@@ -1413,7 +1415,9 @@ EOT;
 			&&
 				! is_admin()
 			&&
-				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
+				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) )
+			&&
+				! Jetpack_AMP_Support::is_amp_request();
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
@@ -1532,6 +1536,7 @@ EOT;
 
 	/**
 	 * Build an array of Related Posts.
+	 * By default returns cached results that are stored for up to 12 hours.
 	 *
 	 * @since 4.4.0
 	 *

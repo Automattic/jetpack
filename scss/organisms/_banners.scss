@@ -47,41 +47,39 @@
 		position: absolute;
 			top: 0;
 			right: 0;
-			bottom: 0;
+			bottom: rem( 20px );
 			left: 0;
 		z-index: 9999; // to sit over other elements
-		background: rgba($gray-light, .95);
+		background: rgb( 241, 241, 241 );
 		text-align: center;
-		padding: rem( 32px );
+
+		.jp-connect-full__container-card {
+			padding: rem( 48px ) rem( 64px ) rem( 96px );
+			background: white;
+			margin: 1em;
+
+				img.jetpack-logo {
+					width: 160px;
+				}
+
+				img.support-characters {
+					margin-top: rem( 24px );
+					width: 50%;
+				}
+		}
+
+		h4 {
+			line-height: 1.25;
+			font-size: rem( 22px );
+			font-weight: normal;
+			margin: 1em 0;
+		}
 
 		@include minbreakpoint(tablet) {
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
 
 	}
-}
-
-// Planet + star svgs for decoration only
-.jp-connect-full__svg-jupiter {
-	position: absolute;
-		right: 0;
-		top: rem( 80px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
-}
-
-.jp-connect-full__svg-stars {
-	position: absolute;
-		left: rem( 100px );
-		top: rem( 100px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
 }
 
 // dismiss
@@ -99,68 +97,37 @@
 	};
 }
 
-.jp-connect-full__step-header-logos {
-	display: flex;
-	align-items: center;
-	flex-direction: row;
-	justify-content: center;
-
-	.jp-connect-full__svg-jetpack,
-	.jp-connect-full__svg-jetpack {
-		fill: $gray;
-	}
-
-	.jp-connect-full__svg-sync {
-		fill: $gray-dark;
-		margin: 0 rem( 16px );
-	}
-
-	@include breakpoint(phablet) {
-			padding-top: rem( 32px );
-	};
-}
-
-.jp-connect-full__step-header-title {
-	padding: rem( 16px );
-	font-size: rem( 24px );
-	line-height: 1.25;
-	color: $gray-dark;
-	font-weight: 400;
-}
-
-.jp-connect-full__card {
-	padding: 0;
+.jp-connect-full__step-header {
+	max-width: 700px;
 	margin: 0 auto;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-	background: $white;
-	max-width: rem( 550px );
-}
+	line-height: 1.5;
 
-.jp-connect-full__card-inner {
-	padding: rem( 16px );
-}
+	h2 {
+		margin: rem( 24px ) 0 0;
+		font-size: rem( 22px );
+		font-weight: bold;
+		color: black;
+	}
 
-.jp-connect-full__card-description {
-	font-size: rem( 14px );
-	color: $gray-dark;
-}
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
 
-.jp-connect-full__card-footer {
-	background: $gray-light;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	&.bottom {
+		margin-top: rem( 80px );
+	}
 }
-
 .jp-connect-full__tos-blurb {
 	font-size: rem( 11px );
-	margin: 0 auto rem( 16px );
-	max-width: rem( 385px );
-	color: $gray-dark;
-}
-
-.jp-connect-full__tos-a {
-	text-decoration: none;
-	color: $blue-wordpress;
+	margin: 0 auto rem( 24px );
+	color: $gray-text-min;
+	a{
+		text-decoration: none;
+		color: $green-primary;
+	}
 }
 
 .jp-connect-full__button-container {
@@ -176,22 +143,67 @@
 	}
 }
 
-.jp-connect-full__help-button {
-	display: inline-block;
-	text-decoration: none;
-	color: $gray;
-	padding: rem( 16px );
+.jp-connect-full__dismiss {
+	cursor: pointer;
+}
 
-	.gridicon {
-		width: rem( 18px );
-		height: rem( 18px );
-		position: relative;
-		top: 4px;
+.jp-connect-full__dismiss-paragraph {
+	font-size: .6875rem;
+
+	a {
+		cursor: pointer;
+		color: $gray-text-min;
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
 	}
 }
 
-.jp-connect-full__dismiss {
-	cursor: pointer;
+.jp-connect-full__slide {
+	max-width: 750px;
+	margin: 4em auto;
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+
+	.jp-connect-full__slide-card {
+		flex: 1;
+		text-align: left;
+	}
+
+	.illustration {
+		img {
+			margin: 2.5em 1em;
+			display: block;
+
+			@include minbreakpoint(phablet) {
+				margin: 2.5em auto;
+				width: 75%;
+			};
+		}
+	}
+}
+
+.jp-connect-full__step-support {
+	max-width: 700px;
+	margin: 0 auto;
+	line-height: 1.25;
+
+	h2 {
+		margin: rem( 16px ) 0 0;
+		font-size: rem( 22px );
+		font-weight: normal;
+		color: black;
+	}
+
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
 }
 
 
@@ -237,7 +249,7 @@
 }
 
 .jp-wpcom-connect__content-container {
-	max-width: 800px;
+	width: 1250px;
 	position: relative;
 	padding: rem( 32px );
 	z-index: 0;

@@ -265,8 +265,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
+			// Similarly, scheduled posts that are manually published before their scheduled date should have the date reset.
 			$date_in_past = ( strtotime($post->post_date_gmt) < time() );
-			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past ) {
+			$reset_draft_date     = 'publish' === $new_status && 'draft'  === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past;
+			$reset_scheduled_date = 'publish' === $new_status && 'future' === $last_status && ! isset( $input['date_gmt'] ) && ! $date_in_past;
+
+			if ( $reset_draft_date || $reset_scheduled_date ) {
 				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
 			}
 		}
@@ -779,7 +783,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 				$unslashed_meta_key = wp_unslash( $meta->key ); // should match what the final key will be
 				$meta->key = wp_slash( $meta->key );
-				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
+				$unslashed_existing_meta_key = isset( $existing_meta_item->meta_key ) ? wp_unslash( $existing_meta_item->meta_key ) : '';
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
 
 				// make sure that the meta id passed matches the existing meta key

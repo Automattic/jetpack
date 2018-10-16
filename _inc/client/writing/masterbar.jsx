@@ -26,7 +26,22 @@ export const Masterbar = moduleSettingsForm(
 					header={ __( 'WordPress.com toolbar', { context: 'Settings header' } ) }
 					module="masterbar"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
+					<SettingsGroup
+						disableInDevMode
+						module={ { module: 'masterbar' } }
+						support={ {
+							link: 'https://jetpack.com/support/masterbar/',
+						} }
+						>
+						<p>
+							{ __(
+								'The WordPress.com toolbar replaces the default WordPress ' +
+									'admin toolbar and streamlines your WordPress experience. ' +
+									'It offers one-click access to manage all your sites, ' +
+									'update your WordPress.com profile, view notifications, ' +
+									'and catch up on the sites you follow in the Reader.'
+							) }
+						</p>
 						<ModuleToggle
 							slug="masterbar"
 							disabled={ unavailableInDevMode || ! isLinked }
@@ -34,13 +49,6 @@ export const Masterbar = moduleSettingsForm(
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 							{ __( 'Enable the WordPress.com toolbar' ) }
-							<span className="jp-form-setting-explanation">
-							{
-								__( 'The WordPress.com toolbar replaces the default admin bar and offers quick links to ' +
-									'the Reader, all your sites, your WordPress.com profile, and notifications. ' +
-									'Centralize your WordPress experience with a single global toolbar.' )
-							}
-						</span>
 						</ModuleToggle>
 					</SettingsGroup>
 					{

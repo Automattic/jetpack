@@ -137,7 +137,12 @@ export const Antispam = moduleSettingsForm(
 					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>
 					<FoldableCard onOpen={ this.trackOpenCard } header={ foldableHeader }>
-						<SettingsGroup support="https://akismet.com/jetpack/">
+						<SettingsGroup
+							support={ {
+								text: __( 'Removes spam from comments and contact forms.' ),
+								link: 'https://akismet.com/jetpack/',
+							} }
+							>
 							<FormFieldset>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>

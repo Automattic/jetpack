@@ -25,6 +25,14 @@ import {
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
+const smoothScroll = () => {
+	const jpContentY = document.getElementById( 'jp-navigation' ).offsetTop;
+	window.scrollTo( 0, window.scrollY - jpContentY / 1.5 );
+	if ( window.scrollY > jpContentY ) {
+		window.requestAnimationFrame( smoothScroll );
+	}
+};
+
 export class Footer extends React.Component {
 	static displayName = 'Footer';
 
@@ -49,6 +57,7 @@ export class Footer extends React.Component {
 	};
 
 	trackPrivacyClick = () => {
+		window.requestAnimationFrame( smoothScroll );
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'privacy'
@@ -145,14 +154,13 @@ export class Footer extends React.Component {
 							onClick={ this.trackVersionClick }
 							href="https://jetpack.com"
 							target="_blank"
-							rel="noopener noreferrer"
-							className="jp-footer__link"
+							rel="noopener noreferrer" className="jp-footer__link"
 							title={ __( 'Jetpack version' ) }
 						>
 							{
 								version
 									? __( 'Jetpack version %(version)s', { args: { version } } )
-									: __( 'Jetpack' )
+									: 'Jetpack'
 							}
 						</a>
 					</li>
@@ -170,8 +178,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackPrivacyClick }
-							href="https://automattic.com/privacy/"
-							target="_blank"
+							href="#/privacy"
 							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy" ) }
 							className="jp-footer__link">

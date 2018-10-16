@@ -26,6 +26,7 @@ import {
 import { getSitePlan } from 'state/site';
 import includes from 'lodash/includes';
 import { isModuleActivated } from 'state/modules';
+import { showBackups } from 'state/initial-state';
 
 class LoadingCard extends Component {
 	render() {
@@ -38,7 +39,11 @@ class LoadingCard extends Component {
 				<SettingsGroup
 					disableInDevMode
 					module={ { module: 'backups' } }
-					support="https://help.vaultpress.com/get-to-know/">
+					support={ {
+						text: __( 'Backs up your site to the global WordPress.com servers, ' +
+							'allowing you to restore your content in the event of an emergency or error.' ),
+						link: 'https://help.vaultpress.com/get-to-know/',
+					} }>
 					{
 						__( 'Checking site status…' )
 					}
@@ -60,7 +65,7 @@ class BackupsScanRewind extends Component {
 			feature={ 'rewind' }
 			description={ __( 'Your site is being backed up in real time and regularly scanned for security threats.' ) }
 			className="is-upgrade-premium jp-banner__no-border"
-			href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl }
+			href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
 		/>;
 	};
 
@@ -146,6 +151,10 @@ export const BackupsScan = moduleSettingsForm(
 		}
 
 		render() {
+			if ( ! this.props.showBackups ) {
+				return null;
+			}
+
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
 			const hasRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false );
@@ -169,7 +178,11 @@ export const BackupsScan = moduleSettingsForm(
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
-						support="https://help.vaultpress.com/get-to-know/">
+						support={ {
+							text: __( 'Backs up your site to the global WordPress.com servers, ' +
+								'allowing you to restore your content in the event of an emergency or error.' ),
+							link: 'https://help.vaultpress.com/get-to-know/',
+						} }>
 						{
 							this.getCardText()
 						}
@@ -191,5 +204,6 @@ export default connect( state => {
 		vaultPressData: getVaultPressData( state ),
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
+		showBackups: showBackups( state ),
 	};
 } )( BackupsScan );

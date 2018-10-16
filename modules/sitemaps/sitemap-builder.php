@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+/* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 
@@ -78,7 +79,7 @@ class Jetpack_Sitemap_Builder {
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
-		$this->finder = new Jetpack_Sitemap_Finder();
+		$this->finder    = new Jetpack_Sitemap_Finder();
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
@@ -118,10 +119,7 @@ class Jetpack_Sitemap_Builder {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						'-- WARNING: Jetpack can not load necessary XML manipulation libraries. '
-						. 'This can happen if XML support in PHP is not enabled on your server. '
-						. 'XML support is highly recommended for WordPress and Jetpack, please enable '
-						. 'it or contact your hosting provider about it.',
+						'-- WARNING: Jetpack can not load necessary XML manipulation libraries. This can happen if XML support in PHP is not enabled on your server. XML support is highly recommended for WordPress and Jetpack, please enable it or contact your hosting provider.',
 						'jetpack'
 					),
 					true
@@ -130,7 +128,9 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
-			$this->build_next_sitemap_file();
+			if ( true === $this->build_next_sitemap_file() ) {
+				break; // All finished!
+			}
 		}
 
 		if ( $this->logger ) {
@@ -146,14 +146,18 @@ class Jetpack_Sitemap_Builder {
 	 * constructs the next file, and updates the state.
 	 *
 	 * @since 4.8.0
+	 *
+	 * @return bool True when finished.
 	 */
 	private function build_next_sitemap_file() {
+		$finished = false; // Initialize finished flag.
+
 		// Get the most recent state, and lock the state.
 		$state = Jetpack_Sitemap_State::check_out();
 
 		// Do nothing if the state was locked.
 		if ( false === $state ) {
-			return;
+			return false;
 		}
 
 		// Otherwise, branch on the sitemap-type key of $state.
@@ -218,19 +222,23 @@ class Jetpack_Sitemap_Builder {
 					$this->logger->report( '-- Finished.' );
 					$this->logger->time();
 				}
+				$finished = true;
 
-				die();
+				break;
 
 			default:
-				// Otherwise, reset the state.
 				Jetpack_Sitemap_State::reset(
 					JP_PAGE_SITEMAP_TYPE
 				);
-				die();
-		} // End switch().
+				$finished = true;
+
+				break;
+		} // End switch.
 
 		// Unlock the state.
 		Jetpack_Sitemap_State::unlock();
+
+		return $finished;
 	}
 
 	/**
@@ -256,12 +264,14 @@ class Jetpack_Sitemap_Builder {
 
 		if ( false === $result ) {
 			// If no sitemap was generated, advance to the next type.
-			Jetpack_Sitemap_State::check_in( array(
-				'sitemap-type'  => $index_type,
-				'last-added'    => 0,
-				'number'        => 0,
-				'last-modified' => '1970-01-01 00:00:00',
-			) );
+			Jetpack_Sitemap_State::check_in(
+				array(
+					'sitemap-type'  => $index_type,
+					'last-added'    => 0,
+					'number'        => 0,
+					'last-modified' => '1970-01-01 00:00:00',
+				)
+			);
 
 			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up $sitemap_type" );
@@ -269,19 +279,22 @@ class Jetpack_Sitemap_Builder {
 
 			// Clean up old files.
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				$state['number'], $sitemap_type
+				$state['number'],
+				$sitemap_type
 			);
 
 			return;
 		}
 
 		// Otherwise, update the state.
-		Jetpack_Sitemap_State::check_in( array(
-			'sitemap-type'  => $state['sitemap-type'],
-			'last-added'    => $result['last_id'],
-			'number'        => $state['number'] + 1,
-			'last-modified' => $result['last_modified'],
-		) );
+		Jetpack_Sitemap_State::check_in(
+			array(
+				'sitemap-type'  => $state['sitemap-type'],
+				'last-added'    => $result['last_id'],
+				'number'        => $state['number'] + 1,
+				'last-modified' => $result['last_modified'],
+			)
+		);
 
 		if ( true === $result['any_left'] ) {
 			// If there's more work to be done with this type, return.
@@ -289,12 +302,14 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		// Otherwise, advance state to the next sitemap type.
-		Jetpack_Sitemap_State::check_in( array(
-			'sitemap-type'  => $index_type,
-			'last-added'    => 0,
-			'number'        => 0,
-			'last-modified' => '1970-01-01 00:00:00',
-		) );
+		Jetpack_Sitemap_State::check_in(
+			array(
+				'sitemap-type'  => $index_type,
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+			)
+		);
 
 		if ( $this->logger ) {
 			$this->logger->report( "-- Cleaning Up $sitemap_type" );
@@ -302,7 +317,8 @@ class Jetpack_Sitemap_Builder {
 
 		// Clean up old files.
 		$this->librarian->delete_numbered_sitemap_rows_after(
-			$state['number'] + 1, $sitemap_type
+			$state['number'] + 1,
+			$sitemap_type
 		);
 	}
 
@@ -320,12 +336,14 @@ class Jetpack_Sitemap_Builder {
 
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
 		if ( 1 >= $state['max'][ $sitemap_type ]['number'] ) {
-			Jetpack_Sitemap_State::check_in( array(
-				'sitemap-type'  => $next_type,
-				'last-added'    => 0,
-				'number'        => 0,
-				'last-modified' => '1970-01-01 00:00:00',
-			) );
+			Jetpack_Sitemap_State::check_in(
+				array(
+					'sitemap-type'  => $next_type,
+					'last-added'    => 0,
+					'number'        => 0,
+					'last-modified' => '1970-01-01 00:00:00',
+				)
+			);
 
 			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up $index_type" );
@@ -333,7 +351,8 @@ class Jetpack_Sitemap_Builder {
 
 			// There are no indices of this type.
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				0, $index_type
+				0,
+				$index_type
 			);
 
 			return;
@@ -349,12 +368,14 @@ class Jetpack_Sitemap_Builder {
 
 		// If no index was built, advance to the next type and return.
 		if ( false === $result ) {
-			Jetpack_Sitemap_State::check_in( array(
-				'sitemap-type'  => $next_type,
-				'last-added'    => 0,
-				'number'        => 0,
-				'last-modified' => '1970-01-01 00:00:00',
-			) );
+			Jetpack_Sitemap_State::check_in(
+				array(
+					'sitemap-type'  => $next_type,
+					'last-added'    => 0,
+					'number'        => 0,
+					'last-modified' => '1970-01-01 00:00:00',
+				)
+			);
 
 			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up $index_type" );
@@ -362,19 +383,22 @@ class Jetpack_Sitemap_Builder {
 
 			// Clean up old files.
 			$this->librarian->delete_numbered_sitemap_rows_after(
-				$state['number'], $index_type
+				$state['number'],
+				$index_type
 			);
 
 			return;
 		}
 
 		// Otherwise, check in the state.
-		Jetpack_Sitemap_State::check_in( array(
-			'sitemap-type'  => $index_type,
-			'last-added'    => $result['last_id'],
-			'number'        => $state['number'] + 1,
-			'last-modified' => $result['last_modified'],
-		) );
+		Jetpack_Sitemap_State::check_in(
+			array(
+				'sitemap-type'  => $index_type,
+				'last-added'    => $result['last_id'],
+				'number'        => $state['number'] + 1,
+				'last-modified' => $result['last_modified'],
+			)
+		);
 
 		// If there are still sitemaps left to index, return.
 		if ( true === $result['any_left'] ) {
@@ -382,12 +406,14 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		// Otherwise, advance to the next type.
-		Jetpack_Sitemap_State::check_in( array(
-			'sitemap-type'  => $next_type,
-			'last-added'    => 0,
-			'number'        => 0,
-			'last-modified' => '1970-01-01 00:00:00',
-		) );
+		Jetpack_Sitemap_State::check_in(
+			array(
+				'sitemap-type'  => $next_type,
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+			)
+		);
 
 		if ( $this->logger ) {
 			$this->logger->report( "-- Cleaning Up $index_type" );
@@ -395,10 +421,9 @@ class Jetpack_Sitemap_Builder {
 
 		// We're done generating indices of this type.
 		$this->librarian->delete_numbered_sitemap_rows_after(
-			$state['number'] + 1, $index_type
+			$state['number'] + 1,
+			$index_type
 		);
-
-		return;
 	}
 
 	/**
@@ -409,6 +434,9 @@ class Jetpack_Sitemap_Builder {
 	 * @since 4.8.0
 	 */
 	private function build_master_sitemap( $max ) {
+		$page  = array();
+		$image = array();
+		$video = array();
 		if ( $this->logger ) {
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
@@ -420,10 +448,10 @@ class Jetpack_Sitemap_Builder {
 
 		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-				$page['filename'] = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
+				$page['filename']      = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
 				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
 			} else {
-				$page['filename'] = jp_sitemap_filename(
+				$page['filename']      = jp_sitemap_filename(
 					JP_PAGE_SITEMAP_INDEX_TYPE,
 					$max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number']
 				);
@@ -442,10 +470,10 @@ class Jetpack_Sitemap_Builder {
 
 		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-				$image['filename'] = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
+				$image['filename']      = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
 				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
 			} else {
-				$image['filename'] = jp_sitemap_filename(
+				$image['filename']      = jp_sitemap_filename(
 					JP_IMAGE_SITEMAP_INDEX_TYPE,
 					$max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number']
 				);
@@ -464,14 +492,14 @@ class Jetpack_Sitemap_Builder {
 
 		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-				$video['filename'] = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'];
+				$video['filename']      = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
 			} else {
-				$video['filename'] = jp_sitemap_filename(
+				$video['filename']      = jp_sitemap_filename(
 					JP_VIDEO_SITEMAP_INDEX_TYPE,
 					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
 				);
-				$video['last_modified'] = $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'];
+				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'] );
 			}
 
 			$buffer->append(
@@ -510,7 +538,7 @@ class Jetpack_Sitemap_Builder {
 	 * }
 	 */
 	public function build_one_page_sitemap( $number, $from_id ) {
-		$last_post_id = $from_id;
+		$last_post_id   = $from_id;
 		$any_posts_left = true;
 
 		if ( $this->logger ) {
@@ -523,8 +551,8 @@ class Jetpack_Sitemap_Builder {
 			JP_SITEMAP_MAX_BYTES
 		);
 
-		// Add entry for the main page (only if we're at the first one).
-		if ( 1 === $number ) {
+		// Add entry for the main page (only if we're at the first one) and it isn't already going to be included as a page.
+		if ( 1 === $number && 'page' !== get_option( 'show_on_front' ) ) {
 			$item_array = array(
 				'url' => array(
 					'loc' => home_url(),
@@ -547,9 +575,10 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		// Add as many items to the buffer as possible.
-		while ( false === $buffer->is_full() ) {
+		while ( $last_post_id >= 0 && false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_posts_after_id(
-				$last_post_id, JP_SITEMAP_BATCH_SIZE
+				$last_post_id,
+				JP_SITEMAP_BATCH_SIZE
 			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
@@ -565,6 +594,60 @@ class Jetpack_Sitemap_Builder {
 					$buffer->view_time( $current_item['last_modified'] );
 				} else {
 					break;
+				}
+			}
+		}
+
+		// Handle other page sitemap URLs.
+		if ( false === $any_posts_left || $last_post_id < 0 ) {
+			// Negative IDs are used to track URL indexes.
+			$last_post_id   = min( 0, $last_post_id );
+			$any_posts_left = true; // Reinitialize.
+
+			/**
+			 * Filter other page sitemap URLs.
+			 *
+			 * @module sitemaps
+			 *
+			 * @since 6.1.0
+			 *
+			 * @param array $urls An array of other URLs.
+			 */
+			$other_urls = apply_filters( 'jetpack_page_sitemap_other_urls', array() );
+
+			if ( $other_urls ) { // Start with index [1].
+				$other_urls = array_values( $other_urls );
+				array_unshift( $other_urls, $other_urls[0] );
+				unset( $other_urls[0] );
+			}
+
+			// Add as many items to the buffer as possible.
+			while ( false === $buffer->is_full() ) {
+				$last_post_id_index       = abs( $last_post_id );
+				$start_from_post_id_index = $last_post_id_index ? $last_post_id_index + 1 : 0;
+				$urls                     = array_slice(
+					$other_urls,
+					$start_from_post_id_index,
+					JP_SITEMAP_BATCH_SIZE,
+					true
+				);
+
+				if ( ! $urls ) {
+					$any_posts_left = false;
+					break;
+				}
+
+				foreach ( $urls as $index => $url ) {
+					if ( ! is_array( $url ) ) {
+						$url = array( 'loc' => $url );
+					}
+					$item = array( 'xml' => compact( 'url' ) );
+
+					if ( true === $buffer->append( $item['xml'] ) ) {
+						$last_post_id = -$index;
+					} else {
+						break;
+					}
 				}
 			}
 		}
@@ -628,7 +711,7 @@ class Jetpack_Sitemap_Builder {
 	 * }
 	 */
 	public function build_one_image_sitemap( $number, $from_id ) {
-		$last_post_id = $from_id;
+		$last_post_id   = $from_id;
 		$any_posts_left = true;
 
 		if ( $this->logger ) {
@@ -644,7 +727,8 @@ class Jetpack_Sitemap_Builder {
 		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_images_after_id(
-				$last_post_id, JP_SITEMAP_BATCH_SIZE
+				$last_post_id,
+				JP_SITEMAP_BATCH_SIZE
 			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
@@ -706,7 +790,7 @@ class Jetpack_Sitemap_Builder {
 	 * }
 	 */
 	public function build_one_video_sitemap( $number, $from_id ) {
-		$last_post_id = $from_id;
+		$last_post_id   = $from_id;
 		$any_posts_left = true;
 
 		if ( $this->logger ) {
@@ -722,7 +806,8 @@ class Jetpack_Sitemap_Builder {
 		// Add as many items to the buffer as possible.
 		while ( false === $buffer->is_full() ) {
 			$posts = $this->librarian->query_videos_after_id(
-				$last_post_id, JP_SITEMAP_BATCH_SIZE
+				$last_post_id,
+				JP_SITEMAP_BATCH_SIZE
 			);
 
 			if ( null == $posts ) { // WPCS: loose comparison ok.
@@ -808,7 +893,7 @@ class Jetpack_Sitemap_Builder {
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {
-			$i = $number - 1;
+			$i              = $number - 1;
 			$prev_index_url = $this->finder->construct_sitemap_url(
 				jp_sitemap_filename( $index_type, $i )
 			);
@@ -827,7 +912,9 @@ class Jetpack_Sitemap_Builder {
 		while ( false === $buffer->is_full() ) {
 			// Retrieve a batch of posts (in order).
 			$posts = $this->librarian->query_sitemaps_after_id(
-				$sitemap_type, $last_sitemap_id, JP_SITEMAP_BATCH_SIZE
+				$sitemap_type,
+				$last_sitemap_id,
+				JP_SITEMAP_BATCH_SIZE
 			);
 
 			// If there were no posts to get, make a note.
@@ -962,7 +1049,7 @@ class Jetpack_Sitemap_Builder {
 				$the_stored_news_sitemap,
 				JP_NEWS_SITEMAP_INTERVAL
 			);
-		} // End if().
+		} // End if.
 
 		return $the_stored_news_sitemap;
 	}
@@ -976,7 +1063,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
-	 * @return array An array representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function post_to_sitemap_item( $post ) {
 
@@ -1053,7 +1142,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The image post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function image_post_to_sitemap_item( $post ) {
 
@@ -1076,6 +1167,15 @@ class Jetpack_Sitemap_Builder {
 
 		$url = wp_get_attachment_url( $post->ID );
 
+		// Do not include the image if the attached parent is not published.
+		// Unattached will be published. Otherwise, will inherit parent status.
+		if ( 'publish' !== get_post_status( $post ) ) {
+			return array(
+				'xml'           => null,
+				'last_modified' => null,
+			);
+		}
+
 		$parent_url = get_permalink( get_post( $post->post_parent ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
 			$parent_url = get_permalink( $post );
@@ -1091,7 +1191,7 @@ class Jetpack_Sitemap_Builder {
 			),
 		);
 
-		$item_array['url']['image:image']['image:title'] = $post->post_title;
+		$item_array['url']['image:image']['image:title']   = $post->post_title;
 		$item_array['url']['image:image']['image:caption'] = $post->post_excerpt;
 
 		/**
@@ -1128,7 +1228,9 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param WP_Post $post The video post to be processed.
 	 *
-	 * @return string An XML fragment representing the post URL.
+	 * @return array
+	 *              @type array  $xml An XML fragment representing the post URL.
+	 *              @type string $last_modified Date post was last modified.
 	 */
 	private function video_post_to_sitemap_item( $post ) {
 
@@ -1143,6 +1245,15 @@ class Jetpack_Sitemap_Builder {
 		 * @param WP_POST $post Current post object.
 		 */
 		if ( apply_filters( 'jetpack_sitemap_video_skip_post', false, $post ) ) {
+			return array(
+				'xml'           => null,
+				'last_modified' => null,
+			);
+		}
+
+		// Do not include the video if the attached parent is not published.
+		// Unattached will be published. Otherwise, will inherit parent status.
+		if ( 'publish' !== get_post_status( $post ) ) {
 			return array(
 				'xml'           => null,
 				'last_modified' => null,
@@ -1257,11 +1368,11 @@ class Jetpack_Sitemap_Builder {
 
 		$item_array = array(
 			'url' => array(
-				'loc' => $url,
-				'lastmod' => jp_sitemap_datetime( $post->post_modified_gmt ),
+				'loc'       => $url,
+				'lastmod'   => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'news:news' => array(
-					'news:publication' => array(
-						'news:name'     => get_bloginfo( 'name' ),
+					'news:publication'      => array(
+						'news:name'     => html_entity_decode( get_bloginfo( 'name' ) ),
 						'news:language' => $language,
 					),
 					/** This filter is already documented in core/wp-includes/feed.php */

@@ -35,6 +35,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 			case 'jetpack_sync_save_update_attachment':
 			case 'jetpack_sync_save_add_attachment':
+			case 'jetpack_sync_save_attach_attachment':
 				list( $attachment_id, $attachment ) = $args;
 				$this->store->upsert_post( $attachment, $silent );
 				break;
@@ -102,7 +103,11 @@ class Jetpack_Sync_Server_Replicator {
 				$type = $matches[1];
 				$this->store->delete_metadata( $type, $object_id, $meta_ids );
 				break;
-
+			case 'jetpack_post_meta_batch_delete':
+				list( $object_ids, $meta_key ) = $args;
+				$type = 'post';
+				$this->store->delete_batch_metadata( $type, $object_ids, $meta_key );
+				break;
 			// constants
 			case 'jetpack_sync_constant':
 				list( $name, $value ) = $args;

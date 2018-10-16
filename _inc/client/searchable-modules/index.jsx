@@ -23,6 +23,10 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 
 export const SearchableModules = moduleSettingsForm(
 	class extends Component {
+		handleBannerClick = module => {
+			return () => this.props.updateOptions( { [ module ]: true } );
+		}
+
 		render() {
 			// Only admins plz
 			if ( ! this.props.canManageModules ) {
@@ -42,7 +46,6 @@ export const SearchableModules = moduleSettingsForm(
 				'enhanced-distribution',
 				'json-api',
 				'latex',
-				'monitor',
 				'notes',
 				'shortcodes',
 				'shortlinks',
@@ -73,7 +76,7 @@ export const SearchableModules = moduleSettingsForm(
 								description={ moduleData.description }
 								href="javascript:void( 0 )"
 								icon="cog"
-								onClick={ this.props.updateOptions.bind( null, { [ moduleData.module ]: true } ) }
+								onClick={ this.handleBannerClick( moduleData.module ) }
 								title={ moduleData.name }
 							/>
 						);
@@ -109,7 +112,7 @@ class ActiveCard extends Component {
 				<SettingsGroup
 					disableInDevMode={ devMode }
 					module={ { module: m.module } }
-					support={ m.learn_more_button }
+					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>

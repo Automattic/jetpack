@@ -26,9 +26,11 @@ import {
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule
+	isActivatingModule,
+	getModuleOverride
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { showBackups } from 'state/initial-state';
 
 class PlanBody extends React.Component {
 	static propTypes = {
@@ -46,6 +48,10 @@ class PlanBody extends React.Component {
 			plan: this.props.plan
 		} );
 	};
+
+	handleButtonClickForTracking = target => {
+		return () => this.trackPlansClick( target );
+	}
 
 	activateAds = () => {
 		this.props.activateModule( 'wordads' );
@@ -84,7 +90,7 @@ class PlanBody extends React.Component {
 			: 'dev';
 		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			hideVaultPressCard = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
+			hideVaultPressCard = ! this.props.showBackups || ( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
 		const getRewindVaultPressCard = () => {
 			if ( hideVaultPressCard ) {
@@ -112,7 +118,7 @@ class PlanBody extends React.Component {
 					<div className="jp-landing__plan-features-card">
 						<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
 						<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.' ) }</p>
-						<Button onClick={ () => this.trackPlansClick( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl } className="is-primary">
+						<Button onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
 							{ __( 'View your security activity' ) }
 						</Button>
 					</div>
@@ -125,12 +131,12 @@ class PlanBody extends React.Component {
 					<p>{ description + __( ' (powered by VaultPress).' ) }</p>
 					{
 						this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-							<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
+							<Button onClick={ this.handleButtonClickForTracking( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
 								{ __( 'View your security dashboard' ) }
 							</Button>
 						)
 							: (
-							<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+							<Button onClick={ this.handleButtonClickForTracking( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
 								{ __( 'Configure VaultPress' ) }
 							</Button>
 						)
@@ -151,7 +157,7 @@ class PlanBody extends React.Component {
 									<h3 className="jp-landing__plan-features-title">{ __( 'Unlimited Premium Themes' ) }</h3>
 									<p>{ __( 'Exclusive hand-crafted designs you will love with dedicated support directly from the theme authors.' ) }</p>
 									<Button
-										onClick={ () => this.trackPlansClick( 'premium_themes' ) }
+										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
 										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
 										className="is-primary">
 										{ __( 'Browse Themes' ) }
@@ -164,12 +170,12 @@ class PlanBody extends React.Component {
 							<p>{ __( 'State-of-the-art spam defense powered by Akismet.' ) }</p>
 							{
 							this.props.isPluginInstalled( 'akismet/akismet.php' ) && this.props.isPluginActive( 'akismet/akismet.php' ) ? (
-							<Button onClick={ () => this.trackPlansClick( 'view_spam_stats' ) } href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
+							<Button onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) } href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
 								{ __( 'View your spam stats' ) }
 							</Button>
 							)
 								: (
-									<Button onClick={ () => this.trackPlansClick( 'configure_akismet' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
+									<Button onClick={ this.handleButtonClickForTracking( 'configure_akismet' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
 										{ __( 'Configure Akismet' ) }
 									</Button>
 								)
@@ -189,13 +195,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'wordads' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Ads' ) }</h3>
 								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
 								{
 									this.props.isModuleActivated( 'wordads' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'view_earnings' ) } href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'view_earnings' ) } href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'View your earnings' ) }
 										</Button>
 									)
@@ -214,13 +221,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass ) && (
+						( 'is-business-plan' === planClass ) && ! this.props.getModuleOverride( 'search' ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'search' ) ) && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Search' ) }</h3>
-								<p>{ __( 'Replace the default WordPress search with better results that will help your users find what they are looking for.' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Search' ) }</h3>
+								<p>{ __( 'Replace the built-in search with a fast, scalable, customizable, and highly-relevant search hosted in the WordPress.com cloud.' ) }</p>
 								{
 									this.props.isModuleActivated( 'search' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'search_customize' ) } href={ this.props.siteAdminUrl + 'widgets.php' } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'search_customize' ) } href={ this.props.siteAdminUrl + 'widgets.php' } className="is-primary">
 											{ __( 'Customize Search Widget' ) }
 										</Button>
 									)
@@ -239,14 +247,15 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'publicize' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Social Media Scheduling' ) }</h3>
 								<p>{ __( 'Schedule multiple Facebook, Twitter, and other social media postings in advance and view share history stats.' ) }</p>
 								{
 									this.props.isModuleActivated( 'publicize' )
 										? (
-											<Button onClick={ () => this.trackPlansClick( 'schedule_posts' ) } href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl } className="is-primary">
+											<Button onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) } href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl } className="is-primary">
 												{ __( 'Schedule Posts' ) }
 											</Button>
 										)
@@ -265,13 +274,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site.' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php?mode=grid' } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
@@ -290,13 +300,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
 									this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'configure_seo' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'configure_seo' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
@@ -315,13 +326,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						( 'inactive' !== this.props.getModuleOverride( 'google-analytics' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
 								{
 									this.props.isModuleActivated( 'google-analytics' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'configure_ga' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ this.handleButtonClickForTracking( 'configure_ga' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }
 										</Button>
 									)
@@ -340,14 +352,14 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						'is-personal-plan' === planClass && (
+						this.props.showBackups && 'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Three great reasons to go Pro' ) }</h3>
 								<p>{ __( 'Design the perfect site with unlimited access to hundreds of themes and unlimited, high-speed, and ad-free video hosting.' ) }</p>
 								<p>{ __( 'Always-on security including real-time backups, malware scanning, and automatic threat resolution.' ) }</p>
 								<p>{ __( 'Grow your traffic and revenue with social media scheduling, enhanced site search, SEO tools, PayPal payments, and an ad program.' ) }</p>
 								<p>
-									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
+									<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -356,13 +368,13 @@ class PlanBody extends React.Component {
 					}
 
 					{
-						'is-premium-plan' === planClass && (
+						( ! this.props.showBackups && 'is-personal-plan' === planClass ) || 'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Two great reasons to go Pro' ) }</h3>
 								<p>{ __( 'Unlimited access to hundreds of premium WordPress themes with dedicated support directly from the theme authors.' ) }</p>
 								<p>{ __( 'A superior search experience powered by Elasticsearch providing your users with faster and more relevant search results. Previously only available to WordPress.com VIP customers and trusted by industry-leading brands.' ) }</p>
 								<p>
-									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
+									<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Explore Jetpack Professional' ) }
 									</Button>
 								</p>
@@ -387,10 +399,13 @@ class PlanBody extends React.Component {
 							<p>{ __( 'Reach more people and earn money with automated social media scheduling, better search results, SEO preview tools, PayPal payments, and an ad program.' ) }</p>
 						</div>
 
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
-							<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
-						</div>
+						{
+							this.props.showBackups &&
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+								<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
+							</div>
+						}
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
@@ -398,7 +413,7 @@ class PlanBody extends React.Component {
 						</div>
 
 						<p>
-							<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'is-free-plan' === planClass
+							<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'is-free-plan' === planClass
 								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
 								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
 								{ __( 'Compare Plans' ) }
@@ -446,7 +461,9 @@ export default connect(
 			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
-			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug )
+			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
+			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug ),
+			showBackups: showBackups( state ),
 		};
 	},
 	( dispatch ) => {

@@ -74,6 +74,10 @@ for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
 done
 echo "Done!"
 
+echo "Generating Jetpack CDN Manifest"
+php ./trunk/bin/build-asset-cdn-json.php
+echo "Done!"
+
 # Tag the release.
 # svn cp trunk tags/$TARGET
 

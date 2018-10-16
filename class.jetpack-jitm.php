@@ -343,7 +343,8 @@ class Jetpack_JITM {
 
 			// no point in showing an empty message
 			if ( empty( $envelope->content->message ) ) {
-				return array();
+				unset( $envelopes[ $idx ] );
+				continue;
 			}
 
 			switch ( $envelope->content->icon ) {

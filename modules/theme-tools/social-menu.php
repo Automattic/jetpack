@@ -34,16 +34,18 @@ function jetpack_social_menu_init() {
 	$social_menu_description = apply_filters( 'jetpack_social_menu_description', __( 'Social Menu', 'jetpack' ) );
 
 	// Register a new menu location
-	register_nav_menus( array(
-		'jetpack-social-menu' => esc_html( $social_menu_description ),
-	) );
+	register_nav_menus(
+		array(
+			'jetpack-social-menu' => esc_html( $social_menu_description ),
+		)
+	);
 
 	// Enqueue CSS
 	add_action( 'wp_enqueue_scripts', 'jetpack_social_menu_style' );
 
 	// Load SVG icons related functions and filters
 	if ( 'svg' === jetpack_social_menu_get_type() ) {
-		require( dirname( __FILE__ ) . '/social-menu/icon-functions.php' );
+		require dirname( __FILE__ ) . '/social-menu/icon-functions.php';
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
@@ -96,13 +98,16 @@ function jetpack_social_menu() {
 		} ?>
 		<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo esc_attr( $menu_type ); ?>" role="navigation" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
 			<?php
-				wp_nav_menu( array(
-					'theme_location' => 'jetpack-social-menu',
-					'link_before'    => '<span class="screen-reader-text">',
-					'link_after'     => $link_after,
-					'depth'          => 1,
-				) );
+				wp_nav_menu(
+					array(
+						'theme_location' => 'jetpack-social-menu',
+						'link_before'    => '<span class="screen-reader-text">',
+						'link_after'     => $link_after,
+						'depth'          => 1,
+					)
+				);
 			?>
 		</nav><!-- .jetpack-social-navigation -->
-	<?php endif;
+		<?php
+	endif;
 }

@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_basename( 'classes/wp-woocommerce-analytics-utils.php' );
 require_once plugin_basename( 'classes/wp-woocommerce-analytics-universal.php' );
 
 /**
@@ -44,7 +43,7 @@ class Jetpack_WooCommerce_Analytics {
 			return false;
 		}
 		// Don't track site admins
-		if ( is_user_logged_in() && in_array( 'administrator',  wp_get_current_user()->roles ) ) {
+		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles ) ) {
 			return false;
 		}
 		// Make sure Jetpack is installed and active
@@ -56,7 +55,7 @@ class Jetpack_WooCommerce_Analytics {
 		 *
 		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
 		 */
-		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
 			return false;
 		}
 
@@ -81,7 +80,7 @@ class Jetpack_WooCommerce_Analytics {
 	 * Function to instantiate our class and make it a singleton
 	 */
 	public static function get_instance() {
-		if ( ! Jetpack_WooCommerce_Analytics::shouldTrackStore() ) {
+		if ( ! self::shouldTrackStore() ) {
 			return;
 		}
 		if ( ! self::$instance ) {

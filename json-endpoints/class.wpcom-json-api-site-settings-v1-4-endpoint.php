@@ -1,11 +1,4 @@
 <?php
-/**
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- * @autounit api-v1 site-settings
- */
 
 new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
@@ -49,6 +42,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 		'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_search_enabled'               => '(bool) Enable Jetpack Search',
+		'jetpack_search_supported'             => '(bool) Jetpack Search supported',
 		'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
 		'infinite_scroll'                      => '(bool) Support infinite scroll of posts?',
 		'default_category'                     => '(int) Default post category',
@@ -103,6 +98,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
+		'net_neutrality'                       => '(bool) Whether the net neutrality modal is enabled for this site',
 		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
 	),

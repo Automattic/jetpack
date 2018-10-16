@@ -77,12 +77,11 @@ module.exports = createReactClass( {
 		}
 	},
 
-	render: function() {
+	mapChoices() {
 		const uniqueId = this.state.uniqueId;
 		const currentSelected = this.getValue();
-		let errorMessage, selectAll;
 
-		const checkboxes = this.props.choices.map( function( choice, i ) {
+		return this.props.choices.map( ( choice, i ) => {
 			const checked = ( -1 !== currentSelected.indexOf( choice.value ) );
 			return (
 				<div className="dops-form-checkbox" key={ i }>
@@ -91,7 +90,14 @@ module.exports = createReactClass( {
 					</Label>
 				</div>
 			);
-		}.bind( this ) );
+		} );
+	},
+
+	render: function() {
+		const uniqueId = this.state.uniqueId;
+		let errorMessage, selectAll;
+
+		const checkboxes = this.mapChoices();
 
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;

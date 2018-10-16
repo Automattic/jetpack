@@ -26,7 +26,7 @@ Further in this document, you will find a few CLI commands with various argument
 - `partner_id`            : Provided to you when we provision your partner account.
 - `partner_secret`        : Provided to you when we provision your partner account.
 - `user`                  : The ID, email address, or login of a valid user on the WordPress installation hosted by the partner. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
-- `plan`                  : One of `personal`, `premium`, or `professional`. The partner's account will need to have this type of plan allowed.
+- `plan`                  : One of `free`, `personal`, `premium`, or `professional`. The partner's account will need to have this type of plan allowed.
 - `url`                   : This optional URL value is used to select a specific subsite in a network. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
 - `onboarding`            : This optional value can be set to `1` to enabled an onboarding wizard.
 - `partner_tracking_id`   : This optional value allows us to attach specific actions to a specific site on the partner's side. This has proved useful in cases where users had multiple staging sites.
@@ -41,10 +41,12 @@ We like to think that integrating with Jetpack Start is fairly easy. From beginn
 2. Ensure Jetpack is installed on the WordPress site:
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
+    - `sh ./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
     - The script makes a call to our servers to register the site (if necessary) and provision the requested plan and any additional plugins such as VaultPress and Akismet
 4. If the script is successful, it will exit with code 0, and a JSON string. If any next steps are required in the browser, the JSON will include a URL to send your user to. E.g
-    - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar" }`
+    - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar", "auth_required": true }`
+    - When `auth_required` is `true`, the user must finish authorizing the connection between WordPress.com and their site to finish provisioning. In this case, `next_url` will be a URL that allows the user to finish that authorization step.
+    - When `auth_required` is `false` provisioning is complete and redirecting the user to `next_url` is optional. In this case, `next_url` will be a URL back to the user's `wp-admin`.
 5. If the script is unsuccessful, it will exit with code 1, and some text describing the error, like this:
     `{ success: false, error_code: "site_inaccessible", error_message: "We couldn't contact your site" }`
 6. Any additional products and settings will be installed on the site within a couple of minutes.
@@ -57,7 +59,7 @@ The process for cancelling a single plan is just as simple as provisioning a pla
 2. Ensure Jetpack is installed on site
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-cancel.sh --partner_id={partner_id} --partner_secret={partner_secret} [--url=http://example.com]`
+    - `sh ./wp-content/plugins/jetpack/bin/partner-cancel.sh --partner_id={partner_id} --partner_secret={partner_secret} [--url=http://example.com]`
 4. If the script is successful, it will exit with code 0, and a JSON string.
     - `{ success: true }`
 5. If the script is unsuccessful, it will exit with code 1, and some text describing the error, like this:

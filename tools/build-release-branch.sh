@@ -61,7 +61,7 @@ function create_release_gitignore {
 
 # Remove stuff from .svnignore for releases
 function modify_svnignore {
-    awk '!/.eslintrc/' .svnignore > temp && mv temp .svnignore
+    awk '!/.eslintrc.js/' .svnignore > temp && mv temp .svnignore
     awk '!/.eslintignore/' .svnignore > temp && mv temp .svnignore
     git commit .svnignore -m "Updated .svnignore"
 }

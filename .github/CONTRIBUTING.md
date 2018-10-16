@@ -32,7 +32,6 @@ If you'd like to contribute but don't know where to get started, you can take a 
 
 - ["Good First Bug"](https://github.com/Automattic/jetpack/labels/%5BType%5D%20Good%20First%20Bug) issues are a good entry point to get familiar with Jetpack's codebase.
 - All issues labeled with [the "Good For Community" label](https://github.com/Automattic/Jetpack/issues?q=is%3Aopen+is%3Aissue+label%3A%22%5BType%5D+Good+For+Community%22) are fair game. That's a great way to contribute new features and fix small issues within Jetpack.
-- ["Whisky"](https://github.com/Automattic/jetpack/labels/Whisky%20Ticket) issues are important bugs or enhancements. Take a crack at it if you feel adventurous! :)
 
 Are you new to Git? You can [follow these detailed steps to find out how to submit your first patch.](/docs/guides/submit-patch.md)
 
@@ -42,7 +41,7 @@ We encourage you to ask for help at any point. We want your first experience wit
 
 ## License
 
-Jetpack is licensed under [GNU General Public License v2 (or later)](/LICENSE.md).
+Jetpack is licensed under [GNU General Public License v2 (or later)](/LICENSE.txt).
 
 All materials contributed should be compatible with the GPLv2. This means that if you own the material, you agree to license it under the GPLv2 license. If you are contributing code that is not your own, such as adding a component from another Open Source project, or adding an `npm` package, you need to make sure you follow these steps:
 

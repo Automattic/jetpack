@@ -11,7 +11,9 @@ import classNames from 'classnames';
 import {
 	PLAN_FREE,
 	PLAN_PREMIUM,
+	PLAN_PREMIUM_2_YEARS,
 	PLAN_BUSINESS,
+	PLAN_BUSINESS_2_YEARS,
 	PLAN_JETPACK_FREE,
 	PLAN_JETPACK_BUSINESS,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
@@ -20,6 +22,7 @@ import {
 	PLAN_JETPACK_PERSONAL,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 	PLAN_PERSONAL,
+	PLAN_PERSONAL_2_YEARS,
 	PLAN_VIP,
 	getPlanClass
 } from 'lib/plans/constants';
@@ -63,14 +66,17 @@ export default class PlanIcon extends Component {
 		const { plan } = this.props;
 		switch ( plan ) {
 			case PLAN_PERSONAL:
+			case PLAN_PERSONAL_2_YEARS:
 			case PLAN_JETPACK_PERSONAL:
 			case PLAN_JETPACK_PERSONAL_MONTHLY:
 				return this.getPersonalIcon();
 			case PLAN_PREMIUM:
+			case PLAN_PREMIUM_2_YEARS:
 			case PLAN_JETPACK_PREMIUM:
 			case PLAN_JETPACK_PREMIUM_MONTHLY:
 				return this.getPremiumIcon();
 			case PLAN_BUSINESS:
+			case PLAN_BUSINESS_2_YEARS:
 			case PLAN_JETPACK_BUSINESS:
 			case PLAN_JETPACK_BUSINESS_MONTHLY:
 			case PLAN_VIP:
@@ -86,7 +92,9 @@ PlanIcon.propTypes = {
 	plan: PropTypes.oneOf( [
 		PLAN_FREE,
 		PLAN_PREMIUM,
+		PLAN_PREMIUM_2_YEARS,
 		PLAN_BUSINESS,
+		PLAN_BUSINESS_2_YEARS,
 		PLAN_JETPACK_FREE,
 		PLAN_JETPACK_BUSINESS,
 		PLAN_JETPACK_BUSINESS_MONTHLY,
@@ -95,6 +103,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_PERSONAL,
 		PLAN_JETPACK_PERSONAL_MONTHLY,
 		PLAN_PERSONAL,
+		PLAN_PERSONAL_2_YEARS,
 		PLAN_VIP
 	] ).isRequired
 };

@@ -10,6 +10,7 @@ import { getPlanClass } from 'lib/plans/constants';
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -22,6 +23,7 @@ import { isFetchingSiteData } from 'state/site';
 import DashItem from 'components/dash-item';
 import isArray from 'lodash/isArray';
 import get from 'lodash/get';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -33,6 +35,10 @@ const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Security Scanning' ) }
 		module={ props.feature || 'scan' }
+		support={ {
+			text: __( 'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.' ),
+			link: 'https://jetpack.com/support/security/',
+		} }
 		className={ props.className || '' }
 		status={ props.status || '' }
 		pro={ true }
@@ -147,6 +153,10 @@ class DashScan extends Component {
 	}
 
 	render() {
+		if ( ! this.props.showBackups ) {
+			return null;
+		}
+
 		if ( this.props.isDevMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
@@ -154,13 +164,16 @@ class DashScan extends Component {
 			} );
 		}
 
+		const data = get( this.props.vaultPressData, 'data', '' );
+		const siteId = data && data.site_id;
+
 		return (
-			<div className="jp-dash-item__interior">
+			<div>
 				<QueryVaultPressData />
 				{
 					this.props.isRewindActive
 						? (
-							<div className="jp-dash-item__interior">
+							<div className="jp-dash-item">
 								{
 									renderCard( {
 										className: 'jp-dash-item__is-active',
@@ -169,6 +182,17 @@ class DashScan extends Component {
 											'You will be notified if we find one.' ),
 										feature: 'rewind',
 									} )
+
+								}
+								{
+									<Card
+										key="security-scanning"
+										className="jp-dash-item__manage-in-wpcom"
+										compact
+										href={ `https://dashboard.vaultpress.com/${ siteId }/security/` }
+									>
+										{ __( 'View security scan details' ) }
+									</Card>
 								}
 							</div>
 						)
@@ -187,7 +211,8 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
+			showBackups: showBackups( state ),
 		};
 	}
 )( DashScan );

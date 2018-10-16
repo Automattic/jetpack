@@ -114,6 +114,10 @@ export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
 
+export function userCanConnectSite( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
+}
+
 export function userIsMaster( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
 }
@@ -228,4 +232,15 @@ export function isAtomicSite( state ) {
  */
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
+
+/**
+ * Check if backups UI should be displayed.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if backups UI should be displayed.
+ */
+export function showBackups( state ) {
+	return get( state.jetpack.initialState.siteData, 'showBackups', true );
 }

@@ -60,7 +60,7 @@ class JumpStart extends React.Component {
 					{ this.activateButton() }
 				</p>
 
-				<p>
+				<div>
 					<h2 className="jp-jumpstart__feature-heading">
 						{ __( "Jetpack's recommended features include:" ) }
 					</h2>
@@ -74,7 +74,7 @@ class JumpStart extends React.Component {
 					<p className="jp-jumpstart__note">
 						{ __( 'Features can be activated or deactivated at any time.' ) }
 					</p>
-				</p>
+				</div>
 			</div>
 		);
 	}

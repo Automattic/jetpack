@@ -17,6 +17,7 @@ import analytics from 'lib/analytics';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
+import SupportInfo from 'components/support-info';
 import { ModuleToggle } from 'components/module-toggle';
 import { isDevMode } from 'state/connection';
 import { getModule as _getModule } from 'state/modules';
@@ -27,16 +28,6 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 
-/**
- * Track clicks on monitor settings
- *
- * @returns {undefined}
- */
-const trackMonitorSettingsClick = () => analytics.tracks.recordJetpackClick( {
-	target: 'monitor-settings',
-	page: 'aag'
-} );
-
 export class DashItem extends Component {
 	static propTypes = {
 		label: PropTypes.string,
@@ -46,6 +37,7 @@ export class DashItem extends Component {
 		module: PropTypes.string,
 		pro: PropTypes.bool,
 		isModule: PropTypes.bool,
+		support: PropTypes.object,
 	};
 
 	static defaultProps = {
@@ -53,10 +45,11 @@ export class DashItem extends Component {
 		module: '',
 		pro: false,
 		isModule: true,
+		support: { text: '', link: '' },
 	};
 
 	render() {
-		let toggle, proButton = '';
+		let module, toggle, proButton = '';
 
 		const classes = classNames(
 			this.props.className,
@@ -74,7 +67,7 @@ export class DashItem extends Component {
 			};
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.getOptionValue( this.props.module ) }
@@ -106,19 +99,6 @@ export class DashItem extends Component {
 				}
 			}
 
-			if ( 'monitor' === this.props.module ) {
-				toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
-					<Button
-						onClick={ trackMonitorSettingsClick }
-						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-						compact>
-						{
-							__( 'Settings' )
-						}
-					</Button>
-				);
-			}
-
 			if ( 'rewind' === this.props.module ) {
 				toggle = null;
 			}
@@ -140,6 +120,10 @@ export class DashItem extends Component {
 			}
 		}
 
+		if ( this.props.module && this.props.getModule ) {
+			module = this.props.getModule( this.props.module );
+		}
+
 		return (
 			<div className={ classes }>
 				<SectionHeader
@@ -150,6 +134,13 @@ export class DashItem extends Component {
 				</SectionHeader>
 				<Card className="jp-dash-item__card" href={ this.props.href }>
 					<div className="jp-dash-item__content">
+						{
+							this.props.support.link &&
+								<SupportInfo
+									module={ module }
+									{ ...this.props.support }
+								/>
+						}
 						{ this.props.children }
 					</div>
 				</Card>

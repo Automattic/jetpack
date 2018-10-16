@@ -69,6 +69,7 @@ export class ConnectButton extends React.Component {
 					<a
 						role="button"
 						tabIndex="0"
+						className="jp-jetpack-unlink__button"
 						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking } >
@@ -134,12 +135,10 @@ export class ConnectButton extends React.Component {
 	render() {
 		return (
 			<div>
-				{ this.renderContent() }
-				{ this.props.children }
 				{ ! this.props.isSiteConnected &&
 					<p className="jp-banner__tos-blurb">
 					{ __(
-						'By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com',
+						'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
 						{
 							components: {
 								tosLink: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />,
@@ -149,6 +148,8 @@ export class ConnectButton extends React.Component {
 					) }
 					</p>
 				}
+				{ this.renderContent() }
+				{ this.props.children }
 				<JetpackDisconnectDialog
 					show={ this.state.showModal }
 					toggleModal={ this.toggleVisibility }

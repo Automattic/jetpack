@@ -263,6 +263,9 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
+		$event = $this->server_event_storage->get_most_recent_event( 'untrashed_comment' );
+		$this->assertEquals( 'untrashed_comment', $event->action );
+
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'trash' ) );
 	}
@@ -308,6 +311,25 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'spam' ) );
+	}
+
+	public function test_wp_unspam_comment() {
+		wp_spam_comment( $this->comment->comment_ID );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'spam' ) );
+
+		wp_unspam_comment( $this->comment->comment_ID );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'spam' ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'unspammed_comment' );
+		$this->assertEquals( 'unspammed_comment', $event->action );
 	}
 
 	public function test_post_trashed_comment_handling() {

@@ -12,13 +12,12 @@ import { translate as __ } from 'i18n-calypso';
 import ConnectButton from 'components/connect-button';
 import { getConnectUrl as getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants/urls';
+import { showBackups } from 'state/initial-state';
 
 class JetpackConnect extends React.Component {
 	static displayName = 'JetpackConnect';
 
 	render() {
-		const newAccountUrl = this.props.connectUrl + '&from=new-account-button';
-
 		return (
 			<div className="jp-jetpack-connect__container">
 				<h1 className="jp-jetpack-connect__container-title" title="Welcome to Jetpack">
@@ -29,13 +28,7 @@ class JetpackConnect extends React.Component {
 					<p className="jp-jetpack-connect__description">
 						{ __( 'Hassle-free design, marketing, and security for your WordPress site. Connect Jetpack to a WordPress.com account to start building your own success story.' ) }
 					</p>
-					<ConnectButton from="landing-page-top">
-						<p>
-							<a href={ newAccountUrl } className="jp-jetpack-connect__link">
-								{ __( 'No account? Create one for free.' ) }
-							</a>
-						</p>
-					</ConnectButton>
+					<ConnectButton from="landing-page-top"></ConnectButton>
 				</Card>
 
 				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__design">
@@ -153,62 +146,63 @@ class JetpackConnect extends React.Component {
 					</div>
 				</Card>
 
-				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__security">
+				{ this.props.showBackups &&
+					<Card className="jp-jetpack-connect__feature jp-jetpack-connect__security">
+						<header className="jp-jetpack-connect__header">
+							<h2 className="jp-jetpack-connect__container-subtitle" title={ __( 'Keep your site safe, 24/7' ) }>
+								{ __( 'Keep your site safe, 24/7' ) }
+							</h2>
+							<p className="jp-jetpack-connect__description">
+								{ __(
+									'Automatic defense against hacks, malware, spam, data loss, and downtime.'
+								) }
+							</p>
+						</header>
 
-					<header className="jp-jetpack-connect__header">
-						<h2 className="jp-jetpack-connect__container-subtitle" title={ __( 'Keep your site safe, 24/7' ) }>
-							{ __( 'Keep your site safe, 24/7' ) }
-						</h2>
-						<p className="jp-jetpack-connect__description">
-							{ __(
-								'Automatic defense against hacks, malware, spam, data loss, and downtime.'
-							) }
-						</p>
-					</header>
-
-					<div className="jp-jetpack-connect__interior-container">
-						<div className="jp-jetpack-connect__feature-list">
-							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title={ __( "Jetpack's monitor feature" ) } className="dops-section-header__label">
-									{ __( 'Monitor', { context: 'Header. Noun: Monitor is a module of Jetpack.' } ) }
-								</h3>
-								<div className="jp-jetpack-connect__feature-content">
-									<p>
-										{ __(
-											'Be alerted about any unexpected downtime the moment it happens.'
-										) }
-									</p>
+						<div className="jp-jetpack-connect__interior-container">
+							<div className="jp-jetpack-connect__feature-list">
+								<div className="jp-jetpack-connect__feature-list-column">
+									<h3 title={ __( "Jetpack's monitor feature" ) } className="dops-section-header__label">
+										{ __( 'Monitor', { context: 'Header. Noun: Monitor is a module of Jetpack.' } ) }
+									</h3>
+									<div className="jp-jetpack-connect__feature-content">
+										<p>
+											{ __(
+												'Be alerted about any unexpected downtime the moment it happens.'
+											) }
+										</p>
+									</div>
 								</div>
-							</div>
-							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title={ __( "Jetpack's Protect features" ) } className="dops-section-header__label">
-									{ __( 'Protect', { context: 'Header. Noun: Protect is a module of Jetpack.' } ) }
-								</h3>
-								<div className="jp-jetpack-connect__feature-content">
-									<p>
-										{ __(
-											'Guard your site against brute force login attacks, spam, and harmful' +
-											'malware injections.'
-										) }
-									</p>
+								<div className="jp-jetpack-connect__feature-list-column">
+									<h3 title={ __( "Jetpack's Protect features" ) } className="dops-section-header__label">
+										{ __( 'Protect', { context: 'Header. Noun: Protect is a module of Jetpack.' } ) }
+									</h3>
+									<div className="jp-jetpack-connect__feature-content">
+										<p>
+											{ __(
+												'Guard your site against brute force login attacks, spam, and harmful' +
+												'malware injections.'
+											) }
+										</p>
+									</div>
 								</div>
-							</div>
-							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's backup feature" className="dops-section-header__label">
-									{ __( 'Backup and restore' ) }
-								</h3>
-								<div className="jp-jetpack-connect__feature-content">
-									<p>
-										{ __(
-											'Automatic, real-time backups mean your entire site is always ready ' +
-											'to be restored.'
-										) }
-									</p>
+								<div className="jp-jetpack-connect__feature-list-column">
+									<h3 title="Jetpack's backup feature" className="dops-section-header__label">
+										{ __( 'Backup and restore' ) }
+									</h3>
+									<div className="jp-jetpack-connect__feature-content">
+										<p>
+											{ __(
+												'Automatic, real-time backups mean your entire site is always ready ' +
+												'to be restored.'
+											) }
+										</p>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</Card>
+					</Card>
+				}
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">
@@ -217,13 +211,7 @@ class JetpackConnect extends React.Component {
 							'We\'re passionate about WordPress and here to make your life easier.'
 						) }
 					</p>
-					<ConnectButton from="landing-page-bottom">
-						<p>
-							<a href={ newAccountUrl } className="jp-jetpack-connect__link">
-								{ __( 'No account? Create one for free.' ) }
-							</a>
-						</p>
-					</ConnectButton>
+					<ConnectButton from="landing-page-bottom"></ConnectButton>
 				</Card>
 			</div>
 		);
@@ -233,7 +221,8 @@ class JetpackConnect extends React.Component {
 export default connect(
 	state => {
 		return {
-			connectUrl: getConnectUrl( state )
+			connectUrl: getConnectUrl( state ),
+			showBackups: showBackups( state ),
 		};
 	}
 )( JetpackConnect );

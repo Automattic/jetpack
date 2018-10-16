@@ -16,6 +16,8 @@ import { getSiteRawUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
+import { translate as __ } from 'i18n-calypso';
+import { showBackups } from 'state/initial-state';
 
 class PlanGrid extends React.Component {
 
@@ -41,6 +43,7 @@ class PlanGrid extends React.Component {
 
 		return (
 			<div className="plan-features">
+				{ this.renderMobileCard() }
 				<div className="plan-features__content">
 					<table className={ tableClasses }>
 						<tbody>
@@ -52,6 +55,27 @@ class PlanGrid extends React.Component {
 						</tbody>
 					</table>
 				</div>
+			</div>
+		);
+	}
+
+	renderMobileCard() {
+		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
+			args: { plan: this.props.sitePlan.product_name_short }
+		} );
+		const myPlanUrl = `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`;
+		const plansUrl = `https://wordpress.com/plans/${ this.props.siteRawUrl }`;
+
+		return (
+			<div className="plans-mobile-notice dops-card">
+				<h2>{ __( 'Your Plan' ) }</h2>
+				<p>{ currently }</p>
+				<Button href={ myPlanUrl }>
+					{ __( 'Manage your plan' ) }
+				</Button>
+				<Button href={ plansUrl } primary>
+					{ __( 'View all Jetpack plans' ) }
+				</Button>
 			</div>
 		);
 	}
@@ -308,8 +332,19 @@ class PlanGrid extends React.Component {
 		const plan = this.getPlans()[ planType ];
 		const item = plan.features[ rowIndex ];
 		const key = planType + '-row-' + rowIndex;
+		const backupFeatureIds = [
+			'backups',
+			'malware-scan',
+			'real-time-backups',
+		];
+		const hideBackupFeature = (
+			! this.props.showBackups &&
+			item &&
+			includes( backupFeatureIds, item.id )
+		);
+
 		// empty?
-		if ( typeof item === 'undefined' ) {
+		if ( typeof item === 'undefined' || hideBackupFeature ) {
 			return (
 				<td key={ key } className="plan-features__table-item" />
 			);
@@ -343,5 +378,6 @@ export default connect( ( state ) => {
 		siteRawUrl: getSiteRawUrl( state ),
 		sitePlan: getSitePlan( state ),
 		userId: getUserId( state ),
+		showBackups: showBackups( state ),
 	};
 }, null, )( PlanGrid );

@@ -3,7 +3,9 @@
  */
 import React from 'react';
 import get from 'lodash/get';
+import each from 'lodash/each';
 import analytics from 'lib/analytics';
+import omit from 'lodash/omit';
 
 /**
  * Internal dependencies
@@ -55,6 +57,11 @@ export function ModuleSettingsForm( InnerComponent ) {
 				...optionMaybeOptions
 			};
 			this.setState( { options: newOptions } );
+			return true;
+		};
+
+		resetFormStateOption = ( optionToReset ) => {
+			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
 			return true;
 		};
 
@@ -113,11 +120,20 @@ export function ModuleSettingsForm( InnerComponent ) {
 			this.props.updateOptions( this.state.options )
 				.then( () => {
 					// Track it
-					this.trackFormSubmission( this.state.options );
+
+					const saneOptions = {};
+
+					each( this.state.options, ( value, key ) => {
+						key = key.replace( /\-/, '_' );
+						saneOptions[ key ] = value;
+					} );
+
+					this.trackFormSubmission( saneOptions );
 
 					this.setState( { options: {} } );
 				} )
 				.then( () => {
+					this.props.refreshSettings();
 					this.props.clearUnsavedSettingsFlag();
 				} );
 		};
@@ -198,6 +214,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
 					isDirty={ this.isDirty }
+					resetFormStateOption={ this.resetFormStateOption }
 					{ ...this.props } />
 			);
 		}

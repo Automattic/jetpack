@@ -29,18 +29,22 @@ class Radios extends React.Component {
 		this.props.changeValue( event );
 	};
 
+	mapChoices() {
+		const uniqueId = this.props.uniqueId;
+		return this.props.choices.map( ( choice, i ) => {
+			const checked = this.props.selected === choice.value;
+			return (
+				<div className="dops-form-checkbox" key={ i }>
+					<Label inline label={ choice.label } htmlFor={ uniqueId + i }>
+						<input type="radio" id={ uniqueId + i } value={ choice.value } name={ this.props.name } checked={ checked } onChange={ this.onChange } />
+					</Label>
+				</div>
+			);
+		} );
+	}
+
 	render() {
-		const uniqueId = this.props.uniqueId,
-			choices = this.props.choices.map( function( choice, i ) {
-				const checked = this.props.selected === choice.value;
-				return (
-					<div className="dops-form-checkbox" key={ i }>
-						<Label inline label={ choice.label } htmlFor={ uniqueId + i }>
-							<input type="radio" id={ uniqueId + i } value={ choice.value } name={ this.props.name } checked={ checked } onChange={ this.onChange } />
-						</Label>
-					</div>
-				);
-			}.bind( this ) );
+		const choices = this.mapChoices();
 
 		return (
 			<fieldset>

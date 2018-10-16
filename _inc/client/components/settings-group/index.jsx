@@ -4,18 +4,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import classNames from 'classnames';
-import InfoPopover from 'components/info-popover';
-import ExternalLink from 'components/external-link';
 import includes from 'lodash/includes';
 import noop from 'lodash/noop';
-import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import SupportInfo from 'components/support-info';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
@@ -29,10 +26,7 @@ export const SettingsGroup = props => {
 		return <span />;
 	}
 
-	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
-		support = ! props.support && module && '' !== module.learn_more_button
-			? module.learn_more_button
-			: props.support;
+	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
 	let displayFadeBlock = disableInDevMode;
 
 	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
@@ -40,57 +34,28 @@ export const SettingsGroup = props => {
 		displayFadeBlock = true;
 	}
 
-	const trackInfoClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'info-icon',
-			feature: module.module
-		} );
-	};
-
-	const trackLearnMoreClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'learn-more',
-			feature: module.module
-		} );
-	};
-
 	return (
 		<div className="jp-form-settings-group">
 			<Card className={ classNames( {
 				'jp-form-has-child': props.hasChild,
 				'jp-form-settings-disable': disableInDevMode
 			} ) }>
+				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
 				{
-					displayFadeBlock && <div className="jp-form-block-fade"></div>
+					props.support.link &&
+						<SupportInfo
+							module={ module }
+							{ ...props.support }
+						/>
 				}
-				{
-					support && (
-						<div className="jp-module-settings__learn-more">
-							<InfoPopover
-								onClick={ trackInfoClick }
-								screenReaderText={ __( 'Learn more' ) }
-							>
-								<ExternalLink
-									onClick={ trackLearnMoreClick }
-									icon={ false }
-									href={ support }
-									target="_blank" rel="noopener noreferrer">
-									{ __( 'Learn more' ) }
-								</ExternalLink>
-							</InfoPopover>
-						</div>
-					)
-				}
-				{
-					props.children
-				}
+				{ props.children }
 			</Card>
 		</div>
 	);
 };
 
 SettingsGroup.propTypes = {
-	support: PropTypes.string,
+	support: PropTypes.object,
 	module: PropTypes.object,
 	disableInDevMode: PropTypes.bool.isRequired,
 	isDevMode: PropTypes.bool.isRequired,
@@ -101,7 +66,7 @@ SettingsGroup.propTypes = {
 };
 
 SettingsGroup.defaultProps = {
-	support: '',
+	support: { text: '', link: '' },
 	module: {},
 	disableInDevMode: false,
 	isDevMode: false,

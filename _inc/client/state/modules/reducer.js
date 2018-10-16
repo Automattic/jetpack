@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -237,4 +238,49 @@ export function getModulesThatRequireConnection( state ) {
  */
 export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
+}
+
+/**
+ * Returns true if the module is available.
+ * @param  {Object}  state      Global state tree.
+ * @param  {String}  moduleSlug The slug of a module.
+ * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
+ */
+export function isModuleAvailable( state, moduleSlug ) {
+	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
+}
+
+/**
+ * Returns the module override for a given module slug.
+ *
+ * Expected values are false if no override, 'active' if module forced on,
+ * or 'inactive' if module forced off.
+ *
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
+ *
+ * @return {Boolean|String} Whether the module is overriden, and if so, how.
+ */
+export function getModuleOverride( state, name ) {
+	return get( state.jetpack.modules.items, [ name, 'override' ], false );
+}
+
+/**
+ * Returns true if the module is forced to be active.
+ * @param {Object}   state Global state tree
+ * @param {String}   name  A module's name
+ * @return {Boolean}       Whether the module is forced to be active.
+ */
+export function isModuleForcedActive( state, name ) {
+	return getModuleOverride( state, name ) === 'active';
+}
+
+/**
+* Returns true if the module is forced to be inactive.
+* @param {Object}   state Global state tree
+* @param {String}   name  A module's name
+* @return {Boolean}       Whether the module is forced to be inactive.
+*/
+export function isModuleForcedInactive( state, name ) {
+	return getModuleOverride( state, name ) === 'inactive';
 }

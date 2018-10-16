@@ -6,8 +6,13 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 	$item->image_alt = $item->image_title;
 }
 ?>
-<div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-	<?php if ( $add_link ): ?>
+<div class="tiled-gallery-item
+<?php
+if ( isset( $item->size ) ) {
+	echo " tiled-gallery-item-$item->size";}
+?>
+" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+	<?php if ( $add_link ) : ?>
 	<a href="<?php echo $item->link; ?>" border="0" itemprop="url">
 	<?php endif; ?>
 		<meta itemprop="width" content="<?php echo esc_attr( $item->image->width ); ?>">
@@ -24,12 +29,12 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 			alt="<?php echo esc_attr( $item->image_alt ); ?>"
 			style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
 		/>
-	<?php if ( $add_link ): ?>
+	<?php if ( $add_link ) : ?>
 	</a>
 	<?php endif; ?>
 
-	<?php if ( $this->grayscale == true ): ?>
-		<?php if ( $add_link ): ?>
+	<?php if ( $this->grayscale == true ) : ?>
+		<?php if ( $add_link ) : ?>
 		<a href="<?php echo $item->link; ?>" border="0" itemprop="url">
 		<?php endif; ?>
 			<meta itemprop="width" content="<?php echo esc_attr( $item->image->width ); ?>">
@@ -47,12 +52,12 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 				alt="<?php echo esc_attr( $item->image_alt ); ?>"
 				style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
 			/>
-		<?php if ( $add_link ): ?>
+		<?php if ( $add_link ) : ?>
 		</a>
 		<?php endif; ?>
 	<?php endif; ?>
 
-	<?php if ( trim( $item->image->post_excerpt ) ): ?>
+	<?php if ( trim( $item->image->post_excerpt ) ) : ?>
 		<div class="tiled-gallery-caption" itemprop="caption description">
 			<?php echo wptexturize( $item->image->post_excerpt ); ?>
 		</div>

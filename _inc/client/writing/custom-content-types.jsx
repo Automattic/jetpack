@@ -11,7 +11,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -40,22 +40,53 @@ export class CustomContentTypes extends React.Component {
 			: <span />;
 	};
 
+	handleTestimonialToggleChange = () => {
+		this.updateCPTs( 'testimonial' );
+	}
+
+	handlePortfolioToggleChange = () => {
+		this.updateCPTs( 'portfolio' );
+	}
+
 	render() {
 		if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
 			return null;
 		}
 
 		const module = this.props.module( 'custom-content-types' );
+		const disabledByOverride = ( 'inactive' === this.props.getModuleOverride( 'custom-content-types' ) );
+		const disabledReason = disabledByOverride && __( 'This feature has been disabled by a site administrator.' );
 		return (
 			<SettingsCard
 				{ ...this.props }
 				module="custom-content-types"
 				hideButton>
-				<SettingsGroup hasChild module={ module } support={ module.learn_more_button }>
+				<SettingsGroup
+					hasChild
+					module={ module }
+					support={ {
+						link: 'https://jetpack.com/support/custom-content-types/',
+					} }
+					>
+					<p>
+						{ __(
+							'Add {{testimonialLink}}testimonials{{/testimonialLink}} to ' +
+								'your website to attract new customers. If your theme doesn’t ' +
+								'support Jetpack Testimonials, you can still use a simple ' +
+								'shortcode to display them on your site.',
+							{
+								components: {
+									testimonialLink: this.linkIfActiveCPT( 'testimonial' )
+								}
+							}
+						) }
+					</p>
 					<CompactFormToggle
-								checked={ this.state.testimonial }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
-								onChange={ () => this.updateCPTs( 'testimonial' ) }>
+						checked={ this.state.testimonial }
+						disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || disabledByOverride }
+						onChange={ this.handleTestimonialToggleChange }
+						disabledReason={ disabledReason }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Testimonials' )
@@ -64,21 +95,36 @@ export class CustomContentTypes extends React.Component {
 					</CompactFormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
-							{
-								__( 'Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).',
-									{
-										components: {
-											testimonialLink: this.linkIfActiveCPT( 'testimonial' )
-										}
-									}
-								)
-							}
+							{ __( 'Testimonials shortcode: [testimonials]' ) }
 						</p>
 					</FormFieldset>
+				</SettingsGroup>
+				<SettingsGroup
+					hasChild
+					module={ module }
+					support={ {
+						link: 'https://jetpack.com/support/custom-content-types/',
+					} }
+					>
+					<p>
+						{ __(
+							'Use {{portfolioLink}}portfolios{{/portfolioLink}} on your ' +
+								'site to showcase your best work. If your theme doesn’t support ' +
+								'Jetpack Portfolios, you can still use a simple shortcode to ' +
+								'display them on your site.',
+							{
+								components: {
+									portfolioLink: this.linkIfActiveCPT( 'portfolio' )
+								}
+							}
+						) }
+					</p>
 					<CompactFormToggle
-								checked={ this.state.portfolio }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
-								onChange={ () => this.updateCPTs( 'portfolio' ) }>
+						checked={ this.state.portfolio }
+						disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || disabledByOverride }
+						onChange={ this.handlePortfolioToggleChange }
+						disabledReason={ disabledReason }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Portfolios' )
@@ -88,13 +134,7 @@ export class CustomContentTypes extends React.Component {
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{
-								__( 'Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolio] ).',
-									{
-										components: {
-											portfolioLink: this.linkIfActiveCPT( 'portfolio' )
-										}
-									}
-								)
+								__( 'Portfolios shortcode: [portfolio]' )
 							}
 						</p>
 					</FormFieldset>
@@ -108,7 +148,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
 		};
 	}
 )( moduleSettingsForm( CustomContentTypes ) );

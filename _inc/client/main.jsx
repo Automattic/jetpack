@@ -25,7 +25,8 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
-	userCanManageModules
+	userCanManageModules,
+	userCanConnectSite
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag, showWelcomeForNewPlan } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -167,7 +168,7 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( ! this.props.siteConnectionStatus ) {
+		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
 			return (
 				<div aria-live="assertive">
 					<JetpackConnect />
@@ -214,6 +215,7 @@ class Main extends React.Component {
 			case '/discussion':
 			case '/writing':
 			case '/sharing':
+			case '/privacy':
 				navComponent = settingsNav;
 				pageComponent = <SearchableSettings
 					route={ this.props.route }
@@ -282,6 +284,7 @@ export default connect(
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
+			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
 			newPlanActivated: showWelcomeForNewPlan( state ),
 			rewindStatus: getRewindStatus( state ),
@@ -309,7 +312,8 @@ window.wpNavMenuClassChange = function() {
 			'#/security',
 			'#/traffic',
 			'#/writing',
-			'#/sharing'
+			'#/sharing',
+			'#/privacy',
 		],
 		dashboardRoutes = [
 			'#/',

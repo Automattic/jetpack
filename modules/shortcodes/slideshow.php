@@ -119,7 +119,9 @@ class Jetpack_Slideshow_Shortcode {
 				'exclude'   => '',
 				'autostart' => true,
 				'size'      => '',
-			), $attr, 'slideshow'
+			),
+			$attr,
+			'slideshow'
 		);
 
 		if ( 'rand' == strtolower( $attr['order'] ) ) {
@@ -178,11 +180,11 @@ class Jetpack_Slideshow_Shortcode {
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
-				'src'     => (string) esc_url_raw( $attachment_image_src ),
-				'id'      => (string) $attachment->ID,
-				'title'   => (string) esc_attr( $attachment_image_title ),
-				'alt'     => (string) esc_attr( $attachment_image_alt ),
-				'caption' => (string) $caption,
+				'src'      => (string) esc_url_raw( $attachment_image_src ),
+				'id'       => (string) $attachment->ID,
+				'title'    => (string) esc_attr( $attachment_image_title ),
+				'alt'      => (string) esc_attr( $attachment_image_alt ),
+				'caption'  => (string) $caption,
 				'itemprop' => 'image',
 			);
 		}
@@ -228,7 +230,7 @@ class Jetpack_Slideshow_Shortcode {
 
 		if ( defined( 'JSON_HEX_AMP' ) ) {
 			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below
-			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore PHPCompatibility
 		} else {
 			$gallery = json_encode( $attr['gallery'] );
 		}
@@ -296,15 +298,18 @@ class Jetpack_Slideshow_Shortcode {
 			 * - string - spinner - URL of the spinner image.
 			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
 			 */
-			apply_filters( 'jetpack_js_slideshow_settings', array(
-				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				'speed'   => '4000',
-			) )
+			apply_filters(
+				'jetpack_js_slideshow_settings',
+				array(
+					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+					'speed'   => '4000',
+				)
+			)
 		);
 	}
 
 	public static function init() {
-		new Jetpack_Slideshow_Shortcode;
+		new Jetpack_Slideshow_Shortcode();
 	}
 }
 

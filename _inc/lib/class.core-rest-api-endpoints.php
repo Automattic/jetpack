@@ -17,6 +17,9 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+// Load API endpoints that are synced with WP.com
+// Each of these is a class that will register its own routes on 'rest_api_init'.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -122,6 +125,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Set the connection owner
+		register_rest_route( 'jetpack/v4', '/connection/owner', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::set_connection_owner',
+			'permission_callback' => __CLASS__ . '::set_connection_owner_permission_callback',
+		) );
+
+		// Current user: get or set tracking settings.
+		register_rest_route( 'jetpack/v4', '/tracking/settings', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args'                => array(
+					'tracks_opt_out' => array( 'type' => 'boolean' ),
+				),
+			),
+		) );
+
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -147,6 +174,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/site/features', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => array( $site_endpoint, 'get_features' ),
+			'permission_callback' => array( $site_endpoint , 'can_request' ),
+		) );
+
+		// Get related posts of a certain site post
+		register_rest_route( 'jetpack/v4', '/site/posts/related', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $site_endpoint, 'get_related_posts' ),
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
 
@@ -354,42 +388,53 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $widget_endpoint, 'process' ),
 			'permission_callback' => array( $widget_endpoint, 'can_request' ),
 		) );
+
+		// Site Verify: check if the site is verified, and a get verification token if not
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::is_site_verified_and_token',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)/(?<keyring_id>[0-9]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::is_site_verified_and_token',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		// Site Verify: tell a service to verify the site
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::verify_site',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'args' => array(
+				'keyring_id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'validate_callback' => __CLASS__  . '::validate_posint',
+				),
+			)
+		) );
 	}
 
 	public static function get_plans( $request ) {
-		/**
-		 * Filter to turn off caching of Jetpack plans
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool true Whether to cache Jetpack plans locally
-		 */
-		$use_cache = apply_filters( 'jetpack_cache_plans', true );
+		$request = Jetpack_Client::wpcom_json_api_request_as_user(
+			'/plans?_locale=' . get_user_locale(),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
 
-		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
-
-		if ( false === $data ) {
-			$path = '/plans';
-			// passing along from client to help geolocate currency
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR']; // if we already have an list of forwarded ips, then just use that
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['HTTP_CLIENT_IP']; // another popular one for proxy servers
-			}
-			if ( empty( $ip ) ) {
-				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
-			}
-			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
-			$body = wp_remote_retrieve_body( $request );
-			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
-				$data = $body;
-			} else {
-				// something went wrong so we'll just return the response without caching
-				return $body;
-			}
-
-			if ( true === $use_cache ) {
-				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
-			}
+		$body = wp_remote_retrieve_body( $request );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			$data = $body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $body;
 		}
 
 		return $data;
@@ -451,6 +496,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $result;
+	}
+
+
+	/**
+	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
+	 *  keyring to use to get the token if it is not
+	 *
+	 * Returns 'verified' = true/false, and a token if 'verified' is false and site is ready for verification
+	 *
+	 * @since 6.6.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function is_site_verified_and_token( $request ) {
+		Jetpack::load_xml_rpc_client();
+ 		$xml = new Jetpack_IXR_Client( array(
+ 			'user_id' => get_current_user_id(),
+		) );
+
+		$args = array(
+			'user_id' => get_current_user_id(),
+			'service' => $request[ 'service' ],
+		);
+
+		if ( isset( $request[ 'keyring_id' ] ) ) {
+			$args[ 'keyring_id' ] = $request[ 'keyring_id' ];
+		}
+
+		$xml->query( 'jetpack.isSiteVerified', $args );
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'error_checking_if_site_verified_google', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		} else {
+			return $xml->getResponse();
+		}
+	}
+
+
+
+	public static function verify_site( $request ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+
+		$params = $request->get_json_params();
+
+		$xml->query( 'jetpack.verifySite', array(
+				'user_id' => get_current_user_id(),
+				'service' => $request[ 'service' ],
+				'keyring_id' => $params[ 'keyring_id' ],
+			)
+		);
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'error_verifying_site_google', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		} else {
+			$response = $xml->getResponse();
+
+			if ( ! empty( $response['errors'] ) ) {
+				$error = new WP_Error;
+				$error->errors = $response['errors'];
+				return $error;
+			}
+
+			return $response;
+		}
 	}
 
 	/**
@@ -555,6 +669,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Check that user has permission to change the master user.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return bool|WP_Error True if user is able to change master user.
+	 */
+	public static function set_connection_owner_permission_callback() {
+		if ( get_current_user_id() === Jetpack_Options::get_option( 'master_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -816,6 +945,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Change the master user.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if owner successfully changed.
+	 */
+	public static function set_connection_owner( $request ) {
+		if ( ! isset( $request['owner'] ) ) {
+			return new WP_Error(
+				'invalid_param',
+				esc_html__( 'Invalid Parameter', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$new_owner_id = $request['owner'];
+		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+			return new WP_Error(
+				'new_owner_not_admin',
+				esc_html__( 'New owner is not admin', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( $new_owner_id === get_current_user_id() ) {
+			return new WP_Error(
+				'new_owner_is_current_user',
+				esc_html__( 'New owner is same as current user', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! Jetpack::is_user_connected( $new_owner_id ) ) {
+			return new WP_Error(
+				'new_owner_not_connected',
+				esc_html__( 'New owner is not connected', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Update the master user in Jetpack
+		$updated = Jetpack_Options::update_option( 'master_user', $new_owner_id );
+
+		// Notify WPCOM about the master user change
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( 'jetpack.switchBlogOwner', array(
+			'new_blog_owner' => $new_owner_id,
+		) );
+
+		if ( $updated && ! $xml->isError() ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		}
+		return new WP_Error(
+			'error_setting_new_owner',
+			esc_html__( 'Could not confirm new owner.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
@@ -840,6 +1038,74 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Gets current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function get_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				)
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Updates current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function update_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'PUT',
+					'headers' => array(
+						'Content-Type'    => 'application/json',
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				),
+				wp_json_encode( $request->get_params() )
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -1568,14 +1834,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Related Posts
 			'show_headline' => array(
-				'description'       => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+				'description'       => esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'related-posts',
 			),
 			'show_thumbnails' => array(
-				'description'       => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+				'description'       => esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -1765,6 +2031,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'               => 'boolean',
 				'default'            => 1,
 				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_custom_adstxt' => array(
+				'description'        => esc_html__( 'Custom ads.txt entries', 'jetpack' ),
+				'type'               => 'string',
+				'default'            => '',
+				'validate_callback'  => __CLASS__ . '::validate_string',
+				'sanitize_callback'  => 'sanitize_textarea_field',
 				'jp_group'           => 'wordads',
 			),
 
@@ -2104,7 +2378,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_verification_service( $value = '', $request, $param ) {
-		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $value ) ) ) ) {
+		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ), $param ) );
 		}
 		return true;

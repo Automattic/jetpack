@@ -105,12 +105,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
 		$user->allcaps = $this->get_real_user_capabilities( $user );
 
-		if ( function_exists( 'get_user_locale' ) ) {
-
-			// Only set the user locale if it is different from the site local
-			if ( get_locale() !== get_user_locale( $user->ID ) ) {
-				$user->locale = get_user_locale( $user->ID );
-			}
+		// Only set the user locale if it is different from the site local
+		if ( get_locale() !== get_user_locale( $user->ID ) ) {
+			$user->locale = get_user_locale( $user->ID );
 		}
 
 		return $user;
@@ -236,8 +233,17 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		} else {
 			$old_user = $old_user_data;
 		}
+
 		if ( $old_user !== null && $user->user_pass !== $old_user->user_pass ) {
 			$this->flags[ $user_id ]['password_changed'] = true;
+		}
+		if ( $old_user !== null && $user->data->user_email !== $old_user->user_email ) {
+			// The '_new_email' user meta is deleted right after the call to wp_update_user
+			// that got us to this point so if it's still set then this was a user confirming
+			// their new email address
+			if ( 1 === intval( get_user_meta( $user->ID, '_new_email', true ) ) ) {
+				$this->flags[ $user_id ]['email_changed'] = true;
+			}
 		}
 
 		/**
@@ -287,7 +293,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key  ) {
+		if ( isset( $user->cap_key ) && $meta_key === $user->cap_key ) {
 			$this->add_flags( $user_id, array( 'capabilities_changed' => true ) );
 		}
 
@@ -378,19 +384,19 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		do_action( 'jetpack_removed_user_from_blog', $user_id, $reassigned_user_id );
 	}
 
-	private function is_add_new_user_to_blog() {
+	protected function is_add_new_user_to_blog() {
 		return Jetpack::is_function_in_backtrace( 'add_new_user_to_blog' );
 	}
 
-	private function is_add_user_to_blog() {
+	protected function is_add_user_to_blog() {
 		return Jetpack::is_function_in_backtrace( 'add_user_to_blog' );
 	}
 
-	private function is_delete_user() {
+	protected function is_delete_user() {
 		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user' , 'remove_user_from_blog' ) );
 	}
 
-	private function is_create_user() {
+	protected function is_create_user() {
 		$functions = array(
 			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site
 			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site
@@ -400,8 +406,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return Jetpack::is_function_in_backtrace( $functions );
 	}
 
-	private function get_reassigned_network_user_id() {
-		$backtrace = debug_backtrace( false );
+	protected function get_reassigned_network_user_id() {
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.PHP.NewFunctionParameters.debug_backtrace_optionsFound
 		foreach ( $backtrace as $call ) {
 			if (
 				'remove_user_from_blog' === $call['function'] &&

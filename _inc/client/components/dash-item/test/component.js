@@ -60,7 +60,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'does not display a toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 0 );
 		} );
 
 		let proStatus = wrapper.find( 'Connect(ProStatus)' );
@@ -87,7 +87,7 @@ describe( 'DashItem', () => {
 		const wrapper = shallow( <DashItem { ...testProps } /> );
 
 		it( 'displays a toggle for users that can toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 0 );
 		} );
 
 	} );
@@ -102,11 +102,11 @@ describe( 'DashItem', () => {
 		const wrapper = shallow( <DashItem { ...testProps } /> );
 
 		it( 'displays a toggle for users that can toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 1 );
 		} );
 
 		it( 'the toggle references the module this card belongs to', () => {
-			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'protect' );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ).props().slug ).to.be.equal( 'protect' );
 		} );
 
 	} );
@@ -120,7 +120,7 @@ describe( 'DashItem', () => {
 		const wrapper = shallow( <DashItem { ...testProps } /> );
 
 		it( 'if user can not toggle, it does not display a toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 0 );
 		} );
 
 	} );
@@ -134,7 +134,7 @@ describe( 'DashItem', () => {
 		const wrapper = shallow( <DashItem { ...testProps } /> );
 
 		it( 'has a toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 1 );
 		} );
 
 	} );
@@ -152,7 +152,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'does not display a toggle', () => {
-			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 0 );
 		} );
 
 	} );
@@ -205,13 +205,12 @@ describe( 'DashItem', () => {
 
 		const wrapper = shallow( <DashItem { ...monitorProps } /> );
 
-		it( 'shows a button to configure settings in wpcom', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+		it( 'displays a toggle for users that can toggle', () => {
+			expect( wrapper.find( 'Connect(ModuleToggle)' ) ).to.have.length( 1 );
 		} );
 
-		it( 'has a link to Calypso settings', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
-			expect( wrapper.find( 'Button' ).props().href ).to.contain( 'https://wordpress.com/settings/security/' + monitorProps.siteRawUrl );
+		it( 'the toggle references the module this card belongs to', () => {
+			expect( wrapper.find( 'Connect(ModuleToggle)' ).props().slug ).to.be.equal( 'monitor' );
 		} );
 
 	} );

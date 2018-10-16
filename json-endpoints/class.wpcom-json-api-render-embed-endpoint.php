@@ -33,7 +33,7 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error( 'unauthorized', 'Your token must have permission to post on this blog.', 403 );
+			return new WP_Error( 'unauthorized', __( 'Your token must have permission to post on this blog.', 'jetpack' ), 403 );
 		}
 
 		$args = $this->query_args();
@@ -41,17 +41,17 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 
 		// quick validation
 		if ( ! preg_match_all( '|^\s*(https?://[^\s"]+)\s*$|im', $embed_url, $matches ) ) {
-			return new WP_Error( 'invalid_embed_url',  'The embed_url parameter must be a valid URL.', 400 );
+			return new WP_Error( 'invalid_embed_url', __( 'The embed_url parameter must be a valid URL.', 'jetpack' ), 400 );
 		}
 
 		if ( count( $matches[1] ) > 1 ) {
-			return new WP_Error( 'invalid_embed',  'Only one embed can be rendered at a time.', 400 );
+			return new WP_Error( 'invalid_embed',  __( 'Only one embed can be rendered at a time.', 'jetpack' ), 400 );
 		}
 
 		$embed_url = array_shift( $matches[1] );
 		$parts = parse_url( $embed_url );
 		if ( ! $parts ) {
-			return new WP_Error( 'invalid_embed_url', 'The embed_url parameter must be a valid URL.', 400 );
+			return new WP_Error( 'invalid_embed_url', __( 'The embed_url parameter must be a valid URL.', 'jetpack' ), 400 );
 		}
 
 		global $wp_embed;
@@ -60,7 +60,7 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 		// if nothing happened, then the shortcode does not exist.
 		$is_an_embed = ( $embed_url != $render['result'] && $wp_embed->maybe_make_link( $embed_url ) != $render['result'] );
 		if ( ! $is_an_embed ) {
-			return new WP_Error( 'invalid_embed',  'The requested URL is not an embed.', 400 );
+			return new WP_Error( 'invalid_embed',  __( 'The requested URL is not an embed.', 'jetpack' ), 400 );
 		}
 
 		// our output for this endpoint..

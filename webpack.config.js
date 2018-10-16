@@ -102,7 +102,8 @@ const webpackConfig = {
 		'react/lib/ExecutionEnvironment': true,
 		'react/lib/ReactContext': true,
 		jsdom: 'window'
-	}
+	},
+	devtool: NODE_ENV === 'development' ? 'source-map' : false,
 };
 
 if ( NODE_ENV === 'production' ) {

@@ -16,10 +16,9 @@
  * [brightcove video_id="12345" account_id="99999"] will be translated to the latest embedding code.
  * [brightcove exp=627045696&vid=1415670151] or [brightcove exp=1463233149&vref=1601200825] will be translated
  * to the legacy code.
- *
  */
 class Jetpack_Brightcove_Shortcode {
-    static $shortcode = 'brightcove';
+	static $shortcode = 'brightcove';
 
 	/**
 	 * Parse shortcode arguments and render its output.
@@ -30,7 +29,7 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return string
 	 */
-	static public function convert( $atts ) {
+	public static function convert( $atts ) {
 		$normalized_atts = self::normalize_attributes( $atts );
 
 		if ( empty( $atts ) ) {
@@ -55,11 +54,11 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return array
 	 */
-	static public function normalize_attributes( $atts ) {
+	public static function normalize_attributes( $atts ) {
 		if ( is_array( $atts ) && 1 == count( $atts ) ) { // this is the case we need to take care of.
 			$parsed_atts = array();
-			$params = shortcode_new_to_old_params( $atts );
-			$params = apply_filters( 'brightcove_dimensions', $params );
+			$params      = shortcode_new_to_old_params( $atts );
+			$params      = apply_filters( 'brightcove_dimensions', $params );
 			parse_str( $params, $parsed_atts );
 
 			return $parsed_atts;
@@ -77,9 +76,9 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return bool
 	 */
-	static public function has_legacy_atts( $atts ) {
-		return ( isset( $atts[ 'vid' ] ) || isset( $atts[ 'vref' ] ) )
-			&& ( isset( $atts[ 'exp' ] ) || isset( $atts[ 'exp3' ] ) );
+	public static function has_legacy_atts( $atts ) {
+		return ( isset( $atts['vid'] ) || isset( $atts['vref'] ) )
+			&& ( isset( $atts['exp'] ) || isset( $atts['exp3'] ) );
 	}
 
 	/**
@@ -91,7 +90,7 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return string
 	 */
-	static public function convert_to_new_studio( $atts ) {
+	public static function convert_to_new_studio( $atts ) {
 		$defaults = array(
 			'account_id' => '',
 			'video_id'   => '',
@@ -130,21 +129,24 @@ class Jetpack_Brightcove_Shortcode {
 	 *
 	 * @return string
 	 */
-	static public function convert_to_legacy_studio( $atts ) {
-		$attr = shortcode_atts( array(
-			'bg'    => '',
-			'exp'   => '',
-			'exp3'  => '',
-			'h'     => '',
-			'lbu'   => '',
-			'pk'    => '',
-			'pubid' => '',
-			's'     => '',
-			'surl'  => '',
-			'vid'   => '',
-			'vref'  => '',
-			'w'     => '',
-		), $atts );
+	public static function convert_to_legacy_studio( $atts ) {
+		$attr = shortcode_atts(
+			array(
+				'bg'    => '',
+				'exp'   => '',
+				'exp3'  => '',
+				'h'     => '',
+				'lbu'   => '',
+				'pk'    => '',
+				'pubid' => '',
+				's'     => '',
+				'surl'  => '',
+				'vid'   => '',
+				'vref'  => '',
+				'w'     => '',
+			),
+			$atts
+		);
 
 		if ( isset( $attr['pk'] ) ) {
 			$attr['pk'] = rawurlencode( preg_replace( '/[^a-zA-Z0-9!*\'();:@&=+$,\/?#\[\]\-_.~ ]/', '', $attr['pk'] ) );
@@ -183,7 +185,8 @@ class Jetpack_Brightcove_Shortcode {
 			$fv['domain']      = 'embed';
 			$fv['videoID']     = intval( $attr['vid'] );
 
-			$src   = sprintf( '%s/viewer/federated_f9/%s?isVid=1&amp;isUI=1&amp;publisherID=%s',
+			$src   = sprintf(
+				'%s/viewer/federated_f9/%s?isVid=1&amp;isUI=1&amp;publisherID=%s',
 				$attr['surl'],
 				$attr['exp3'],
 				$attr['pubid']
@@ -194,7 +197,7 @@ class Jetpack_Brightcove_Shortcode {
 			$src         = 'http://services.brightcove.com/services/viewer/federated_f8/' . $attr['exp'];
 			if ( $attr['vid'] ) {
 				$fv['videoId'] = $attr['vid'];
-			} else if ( $attr['vref'] ) {
+			} elseif ( $attr['vref'] ) {
 				$fv['videoRef'] = $attr['vref'];
 			}
 
@@ -236,9 +239,13 @@ class Jetpack_Brightcove_Shortcode {
 				20121127,
 				false
 			);
-			wp_localize_script( 'brightcove-loader', 'brightcoveData', array(
-				'tld' => esc_js( $js_tld )
-			) );
+			wp_localize_script(
+				'brightcove-loader',
+				'brightcoveData',
+				array(
+					'tld' => esc_js( $js_tld ),
+				)
+			);
 
 			return '
 				<object id="myExperience" class="BrightcoveExperience">
@@ -257,7 +264,8 @@ class Jetpack_Brightcove_Shortcode {
 				</object>';
 		}
 
-		return sprintf( '<embed src="%s" bgcolor="#FFFFFF" flashvars="%s" base="http://admin.brightcove.com" name="%s" width="%s" height="%s" allowFullScreen="true" seamlesstabbing="false" type="application/x-shockwave-flash" swLiveConnect="true" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" />',
+		return sprintf(
+			'<embed src="%s" bgcolor="#FFFFFF" flashvars="%s" base="http://admin.brightcove.com" name="%s" width="%s" height="%s" allowFullScreen="true" seamlesstabbing="false" type="application/x-shockwave-flash" swLiveConnect="true" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" />',
 			esc_url( $src ),
 			$flashvars,
 			esc_attr( $name ),

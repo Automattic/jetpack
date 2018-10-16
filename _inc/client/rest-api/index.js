@@ -70,6 +70,20 @@ function JetpackRestApiClient( root, nonce ) {
 		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
 			.then( parseJsonResponse ),
 
+		fetchUserTrackingSettings: () => getRequest( `${ apiRoot }jetpack/v4/tracking/settings`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
+		updateUserTrackingSettings: ( newSettings ) => postRequest(
+			`${ apiRoot }jetpack/v4/tracking/settings`,
+			postParams,
+			{
+				body: JSON.stringify( newSettings )
+			}
+		)
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
 		disconnectSite: () => postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
 			body: JSON.stringify( { isActive: false } )
 		} )
@@ -185,7 +199,8 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ), getParams )
 			.then( checkStatus )
-			.then( parseJsonResponse ),
+			.then( parseJsonResponse )
+			.then( handleStatsResponseError ),
 
 		getPluginUpdates: () => getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
 			.then( checkStatus )
@@ -232,7 +247,23 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchPluginsData: () => getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
 			.then( checkStatus )
-			.then( parseJsonResponse )
+			.then( parseJsonResponse ),
+
+		fetchVerifySiteGoogleStatus: ( keyringId ) => {
+			const request = ( keyringId !== null )
+				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }`, getParams )
+				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams );
+
+			return request
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
+
+		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
+			body: JSON.stringify( { keyring_id: keyringId } ),
+		} )
+		.then( checkStatus )
+		.then( parseJsonResponse )
 	};
 
 	function addCacheBuster( route ) {
@@ -265,6 +296,16 @@ function JetpackRestApiClient( root, nonce ) {
 			url = url + `?range=${ encodeURIComponent( range ) }`;
 		}
 		return url;
+	}
+
+	function handleStatsResponseError( statsData ) {
+		// If we get a .response property, it means that .com's response is errory.
+		// Probably because the site does not have stats yet.
+		const responseOk =
+			( statsData.general && statsData.general.response === undefined ) ||
+			( statsData.week && statsData.week.response === undefined ) ||
+			( statsData.month && statsData.month.response === undefined );
+		return responseOk ? statsData : {};
 	}
 
 	assign( this, methods );

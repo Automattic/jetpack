@@ -20,10 +20,10 @@ import {
 	FormFieldset,
 	FormLegend
 } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsGroup from 'components/settings-group';
 import SettingsCard from 'components/settings-card';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -107,11 +107,26 @@ class SiteStatsComponent extends React.Component {
 		} );
 	};
 
+	handleRoleToggleChange = ( role, setting ) => {
+		return () => this.updateOptions( role, setting );
+	}
+
+	handleStatsOptionToggle( option_slug ) {
+		return () => this.props.updateFormStateModuleOption(
+			'stats',
+			option_slug
+		);
+	}
+
 	render() {
 		const stats = this.props.getModule( 'stats' ),
 			isStatsActive = this.props.getOptionValue( 'stats' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 			siteRoles = this.props.getSiteRoles();
+
+		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
+			return <ModuleOverriddenBanner moduleName={ stats.name } />;
+		}
 
 		if ( ! isStatsActive ) {
 			return (
@@ -161,28 +176,32 @@ class SiteStatsComponent extends React.Component {
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 				>
-					<SettingsGroup disableInDevMode module={ stats }>
+					<SettingsGroup
+						disableInDevMode
+						module={ stats }
+						support={ {
+							text: __( 'Displays information on your site activity, including visitors and popular posts or pages.' ),
+							link: 'https://jetpack.com/support/wordpress-com-stats/',
+						} }
+						>
 						<FormFieldset>
-							<ModuleToggle
-								slug="stats"
-								compact
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={ ! isStatsActive || unavailableInDevMode }
-								activated={ !! this.props.getOptionValue( 'admin_bar' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }
+								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Put a chart showing 48 hours of views in the admin bar' )
 									}
 								</span>
-							</ModuleToggle>
-							<ModuleToggle
-								slug="stats"
+							</CompactFormToggle>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'hide_smile' ) }
 								disabled={ ! isStatsActive || unavailableInDevMode }
-								activated={ !! this.props.getOptionValue( 'hide_smile' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }
+								onChange={ this.handleStatsOptionToggle( 'hide_smile' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -194,7 +213,7 @@ class SiteStatsComponent extends React.Component {
 										__( 'The image helps collect stats, but should work when hidden.' )
 									}
 								</span>
-							</ModuleToggle>
+							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
@@ -203,7 +222,7 @@ class SiteStatsComponent extends React.Component {
 									<CompactFormToggle
 										checked={ this.state[ `count_roles_${ key }` ] }
 										disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-										onChange={ () => this.updateOptions( key, 'count_roles' ) }
+										onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
 										key={ `count_roles-${ key }` }>
 											<span className="jp-form-toggle-explanation">
 												{ siteRoles[ key ].name }
@@ -227,7 +246,7 @@ class SiteStatsComponent extends React.Component {
 										<CompactFormToggle
 											checked={ this.state[ `roles_${ key }` ] }
 											disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-											onChange={ () => this.updateOptions( key, 'roles' ) }
+											onChange={ this.handleRoleToggleChange( key, 'roles' ) }
 											key={ `roles-${ key }` }>
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }

@@ -50,7 +50,9 @@ class Jetpack_Google_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
-		if ( Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+		// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
+		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
+		if ( class_exists( 'WooCommerce' ) && Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			$analytics = new Jetpack_Google_Analytics_Universal();
 		} else {
 			$analytics = new Jetpack_Google_Analytics_Legacy();

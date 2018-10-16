@@ -15,26 +15,26 @@ import log from 'fancy-log';
 import phplint from 'gulp-phplint';
 import phpunit from 'gulp-phpunit';
 import po2json from 'gulp-po2json';
-import qunit from 'gulp-qunit';
-import readline from 'readline';
 import request from 'request';
 import tap from 'gulp-tap';
 import { spawn } from 'child_process';
-import Stream from 'stream';
 
 /**
  * Internal dependencies
  */
 const meta = require( './package.json' );
 
+// These paths should alawys be ignored when watching files
+const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**' ];
+
+module.exports = {
+	alwaysIgnoredPaths: alwaysIgnoredPaths
+};
+
 import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
 import {} from './tools/builder/react';
 import {} from './tools/builder/sass';
-
-gulp.task( 'sass:watch', function() {
-	return gulp.watch( [ './**/*.scss' ], gulp.parallel( 'sass:dashboard', 'sass:dops', 'sass:old' ) );
-} );
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
@@ -46,7 +46,7 @@ gulp.task( 'old-styles:watch', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
 			log( colors.red( err ) );
@@ -57,7 +57,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 
@@ -79,7 +79,8 @@ gulp.task( 'eslint', function() {
 	return gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js'
+		'!_inc/client/**/test/*.js',
+		'modules/**/*.jsx',
 	] )
 		.pipe( eslint() )
 		.pipe( eslint.format() )
@@ -102,14 +103,6 @@ gulp.task( 'js:hint', function() {
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
 		.pipe( jshint.reporter( 'fail' ) );
-} );
-
-/*
-	JS qunit
- */
-gulp.task( 'js:qunit', function() {
-	return gulp.src( 'tests/qunit/**/*.html' )
-		.pipe( qunit() );
 } );
 
 /*
@@ -144,58 +137,53 @@ gulp.task( 'languages:get', function( callback ) {
 } );
 
 gulp.task( 'languages:build', gulp.series( 'languages:get', function( done ) {
-	let terms = [];
-	const instream = fs.createReadStream( './_inc/jetpack-strings.php' );
-	const outstream = new Stream;
-	outstream.readable = true;
-	outstream.writable = true;
+	const terms = [];
 
-	const rl = readline.createInterface( {
-		input: instream,
-		output: outstream,
-		terminal: false
-	} );
+	// Defining global that will be used from jetpack-strings.js
+	global.$jetpack_strings = [];
+	global.array = function() {};
 
-	rl.on( 'line', function( line ) {
-		const brace_index = line.indexOf( '__(' );
+	// Plural gettext call doesn't make a difference for Jed, the singular value is still used as the key.
+	global.__ = global._n = function( term ) {
+		terms[ term ] = '';
+	};
 
-		// Skipping lines that do not call translation functions
-		if ( -1 === brace_index ) {
-			return;
-		}
+	// Context prefixes the term and is separated with a unicode character U+0004
+	global._x = function( term, context ) {
+		terms[ context + '\u0004' + term ] = '';
+	};
 
-		line = line
-			.slice( brace_index + 3, line.lastIndexOf( ')' ) )
-			.replace( /[\b\f\n\r\t]/g, ' ' );
+	gulp.src( [ '_inc/jetpack-strings.php' ] )
+		.pipe( deleteLines( {
+			filters: [ /<\?php/ ]
+		} ) )
+		.pipe( rename( 'jetpack-strings.js' ) )
+		.pipe( gulp.dest( '_inc' ) )
+		.on( 'end', function() {
+			// Requiring the file that will call __, _x and _n
+			require( './_inc/jetpack-strings.js' );
 
-		// Making the line look like a JSON array to parse it as such later
-		line = [ '[', line.trim(), ']' ].join( '' );
+			return gulp.src( [ 'languages/*.po' ] )
+				.pipe( po2json() )
+				.pipe( json_transform( function( data ) {
+					const filtered = {
+						'': data[ '' ]
+					};
 
-		terms.push( line );
-	} ).on( 'close', function() {
-		// Extracting only the first argument to the translation function
-		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
-			return term[ 0 ];
-		} );
+					Object.keys( data ).forEach( function( term ) {
+						if ( terms.hasOwnProperty( term ) ) {
+							filtered[ term ] = data[ term ];
+						}
+					} );
 
-		gulp.src( [ 'languages/*.po' ] )
-			.pipe( po2json() )
-			.pipe( json_transform( function( data ) {
-				const filtered = {
-					'': data[ '' ]
-				};
-
-				Object.keys( data ).forEach( function( term ) {
-					if ( -1 !== terms.indexOf( term ) ) {
-						filtered[ term ] = data[ term ];
-					}
+					return filtered;
+				} ) )
+				.pipe( gulp.dest( 'languages/json/' ) )
+				.on( 'end', function() {
+					fs.unlinkSync( './_inc/jetpack-strings.js' );
+					done();
 				} );
-
-				return filtered;
-			} ) )
-			.pipe( gulp.dest( 'languages/json/' ) )
-			.on( 'end', done );
-	} );
+		} );
 } ) );
 
 gulp.task( 'php:module-headings', function( callback ) {
@@ -273,7 +261,7 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
-	return gulp.src( '**/*/*block.jsx' )
+	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -290,7 +278,12 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
+	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
+} );
+
+gulp.task( 'gutenpack:jetpack-blocks', function() {
+	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
+		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
 
 gulp.task(
@@ -304,7 +297,7 @@ gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack' )
+	gulp.parallel( 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' )
 );
 gulp.task(
 	'watch',
@@ -315,6 +308,3 @@ gulp.task(
 	'languages',
 	gulp.parallel( 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' )
 );
-
-// travis CI tasks.
-gulp.task( 'travis:js', gulp.parallel( 'js:hint', 'js:qunit' ) );

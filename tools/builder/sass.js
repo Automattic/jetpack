@@ -11,6 +11,11 @@ import rtlcss from 'gulp-rtlcss';
 import sass from 'gulp-sass';
 import sourcemaps from 'gulp-sourcemaps';
 
+/**
+ * Internal dependencies
+ */
+import alwaysIgnoredPaths from './../../gulpfile.babel.js';
+
 gulp.task( 'sass:dashboard', function( done ) {
 	log( 'Building Dashboard CSS bundle...' );
 
@@ -106,3 +111,7 @@ gulp.task(
 		'sass:old'
 	)
 );
+
+gulp.task( 'sass:watch', function() {
+		return gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], gulp.parallel( 'sass:dashboard', 'sass:dops', 'sass:old' ) );
+} );

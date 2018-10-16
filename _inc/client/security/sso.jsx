@@ -31,6 +31,14 @@ export const SSO = moduleSettingsForm(
 			),
 		};
 
+		handleTwoStepToggleChange = () => {
+			this.updateOptions( 'jetpack_sso_require_two_step' );
+		}
+
+		handleMatchByEmailToggleChange = () => {
+			this.updateOptions( 'jetpack_sso_match_by_email' );
+		}
+
 		/**
 		 * Update state so toggles are updated.
 		 *
@@ -55,7 +63,15 @@ export const SSO = moduleSettingsForm(
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }
 				>
-					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
+					<SettingsGroup
+						hasChild
+						disableInDevMode
+						module={ this.props.getModule( 'sso' ) }
+						support={ {
+							text: __( 'Allows registered users to log in to your site with their WordPress.com accounts.' ),
+							link: 'https://jetpack.com/support/sso/',
+						} }
+						>
 						<ModuleToggle
 							slug="sso"
 							disabled={ unavailableInDevMode }
@@ -75,7 +91,7 @@ export const SSO = moduleSettingsForm(
 										unavailableInDevMode ||
 										this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] )
 								}
-								onChange={ () => this.updateOptions( 'jetpack_sso_match_by_email' ) }
+								onChange={ this.handleMatchByEmailToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Match accounts using email addresses' ) }
@@ -88,7 +104,7 @@ export const SSO = moduleSettingsForm(
 										unavailableInDevMode ||
 										this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] )
 								}
-								onChange={ () => this.updateOptions( 'jetpack_sso_require_two_step' ) }
+								onChange={ this.handleTwoStepToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Require accounts to use WordPress.com Two-Step Authentication' ) }

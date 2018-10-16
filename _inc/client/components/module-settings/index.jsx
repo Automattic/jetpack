@@ -77,7 +77,7 @@ export class RelatedPostsSettings extends React.Component {
 			<div className="jp-related-posts-preview">
 				{
 					show_headline
-						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A header for a block of related posts.' } ) }</div>
+						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A heading for a block of related posts.' } ) }</div>
 						: ''
 				}
 				{
@@ -113,11 +113,11 @@ export class RelatedPostsSettings extends React.Component {
 					}
 					<ModuleSettingCheckbox
 						name={ 'show_headline' }
-						label={ __( 'Show a "Related" header to more clearly separate the related section from posts' ) }
+						label={ __( 'Highlight related content with a heading' ) }
 						{ ...this.props } />
 					<ModuleSettingCheckbox
 						name={ 'show_thumbnails' }
-						label={ __( 'Use a large and visually striking layout' ) }
+						label={ __( 'Show a thumbnail image where available' ) }
 						{ ...this.props } />
 					<div className="jp-related-posts-settings__preview-label">{ __( 'Preview', { context: 'Noun, a header for a preview block in a configuration screen.' } ) }</div>
 					<Card>

@@ -45,6 +45,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
+		'jetpack_search_enabled'       => '(bool) Enable Jetpack Search',
+		'jetpack_search_supported'     => '(bool) Jetpack Search is supported',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
 		'default_category'             => '(int) Default post category',
 		'default_post_format'          => '(string) Default post format',
@@ -99,6 +101,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'site_icon'                    => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'               => '(int) Number of posts to show on blog pages',
+		'net_neutrality'               => '(bool) Whether to show the net neutrality modal for a site',
 		'posts_per_rss'                => '(int) Number of posts to show in the RSS feed',
 		'rss_use_excerpt'              => '(bool) Whether the RSS feed will use post excerpts',
 	),
@@ -131,6 +134,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Source & include the infinite scroll compatibility files prior to loading theme functions
+			add_filter( 'restapi_theme_action_copy_dirs', array( 'WPCOM_JSON_API_Site_Settings_Endpoint', 'wpcom_restapi_copy_theme_plugin_actions' ) );
 			$this->load_theme_functions();
 		}
 
@@ -158,6 +163,37 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
 
+	}
+
+	/**
+	 * Includes additional theme-specific files to be included in REST API theme
+	 * context loading action copying.
+	 *
+	 * @see WPCOM_JSON_API_Endpoint#load_theme_functions
+	 * @see the_neverending_home_page_theme_support
+	 */
+	function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
+		$theme_name = get_stylesheet();
+		$default_file_name = WP_CONTENT_DIR . "/mu-plugins/infinity/themes/{$theme_name}.php";
+
+		/**
+		 * Filter the path to the Infinite Scroll compatibility file.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string $str IS compatibility file path.
+		 * @param string $theme_name Theme name.
+		 */
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', $default_file_name, $theme_name );
+
+		if ( is_readable( $customization_file ) ) {
+			require_once $customization_file;
+			$copy_dirs[] = $customization_file;
+		}
+
+		return $copy_dirs;
 	}
 
 	/**
@@ -268,6 +304,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
 				}
 
+				$jetpack_search_supported = false;
+				if ( function_exists( 'wpcom_is_jetpack_search_supported' ) ) {
+					$jetpack_search_supported = wpcom_is_jetpack_search_supported( $blog_id );
+				}
+
+				$jetpack_search_active = false;
+				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
+					$jetpack_search_active = Jetpack::is_module_active( 'search' );
+				}
+				if ( function_exists( 'is_jetpack_module_active' ) ) {
+					$jetpack_search_active = is_jetpack_module_active( 'search', $blog_id );
+				}
+
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
 					array_map(
@@ -277,6 +326,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 
 				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+
+				$net_neutrality_options = get_option( 'net_neutrality_options_2017' );
+				$net_neutrality = ( $net_neutrality_options && ! empty( $net_neutrality_options['enabled'] ) )
+					? true
+					: false;
 
 				$response[ $key ] = array(
 
@@ -292,6 +346,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options[ 'show_headline' ] ) ? $jetpack_relatedposts_options[ 'show_headline' ] : false,
 					'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options[ 'show_thumbnails' ] ) ? $jetpack_relatedposts_options[ 'show_thumbnails' ] : false,
+					'jetpack_search_enabled'  => (bool) $jetpack_search_active,
+					'jetpack_search_supported'=> (bool) $jetpack_search_supported,
 					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -343,6 +399,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'api_cache'               => $api_cache,
 					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
+					'net_neutrality'          => $net_neutrality,
 					'posts_per_rss'           => (int) get_option( 'posts_per_rss' ),
 					'rss_use_excerpt'         => (bool) get_option( 'rss_use_excerpt' ),
 				);
@@ -350,6 +407,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 					$response[ $key ]['wpcom_publish_posts_with_markdown'] = (bool) WPCom_Markdown::is_posting_enabled();
 					$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+
+					// WPCOM-specific Infinite Scroll Settings
+					if ( is_callable( array( 'The_Neverending_Home_Page', 'get_settings' ) ) ) {
+						/**
+						 * Clear the cached copy of widget info so it's pulled fresh from blog options.
+						 * It was primed during the initial load under the __REST API site__'s context.
+						 * @see wp_get_sidebars_widgets https://core.trac.wordpress.org/browser/trunk/src/wp-includes/widgets.php?rev=42374#L931
+						 */
+						$GLOBALS['_wp_sidebars_widgets'] = array();
+
+						$infinite_scroll_settings = The_Neverending_Home_Page::get_settings();
+						$response[ $key ]['infinite_scroll'] = get_option( 'infinite_scroll', true ) && $infinite_scroll_settings->type === 'scroll';
+						if ( $infinite_scroll_settings->footer_widgets || 'click' == $infinite_scroll_settings->requested_type ) {
+							// The blog has footer widgets -- infinite scroll is blocked
+							$response[ $key ]['infinite_scroll_blocked'] = 'footer';
+						} else {
+							$response[ $key ]['infinite_scroll_blocked'] = false;
+						}
+					}
 				}
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -412,16 +488,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function update_settings() {
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
+		$input = $this->input();
+		$unfiltered_input = $this->input( false, false );
 		/**
 		 * Filters the settings to be updated on the site.
 		 *
 		 * @module json-api
 		 *
 		 * @since 3.6.0
+		 * @since 6.1.1 Added $unfiltered_input parameter.
 		 *
-		 * @param array $input Associative array of site settings to be updated.
+		 * @param array $input              Associative array of site settings to be updated.
+		 *                                  Cast and filtered based on documentation.
+		 * @param array $unfiltered_input   Associative array of site settings to be updated.
+		 *                                  Neither cast nor filtered. Contains raw input.
 		 */
-		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
+		$input = apply_filters( 'rest_api_update_site_settings', $input, $unfiltered_input );
 
 		$blog_id = get_current_blog_id();
 
@@ -457,6 +539,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
+					break;
+				case 'jetpack_search_enabled':
+					if ( ! method_exists( 'Jetpack', 'activate_module' ) ) {
+						break;
+					}
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+					if ( $value ) {
+						$jetpack_search_update_success = $is_wpcom
+							? Jetpack::activate_module( $blog_id, 'search' )
+							: Jetpack::activate_module( 'search', false, false );
+					} else {
+						$jetpack_search_update_success = $is_wpcom
+							? Jetpack::deactivate_module( $blog_id, 'search' )
+							: Jetpack::deactivate_module( 'search' );
+					}
+					$updated[ $key ] = (bool) $value;
 					break;
 				case 'jetpack_relatedposts_enabled':
 				case 'jetpack_relatedposts_show_thumbnails':
@@ -693,6 +791,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$updated[ $key ] = (bool) $value;
 						}
 					}
+					break;
+
+				case 'net_neutrality':
+					$original_value = $value;
+					$value = array( 'enabled' => (bool) $value );
+					if ( update_option( 'net_neutrality_options_2017', $value ) ) {
+						$updated[ $key ] = $original_value;
+					}
+
+					break;
+
+				case 'rss_use_excerpt':
+					update_option( 'rss_use_excerpt', (int)(bool) $value );
 					break;
 
 				default:

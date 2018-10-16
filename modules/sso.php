@@ -3,7 +3,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
 
 /**
- * Module Name: Single Sign On
+ * Module Name: Secure Sign On
  * Module Description: Allow users to log into this site using WordPress.com accounts
  * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
@@ -195,7 +195,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Adds settings fields to Settings > General > Single Sign On that allows users to
+	 * Adds settings fields to Settings > General > Secure Sign On that allows users to
 	 * turn off the login form on wp-login.php
 	 *
 	 * @since 2.7
@@ -204,13 +204,13 @@ class Jetpack_SSO {
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Single Sign On' , 'jetpack' ),
+			__( 'Secure Sign On' , 'jetpack' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Single Sign On
+		 * Settings > General > Secure Sign On
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -228,7 +228,7 @@ class Jetpack_SSO {
 		);
 
 		/*
-		 * Settings > General > Single Sign On
+		 * Settings > General > Secure Sign On
 		 */
 		register_setting(
 			'jetpack-sso',
@@ -436,14 +436,14 @@ class Jetpack_SSO {
 			time() + HOUR_IN_SECONDS,
 			COOKIEPATH,
 			COOKIE_DOMAIN,
-			false,
+			is_ssl(),
 			true
 		);
 
 		if ( ! empty( $_GET['redirect_to'] ) ) {
 			// If we have something to redirect to
 			$url = esc_url_raw( $_GET['redirect_to'] );
-			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Otherwise, if it's already set, purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
@@ -539,7 +539,8 @@ class Jetpack_SSO {
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 
@@ -549,7 +550,8 @@ class Jetpack_SSO {
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 	}
@@ -567,7 +569,8 @@ class Jetpack_SSO {
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 
@@ -577,7 +580,8 @@ class Jetpack_SSO {
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 
@@ -587,7 +591,8 @@ class Jetpack_SSO {
 				' ',
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 	}
@@ -637,7 +642,8 @@ class Jetpack_SSO {
 				$nonce,
 				time() + ( 10 * MINUTE_IN_SECONDS ),
 				COOKIEPATH,
-				COOKIE_DOMAIN
+				COOKIE_DOMAIN,
+				is_ssl()
 			);
 		}
 
@@ -1043,7 +1049,8 @@ class Jetpack_SSO {
 			$user_data->display_name,
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
-			COOKIE_DOMAIN
+			COOKIE_DOMAIN,
+			is_ssl()
 		);
 
 		setcookie(
@@ -1054,7 +1061,8 @@ class Jetpack_SSO {
 			),
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
-			COOKIE_DOMAIN
+			COOKIE_DOMAIN,
+			is_ssl()
 		);
 	}
 

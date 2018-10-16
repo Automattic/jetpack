@@ -10,7 +10,7 @@
  * Module Tags: Social, Appearance
  * Feature: Traffic
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
- * Plans: business
+ * Plans: business, premium
  */
 
 include dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
@@ -22,6 +22,7 @@ $jetpack_seo_conflicting_plugins = array(
 	'wordpress-seo-premium/wp-seo-premium.php',
 	'all-in-one-seo-pack/all_in_one_seo_pack.php',
 	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+	'autodescription/autodescription.php',
 );
 
 foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {

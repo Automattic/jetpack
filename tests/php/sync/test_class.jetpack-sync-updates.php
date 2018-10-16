@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$theme = reset( $updates->response );
-		
+
 		$this->assertTrue( (bool) $theme['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertTrue( is_int( $updates->last_checked ) );
-		
+
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
@@ -136,6 +136,24 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
+		$this->assertEquals( $event->args[1], $wp_version ); // New version
+	}
+
+	public function test_update_core_successfully_sync_action_using_wpcom_rest_api() {
+		global $wp_version, $pagenow;
+
+		$this->assertFalse( $pagenow === 'update-core.php' );
+		Jetpack_Constants::set_constant( 'REST_API_REQUEST', true );
+		Jetpack_Sync_Modules::get_module( "updates" )->update_core( 'new_version' );
+		$this->sender->do_sync();
+
+		Jetpack_Constants::clear_single_constant( 'REST_API_REQUEST' );
+
+		$autoupdate_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );
+		$this->assertFalse( (bool) $autoupdate_event );
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0], 'new_version' ); // Old Version
 		$this->assertEquals( $event->args[1], $wp_version ); // New version
 	}
 

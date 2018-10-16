@@ -46,7 +46,8 @@ function vimeo_shortcode( $atts ) {
 				'height'   => 0,
 				'autoplay' => 0,
 				'loop'     => 0,
-			), $atts
+			),
+			$atts
 		)
 	);
 
@@ -251,7 +252,7 @@ function vimeo_link( $content ) {
 	 *  [vimeo 12345]
 	 *  [vimeo http://vimeo.com/12345]
 	 */
-	$shortcode = "(?:\[vimeo\s+[^0-9]*)([0-9]+)(?:\])";
+	$shortcode = '(?:\[vimeo\s+[^0-9]*)([0-9]+)(?:\])';
 
 	/**
 	 *  http://vimeo.com/12345
@@ -269,10 +270,10 @@ function vimeo_link( $content ) {
 	$plain_url = "(?:[^'\">]?\/?(?:https?:\/\/)?vimeo\.com[^0-9]+)([0-9]+)(?:[^'\"0-9<]|$)";
 
 	return jetpack_preg_replace_callback_outside_tags(
-			sprintf( '#%s|%s#i', $shortcode, $plain_url ),
-			'vimeo_link_callback',
-			$content,
-			'vimeo'
+		sprintf( '#%s|%s#i', $shortcode, $plain_url ),
+		'vimeo_link_callback',
+		$content,
+		'vimeo'
 	);
 }
 
@@ -285,11 +286,11 @@ function vimeo_link( $content ) {
  * @return string The Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	$id = isset( $matches[ 2 ] ) ? $matches[ 2 ] : $matches[ 1 ];
+	$id = isset( $matches[2] ) ? $matches[2] : $matches[1];
 	if ( isset( $id ) && ctype_digit( $id ) ) {
 		return "\n" . vimeo_shortcode( array( 'id' => $id ) ) . "\n";
 	}
-	return $matches[ 0 ];
+	return $matches[0];
 }
 
 /** This filter is documented in modules/shortcodes/youtube.php */

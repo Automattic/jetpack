@@ -4,19 +4,28 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 
-const files = execSync( 'git diff --cached --name-only --diff-filter=ACM' )
+const gitFiles = execSync( 'git diff --cached --name-only --diff-filter=ACM' )
 	.toString()
 	.split( '\n' )
-	.map( name => name.trim() )
-	.filter( name => name.endsWith( '.js' ) || name.endsWith( '.jsx' ) );
+	.map( name => name.trim() );
+const jsFiles = gitFiles.filter( name => name.endsWith( '.js' ) || name.endsWith( '.jsx' ) );
+const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 
 // linting should happen after formatting
-const lintResult = spawnSync( 'eslint-eslines', [ ...files, '--', '--diff=index' ], {
+const jsLintResult = spawnSync( 'eslint-eslines', [ ...jsFiles, '--', '--diff=index' ], {
 	shell: true,
 	stdio: 'inherit',
 } );
 
-if ( lintResult.status ) {
+let phpLintResult;
+if ( phpFiles.length > 0 ) {
+	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles, ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+}
+
+if ( jsLintResult.status || ( phpLintResult && phpLintResult.status ) ) {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
 		'The linter reported some problems. ' +

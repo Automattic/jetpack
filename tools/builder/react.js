@@ -131,7 +131,8 @@ function onBuild( done, err, stats ) {
 	// Uglify other JS from _inc and supported modules
 	const sources = [
 		'_inc/*.js',
-		supportedModulesSource
+		supportedModulesSource,
+		'!modules/**/test-*.js',
 	];
 
 	// Don't process minified JS in _inc or modules directories
@@ -152,7 +153,7 @@ function onBuild( done, err, stats ) {
 			log( 'Your other JS is now uglified!' );
 			done();
 		} );
-}
+};
 
 gulp.task( 'react:build', gulp.series( 'react:master', buildStatic ) );
 
@@ -193,10 +194,10 @@ function buildStatic( done ) {
 					fs.unlinkSync( file.path );
 				} ) )
 				.on( 'end', function() {
-					fs.writeFile( __dirname + '/../../_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/../../_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/../../_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
+					fs.writeFileSync( __dirname + '/../../_inc/build/static.html', window.staticHtml );
+					fs.writeFileSync( __dirname + '/../../_inc/build/static-noscript-notice.html', window.noscriptNotice );
+					fs.writeFileSync( __dirname + '/../../_inc/build/static-version-notice.html', window.versionNotice );
+					fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 					done();
 				} );

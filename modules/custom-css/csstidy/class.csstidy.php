@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -241,6 +240,7 @@ class csstidy {
 	 * @var string
 	 */
 	public $tokens_list = "";
+
 	/**
 	 * Loads standard template and sets default settings
 	 * @access private
@@ -283,6 +283,10 @@ class csstidy {
 		$this->optimise = new csstidy_optimise($this);
 
 		$this->tokens_list = & $GLOBALS['csstidy']['tokens'];
+	}
+
+	function csstidy() {
+		$this->__construct();
 	}
 
 	/**

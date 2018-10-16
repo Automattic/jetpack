@@ -36,12 +36,12 @@ class VideoPress_Edit_Attachment {
 	}
 
 	/**
-	 * @param string  $post_type
-	 * @param object  $post
+	 * @param string $post_type
+	 * @param object $post
 	 */
-	public function configure_meta_boxes( $post_type = 'unknown', $post = NULL ) {
-		if ( NULL == $post ) {
-			$post = (object) array ( 'ID' => 0 );
+	public function configure_meta_boxes( $post_type = 'unknown', $post = null ) {
+		if ( null == $post ) {
+			$post = (object) array( 'ID' => 0 );
 		}
 
 		if ( 'attachment' != $post_type ) {
@@ -57,7 +57,7 @@ class VideoPress_Edit_Attachment {
 	}
 
 	/**
-	 * @param array $post
+	 * @param array      $post
 	 * @param array|null $attachment
 	 *
 	 * @return array
@@ -104,17 +104,17 @@ class VideoPress_Edit_Attachment {
 		if ( isset( $attachment['display_embed'] ) ) {
 			$display_embed = $attachment['display_embed'];
 
-			$values['display_embed'] = 'on' === $display_embed  ? 1 : 0;
+			$values['display_embed'] = 'on' === $display_embed ? 1 : 0;
 		}
 
 		$args = array(
-			'method'  => 'POST',
+			'method' => 'POST',
 		);
 
-        $guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
 		$endpoint = "videos/{$guid}";
-		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args, $values );
+		$result   = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args, $values );
 
 		if ( is_wp_error( $result ) ) {
 			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.', 'jetpack' );
@@ -151,7 +151,7 @@ class VideoPress_Edit_Attachment {
 		return sprintf(
 			'%s://%s/rest/v%s/videos/%s',
 			'https',
-			'public-api.wordpress.com', //JETPACK__WPCOM_JSON_API_HOST,
+			'public-api.wordpress.com', // JETPACK__WPCOM_JSON_API_HOST,
 			Jetpack_Client::WPCOM_JSON_API_VERSION,
 			$guid
 		);
@@ -161,7 +161,7 @@ class VideoPress_Edit_Attachment {
 	/**
 	 * Creates an array of video fields to edit based on transcoded videos.
 	 *
-	 * @param array $fields video fields of interest
+	 * @param array    $fields video fields of interest
 	 * @param stdClass $post post object
 	 * @return array modified version of video fields for administrative interface display
 	 */
@@ -175,18 +175,18 @@ class VideoPress_Edit_Attachment {
 			return $fields;
 		}
 
-		$info = (object) $meta['videopress'];
-        $file_statuses = isset( $meta['file_statuses'] ) ? $meta['file_statuses'] : array();
+		$info          = (object) $meta['videopress'];
+		$file_statuses = isset( $meta['file_statuses'] ) ? $meta['file_statuses'] : array();
 
-        $guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
 
-		if ( isset( $file_statuses['ogg'] ) && 'done' ===  $file_statuses['ogg'] ) {
-			$v_name  = preg_replace( '/\.\w+/', '', basename( $info->path ) );
+		if ( isset( $file_statuses['ogg'] ) && 'done' === $file_statuses['ogg'] ) {
+			$v_name     = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
-			$ogg_url  = videopress_cdn_file_url( $guid, $video_name );
+			$ogg_url    = videopress_cdn_file_url( $guid, $video_name );
 
 			$fields['video-ogg'] = array(
 				'label' => __( 'Ogg File URL', 'jetpack' ),
@@ -218,13 +218,13 @@ class VideoPress_Edit_Attachment {
 		$fields['display_embed'] = array(
 			'label' => _x( 'Share', 'A header for the video sharing options area', 'jetpack' ),
 			'input' => 'html',
-			'html'  => $this->display_embed_choice( $info )
+			'html'  => $this->display_embed_choice( $info ),
 		);
 
 		$fields['video-rating'] = array(
 			'label' => _x( 'Rating', 'A header for the video rating area', 'jetpack' ),
 			'input' => 'html',
-			'html'  => $this->display_rating( $info )
+			'html'  => $this->display_rating( $info ),
 		);
 
 		return $fields;
@@ -237,7 +237,7 @@ class VideoPress_Edit_Attachment {
 		$post_id = absint( $post->ID );
 
 		$meta = wp_get_attachment_metadata( $post_id );
-        $guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
 		// If this has not been processed by videopress, we can skip the rest.
 		if ( ! is_videopress_attachment( $post_id ) ) {
@@ -259,14 +259,14 @@ class VideoPress_Edit_Attachment {
 
 		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
 
-		$trans_status = '';
+		$trans_status   = '';
 		$all_trans_done = true;
 		foreach ( $formats as $status_key => $name ) {
 			if ( 'DONE' !== $status[ $status_key ] ) {
 				$all_trans_done = false;
 			}
 
-			$trans_status .= '- <strong>' . $name . ":</strong> <span id=\"status_$status_key\">" . ( 'DONE' === $status[ $status_key ]  ? 'Done' : 'Processing' ) . '</span><br>';
+			$trans_status .= '- <strong>' . $name . ":</strong> <span id=\"status_$status_key\">" . ( 'DONE' === $status[ $status_key ] ? 'Done' : 'Processing' ) . '</span><br>';
 		}
 
 		$nonce = wp_create_nonce( 'videopress-update-transcoding-status' );
@@ -344,11 +344,12 @@ HTML;
 	 * @return string input element of type checkbox set to checked state based on stored embed preference
 	 */
 	protected function display_embed_choice( $info ) {
-		$id = "attachments-{$info->post_id}-displayembed";
-		$out  = "<label for='$id'><input type='checkbox' name='attachments[{$info->post_id}][display_embed]' id='$id'";
-		if ( $info->display_embed )
+		$id  = "attachments-{$info->post_id}-displayembed";
+		$out = "<label for='$id'><input type='checkbox' name='attachments[{$info->post_id}][display_embed]' id='$id'";
+		if ( $info->display_embed ) {
 			$out .= ' checked="checked"';
-		$out .= " />" . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
+		}
+		$out .= ' />' . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
 		return $out;
 	}
 
@@ -368,8 +369,8 @@ HTML;
 			'X-18'  => 'X',
 		);
 
-		foreach( $ratings as $r => $label ) {
-			$id = "attachments-{$info->post_id}-rating-$r";
+		foreach ( $ratings as $r => $label ) {
+			$id   = "attachments-{$info->post_id}-rating-$r";
 			$out .= "<label for=\"$id\"><input type=\"radio\" name=\"attachments[{$info->post_id}][rating]\" id=\"$id\" value=\"$r\"";
 			if ( $info->rating == $r ) {
 				$out .= ' checked="checked"';

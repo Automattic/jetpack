@@ -21,15 +21,15 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	private $min_width_portrait  = 180;
 	private $min_width_landscape = 273;
 	private $min_width;
-	private $default_theme       = 'light';
-	private $allowed_themes      = array( 'light', 'dark' );
-	private $default_layout      = 'portrait';
-	private $allowed_layouts     = array( 'landscape', 'portrait' );
-	private $default_type        = 'person';
-	private $allowed_types       = array();
+	private $default_theme   = 'light';
+	private $allowed_themes  = array( 'light', 'dark' );
+	private $default_layout  = 'portrait';
+	private $allowed_layouts = array( 'landscape', 'portrait' );
+	private $default_type    = 'person';
+	private $allowed_types   = array();
 
 	function __construct() {
-		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
+		$this->min_width     = min( $this->min_width_portrait, $this->min_width_landscape );
 		$this->allowed_types = array(
 			'person'    => __( 'Person Widget', 'jetpack' ),
 			'page'      => __( 'Page Widget', 'jetpack' ),
@@ -41,8 +41,8 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Badge', 'jetpack' ) ),
 			array(
-				'classname'   => 'widget_googleplus_badge',
-				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' ),
+				'classname'                   => 'widget_googleplus_badge',
+				'description'                 => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -50,7 +50,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		if ( is_active_widget( '', '', 'googleplus-badge' ) || is_customize_preview() ) {
-			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
+			add_action( 'wp_print_styles', array( $this, 'enqueue_script' ) );
 			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
 		}
 	}
@@ -108,7 +108,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 
-		switch( $instance['type'] ) {
+		switch ( $instance['type'] ) {
 			case 'person':
 			case 'page':
 				printf(
@@ -149,29 +149,37 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		$instance['href'] = trim( strip_tags( stripslashes( $new_instance['href'] ) ) );
 
 		if ( $this->is_valid_googleplus_url( $instance['href'] ) ) {
-			$temp = explode( '?', $instance['href'] );
+			$temp             = explode( '?', $instance['href'] );
 			$instance['href'] = str_replace( array( 'http://plus.google.com', 'https://plus.google.com' ), 'https://plus.google.com', $temp[0] );
 		} else {
 			$instance['href'] = '';
 		}
 
-		$instance['theme']  = $this->filter_text( $new_instance['theme'],  $this->default_theme,  $this->allowed_themes );
+		$instance['theme']  = $this->filter_text( $new_instance['theme'], $this->default_theme, $this->allowed_themes );
 		$instance['layout'] = $this->filter_text( $new_instance['layout'], $this->default_layout, $this->allowed_layouts );
 
-		switch( $instance['layout'] ) {
+		switch ( $instance['layout'] ) {
 			case 'portrait':
-				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
-					'min_range' => $this->min_width_portrait,
-					'max_range' => $this->max_width,
-					'default'   => $this->default_width,
-				) ) );
+				$instance['width'] = filter_var(
+					$new_instance['width'], FILTER_VALIDATE_INT, array(
+						'options' => array(
+							'min_range' => $this->min_width_portrait,
+							'max_range' => $this->max_width,
+							'default'   => $this->default_width,
+						),
+					)
+				);
 				break;
 			case 'landscape':
-				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
-					'min_range' => $this->min_width_landscape,
-					'max_range' => $this->max_width,
-					'default'   => $this->default_width,
-				) ) );
+				$instance['width'] = filter_var(
+					$new_instance['width'], FILTER_VALIDATE_INT, array(
+						'options' => array(
+							'min_range' => $this->min_width_landscape,
+							'max_range' => $this->max_width,
+							'default'   => $this->default_width,
+						),
+					)
+				);
 				break;
 		}
 
@@ -181,7 +189,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			$instance['type'] = $this->default_type;
 		}
 
-		switch( $instance['type'] ) {
+		switch ( $instance['type'] ) {
 			case 'person':
 			case 'page':
 				$instance['show_coverphoto'] = isset( $new_instance['show_coverphoto'] );
@@ -226,7 +234,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 				<?php _e( 'Type of Widget', 'jetpack' ); ?>
 				<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat googleplus-badge-choose-type">
 					<?php
-					foreach( $this->allowed_types as $type_value => $type_display ) {
+					foreach ( $this->allowed_types as $type_value => $type_display ) {
 						printf(
 							'<option value="%s"%s>%s</option>',
 							esc_attr( $type_value ),
@@ -305,14 +313,15 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function is_valid_googleplus_url( $url ) {
-		return ( FALSE !== strpos( $url, 'plus.google.com' ) ) ? TRUE : FALSE;
+		return ( false !== strpos( $url, 'plus.google.com' ) ) ? true : false;
 	}
 
 	function filter_text( $value, $default = '', $allowed = array() ) {
 		$allowed = (array) $allowed;
 
-		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) )
+		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) ) {
 			$value = $default;
+		}
 
 		return $value;
 	}

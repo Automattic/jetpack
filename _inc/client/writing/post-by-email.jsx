@@ -57,7 +57,15 @@ class PostByEmail extends React.Component {
 				{ ...this.props }
 				module="post-by-email"
 				hideButton>
-				<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ postByEmail }
+					support={ {
+						text: __( 'Allows you to publish new posts by sending an email to a special address.' ),
+						link: 'https://jetpack.com/support/post-by-email/',
+					} }
+					>
 					{
 						this.props.userCanManageModules
 							? (

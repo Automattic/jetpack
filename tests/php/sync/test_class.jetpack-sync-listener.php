@@ -86,6 +86,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 		$current_user  = wp_get_current_user();
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -99,6 +100,8 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
 		);
 
 		$all = $queue->get_all();
@@ -132,6 +135,8 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 			'ip'               => jetpack_protect_get_ip(),
 			'user_agent'       => 'Jetpack Unit Tests',
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
 		);
 
 		$all = $queue->get_all();
@@ -151,6 +156,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
+
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -163,7 +169,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
-			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false
+			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_page_url(),
 		);
 
 		$all = $queue->get_all();
@@ -182,5 +190,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
 		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
+	}
+
+	function get_page_url() {
+		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }

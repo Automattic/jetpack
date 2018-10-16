@@ -20,15 +20,15 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Internet Defense League', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( 'Show your support for the Internet Defense League.', 'jetpack' ),
+				'description'                 => esc_html__( 'Show your support for the Internet Defense League.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
 
 		// When enabling campaigns other than 'none' or empty, change $no_current to false above.
 		$this->campaigns = array(
-			''       => esc_html__( 'All current and future campaigns', 'jetpack' ),
-			'none'   => esc_html__( 'None, just display the badge please', 'jetpack' ),
+			''     => esc_html__( 'All current and future campaigns', 'jetpack' ),
+			'none' => esc_html__( 'None, just display the badge please', 'jetpack' ),
 		);
 
 		$this->variants = array(
@@ -60,11 +60,11 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			if ( ! isset( $this->badges[ $instance['badge'] ] ) ) {
 				$instance['badge'] = $this->defaults['badge'];
 			}
-			$badge_url = esc_url( 'https://internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
+			$badge_url        = esc_url( 'https://internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
 			$photon_badge_url = jetpack_photon_url( $badge_url );
-			$alt_text = esc_html__( 'Member of The Internet Defense League', 'jetpack' );
+			$alt_text         = esc_html__( 'Member of The Internet Defense League', 'jetpack' );
 			echo $args['before_widget'];
-			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="' . $alt_text .'" style="max-width: 100%; height: auto;" /></a></p>';
+			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="' . $alt_text . '" style="max-width: 100%; height: auto;" /></a></p>';
 			echo $args['after_widget'];
 		}
 
@@ -139,8 +139,8 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		$instance = array();
 
 		$instance['campaign'] = ( isset( $new_instance['campaign'] ) && isset( $this->campaigns[ $new_instance['campaign'] ] ) ) ? $new_instance['campaign'] : $this->defaults['campaign'];
-		$instance['variant']  = ( isset( $new_instance['variant'] )  && isset( $this->variants[  $new_instance['variant']  ] ) ) ? $new_instance['variant']  : $this->defaults['variant'];
-		$instance['badge']    = ( isset( $new_instance['badge'] )    && isset( $this->badges[    $new_instance['badge'] ] ) )    ? $new_instance['badge']    : $this->defaults['badge'];
+		$instance['variant']  = ( isset( $new_instance['variant'] ) && isset( $this->variants[  $new_instance['variant']  ] ) ) ? $new_instance['variant'] : $this->defaults['variant'];
+		$instance['badge']    = ( isset( $new_instance['badge'] ) && isset( $this->badges[    $new_instance['badge'] ] ) ) ? $new_instance['badge'] : $this->defaults['badge'];
 
 		return $instance;
 	}

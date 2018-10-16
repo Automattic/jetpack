@@ -8,8 +8,6 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import decodeEntities from 'lib/decode-entities';
-import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -46,14 +44,27 @@ const SpeedUpSite = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Speed up your site' ) }
+					header={ __( 'Performance & speed' ) }
 					hideButton>
 
 					{ foundPhoton &&
 						<SettingsGroup
 							hasChild
 							disableInDevMode
-							module={ photon }>
+							module={ photon }
+							support={ {
+								link: 'https://jetpack.com/support/photon/',
+							} }
+							>
+							<p>
+								{ __(
+									"Jetpack's global Content Delivery Network (CDN) optimizes " +
+										'images so your visitors enjoy the fastest experience ' +
+										'regardless of device or location. It also helps you ' +
+										'save space on your hosting plan, since images are ' +
+										'stored on our servers.'
+								) }
+							</p>
 							<ModuleToggle
 								slug="photon"
 								disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -62,21 +73,27 @@ const SpeedUpSite = moduleSettingsForm(
 								toggleModule={ this.toggleModule }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ decodeEntities( photon.description ) }
+									{ __( 'Serve images from our global CDN' ) }
 								</span>
 							</ModuleToggle>
-							<FormFieldset>
-								<span className="jp-form-setting-explanation">
-									{ decodeEntities( photon.long_description ) }
-								</span>
-							</FormFieldset>
 						</SettingsGroup>
 					}
 
 					{ foundLazyImages &&
 						<SettingsGroup
 							hasChild
-							module={ lazyImages }>
+							module={ lazyImages }
+							support={ {
+								link: 'https://jetpack.com/support/lazy-images/',
+							} }
+							>
+							<p>
+								{ __(
+									"Lazy-loading images improve your site's speed and create a " +
+										'smoother viewing experience. Images will load as visitors ' +
+										'scroll down the screen, instead of all at once.'
+								) }
+							</p>
 							<ModuleToggle
 								slug="lazy-images"
 								disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }
@@ -85,14 +102,9 @@ const SpeedUpSite = moduleSettingsForm(
 								toggleModule={ this.toggleModule }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ decodeEntities( lazyImages.description ) }
+									{ __( 'Enable Lazy Loading for images' ) }
 								</span>
 							</ModuleToggle>
-							<FormFieldset>
-								<span className="jp-form-setting-explanation">
-									{ decodeEntities( lazyImages.long_description ) }
-								</span>
-							</FormFieldset>
 						</SettingsGroup>
 					}
 				</SettingsCard>

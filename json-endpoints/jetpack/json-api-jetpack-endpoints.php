@@ -592,7 +592,8 @@ new Jetpack_JSON_API_Sync_Object( array(
 		'object_ids'     => '(array) The IDs of the objects',
 	),
 	'response_format' => array(
-		'objects' => '(string) The encoded objects'
+		'objects' => '(string) The encoded objects',
+		'codec'   => '(string) The codec used to encode the objects, deflate-json-array or simple'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object?module_name=posts&object_type=post&object_ids[]=1&object_ids[]=2&object_ids[]=3'
 ) );

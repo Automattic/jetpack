@@ -45,8 +45,6 @@ class A8C_WPCOM_Masterbar {
 			// override user setting that hides masterbar from site's front.
 			// https://github.com/Automattic/jetpack/issues/7667
 			add_filter( 'show_admin_bar', '__return_true' );
-			// Always sign out from .com from the masterbar
-			add_filter( 'jetpack_masterbar_should_logout_from_wpcom', '__return_true' );
 		}
 
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
@@ -92,9 +90,9 @@ class A8C_WPCOM_Masterbar {
 		 *
 		 * @since 5.9.0
 		 *
-		 * @param bool $masterbar_should_logout_from_wpcom False by default.
+		 * @param bool $masterbar_should_logout_from_wpcom True by default.
 		 */
-		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', false );
+		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', true );
 		if (
 			isset( $_GET['context'] ) &&
 			'masterbar' === $_GET['context'] &&
@@ -511,17 +509,7 @@ class A8C_WPCOM_Masterbar {
 				'class' => 'mb-icon user-info-item',
 			),
 		) );
-
-		$wp_admin_bar->add_menu( array(
-			'parent' => $id,
-			'id'     => 'next-steps',
-			'title'  => esc_html__( 'Next Steps', 'jetpack' ),
-			'href'   => 'https://wordpress.com/me/next',
-			'meta'   => array(
-				'class' => 'mb-icon user-info-item',
-			),
-		) );
-
+		
 		$help_link = 'https://jetpack.com/support/';
 
 		if ( jetpack_is_atomic_site() ) {
@@ -650,6 +638,18 @@ class A8C_WPCOM_Masterbar {
 				'id'     => 'blog-stats',
 				'title'  => esc_html__( 'Stats', 'jetpack' ),
 				'href'   => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'activity',
+				'title'  => esc_html__( 'Activity', 'jetpack' ),
+				'href'   => 'https://wordpress.com/activity-log/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -875,14 +875,14 @@ class A8C_WPCOM_Masterbar {
 
 			$theme_title = $this->create_menu_item_pair(
 				array(
-					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
-					'id'    => 'wp-admin-bar-themes',
-					'label' => esc_html__( 'Themes', 'jetpack' ),
-				),
-				array(
 					'url'   => $customizer_url,
 					'id'    => 'wp-admin-bar-cmz',
 					'label' => esc_html_x( 'Customize', 'admin bar customize item label', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-themes',
+					'label' => esc_html__( 'Themes', 'jetpack' ),
 				)
 			);
 			$meta = array( 'class' => 'mb-icon', 'class' => 'inline-action' );

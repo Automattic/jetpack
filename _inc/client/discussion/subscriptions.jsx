@@ -45,6 +45,14 @@ class SubscriptionsComponent extends React.Component {
 		analytics.tracks.recordJetpackClick( 'view-followers' );
 	};
 
+	handleSubscribeToBlogToggleChange = () => {
+		this.updateOptions( 'stb_enabled' );
+	};
+
+	handleSubscribeToCommentToggleChange = () => {
+		this.updateOptions( 'stc_enabled' );
+	};
+
 	render() {
 		const subscriptions = this.props.getModule( 'subscriptions' ),
 			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
@@ -65,7 +73,16 @@ class SubscriptionsComponent extends React.Component {
 				{ ...this.props }
 				hideButton
 				module="subscriptions">
-				<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ subscriptions }
+					support={ {
+						text: __( 'Allows readers to subscribe to your posts or comments, ' +
+							'and receive notifications of new content by email.' ),
+						link: 'https://jetpack.com/support/subscriptions/',
+					} }
+					>
 					<ModuleToggle
 						slug="subscriptions"
 						disabled={ unavailableInDevMode }
@@ -83,7 +100,7 @@ class SubscriptionsComponent extends React.Component {
 							<CompactFormToggle
 								checked={ this.state.stb_enabled }
 								disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] ) }
-								onChange={ () => this.updateOptions( 'stb_enabled' ) }>
+								onChange={ this.handleSubscribeToBlogToggleChange }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Show a "follow blog" option in the comment form' )
@@ -93,7 +110,7 @@ class SubscriptionsComponent extends React.Component {
 							<CompactFormToggle
 								checked={ this.state.stc_enabled }
 								disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] ) }
-								onChange={ () => this.updateOptions( 'stc_enabled' ) }>
+								onChange={ this.handleSubscribeToCommentToggleChange }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Show a "follow comments" option in the comment form' )
