@@ -17,6 +17,7 @@ import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
+import Private from './private';
 import { SiteStats } from './site-stats';
 import Shortlinks from './shortlinks';
 import { RelatedPosts } from './related-posts';
@@ -45,6 +46,7 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
+			foundPrivateSites = this.props.isModuleFound( 'private' ),
 			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -59,6 +61,7 @@ export class Traffic extends React.Component {
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
+			! foundPrivateSites &&
 			! foundAnalytics
 		) {
 			return null;
@@ -77,6 +80,13 @@ export class Traffic extends React.Component {
 					}
 					className="jp-settings-description"
 				/>
+
+				{ foundPrivateSites && (
+					<Private
+						{ ...commonProps }
+					/>
+				) }
+
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
