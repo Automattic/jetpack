@@ -124,7 +124,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'photon-cdn' => array(
-				'name' => _x( 'Photon CDN', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Serve static assets from our servers', 'Module Description', 'jetpack' ),
 			),
 
@@ -137,6 +137,11 @@ function jetpack_get_module_i18n( $key ) {
 			'post-by-email' => array(
 				'name' => _x( 'Post by email', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
+			),
+
+			'private' => array(
+				'name' => _x( 'Private sites', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Make your site only visible to you and users you approve.', 'Module Description', 'jetpack' ),
 			),
 
 			'protect' => array(
@@ -192,7 +197,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'sso' => array(
-				'name' => _x( 'Single Sign On', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow users to log into this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
@@ -344,6 +349,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php
 			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Private` tag:
+			//  - modules/private.php
+			'Private' =>_x( 'Private', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Traffic` tag:
 			//  - modules/sitemaps.php
