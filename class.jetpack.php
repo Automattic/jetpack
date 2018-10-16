@@ -533,7 +533,7 @@ class Jetpack {
 		}
 
 		// Load Gutenberg editor blocks
-		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_jetpack_gutenberg' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -7304,7 +7304,7 @@ p {
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
+		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
 
@@ -7342,7 +7342,7 @@ p {
 				: JETPACK__VERSION;
 		}
 
-		wp_register_script(
+		wp_enqueue_script(
 			'jetpack-blocks-editor',
 			$editor_script,
 			array(
@@ -7371,16 +7371,9 @@ p {
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
-		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
-		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
-
-		register_block_type( 'jetpack/blocks', array(
-				'script'        => 'jetpack-blocks-view',
-				'style'         => 'jetpack-blocks-view',
-				'editor_script' => 'jetpack-blocks-editor',
-				'editor_style'  => 'jetpack-blocks-editor',
-		) );
+		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+		wp_enqueue_script( 'jetpack-blocks-view', $view_script, array(), $version );
+		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
 	}
 
 	/**
