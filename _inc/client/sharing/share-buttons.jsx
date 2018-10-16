@@ -63,6 +63,8 @@ export const ShareButtons = moduleSettingsForm(
 					<Card
 						compact
 						className="jp-settings-card__configure-link"
+						target="_blank"
+						rel="noopener noreferrer"
 						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
 					>
 						{__(
