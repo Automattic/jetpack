@@ -172,18 +172,18 @@ _There's also a handy `yarn php:lint` that will run `composer php:lint` if you p
 $ yarn php:lint
 ```
 
-### Checking Jetpack's PHP for PHP 5.2 Compatibility
+### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.2
 
 We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.2
 
 ```sh
-$ composer php:5.2-compatibility .
+$ composer php:compatibility .
 ```
 
-_There's also a handy `yarn php:5.2-compatibility` that will run `composer php:5.2-compatibility` if you prefer_.
+_There's also a handy `yarn php:compatibility` that will run `composer php:compatibility` if you prefer_.
 
 ```sh
-$ yarn php:5.2-compatibility .
+$ yarn php:compatibility .
 ```
 
 ### Linting Jetpack's JavaScript

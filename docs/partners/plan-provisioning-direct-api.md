@@ -107,7 +107,6 @@ Plans can be provisioned by making a request using your partner token from the s
 - __force_connect__:  (optional) A true/false value indicating whether to re-connect a user even if we already have tokens for them. Useful for sites that have gotten into a bad state.
 - __onboarding__:     (optional) If true, put the user through our onboarding wizard for new sites.
 - __wpcom_user_id__:  (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively.
-- __wpcom_user_email__: (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively, and if necessary creating a WordPress.com account.
 
 ### Response Parameters (/provision)
 
