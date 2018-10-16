@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e963752222b2c660a5968b3d499e6013",
+    "hash": "295539868c51f25db0b856b246202e39",
+    "content-hash": "380c2ceaf2d866a5b07921930e502d33",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -26,7 +27,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-08-03T17:38:22+00:00"
+            "time": "2018-08-03 17:38:22"
         },
         {
             "name": "automattic/calypsoify",
@@ -48,7 +49,7 @@
                     "index.php"
                 ]
             },
-            "time": "2018-09-26T16:33:23+00:00"
+            "time": "2018-09-26 16:33:23"
         },
         {
             "name": "automattic/custom-fonts",
@@ -73,7 +74,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12T21:39:47+00:00"
+            "time": "2017-06-12 21:39:47"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -98,7 +99,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2017-06-15T16:29:07+00:00"
+            "time": "2017-06-15 16:29:07"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -120,7 +121,7 @@
                     "text-media-widget-styles.php"
                 ]
             },
-            "time": "2017-06-20T23:34:19+00:00"
+            "time": "2017-06-20 23:34:19"
         },
         {
             "name": "automattic/wc-calypso-bridge",
@@ -142,20 +143,20 @@
                     "wc-calypso-bridge.php"
                 ]
             },
-            "time": "2018-06-14T13:28:41+00:00"
+            "time": "2018-06-14 13:28:41"
         },
         {
             "name": "woocommerce/wc-api-dev",
-            "version": "v0.9.7",
+            "version": "v0.9.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "87e5296b2fb4c5d7bb1e0da72adf47b45d79ea8e"
+                "reference": "6da2ac63aeaac8cd82f4c059eecf315bdc469f4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/87e5296b2fb4c5d7bb1e0da72adf47b45d79ea8e",
-                "reference": "87e5296b2fb4c5d7bb1e0da72adf47b45d79ea8e",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/6da2ac63aeaac8cd82f4c059eecf315bdc469f4e",
+                "reference": "6da2ac63aeaac8cd82f4c059eecf315bdc469f4e",
                 "shasum": ""
             },
             "type": "library",
@@ -164,7 +165,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2018-06-04T14:04:43+00:00"
+            "time": "2018-09-17 17:18:15"
         }
     ],
     "packages-dev": [],
