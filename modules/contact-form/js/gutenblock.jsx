@@ -168,7 +168,7 @@ function GrunionField( props ) {
 						label={ props.label }
 						setAttributes={ props.setAttributes }
 					/> }
-					disabled={ true }
+					disabled
 				/>
 			</div>
 		</Fragment>
@@ -189,7 +189,7 @@ function GrunionFieldTextarea( props ) {
 						label={ props.label }
 						setAttributes={ props.setAttributes }
 					/> }
-					disabled={ true }
+					disabled
 				/>
 			</div>
 		</Fragment>
@@ -210,7 +210,7 @@ function GrunionFieldCheckbox( props ) {
 						label={ props.label }
 						setAttributes={ props.setAttributes }
 					/> }
-					disabled={ true }
+					disabled
 				/>
 			</div>
 		</Fragment>
