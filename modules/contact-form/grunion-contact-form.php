@@ -235,57 +235,57 @@ class Grunion_Contact_Form_Plugin {
 
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		if ( function_exists( 'register_block_type' ) ) {
-			register_block_type( 'grunion/form', array(
+			register_block_type( 'jetpack/form', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			) );
 
 			// These can all use a common render method.
-			register_block_type( 'grunion/field-text', array(
+			register_block_type( 'jetpack/field-text', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
-			register_block_type( 'grunion/field-name', array(
+			register_block_type( 'jetpack/field-name', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
-			register_block_type( 'grunion/field-email', array(
+			register_block_type( 'jetpack/field-email', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
-			register_block_type( 'grunion/field-url', array(
+			register_block_type( 'jetpack/field-url', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
-			register_block_type( 'grunion/field-date', array(
+			register_block_type( 'jetpack/field-date', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
-			register_block_type( 'grunion/field-telephone', array(
+			register_block_type( 'jetpack/field-telephone', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field' ),
 			) );
 
 			// Special per-field-type render methods.
-			register_block_type( 'grunion/field-textarea', array(
+			register_block_type( 'jetpack/field-textarea', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 			) );
-			register_block_type( 'grunion/field-checkbox', array(
+			register_block_type( 'jetpack/field-checkbox', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 			) );
-			register_block_type( 'grunion/field-checkbox-multiple', array(
+			register_block_type( 'jetpack/field-checkbox-multiple', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 			) );
-			register_block_type( 'grunion/field-radio', array(
+			register_block_type( 'jetpack/field-radio', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 			) );
-			register_block_type( 'grunion/field-select', array(
+			register_block_type( 'jetpack/field-select', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 			) );
 		}
 	}
 
 	public static function enqueue_block_editor_assets() {
-		wp_enqueue_script( 'grunion-gutenblock', plugins_url( 'js/gutenblock.js', __FILE__ ), array(
+		wp_enqueue_script( 'jetpack-cf-gutenblock', plugins_url( 'js/gutenblock.js', __FILE__ ), array(
 			'wp-blocks',
 			'wp-i18n',
 			'wp-element',
 		), filemtime( dirname( __FILE__ ) . '/js/gutenblock.js' ) );
 
-		wp_enqueue_style( 'grunion-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(
+		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(
 			'wp-blocks',
 		), filemtime( dirname( __FILE__ ) . '/css/gutenblock.css' ) );
 	}
