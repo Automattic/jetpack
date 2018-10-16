@@ -80,8 +80,8 @@ class GrunionForm extends Component {
 						/>
 					</PanelBody>
 				</InspectorControls>
-				<div className="grunion-form">
-					{this.props.children}
+				<div className={ this.props.className + ' grunion-form' }>
+					{ this.props.children }
 					<TextControl
 						className="button button-primary button-default grunion-submit-button"
 						value={ this.props.submit_button_text }
