@@ -72,7 +72,7 @@ function onBuild( done ) {
 
 		if ( 'production' === process.env.NODE_ENV ) {
 			log( 'Uglifying JS...' );
-			gulp.src( '_inc/build/admin.js' )
+			gulp.src( [ '_inc/build/admin.js', '_inc/build/gutenberg.js' ] )
 				.pipe( uglify() )
 				.pipe( gulp.dest( '_inc/build' ) )
 				.on( 'end', function() {

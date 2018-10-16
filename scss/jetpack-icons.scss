@@ -32,3 +32,24 @@ li.toplevel_page_jetpack .wp-menu-image:before {
 	background: none !important;
 	background-repeat: no-repeat;
 }
+
+/* icons for the Gutenberg editor */
+.editor-block-list-item-jetpack-vr  {
+	position: relative;
+	.editor-inserter__item-icon {
+		background-color: #00BE28;
+		color: white !important;
+		&:hover {
+			color: white;
+		}
+		&::before {
+			font-family: 'jetpack';
+			font-size: 20px;
+			content: '\f100';
+			color: white;
+			position: absolute;
+			top: 9px;
+			right: 15px;
+		}
+	}
+}

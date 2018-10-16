@@ -1,4 +1,4 @@
-/* global wp */
+/* global wp, JetpackDashicon */
 /* eslint react/react-in-jsx-scope: 0 */
 
 ( function( blocks, components, i18n ) {
@@ -14,7 +14,7 @@
 
 	registerBlockType( 'jetpack/vr', {
 		title: __( 'VR Image', 'jetpack' ),
-		icon: 'embed-photo',
+		icon: <JetpackDashicon icon="embed-photo" />,
 		category: 'embed',
 		support: {
 			html: false
