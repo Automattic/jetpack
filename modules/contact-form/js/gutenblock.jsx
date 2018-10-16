@@ -34,10 +34,10 @@ import {
 } from '@wordpress/i18n';
 
 /**
- * Components:
+ * Internal dependencies
  */
 
-import JetpackForm from './components/JetpackForm.jsx';
+import JetpackForm from './components/JetpackForm';
 
 function JetpackFieldRequiredToggle( props ) {
 	return (
