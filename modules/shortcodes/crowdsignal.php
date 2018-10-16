@@ -401,7 +401,7 @@ CONTAINER;
 						}
 
 						$domain   = $auto_src['host'] . '/';
-						$id       = $auto_src['path'];
+						$id       = ltrim( $auto_src['path'], '/' );
 
 						$settings = array(
 							'type'       => $type,
