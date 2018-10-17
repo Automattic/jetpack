@@ -148,8 +148,14 @@
 			<?php
 			printf(
 				wp_kses(
-					__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a <a href="%s" %s>PayPal account</a> connected to a bank account.' ),
-					array( 'a' => array( 'href' => array(), 'target' => array() ) )
+					/* Translators: placeholders are a link to Paypal website and a target attribute. */
+					__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a <a href="%1$s" %2$s>PayPal account</a> connected to a bank account.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
 				),
 				'https://paypal.com',
 				'target="_blank"'
