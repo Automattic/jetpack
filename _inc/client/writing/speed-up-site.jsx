@@ -41,7 +41,7 @@ const SpeedUpSite = moduleSettingsForm(
 			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
 
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
-			if ( false === ! CdnStatus ) {
+			if ( true === CdnStatus ) {
 				if ( false === ! this.props.getOptionValue( 'photon' ) && 'active' !== photonStatus ) {
 					this.props.updateOptions( {
 						photon: false,
