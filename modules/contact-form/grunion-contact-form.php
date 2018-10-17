@@ -279,15 +279,15 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function enqueue_block_editor_assets() {
-		wp_enqueue_script( 'jetpack-cf-gutenblock', plugins_url( 'js/gutenblock.js', __FILE__ ), array(
+		wp_enqueue_script( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.js', __FILE__ ), array(
 			'wp-blocks',
 			'wp-i18n',
 			'wp-element',
-		), filemtime( dirname( __FILE__ ) . '/js/gutenblock.js' ) );
+		), filemtime( dirname( __FILE__ ) . '/block/build/editor.js' ) );
 
-		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'css/gutenblock.css', __FILE__ ), array(
+		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.css', __FILE__ ), array(
 			'wp-blocks',
-		), filemtime( dirname( __FILE__ ) . '/css/gutenblock.css' ) );
+		), filemtime( dirname( __FILE__ ) . '/block/build/editor.css' ) );
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
