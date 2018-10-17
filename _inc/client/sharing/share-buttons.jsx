@@ -33,14 +33,45 @@ export const ShareButtons = moduleSettingsForm(
 
 			const configCard = () => {
 				if ( isDevMode ) {
-					return <Card compact className="jp-settings-card__configure-link" href={ siteAdminUrl + 'options-general.php?page=sharing' }>{ __( 'Configure your sharing buttons' ) }</Card>;
+					return (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ siteAdminUrl + 'options-general.php?page=sharing' }
+						>
+							{__( 'Configure your sharing buttons' )}
+						</Card>
+					);
 				}
 
 				if ( isLinked ) {
-					return <Card compact className="jp-settings-card__configure-link" onClick={ this.trackClickConfigure } href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
+					return (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackClickConfigure }
+							target="_blank"
+							rel="noopener noreferrer"
+							href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }
+						>
+							{__( 'Configure your sharing buttons' )}
+						</Card>
+					);
 				}
 
-				return <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;
+				return (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						target="_blank"
+						rel="noopener noreferrer"
+						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
+					>
+						{__(
+							'Connect your user account to WordPress.com to use this feature'
+						)}
+					</Card>
+				);
 			};
 
 			return (
@@ -48,26 +79,28 @@ export const ShareButtons = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Sharing buttons', { context: 'Settings header' } ) }
 					module="sharing"
-					hideButton>
+					hideButton
+				>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'sharing' } }
 						support={ {
-							text: __( 'Adds sharing buttons to your content so that visitors can share it on social media sites.' ),
-							link: 'https://jetpack.com/support/sharing/',
+							text: __(
+								'Adds sharing buttons to your content so that visitors can share it on social media sites.'
+							),
+							link: 'https://jetpack.com/support/sharing/'
 						} }
-						>
+					>
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-								{ __( 'Add sharing buttons to your posts' ) }
-							</ModuleToggle>
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							{__( 'Add sharing buttons to your posts' )}
+						</ModuleToggle>
 					</SettingsGroup>
-					{
-						isActive && configCard()
-					}
+					{isActive && configCard()}
 				</SettingsCard>
 			);
 		}
