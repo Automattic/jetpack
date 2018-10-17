@@ -117,7 +117,7 @@ const SpeedUpSite = moduleSettingsForm(
 									disabled={ ! canDisplayCdnSettings }
 								>
 									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable Site Accelerator' ) }
+										{ __( 'Enable site accelerator' ) }
 									</span>
 								</CompactFormToggle>
 							}
