@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "04ab608193c57557340d5d78724acd5c",
-    "content-hash": "3b600e4f31d919241c97bcb08eeb7102",
+    "content-hash": "367d81e85e0f41032938a996a88f1ac1",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -27,29 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-08-03 17:38:22"
-        },
-        {
-            "name": "automattic/calypsoify",
-            "version": "v0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/calypsoify",
-                "reference": "d18566d31937cacc673f3e52eb04612ee4312b00"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/calypsoify/zipball/d18566d31937cacc673f3e52eb04612ee4312b00",
-                "reference": "d18566d31937cacc673f3e52eb04612ee4312b00",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "index.php"
-                ]
-            },
-            "time": "2018-09-26 16:33:23"
+            "time": "2018-08-03T17:38:22+00:00"
         },
         {
             "name": "automattic/custom-fonts",
@@ -74,7 +51,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12 21:39:47"
+            "time": "2017-06-12T21:39:47+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -99,7 +76,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2017-06-15 16:29:07"
+            "time": "2017-06-15T16:29:07+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -121,7 +98,7 @@
                     "text-media-widget-styles.php"
                 ]
             },
-            "time": "2017-06-20 23:34:19"
+            "time": "2017-06-20T23:34:19+00:00"
         },
         {
             "name": "automattic/wc-calypso-bridge",
@@ -143,7 +120,7 @@
                     "wc-calypso-bridge.php"
                 ]
             },
-            "time": "2018-06-14 13:28:41"
+            "time": "2018-06-14T13:28:41+00:00"
         },
         {
             "name": "woocommerce/wc-api-dev",
@@ -165,7 +142,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2018-10-16 18:54:56"
+            "time": "2018-10-16T18:54:56+00:00"
         }
     ],
     "packages-dev": [],
