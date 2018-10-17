@@ -18,13 +18,13 @@
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
 <p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
-	<label for="<?php echo intval( $this->get_field_id( 'product_post_id' ) ); ?>">
+	<label for="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>">
 		<?php esc_html_e( 'Select a Simple Payments Button:', 'jetpack' ); ?>
 	</label>
 	<select
 		class="widefat jetpack-simple-payments-products"
-		id="<?php echo intval( $this->get_field_id( 'product_post_id' ) ); ?>"
-		name="<?php echo intval( $this->get_field_name( 'product_post_id' ) ); ?>">
+		id="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'product_post_id' ) ); ?>">
 		<?php foreach ( $product_posts as $product_post ) { ?>
 			<option value="<?php echo esc_attr( $product_post->ID ); ?>" <?php selected( (int) $instance['product_post_id'], $product_post->ID ); ?>>
 				<?php echo esc_attr( get_the_title( $product_post ) ); ?>
@@ -57,8 +57,8 @@
 		class="jetpack-simple-payments-form-action" />
 	<input
 		type="hidden"
-		id="<?php echo absint( $this->get_field_id( 'form_product_id' ) ); ?>"
-		name="<?php echo absint( $this->get_field_name( 'form_product_id' ) ); ?>"
+		id="<?php echo esc_attr( $this->get_field_id( 'form_product_id' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'form_product_id' ) ); ?>"
 		value="<?php echo esc_attr( $instance['form_product_id'] ); ?>"
 		class="jetpack-simple-payments-form-product-id" />
 	<input
