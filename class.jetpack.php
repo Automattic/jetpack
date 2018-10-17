@@ -532,8 +532,9 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
-		// Load Gutenberg editor blocks
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_jetpack_gutenberg' ) );
+		// Load Gutenberg assets
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -635,9 +636,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		// gutenberg locale
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -3864,13 +3862,6 @@ p {
 
 	function admin_menu_order() {
 		return true;
-	}
-
-	function enqueue_gutenberg_locale() {
-		wp_add_inline_script(
-			'wp-i18n',
-			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
-		);
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -7272,29 +7263,18 @@ p {
 	}
 
 	/**
-	 * Load Gutenberg editor blocks.
+	 * Check whether conditions indicate Gutenberg blocks should be loaded
 	 *
 	 * Loading blocks is enabled by default and may be disabled via filter:
 	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
-	 * Note that when loaded locally, you need to build the files yourself:
-	 * - _inc/blocks/editor.js
-	 * - _inc/blocks/editor.css
-	 * - _inc/blocks/editor.rtl.css
-	 * - _inc/blocks/view.js
-	 * - _inc/blocks/view.css
-	 * - _inc/blocks/view.rtl.css
+	 * @since 6.7.0
 	 *
-	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
-	 *
-	 * @since 6.5.0
-	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function load_jetpack_gutenberg() {
+	public static function should_load_blocks() {
 		if ( ! Jetpack::is_active() ) {
-			return;
+			return false;
 		}
 
 		/**
@@ -7304,14 +7284,28 @@ p {
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
+		return (bool) apply_filters( 'jetpack_gutenberg', true );
+	}
+
+	/**
+	 * Load Gutenberg assets
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return void
+	 */
+	public static function enqueue_block_assets() {
+		if ( ! self::should_load_blocks() ) {
 			return;
 		}
 
 		$rtl = is_rtl() ? '.rtl' : '';
 
 		/**
-		 * Filter to turn off serving blocks via CDN
+		 * Filter to enable serving blocks via CDN
+		 *
+		 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
+		 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
 		 *
 		 * @since 6.5.0
 		 *
@@ -7319,8 +7313,6 @@ p {
 		 */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
-			$editor_script = "$cdn_base/editor.js";
-			$editor_style = "$cdn_base/editor$rtl.css";
 			$view_script = "$cdn_base/view.js";
 			$view_style = "$cdn_base/view$rtl.css";
 
@@ -7333,10 +7325,61 @@ p {
 			 */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
-			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
 			$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
 			$view_style = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
+			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/view.js' )
+				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/view.js' )
+				: JETPACK__VERSION;
+		}
+
+		wp_enqueue_script( 'jetpack-blocks-view', $view_script, array(), $version );
+		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
+		wp_add_inline_script(
+			'wp-i18n',
+			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
+		);
+	}
+
+	/**
+	 * Load Gutenberg editor assets
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return void
+	 */
+	public static function enqueue_block_editor_assets() {
+		if ( ! self::should_load_blocks() ) {
+			return;
+		}
+
+		$rtl = is_rtl() ? '.rtl' : '';
+
+		/**
+		 * Filter to enable serving blocks via CDN
+		 *
+		 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
+		 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool false Whether to load Gutenberg blocks from CDN
+		 */
+		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
+			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
+			$editor_script = "$cdn_base/editor.js";
+			$editor_style = "$cdn_base/editor$rtl.css";
+
+			/**
+			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
+			 *
+			 * @since 6.5.0
+			 *
+			 * @param string
+			 */
+			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
+		} else {
+			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
+			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
 			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				: JETPACK__VERSION;
@@ -7372,8 +7415,6 @@ p {
 		);
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-		wp_enqueue_script( 'jetpack-blocks-view', $view_script, array(), $version );
-		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
 	}
 
 	/**
