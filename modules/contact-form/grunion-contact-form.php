@@ -288,6 +288,7 @@ class Grunion_Contact_Form_Plugin {
 		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.css', __FILE__ ), array(
 			'wp-blocks',
 		), filemtime( dirname( __FILE__ ) . '/block/build/editor.css' ) );
+        wp_style_add_data( 'jetpack-cf-gutenblock', 'rtl', 'replace' );
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
