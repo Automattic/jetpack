@@ -42,7 +42,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function mock_masterbar_activation() {
-		include dirname( __FILE__ ) . '/masterbar/masterbar.php';
+		include JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
 		new A8C_WPCOM_Masterbar;
 	}
 
@@ -90,17 +90,17 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, JETPACK__VERSION );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
 	}
 
 	public function enqueue_for_gutenberg() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style-gutenberg.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods-gutenberg.js', false, JETPACK__VERSION );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
@@ -127,15 +127,15 @@ class Jetpack_Calypsoify {
 		global $wp_admin_bar;
 
 		// Add proper links to masterbar top sections.
-		$my_sites_node       = $wp_admin_bar->get_node( 'blog' );
+		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
 		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
 		$wp_admin_bar->add_node( $my_sites_node );
 
-		$reader_node       = $wp_admin_bar->get_node( 'newdash' );
+		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
 		$reader_node->href = 'https://wordpress.com';
 		$wp_admin_bar->add_node( $reader_node );
 
-		$me_node       = $wp_admin_bar->get_node( 'my-account' );
+		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );
 		$me_node->href = 'https://wordpress.com/me';
 		$wp_admin_bar->add_node( $me_node );
 	}
