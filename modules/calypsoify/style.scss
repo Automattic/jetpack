@@ -1,9 +1,18 @@
-$calypso-bg-color: #f3f6f8;
-$calypso-menu-bg: #e9eff3;
+$_f3f6f8: #f3f6f8;
+$_e9eff3: #e9eff3;
+$_d9e3ea: #d9e3ea;
+$_2e4453: #2e4453;
+$_537994: #537994;
+$_0087be: #0087be;
+$_00aadc: #00aadc;
+
+$fff: #fff;
+
+$rgba-grey: rgba(200,215,225,0.5);
 
 body,
 #wp-content-editor-tools {
-  background: $calypso-bg-color;
+  background: $_f3f6f8;
 }
 
 #wpwrap {
@@ -25,11 +34,11 @@ body,
 #adminmenuwrap,
 #adminmenuback,
 #adminmenu {
-  background: $calypso-menu-bg;
+  background: $_e9eff3;
 }
 
 #adminmenuback {
-  border-right: 1px solid #d9e3ea;
+  border-right: 1px solid $_d9e3ea;
 }
 
 #adminmenu,
@@ -54,7 +63,7 @@ body,
   li>a.menu-top:focus,
   li.wp-menu-open,
   a:hover {
-    background: $calypso-bg-color;
+    background: $_f3f6f8;
   }
 
   .wp-submenu-head,
@@ -68,11 +77,11 @@ body,
   }
 
   .wp-submenu a:hover {
-    background: #fff;
+    background: $fff;
   }
 
   > li.wp-first-item {
-    border-bottom: 1px solid rgba(200,215,225,0.5);
+    border-bottom: 1px solid $rgba-grey;
   }
 
   a.wp-has-current-submenu:after,
@@ -90,13 +99,13 @@ body,
 
   a,
   div.wp-menu-image:before{
-    color: #2e4453 !important;
+    color: $_2e4453 !important;
   }
 
 
   li.current a.menu-top,
   li.wp-has-current-submenu a.wp-has-current-submenu {
-    background: #537994;
+    background: $_537994;
   }
 
   div.wp-menu-image.svg {
@@ -109,11 +118,11 @@ body,
 
   li.wp-menu-open div.wp-menu-image:before,
   li.wp-menu-open div.wp-menu-name {
-    color: #fff !important;
+    color: $fff !important;
   }
 
   div.wp-menu-name {
-    color: #2e4453;
+    color: $_2e4453;
     font-size: 15px;
     padding: 9px 0 8px 41px;
   }
@@ -124,7 +133,7 @@ body,
 
   .awaiting-mod,
   .update-plugins {
-    background-color: #00aadc;
+    background-color: $_00aadc;
   }
 }
 
@@ -153,7 +162,7 @@ body,
   left: 0;
   width: 272px;
   height: 70px;
-  background: #fff;
+  background: $fff;
   z-index: 10000;
 
   svg {
@@ -174,12 +183,12 @@ body,
 
       &#calypso-sitename {
         font-size: 12px;
-        color: #537994;
+        color: $_537994;
       }
 
       &#calypso-plugins {
         font-weight: bold;
-        color: #2e4453;
+        color: $_2e4453;
         font-size: 16px;
       }
     }
@@ -196,7 +205,7 @@ body,
     .opensub .wp-submenu,
     .opensub .wp-submenu:after,
     a.wp-has-current-submenu:focus+.wp-submenu {
-      background: $calypso-menu-bg !important;
+      background: $_e9eff3 !important;
     }
 
     li.menu-top .wp-submenu>li>a {
@@ -207,7 +216,7 @@ body,
     li.current.menu-top,
     li.wp-has-current-submenu,
     li.wp-has-current-submenu .wp-submenu .wp-submenu-head {
-      background: #537994;
+      background: $_537994;
     }
 
     .wp-submenu .wp-submenu-head {
@@ -234,7 +243,7 @@ body,
   }
 
   .no-js li.wp-has-current-submenu:hover .wp-submenu {
-    background: $calypso-menu-bg !important;
+    background: $_e9eff3 !important;
   }
 
   #toplevel_page_plugins div.wp-menu-image.svg {
@@ -289,14 +298,14 @@ body,
   #adminmenu li.opensub>a.menu-top,
   #adminmenu li>a.menu-top:focus,
   #adminmenu li.wp-menu-open {
-    background: #537994 !important;
+    background: $_537994 !important;
   }
 
   #adminmenu .wp-submenu,
   .auto-fold #adminmenu .selected .wp-submenu,
   .auto-fold #adminmenu .wp-menu-open .wp-submenu,
   #adminmenu a.wp-has-current-submenu:focus+.wp-submenu {
-    background: $calypso-bg-color !important;
+    background: $_f3f6f8 !important;
   }
 
   .auto-fold #adminmenu li.selected div.wp-menu-image.svg {
@@ -305,7 +314,7 @@ body,
 
   .auto-fold #adminmenu li.selected div.wp-menu-image:before,
   .auto-fold #adminmenu li.selected div.wp-menu-name {
-    color: #fff !important;
+    color: $fff !important;
   }
 
   #wpadminbar .quicklinks > ul > li > a,
@@ -348,8 +357,8 @@ body,
 .nav-tab-wrapper,
 .wrap h2.nav-tab-wrapper {
   margin: 10px 0 25px;
-  background: #fff;
-  border: 1px solid rgba(200,215,225,0.5);
+  background: $fff;
+  border: 1px solid $rgba-grey;
 }
 
 .nav-tab {
@@ -357,7 +366,7 @@ body,
   background: none;
   font-weight: 400;
   padding: 3px 13px 12px;
-  color: #0087be;
+  color: $_0087be;
 }
 
 .nav-tab-active,
@@ -375,14 +384,14 @@ body,
 .nav-tab-active,
 .nav-tab-active:focus,
 .nav-tab-active:focus:active {
-  border-bottom: 2px solid #2e4453;
-  color: #2e4453;
+  border-bottom: 2px solid $_2e4453;
+  color: $_2e4453;
 }
 
 /* Admin Bar */
 
 #wpadminbar {
-  background: #0087be;
+  background: $_0087be;
   -webkit-box-shadow: none;
   -mozilla-box-shadow: none;
   height: 46px;
@@ -434,10 +443,10 @@ body,
 
   ul li#wp-admin-bar-ab-new-post a {
     padding: 6px 20px;
-    color: #0087be !important
+    color: $_0087be !important
 
     span {
-      color: #0087be !important;
+      color: $_0087be !important;
       font-size: 14px !important;
     }
 
@@ -460,7 +469,7 @@ body,
   .ab-top-menu > li.ab-active > .ab-item,
   > #wp-toolbar .wpnt-show span.noticon,
   #wp-admin-bar-notes.wpnt-show .noticon {
-    color: #fff !important;
+    color: $fff !important;
   }
 
   .ab-active > a.ab-item:before,
@@ -490,8 +499,8 @@ body,
 .subsubsub,
 .wp-filter {
   margin: 10px 0 25px;
-  background: #fff;
-  border: 1px solid rgba(200,215,225,0.5);
+  background: $fff;
+  border: 1px solid $rgba-grey;
   width: 100%;
   box-shadow: none;
   padding: 0;
@@ -525,7 +534,7 @@ body,
   font-size: 11px;
   font-weight: bold;
   line-height: 14px;
-  color: #537994;
+  color: $_537994;
   text-align: center;
   margin-left: 2px;
 }
@@ -554,9 +563,9 @@ body,
   .add-new-h2:active,
   .page-title-action,
   .page-title-action:active {
-    background: #00aadc;
+    background: $_00aadc;
     border-color: #008ab3;
-    color: #fff;
+    color: $fff;
     border-style: solid;
     border-width: 1px 1px 2px;
     cursor: pointer;
@@ -587,19 +596,19 @@ body,
 
 .wp-core-ui {
   .button {
-    background: #fff;
+    background: $fff;
   }
   .button-primary {
-    background: #00aadc;
+    background: $_00aadc;
     border-color: #008ab3;
-    color: #fff;
+    color: $fff;
     text-shadow: none;
   }
 }
 
 .ui-tabs-nav li,
 .wp-switch-editor {
-  background-color: $calypso-menu-bg !important;
+  background-color: $_e9eff3 !important;
 }
 
 .plugin-card-bottom,
@@ -615,8 +624,8 @@ div.mce-toolbar-grp,
 #post-status-info,
 .quicktags-toolbar,
 #major-publishing-actions {
-  background-color: $calypso-bg-color !important;
-  border-color: #d9e3ea;
+  background-color: $_f3f6f8 !important;
+  border-color: $_d9e3ea;
 }
 
 .wp-filter .search-form {
