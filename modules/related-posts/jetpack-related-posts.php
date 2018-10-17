@@ -279,13 +279,11 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$headline = isset( $attributes['headline'] ) ? $attributes['headline'] : __( 'Related', 'jetpack' );
 		$block_attributes = array(
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
 			'show_date' => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : true,
 			'layout' => isset( $attributes['postLayout'] ) && $attributes['postLayout'] === 'list' ? $attributes['postLayout'] : 'grid',
-			'headline' => $headline,
 			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
@@ -300,12 +298,6 @@ EOT;
 		ob_start();
 		?>
 		<div id="jp-relatedposts" class="jp-relatedposts" style="display: block;">
-			<?php if ( strlen( $headline ) > 0 ): ?>
-				<h3 class="jp-relatedposts-headline">
-					<em><?php echo esc_html( $headline ); ?></em>
-				</h3>
-			<?php endif; ?>
-
 			<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
 				<?php foreach ( $related_posts as $index => $related_post ): 
 					$classes = array_filter( array(
