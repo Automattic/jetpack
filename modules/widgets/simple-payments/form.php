@@ -98,7 +98,7 @@
 			class="field-description widefat jetpack-simple-payments-form-product-description"
 			rows=5
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_description' ) ); ?>"
-			name="<?php echo esc_attr( $this->get_field_name( 'form_product_description' ) ); ?>"><?php  esc_html_e( $instance['form_product_description'] ); ?></textarea>
+			name="<?php echo esc_attr( $this->get_field_name( 'form_product_description' ) ); ?>"><?php echo esc_textarea( $instance['form_product_description'] ); ?></textarea>
 	</p>
 	<p class="cost">
 		<label for="<?php echo esc_attr( $this->get_field_id( 'form_product_price' ) ); ?>">

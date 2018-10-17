@@ -6,9 +6,9 @@
 			</div>
 		</div>
 		<div class='jetpack-simple-payments-details'>
-			<div class='jetpack-simple-payments-title'><p><?php esc_attr_e( $instance['form_product_title'] ); ?></p></div>
-			<div class='jetpack-simple-payments-description'><p><?php  esc_html_e( $instance['form_product_description'] ); ?></p></div>
-			<div class='jetpack-simple-payments-price'><p><?php esc_attr_e( $instance['form_product_price'] ); ?> <?php esc_attr_e( $instance['form_product_currency'] ); ?></p></div>
+			<div class='jetpack-simple-payments-title'><p><?php echo esc_html( $instance['form_product_title'] ); ?></p></div>
+			<div class='jetpack-simple-payments-description'><p><?php echo esc_html( $instance['form_product_description'] ); ?></p></div>
+			<div class='jetpack-simple-payments-price'><p><?php echo esc_html( $instance['form_product_price'] ); ?> <?php echo esc_html( $instance['form_product_currency'] ); ?></p></div>
 			<div class='jetpack-simple-payments-purchase-box'>
 				<?php if ( $instance['form_product_multiple'] ) { ?>
 					<div class='jetpack-simple-payments-items'>
