@@ -3,15 +3,20 @@
 	&.jetpack-field-label {
 		&.jetpack-field-label {
 			border-color: #fff;
+			border-radius: 0;
 			font-weight: bold;
 			margin: 0;
 			margin-bottom: 2px;
 			padding-left: 1px;
 			width: calc( 100% - 100px );
 
-			&:focus,
 			&:hover {
-				border-color: #8d96a0;
+				border-color: #357CB5;
+			}
+
+			&:focus {
+				border-color: #E3E5E8;
+				box-shadow: none;
 			}
 		}
 	}
@@ -63,17 +68,24 @@
 	}
 
 	ol li button.components-icon-button {
-		display: inline-block;
+		display: inline-flex;
+		padding: 5px;
+		vertical-align: top;
 	}
 
 	input.option {
 		border-color: #fff;
+		border-radius: 0;
 		width: calc( 100% - 7em );
 		display: inline-block;
 
-		&:focus,
 		&:hover {
-			border-color: #8d96a0;
+			border-color: #357CB5;
+		}
+
+		&:focus {
+			border-color: #E3E5E8;
+			box-shadow: none;
 		}
 	}
 }
