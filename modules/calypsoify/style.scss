@@ -1,12 +1,19 @@
+// @todo: rename colors more descriptively
+$fff:     #fff;
+
 $_f3f6f8: #f3f6f8;
 $_e9eff3: #e9eff3;
 $_d9e3ea: #d9e3ea;
-$_2e4453: #2e4453;
+$_87a6bc: #87a6bc;
 $_537994: #537994;
-$_0087be: #0087be;
-$_00aadc: #00aadc;
+$_2e4453: #2e4453;
 
-$fff: #fff;
+$_00aadc: #00aadc;
+$_008ab3: #008ab3;
+$_0087be: #0087be;
+$_0073aa: #0073aa;
+$_005082: #005082;
+$_004967: #004967;
 
 $rgba-grey: rgba(200,215,225,0.5);
 
@@ -416,7 +423,7 @@ body,
     }
 
     > ul > li.current > a {
-      background: #004967;
+      background: $_004967;
     }
   }
 
@@ -512,7 +519,7 @@ body,
   display: inline-block;
   font-size: 14px;
   margin: 0;
-  color: #0073aa;
+  color: $_0073aa;
   border-bottom: none;
   outline: none;
 }
@@ -529,7 +536,7 @@ body,
 .count {
   display: inline-block;
   padding: 1px 6px;
-  border: solid 1px #87a6bc;
+  border: solid 1px $_87a6bc;
   border-radius: 12px;
   font-size: 11px;
   font-weight: bold;
@@ -564,7 +571,7 @@ body,
   .page-title-action,
   .page-title-action:active {
     background: $_00aadc;
-    border-color: #008ab3;
+    border-color: $_008ab3;
     color: $fff;
     border-style: solid;
     border-width: 1px 1px 2px;
@@ -590,7 +597,7 @@ body,
   }
 
   .wp-heading-inline+.page-title-action:hover {
-    border-color: #005082;
+    border-color: $_005082;
   }
 }
 
@@ -600,7 +607,7 @@ body,
   }
   .button-primary {
     background: $_00aadc;
-    border-color: #008ab3;
+    border-color: $_008ab3;
     color: $fff;
     text-shadow: none;
   }
