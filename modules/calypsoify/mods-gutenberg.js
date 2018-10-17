@@ -12,8 +12,8 @@ jQuery( function( $ ) {
 			html: calypsoifyGutenberg.closeLabel
 		} )
             .bind( 'click', function() {
-	window.location.href = calypsoifyGutenberg.closeUrl;
-} )
+				window.location.href = calypsoifyGutenberg.closeUrl;
+			} )
             .prependTo( $editPostHeader );
 	} );
 

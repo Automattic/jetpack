@@ -112,13 +112,13 @@ class Jetpack_Calypsoify {
 	}
 
 	public function insert_sidebar_html() { ?>
-		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . str_replace( 'https://', '', get_bloginfo( 'url' ) ) ); ?>" id="calypso-sidebar-header">
-		  <svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
+		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
+			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
-		  <ul>
-			<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
-			<li id="calypso-plugins"><?php esc_html_e( 'Plugins' ); ?></li>
-		  </ul>
+			<ul>
+				<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
+				<li id="calypso-plugins"><?php esc_html_e( 'Plugins' ); ?></li>
+			</ul>
 		</a>
 		<?php
 	}
@@ -128,7 +128,7 @@ class Jetpack_Calypsoify {
 
 		// Add proper links to masterbar top sections.
 		$my_sites_node       = $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = 'https://wordpress.com/stats/day/' . str_replace( 'https://', '', get_bloginfo( 'url' ) );
+		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = $wp_admin_bar->get_node( 'newdash' );
