@@ -6,6 +6,10 @@
 	overflow: hidden;
 }
 
+.wp-block-jetpack-vr .components-placeholder__fieldset {
+	justify-content: space-around;
+}
+
 iframe.wp-block-jetpack-vr {
 	position: absolute;
 	top: 0;
