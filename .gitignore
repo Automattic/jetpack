@@ -45,6 +45,3 @@ phpcs.xml
 /css
 _inc/jetpack-strings.php
 /modules/**/*/block.js
-
-# Unignore a few specific files.
-!/modules/contact-form/js/gutenblock.js
