@@ -11,10 +11,10 @@ jQuery( function( $ ) {
 			'class': 'editor-ground-control__back',
 			html: calypsoifyGutenberg.closeLabel
 		} )
-            .bind( 'click', function() {
-				window.location.href = calypsoifyGutenberg.closeUrl;
-			} )
-            .prependTo( $editPostHeader );
+		.bind( 'click', function() {
+			window.location.href = calypsoifyGutenberg.closeUrl;
+		} )
+		.prependTo( $editPostHeader );
 	} );
 
 	$( 'body.revision-php a' ).each( function() {
