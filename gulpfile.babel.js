@@ -390,6 +390,7 @@ gulp.task( 'js:hint', function() {
 		'!modules/*.min.',
 		'!modules/**/*.min.js',
 		'!**/*/*block.js',
+		'!**/*/editor.js', // Don't scan these files -- they're synced with Calypso and actually jsx or built files.
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
