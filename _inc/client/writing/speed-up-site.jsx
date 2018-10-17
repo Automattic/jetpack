@@ -89,6 +89,9 @@ const SpeedUpSite = moduleSettingsForm(
 			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
 			const canDisplayCdnSettings = ( foundPhoton && foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
 
+			// Display the main toggle in main search results as long as one of the modules is not hidden.
+			const canAppearInSearch = ( foundPhoton || foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -109,7 +112,7 @@ const SpeedUpSite = moduleSettingsForm(
 										'the fastest experience regardless of device or location.'
 								) }
 							</p>
-							{ foundPhoton && foundPhotonCdn &&
+							{ canAppearInSearch &&
 								<CompactFormToggle
 									checked={ CdnStatus }
 									toggling={ this.props.isSavingAnyOption( [ 'photon', 'photon-cdn' ] ) && ! CdnStatus }
