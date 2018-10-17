@@ -25,7 +25,8 @@ $tools = array(
 	'simple-payments/simple-payments.php',
 	'verification-tools/verification-tools-utils.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
-	'geo-location.php'
+	'geo-location.php',
+	'class.jetpack-calypsoify.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode

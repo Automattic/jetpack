@@ -1,0 +1,360 @@
+html {
+  padding-top: 0px !important;
+}
+
+body.revision-php {
+	background: #f3f6f8;
+}
+
+#wpadminbar,
+#adminmenumain,
+#wp-admin-bar-menu-toggle {
+	display: none;
+}
+
+#wpcontent {
+  margin-left: 0 !important;
+}
+
+#wpbody {
+	padding-top: 0;
+}
+
+#screen-meta-links {
+	display: none !important;
+}
+
+#wpfooter {
+	display: none !important;
+}
+
+.gutenberg__editor {
+  min-height: 100vh !important;
+}
+
+.edit-post-header {
+  left: 0 !important;
+  top: 0 !important;
+}
+
+.editor-post-publish-panel {
+	top: 0 !important;
+}
+
+@media screen and (min-width: 600px) {
+  .edit-post-sidebar {
+    top: 56px;
+  }
+}
+
+/* BUTTONS */
+
+.components-button.is-button,
+.wp-core-ui .button {
+	border-radius: 4px;
+	border-width: 1px 1px 2px;
+	box-shadow: none;
+	font-size: 14px;
+	font-weight: 500;
+	height: auto;
+	line-height: 21px;
+	padding: 7px 12px;
+	text-shadow: none;
+}
+
+.components-button.is-button.is-small {
+	font-size: 12px;
+	line-height: 12px;
+	padding: 7px;
+}
+
+.components-button.is-button:active,
+.wp-core-ui .button:active {
+	border-width: 2px 1px 1px;
+}
+
+.components-button.is-button.is-default,
+.components-button.is-button.is-default:active:not(:disabled):not([aria-disabled=true]),
+.wp-core-ui .button,
+.wp-core-ui .button:active {
+	background-color: #fff;
+	border-color: #c8d7e1;
+	box-shadow: none;
+	color: #2e4453;
+}
+.components-button.is-button.is-default:hover,
+.components-button.is-button.is-default:focus:not(:disabled):not([aria-disabled=true]),
+.wp-core-ui .button:hover,
+.wp-core-ui .button:focus {
+	background-color: #fff;
+	border-color: #a8bece;
+	box-shadow: none;
+	color: #2e4453;
+}
+.components-button.is-button.is-default:disabled,
+.components-button.is-button.is-default[disabled],
+.wp-core-ui .button:disabled,
+.wp-core-ui .button[disabled] {
+	background-color: #fff !important;
+	border-color: #e9eff3 !important;
+	color: #e9eff3 !important;
+  cursor: default;
+	text-shadow: none !important;  
+}
+
+.components-button.is-button.is-primary,
+.components-button.is-button.is-toggled,
+.wp-core-ui .button.button-primary {
+  background-color: #00aadc;
+  border-color: #008ab3;
+  color: #fff;
+}
+.components-button.is-button.is-primary:active:not(:disabled):not([aria-disabled=true]),
+.components-button.is-button.is-toggled:active:not(:disabled):not([aria-disabled=true]),
+.wp-core-ui .button.button-primary:active {
+  background-color: #00aadc;
+  border-color: #005082;
+  color: #fff;
+	box-shadow: none;
+}
+.components-button.is-button.is-primary:hover:not(:disabled):not([aria-disabled=true]),
+.components-button.is-button.is-primary:focus:not(:disabled):not([aria-disabled=true]),
+.components-button.is-button.is-toggled:hover:not(:disabled):not([aria-disabled=true]),
+.components-button.is-button.is-toggled:focus:not(:disabled):not([aria-disabled=true]),
+.wp-core-ui .button.button-primary:hover,
+.wp-core-ui .button.button-primary:focus {
+  background-color: #00aadc;
+  border-color: #005082;
+  box-shadow: none;
+  color: #fff;
+}
+.components-button.is-button.is-primary:disabled,
+.components-button.is-button.is-primary[disabled],
+.wp-core-ui .button.button-primary:disabled,
+.wp-core-ui .button.button-primary[disabled] {
+  background-color: #fff !important;
+  border-color: #e9eff3 !important;
+  color: #e9eff3 !important;
+  cursor: default;
+	text-shadow: none !important;  
+}
+.components-button.is-button.is-primary.is-busy {
+  background-image: linear-gradient(-45deg, #00aadc 28%, #0096c3 28%, #0096c3 72%, #00aadc 72%) !important;
+}
+
+.components-button.components-icon-button {
+	color: #537994;
+}
+.components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default):hover,
+.components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default):focus {
+	background-color: #f3f6f8;
+	border: none;
+	box-shadow: none;
+	color: #2e4453;
+	outline: none;
+}
+.components-button.components-icon-button[disabled] {
+	color: #e9eff3;
+  cursor: default;
+}
+.components-button.components-icon-button.is-toggled {
+	background-color: #2e4453;
+	color: #fff;
+}
+.components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default).is-toggled:hover,
+.components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default).is-toggled:focus {
+	background-color: #2e4453;
+	color: #fff;
+}
+
+.components-button:disabled,
+.components-button[disabled] {
+  opacity: 1;
+}
+
+/* HEADER */
+
+.edit-post-header {
+	padding: 0 10px 0 0;
+}
+
+.editor-ground-control__back {
+	background-color: transparent;
+	border: none;
+	border-right: 1px solid #d9e3ea;
+	color: #0087be;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	height: 56px;
+	margin-right: 10px;
+	min-width: 80px;
+	padding: 0 16px;
+}
+.editor-ground-control__back:hover {
+	color: #00aadc;
+}
+
+.edit-post-header-toolbar {
+	width: 100%;
+}
+
+.edit-post-header .components-button.is-button {
+	font-size: 14px;
+	height: auto;
+	line-height: 21px;
+	margin: 0 4px;
+	padding: 7px 12px;
+}
+
+.edit-post-header__settings button:last-of-type svg {
+	transition: transform 0.3s ease-in-out;
+}
+.edit-post-header__settings button:last-of-type.is-toggled svg {
+	transform: rotate(45deg);
+}
+
+/* PUBLISH PANEL */
+
+.editor-post-publish-panel__header {
+	padding-right: 8px;
+}
+
+.post-publish-panel__postpublish-buttons {
+	margin-top: 10px;
+}
+
+@media screen and (max-width: 782px) {
+	.editor-post-publish-panel .editor-post-visibility__dialog-radio:checked:before {
+		margin: 6px 0 0 6px;
+	}
+}
+
+.components-time-picker .components-time-picker__am-button {
+	border-radius: 4px 0 0 4px;
+}
+.components-time-picker .components-time-picker__pm-button {
+	border-radius: 0 4px 4px 0;
+}
+.components-time-picker .components-time-picker__am-button.is-toggled,
+.components-time-picker .components-time-picker__pm-button.is-toggled {
+	transform: none;
+}
+
+/* NOTICES */
+
+.edit-post-layout .components-notice-list {
+  left: 0 !important;
+  top: 0 ;
+}
+@media screen and (min-width: 600px) {
+  .edit-post-layout  .components-notice-list {
+    top: inherit;
+  }
+}
+
+.components-notice {
+	background-color: #2e4453 !important;
+	border: none;
+  color: #fff;
+  min-height: auto !important;
+  padding: 13px 13px 13px 60px !important;
+	position: relative;
+}
+
+.components-notice a {
+	color: #a8bece;
+}
+.components-notice a:hover {
+	color: #fff;
+}
+
+.components-notice p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.components-notice.is-dismissable {
+	padding-right: 48px !important;
+}
+
+.components-notice .components-notice__dismiss {
+  color: #a8bece;
+  margin: 0;
+	padding: 9px 10px 6px 10px;
+}
+.edit-post-layout .components-notice-list .components-notice .components-notice__dismiss {
+	margin: 0;
+}
+.components-notice .components-notice__dismiss:not(:disabled):not([aria-disabled=true]):not(.is-default):hover,
+.components-notice .components-notice__dismiss:not(:disabled):not([aria-disabled=true]):not(.is-default):focus {
+  color: #fff !important;
+  background-color: transparent !important;
+}
+.components-notice .components-notice__dismiss svg {
+  height: 32px;
+  width: 32px;
+}
+
+.components-notice:before {
+	content: "\f534";
+	display: block;
+	font: 400 24px/20px dashicons;
+	height: 100%;
+	left: 0;
+	padding: 15px 0;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 48px;
+}
+.components-notice.is-warning:before {
+	background-color: #f0b849;
+}
+.components-notice.is-error:before {
+	background-color: #d94f4f;
+}
+.components-notice.is-success:before {
+	background-color: #4ab866;
+	content: "\f147";
+	font-size: 32px;
+}
+
+/* REVISIONS */
+
+.revision-tickmarks {
+	margin-top: 8px;
+}
+
+.revisions-controls {
+	height: 118px;
+}
+.comparing-two-revisions .revisions-controls {
+	height: 176px;
+}
+
+.revisions-meta {
+	margin-top: 28px;
+}
+
+.diff-meta {
+	min-height: 46px;
+}
+.revisions-controls .author-card .avatar {
+	border-radius: 50%;
+	height: 38px;
+	margin-top: 4px;
+	width: 38px;
+}
+.revisions-controls .author-card .author-info {
+	line-height: 20px;
+	margin-top: 4px;
+}
+
+.revision-toggle-compare-mode label {
+	vertical-align: top;
+}
+
+.revisions-tooltip {
+	transform: translateY(-36px);
+}
