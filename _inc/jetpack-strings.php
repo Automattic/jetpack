@@ -10,14 +10,14 @@ _x( "Security", "Navigation item.", "jetpack" ), // _inc/client/admin.js:79
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/admin.js:80
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:81
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:82
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:34
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:41
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:81
 __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:98
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:114
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:121
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:130
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:34
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:41
 __( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
 __( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:38
 __( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:49

@@ -86,6 +86,18 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./client/gutenberg/extensions/presets/jetpack/utils/public-path.js":
+/*!**************************************************************************!*\
+  !*** ./client/gutenberg/extensions/presets/jetpack/utils/public-path.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ \"./node_modules/@babel/runtime/helpers/interopRequireDefault.js\");\n\nvar _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ \"./node_modules/@babel/runtime/helpers/typeof.js\"));\n\n/** @format */\n\n/* exported __webpack_public_path__ */\n\n/* global __webpack_public_path__ */\n\n/**\n * Dynamically set WebPack's publicPath so that split assets can be found.\n * @see https://webpack.js.org/guides/public-path/#on-the-fly\n */\nif ((typeof window === \"undefined\" ? \"undefined\" : (0, _typeof2.default)(window)) === 'object' && window.Jetpack_Block_Assets_Base_Url) {\n  __webpack_require__.p = window.Jetpack_Block_Assets_Base_Url;\n}\n\n//# sourceURL=webpack:///./client/gutenberg/extensions/presets/jetpack/utils/public-path.js?");
+
+/***/ }),
+
 /***/ "./client/gutenberg/extensions/presets/jetpack/view.js":
 /*!*************************************************************!*\
   !*** ./client/gutenberg/extensions/presets/jetpack/view.js ***!
@@ -94,7 +106,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\n__webpack_require__(/*! gutenberg/extensions/tiled-gallery/view */ \"./client/gutenberg/extensions/tiled-gallery/view.js\");\n\n//# sourceURL=webpack:///./client/gutenberg/extensions/presets/jetpack/view.js?");
+eval("\n\n__webpack_require__(/*! ./utils/public-path */ \"./client/gutenberg/extensions/presets/jetpack/utils/public-path.js\");\n\n__webpack_require__(/*! gutenberg/extensions/tiled-gallery/view */ \"./client/gutenberg/extensions/tiled-gallery/view.js\");\n\n//# sourceURL=webpack:///./client/gutenberg/extensions/presets/jetpack/view.js?");
 
 /***/ }),
 
@@ -118,6 +130,28 @@ eval("\n\n__webpack_require__(/*! ./view.scss */ \"./client/gutenberg/extensions
 /***/ (function(module, exports, __webpack_require__) {
 
 eval("// extracted by mini-css-extract-plugin\n\n//# sourceURL=webpack:///./client/gutenberg/extensions/tiled-gallery/view.scss?");
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/interopRequireDefault.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/interopRequireDefault.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("function _interopRequireDefault(obj) {\n  return obj && obj.__esModule ? obj : {\n    default: obj\n  };\n}\n\nmodule.exports = _interopRequireDefault;\n\n//# sourceURL=webpack:///./node_modules/@babel/runtime/helpers/interopRequireDefault.js?");
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/typeof.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/typeof.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("function _typeof2(obj) { if (typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }; } return _typeof2(obj); }\n\nfunction _typeof(obj) {\n  if (typeof Symbol === \"function\" && _typeof2(Symbol.iterator) === \"symbol\") {\n    module.exports = _typeof = function _typeof(obj) {\n      return _typeof2(obj);\n    };\n  } else {\n    module.exports = _typeof = function _typeof(obj) {\n      return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : _typeof2(obj);\n    };\n  }\n\n  return _typeof(obj);\n}\n\nmodule.exports = _typeof;\n\n//# sourceURL=webpack:///./node_modules/@babel/runtime/helpers/typeof.js?");
 
 /***/ })
 
