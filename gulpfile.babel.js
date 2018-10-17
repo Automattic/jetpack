@@ -112,6 +112,7 @@ gulp.task( 'js:hint', function() {
 	I18n land
 */
 
+// Should not be run independently, run gulp languages instead
 gulp.task( 'languages:get', function( callback ) {
 	const process = spawn(
 		'php',
@@ -139,7 +140,8 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', gulp.series( 'languages:get', function( done ) {
+// Should not be run independently, run gulp languages instead
+gulp.task( 'languages:build', function( done ) {
 	const terms = [];
 
 	// Defining global that will be used from jetpack-strings.js
@@ -187,7 +189,7 @@ gulp.task( 'languages:build', gulp.series( 'languages:get', function( done ) {
 					done();
 				} );
 		} );
-} ) );
+} );
 
 gulp.task( 'php:module-headings', function( callback ) {
 	const process = spawn(
@@ -211,7 +213,8 @@ gulp.task( 'php:module-headings', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:cleanup', gulp.series( 'languages:build', function( done ) {
+// Should not be run independently, run gulp languages instead
+gulp.task( 'languages:cleanup', function( done ) {
 	const language_packs = [];
 
 	request(
@@ -236,7 +239,7 @@ gulp.task( 'languages:cleanup', gulp.series( 'languages:build', function( done )
 			} );
 		}
 	);
-} ) );
+} );
 
 gulp.task( 'languages:extract', function( done ) {
 	const paths = [];
@@ -312,5 +315,8 @@ gulp.task( 'react:watch', react_watch );
 
 gulp.task(
 	'languages',
-	gulp.parallel( 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' )
+	gulp.parallel(
+		gulp.series( 'languages:get', 'languages:build', 'languages:cleanup' ),
+		'languages:extract'
+	)
 );

@@ -157,8 +157,6 @@ function onBuild( done, err, stats ) {
 
 export const build = gulp.series( 'react:master', buildStatic );
 
-gulp.task( 'react:build', build );
-
 function buildStatic( done ) {
 	let path;
 
