@@ -101,6 +101,10 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
 }
 
+add_action( 'admin_init', function() {
+	error_log( 'testing anonymous function!' );
+});
+
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php' );
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
