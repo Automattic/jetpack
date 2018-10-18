@@ -1135,15 +1135,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array( 
-			'options' => true,
-			'functions' => true, 
-			'constants' => true, 
-			'users' => array( $current_user->ID )
+			'options'         => true,
+			'network_options' => is_multisite(),
+			'functions'       => true,
+			'constants'       => true,
+			'posts'           => true,
+			'users'           => 'initial',
 		);
-
-		if ( is_multisite() ) {
-			$expected_sync_config['network_options'] = true;
-		}
 
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(
