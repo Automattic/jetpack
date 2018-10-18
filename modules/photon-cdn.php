@@ -14,9 +14,13 @@
 
 $GLOBALS['concatenate_scripts'] = false;
 
-Jetpack::dns_prefetch( array(
-	'//c0.wp.com',
-) );
+function jetpack_dns_prefetch( $urls, $relation_type ) {
+	if( 'dns-prefetch' == $relation_type ) {
+		$urls[] = '//c0.wp.com'; 
+	}
+	return $urls;
+}
+add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );
 
 class Jetpack_Photon_Static_Assets_CDN {
 	const CDN = 'https://c0.wp.com/';
