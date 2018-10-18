@@ -14,7 +14,7 @@
 
 $GLOBALS['concatenate_scripts'] = false;
 
-function jetpack_dns_prefetch( $urls, $relation_type ) {
+function jetpack_photon_cdn_dns_prefetch( $urls, $relation_type ) {
 	if( 'dns-prefetch' == $relation_type ) {
 		$urls[] = '//c0.wp.com'; 
 	}
