@@ -31,15 +31,19 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		Jetpack::dns_prefetch( array(
-			'//s0.wp.com',
-			'//s1.wp.com',
-			'//s2.wp.com',
-			'//0.gravatar.com',
-			'//1.gravatar.com',
-			'//2.gravatar.com',
-		) );
-
+		function jetpack_dns_prefetch( $urls, $relation_type ) {
+			if( 'dns-prefetch' == $relation_type ) {
+				$urls[] = '//s0.wp.com';
+				$urls[] = '//s1.wp.com';
+				$urls[] = '//s2.wp.com';
+				$urls[] = '//0.gravatar.com';
+				$urls[] = '//1.gravatar.com';
+				$urls[] = '//2.gravatar.com';
+			}
+			return $urls;
+		}
+		 add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );
+		
 		// Atomic only
 		if ( jetpack_is_atomic_site() ) {
 			// override user setting that hides masterbar from site's front.
