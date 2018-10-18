@@ -548,9 +548,9 @@ gulp.task( 'languages:extract', function( done ) {
 } );
 
 /*
- * Gutenpack!
+ * Gutenberg Blocks for Jetpack
  */
-gulp.task( 'gutenpack:jetpack-blocks', function() {
+gulp.task( 'gutenberg:blocks', function() {
 	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
@@ -558,7 +558,7 @@ gulp.task( 'gutenpack:jetpack-blocks', function() {
 // Default task
 gulp.task(
 	'default',
-	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack:jetpack-blocks' ]
+	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' ]
 );
 gulp.task(
 	'watch',
