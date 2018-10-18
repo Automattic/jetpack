@@ -38,8 +38,14 @@ class Jetpack_Calypsoify {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
 			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
+
+			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 		}
 	}
+
+	public function admin_color_override( $color ) {
+	    return 'fresh';
+    }
 
 	public function mock_masterbar_activation() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
