@@ -238,4 +238,14 @@ class Jetpack_Photon_Static_Assets_CDN {
 		return false;
 	}
 }
-Jetpack_Photon_Static_Assets_CDN::go();
+/**
+ * Allow plugins to short-circuit the Asset CDN, even when the module is on.
+ *
+ * @since 6.7.0
+ *
+ * @param false bool Should the Asset CDN be blocked? False by default.
+ * @var [type]
+ */
+if ( true !== apply_filters( 'jetpack_force_disable_site_accelerator', false ) ) {
+	Jetpack_Photon_Static_Assets_CDN::go();
+}
