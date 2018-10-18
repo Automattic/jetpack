@@ -248,12 +248,12 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
-	function connect_url( $service_name ) {
-		return Jetpack_Keyring_Service_Helper::connect_url( $service_name );
+	function connect_url( $service_name, $for = 'publicize' ) {
+		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
 	}
 
-	function refresh_url( $service_name ) {
-		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name );
+	function refresh_url( $service_name, $for = 'publicize' ) {
+		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
 	}
 
 	function disconnect_url( $service_name, $id ) {
