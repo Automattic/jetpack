@@ -7360,6 +7360,7 @@ p {
 				'wp-keycodes',
 				'wp-plugins',
 				'wp-token-list',
+				'wp-url',
 			),
 			$version
 		);
