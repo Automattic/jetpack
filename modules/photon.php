@@ -13,10 +13,14 @@
  * Additional Search Queries: photon, image, cdn, performance, speed
  */
 
-Jetpack::dns_prefetch( array(
-	'//i0.wp.com',
-	'//i1.wp.com',
-	'//i2.wp.com',
-) );
+function jetpack_photon_dns_prefetch( $urls, $relation_type ) {
+	if( 'dns-prefetch' == $relation_type ) {
+		$urls[] = '//i0.wp.com';
+		$urls[] = '//i1.wp.com';
+		$urls[] = '//i2.wp.com';
+	}
+	return $urls;
+}
+ add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );
 
 Jetpack_Photon::instance();

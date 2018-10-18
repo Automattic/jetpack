@@ -8,12 +8,14 @@
 
 if ( ! Jetpack::is_module_active( 'videopress' ) ) {
 
-	Jetpack::dns_prefetch(
-		array(
-			'//v0.wordpress.com',
-		)
-	);
-
+	function jetpack_videopress_dns_prefetch( $urls, $relation_type ) {
+		if( 'dns-prefetch' == $relation_type ) {
+			$urls[] = '//v0.wordpress.com'; 
+		}
+		return $urls;
+	}
+	 add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );
+	
 	include_once JETPACK__PLUGIN_DIR . 'modules/videopress/utility-functions.php';
 	include_once JETPACK__PLUGIN_DIR . 'modules/videopress/shortcode.php';
 

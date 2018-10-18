@@ -30,13 +30,18 @@ function jetpack_comments_configuration_load() {
 
 add_action( 'jetpack_modules_loaded', 'jetpack_comments_load' );
 
-Jetpack::dns_prefetch( array(
-	'//jetpack.wordpress.com',
-	'//s0.wp.com',
-	'//s1.wp.com',
-	'//s2.wp.com',
-	'//public-api.wordpress.com',
-	'//0.gravatar.com',
-	'//1.gravatar.com',
-	'//2.gravatar.com',
-) );
+function jetpack_comments_dns_prefetch( $urls, $relation_type ) {
+	if( 'dns-prefetch' == $relation_type ) {
+		$urls[] = '//jetpack.wordpress.com'; 
+		$urls[] = '//s0.wp.com';
+		$urls[] = '//s1.wp.com';
+		$urls[] = '//s2.wp.com';
+		$urls[] = '//public-api.wordpress.com';
+		$urls[] = '//0.gravatar.com';
+		$urls[] = '//1.gravatar.com';
+		$urls[] = '//2.gravatar.com';
+	}
+	return $urls;
+}
+
+add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );

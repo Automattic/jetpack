@@ -11,13 +11,18 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
-Jetpack::dns_prefetch( array(
-	'//widgets.wp.com',
-	'//s0.wp.com',
-	'//0.gravatar.com',
-	'//1.gravatar.com',
-	'//2.gravatar.com',
-) );
+function jetpack_likes_dns_prefetch( $urls, $relation_type ) {
+	if( 'dns-prefetch' == $relation_type ) {
+		$urls[] = '//widgets.wp.com'; 
+		$urls[] = '//s0.wp.com';
+		$urls[] = '//0.gravatar.com';
+		$urls[] = '//1.gravatar.com';
+		$urls[] = '//2.gravatar.com';
+	}
+	return $urls;
+}
+ add_filter( 'wp_resource_hints', 'jetpack_resource_hints', 10, 2 );
+
 
 include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 include_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
