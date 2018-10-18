@@ -13,7 +13,7 @@
  * Additional Search Queries: photon, image, cdn, performance, speed
  */
 
-function jetpack_dns_prefetch( $urls, $relation_type ) {
+function jetpack_photon_dns_prefetch( $urls, $relation_type ) {
 	if( 'dns-prefetch' == $relation_type ) {
 		$urls[] = '//i0.wp.com';
 		$urls[] = '//i1.wp.com';
