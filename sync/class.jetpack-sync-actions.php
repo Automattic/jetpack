@@ -187,22 +187,37 @@ class Jetpack_Sync_Actions {
 		return $response;
 	}
 
-	static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
-		if ( ! self::sync_allowed() ) {
+	static function has_full_synced_before() {
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		if ( empty( $sync_module ) ) {
 			return false;
 		}
+		return $sync_module->is_started() || $sync_module->is_finished();
+	}
 
-		$initial_sync_config = array(
+	static function do_user_authorized_sync() {
+		if ( ! self::has_full_synced_before() ) {
+			self::do_initial_sync();
+			return;
+		}
+		$user_authorized_sync_config = array(
 			'options'         => true,
 			'functions'       => true,
-			'constants'       => true,
 			'users'           => array( get_current_user_id() ),
+			'network_options' => is_multisite(),
 		);
+		self::do_full_sync( $user_authorized_sync_config );
+	}
 
-		if ( is_multisite() ) {
-			$initial_sync_config['network_options'] = true;
-		}
+	static function do_initial_sync() {
+		$initial_sync_config = array(
+			'options'         => true,
+			'network_options' => is_multisite(),
+			'functions'       => true,
+			'constants'       => true,
+			'posts'           => true,
+			'users'           => 'initial',
+		);
 
 		self::do_full_sync( $initial_sync_config );
 	}
@@ -459,5 +474,5 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
-add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
 
+add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_user_authorized_sync' ), 10, 0 );
