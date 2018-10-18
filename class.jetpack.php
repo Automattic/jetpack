@@ -6932,13 +6932,13 @@ p {
 	 */
 	public static function dns_prefetch( $new_urls = null ) {
 		static $prefetch_urls = array();
+		static $relation_type = 'dns-prefetch'; /* Should this be a passed param, to allow different link types*/
 		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
 			if( 'dns-prefetch' == $relation_type ) {
 				foreach ( (array) $prefetch_urls as $this_prefetch_url ) {
 					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_prefetch_url ) ) );
 				}
 				$urls = array_unique( $urls );
-			return $urls;
 			}
 		} elseif ( ! empty( $new_urls ) ) {
 			if( 'dns-prefetch' == $relation_type )
@@ -6946,10 +6946,8 @@ p {
 					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
 				}
 				$urls = array_unique( $urls );
-			return $urls;
 		}
 	}
-	add_filter( 'wp_resource_hints', 'dns_prefetch', 10, 2 );
 	
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
