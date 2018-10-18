@@ -82,8 +82,19 @@ const SpeedUpSite = moduleSettingsForm(
 				}
 			}
 
-			// Track the main toggle switch.
-			analytics.tracks.recordJetpackClick( 'jetpack_site_accelerator_toggle' );
+			// If at least one of the modules is now on, let's reflect that with the status of our main toggle.
+			if ( true === newPhotonStatus || true === newPhotonCdnStatus ) {
+				// Track the main toggle switch.
+				analytics.tracks.recordJetpackClick( {
+					target: 'jetpack_site_accelerator_toggle',
+					toggled: 'on'
+				} );
+			} else {
+				analytics.tracks.recordJetpackClick( {
+					target: 'jetpack_site_accelerator_toggle',
+					toggled: 'off'
+				} );
+			}
 
 			// Track any potential Photon toggle switch.
 			if ( this.props.getOptionValue( 'photon' ) !== newPhotonStatus ) {
