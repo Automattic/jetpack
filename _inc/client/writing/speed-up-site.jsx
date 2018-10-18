@@ -16,6 +16,7 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import analytics from 'lib/analytics';
 
 const SpeedUpSite = moduleSettingsForm(
 	class extends Component {
@@ -33,8 +34,12 @@ const SpeedUpSite = moduleSettingsForm(
 		};
 
 		handleCdnChange = () => {
+			// Initial status for both modules.
+			let newPhotonStatus = this.props.getOptionValue( 'photon' );
+			let newPhotonCdnStatus = this.props.getOptionValue( 'photon-cdn' );
+
 			// Check if any of the CDN options are on.
-			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
+			const CdnStatus = newPhotonStatus || newPhotonCdnStatus;
 
 			// Are the modules available?
 			const photonStatus = this.props.getModuleOverride( 'photon' );
@@ -42,31 +47,58 @@ const SpeedUpSite = moduleSettingsForm(
 
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( true === CdnStatus ) {
-				if ( false === ! this.props.getOptionValue( 'photon' ) && 'active' !== photonStatus ) {
+				if ( false === ! newPhotonStatus && 'active' !== photonStatus ) {
+					newPhotonStatus = false;
+
 					this.props.updateOptions( {
 						photon: false,
 						'tiled-gallery': false,
 						tiled_galleries: false
 					} );
 				}
-				if ( false === ! this.props.getOptionValue( 'photon-cdn' ) && 'active' !== photonCdnStatus ) {
+				if ( false === ! newPhotonCdnStatus && 'active' !== photonCdnStatus ) {
+					newPhotonCdnStatus = false;
+
 					this.props.updateOptions( {
 						'photon-cdn': false
 					} );
 				}
 			} else {
-				if ( false === this.props.getOptionValue( 'photon' ) && 'inactive' !== photonStatus ) {
+				if ( false === newPhotonStatus && 'inactive' !== photonStatus ) {
+					newPhotonStatus = true;
+
 					this.props.updateOptions( {
 						photon: true,
 						'tiled-gallery': true,
 						tiled_galleries: true
 					} );
 				}
-				if ( false === this.props.getOptionValue( 'photon-cdn' ) && 'inactive' !== photonCdnStatus ) {
+				if ( false === newPhotonCdnStatus && 'inactive' !== photonCdnStatus ) {
+					newPhotonCdnStatus = true;
+
 					this.props.updateOptions( {
 						'photon-cdn': true
 					} );
 				}
+			}
+
+			// Track the main toggle switch.
+			analytics.tracks.recordJetpackClick( 'jetpack_site_accelerator_toggle' );
+
+			// Track any potential Photon toggle switch.
+			if ( this.props.getOptionValue( 'photon' ) !== newPhotonStatus ) {
+				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
+					module: 'photon',
+					toggled: ( false === newPhotonStatus ) ? 'off' : 'on'
+				} );
+			}
+
+			// Track any potential Photon CDN toggle switch.
+			if ( this.props.getOptionValue( 'photon-cdn' ) !== newPhotonCdnStatus ) {
+				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
+					module: 'photon-cdn',
+					toggled: ( false === newPhotonCdnStatus ) ? 'off' : 'on'
+				} );
 			}
 		};
 
