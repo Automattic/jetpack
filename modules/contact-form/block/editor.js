@@ -83,7 +83,7 @@ registerBlockType( 'jetpack/form', {
 		},
 		submit_button_text: {
 			type: 'string',
-			'default': __( 'Submit »', 'jetpack' )
+			'default': __( 'Submit', 'jetpack' )
 		}
 	},
 
