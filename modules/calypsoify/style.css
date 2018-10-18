@@ -398,6 +398,12 @@ body,
 #wpadminbar #wp-admin-bar-notes .noticon {
 	top: 10px;
 }
+#wpadminbar > #wp-toolbar > #wp-admin-bar-root-default .ab-icon,
+#wpadminbar .ab-icon,
+#wpadminbar .ab-item:before {
+	font-size: 24px;
+	line-height: 1.45;
+}
 
 /* WP Admin UI Mods */
 .wrap {

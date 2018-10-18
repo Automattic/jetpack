@@ -472,6 +472,13 @@ body,
   #wp-admin-bar-notes .noticon {
     top: 10px;
   }
+
+  > #wp-toolbar > #wp-admin-bar-root-default .ab-icon,
+  .ab-icon,
+  .ab-item:before {
+    font-size: 24px;
+    line-height: 1.45;
+  }
 }
 
 /* WP Admin UI Mods */
