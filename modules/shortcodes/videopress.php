@@ -8,7 +8,7 @@
 
 if ( ! Jetpack::is_module_active( 'videopress' ) ) {
 
-	function jetpack_dns_prefetch( $urls, $relation_type ) {
+	function jetpack_videopress_dns_prefetch( $urls, $relation_type ) {
 		if( 'dns-prefetch' == $relation_type ) {
 			$urls[] = '//v0.wordpress.com'; 
 		}
