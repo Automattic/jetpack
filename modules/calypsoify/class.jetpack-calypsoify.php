@@ -42,7 +42,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function mock_masterbar_activation() {
-		include JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
+		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
 		new A8C_WPCOM_Masterbar;
 	}
 
