@@ -282,7 +282,7 @@ EOT;
 		$block_attributes = array(
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
 			'show_date' => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
-			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : true,
+			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : false,
 			'layout' => isset( $attributes['postLayout'] ) && $attributes['postLayout'] === 'list' ? $attributes['postLayout'] : 'grid',
 			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
