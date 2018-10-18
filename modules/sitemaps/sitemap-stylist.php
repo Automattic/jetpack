@@ -196,6 +196,8 @@ XSL;
 			$next = human_time_diff( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
 			/* translators: %s is a human_time_diff until next sitemap generation. */
 			$no_nodes_warning = sprintf( __( 'No sitemap found. The system will try to build it again in %s.', 'jetpack' ), $next );
+		} else {
+			$no_nodes_warning = '';
 		}
 
 		$more_info = self::sanitize_with_links(
