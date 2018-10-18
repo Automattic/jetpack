@@ -61,7 +61,7 @@ class JetpackForm extends Component {
 						<TextControl
 							label={ __( 'What should the label on the form’s submit button say?', 'jetpack' ) }
 							value={ this.props.submit_button_text }
-							placeholder={ __( 'Submit »', 'jetpack' ) }
+							placeholder={ __( 'Submit', 'jetpack' ) }
 							onChange={ this.onChangeSubmit }
 						/>
 					</PanelBody>
@@ -71,7 +71,7 @@ class JetpackForm extends Component {
 					<TextControl
 						className="button button-primary button-default jetpack-submit-button"
 						value={ this.props.submit_button_text }
-						placeholder={ __( 'Submit »', 'jetpack' ) }
+						placeholder={ __( 'Submit', 'jetpack' ) }
 						onChange={ this.onChangeSubmit }
 					/>
 				</div>

@@ -53,13 +53,18 @@
 	&[data-type="jetpack/field-checkbox-multiple"] ol li:before {
 		content: '☐ ';
 		display: inline-block;
-		font-size: 24px;
+		font-size: 28px;
+		line-height: 1;
     	position: relative;
     	top: 2px;
 	}
 
 	&[data-type="jetpack/field-radio"] ol li:before {
 		content: '🔘 ';
+		display: inline-block;
+		line-height: 1;
+    	position: relative;
+    	top: 2px;
 	}
 
 	&[data-type="jetpack/field-select"] {
@@ -72,13 +77,15 @@
 
 	ol li button.components-icon-button {
 		display: inline-flex;
+		float: right;
+		padding: 6px;
 		vertical-align: bottom;
 	}
 
 	input.option {
 		border-color: #fff;
 		border-radius: 0;
-		width: calc( 100% - 7em );
+		width: calc( 100% - 5em );
 		display: inline-block;
 
 		&:hover {
@@ -89,6 +96,11 @@
 			border-color: #E3E5E8;
 			box-shadow: none;
 		}
+	}
+
+	input.components-checkbox-control__input {
+		border-color: #191E23;
+		margin: 0 5px 0 2px;
 	}
 }
 
