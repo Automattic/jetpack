@@ -11,7 +11,7 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
-function jetpack_dns_prefetch( $urls, $relation_type ) {
+function jetpack_comment_likes_dns_prefetch( $urls, $relation_type ) {
 	if( 'dns-prefetch' == $relation_type ) {
 		$urls[] = '//widgets.wp.com'; 
 		$urls[] = '//s0.wp.com';
