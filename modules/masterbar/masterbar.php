@@ -31,7 +31,7 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		function jetpack_dns_prefetch( $urls, $relation_type ) {
+		function jetpack_masterbar_dns_prefetch( $urls, $relation_type ) {
 			if( 'dns-prefetch' == $relation_type ) {
 				$urls[] = '//s0.wp.com';
 				$urls[] = '//s1.wp.com';
