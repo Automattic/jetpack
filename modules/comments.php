@@ -30,7 +30,7 @@ function jetpack_comments_configuration_load() {
 
 add_action( 'jetpack_modules_loaded', 'jetpack_comments_load' );
 
-function jetpack_dns_prefetch( $urls, $relation_type ) {
+function jetpack_comments_dns_prefetch( $urls, $relation_type ) {
 	if( 'dns-prefetch' == $relation_type ) {
 		$urls[] = '//jetpack.wordpress.com'; 
 		$urls[] = '//s0.wp.com';
