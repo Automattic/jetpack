@@ -1,9 +1,11 @@
+@import 'colors';
+
 html {
   padding-top: 0px !important;
 }
 
 body.revision-php {
-  background: #f3f6f8;
+  background: $_f3f6f8;
 }
 
 #wpadminbar,
@@ -77,27 +79,27 @@ body.revision-php {
 .components-button.is-button.is-default:active:not(:disabled):not([aria-disabled=true]),
 .wp-core-ui .button,
 .wp-core-ui .button:active {
-  background-color: #fff;
-  border-color: #c8d7e1;
+  background-color: $_fff;
+  border-color: $_c8d7e1;
   box-shadow: none;
-  color: #2e4453;
+  color: $_2e4453;
 }
 .components-button.is-button.is-default:hover,
 .components-button.is-button.is-default:focus:not(:disabled):not([aria-disabled=true]),
 .wp-core-ui .button:hover,
 .wp-core-ui .button:focus {
-  background-color: #fff;
-  border-color: #a8bece;
+  background-color: $_fff;
+  border-color: $_a8bece;
   box-shadow: none;
-  color: #2e4453;
+  color: $_2e4453;
 }
 .components-button.is-button.is-default:disabled,
 .components-button.is-button.is-default[disabled],
 .wp-core-ui .button:disabled,
 .wp-core-ui .button[disabled] {
-  background-color: #fff !important;
-  border-color: #e9eff3 !important;
-  color: #e9eff3 !important;
+  background-color: $_fff !important;
+  border-color: $_e9eff3 !important;
+  color: $_e9eff3 !important;
   cursor: default;
   text-shadow: none !important;
 }
@@ -105,16 +107,16 @@ body.revision-php {
 .components-button.is-button.is-primary,
 .components-button.is-button.is-toggled,
 .wp-core-ui .button.button-primary {
-  background-color: #00aadc;
-  border-color: #008ab3;
-  color: #fff;
+  background-color: $_00aadc;
+  border-color: $_008ab3;
+  color: $_fff;
 }
 .components-button.is-button.is-primary:active:not(:disabled):not([aria-disabled=true]),
 .components-button.is-button.is-toggled:active:not(:disabled):not([aria-disabled=true]),
 .wp-core-ui .button.button-primary:active {
-  background-color: #00aadc;
-  border-color: #005082;
-  color: #fff;
+  background-color: $_00aadc;
+  border-color: $_005082;
+  color: $_fff;
   box-shadow: none;
 }
 .components-button.is-button.is-primary:hover:not(:disabled):not([aria-disabled=true]),
@@ -123,48 +125,48 @@ body.revision-php {
 .components-button.is-button.is-toggled:focus:not(:disabled):not([aria-disabled=true]),
 .wp-core-ui .button.button-primary:hover,
 .wp-core-ui .button.button-primary:focus {
-  background-color: #00aadc;
-  border-color: #005082;
+  background-color: $_00aadc;
+  border-color: $_005082;
   box-shadow: none;
-  color: #fff;
+  color: $_fff;
 }
 .components-button.is-button.is-primary:disabled,
 .components-button.is-button.is-primary[disabled],
 .wp-core-ui .button.button-primary:disabled,
 .wp-core-ui .button.button-primary[disabled] {
-  background-color: #fff !important;
-  border-color: #e9eff3 !important;
-  color: #e9eff3 !important;
+  background-color: $_fff !important;
+  border-color: $_e9eff3 !important;
+  color: $_e9eff3 !important;
   cursor: default;
   text-shadow: none !important;
 }
 .components-button.is-button.is-primary.is-busy {
-  background-image: linear-gradient(-45deg, #00aadc 28%, #0096c3 28%, #0096c3 72%, #00aadc 72%) !important;
+  background-image: linear-gradient(-45deg, $_00aadc 28%, $_0096c3 28%, $_0096c3 72%, $_00aadc 72%) !important;
 }
 
 .components-button.components-icon-button {
-  color: #537994;
+  color: $_537994;
 }
 .components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default):hover,
 .components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default):focus {
-  background-color: #f3f6f8;
+  background-color: $_f3f6f8;
   border: none;
   box-shadow: none;
-  color: #2e4453;
+  color: $_2e4453;
   outline: none;
 }
 .components-button.components-icon-button[disabled] {
-  color: #e9eff3;
+  color: $_e9eff3;
   cursor: default;
 }
 .components-button.components-icon-button.is-toggled {
-  background-color: #2e4453;
-  color: #fff;
+  background-color: $_2e4453;
+  color: $_fff;
 }
 .components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default).is-toggled:hover,
 .components-icon-button:not(:disabled):not([aria-disabled=true]):not(.is-default).is-toggled:focus {
-  background-color: #2e4453;
-  color: #fff;
+  background-color: $_2e4453;
+  color: $_fff;
 }
 
 .components-button:disabled,
@@ -181,8 +183,8 @@ body.revision-php {
 .editor-ground-control__back {
   background-color: transparent;
   border: none;
-  border-right: 1px solid #d9e3ea;
-  color: #0087be;
+  border-right: 1px solid $_d9e3ea;
+  color: $_0087be;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
@@ -192,7 +194,7 @@ body.revision-php {
   padding: 0 16px;
 }
 .editor-ground-control__back:hover {
-  color: #00aadc;
+  color: $_00aadc;
 }
 
 .edit-post-header-toolbar {
@@ -254,19 +256,19 @@ body.revision-php {
 }
 
 .components-notice {
-  background-color: #2e4453 !important;
+  background-color: $_2e4453 !important;
   border: none;
-  color: #fff;
+  color: $_fff;
   min-height: auto !important;
   padding: 13px 13px 13px 60px !important;
   position: relative;
 }
 
 .components-notice a {
-  color: #a8bece;
+  color: $_a8bece;
 }
 .components-notice a:hover {
-  color: #fff;
+  color: $_fff;
 }
 
 .components-notice p {
@@ -279,7 +281,7 @@ body.revision-php {
 }
 
 .components-notice .components-notice__dismiss {
-  color: #a8bece;
+  color: $_a8bece;
   margin: 0;
   padding: 9px 10px 6px 10px;
 }
@@ -288,7 +290,7 @@ body.revision-php {
 }
 .components-notice .components-notice__dismiss:not(:disabled):not([aria-disabled=true]):not(.is-default):hover,
 .components-notice .components-notice__dismiss:not(:disabled):not([aria-disabled=true]):not(.is-default):focus {
-  color: #fff !important;
+  color: $_fff !important;
   background-color: transparent !important;
 }
 .components-notice .components-notice__dismiss svg {
@@ -309,13 +311,13 @@ body.revision-php {
   width: 48px;
 }
 .components-notice.is-warning:before {
-  background-color: #f0b849;
+  background-color: $_f0b849;
 }
 .components-notice.is-error:before {
-  background-color: #d94f4f;
+  background-color: $_d94f4f;
 }
 .components-notice.is-success:before {
-  background-color: #4ab866;
+  background-color: $_4ab866;
   content: "\f147";
   font-size: 32px;
 }

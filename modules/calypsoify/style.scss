@@ -1,21 +1,4 @@
-// @todo: rename colors more descriptively
-$fff:     #fff;
-
-$_f3f6f8: #f3f6f8;
-$_e9eff3: #e9eff3;
-$_d9e3ea: #d9e3ea;
-$_87a6bc: #87a6bc;
-$_537994: #537994;
-$_2e4453: #2e4453;
-
-$_00aadc: #00aadc;
-$_008ab3: #008ab3;
-$_0087be: #0087be;
-$_0073aa: #0073aa;
-$_005082: #005082;
-$_004967: #004967;
-
-$rgba-grey: rgba(200,215,225,0.5);
+@import 'colors';
 
 body,
 #wp-content-editor-tools {
@@ -84,7 +67,7 @@ body,
   }
 
   .wp-submenu a:hover {
-    background: $fff;
+    background: $_fff;
   }
 
   > li.wp-first-item {
@@ -125,7 +108,7 @@ body,
 
   li.wp-menu-open div.wp-menu-image:before,
   li.wp-menu-open div.wp-menu-name {
-    color: $fff !important;
+    color: $_fff !important;
   }
 
   div.wp-menu-name {
@@ -169,7 +152,7 @@ body,
   left: 0;
   width: 272px;
   height: 70px;
-  background: $fff;
+  background: $_fff;
   z-index: 10000;
 
   svg {
@@ -321,7 +304,7 @@ body,
 
   .auto-fold #adminmenu li.selected div.wp-menu-image:before,
   .auto-fold #adminmenu li.selected div.wp-menu-name {
-    color: $fff !important;
+    color: $_fff !important;
   }
 
   #wpadminbar .quicklinks > ul > li > a,
@@ -364,7 +347,7 @@ body,
 .nav-tab-wrapper,
 .wrap h2.nav-tab-wrapper {
   margin: 10px 0 25px;
-  background: $fff;
+  background: $_fff;
   border: 1px solid $rgba-grey;
 }
 
@@ -476,7 +459,7 @@ body,
   .ab-top-menu > li.ab-active > .ab-item,
   > #wp-toolbar .wpnt-show span.noticon,
   #wp-admin-bar-notes.wpnt-show .noticon {
-    color: $fff !important;
+    color: $_fff !important;
   }
 
   .ab-active > a.ab-item:before,
@@ -506,7 +489,7 @@ body,
 .subsubsub,
 .wp-filter {
   margin: 10px 0 25px;
-  background: $fff;
+  background: $_fff;
   border: 1px solid $rgba-grey;
   width: 100%;
   box-shadow: none;
@@ -572,7 +555,7 @@ body,
   .page-title-action:active {
     background: $_00aadc;
     border-color: $_008ab3;
-    color: $fff;
+    color: $_fff;
     border-style: solid;
     border-width: 1px 1px 2px;
     cursor: pointer;
@@ -603,12 +586,12 @@ body,
 
 .wp-core-ui {
   .button {
-    background: $fff;
+    background: $_fff;
   }
   .button-primary {
     background: $_00aadc;
     border-color: $_008ab3;
-    color: $fff;
+    color: $_fff;
     text-shadow: none;
   }
 }
