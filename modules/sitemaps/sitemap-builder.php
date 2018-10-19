@@ -35,6 +35,38 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 }
 
 /**
+ * Simple class for rendering an empty sitemap with a short TTL
+ */
+class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
+
+	public function __construct() {
+		parent::__construct( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, '1970-01-01 00:00:00' );
+
+		$this->doc->appendChild(
+			$this->doc->createComment( "generator='jetpack-" . JETPACK__VERSION . "'" )
+		);
+
+		$this->doc->appendChild(
+			$this->doc->createProcessingInstruction(
+				'xml-stylesheet',
+				'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'sitemap-index.xsl' ) . '"'
+			)
+		);
+	}
+
+	protected function get_root_element() {
+		if ( ! isset( $this->root ) ) {
+			$this->root = $this->doc->createElement( 'sitemapindex' );
+			$this->root->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
+			$this->doc->appendChild( $this->root );
+			$this->byte_capacity -= strlen( $this->doc->saveXML( $this->root ) );
+		}
+
+		return $this->root;
+	}
+}
+
+/**
  * The Jetpack_Sitemap_Builder object handles the construction of
  * all sitemap files (except the XSL files, which are handled by
  * Jetpack_Sitemap_Stylist.) Other than the constructor, there are
@@ -989,6 +1021,21 @@ class Jetpack_Sitemap_Builder {
 			'xml'           => $item_array,
 			'last_modified' => $row['post_date'],
 		);
+	}
+
+
+	/**
+	 * This is served instead of a 404 when the master sitemap is requested
+	 * but not yet generated.
+	 *
+	 * @access public
+	 * @since 6.7.0
+	 *
+	 * @return string The empty sitemap xml.
+	 */
+	public function empty_sitemap_xml() {
+		$empty_sitemap = new Jetpack_Sitemap_Buffer_Empty();
+		return $empty_sitemap->contents();
 	}
 
 	/**
