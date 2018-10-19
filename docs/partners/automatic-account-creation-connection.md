@@ -39,7 +39,7 @@ If either of the above steps fails, then the API will attempt to continue provis
 {
   "success": true,
   "auth_required": false,
-  "next_url: "http://example.com"
+  "next_url": "http://example.com"
 }
 ```
 
