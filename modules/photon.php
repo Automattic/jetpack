@@ -17,6 +17,6 @@ Jetpack::dns_prefetch( array(
 	'//i0.wp.com',
 	'//i1.wp.com',
 	'//i2.wp.com',
-) );
+), 'dns-prefetch' );
 
 Jetpack_Photon::instance();

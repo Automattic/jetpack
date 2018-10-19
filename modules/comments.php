@@ -39,4 +39,4 @@ Jetpack::dns_prefetch( array(
 	'//0.gravatar.com',
 	'//1.gravatar.com',
 	'//2.gravatar.com',
-) );
+), 'dns-prefetch' );
