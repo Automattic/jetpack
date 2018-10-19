@@ -131,10 +131,7 @@ class Jetpack_Gutenberg {
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
-		wp_add_inline_script(
-			'wp-i18n',
-			'wp.i18n.setLocaleData( ' . Jetpack::get_i18n_data_json() . ', \'jetpack\' );'
-		);
+		Jetpack::setup_wp_i18n_locale_data();
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
