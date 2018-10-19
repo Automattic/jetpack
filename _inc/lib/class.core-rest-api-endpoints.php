@@ -512,6 +512,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	public static function is_site_verified_and_token( $request ) {
+		// Site is likely displaying the Under Construction page using one of those plugins
+		// - https://github.com/mojoness/mojo-marketplace-wp-plugin (used by bluehost)
+		// - https://wordpress.org/plugins/mojo-under-construction
+		// - https://wordpress.org/plugins/under-construction-page
+		// - https://wordpress.org/plugins/ultimate-under-construction
+		// - https://wordpress.org/plugins/coming-soon
+		if (
+			'true' === get_option( 'mm_coming_soon', 'false' ) ||
+			1 == get_option( 'underConstructionActivationStatus', null ) ||
+			1 == get_option( 'ucp_options', array() )[ 'status' ] ||
+			1 == get_option( 'uuc_settings', array() )[ 'enable' ] ||
+			! get_transient( '_seed_csp4_welcome_screen_activation_redirect' )
+		) {
+			return new WP_Error( 'under_construction', __( 'Site is under construction and cannot be verified' ) );
+		}
+
 		Jetpack::load_xml_rpc_client();
  		$xml = new Jetpack_IXR_Client( array(
  			'user_id' => get_current_user_id(),
