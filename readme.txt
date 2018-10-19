@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * REST API: introduce endpoint for retrieving related posts of a particular post.
+* Sharing / Publicize: change the icons used in the Jetpack dashboard to clarify where the configuration links lead.
 * Secure Sign On: update wording on admin pages to avoid confusion.
 * Sitemaps: coding standards changes.
 * Site Verification Tools: improve display of the tool's description on mobile devices.
