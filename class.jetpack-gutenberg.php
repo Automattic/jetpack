@@ -60,7 +60,12 @@ class Jetpack_Gutenberg {
 				: JETPACK__VERSION;
 		}
 
-		wp_enqueue_script( 'jetpack-blocks-view', $view_script, array(), $version );
+		$view_script_dependencies = array(
+			'wp-i18n',
+			'wp-element'
+		);
+
+		wp_enqueue_script( 'jetpack-blocks-view', $view_script, $view_script_dependencies, $version );
 		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
 	}
 
