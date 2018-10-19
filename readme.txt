@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Comment Likes: only prefetch domains used by the feature.
 * Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
 * Sitemaps: Remove double encoding of site name in news sitemap.
