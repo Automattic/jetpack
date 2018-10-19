@@ -33,20 +33,20 @@ const SpeedUpSite = moduleSettingsForm(
 			}
 		};
 
-		handleCdnChange = () => {
+		handleSiteAcceleratorChange = () => {
 			// Initial status for both modules.
 			let newPhotonStatus = this.props.getOptionValue( 'photon' );
-			let newPhotonCdnStatus = this.props.getOptionValue( 'photon-cdn' );
+			let newAssetCdnStatus = this.props.getOptionValue( 'photon-cdn' );
 
 			// Check if any of the CDN options are on.
-			const CdnStatus = newPhotonStatus || newPhotonCdnStatus;
+			const siteAcceleratorStatus = newPhotonStatus || newAssetCdnStatus;
 
 			// Are the modules available?
 			const photonStatus = this.props.getModuleOverride( 'photon' );
-			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+			const assetCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
 
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
-			if ( true === CdnStatus ) {
+			if ( true === siteAcceleratorStatus ) {
 				if ( false === ! newPhotonStatus && 'active' !== photonStatus ) {
 					newPhotonStatus = false;
 
@@ -56,8 +56,8 @@ const SpeedUpSite = moduleSettingsForm(
 						tiled_galleries: false
 					} );
 				}
-				if ( false === ! newPhotonCdnStatus && 'active' !== photonCdnStatus ) {
-					newPhotonCdnStatus = false;
+				if ( false === ! newAssetCdnStatus && 'active' !== assetCdnStatus ) {
+					newAssetCdnStatus = false;
 
 					this.props.updateOptions( {
 						'photon-cdn': false
@@ -73,8 +73,8 @@ const SpeedUpSite = moduleSettingsForm(
 						tiled_galleries: true
 					} );
 				}
-				if ( false === newPhotonCdnStatus && 'inactive' !== photonCdnStatus ) {
-					newPhotonCdnStatus = true;
+				if ( false === newAssetCdnStatus && 'inactive' !== assetCdnStatus ) {
+					newAssetCdnStatus = true;
 
 					this.props.updateOptions( {
 						'photon-cdn': true
@@ -83,7 +83,7 @@ const SpeedUpSite = moduleSettingsForm(
 			}
 
 			// If at least one of the modules is now on, let's reflect that with the status of our main toggle.
-			if ( true === newPhotonStatus || true === newPhotonCdnStatus ) {
+			if ( true === newPhotonStatus || true === newAssetCdnStatus ) {
 				// Track the main toggle switch.
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
@@ -105,35 +105,35 @@ const SpeedUpSite = moduleSettingsForm(
 			}
 
 			// Track any potential Photon CDN toggle switch.
-			if ( this.props.getOptionValue( 'photon-cdn' ) !== newPhotonCdnStatus ) {
+			if ( this.props.getOptionValue( 'photon-cdn' ) !== newAssetCdnStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon-cdn',
-					toggled: ( false === newPhotonCdnStatus ) ? 'off' : 'on'
+					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on'
 				} );
 			}
 		};
 
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
-			const foundPhotonCdn = this.props.isModuleFound( 'photon-cdn' );
+			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
 			const foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundPhoton && ! foundLazyImages && ! foundPhotonCdn ) {
+			if ( ! foundPhoton && ! foundLazyImages && ! foundAssetCdn ) {
 				return null;
 			}
 
 			const lazyImages = this.props.module( 'lazy-images' );
 
 			// Check if any of the CDN options are on.
-			const CdnStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
+			const siteAcceleratorStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
 			// Is at least one of the 2 modules available (not hidden via a module override)?
 			const photonStatus = this.props.getModuleOverride( 'photon' );
-			const photonCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
-			const canDisplayCdnSettings = ( foundPhoton && foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
+			const assetCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+			const canDisplaySiteAcceleratorSettings = ( foundPhoton && foundAssetCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
 			// Display the main toggle in main search results as long as one of the modules is not hidden.
-			const canAppearInSearch = ( foundPhoton || foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
+			const canAppearInSearch = ( foundPhoton || foundAssetCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
 			// Monitor any changes that should cause our main toggle to appear toggling.
 			let togglingSiteAccelerator;
@@ -180,7 +180,7 @@ const SpeedUpSite = moduleSettingsForm(
 					header={ __( 'Performance & speed' ) }
 					hideButton>
 
-					{ ( foundPhoton || foundPhotonCdn ) &&
+					{ ( foundPhoton || foundAssetCdn ) &&
 						<SettingsGroup
 							hasChild
 							support={ {
@@ -196,10 +196,10 @@ const SpeedUpSite = moduleSettingsForm(
 							</p>
 							{ canAppearInSearch &&
 								<CompactFormToggle
-									checked={ CdnStatus }
+									checked={ siteAcceleratorStatus }
 									toggling={ togglingSiteAccelerator }
-									onChange={ this.handleCdnChange }
-									disabled={ ! canDisplayCdnSettings }
+									onChange={ this.handleSiteAcceleratorChange }
+									disabled={ ! canDisplaySiteAcceleratorSettings }
 								>
 									<span className="jp-form-toggle-explanation">
 										{ __( 'Enable site accelerator' ) }
@@ -220,7 +220,7 @@ const SpeedUpSite = moduleSettingsForm(
 										</span>
 									</ModuleToggle>
 								}
-								{ foundPhotonCdn &&
+								{ foundAssetCdn &&
 									<ModuleToggle
 										slug="photon-cdn"
 										activated={ this.props.getOptionValue( 'photon-cdn' ) }
