@@ -123,6 +123,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Sitemaps: Remove double encoding of site name in news sitemap.
+* Sitemaps: Ensure homepage is only included once.
+* Sitemaps: Provide richer "not found" message to site admins.
+* Sitemaps: Ensure sitemap is refreshed faster after upgrading Jetpack.
 * Site Verification Tools: make sure we validate meta tags when saving.
 
 --------
