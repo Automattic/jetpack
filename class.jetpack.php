@@ -6932,7 +6932,7 @@ p {
 	 * @param mixed $new_urls
 	 * @param string | $relation_type | resource hint type
 	 */
-	public static function dns_prefetch( $new_urls = null, $relation_type ) {
+	public static function dns_prefetch( $new_urls = null, $relation_type = 'dns-prefetch' ) {
 		static $prefetch_urls = array();
 		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
 			if( 'dns-prefetch' == $relation_type ) {
@@ -6950,7 +6950,7 @@ p {
 			}
 		}
 	}
-	
+
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
