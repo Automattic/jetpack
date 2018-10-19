@@ -109,6 +109,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Secure Sign On: update wording on admin pages to avoid confusion.
+
 **Improved compatibility**
 
 **Bug fixes**
