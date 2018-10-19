@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * AMP: Add support for GitHub's Gist shortcodes.
+* Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
 
 **Bug fixes**
 
