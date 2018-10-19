@@ -62,10 +62,6 @@ class Jetpack_Gutenberg {
 
 		wp_enqueue_script( 'jetpack-blocks-view', $view_script, array(), $version );
 		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
-		wp_add_inline_script(
-			'wp-i18n',
-			'wp.i18n.setLocaleData( ' . Jetpack::get_i18n_data_json() . ', \'jetpack\' );'
-		);
 	}
 
 	/**
@@ -140,6 +136,11 @@ class Jetpack_Gutenberg {
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+		);
+
+		wp_add_inline_script(
+			'wp-i18n',
+			'wp.i18n.setLocaleData( ' . Jetpack::get_i18n_data_json() . ', \'jetpack\' );'
 		);
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
