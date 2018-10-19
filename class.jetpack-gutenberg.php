@@ -69,6 +69,9 @@ class Jetpack_Gutenberg {
 			),
 			$version
 		);
+
+		Jetpack::setup_wp_i18n_locale_data();
+
 		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
 	}
 
