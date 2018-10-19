@@ -6937,7 +6937,7 @@ p {
 		if( 'dns-prefetch' == $relation_type ) {
 			if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
 				foreach ( (array) $prefetch_urls as $this_prefetch_hint ) {
-					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_prefetch_url ) ) );
+					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_prefetch_hint ) ) );
 				}
 				$hints = array_unique( $hints );
 			} elseif ( ! empty( $new_urls ) ) {
