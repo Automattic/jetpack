@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
+* Site Verification Tools: make sure we validate meta tags when saving.
 
 --------
 
