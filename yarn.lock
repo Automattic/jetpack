@@ -9,10 +9,10 @@
     loader-utils "^0.2.2"
     object-assign "^4.0.1"
 
-"@automattic/jetpack-blocks@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-0.1.0.tgz#8baa7551a3b7f05617fccef141b6ef25161d9315"
-  integrity sha512-+NLOs1Pogb6IpAFBA7JoH2joGzODRfDRExQ6onEFTvKO/u/blbZQ1IA2txr3Pm0fJ2vU8ojHFWJ95L1In4uc1A==
+"@automattic/jetpack-blocks@1.0.0-alpha.0":
+  version "1.0.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-1.0.0-alpha.0.tgz#29bab2d55824ec4a5ef2c30004954c20f7c8293b"
+  integrity sha512-EkaBON9+vJs5xmNPgufRoxY8gHE/AQjs3RselY0dr0WACdnnh3lFiI8+E8s2C9rJkb2WTweIhOYiKUURoJwINA==
 
 "@octokit/rest@^15.5.0":
   version "15.9.0"
