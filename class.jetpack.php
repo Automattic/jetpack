@@ -6933,22 +6933,20 @@ p {
 	 * @param string | $relation_type | resource hint type
 	 */
 	public static function dns_prefetch( $new_urls = null, $relation_type = 'dns-prefetch' ) {
-		static $prefetch_urls = array();
-		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
+			static $prefetch_urls = array();
 			if( 'dns-prefetch' == $relation_type ) {
-				foreach ( (array) $prefetch_urls as $this_prefetch_url ) {
-					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_prefetch_url ) ) );
-				}
-				$urls = array_unique( $urls );
+					if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
+							foreach ( (array) $prefetch_urls as $this_prefetch_hint ) {
+							$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_prefetch_url ) ) );
+						}
+						$hints = array_unique( $hints );
+					} elseif ( ! empty( $new_urls ) ) {
+							foreach ( (array) $new_urls as $this_new_hint ) {
+									$hints[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_hint ) ) );
+							}
+							$hints = array_unique( $hints );
+					}
 			}
-		} elseif ( ! empty( $new_urls ) ) {
-			if( 'dns-prefetch' == $relation_type ) {
-				foreach ( (array) $new_urls as $this_new_url ) {
-					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
-				}
-				$urls = array_unique( $urls );
-			}
-		}
 	}
 
 	public function wp_dashboard_setup() {
