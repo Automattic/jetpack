@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Gutenberg: introduce new blocks in the editor.
+
 **Enhancements**
 
 * REST API: introduce endpoint for retrieving related posts of a particular post.
