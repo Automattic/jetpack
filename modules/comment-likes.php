@@ -14,7 +14,7 @@
 Jetpack::dns_prefetch(
 	array(
 		'//widgets.wp.com',
-	), 'dns-prefetch'
+	)
 );
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';

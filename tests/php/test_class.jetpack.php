@@ -199,12 +199,12 @@ EXPECTED;
 		Jetpack::dns_prefetch();
 		$remove_this = ob_get_clean();
 
-		Jetpack::dns_prefetch( 'http://example1.com/', 'dns-prefetch' );
+		Jetpack::dns_prefetch( 'http://example1.com/' );
 		Jetpack::dns_prefetch( array(
 			'http://example2.com/',
 			'https://example3.com',
-		), 'dns-prefetch' );
-		Jetpack::dns_prefetch( 'https://example2.com', 'dns-prefetch' );
+		) );
+		Jetpack::dns_prefetch( 'https://example2.com' );
 
 		$expected = "\r\n" .
 		            "<link rel='dns-prefetch' href='//example1.com'/>\r\n" .

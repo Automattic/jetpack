@@ -38,7 +38,7 @@ class A8C_WPCOM_Masterbar {
 			'//0.gravatar.com',
 			'//1.gravatar.com',
 			'//2.gravatar.com',
-		), 'dns-prefetch' );
+		) );
 
 		// Atomic only
 		if ( jetpack_is_atomic_site() ) {
@@ -509,7 +509,7 @@ class A8C_WPCOM_Masterbar {
 				'class' => 'mb-icon user-info-item',
 			),
 		) );
-
+		
 		$help_link = 'https://jetpack.com/support/';
 
 		if ( jetpack_is_atomic_site() ) {

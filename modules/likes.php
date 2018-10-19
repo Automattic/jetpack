@@ -17,7 +17,7 @@ Jetpack::dns_prefetch( array(
 	'//0.gravatar.com',
 	'//1.gravatar.com',
 	'//2.gravatar.com',
-), 'dns-prefetch' );
+) );
 
 include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 include_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
