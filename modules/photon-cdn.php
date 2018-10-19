@@ -16,7 +16,7 @@ $GLOBALS['concatenate_scripts'] = false;
 
 Jetpack::dns_prefetch( array(
 	'//c0.wp.com',
-), 'dns-prefetch' );
+) );
 
 class Jetpack_Photon_Static_Assets_CDN {
 	const CDN = 'https://c0.wp.com/';

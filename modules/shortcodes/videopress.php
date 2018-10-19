@@ -11,7 +11,7 @@ if ( ! Jetpack::is_module_active( 'videopress' ) ) {
 	Jetpack::dns_prefetch(
 		array(
 			'//v0.wordpress.com',
-		), 'dns-prefetch'
+		)
 	);
 
 	include_once JETPACK__PLUGIN_DIR . 'modules/videopress/utility-functions.php';
