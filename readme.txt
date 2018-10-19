@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * REST API: introduce endpoint for retrieving related posts of a particular post.
 * Secure Sign On: update wording on admin pages to avoid confusion.
+* Site Verification Tools: improve display of the tool's description on mobile devices.
 * Unit Tests: improve process for faster tests.
 
 **Improved compatibility**
