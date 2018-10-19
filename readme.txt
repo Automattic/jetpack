@@ -117,6 +117,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* AMP: Add support for GitHub's Gist shortcodes.
+
 **Bug fixes**
 
 * Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
