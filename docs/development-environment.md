@@ -4,13 +4,13 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 ## Before moving forward
 
-In most cases you want to have accessible WordPress installation for Jetpack development. We suggest to use `Docker` container which we provide. Follow [this guide](../docker/README.md#to-get-started) to configure your Docker development environment.
+In most cases you want to have accessible an WordPress installation for Jetpack development. We suggest to use a `Docker` container which we provide. Follow [this guide](../docker/README.md#to-get-started) to configure your Docker development environment.
 
 **Recommended Environment:**
 
 * Node.js 10
 * Yarn 1.7
-* PHP 7.0 (in case you running WordPress locally)
+* PHP 7.0 (in case you are running WordPress locally)
 
 ## A note on Node versions used for the build tasks
 
