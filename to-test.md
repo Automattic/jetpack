@@ -59,4 +59,12 @@ Second example from WordPress.com docs:
 [gist]2314628[/gist]
 ```
 
+### Sitemaps
+
+We've made multiple changes to the Sitemaps feature in this release. To test this:
+
+- Try visiting the Sitemaps right after upgrading.
+- Try deactivating the sitemaps feature, activate it back, and then immediately visit the Sitemaps pages.
+- Under Settings > Reading, set a static front page and a blog page, and check that they both appear in the sitemaps, without being duplicated.
+
 **Thank you for all your help!**
