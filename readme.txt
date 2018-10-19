@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * AMP: Add support for GitHub's Gist shortcodes.
 * Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
+* Plugins: add a WordPress.com themed plugins page for users managing their plugins via the WordPress.com interface.
 
 **Bug fixes**
 

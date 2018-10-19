@@ -1,6 +1,37 @@
 ## 6.7
 
-### shortcodes
+### Calypsoify
+
+If you are used to manage your site via the WordPress.com interface, you can now click on the "Plugins" link in Calypso and be redirected to a WordPress.com themed Plugins page in your site's dashboard (wp-admin).
+
+To test this change, try the following:
+
+**Pre-testing:**
+
+- You must have an active Jetpack connection
+- Open/watch your browser console for errors.
+
+**Plugins:**
+
+- Visit `/wp-admin/plugins.php?calypsoify=1`: see the new skin
+- Visit `/wp-admin/` with no params. Skin should be removed. Note: you can also click to go "back" to Calypso, and then when in Calypso, click "wp-admin".
+- Repeat the above steps after collapsing the WordPress menu
+- Repeat the above steps with multiple admin color schemes
+- Install a few plugins that have settings pages and ensure that they are displaying properly when Claypsoified.
+- Ensure that none of the .js or .css are loading when not Calypsoified in both the admin and front end.
+
+**Gutenberg:**
+
+- Install the Gutenberg plugin
+- Visit `wp-admin/post-new.php?calypsoify=1` to view the Calypso skin
+- You should not see the sidebar (It's meant to be a "full screen" experience)
+
+**RTL**
+
+- Enable an RTL language.
+- Repeat the above testing instructions to ensure everything looks ok
+
+### Shortcodes
 
 We've made some changes to [the Gist shortcode](https://en.support.wordpress.com/gist/) in this release. It should now be fully compatible with the AMP plugin.
 
