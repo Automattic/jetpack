@@ -6930,10 +6930,10 @@ p {
 	 * Stores and prints out domains to prefetch for page speed optimization.
 	 *
 	 * @param mixed $new_urls
+	 * @param string | $relation_type | resource hint type
 	 */
-	public static function dns_prefetch( $new_urls = null ) {
+	public static function dns_prefetch( $new_urls = null, $relation_type ) {
 		static $prefetch_urls = array();
-		static $relation_type = 'dns-prefetch'; /* Should this be a passed param, to allow different link types*/
 		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
 			if( 'dns-prefetch' == $relation_type ) {
 				foreach ( (array) $prefetch_urls as $this_prefetch_url ) {
@@ -6942,11 +6942,12 @@ p {
 				$urls = array_unique( $urls );
 			}
 		} elseif ( ! empty( $new_urls ) ) {
-			if( 'dns-prefetch' == $relation_type )
+			if( 'dns-prefetch' == $relation_type ) {
 				foreach ( (array) $new_urls as $this_new_url ) {
 					$urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
 				}
 				$urls = array_unique( $urls );
+			}
 		}
 	}
 	
