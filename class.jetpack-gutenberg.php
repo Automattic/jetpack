@@ -64,10 +64,11 @@ class Jetpack_Gutenberg {
 			'jetpack-blocks-view',
 			$view_script,
 			array(
+				'wp-element',
 				'wp-i18n',
-				'wp-element'
 			),
-			$version );
+			$version
+		);
 		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
 	}
 
