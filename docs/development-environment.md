@@ -2,10 +2,15 @@
 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 
-**Recommended Environment**
+## Before moving forward
+
+In most cases you want to have accessible an WordPress installation for Jetpack development. We suggest to use a `Docker` container which we provide. Follow [this guide](../docker/README.md#to-get-started) to configure your Docker development environment.
+
+**Recommended Environment:**
 
 * Node.js 10
 * Yarn 1.7
+* PHP 7.0 (in case you are running WordPress locally)
 
 ## A note on Node versions used for the build tasks
 
@@ -20,19 +25,17 @@ run this command before building again. Otherwise you may experience errors on t
 $ yarn distclean
 ```
 
-**Start Development**
+### Start Development
 
 1. Make sure you have `git`, `node`, `npm`, and a working WordPress installation.
 2. Clone this repository inside your Plugins directory.
 
-	```
+	```sh
 	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
 
-3. Install yarn
-
-Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
+3. Install yarn. Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
 4. Make sure the Jetpack plugin is active and run
 
