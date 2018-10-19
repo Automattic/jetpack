@@ -119,6 +119,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
+
 --------
 
 [See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/changelog.txt).
