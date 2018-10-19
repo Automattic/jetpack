@@ -189,9 +189,8 @@ const SpeedUpSite = moduleSettingsForm(
 							>
 							<p>
 								{ __(
-									"Jetpack's global Content Delivery Network (CDN) optimizes " +
-										'files and images so your visitors enjoy ' +
-										'the fastest experience regardless of device or location.'
+									'Load pages faster by allowing Jetpack to optimize your images and serve your images ' +
+										'and static files (like CSS and JavaScript) from our global network of servers.'
 								) }
 							</p>
 							{ canAppearInSearch &&
@@ -216,7 +215,7 @@ const SpeedUpSite = moduleSettingsForm(
 										toggleModule={ this.toggleModule }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up images' ) }
+											{ __( 'Speed up image load times' ) }
 										</span>
 									</ModuleToggle>
 								}
@@ -228,7 +227,7 @@ const SpeedUpSite = moduleSettingsForm(
 										toggleModule={ this.toggleModule }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up all static files (CSS and JavaScript) for WordPress, WooCommerce, and Jetpack' ) }
+											{ __( 'Speed up static file load times' ) }
 										</span>
 									</ModuleToggle>
 								}
