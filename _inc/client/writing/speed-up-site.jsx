@@ -184,7 +184,7 @@ const SpeedUpSite = moduleSettingsForm(
 						<SettingsGroup
 							hasChild
 							support={ {
-								link: 'https://jetpack.com/support/image-cdn/',
+								link: 'http://jetpack.com/support/site-accelerator/',
 							} }
 							>
 							<p>
