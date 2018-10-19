@@ -2638,11 +2638,11 @@ class Jetpack {
 	}
 
 	/**
-	 * Sets up wp-i18n package with locale data
+	 * Add locale data setup to wp-i18n
 	 *
-	 * Any Jetpack script that depends on wp-i18n should use this method to setup the locale.
+	 * Any Jetpack script that depends on wp-i18n should use this method to set up the locale.
 	 *
-	 * The local setup depends on an adding inline script. This is error-prone and could easily
+	 * The locale setup depends on an adding inline script. This is error-prone and could easily
 	 * result in multiple additions of the same script when exactly 0 or 1 is desireable.
 	 *
 	 * This method provides a safe way to request the setup multiple times but add the script at
