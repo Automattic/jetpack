@@ -78,28 +78,13 @@ class Jetpack_Gutenberg {
 
 		$rtl = is_rtl() ? '.rtl' : '';
 
-		/**
-		 * Filter to enable serving blocks via CDN
-		 *
-		 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-		 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool false Whether to load Gutenberg blocks from CDN
-		 */
+		/** This filter is already documented above */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
 			$cdn_base      = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
 			$editor_script = "$cdn_base/editor.js";
 			$editor_style  = "$cdn_base/editor$rtl.css";
 
-			/**
-			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
-			 *
-			 * @since 6.7.0
-			 *
-			 * @param string
-			 */
+			/** This filter is already documented above */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
 			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
