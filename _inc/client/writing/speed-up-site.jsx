@@ -135,6 +135,45 @@ const SpeedUpSite = moduleSettingsForm(
 			// Display the main toggle in main search results as long as one of the modules is not hidden.
 			const canAppearInSearch = ( foundPhoton || foundPhotonCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== photonCdnStatus );
 
+			// Monitor any changes that should cause our main toggle to appear toggling.
+			let togglingSiteAccelerator;
+			// First Photon activating.
+			if ( ! this.props.getOptionValue( 'photon' ) && this.props.isSavingAnyOption( 'photon' ) ) {
+				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
+					togglingSiteAccelerator = false;
+				} else {
+					togglingSiteAccelerator = true;
+				}
+			// Then Asset CDN activating.
+			} else if ( ! this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+				if ( this.props.getOptionValue( 'photon' ) ) {
+					togglingSiteAccelerator = false;
+				} else {
+					togglingSiteAccelerator = true;
+				}
+			// Then Photon deactivating.
+			} else if ( this.props.getOptionValue( 'photon' ) && this.props.isSavingAnyOption( 'photon' ) ) {
+				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
+					togglingSiteAccelerator = false;
+				} else {
+					togglingSiteAccelerator = true;
+				}
+
+				// Is the Asset CDN being disabled as well?
+				if ( this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+					togglingSiteAccelerator = true;
+				}
+			// Then Asset CDN deactivating.
+			} else if ( this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+				if ( this.props.getOptionValue( 'photon' ) ) {
+					togglingSiteAccelerator = false;
+				} else {
+					togglingSiteAccelerator = true;
+				}
+			} else {
+				togglingSiteAccelerator = false;
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -158,7 +197,7 @@ const SpeedUpSite = moduleSettingsForm(
 							{ canAppearInSearch &&
 								<CompactFormToggle
 									checked={ CdnStatus }
-									toggling={ this.props.isSavingAnyOption( [ 'photon', 'photon-cdn' ] ) && ! CdnStatus }
+									toggling={ togglingSiteAccelerator }
 									onChange={ this.handleCdnChange }
 									disabled={ ! canDisplayCdnSettings }
 								>
