@@ -16,7 +16,7 @@
 		const branch = jQuery( '.head-ref' ).text();
 		const branchIsForked = branch.includes( ':' );
 		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
-		const isGutenbergPr = $( '.discussion-sidebar .sidebar-labels .labels' ).children( 'a' ).attr( 'title' ) === 'Gutenberg';
+		const isGutenbergPr = $( ".discussion-sidebar .sidebar-labels .labels a[title='Gutenberg']" ).length;
 		const base = 'https://jurassic.ninja/create?';
 		const query = `jetpack-beta&branch=${ branch }&shortlived&wp-debug-log&gutenberg${ isGutenbergPr ? '&gutenpack' : '' }`;
 		let link = base + query;
