@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* REST API: introduce endpoint for retrieving related posts of a particular post.
 * Secure Sign On: update wording on admin pages to avoid confusion.
 
 **Improved compatibility**
