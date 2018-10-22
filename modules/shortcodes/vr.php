@@ -134,32 +134,3 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 }
 
 add_shortcode( 'vr', 'jetpack_vr_viewer_shortcode' );
-
-// Gutenberg!
-add_action( 'admin_init', 'jetpack_register_block_type_vr' );
-function jetpack_register_block_type_vr() {
-	if ( ! function_exists( 'register_block_type' ) ) {
-		return;
-	}
-
-	wp_register_script(
-		'jetpack_vr_viewer_shortcode_editor_script',
-		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/blocks/vr-block.min.js', 'modules/shortcodes/js/blocks/vr-block.js' ),
-		array( 'wp-blocks', 'wp-element', 'wp-i18n' )
-	);
-
-	wp_register_style(
-		'jetpack_vr_viewer_shortcode_editor_style',
-		plugins_url( 'modules/shortcodes/css/blocks/vr-block.css', JETPACK__PLUGIN_FILE ),
-		array( 'wp-edit-blocks' )
-	);
-
-	register_block_type(
-		'jetpack/vr',
-		array(
-			'editor_script'   => 'jetpack_vr_viewer_shortcode_editor_script',
-			'editor_style'    => 'jetpack_vr_viewer_shortcode_editor_style',
-			'render_callback' => 'jetpack_vr_viewer_shortcode',
-		)
-	);
-}

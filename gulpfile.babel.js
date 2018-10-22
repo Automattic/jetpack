@@ -2,7 +2,6 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import babel from 'gulp-babel';
 import banner from 'gulp-banner';
 import check from 'gulp-check';
 import cleanCSS from 'gulp-clean-css';
@@ -549,30 +548,9 @@ gulp.task( 'languages:extract', function( done ) {
 } );
 
 /*
- * Gutenpack!
+ * Gutenberg Blocks for Jetpack
  */
-gulp.task( 'gutenpack', function() {
-	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
-		.pipe( babel( {
-			plugins: [
-				[
-					'transform-react-jsx', {
-						pragma: 'wp.element.createElement'
-					}
-				]
-			],
-		} ) )
-		.on( 'error', function( err ) {
-			log( colors.red( err ) );
-		} )
-		.pipe( gulp.dest( './' ) );
-} );
-
-gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
-} );
-
-gulp.task( 'gutenpack:jetpack-blocks', function() {
+gulp.task( 'gutenberg:blocks', function() {
 	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
@@ -580,11 +558,11 @@ gulp.task( 'gutenpack:jetpack-blocks', function() {
 // Default task
 gulp.task(
 	'default',
-	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' ]
+	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' ]
 );
 gulp.task(
 	'watch',
-	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch' ]
+	[ 'react:watch', 'sass:watch', 'old-styles:watch' ]
 );
 
 gulp.task( 'jshint', [ 'js:hint' ] );
