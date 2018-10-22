@@ -7,6 +7,7 @@
  */
 import {
 	registerBlockType,
+	getBlockType,
 	createBlock
 } from '@wordpress/blocks';
 
@@ -215,13 +216,20 @@ const FieldDefaults = {
 	}
 };
 
+const getFieldLabel = function( props ) {
+	if ( null === props.attributes.label ) {
+		return getBlockType( props.name ).title;
+	}
+	return props.attributes.label;
+};
+
 registerBlockType( 'jetpack/field-text', Object.assign( {
 	title: __( 'Text', 'jetpack' ),
 	icon: 'feedback',
 	edit: function( props ) {
 		return ( <JetpackField
-			label={ props.attributes.label }
 			type="text"
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -234,7 +242,7 @@ registerBlockType( 'jetpack/field-name', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			type="text"
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -247,7 +255,7 @@ registerBlockType( 'jetpack/field-email', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			type="email"
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -260,7 +268,7 @@ registerBlockType( 'jetpack/field-url', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			type="url"
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -273,7 +281,7 @@ registerBlockType( 'jetpack/field-date', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			type="text"
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -286,7 +294,7 @@ registerBlockType( 'jetpack/field-telephone', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			type="tel"
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -298,7 +306,7 @@ registerBlockType( 'jetpack/field-textarea', Object.assign( {
 	icon: 'feedback',
 	edit: function( props ) {
 		return ( <JetpackFieldTextarea
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -310,7 +318,7 @@ registerBlockType( 'jetpack/field-checkbox', Object.assign( {
 	icon: 'forms',
 	edit: function( props ) {
 		return ( <JetpackFieldCheckbox
-			label={ props.attributes.label }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -322,8 +330,8 @@ registerBlockType( 'jetpack/field-checkbox-multiple', Object.assign( {
 	icon: 'forms',
 	edit: function( props ) {
 		return ( <JetpackFieldMultiple
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
-			label={ props.attributes.label }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -335,8 +343,8 @@ registerBlockType( 'jetpack/field-radio', Object.assign( {
 	icon: 'feedback',
 	edit: function( props ) {
 		return ( <JetpackFieldMultiple
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
-			label={ props.attributes.label }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
 		/> );
@@ -348,8 +356,8 @@ registerBlockType( 'jetpack/field-select', Object.assign( {
 	icon: 'feedback',
 	edit: function( props ) {
 		return ( <JetpackFieldMultiple
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
-			label={ props.attributes.label }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
 		/> );
