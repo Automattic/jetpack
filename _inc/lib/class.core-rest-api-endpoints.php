@@ -530,7 +530,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			( is_array( $uuc_settings ) && 1 == $uuc_settings[ 'enable' ] ) ||
 			( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) )
 		) {
-			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified' ) );
+			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
 
 		Jetpack::load_xml_rpc_client();
