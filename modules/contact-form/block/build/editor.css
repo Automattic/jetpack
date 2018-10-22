@@ -61,6 +61,17 @@
 .editor-block-list__block input.components-checkbox-control__input {
   border-color: #191E23;
   margin: 0 5px 0 2px; }
+.editor-block-list__block .block-list-appender__toggle {
+  background-color: #f7f7f7;
+  display: none;
+  margin: 32px auto;
+  width: calc(100% - 32px); }
+  .editor-block-list__block .block-list-appender__toggle:hover {
+    outline: 1px solid #555d66; }
+
+.editor-block-list__block.is-selected .block-list-appender__toggle,
+.editor-block-list__block.is-selected-parent .block-list-appender__toggle {
+  display: block; }
 
 .jetpack-submit-button {
   padding: 5px; }

@@ -102,6 +102,25 @@
 		border-color: #191E23;
 		margin: 0 5px 0 2px;
 	}
+
+	.block-list-appender__toggle {
+		background-color: #f7f7f7;
+		display: none;
+		margin: 32px auto;
+		width: calc(100% - 32px);
+
+		&:hover {
+			outline: 1px solid #555d66;
+		}
+	}
+}
+
+.editor-block-list__block.is-selected,
+.editor-block-list__block.is-selected-parent {
+	
+	.block-list-appender__toggle {
+		display: block;
+	}
 }
 
 .jetpack-submit-button {
