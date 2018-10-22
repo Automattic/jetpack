@@ -39,9 +39,44 @@ class Jetpack_Calypsoify {
 			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
 
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+
 			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 		}
 	}
+
+	public function manage_plugins_columns_header( $columns ) {
+	    $columns['autoupdate'] = __( 'Automatic Update', 'jetpack' );
+	    return $columns;
+    }
+
+    public function manage_plugins_custom_column( $column_name, $slug ) {
+	    $autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+	    // $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+	    if ( 'autoupdate' === $column_name ) {
+	        // Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle
+	        ?>
+
+            <span class="form-toggle__wrapper" data-slug="<?php echo esc_attr( $slug ); ?>">
+				<input
+                        id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
+                        name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
+                        value="autoupdate"
+                        class="form-toggle"
+                        type="checkbox"
+                        <?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
+                        readonly
+                />
+				<label class="form-toggle__label" for="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>">
+                    <span class="form-toggle__switch" role="checkbox"></span>
+					<span class="form-toggle__label-content"><?php /*  */ ?></span>
+				</label>
+			</span>
+
+	        <?php
+        }
+    }
 
 	public function admin_color_override( $color ) {
 	    return 'fresh';

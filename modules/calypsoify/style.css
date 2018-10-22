@@ -539,3 +539,98 @@ div.mce-toolbar-grp,
 .wp-filter .search-form {
 	margin-right: 10px;
 }
+
+.form-toggle[type=checkbox] {
+	display: none;
+}
+
+.form-toggle__switch {
+	position: relative;
+	display: inline-block;
+	border-radius: 12px;
+	box-sizing: border-box;
+	padding: 2px;
+	width: 40px;
+	height: 24px;
+	vertical-align: middle;
+	align-self: flex-start;
+	outline: 0;
+	cursor: pointer;
+	transition: all 0.4s ease, box-shadow 0s;
+}
+.form-toggle__switch:before, .form-toggle__switch:after {
+	position: relative;
+	display: block;
+	content: "";
+	width: 20px;
+	height: 20px;
+}
+.form-toggle__switch:after {
+	left: 0;
+	border-radius: 50%;
+	background: #fff;
+	transition: all 0.2s ease;
+}
+.form-toggle__switch:before {
+	display: none;
+}
+.accessible-focus .form-toggle__switch:focus {
+	box-shadow: 0 0 0 2px #008ab3;
+}
+
+.form-toggle__label {
+	cursor: pointer;
+}
+.is-disabled .form-toggle__label {
+	cursor: default;
+}
+.form-toggle__label .form-toggle__label-content {
+	flex: 0 1 100%;
+	margin-left: 12px;
+}
+
+.accessible-focus .form-toggle:focus + .form-toggle__label .form-toggle__switch {
+	box-shadow: 0 0 0 2px #008ab3;
+}
+.accessible-focus .form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
+	box-shadow: 0 0 0 2px #00aadc;
+}
+.form-toggle + .form-toggle__label .form-toggle__switch {
+	background: #537994;
+}
+.form-toggle:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
+	background: #87a6bc;
+}
+.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+	background: #008ab3;
+}
+.form-toggle:checked + .form-toggle__label .form-toggle__switch:after {
+	left: 16px;
+}
+.form-toggle:checked:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
+	background: #00aadc;
+}
+.form-toggle:disabled + label.form-toggle__label span.form-toggle__switch {
+	opacity: 0.25;
+	cursor: default;
+}
+
+.form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
+	background: #008ab3;
+}
+.form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
+	background: #87a6bc;
+}
+
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
+	border-radius: 8px;
+	width: 24px;
+	height: 16px;
+}
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch:before, .form-toggle.is-compact + .form-toggle__label .form-toggle__switch:after {
+	width: 12px;
+	height: 12px;
+}
+.form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
+	left: 8px;
+}
