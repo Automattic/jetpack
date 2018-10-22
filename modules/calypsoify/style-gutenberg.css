@@ -1,0 +1,4 @@
+/* Hides the menu items for switching the view mode */
+.edit-post-more-menu__content .components-menu-group:first-child {
+	display: none;
+}
