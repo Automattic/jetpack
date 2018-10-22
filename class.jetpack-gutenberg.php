@@ -113,6 +113,7 @@ class Jetpack_Gutenberg {
 				'wp-compose',
 				'wp-data',
 				'wp-date',
+				'wp-edit-post',
 				'wp-editor',
 				'wp-element',
 				'wp-hooks',
