@@ -221,6 +221,7 @@ registerBlockType( 'jetpack/field-text', Object.assign( {
 	edit: function( props ) {
 		return ( <JetpackField
 			label={ props.attributes.label }
+			type="text"
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
 		/> );
