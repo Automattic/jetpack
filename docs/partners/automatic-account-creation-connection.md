@@ -18,7 +18,7 @@ When a partner makes a request to the API to provision a site, the API will firs
 
 Based on the email address that is used by the user on the self-hosted WordPress installation, the API will attempt to create a WordPress.com account that:
 
-- Has a automatically generated username based off of the email address
+- Has an automatically generated username based off of the email address
 - Has an automatically generated password
 
 I'd like to point out that both of these values are automatically generated. This brings up a couple of things to consider when supporting these users. These topics will be covered below in [Support Considerations](#support-considerations).
