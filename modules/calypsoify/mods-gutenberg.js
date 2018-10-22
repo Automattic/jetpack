@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 /* global wp, calypsoifyGutenberg */
 
 jQuery( function( $ ) {
@@ -12,7 +13,7 @@ jQuery( function( $ ) {
 		}
 		clearInterval( editPostHeaderInception );
 
-		$closeButton.attr( 'href' , calypsoifyGutenberg.closeUrl );
+		$closeButton.attr( 'href', calypsoifyGutenberg.closeUrl );
 	} );
 
 	$( 'body.revision-php a' ).each( function() {
