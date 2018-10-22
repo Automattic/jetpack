@@ -1,4 +1,4 @@
-/* Hides the menu items for switching the view mode */
-.edit-post-more-menu__content .components-menu-group:first-child {
+/* Hides the Fullscreen option from the View modes */
+.edit-post-more-menu__content .components-menu-group:first-child .components-menu-item__button:last-child {
 	display: none;
 }
