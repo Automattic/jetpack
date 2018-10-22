@@ -224,28 +224,28 @@ Jetpack CLI is a command line interface for Jetpack, extending off of wp-cli for
 
 Usage:
 
-* wp jetpack status [<full>]
-* wp jetpack module <list|activate|deactivate|toggle> [<module_name>]
-* wp jetpack options <list|get|delete|update> [<option_name>] [<option_value>]
-* wp jetpack protect <whitelist> [<ip|ip_low-ip_high|list|clear>]
-* wp jetpack reset <modules|options>
-* wp jetpack disconnect <blog|user> [<user_identifier>]
-* wp jetpack status
-* wp jetpack status [<full>]
+* `wp jetpack status [<full>]`
+* `wp jetpack module <list|activate|deactivate|toggle> [<module_name>]`
+* `wp jetpack options <list|get|delete|update> [<option_name>] [<option_value>]`
+* `wp jetpack protect <whitelist> [<ip|ip_low-ip_high|list|clear>]`
+* `wp jetpack reset <modules|options>`
+* `wp jetpack disconnect <blog|user> [<user_identifier>]`
+* `wp jetpack status`
+* `wp jetpack status [<full>]`
 
-More info can be found in [Jetpack support documentation](https://jetpack.com/support/jetpack-cli/).
+More info can be found in [our support documentation](https://jetpack.com/support/jetpack-cli/).
 
 ### JETPACK_DEV_DEBUG
 
-`JETPACK_DEV_DEBUG` constant can be used to enable development mode in Jetpack. With Development Mode, features that do not require a connection to WordPress.com servers can be activated on a localhost WordPress installation for testing.
+`JETPACK_DEV_DEBUG` constant can be used to enable development mode in Jetpack. Add `define( 'JETPACK_DEV_DEBUG', true );` in your `wp-config.php` to enable it. With Development Mode, features that do not require a connection to WordPress.com servers can be activated on a local WordPress installation for testing.
 
-Development mode automatically gets enabled if you don’t have a period in your site’s hostname, i.e. localhost. If you use a different URL, such as mycooltestsite.local or something, then you will need to define the JETPACK_DEV_DEBUG constant.
+Development mode automatically gets enabled if you don’t have a period in your site’s hostname, i.e. localhost. If you use a different URL, such as mycooltestsite.local, then you will need to define the `JETPACK_DEV_DEBUG` constant.
 
 You can also enable Jetpack’s development mode through a plugin, thanks to the jetpack_development_mode filter:
 
 `add_filter( 'jetpack_development_mode', '__return_true' );`
 
-While in Development Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Development Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing.
+While in Development Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Development Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 ### JETPACK__SANDBOX_DOMAIN
 
