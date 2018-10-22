@@ -1,11 +1,33 @@
-
+/* global pagenow, ajaxurl, CalypsoifyOpts */
 ( function( $ ) {
 	$( window ).load( function() {
-		// Remove | and () from the plugins filter bar
-		$.each( $( 'ul.subsubsub li' ), function( i, el ) {
-			const li = $( el );
-			li.html( li.html().replace( '|', '' ).replace( '(', '' ).replace( ')', '' ) );
-		} );
+		// On Plugins.php
+		if ( 'plugins' === pagenow ) { // pagenow === $current_screen->id
+			// Remove | and () from the plugins filter bar
+			$.each( $( 'ul.subsubsub li' ), function( i, el ) {
+				const li = $( el );
+				li.html( li.html().replace( '|', '' ).replace( '(', '' ).replace( ')', '' ) );
+			} );
+
+			$( 'input.autoupdate-toggle' ).change( function( event ) {
+				const el = event.target;
+
+				el.disabled = true;
+				el.classList.add( 'is-toggling' );
+
+				jQuery.post( ajaxurl, {
+					action: 'jetpack_toggle_autoupdate',
+					type: 'plugins',
+					slug: el.dataset.slug,
+					active: el.checked,
+					_wpnonce: CalypsoifyOpts.nonces.autoupdate_plugins
+				}, function() {
+					// Add something to test and confirm that `el.dataset.slug` is missing from `response.data` ?
+					el.disabled = false;
+					el.classList.remove( 'is-toggling' );
+				} );
+			} );
+		}
 
 		$( '#wp-admin-bar-root-default' ).on( 'click', 'li', function( event ) {
 			location.href = $( event.target ).closest( 'a' ).attr( 'href' );

@@ -905,6 +905,12 @@ class Jetpack {
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_manage_autoupdates' :
+				$caps = array(
+					'manage_options',
+					'update_plugins',
+				);
+				break;
 			case 'jetpack_network_admin_page':
 			case 'jetpack_network_settings_page':
 				$caps = array( 'manage_network_plugins' );

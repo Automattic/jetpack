@@ -44,43 +44,84 @@ class Jetpack_Calypsoify {
 
 			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 		}
+		// Make this always available -- in case calypsoify gets toggled off.
+		add_action( 'wp_ajax_jetpack_toggle_autoupdate', array( $this, 'jetpack_toggle_autoupdate' ) );
 	}
 
 	public function manage_plugins_columns_header( $columns ) {
-	    $columns['autoupdate'] = __( 'Automatic Update', 'jetpack' );
-	    return $columns;
-    }
+		if ( current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			$columns['autoupdate'] = __( 'Automatic Update', 'jetpack' );
+		}
+		return $columns;
+	}
 
-    public function manage_plugins_custom_column( $column_name, $slug ) {
-	    $autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-	    // $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
-	    if ( 'autoupdate' === $column_name ) {
-	        // Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle
-	        ?>
+	public function manage_plugins_custom_column( $column_name, $slug ) {
+		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			return;
+		}
 
-            <span class="form-toggle__wrapper" data-slug="<?php echo esc_attr( $slug ); ?>">
+		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+		if ( 'autoupdate' === $column_name ) {
+			// Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle
+			?>
+
+			<span class="form-toggle__wrapper">
 				<input
-                        id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
-                        name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
-                        value="autoupdate"
-                        class="form-toggle"
-                        type="checkbox"
-                        <?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
-                        readonly
-                />
+						id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
+						name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
+						value="autoupdate"
+						class="form-toggle autoupdate-toggle"
+						type="checkbox"
+						<?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
+						readonly
+						data-slug="<?php echo esc_attr( $slug ); ?>"
+				/>
 				<label class="form-toggle__label" for="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>">
-                    <span class="form-toggle__switch" role="checkbox"></span>
+					<span class="form-toggle__switch" role="checkbox"></span>
 					<span class="form-toggle__label-content"><?php /*  */ ?></span>
 				</label>
 			</span>
 
-	        <?php
-        }
-    }
+			<?php
+		}
+	}
+
+	public function jetpack_toggle_autoupdate() {
+		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			wp_send_json_error();
+			return;
+		}
+
+		$type   = $_POST['type'];
+		$slug   = $_POST['slug'];
+		$active = 'false' !== $_POST['active'];
+
+		check_ajax_referer( "jetpack_toggle_autoupdate-{$type}" );
+
+		if ( ! in_array( $type, array( 'plugins', 'plugins_translations' ) ) ) {
+			wp_send_json_error();
+			return;
+		}
+
+		$jetpack_option_name = "autoupdate_{$type}";
+
+		$list = Jetpack_Options::get_option( $jetpack_option_name, array() );
+
+		if ( $active ) {
+			$list = array_unique( array_merge( $list, (array) $slug ) );
+		} else {
+			$list = array_diff( $list, (array) $slug );
+		}
+
+		Jetpack_Options::update_option( $jetpack_option_name, $list );
+
+		wp_send_json_success( $list );
+	}
 
 	public function admin_color_override( $color ) {
-	    return 'fresh';
-    }
+		return 'fresh';
+	}
 
 	public function mock_masterbar_activation() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
@@ -135,6 +176,12 @@ class Jetpack_Calypsoify {
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
+		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
+			'nonces' => array(
+				'autoupdate_plugins' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
+				'autoupdate_plugins_translations' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins_translations' ),
+			)
+		) );
 	}
 
 	public function enqueue_for_gutenberg() {
