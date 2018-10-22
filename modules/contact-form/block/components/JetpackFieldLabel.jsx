@@ -33,6 +33,7 @@ class JetpackFieldLabel extends Component {
 					value={ this.props.label }
 					className="jetpack-field-label"
 					onChange={ this.onChangeLabel }
+					placeholder={ __( 'Type here…', 'jetpack' ) }
 				/>
 				{ this.props.required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
 			</Fragment>

@@ -127,7 +127,7 @@ const FieldDefaults = {
 	attributes: {
 		label: {
 			type: 'string',
-			'default': __( 'Type here...', 'jetpack' )
+			'default': null
 		},
 		required: {
 			type: 'boolean',
