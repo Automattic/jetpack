@@ -523,12 +523,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$ucp_options = get_option( 'ucp_options', array() );
 		$uuc_settings = get_option( 'uuc_settings', array() );
 		$csp4 = get_option( 'seed_csp4_settings_content', array() );
+		$mm_coming_soon                       = get_option( 'mm_coming_soon', null );
+		$under_construction_activation_status = get_option( 'underConstructionActivationStatus', null );
+		$ucp_options                          = get_option( 'ucp_options', array() );
+		$uuc_settings                         = get_option( 'uuc_settings', array() );
+		$csp4                                 = get_option( 'seed_csp4_settings_content', array() );
 		if (
-			'true' === $mm_coming_soon ||
-			1 == $underConstructionActivationStatus ||
-			( is_array( $ucp_options ) && 1 == $ucp_options[ 'status' ] ) ||
-			( is_array( $uuc_settings ) && 1 == $uuc_settings[ 'enable' ] ) ||
-			( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) )
+			'true' === $mm_coming_soon
+			|| 1 == $under_construction_activation_status // WPCS: loose comparison ok.
+			|| ( is_array( $ucp_options ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
+			|| ( is_array( $uuc_settings ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
+			|| ( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
 		) {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
