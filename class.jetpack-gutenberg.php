@@ -158,10 +158,6 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load_blocks() {
-		if ( ! Jetpack::is_active() ) {
-			return false;
-		}
-
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
