@@ -229,7 +229,7 @@ class JetpackStateNotices extends React.Component {
 
 		// Show custom message for upgraded Jetpack
 		const currentVersion = this.props.currentVersion;
-		const versionForUpgradeNotice = /(5\.8).*/;
+		const versionForUpgradeNotice = /(6\.7).*/;
 		if ( 'modules_activated' === message && currentVersion.match( versionForUpgradeNotice ) ) {
 			return (
 				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } adminUrl={ this.props.adminUrl } />

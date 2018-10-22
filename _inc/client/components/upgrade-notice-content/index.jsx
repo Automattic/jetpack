@@ -25,7 +25,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderInnerContent() {
-			const lazyImages = this.props.module( 'lazy-images' );
+			const assetCdn = this.props.module( 'photon-cdn' );
 			return (
 				<div>
 					<p>
@@ -37,62 +37,48 @@ const UpgradeNoticeContent = moduleSettingsForm(
 					</h2>
 
 					<p>
-						{ __( 'Sites with large numbers of images can now activate the Lazy Loading Images feature, which significantly ' +
-							'speeds up loading times for visitors. Instead of waiting for the entire page to load, ' +
-							'Jetpack will instead show pages instantly, and only download additional images when they are about to come into view.' ) }
+						{ __( 'Jetpack 6.7 introduces a new feature to help make your site faster. Our site accelerator already ' +
+							'offered speedier and optimized images served from our global Content Delivery Network. ' +
+							'Now we can also speed up your site by serving your static files (think CSS and JavaScript) from the same network.'
+						) }
 					</p>
 
 					<p>
-						{ __( 'If this sounds like a great improvement (and it is) you can enable it now by clicking the toggle below.' ) }
+						{ __( 'Turn on one or both and see decreased page load speeds, ' +
+						'as well as reduced bandwidth usage—which may lead to lower hosting costs.'
+						) }
+					</p>
+
+					<p>
+						{ __( 'Enable site acceleration now by clicking the toggle below.' ) }
 					</p>
 
 					<div className="jp-upgrade-notice__enable-module">
 
 						<SettingsGroup
 							hasChild
-							disableInDevMode
-							module={ lazyImages }>
+							module={ assetCdn }>
 
 							<ModuleToggle
-								slug="lazy-images"
+								slug="photon-cdn"
 								disabled={ false }
-								activated={ this.props.getOptionValue( 'lazy-images' ) }
-								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
+								activated={ this.props.getOptionValue( 'photon-cdn' ) }
+								toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
 								toggleModule={ this.toggleModule }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ decodeEntities( lazyImages.description ) }
+									{ decodeEntities( assetCdn.description ) }
 								</span>
 							</ModuleToggle>
 						</SettingsGroup>
 					</div>
 
-					<p>
-						{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
-							'(up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads ' +
-							'when using features like infinite scroll and embedding rich content.' ) }
-					</p>
-
-					<h2>
-						{ __( 'Faster, more relevant search results' ) }
-					</h2>
-
-					<a href="https://wp.me/p1moTy-731" rel="noopener noreferrer" target="_blank">
-						<img src="https://jetpackme.files.wordpress.com/2018/02/jetpack-elasticsearch-powered-search.png" width="700" alt={ __( 'Elasticsearch' ) } />
-					</a>
-
-					<p>
-						{ __( 'Our faster site search is now available to all Professional' +
-							' plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more ' +
-							'relevant results to users.' ) }
-					</p>
-
 					<div className="jp-dialogue__cta-container">
 						<Button
 							primary={ true }
-							href="https://jetpack.com/?p=27095"
+							href="https://wp.me/p1moTy-aEq"
 						>
-							{ __( 'Read the full announcement!' ) }
+							{ __( 'Read the announcement' ) }
 						</Button>
 
 						<p className="jp-dialogue__note">
@@ -106,7 +92,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		render() {
 			return (
 				<JetpackDialogue
-					svg={ <img src={ imagePath + 'jetpack-search.svg' } width="250" alt={ __( 'Jetpack Search' ) } /> }
+					svg={ <img src={ imagePath + 'jetpack-performance.svg' } width="250" alt={ __( "Jetpack's site accelerator" ) } /> }
 					title={ __( 'Major new features from Jetpack' ) }
 					content={ this.renderInnerContent() }
 					dismiss={ this.props.dismiss }
