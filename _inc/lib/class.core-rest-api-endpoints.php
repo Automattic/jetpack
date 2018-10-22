@@ -512,17 +512,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	public static function is_site_verified_and_token( $request ) {
-		// Site is likely displaying the Under Construction page using one of those plugins
-		// - https://github.com/mojoness/mojo-marketplace-wp-plugin (used by bluehost)
-		// - https://wordpress.org/plugins/mojo-under-construction
-		// - https://wordpress.org/plugins/under-construction-page
-		// - https://wordpress.org/plugins/ultimate-under-construction
-		// - https://wordpress.org/plugins/coming-soon
-		$mm_coming_soon = get_option( 'mm_coming_soon', null );
-		$underConstructionActivationStatus = get_option( 'underConstructionActivationStatus', null );
-		$ucp_options = get_option( 'ucp_options', array() );
-		$uuc_settings = get_option( 'uuc_settings', array() );
-		$csp4 = get_option( 'seed_csp4_settings_content', array() );
+		/**
+		 * Return an error if the site uses a Maintenance / Coming Soon plugin
+		 * and if the plugin is configured to make the site private.
+		 *
+		 * We currently handle the following plugins:
+		 * - https://github.com/mojoness/mojo-marketplace-wp-plugin (used by bluehost)
+		 * - https://wordpress.org/plugins/mojo-under-construction
+		 * - https://wordpress.org/plugins/under-construction-page
+		 * - https://wordpress.org/plugins/ultimate-under-construction
+		 * - https://wordpress.org/plugins/coming-soon
+		 *
+		 * You can handle this in your own plugin thanks to the `jetpack_is_under_construction_plugin` filter.
+		 * If the filter returns true, we will consider the site as under construction.
+		 */
 		$mm_coming_soon                       = get_option( 'mm_coming_soon', null );
 		$under_construction_activation_status = get_option( 'underConstructionActivationStatus', null );
 		$ucp_options                          = get_option( 'ucp_options', array() );
@@ -534,6 +537,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ( is_array( $ucp_options ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
 			|| ( is_array( $uuc_settings ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
 			|| ( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
+			/**
+			 * Allow plugins to mark a site as "under construction".
+			 *
+			 * @since 6.7.0
+			 *
+			 * @param false bool Is the site under construction? Default to false.
+			 */
+			|| true === apply_filters( 'jetpack_is_under_construction_plugin', false )
 		) {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
