@@ -518,12 +518,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// - https://wordpress.org/plugins/under-construction-page
 		// - https://wordpress.org/plugins/ultimate-under-construction
 		// - https://wordpress.org/plugins/coming-soon
+		$mm_coming_soon = get_option( 'mm_coming_soon', null );
+		$underConstructionActivationStatus = get_option( 'underConstructionActivationStatus', null );
+		$ucp_options = get_option( 'ucp_options', array() );
+		$uuc_settings = get_option( 'uuc_settings', array() );
+		$csp4 = get_option( 'seed_csp4_settings_content', array() );
 		if (
-			'true' === get_option( 'mm_coming_soon', 'false' ) ||
-			1 == get_option( 'underConstructionActivationStatus', null ) ||
-			1 == get_option( 'ucp_options', array() )[ 'status' ] ||
-			1 == get_option( 'uuc_settings', array() )[ 'enable' ] ||
-			! get_transient( '_seed_csp4_welcome_screen_activation_redirect' )
+			'true' === $mm_coming_soon ||
+			1 == $underConstructionActivationStatus ||
+			( is_array( $ucp_options ) && 1 == $ucp_options[ 'status' ] ) ||
+			( is_array( $uuc_settings ) && 1 == $uuc_settings[ 'enable' ] ) ||
+			( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) )
 		) {
 			return new WP_Error( 'under_construction', __( 'Site is under construction and cannot be verified' ) );
 		}
