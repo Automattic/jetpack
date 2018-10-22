@@ -254,36 +254,7 @@ class Jetpack_Publicize_Gutenberg {
 		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
 			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
 
-			if ( is_rtl() ) {
-				wp_enqueue_style(
-					'publicize',
-					plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ),
-					array( 'dashicons' ),
-					'20120925'
-				);
-			} else {
-				wp_enqueue_style(
-					'publicize',
-					plugins_url( 'assets/publicize.css', __FILE__ ),
-					array( 'dashicons' ),
-					'20120925'
-				);
-			}
-
-			wp_enqueue_script(
-				'modules-publicize-gutenberg_js',
-				plugins_url( 'assets/block.js', __FILE__ ),
-				array(
-					'jquery',
-					'wp-edit-post',
-					'wp-data',
-					'wp-components',
-				),
-				false,
-				true
-			);
-
-			wp_localize_script( 'modules-publicize-gutenberg_js', 'gutenberg_publicize_setup',
+			wp_localize_script( 'jetpack-blocks-editor',
 				array(
 					'staticConnectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
 					'allServices'          => wp_json_encode( $this->publicize->get_available_service_data() ),
