@@ -157,6 +157,7 @@ class Publicize_UI {
 		);
 
 		if ( $override_publicize_settings_page ) {
+			echo $override_publicize_settings_page;
 			return;
 		}
 
