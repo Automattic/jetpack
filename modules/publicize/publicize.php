@@ -420,7 +420,8 @@ abstract class Publicize_Base {
 		if ( $this->is_connecting_connection( $connection ) ) {
 			return true;
 		}
-		$connection_data = $connection->get_meta( 'connection_data' );
+		$connection_meta = $this->get_connection_meta( $connection );
+		$connection_data = $connection_meta['connection_data'];
 		return isset( $connection_data[ 'meta' ][ 'facebook_page' ] );
 	}
 
@@ -431,7 +432,8 @@ abstract class Publicize_Base {
 	 * @return bool
 	 */
 	function is_connecting_connection( $connection ) {
-		$connection_data = $connection->get_meta( 'connection_data' );
+		$connection_meta = $this->get_connection_meta( $connection );
+		$connection_data = $connection_meta['connection_data'];
 		return isset( $connection_data[ 'meta' ]['options_responses'] );
 	}
 
