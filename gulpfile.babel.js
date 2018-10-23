@@ -1,9 +1,6 @@
 /**
  * External dependencies
  */
-import babel from 'gulp-babel';
-import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import check from 'gulp-check';
 import colors from 'ansi-colors';
 import del from 'del';
@@ -268,27 +265,6 @@ gulp.task( 'languages:extract', function( done ) {
 /*
  * Gutenberg Blocks for Jetpack
  */
-gulp.task( 'gutenpack', function() {
-	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
-		.pipe( babel( {
-			plugins: [
-				[
-					'transform-react-jsx', {
-						pragma: 'wp.element.createElement'
-					}
-				]
-			],
-		} ) )
-		.on( 'error', function( err ) {
-			log( colors.red( err ) );
-		} )
-		.pipe( gulp.dest( './' ) );
-} );
-
-gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], gulp.parallel( 'gutenpack' ) );
-} );
-
 gulp.task( 'gutenberg:blocks', function() {
 	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
@@ -302,11 +278,11 @@ gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenberg:blocks' )
+	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
 );
 gulp.task(
 	'watch',
-	gulp.parallel( react_watch, sass_watch, 'old-styles:watch', 'gutenpack:watch' )
+	gulp.parallel( react_watch, sass_watch, 'old-styles:watch' )
 );
 
 // Keeping explicit task names to allow for individual runs
