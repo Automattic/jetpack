@@ -96,13 +96,13 @@
 			outline: 1px solid #555d66;
 		}
 	}
-}
 
-.editor-block-list__block.is-selected,
-.editor-block-list__block.is-selected-parent {
-	
-	.block-list-appender__toggle {
-		display: block;
+	&.is-selected,
+	&.is-selected-parent {
+
+		.block-list-appender__toggle {
+			display: block;
+		}
 	}
 }
 
