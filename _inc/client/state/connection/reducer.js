@@ -276,9 +276,9 @@ export function isUnavailableInDevMode( state, module ) {
 /**
  * Checks if the JETPACK__SANDBOX_DOMAIN is set
  *
- * @param  {Object}      state Global state tree
- * @return {bool|string} False if not sandboxed, string of URL if so.
+ * @param  {Object} state Global state tree
+ * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
  */
 export function getSandboxDomain( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], false );
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
 }
