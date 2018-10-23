@@ -796,7 +796,8 @@ class Jetpack_Search {
 		$defaults = array(
 			'blog_id'        => get_current_blog_id(),
 			'query'          => null,    // Search phrase
-			'query_fields'   => array(), //list of fields to search
+			'query_fields'   => array(), // list of fields to search
+			'excess_boost'   => array(), // map of field to excess boost values (multiply)
 			'post_type'      => null,    // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
 			'author'         => null,    // id or an array of ids
@@ -824,29 +825,37 @@ class Jetpack_Search {
 		if ( empty( $args['query_fields'] ) ) {
 			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
 				// VIP indices do not have per language fields
-				$match_fields        = array(
-					'title^0.1',
-					'content^0.1',
-					'excerpt^0.1',
-					'tag.name^0.1',
-					'category.name^0.1',
-					'author_login^0.1',
-					'author^0.1',
+				$match_fields = $this->_get_caret_boosted_fields(
+					array(
+						'title'         => 0.1,
+						'content'       => 0.1,
+						'excerpt'       => 0.1,
+						'tag.name'      => 0.1,
+						'category.name' => 0.1,
+						'author_login'  => 0.1,
+						'author'        => 0.1,
+					)
 				);
-				$boost_fields        = array(
-					'title^2',
-					'tag.name',
-					'category.name',
-					'author_login',
-					'author',
+
+				$boost_fields = $this->_get_caret_boosted_fields(
+					$this->_apply_boosts_multiplier( array(
+						'title'         => 2,
+						'tag.name'      => 1,
+						'category.name' => 1,
+						'author_login'  => 1,
+						'author'        => 1,
+					), $args['excess_boost'] )
 				);
-				$boost_phrase_fields = array(
-					'title',
-					'content',
-					'excerpt',
-					'tag.name',
-					'category.name',
-					'author',
+
+				$boost_phrase_fields = $this->_get_caret_boosted_fields(
+					array(
+						'title'         => 1,
+						'content'       => 1,
+						'excerpt'       => 1,
+						'tag.name'      => 1,
+						'category.name' => 1,
+						'author'        => 1,
+					)
 				);
 			} else {
 				$match_fields = $parser->merge_ml_fields(
@@ -857,22 +866,22 @@ class Jetpack_Search {
 						'tag.name'      => 0.1,
 						'category.name' => 0.1,
 					),
-					array(
-						'author_login^0.1',
-						'author^0.1',
-					)
+					$this->_get_caret_boosted_fields( array(
+						'author_login'  => 0.1,
+						'author'        => 0.1,
+					) )
 				);
 
 				$boost_fields = $parser->merge_ml_fields(
-					array(
+					$this->_apply_boosts_multiplier( array(
 						'title'         => 2,
 						'tag.name'      => 1,
 						'category.name' => 1,
-					),
-					array(
-						'author_login',
-						'author',
-					)
+					), $args['excess_boost'] ),
+					$this->_get_caret_boosted_fields( $this->_apply_boosts_multiplier( array(
+						'author_login'  => 1,
+						'author'        => 1,
+					), $args['excess_boost'] ) )
 				);
 
 				$boost_phrase_fields = $parser->merge_ml_fields(
@@ -883,9 +892,9 @@ class Jetpack_Search {
 						'tag.name'      => 1,
 						'category.name' => 1,
 					),
-					array(
-						'author',
-					)
+					$this->_get_caret_boosted_fields( array(
+						'author'        => 1,
+					) )
 				);
 			}
 		} else {
@@ -1790,5 +1799,45 @@ class Jetpack_Search {
 		if ( $changed ) {
 			wp_set_sidebars_widgets( $sidebars_widgets );
 		}
+	}
+
+	/**
+	 * Transforms an array with fields name as keys and boosts as value into
+	 * shorthand "caret" format.
+	 *
+	 * @param array $fields_boost [ "title" => "2", "content" => "1" ]
+	 *
+	 * @return array [ "title^2", "content^1" ]
+	 */
+	private function _get_caret_boosted_fields( array $fields_boost ) {
+		$caret_boosted_fields = array();
+		foreach ( $fields_boost as $field => $boost ) {
+			$caret_boosted_fields[] = "$field^$boost";
+		}
+		return $caret_boosted_fields;
+	}
+
+	/**
+	 * Apply a multiplier to boost values.
+	 *
+	 * @param array $fields_boost [ "title" => 2, "content" => 1 ]
+	 * @param array $fields_boost_multiplier [ "title" => 0.1234 ]
+	 *
+	 * @return array [ "title" => "0.247", "content" => "1.000" ]
+	 */
+	private function _apply_boosts_multiplier( array $fields_boost, array $fields_boost_multiplier ) {
+		foreach( $fields_boost as $field_name => $field_boost ) {
+			if ( isset( $fields_boost_multiplier[ $field_name ] ) ) {
+				$fields_boost[ $field_name ] *= $fields_boost_multiplier[ $field_name ];
+			}
+
+			// Set a floor and format the number as string
+			$fields_boost[ $field_name ] = number_format(
+				max( 0.001, $fields_boost[ $field_name ] ),
+				3, '.', ''
+			);
+		}
+
+		return $fields_boost;
 	}
 }

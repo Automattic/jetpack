@@ -11,15 +11,11 @@
  * Additional Search Queries: like widget, like button, like, likes
  */
 
-Jetpack::dns_prefetch( array(
-	'//widgets.wp.com',
-	'//s0.wp.com',
-	'//s1.wp.com',
-	'//s2.wp.com',
-	'//0.gravatar.com',
-	'//1.gravatar.com',
-	'//2.gravatar.com',
-) );
+Jetpack::dns_prefetch(
+	array(
+		'//widgets.wp.com',
+	)
+);
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';

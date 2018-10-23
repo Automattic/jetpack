@@ -44,7 +44,6 @@ const concat_list = [
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
-	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',

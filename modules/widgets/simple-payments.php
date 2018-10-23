@@ -504,6 +504,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		function form( $instance ) {
 			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+			if ( ! method_exists( $jetpack_simple_payments, 'is_enabled_jetpack_simple_payments' ) ) {
+				return;
+			}
 			if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 				require dirname( __FILE__ ) . '/simple-payments/admin-warning.php';
 				return;

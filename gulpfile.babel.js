@@ -2,6 +2,8 @@
  * External dependencies
  */
 import babel from 'gulp-babel';
+import autoprefixer from 'gulp-autoprefixer';
+import banner from 'gulp-banner';
 import check from 'gulp-check';
 import colors from 'ansi-colors';
 import del from 'del';
@@ -264,7 +266,7 @@ gulp.task( 'languages:extract', function( done ) {
 } );
 
 /*
- * Gutenpack!
+ * Gutenberg Blocks for Jetpack
  */
 gulp.task( 'gutenpack', function() {
 	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
@@ -287,7 +289,7 @@ gulp.task( 'gutenpack:watch', function() {
 	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], gulp.parallel( 'gutenpack' ) );
 } );
 
-gulp.task( 'gutenpack:jetpack-blocks', function() {
+gulp.task( 'gutenberg:blocks', function() {
 	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
@@ -300,7 +302,7 @@ gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenpack:jetpack-blocks' )
+	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack', 'gutenberg:blocks' )
 );
 gulp.task(
 	'watch',

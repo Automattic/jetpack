@@ -9,10 +9,10 @@
     loader-utils "^0.2.2"
     object-assign "^4.0.1"
 
-"@automattic/jetpack-blocks@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-0.1.0.tgz#8baa7551a3b7f05617fccef141b6ef25161d9315"
-  integrity sha512-+NLOs1Pogb6IpAFBA7JoH2joGzODRfDRExQ6onEFTvKO/u/blbZQ1IA2txr3Pm0fJ2vU8ojHFWJ95L1In4uc1A==
+"@automattic/jetpack-blocks@1.0.0-alpha.0":
+  version "1.0.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-1.0.0-alpha.0.tgz#29bab2d55824ec4a5ef2c30004954c20f7c8293b"
+  integrity sha512-EkaBON9+vJs5xmNPgufRoxY8gHE/AQjs3RselY0dr0WACdnnh3lFiI8+E8s2C9rJkb2WTweIhOYiKUURoJwINA==
 
 "@octokit/rest@^15.9.5":
   version "15.13.1"
@@ -4472,16 +4472,6 @@ gulp-autoprefixer@^3.0.2:
     autoprefixer "^6.0.0"
     gulp-util "^3.0.0"
     postcss "^5.0.4"
-    through2 "^2.0.0"
-    vinyl-sourcemaps-apply "^0.2.0"
-
-gulp-babel@7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/gulp-babel/-/gulp-babel-7.0.0.tgz#7b93c975159f7a0553e4263b4a55100ccc239b28"
-  integrity sha512-TiUuFLW6FD2hx3mJ7QBPXN2nzpu6gRWFyjfChWxE1A9xaASRA5nsxrvHcqMDl5Ha6TvSBB9r74GbkVd1GO4mDA==
-  dependencies:
-    gulp-util "^3.0.0"
-    replace-ext "0.0.1"
     through2 "^2.0.0"
     vinyl-sourcemaps-apply "^0.2.0"
 
