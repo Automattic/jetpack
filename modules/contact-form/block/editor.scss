@@ -50,23 +50,6 @@
 		}
 	}
 
-	&[data-type="jetpack/field-checkbox-multiple"] ol li:before {
-		content: '☐ ';
-		display: inline-block;
-		font-size: 28px;
-		line-height: 1;
-    	position: relative;
-    	top: 2px;
-	}
-
-	&[data-type="jetpack/field-radio"] ol li:before {
-		content: '🔘 ';
-		display: inline-block;
-		line-height: 1;
-    	position: relative;
-    	top: 2px;
-	}
-
 	&[data-type="jetpack/field-select"] {
 		ol {
 			border: 1px solid #8d96a0;

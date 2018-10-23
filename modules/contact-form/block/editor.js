@@ -334,6 +334,7 @@ registerBlockType( 'jetpack/field-checkbox-multiple', Object.assign( {
 			required={ props.attributes.required }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
+            type="checkbox"
 		/> );
 	}
 }, FieldDefaults ) );
@@ -347,6 +348,7 @@ registerBlockType( 'jetpack/field-radio', Object.assign( {
 			required={ props.attributes.required }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
+			type="radio"
 		/> );
 	}
 }, FieldDefaults ) );

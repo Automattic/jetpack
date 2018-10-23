@@ -49,6 +49,8 @@ class JetpackFieldMultiple extends Component {
 	}
 
 	render() {
+		this.type = this.props.type;
+
 		return (
 			<Fragment>
 				<JetpackFieldSettings
@@ -67,6 +69,7 @@ class JetpackFieldMultiple extends Component {
 					<ol id={ `jetpack-field-multiple-${ this.props.instanceId }` }>
 						{ this.props.options.map( ( option, index )=>(
 							<JetpackOption
+								type={ this.type }
 								key={ index }
 								option={ option }
 								index={ index }
