@@ -27,7 +27,7 @@ class Publicize_UI {
 		$this->publicize_settings_url = apply_filters_deprecated(
 			'jetpack_override_publicize_settings_url',
 			array( admin_url( 'options-general.php?page=sharing' ) ),
-			'6.5',
+			'6.7',
 			false,
 			__( 'This filter will be removed in a future version of Jetpack', 'jetpack' )
 		);
@@ -151,7 +151,7 @@ class Publicize_UI {
 		$override_publicize_settings_page = apply_filters_deprecated(
 			'jetpack_override_publicize_settings_page',
 			array( false ),
-			'6.5',
+			'6.7',
 			false,
 			__( 'This filter will be removed in a future version of Jetpack', 'jetpack' )
 		);
