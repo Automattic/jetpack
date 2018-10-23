@@ -74,7 +74,7 @@ class Publicize_UI {
 	}
 
 	function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ), array( 'is-wide' => true ) );
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ), array( 'is-wide' => true ) );
 	}
 	/**
 	* Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
