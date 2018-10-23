@@ -6,8 +6,13 @@
  * External dependencies
  */
 import {
+	BaseControl,
 	IconButton
 } from '@wordpress/components';
+
+import {
+	withInstanceId
+} from '@wordpress/compose';
 
 import {
 	Component,
@@ -50,13 +55,16 @@ class JetpackFieldMultiple extends Component {
 					required={ this.props.required }
 					setAttributes={ this.props.setAttributes }
 				/>
-				<div className="jetpack-field">
-					<JetpackFieldLabel
+				<BaseControl
+					id={ `jetpack-field-multiple-${ this.props.instanceId }` }
+					className="jetpack-field"
+					label={ <JetpackFieldLabel
 						required={ this.props.required }
 						label={ this.props.label }
 						setAttributes={ this.props.setAttributes }
-					/>
-					<ol>
+					/> }
+				>
+					<ol id={ `jetpack-field-multiple-${ this.props.instanceId }` }>
 						{ this.props.options.map( ( option, index )=>(
 							<JetpackOption
 								key={ index }
@@ -71,10 +79,10 @@ class JetpackFieldMultiple extends Component {
 						label={ __( 'Insert option', 'jetpack' ) }
 						onClick={ this.onChangeOption }
 					> { __( 'Add', 'jetpack' ) }</IconButton>
-				</div>
+				</BaseControl>
 			</Fragment>
 		);
 	}
 }
 
-export default JetpackFieldMultiple;
+export default withInstanceId( JetpackFieldMultiple );
