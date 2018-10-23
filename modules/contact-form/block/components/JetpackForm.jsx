@@ -75,7 +75,8 @@ class JetpackForm extends Component {
 					{ this.props.children }
 					<div
 						className="button button-primary button-default jetpack-submit-button"
-                        contentEditable
+						contentEditable
+						suppressContentEditableWarning
 						onInput={ this.onInputSubmit }
 					>
 						{ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit', 'jetpack' ) }
