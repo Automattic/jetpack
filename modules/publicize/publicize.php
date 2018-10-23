@@ -125,7 +125,7 @@ abstract class Publicize_Base {
 	/**
 	 * Get services for the given blog and user.
 	 *
-	 * Can return all avaialable services or just the ones with an active connection.
+	 * Can return all available services or just the ones with an active connection.
 	 *
 	 * @param string $filter
 	 *        'all' (default) - Get all services available for connecting
@@ -377,7 +377,7 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Weather the user needs to select additional options after connecting
+	 * Whether the user needs to select additional options after connecting
 	 *
 	 * @param string $service_name 'facebook', 'twitter', etc.
 	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
