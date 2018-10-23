@@ -422,6 +422,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		) );
+
+		// Get and set API keys
+		register_rest_route( 'jetpack/v4', '/api-key/(?P<service>[a-z\-_]+)', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_api_key',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check'
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_api_key',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args' => array(
+					'api_key' => array(
+						'required'          => true,
+						'type'              => 'text'
+					),
+				)
+			),
+		) );
 	}
 
 	public static function get_plans( $request ) {
@@ -3035,6 +3055,52 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get third party plugin API keys.
+	 */
+	public static function get_api_key( $request ) {
+		$service = $request[ 'service' ];
+		if ( ! self::check_api_key_service( $service ) ) {
+			return new WP_Error( 'invalid_service', esc_html__( 'Invalid service.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+		$option = self::key_for_api_service( $service );
+		return array(
+			"api_key" => get_option( $option, '' )
+		);
+	}
+
+	/**
+	 * Update third party plugin API keys.
+	 */
+	public static function update_api_key( $request ) {
+		$params = $request->get_json_params();
+		$service = $request[ 'service' ];
+		if ( ! self::check_api_key_service( $service ) ) {
+			return new WP_Error( 'invalid_service', esc_html__( 'Invalid service.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+		$option = self::key_for_api_service( $service );
+		$api_key = $params['api_key'];
+		update_option( $option, $api_key );
+		return array(
+			"api_key" => get_option( $option, '' )
+		);
+	}
+
+	/**
+	 * Checks if service param is valid
+	 */
+	private static function check_api_key_service( $service ) {
+		$valid_services = array( 'googlemaps' );
+		return in_array( $service, $valid_services );
+	}
+
+	/**
+	 * Create site option key for service
+	 */
+	private static function key_for_api_service( $service ) {
+		return $service . '_api_key';
 	}
 
 	/**
