@@ -27,6 +27,10 @@
 	padding: 10px 8px;
 }
 
+.jetpack-field input:disabled {
+	margin-right: 4px;
+}
+
 .jetpack-form {
 	.components-base-control * {
 		margin: 0;
@@ -60,7 +64,6 @@
 
 	ol li button.components-icon-button {
 		display: inline-flex;
-		float: right;
 		padding: 6px;
 		vertical-align: bottom;
 	}
@@ -79,11 +82,6 @@
 			border-color: #E3E5E8;
 			box-shadow: none;
 		}
-	}
-
-	input.components-checkbox-control__input {
-		border-color: #191E23;
-		margin: 0 5px 0 2px;
 	}
 
 	.block-list-appender__toggle {
