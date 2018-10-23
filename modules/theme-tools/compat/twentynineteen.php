@@ -59,7 +59,7 @@ function twentynineteen_infinite_scroll_render() {
 
 function twentynineteen_init_jetpack() {
 	/**
-	 * Add our compat CSS file for Infinit Scroll and custom widget stylings and such.
+	 * Add our compat CSS file for Infinite Scroll and custom widget stylings and such.
 	 * Set the version equal to filemtime for development builds, and the JETPACK__VERSION for production
 	 * or skip it entirely for wpcom.
 	 */
