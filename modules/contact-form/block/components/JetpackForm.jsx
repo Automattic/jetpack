@@ -29,6 +29,7 @@ class JetpackForm extends Component {
 		this.onChangeSubject = this.onChangeSubject.bind( this );
 		this.onChangeTo = this.onChangeTo.bind( this );
 		this.onChangeSubmit = this.onChangeSubmit.bind( this );
+		this.onInputSubmit = this.onInputSubmit.bind( this );
 	}
 
 	onChangeSubject( subject ) {
@@ -41,6 +42,10 @@ class JetpackForm extends Component {
 
 	onChangeSubmit( submit_button_text ) {
 		this.props.setAttributes( { submit_button_text } );
+	}
+
+	onInputSubmit( event ) {
+		this.props.setAttributes( { submit_button_text: event.target.innerText } );
 	}
 
 	render() {
@@ -68,12 +73,13 @@ class JetpackForm extends Component {
 				</InspectorControls>
 				<div className={ this.props.className + ' jetpack-form' }>
 					{ this.props.children }
-					<TextControl
+					<div
 						className="button button-primary button-default jetpack-submit-button"
-						value={ this.props.submit_button_text }
-						placeholder={ __( 'Submit', 'jetpack' ) }
-						onChange={ this.onChangeSubmit }
-					/>
+                        contentEditable
+						onInput={ this.onInputSubmit }
+					>
+						{ this.props.submit_button_text ? this.props.submit_button_text : __( 'Submit', 'jetpack' ) }
+					</div>
 				</div>
 			</Fragment>
 		);
