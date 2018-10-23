@@ -34,7 +34,9 @@ class Jetpack_Publicize_Gutenberg {
 	 */
 	public function __construct( $publicize ) {
 		// Do edit page specific setup.
-		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ) );
+		// Priority 20 to make sure these scripts are enqueued after Gutenberg blocks,
+		// which are also added to the `admin_enqueue_scripts` hook.
+		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ), 20 );
 
 		add_action( 'rest_api_init', array( $this, 'add_publicize_rest_fields' ) );
 
@@ -254,7 +256,7 @@ class Jetpack_Publicize_Gutenberg {
 		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
 			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
 
-			wp_localize_script( 'jetpack-blocks-editor',
+			wp_localize_script( 'jetpack-blocks-editor', 'gutenberg_publicize_setup',
 				array(
 					'staticConnectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
 					'allServices'          => wp_json_encode( $this->publicize->get_available_service_data() ),
