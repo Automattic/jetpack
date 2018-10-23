@@ -244,7 +244,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'isPublic'	=> '1' == get_option( 'blog_public' ),
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
-				'sandboxedDomain' => JETPACK__SANDBOX_DOMAIN,
+				'sandboxDomain' => JETPACK__SANDBOX_DOMAIN,
 			),
 			'connectUrl' => Jetpack::init()->build_connect_url( true, false, false ),
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),

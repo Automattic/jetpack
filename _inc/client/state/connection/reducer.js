@@ -280,5 +280,5 @@ export function isUnavailableInDevMode( state, module ) {
  * @return {bool|string} False if not sandboxed, string of URL if so.
  */
 export function getSandboxDomain( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxedDomain' ], false );
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], false );
 }
