@@ -1,4 +1,3 @@
-@charset "UTF-8";
 /**
  * SASS placeholder selectors for form styles
  */
@@ -31,21 +30,6 @@
   list-style-type: none; }
   .editor-block-list__block[data-type="jetpack/field-checkbox-multiple"] ol:empty, .editor-block-list__block[data-type="jetpack/field-radio"] ol:empty, .editor-block-list__block[data-type="jetpack/field-select"] ol:empty {
     display: none; }
-
-.editor-block-list__block[data-type="jetpack/field-checkbox-multiple"] ol li:before {
-  content: '\2610   ';
-  display: inline-block;
-  font-size: 28px;
-  line-height: 1;
-  position: relative;
-  top: 2px; }
-
-.editor-block-list__block[data-type="jetpack/field-radio"] ol li:before {
-  content: '\1F518   ';
-  display: inline-block;
-  line-height: 1;
-  position: relative;
-  top: 2px; }
 
 .editor-block-list__block[data-type="jetpack/field-select"] ol {
   border: 1px solid #8d96a0;
