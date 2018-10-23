@@ -351,7 +351,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack protects your site against brute force attacks and unauthorized logins. We also monitor your site for downtime and keep your plugins updated. You can view a chronological list of when these changes and updates occurred.',
+								'Jetpack protects your site against brute force attacks and unauthorized logins. We also monitor your site for downtime and keep your plugins updated. You can view a chronological list of these activities.',
 								'jetpack'
 							);
 							?>
