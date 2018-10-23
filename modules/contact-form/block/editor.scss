@@ -98,7 +98,8 @@
 	}
 
 	&.is-selected,
-	&.is-selected-parent {
+	&.is-selected-parent,
+	&.is-typing ~ .block-list-appender {
 
 		.block-list-appender__toggle {
 			display: block;
