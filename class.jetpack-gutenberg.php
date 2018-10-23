@@ -66,6 +66,7 @@ class Jetpack_Gutenberg {
 			array(
 				'wp-element',
 				'wp-i18n',
+				'wp-token-list',
 			),
 			$version
 		);
@@ -123,6 +124,7 @@ class Jetpack_Gutenberg {
 				'wp-i18n',
 				'wp-keycodes',
 				'wp-plugins',
+				'wp-rich-text',
 				'wp-token-list',
 				'wp-url',
 			),
