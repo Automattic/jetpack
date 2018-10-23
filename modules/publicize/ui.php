@@ -196,38 +196,38 @@ class Publicize_UI {
 				<div class='left'>
 
 				<?php
-				foreach ( $services as $name => $service ) :
-					$connect_url = $this->publicize->connect_url( $name );
+				foreach ( $services as $service_name => $service ) :
+					$connect_url = $this->publicize->connect_url( $service_name );
 					if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
 						echo "</div><div class='right'>";
 					$service_num++;
 					?>
 					<div class="publicize-service-entry" <?php if ( $service_num > 0 ): ?>class="connected"<?php endif; ?> >
-						<div id="<?php echo esc_attr( $name ); ?>" class="publicize-service-left">
-							<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $name ); ?></a>
+						<div id="<?php echo esc_attr( $service_name ); ?>" class="publicize-service-left">
+							<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
 						</div>
 
 
 						<div class="publicize-service-right">
-							<?php if ( $this->publicize->is_enabled( $name ) && $connections = $this->publicize->get_connections( $name ) ) : ?>
+							<?php if ( $this->publicize->is_enabled( $service_name ) && $connections = $this->publicize->get_connections( $service_name ) ) : ?>
 								<ul>
 									<?php
 									foreach( $connections as $c ) :
 										$id = $this->publicize->get_connection_id( $c );
-										$disconnect_url = $this->publicize->disconnect_url( $name, $id );
+										$disconnect_url = $this->publicize->disconnect_url( $service_name, $id );
 
 										$cmeta = $this->publicize->get_connection_meta( $c );
-										$profile_link = $this->publicize->get_profile_link( $name, $c );
-										$connection_display = $this->publicize->get_display_name( $name, $c );
+										$profile_link = $this->publicize->get_profile_link( $service_name, $c );
+										$connection_display = $this->publicize->get_display_name( $service_name, $c );
 
-										$options_nonce = wp_create_nonce( 'options_page_' . $name . '_' . $id ); ?>
+										$options_nonce = wp_create_nonce( 'options_page_' . $service_name . '_' . $id ); ?>
 
-										<?php if ( $this->publicize->show_options_popup( $name, $c ) ): ?>
+										<?php if ( $this->publicize->show_options_popup( $service_name, $c ) ): ?>
 										<script type="text/javascript">
 										jQuery(document).ready( function($) {
 											showOptionsPage.call(
 											this,
-											'<?php echo esc_js( $name ); ?>',
+											'<?php echo esc_js( $service_name ); ?>',
 											'<?php echo esc_js( $options_nonce ); ?>',
 											'<?php echo esc_js( $id ); ?>'
 											);
@@ -272,11 +272,11 @@ class Publicize_UI {
 
 
 							<?php
-								$connections = $this->publicize->get_connections( $name );
+								$connections = $this->publicize->get_connections( $service_name );
 								if ( empty ( $connections ) ) { ?>
-									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
+									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
 								<?php } else { ?>
-									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
+									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
 			  					<?php } ?>
 			  			</div>
 			  		</div>
@@ -696,7 +696,7 @@ jQuery( function($) {
 			// In addition to looking at $all_done, we also look through the currently active services
 			// To see if they are all done.
 			$all_services_done = true;
-			foreach ( $services as $name => $connections ) {
+			foreach ( $services as $service_name => $connections ) {
 				foreach ( $connections as $connection ) {
 					$connection_meta = $this->publicize->get_connection_meta( $connection );
 					$connection_data = $connection_meta['connection_data'];
@@ -704,7 +704,7 @@ jQuery( function($) {
 					$unique_id = $this->publicize->get_connection_unique_id( $connection );
 
 					// Was this connection (OR, old-format service) already Publicized to?
-					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
+					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $service_name, true ) ); // New and old style flags
 					$all_services_done = $all_services_done && $done;
 
 					/**
@@ -716,10 +716,10 @@ jQuery( function($) {
 					 *
 					 * @param bool true Should the post be publicized to a given service? Default to true.
 					 * @param int $post->ID Post ID.
-					 * @param string $name Service name.
+					 * @param string $service_name Service name.
 					 * @param array $connection_data Array of information about all Publicize details for the site.
 					 */
-					if ( ! $continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) ) {
+					if ( ! $continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $service_name, $connection_data ) ) {
 						continue;
 					}
 
@@ -739,10 +739,10 @@ jQuery( function($) {
 							is_array( $connection )
 							&&
 							(
-								( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] ) )
+								( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['meta']['external_id'] ] ) )
 								||
 								// Jetpack's connection data looks a little different.
-								( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['external_id'] ] ) )
+								( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['external_id'] ] ) )
 							)
 						)
 					);
@@ -768,10 +768,10 @@ jQuery( function($) {
 						 *
 						 * @param bool   $checked Indicates if this connection should be enabled. Default true.
 						 * @param int    $post->ID ID of the current post
-						 * @param string $name Name of the connection (Facebook, Twitter, etc)
+						 * @param string $service_name Name of the connection (Facebook, Twitter, etc)
 						 * @param array  $connection Array of data about the connection.
 						 */
-						$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
+						$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $service_name, $connection );
 					}
 
 					// Determine the state of the checkbox (on/off) and allow filtering
@@ -785,10 +785,10 @@ jQuery( function($) {
 					 *
 					 * @param bool $checked Should the Publicize checkbox be enabled for a given service.
 					 * @param int $post->ID Post ID.
-					 * @param string $name Service name.
+					 * @param string $service_name Service name.
 					 * @param array $connection Array of connection details.
 					 */
-					$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $name, $connection );
+					$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $service_name, $connection );
 
 					// Force the checkbox to be checked if the post was DONE, regardless of what the filter does
 					if ( $done ) {
@@ -803,12 +803,12 @@ jQuery( function($) {
 					$label = sprintf(
 						/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on Service (@jetpack, ...) */
 						__( '%1$s: %2$s', 'jetpack' ),
-						esc_html( $this->publicize->get_service_label( $name ) ),
-						esc_html( $this->publicize->get_display_name( $name, $connection ) )
+						esc_html( $this->publicize->get_service_label( $service_name ) ),
+						esc_html( $this->publicize->get_display_name( $service_name, $connection ) )
 					);
 
 					if (
-						$name === 'facebook'
+						$service_name === 'facebook'
 					&&
 						! $this->publicize->is_valid_facebook_connection( $connection )
 					&&
@@ -827,7 +827,7 @@ jQuery( function($) {
 					?>
 					<li>
 						<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
-							<input type="checkbox" name="wpas[submit][<?php echo $unique_id; ?>]" id="wpas-submit-<?php echo $unique_id; ?>" class="wpas-submit-<?php echo $name; ?>" value="1" <?php
+							<input type="checkbox" name="wpas[submit][<?php echo $unique_id; ?>]" id="wpas-submit-<?php echo $unique_id; ?>" class="wpas-submit-<?php echo $service_name; ?>" value="1" <?php
 								checked( true, $checked );
 								echo $disabled;
 							?> />

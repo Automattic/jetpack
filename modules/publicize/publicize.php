@@ -151,7 +151,7 @@ abstract class Publicize_Base {
 		if ( !$_user_id )
 			$_user_id = $this->user_id();
 
-		$connections = $this->get_connections( $service, $_blog_id, $_user_id );
+		$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
 		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
 	}
 
@@ -240,7 +240,7 @@ abstract class Publicize_Base {
 	 * @param false|int $_user_id The user ID. Use false (default) for the current user
 	 * @return false|object[]|array[] false if no connections exist
 	 */
-	abstract function get_connection( $service, $connection_id, $_blog_id = false, $_user_id = false );
+	abstract function get_connection( $service_name, $connection_id, $_blog_id = false, $_user_id = false );
 
 	/**
 	 * Get the Connection ID.
@@ -738,11 +738,11 @@ abstract class Publicize_Base {
 		}
 
 		$labels = array();
-		foreach ( $services as $service => $display_names ) {
+		foreach ( $services as $service_name => $display_names ) {
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack' ),
-				esc_html( $service ),
+				esc_html( $service_name ),
 				esc_html( implode( ', ', $display_names ) )
 			);
 		}

@@ -305,17 +305,17 @@ class Publicize extends Publicize_Base {
 			return $services;
 		} else {
 			$connected_services = array();
-			foreach ( $services as $service => $empty ) {
-				$connections = $this->get_connections( $service, $_blog_id, $_user_id );
+			foreach ( $services as $service_name => $empty ) {
+				$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
 				if ( $connections ) {
-					$connected_services[ $service ] = $connections;
+					$connected_services[ $service_name ] = $connections;
 				}
 			}
 			return $connected_services;
 		}
 	}
 
-	function get_connection( $service, $id, $_blog_id = false, $_user_id = false ) {
+	function get_connection( $service_name, $id, $_blog_id = false, $_user_id = false ) {
 		// Stub
 	}
 
