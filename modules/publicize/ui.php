@@ -703,7 +703,7 @@ jQuery( function($) {
 
 					$unique_id = $this->publicize->get_connection_unique_id( $connection );
 
-					// Was this connections (OR, old-format service) already Publicized to?
+					// Was this connection (OR, old-format service) already Publicized to?
 					$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
 					$all_services_done = $all_services_done && $done;
 

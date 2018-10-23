@@ -292,7 +292,7 @@ abstract class Publicize_Base {
 	 * Globalizes a Connection
 	 *
 	 * @param string $connection_id Connection ID
-	 * @return bool Falsey on faulure. Truthy on success.
+	 * @return bool Falsey on failure. Truthy on success.
 	 */
 	abstract function globalize_connection( $connection_id );
 
@@ -300,7 +300,7 @@ abstract class Publicize_Base {
 	 * Unglobalizes a Connection
 	 *
 	 * @param string $connection_id Connection ID
-	 * @return bool Falsey on faulure. Truthy on success.
+	 * @return bool Falsey on failure. Truthy on success.
 	 */
 	abstract function unglobalize_connection( $connection_id );
 
