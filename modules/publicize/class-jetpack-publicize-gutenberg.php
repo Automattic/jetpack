@@ -52,6 +52,24 @@ class Jetpack_Publicize_Gutenberg {
 	 * Gets current list of connected accounts and send them as
 	 * JSON encoded data.
 	 *
+	 * @see Publicize_Base::get_publicize_conns_test_results()
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param WP_REST_Request $request Request instance from REST call.
+	 *
+	 * @return string JSON encoded connection list data.
+	 */
+	public function rest_get_publicize_connections() {
+		return wp_json_encode( $this->publicize->get_publicize_conns_test_results() );
+	}
+
+	/**
+	 * Retrieve current list of connected social accounts for a given post.
+	 *
+	 * Gets current list of connected accounts and send them as
+	 * JSON encoded data.
+	 *
 	 * @see Publicize::get_filtered_connection_data()
 	 *
 	 * @since 5.9.1
@@ -60,7 +78,7 @@ class Jetpack_Publicize_Gutenberg {
 	 *
 	 * @return string JSON encoded connection list data.
 	 */
-	public function rest_get_publicize_connections( $request ) {
+	public function rest_get_publicize_connections_for_post( $request ) {
 		$post_id = $request['post_id'];
 		return wp_json_encode( $this->publicize->get_filtered_connection_data( $post_id ) );
 	}
@@ -119,6 +137,19 @@ class Jetpack_Publicize_Gutenberg {
 		);
 
 		/**
+		 * REST endpoint to get connection list data for current user.
+		 *
+		 * @see Publicize::get_filtered_connection_data()
+		 *
+		 * @since 5.9.1
+		 */
+		register_rest_route( 'publicize/', '/connections', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'rest_get_publicize_connections' ),
+			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
+		) );
+
+		/**
 		 * REST endpoint to get connection list data for current user and post id.
 		 *
 		 * @see Publicize::get_filtered_connection_data()
@@ -127,7 +158,7 @@ class Jetpack_Publicize_Gutenberg {
 		 */
 		register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/connections', array(
 			'methods'             => 'GET',
-			'callback'            => array( $this, 'rest_get_publicize_connections' ),
+			'callback'            => array( $this, 'rest_get_publicize_connections_for_post' ),
 			'post_id'             => array(
 				'validate_post_id' => array( $this, 'rest_connections_validate_post_id' ),
 			),
