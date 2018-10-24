@@ -416,6 +416,14 @@ class PlanBody extends React.Component {
 						}
 
 						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+							<p>{ __( 'View a chronological list of all the changes and updates to your site in an organized, readable way.' ) }</p>
+							<Button onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
+								{ __( 'View your site activity' ) }
+							</Button>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
 							<p>{ __( 'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible.' ) }</p>
 						</div>
