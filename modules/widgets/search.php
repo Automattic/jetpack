@@ -246,6 +246,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				'user_sort_enabled'  => true,
 				'sort'               => self::DEFAULT_SORT,
 				'filters'            => array( array() ),
+				'post_types'         => array(),
 			)
 		);
 
