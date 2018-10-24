@@ -245,7 +245,7 @@ const SpeedUpSite = moduleSettingsForm(
 							>
 							<p>
 								{ __(
-									"Lazy-loading images improve your site's speed and create a " +
+									'Lazy-loading images will improve your site’s speed and create a ' +
 										'smoother viewing experience. Images will load as visitors ' +
 										'scroll down the screen, instead of all at once.'
 								) }
