@@ -94,6 +94,10 @@ class Jetpack_Publicize_Gutenberg {
 	 * @return string JSON encoded connection services data.
 	 */
 	public function rest_get_publicize_available_services() {
+		/**
+		 * We need this because Publicize::get_available_service_data() uses `Jetpack_Keyring_Service_Helper`
+		 * and `Jetpack_Keyring_Service_Helper` relies on `menu_page_url()`.
+		 */
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
 		return wp_json_encode( $this->publicize->get_available_service_data() );
