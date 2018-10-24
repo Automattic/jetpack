@@ -76,3 +76,6 @@ class Jetpack_RelatedPosts_Module {
 
 // Do it.
 Jetpack_RelatedPosts_Module::instance();
+
+// Related Posts block definition can be found in wp-calypso repo
+jetpack_register_block( 'related-posts' );
