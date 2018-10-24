@@ -45,14 +45,16 @@ if ( results.warnings.length > 0 || results.fails.length > 0 ) {
 		const internalContributor = await github.api.orgs.checkMembership( { org: 'Automattic', username: pr.user.login } );
 		if ( internalContributor ) {
 			markdown(
-`Thank you for the great PR description!
-When this PR is ready for review, please apply the \`[status] Needs Review\` label and if possible have someone from your team review the code. The Jetpack team will also review this PR and merge it to be included in the next release: ${ jetpackReleaseDate }.
-Code freeze date: ${ codeFreezeDate }`
+`**Thank you for the great PR description!**
+
+When this PR is ready for review, please apply the \`[Status] Needs Review\` label and if possible have someone from your team review the code. The Jetpack team will also review this PR and merge it to be included in the next release: _${ jetpackReleaseDate }_.
+Code freeze date: _${ codeFreezeDate }_`
 );
 		} else {
 			markdown(
-`That's a great PR description, thank you so much for your effort!
-Wondering what's will happen next? The Jetpack team will jump in and review this PR, and merge it once all the feedback will be addressed. Once it merged - your changes will be included in next Jetpack release: ${ jetpackReleaseDate }`
+`**That's a great PR description, thank you so much for your effort!**
+
+Wondering what's will happen next? The Jetpack team will jump in and review this PR, and merge it once all the feedback will be addressed. Once it merged - your changes will be included in next Jetpack release: _${ jetpackReleaseDate }_`
 );
 		}
 	} );
