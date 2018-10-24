@@ -914,7 +914,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Earn: Generate revenue with the WordPress.com ad program and accept payment for goods and services via PayPal.',
+							'Optimize: Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
 							'jetpack'
 						);
 					?></p>
