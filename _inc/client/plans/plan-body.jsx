@@ -195,7 +195,7 @@ class PlanBody extends React.Component {
 					}
 
 					<div className="jp-landing__plan-features-card">
-						<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+						<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
 						<p>{ __( 'View a chronological list of all the changes and updates to your site in an organized, readable way.' ) }</p>
 						<Button onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
 							{ __( 'View your site activity' ) }
@@ -416,7 +416,7 @@ class PlanBody extends React.Component {
 						}
 
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
 							<p>{ __( 'View a chronological list of all the changes and updates to your site in an organized, readable way.' ) }</p>
 							<Button onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
 								{ __( 'View your site activity' ) }
