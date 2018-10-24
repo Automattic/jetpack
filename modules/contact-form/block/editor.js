@@ -99,7 +99,6 @@ registerBlockType( 'jetpack/form', {
 				setAttributes={ props.setAttributes }
 			>
 				<InnerBlocks
-					allowedBlocks={ [] }
 					templateLock={false}
 					template={ [
 						[ 'jetpack/field-name', {
