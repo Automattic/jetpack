@@ -30,7 +30,8 @@ function twentynineteen_jetpack_setup() {
 	 * Add theme support for Content Options.
 	 */
 	add_theme_support( 'jetpack-content-options', array(
-		'post-details'    => array(
+		'blog-display' => 'content', // the default setting of the theme: 'content', 'excerpt' or array( 'content', 'excerpt' ) for themes mixing both display.
+    	'post-details' => array(
 			'stylesheet' => 'twentynineteen-style',
 			'date'       => '.posted-on',
 			'categories' => '.cat-links',
@@ -38,10 +39,10 @@ function twentynineteen_jetpack_setup() {
 			'author'     => '.byline',
 			'comment'    => '.comments-link',
 		),
-		'featured-images' => array(
-			'archive'    => true,
-			'post'       => true,
-			'page'       => true,
+		'featured-images'    => array(
+			'archive'  => true,
+			'post'     => true,
+			'page'     => true,
 		),
 	) );
 }
