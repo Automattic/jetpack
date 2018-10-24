@@ -610,6 +610,10 @@ iframe[src^="http://api.mixcloud.com/"] {
 	text-decoration: none;
 }
 
+/**
+ * Related Posts
+ */
+
 .entry-content > #jp-relatedposts {
 	margin: 32px 1rem;
 	max-width: calc(100vw - (2 * 1rem));
