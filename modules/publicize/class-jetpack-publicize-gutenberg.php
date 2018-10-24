@@ -100,7 +100,7 @@ class Jetpack_Publicize_Gutenberg {
 		 */
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
-		return wp_json_encode( $this->publicize->get_available_service_data() );
+		return $this->publicize->get_available_service_data();
 	}
 
 	/**
