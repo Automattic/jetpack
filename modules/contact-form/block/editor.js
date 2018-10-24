@@ -375,4 +375,3 @@ registerBlockType( 'jetpack/field-select', Object.assign( {
 		/> );
 	}
 }, FieldDefaults ) );
-
