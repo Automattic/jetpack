@@ -37,6 +37,7 @@ Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
 * Daily or real-time backups of your entire site
 * Secure logins with optional two-factor authentication
 * Malware scanning, code scanning, and automated threat resolution
+* Activity: a record of every change and update on your site
 * Fast, priority support from WordPress experts
 
 = Expert Support =

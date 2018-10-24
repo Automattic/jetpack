@@ -272,3 +272,13 @@ export function requiresConnection( state, slug ) {
 export function isUnavailableInDevMode( state, module ) {
 	return isDevMode( state ) && requiresConnection( state, module );
 }
+
+/**
+ * Checks if the JETPACK__SANDBOX_DOMAIN is set
+ *
+ * @param  {Object} state Global state tree
+ * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
+ */
+export function getSandboxDomain( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
+}
