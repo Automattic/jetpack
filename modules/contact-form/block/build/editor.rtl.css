@@ -1,30 +1,36 @@
 /**
  * SASS placeholder selectors for form styles
  */
-.jetpack-field-label.jetpack-field-label.jetpack-field-label {
+.jetpack-form .components-base-control * {
+  margin: 0; }
+
+.jetpack-form .jetpack-field .jetpack-field-label.jetpack-field-label.jetpack-field-label {
   border-color: #fff;
   border-radius: 0;
   font-weight: bold;
   margin: 0;
   margin-bottom: 2px;
   width: calc( 100% - 100px); }
-  .jetpack-field-label.jetpack-field-label.jetpack-field-label:hover {
+  .jetpack-form .jetpack-field .jetpack-field-label.jetpack-field-label.jetpack-field-label:hover {
     border-color: #357CB5; }
-  .jetpack-field-label.jetpack-field-label.jetpack-field-label:focus {
+  .jetpack-form .jetpack-field .jetpack-field-label.jetpack-field-label.jetpack-field-label:focus {
     border-color: #E3E5E8;
     -webkit-box-shadow: none;
             box-shadow: none; }
 
-.jetpack-field input:disabled,
-.jetpack-field textarea:disabled {
+.jetpack-form .jetpack-field input:disabled,
+.jetpack-form .jetpack-field textarea:disabled {
   border-color: #8d96a0;
   padding: 10px 8px; }
 
-.jetpack-form .components-base-control * {
-  margin: 0; }
+.jetpack-form .jetpack-field input:disabled {
+  margin-left: 4px; }
 
-.jetpack-form span.required {
+.jetpack-form .jetpack-field span.required {
   float: left; }
+
+.jetpack-form .jetpack-submit-button {
+  padding: 5px; }
 
 .editor-block-list__block[data-type="jetpack/field-checkbox-multiple"] ol, .editor-block-list__block[data-type="jetpack/field-radio"] ol, .editor-block-list__block[data-type="jetpack/field-select"] ol {
   list-style-type: none; }
@@ -40,7 +46,6 @@
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
-  float: left;
   padding: 6px;
   vertical-align: bottom; }
 
@@ -56,10 +61,6 @@
     -webkit-box-shadow: none;
             box-shadow: none; }
 
-.editor-block-list__block input.components-checkbox-control__input {
-  border-color: #191E23;
-  margin: 0 2px 0 5px; }
-
 .editor-block-list__block .block-list-appender__toggle {
   background-color: #f7f7f7;
   display: none;
@@ -71,21 +72,4 @@
 .editor-block-list__block.is-selected .block-list-appender__toggle, .editor-block-list__block.is-selected-parent .block-list-appender__toggle,
 .editor-block-list__block.is-typing ~ .block-list-appender .block-list-appender__toggle {
   display: block; }
-
-.jetpack-submit-button {
-  padding: 5px; }
-  .jetpack-submit-button.jetpack-submit-button .components-text-control__input {
-    background: transparent;
-    border: none;
-    outline: none;
-    text-align: center;
-    color: #fff; }
-    .jetpack-submit-button.jetpack-submit-button .components-text-control__input:focus, .jetpack-submit-button.jetpack-submit-button .components-text-control__input::-webkit-input-placeholder {
-      color: #fff; }
-    .jetpack-submit-button.jetpack-submit-button .components-text-control__input:focus, .jetpack-submit-button.jetpack-submit-button .components-text-control__input:-ms-input-placeholder {
-      color: #fff; }
-    .jetpack-submit-button.jetpack-submit-button .components-text-control__input:focus, .jetpack-submit-button.jetpack-submit-button .components-text-control__input::-ms-input-placeholder {
-      color: #fff; }
-    .jetpack-submit-button.jetpack-submit-button .components-text-control__input:focus, .jetpack-submit-button.jetpack-submit-button .components-text-control__input::placeholder {
-      color: #fff; }
 
