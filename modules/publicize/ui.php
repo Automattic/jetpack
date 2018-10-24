@@ -649,20 +649,36 @@ jQuery( function($) {
 		?>
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
-				<?php esc_html_e( 'Publicize:', 'jetpack' ); ?>
-				<?php if ( 0 < count( $connections_data ) ) : ?>
-					<?php $publicize_form = $this->get_metabox_form_connected( $connections_data ); ?>
-					<span id="publicize-defaults">
-					<?php foreach ( $connections_data as $connection_data ) : if ( $connection_data['enabled'] ) : ?>
-						<strong><?php echo esc_html( $connection_data['label'] ); ?></strong>
-					<?php endif; endforeach; ?>
-					</span>
+			<?php
+				esc_html_e( 'Publicize:', 'jetpack' );
+
+				if ( 0 < count( $connections_data ) ) :
+					$publicize_form = $this->get_metabox_form_connected( $connections_data );
+
+					$labels = array();
+					foreach ( $connections_data as $connection_data ) {
+						if ( ! $connection_data['enabled'] ) {
+							continue;
+						}
+
+						$labels[] = sprintf( '<strong>%s</strong>', esc_html( $connection_data['label'] ) );
+					}
+
+				?>
+					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
-				<?php else : ?>
-					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
+				<?php
+
+				else :
+					$publicize_form = $this->get_metabox_form_disconnected( $available_services );
+
+				?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
 					<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a><br />
-				<?php endif; ?>
+				<?php
+
+				endif;
+			?>
 			</span>
 			<?php
 			/**
