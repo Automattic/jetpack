@@ -15,7 +15,7 @@
  *
  * @since 5.9.1
  */
-class Jetpack_Publicize_Gutenberg {
+class Publicize_REST_API {
 
 	/**
 	 * Instance of Publicize used to access data gathering utility methods.
@@ -26,7 +26,7 @@ class Jetpack_Publicize_Gutenberg {
 	private $publicize;
 
 	/**
-	 * Constructor for Jetpack_Publicize_Gutenberg
+	 * Constructor for Publicize_REST_API
 	 *
 	 * Set up hooks to extend legacy Publicize behavior.
 	 *
