@@ -310,34 +310,33 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		);
 		$this->assertEquals(
 			'tumblr',
-			$test_c['name'],
+			$test_c['service_name'],
 			'Second test connection name should be \'tumbler\''
-		);
-		$this->assertTrue(
-			$test_c['checked'],
-			'The connection has not been shared to and there are no filters so connection should be \'checked\' by default.'
-		);
-		$this->assertEquals(
-			'',
-			$test_c['disabled'],
-			'Connection should not be disabled, so disabled string should be empty.'
-		);
-		$this->assertTrue(
-			$test_c['active'],
-			'Connection should be active because there are no filters and the connection has not been shared to.'
-		);
-		$this->assertFalse(
-			$test_c['hidden_checkbox'],
-			'hidden_checkbox should be false since current user can use this connection.'
 		);
 		$this->assertEquals(
 			'Tumblr: test-display-name456',
 			$test_c['label'],
 			'Label should follow pattern: [Service name]: [user-display-name].'
 		);
-		$this->assertEquals(
-			'test-display-name456',
-			$test_c['display_name']
+		$this->assertTrue(
+			$test_c['enabled'],
+			'The connection has not been shared to and there are no filters so connection should be \'enabled\' by default.'
+		);
+		$this->assertFalse(
+			$test_c['done'],
+			'Connection should not be done since it has not been publicized to yet.'
+		);
+		$this->assertTrue(
+			$test_c['toggleable'],
+			'Connection should be toggleable.'
+		);
+		$this->assertFalse(
+			$test_c['global'],
+			'Connection should not be global.'
+		);
+		$this->assertTrue(
+			$test_c['visible'],
+			'Connection should be visible.'
 		);
 	}
 
@@ -376,9 +375,13 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		 */
 		$connection_list   = $this->publicize->get_filtered_connection_data();
 		$tumblr_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertFalse(
-			$tumblr_connection['disabled'],
+		$this->assertTrue(
+			$tumblr_connection['enabled'],
 			'All connections should be enabled for null post id'
+		);
+		$this->assertFalse(
+			$tumblr_connection['done'],
+			'Connection should not yet be done for null post id'
 		);
 	}
 
@@ -396,7 +399,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertEquals(
 			'facebook',
-			$facebook_connection['name'],
+			$facebook_connection['service_name'],
 			'Facebook connection should be available prior to filtering'
 		);
 
@@ -413,7 +416,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$tumblr_connection = $connection_list[0];
 		$this->assertEquals(
 			'tumblr',
-			$tumblr_connection['name'],
+			$tumblr_connection['service_name'],
 			'Tumblr connection should still be available after filtering out facebook connection.'
 		);
 	}
@@ -432,7 +435,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['hidden_checkbox'],
+			$facebook_connection['global'],
+			'Facebook connection checkbox should be global.'
+		);
+		$this->assertFalse(
+			$facebook_connection['visible'],
 			'Facebook connection checkbox should be hidden by default since test user does not have capability.'
 		);
 
@@ -441,8 +448,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		// Get connection list again now that filter has been added.
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
-		$this->assertFalse(
-			$facebook_connection['hidden_checkbox'],
+		$this->assertTrue(
+			$facebook_connection['visible'],
 			'Facebook connection checkbox should not be set to hidden since filter set hidden to false.'
 		);
 
@@ -461,8 +468,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['checked'],
-			'Facebook connection should be checked by default with no filtering applied.'
+			$facebook_connection['enabled'],
+			'Facebook connection should be enabled by default with no filtering applied.'
 		);
 
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
@@ -470,8 +477,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertFalse(
-			$facebook_connection['checked'],
-			'Facebook connection should be un-checked by default after filtering applied.'
+			$facebook_connection['enabled'],
+			'Facebook connection should be un-enabled by default after filtering applied.'
 		);
 	}
 
@@ -489,8 +496,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		// First connection should be 'facebook' for unfiltered list.
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
 		$this->assertFalse(
-			$facebook_connection['disabled'],
-			'Facebook connection should not be disabled if the post is not \'done\'.'
+			$facebook_connection['done'],
+			'Facebook connection should not be done yet.'
+		);
+		$this->assertTrue(
+			$facebook_connection['toggleable'],
+			'Facebook connection should be toggleable if the post is not \'done\'.'
 		);
 
 		/**
@@ -503,7 +514,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['disabled'],
+			$facebook_connection['done'],
+			'Facebook connection should be done now that it has been published.'
+		);
+		$this->assertFalse(
+			$facebook_connection['toggleable'],
 			'Facebook connection should be disabled if the post is \'done\'.'
 		);
 	}
