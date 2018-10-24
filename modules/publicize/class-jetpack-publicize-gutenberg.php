@@ -80,7 +80,7 @@ class Jetpack_Publicize_Gutenberg {
 	 */
 	public function rest_get_publicize_connections_for_post( $request ) {
 		$post_id = $request['post_id'];
-		return wp_json_encode( $this->publicize->get_filtered_connection_data( $post_id ) );
+		return $this->publicize->get_filtered_connection_data( $post_id );
 	}
 
 	/**
