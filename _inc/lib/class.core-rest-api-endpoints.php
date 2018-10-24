@@ -416,25 +416,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		) );
 
-		// Get and set API keys
-		register_rest_route( 'jetpack/v4', '/api-key/(?P<service>[a-z\-_]+)', array(
+		// Get and set API keys.
+		register_rest_route(
+			'jetpack/v4',
+			'/api-key/(?P<service>[a-z\-_]+)',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_api_key',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check'
-			),
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_api_key',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				'args' => array(
-					'api_key' => array(
-						'required'          => true,
-						'type'              => 'text'
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_api_key',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_api_key',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'args'                => array(
+						'api_key' => array(
+							'required' => true,
+							'type'     => 'text',
+						),
 					),
-				)
-			),
-		) );
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => __CLASS__ . '::delete_api_key',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
 	}
 
 	public static function get_plans( $request ) {
@@ -2976,33 +2985,106 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return array();
 	}
 
+
 	/**
 	 * Get third party plugin API keys.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
 	 */
 	public static function get_api_key( $request ) {
-		$service = $request[ 'service' ];
-		$option = self::key_for_api_service( $service );
+		$service = $request['service'];
+		$option  = self::key_for_api_service( $service );
 		return array(
-			"api_key" => Jetpack_Options::get_option( $option, '' )
+			'api_key' => Jetpack_Options::get_option( $option, '' ),
 		);
 	}
 
 	/**
 	 * Update third party plugin API keys.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
 	 */
 	public static function update_api_key( $request ) {
-		$params = $request->get_json_params();
-		$service = $request[ 'service' ];
-		$option = self::key_for_api_service( $service );
-		$api_key = $params['api_key'];
+		$params     = $request->get_json_params();
+		$service    = $request['service'];
+		$api_key    = trim( $params['api_key'] );
+		$option     = self::key_for_api_service( $service );
+		$validation = self::validate_api_key( $api_key, $service );
+
+		if ( ! $validation['status'] ) {
+			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
 		Jetpack_Options::update_option( $option, $api_key );
 		return array(
-			"api_key" => Jetpack_Options::get_option( $option, '' )
+			'api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message' => esc_html__( 'API key set successfully!', 'jetpack' ),
+		);
+	}
+
+	/**
+	 * Delete a third party plugin API key.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
+	 */
+	public static function delete_api_key( $request ) {
+		$service = $request['service'];
+		$option  = self::key_for_api_service( $service );
+		Jetpack_Options::delete_option( $option );
+		return array(
+			'api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message' => esc_html__( 'API key deleted successfully!', 'jetpack' ),
+		);
+	}
+
+	/**
+	 * Validate API Key
+	 *
+	 * @param string $key The API key to be validated.
+	 * @param string $service The service the API key is for.
+	 */
+	public static function validate_api_key( $key = null, $service = null ) {
+		$validation = false;
+		switch ( $service ) {
+			case 'googlemaps':
+				$validation = self::validate_api_key_googlemaps( $key );
+				break;
+		}
+		return $validation;
+	}
+
+	/**
+	 * Validate Google Maps API key
+	 *
+	 * @param string $key The API key to be validated.
+	 */
+	public static function validate_api_key_googlemaps( $key = null ) {
+		$address = '1+broadway+new+york+ny+usa';
+		$path    = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&input=' . $address;
+		$path    = add_query_arg( 'key', $key, $path );
+		$json    = json_decode( wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) ), true );
+		return array(
+			'status'        => ( 'ok' === strtolower( $json['status'] ) ),
+			'error_message' => ( isset( $json['error_message'] ) ? $json['error_message'] : null ),
 		);
 	}
 
 	/**
 	 * Create site option key for service
+	 *
+	 * @param string $service The service  to create key for.
 	 */
 	private static function key_for_api_service( $service ) {
 		return $service . '_api_key';
