@@ -6,26 +6,16 @@ import moment from 'moment';
 
 const pr = danger.github.pr;
 const github = danger.github;
-const git = danger.git;
 
+// Calculate next release date
 let jetpackReleaseDate = moment().add( 1, 'months' ).startOf( 'month' );
 while ( jetpackReleaseDate.day() !== 2 ) {
 	jetpackReleaseDate.add( 1, 'day' );
 }
-
 jetpackReleaseDate = jetpackReleaseDate.format( 'LL' );
-const codeFreezeDate = moment( jetpackReleaseDate ).subtract( 7, 'd' ).format( 'LL' );
 
-// Skip danger check if "no ci" or "no danger" in latest commit
-const lastCommit = git.commits.slice( -1 )[ 0 ].message;
-if (
-	lastCommit.includes( 'no ci' ) ||
-	lastCommit.includes( 'skip ci' ) ||
-	lastCommit.includes( 'no danger' ) ||
-	lastCommit.includes( 'skip danger' )
-) {
-	process.exit( 0 ); // eslint-disable-line no-process-exit
-}
+// Calculate next code freeze date
+const codeFreezeDate = moment( jetpackReleaseDate ).subtract( 7, 'd' ).format( 'LL' );
 
 // No PR is too small to include a description of why you made a change
 if ( pr.body.length < 10 ) {
