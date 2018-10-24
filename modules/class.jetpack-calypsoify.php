@@ -183,12 +183,47 @@ class Jetpack_Calypsoify {
 	}
 
 	public function is_page_gutenberg() {
+		if ( ! Jetpack_Gutenberg::is_gutenberg_available() ) {
+			return false;
+		}
+
 		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
-		return Jetpack::is_gutenberg_available() && (
-				false !== strpos( $page, 'post.php' ) ||
-				false !== strpos( $page, 'post-new.php' ) ||
-				false !== strpos( $page, 'revision.php' )
-			);
+
+		/**
+		 * Allow third-party plugins to register support for their post types in the full-screen Calypsoify gutenberg mode.
+		 *
+		 * @module calypsoify
+		 *
+		 * @since 6.7.0
+		 *
+		 * @param array $post_types Allowed post types.
+		 */
+		$allowed_gutenberg_post_types = apply_filters( 'jetpack_calypsoify_allowed_gutenberg_post_types', array( 'post', 'page' ) );
+
+		if ( false !== strpos( $page, 'post-new.php' ) && empty ( $_GET['post_type'] ) ) {
+			return true;
+		}
+
+		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && in_array( $_GET['post_type'], $allowed_gutenberg_post_types ) ) {
+			return true;
+		}
+
+		if ( false !== strpos( $page, 'post.php' ) ) {
+			$post = get_post( $_GET['post'] );
+			if ( isset( $post ) && isset( $post->post_type ) && in_array( $post->post_type, $allowed_gutenberg_post_types ) ) {
+				return true;
+			}
+		}
+
+		if ( false !== strpos( $page, 'revision.php' ) ) {
+			$post   = get_post( $_GET['revision'] );
+			$parent = get_post( $post->post_parent );
+			if ( isset( $parent ) && isset( $parent->post_type ) && in_array( $parent->post_type, $allowed_gutenberg_post_types ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
 
