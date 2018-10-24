@@ -102,10 +102,20 @@ registerBlockType( 'jetpack/form', {
 					allowedBlocks={ [] }
 					templateLock={false}
 					template={ [
-						[ 'jetpack/field-name', { label: __( 'Name', 'jetpack' ) } ],
-						[ 'jetpack/field-email', { label: __( 'Email', 'jetpack' ) } ],
-						[ 'jetpack/field-text', { label: __( 'Subject', 'jetpack' ) } ],
-						[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack' ) } ]
+						[ 'jetpack/field-name', {
+							label: __( 'Name', 'jetpack' ),
+							required: true
+						} ],
+						[ 'jetpack/field-email', {
+							label: __( 'Email', 'jetpack' ),
+							required: true
+						} ],
+						[ 'jetpack/field-url', {
+							label: __( 'Website', 'jetpack' )
+						} ],
+						[ 'jetpack/field-textarea', {
+							label: __( 'Message', 'jetpack' )
+						} ]
 					] }
 				/>
 			</JetpackForm>
