@@ -11,6 +11,10 @@ msgstr ""
 "Language: hu\n"
 "Project-Id-Version: Plugins - Jetpack by WordPress.com - Development (trunk)\n"
 
+#: modules/class.jetpack-calypsoify.php:86
+msgid "Plugin Settings"
+msgstr ""
+
 #: modules/module-info.php:695
 msgid ""
 "Our asset CDN is a site acceleration service.\n"
@@ -1059,7 +1063,7 @@ msgstr ""
 msgid "By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href=\"%s\" target=\"_blank\">Terms of Service</a> and to <a href=\"%s\" target=\"_blank\">share details</a> with WordPress.com."
 msgstr ""
 
-#: class.jetpack.php:4161
+#: class.jetpack.php:4163
 msgid "Could not activate %s"
 msgstr ""
 
@@ -4059,7 +4063,7 @@ msgstr ""
 msgid "Copyright"
 msgstr ""
 
-#: class.jetpack.php:5325
+#: class.jetpack.php:5327
 msgid "Unknown error registering your Jetpack site"
 msgstr ""
 
@@ -4240,19 +4244,19 @@ msgctxt "Module Description"
 msgid "Display images and galleries in a gorgeous, full-screen browsing experience"
 msgstr ""
 
-#: class.jetpack.php:5638
+#: class.jetpack.php:5640
 msgid "The request is not signed correctly."
 msgstr ""
 
-#: class.jetpack.php:5611
+#: class.jetpack.php:5613
 msgid "This request method does not support body parameters."
 msgstr ""
 
-#: class.jetpack.php:5603
+#: class.jetpack.php:5605
 msgid "This request method is not supported."
 msgstr ""
 
-#: class.jetpack.php:5241
+#: class.jetpack.php:5243
 msgid "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension."
 msgstr ""
 
@@ -5132,7 +5136,7 @@ msgstr ""
 msgid "SEO tools are not enabled for this site."
 msgstr ""
 
-#: class.jetpack.php:6345
+#: class.jetpack.php:6347
 msgid "Cannot parse URL %s"
 msgstr ""
 
@@ -5785,31 +5789,31 @@ msgstr ""
 msgid "Error regenerating %(slug)s address. %(error)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:18
+#: _inc/jetpack-strings.php:13
 msgid "Resetting Jetpack options…"
 msgstr "Beállítások visszaállítása folyamatban..."
 
-#: _inc/jetpack-strings.php:19
+#: _inc/jetpack-strings.php:14
 msgid "Options reset."
 msgstr "Beállítások visszaállítása"
 
-#: _inc/jetpack-strings.php:20
+#: _inc/jetpack-strings.php:15
 msgid "Options failed to reset."
 msgstr "Beállításokat nem sikerült visszaállítani."
 
-#: _inc/jetpack-strings.php:14
+#: _inc/jetpack-strings.php:17
 msgid "There was an error disconnecting Jetpack. Error: %(error)s"
 msgstr ""
 
-#: _inc/jetpack-strings.php:15
+#: _inc/jetpack-strings.php:18
 msgid "Unlinking from WordPress.com"
 msgstr "Elválasztása a WordPress.com fiókunktól."
 
-#: _inc/jetpack-strings.php:16
+#: _inc/jetpack-strings.php:19
 msgid "Unlinked from WordPress.com."
 msgstr "Elválasztva a WordPress.com fiókunktól."
 
-#: _inc/jetpack-strings.php:17
+#: _inc/jetpack-strings.php:20
 msgid "Error unlinking from WordPress.com. %(error)s"
 msgstr ""
 
@@ -6909,64 +6913,64 @@ msgstr "Vélemény archívum tartalom"
 msgid "Testimonial Archive Title"
 msgstr "Vélemény archívum címe"
 
-#: class.jetpack.php:7073
+#: class.jetpack.php:7075
 msgid "This user is linked and ready to fly with Jetpack."
 msgstr ""
 
-#: class.jetpack.php:5078
+#: class.jetpack.php:5080
 msgid "Checking"
 msgstr "Ellenőrzés"
 
-#: class.jetpack.php:5065
+#: class.jetpack.php:5067
 msgid "For more help, try our <a href=\"%1$s\">connection debugger</a> or <a href=\"%2$s\" target=\"_blank\">troubleshooting tips</a>."
 msgstr ""
 
-#: class.jetpack.php:5061 class.jetpack.php:5087
+#: class.jetpack.php:5063 class.jetpack.php:5089
 msgid "Try again"
 msgstr "Próbálja újra"
 
-#: class.jetpack.php:5060
+#: class.jetpack.php:5062
 msgid "Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: "
 msgstr ""
 
-#: class.jetpack.php:5058
+#: class.jetpack.php:5060
 msgid "Your site could not connect to WordPress.com via HTTPS. This could be due to any number of reasons, including faulty SSL certificates, misconfigured or missing SSL libraries, or network issues."
 msgstr ""
 
-#: class.jetpack.php:5057
+#: class.jetpack.php:5059
 msgid "Outbound HTTPS not working"
 msgstr ""
 
-#: class.jetpack.php:5033
+#: class.jetpack.php:5035
 msgid "Response was not OK: "
 msgstr "A válasz nem volt OK:"
 
-#: class.jetpack.php:5025 class.jetpack.php:5030
+#: class.jetpack.php:5027 class.jetpack.php:5032
 msgid "WordPress reports no SSL support"
 msgstr ""
 
-#: class.jetpack.php:5012
+#: class.jetpack.php:5014
 msgid "JETPACK_CLIENT__HTTPS is set to NEVER"
 msgstr "JETPACK_CLIENT__HTTPS be van állítva, hogy SOHA"
 
-#: class.jetpack.php:3965
+#: class.jetpack.php:3967
 msgid "Learn more about Jetpack Manage on Jetpack.com"
 msgstr ""
 
-#: class.jetpack.php:3964
+#: class.jetpack.php:3966
 msgid "Activate Jetpack Manage"
 msgstr "Jetpack kezelő bekapcsolása"
 
-#: class.jetpack.php:3962
+#: class.jetpack.php:3964
 msgid "Manage multiple Jetpack enabled sites from one single dashboard at wordpress.com. Allows all existing, connected Administrators to modify your site."
 msgstr ""
 
-#: class.jetpack.php:3961
+#: class.jetpack.php:3963
 msgid "Jetpack Centralized Site Management"
 msgstr ""
 
 #: class.jetpack-connection-banner.php:174
-#: class.jetpack-connection-banner.php:594 class.jetpack.php:3959
+#: class.jetpack-connection-banner.php:594 class.jetpack.php:3961
 msgid "Dismiss this notice"
 msgstr "Értesítés elvetése"
 
@@ -6979,6 +6983,7 @@ msgid "Your site did not get a response from our debugging service in the expect
 msgstr ""
 
 #: class.jetpack-network-sites-list-table.php:85
+#: modules/class.jetpack-calypsoify.php:77
 msgid "Manage Plugins"
 msgstr "Bővítmények kezelése"
 
@@ -7093,7 +7098,7 @@ msgid "We have apps for <a href=\"%s\" target=\"_blank\">iOS (iPhone, iPad, iPod
 msgstr ""
 
 #. translators: %s is a URL
-#: class.jetpack.php:1677
+#: class.jetpack.php:1679
 msgid "You are running Jetpack on a <a href=\"%s\" target=\"_blank\">staging server</a>."
 msgstr ""
 
@@ -7491,7 +7496,7 @@ msgstr "Jetpack hálózat beállítások frissítve!"
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr "A Jetpack a teljes hálózaton aktiválásra került, ezért a figyelmeztetéseket nem lehet elrejteni."
 
-#: _inc/jetpack-strings.php:13
+#: _inc/jetpack-strings.php:16
 msgid "Disconnecting Jetpack"
 msgstr "Jetpack leválasztása"
 
@@ -7506,11 +7511,11 @@ msgstr "Ismerkedjünk meg a Multisite Jetpackel"
 #: _inc/jetpack-strings.php:133 _inc/jetpack-strings.php:136
 #: _inc/jetpack-strings.php:138 _inc/jetpack-strings.php:214
 #: _inc/jetpack-strings.php:450 _inc/jetpack-strings.php:677
-#: _inc/jetpack-strings.php:678 class.jetpack.php:3965
+#: _inc/jetpack-strings.php:678 class.jetpack.php:3967
 msgid "Learn more"
 msgstr "Bővebben"
 
-#: modules/module-extras.php:62
+#: modules/module-extras.php:63
 msgid "%s (Jetpack)"
 msgstr "%s (Jetpack)"
 
@@ -9025,6 +9030,7 @@ msgctxt "share to"
 msgid "Email"
 msgstr "Email"
 
+#: modules/class.jetpack-calypsoify.php:108
 #: modules/sharedaddy/sharing-sources.php:467
 msgid "Close"
 msgstr "Bezárás"
@@ -9485,7 +9491,7 @@ msgstr "Felügyeleti Email értesítések küldése."
 msgid "Themes"
 msgstr "Sablonok"
 
-#: modules/masterbar/masterbar.php:956
+#: modules/class.jetpack-calypsoify.php:120 modules/masterbar/masterbar.php:956
 msgid "Plugins"
 msgstr "Bővítmények"
 
@@ -9544,7 +9550,7 @@ msgid "Publicize"
 msgstr "Népszerűsítés"
 
 #: _inc/jetpack-strings.php:482 _inc/jetpack-strings.php:483
-#: class.jetpack.php:6957 modules/stats.php:439 modules/stats.php:582
+#: class.jetpack.php:6959 modules/stats.php:439 modules/stats.php:582
 #: modules/stats.php:1077
 msgid "Site Stats"
 msgstr "Statisztika"
@@ -12415,148 +12421,148 @@ msgstr "Típus"
 msgid "Thumbnail Grid"
 msgstr "Bélyegkép Rács"
 
-#: class.jetpack.php:7039
+#: class.jetpack.php:7041
 msgid "Akismet can help to keep your blog safe from spam!"
 msgstr "Az Akismet segíthet abban, hogy a honlap biztonságban lehessen a spam fenyegetésektől!"
 
-#: class.jetpack.php:7036
+#: class.jetpack.php:7038
 msgid "Activate Akismet"
 msgstr "Akismet bekapcsolása"
 
-#: class.jetpack.php:7033
+#: class.jetpack.php:7035
 msgctxt "{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "Spam comments blocked by Akismet."
 msgstr "Akismet által blokkolt Spam hozzászólás"
 
-#: class.jetpack.php:7026
+#: class.jetpack.php:7028
 msgid "Protect is inactive."
 msgstr "A védelem ki van kapcsolva."
 
-#: class.jetpack.php:7023
+#: class.jetpack.php:7025
 msgid "Activate Protect"
 msgstr "Védelem bekapcsolása"
 
-#: class.jetpack.php:7022
+#: class.jetpack.php:7024
 msgid "Protect helps to keep you secure from brute-force login attacks."
 msgstr ""
 
-#: class.jetpack.php:7020
+#: class.jetpack.php:7022
 msgctxt "{#} Blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "Blocked malicious login attempts"
 msgstr "Blokkolt rosszindulatú bejelentkezési kisérlet"
 
-#: class.jetpack.php:6154
+#: class.jetpack.php:6156
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr "%s hozzá szeretne férni a honlap adataihoz. A hozzáférés megadásához jelentkezzünk be."
 
-#: class.jetpack.php:6114
+#: class.jetpack.php:6116
 msgid "The authorization process expired.  Please go back and try again."
 msgstr "A bejelentkezési munkamenet lejárt. Térjünk vissza, és próbáljuk újra."
 
-#: class.jetpack.php:6071
+#: class.jetpack.php:6073
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr "Valaki hozzá szeretne férni a honlaphoz vagy lehet csak találkozott egy hibával. :) Zárjuk be ezt az ablakot."
 
-#: class.jetpack.php:6068
+#: class.jetpack.php:6070
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr "Ennek a lehetőségnek a használatához a Jetpackünket csatlakoztatni kell WordPress.com-hoz."
 
-#: class.jetpack.php:5765
+#: class.jetpack.php:5767
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "ID/WP.com Blog ID a honlapon"
 
-#: class.jetpack.php:5759
+#: class.jetpack.php:5761
 msgid "Jetpack Plugin Version"
 msgstr "Jetpack bővítmény verzió"
 
-#: class.jetpack.php:5743
+#: class.jetpack.php:5745
 msgid "The number of sites of the connected WP.com user"
 msgstr "WP.com felhasználó csatlakoztatott honlapjainak száma"
 
-#: class.jetpack.php:5738
+#: class.jetpack.php:5740
 msgid "The WP.com user email of the connected user"
 msgstr "A WP.com email címével csatlakozott a felhasználó"
 
-#: class.jetpack.php:5733
+#: class.jetpack.php:5735
 msgid "The WP.com username of the connected user"
 msgstr "A WP.com felhasználónevével csatlakozott a felhasználó"
 
-#: class.jetpack.php:5728
+#: class.jetpack.php:5730
 msgid "The WP.com user ID of the connected user"
 msgstr "A WP.com felhasználó ID-vel csatlakozott a felhasználó"
 
-#: class.jetpack.php:5257
+#: class.jetpack.php:5259
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr "Hiba részletek: Jetpack ID számmal kezdődik. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
-#: class.jetpack.php:5255
+#: class.jetpack.php:5257
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr "Hiba részletek: Jetpack ID nem lépcsőzetes. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
-#: class.jetpack.php:5253
+#: class.jetpack.php:5255
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr "Hiba részletek: Jetpack ID üres. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
-#: class.jetpack.php:4891
+#: class.jetpack.php:4893
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a>"
 msgstr "<a class=\"button-primary\" href=\"%s\">Bekapcsolás most</a>"
 
-#: class.jetpack.php:4889
+#: class.jetpack.php:4891
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."
 msgstr "<a class=\"button-primary\" href=\"%s\">Bekapcsolás most</a> vagy <a href=\"%s\" >vissza az előző oldalra</a>."
 
-#: class.jetpack.php:4875
+#: class.jetpack.php:4877
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
 msgstr ""
 
-#: class.jetpack.php:4871
+#: class.jetpack.php:4873
 msgid "Activate Site Management and JSON API"
 msgstr "Kapcsoljuk be az Oldal Menedzsmentet és a JSON API-t"
 
-#: class.jetpack.php:4821
+#: class.jetpack.php:4823
 msgid "Configure %s"
 msgstr "%s beállítása"
 
-#: class.jetpack.php:4419
+#: class.jetpack.php:4421
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "Kikapcsolás %l"
 
-#: class.jetpack.php:4402
+#: class.jetpack.php:4404
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
 msgstr[0] "Ha a webhely nyilvánosan nem hozzáférhető, fontolja meg a <a href=\"%1$s\" title=\"%2$s\">szolgáltatás kikapcsolását</a>."
 msgstr[1] "Ha a webhely nyilvánosan nem hozzáférhető, fontolja meg a <a href=\"%1$s\" title=\"%2$s\">szolgáltatások kikapcsolását</a>."
 
-#: class.jetpack.php:4385
+#: class.jetpack.php:4387
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:4380
+#: class.jetpack.php:4382
 msgid "Is this site private?"
 msgstr "Ez az oldal magánjellegű?"
 
-#: class.jetpack.php:4308
+#: class.jetpack.php:4310
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "A régi verzió ki van kapcsolva, és el lehet távolítani a webhelyen."
 msgstr[1] "A régi verziók ki vannak kapcsolva, és el lehet távolítani a webhelyen."
 
-#: class.jetpack.php:4297
+#: class.jetpack.php:4299
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack tartalmazza a legújabb verzióját a régi %l pluginnak."
 msgstr[1] "Jetpack tartalmazza a legújabb verzióitt a régi %l pluginoknak."
 
-#: class.jetpack.php:4272
+#: class.jetpack.php:4274
 msgid "Manage has been activated for you!"
 msgstr "Kezelés be van kapcsolva!"
 
-#: class.jetpack.php:4270
+#: class.jetpack.php:4272
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 msgstr "Minden rendben van! A honlap mostantól kezelhető a <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a> oldalon keresztül is."
 
@@ -12584,7 +12590,7 @@ msgstr "Sikeres lecsatlakozás a Jetpackről."
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>A Jetpack aktiválva van!</strong> Minden oldalon a hálózatban be kell csatlakoztatni egyedileg az adminisztrátort az oldalon."
 
-#: class.jetpack.php:3992
+#: class.jetpack.php:3994
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
 msgstr "<p><a href=\"%1$s\" title=\"WordPress.com honlap kezelő feliratkozás\">Honlap kezelő aktiválás</a> után kezelhetőek a honlapok vezérlőpultjai egy központban a wordpress.com/plugins oldalon. <a href=\"%2$s\" target=\"_blank\">További információ</a>.</p><a href=\"%1$s\" class=\"jp-button\">Aktiválás</a>"
 
@@ -12592,85 +12598,86 @@ msgstr "<p><a href=\"%1$s\" title=\"WordPress.com honlap kezelő feliratkozás\"
 msgid "Connect to WordPress.com"
 msgstr "Csatlakozás a WordPress.com-hoz"
 
-#: class.jetpack.php:3854
+#: class.jetpack.php:3856
 msgid "Jetpack Support"
 msgstr "Jetpack Támogatás"
 
-#: class.jetpack.php:3853
+#: class.jetpack.php:3855
 msgid "Jetpack FAQ"
 msgstr "Jetpack GY.I.K."
 
-#: class.jetpack.php:3852
+#: class.jetpack.php:3854
 msgid "For more information:"
 msgstr "További információk:"
 
-#: class.jetpack.php:3845
+#: class.jetpack.php:3847
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr ""
 
-#: class.jetpack.php:3843
+#: class.jetpack.php:3845
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr ""
 
-#: class.jetpack.php:3842
+#: class.jetpack.php:3844
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr "Minden modul rendelkezik egy Bekapcsolás vagy Kikapcsolás hivatkozással, így a funkciókat külön-külön lehet beállítani."
 
-#: class.jetpack.php:3840
+#: class.jetpack.php:3842
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "Bekapcsolhatja vagy kikapcsolhatja az egyes modulokat a Jetpackban, az igényeinek megfelelően."
 
-#: class.jetpack.php:3828
+#: class.jetpack.php:3830
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "Ezen az oldalon tudja megtekinteni a Jetpack moduljait, itt olvashat róluk többet és bekapcsolhatja vagy kikapcsolhatja ezeket, ha szükséges."
 
-#: class.jetpack.php:3827
+#: class.jetpack.php:3829
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack a WordPress.com számítási felhőjének hihetetlen energiájával tölti fel a saját tárhelyen üzemelő WordPress telepítéseket."
 
-#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 6.6)  #-#-#-#-#
+#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 6.6.1-pressable) 
+#. #-#-#-#-#
 #. Plugin Name of the plugin/theme
-#: class.jetpack.php:3826 class.jetpack.php:3839
+#: class.jetpack.php:3828 class.jetpack.php:3841
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack a WordPress.com-tól"
 
-#: class.jetpack.php:3824 modules/theme-tools/site-breadcrumbs.php:48
+#: class.jetpack.php:3826 modules/theme-tools/site-breadcrumbs.php:48
 msgid "Home"
 msgstr "Kezdőlap"
 
-#: class.jetpack.php:3612 class.jetpack.php:3628
+#: class.jetpack.php:3614 class.jetpack.php:3630
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "A Jetpack tartalmazza a legújabb verzióját a régi &#8220;%1$s&#8221; bővítménynek."
 
-#: class.jetpack.php:3416
+#: class.jetpack.php:3418
 msgid "Second param must be numeric or empty"
 msgstr "A második paraméter csak számot vagy semmit ne tartalmazzon"
 
-#: class.jetpack.php:3412
+#: class.jetpack.php:3414
 msgid "First param must be string or empty"
 msgstr "Az első paraméter csak karakterláncot vagy semmit ne tartalmazzon"
 
-#: class.jetpack.php:3108
+#: class.jetpack.php:3110
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "A Jetpack WordPress %s verziót vagy újabbat igényel."
 
 #. translators: %s is a URL
-#: class.jetpack.php:1670
+#: class.jetpack.php:1672
 msgid "You are currently running a development version of Jetpack. <a href=\"%s\" target=\"_blank\">Submit your feedback</a>"
 msgstr ""
 
 #. translators: %s is a URL
-#: class.jetpack.php:1659
+#: class.jetpack.php:1661
 msgid "In <a href=\"%s\" target=\"_blank\">Development Mode</a>, via the jetpack_development_mode filter."
 msgstr ""
 
 #. translators: %s is a URL
-#: class.jetpack.php:1653
+#: class.jetpack.php:1655
 msgid "In <a href=\"%s\" target=\"_blank\">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost)."
 msgstr ""
 
 #. translators: %s is a URL
-#: class.jetpack.php:1647
+#: class.jetpack.php:1649
 msgid "In <a href=\"%s\" target=\"_blank\">Development Mode</a>, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere."
 msgstr ""
 
@@ -12889,8 +12896,8 @@ msgstr ""
 msgid "Domain `%1$s` just failed is_usable_domain check as it is empty."
 msgstr ""
 
-#: class.jetpack-client-server.php:239 class.jetpack.php:5236
-#: class.jetpack.php:5238 class.jetpack.php:5243 class.jetpack.php:5248
+#: class.jetpack-client-server.php:239 class.jetpack.php:5238
+#: class.jetpack.php:5240 class.jetpack.php:5245 class.jetpack.php:5250
 msgid "Error Details: %s"
 msgstr "Hiba részletei: %s"
 
@@ -13109,7 +13116,7 @@ msgstr "%s nem érvényes parancs."
 msgid "Jetpack is not currently connected to WordPress.com"
 msgstr "A Jetpack jelenleg nincs csatlakoztatva: WordPress.com"
 
-#: class.jetpack.php:3855
+#: class.jetpack.php:3857
 msgid "Jetpack Debugging Center"
 msgstr "Jetpack Hibakeresés Központ"
 
@@ -13190,7 +13197,7 @@ msgstr "Visszajelzés"
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:299
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:65
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:18
-#: class.jetpack-network.php:272 class.jetpack.php:3837 class.jetpack.php:3925
+#: class.jetpack-network.php:272 class.jetpack.php:3839 class.jetpack.php:3927
 #: modules/masterbar/masterbar.php:1002 modules/publicize/ui.php:602
 #: modules/sharedaddy/sharedaddy.php:217 modules/sharedaddy/sharedaddy.php:224
 msgid "Settings"
@@ -13207,7 +13214,7 @@ msgstr "Bővebben"
 msgid "Disconnect Jetpack"
 msgstr "Jetpack leválasztása"
 
-#: class.jetpack.php:3926 modules/sharedaddy/sharedaddy.php:225
+#: class.jetpack.php:3928 modules/sharedaddy/sharedaddy.php:225
 msgid "Support"
 msgstr "Támogatás"
 

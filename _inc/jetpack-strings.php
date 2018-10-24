@@ -15,9 +15,6 @@ __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), /
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:114
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:121
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:130
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:34
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:41
 __( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
 __( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:38
 __( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:49
@@ -33,6 +30,9 @@ __( "Error updating %(slug)s settings. %(error)s", "jetpack" ), // _inc/client/s
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:261
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:281
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:299
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:34
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:41
 __( "Updating settings…", "jetpack" ), // _inc/client/state/settings/actions.js:88
 __( "Updated settings.", "jetpack" ), // _inc/client/state/settings/actions.js:89
 __( "Error updating settings. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:93
@@ -292,24 +292,25 @@ __( "Whitelisted IP addresses", "jetpack" ), // _inc/client/security/protect.jsx
 __( "You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/security/protect.jsx:154
 _x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:64
 __( "Allows registered users to log in to your site with their WordPress.com accounts.", "jetpack" ), // _inc/client/security/sso.jsx:71
-__( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:97
-__( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:110
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:32
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:40
+__( "Add an extra layer of security to your website by enabling WordPress.com log in and secure authentication. If you have multiple sites with this option enabled, you will be able to log into every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
+__( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
+__( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
 __( "Adds like buttons to your content so that visitors can show their appreciation or enjoyment.", "jetpack" ), // _inc/client/sharing/likes.jsx:31
 __( "Allow readers to show their appreciation of your posts by adding a like button to your content", "jetpack" ), // _inc/client/sharing/likes.jsx:41
-__( "Connect your social media accounts", "jetpack" ), // _inc/client/sharing/publicize.jsx:46
-__( "Connect your user account to WordPress.com to use this feature", "jetpack" ), // _inc/client/sharing/publicize.jsx:54
-_x( "Publicize connections", "Settings header", "jetpack" ), // _inc/client/sharing/publicize.jsx:66
-__( "Allows you to automatically share your newest content on social media sites, including Facebook and Twitter.", "jetpack" ), // _inc/client/sharing/publicize.jsx:75
-__( "Automatically share your posts to social networks", "jetpack" ), // _inc/client/sharing/publicize.jsx:86
-__( "Configure your sharing buttons", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:36
-__( "Configure your sharing buttons", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:40
-__( "Connect your user account to WordPress.com to use this feature", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:43
-_x( "Sharing buttons", "Settings header", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:49
-__( "Adds sharing buttons to your content so that visitors can share it on social media sites.", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:56
-__( "Add sharing buttons to your posts", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:65
+__( "Connect your social media accounts", "jetpack" ), // _inc/client/sharing/publicize.jsx:48
+__( "Connect your user account to WordPress.com to use this feature", "jetpack" ), // _inc/client/sharing/publicize.jsx:58
+_x( "Publicize connections", "Settings header", "jetpack" ), // _inc/client/sharing/publicize.jsx:70
+__( "Allows you to automatically share your newest content on social media sites, including Facebook and Twitter.", "jetpack" ), // _inc/client/sharing/publicize.jsx:79
+__( "Automatically share your posts to social networks", "jetpack" ), // _inc/client/sharing/publicize.jsx:90
+__( "Configure your sharing buttons", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:42
+__( "Configure your sharing buttons", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:57
+__( "Connect your user account to WordPress.com to use this feature", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:70
+_x( "Sharing buttons", "Settings header", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:80
+__( "Adds sharing buttons to your content so that visitors can share it on social media sites.", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:88
+__( "Add sharing buttons to your posts", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:100
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:32
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:40
 _x( "Ads", "Ads header", "jetpack" ), // _inc/client/traffic/ads.jsx:57
 __( "Displays high-quality ads on your site that allow you to earn income.", "jetpack" ), // _inc/client/traffic/ads.jsx:66
 __( "Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.", "jetpack" ), // _inc/client/traffic/ads.jsx:70
@@ -549,8 +550,6 @@ __( "Guard your site against brute force login attacks, spam, and harmfulmalware
 __( "Backup and restore", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:191
 __( "Automatic, real-time backups mean your entire site is always ready to be restored.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:195
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:209
-__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:47
-__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:48
 __( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:44
 __( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:48
 __( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:52
@@ -610,6 +609,8 @@ __( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/compo
 __( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
 __( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:85
 __( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:86
+__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:47
+__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:48
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:80
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:88
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:53
@@ -642,12 +643,12 @@ __( "Let search engines and visitors know that you are serious about your websit
 __( "Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:112
 __( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:119
 __( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:141
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:45
-_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:51
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:61
 __( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:80
 __( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:82
 __( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:84
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:45
+_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:51
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:61
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:68
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:137
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:151
