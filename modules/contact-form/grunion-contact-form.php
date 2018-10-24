@@ -1802,7 +1802,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'show_subject'       => 'no', // only used in back-compat mode
 			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
 			'id'                 => null, // Not exposed to the user. Set above.
-			'submit_button_text' => __( 'Submit &#187;', 'jetpack' ),
+			'submit_button_text' => __( 'Submit', 'jetpack' ),
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
