@@ -2,20 +2,20 @@
  * External dependencies
  */
 import { danger, warn, markdown, results, schedule } from 'danger';
-import moment from 'moment';
+const moment = require( 'moment' );
 
 const pr = danger.github.pr;
 const github = danger.github;
 
 // Calculate next release date
-let jetpackReleaseDate = moment().add( 1, 'months' ).startOf( 'month' );
-while ( jetpackReleaseDate.day() !== 2 ) {
-	jetpackReleaseDate.add( 1, 'day' );
+const firstTuesdayOfMonth = moment().add( 1, 'months' ).startOf( 'month' );
+while ( firstTuesdayOfMonth.day() !== 2 ) {
+	firstTuesdayOfMonth.add( 1, 'day' );
 }
-jetpackReleaseDate = jetpackReleaseDate.format( 'LL' );
+const jetpackReleaseDate = firstTuesdayOfMonth.format( 'LL' );
 
 // Calculate next code freeze date
-const codeFreezeDate = moment( jetpackReleaseDate ).subtract( 7, 'd' ).format( 'LL' );
+const codeFreezeDate = firstTuesdayOfMonth.subtract( 7, 'd' ).format( 'LL' );
 
 // No PR is too small to include a description of why you made a change
 if ( pr.body.length < 10 ) {
