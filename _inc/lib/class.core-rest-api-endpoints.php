@@ -3062,12 +3062,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_api_key( $request ) {
 		$service = $request[ 'service' ];
-		if ( ! self::check_api_key_service( $service ) ) {
-			return new WP_Error( 'invalid_service', esc_html__( 'Invalid service.', 'jetpack' ), array( 'status' => 404 ) );
-		}
 		$option = self::key_for_api_service( $service );
 		return array(
-			"api_key" => get_option( $option, '' )
+			"api_key" => Jetpack_Options::get_option( $option, '' )
 		);
 	}
 
@@ -3077,23 +3074,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function update_api_key( $request ) {
 		$params = $request->get_json_params();
 		$service = $request[ 'service' ];
-		if ( ! self::check_api_key_service( $service ) ) {
-			return new WP_Error( 'invalid_service', esc_html__( 'Invalid service.', 'jetpack' ), array( 'status' => 404 ) );
-		}
 		$option = self::key_for_api_service( $service );
 		$api_key = $params['api_key'];
-		update_option( $option, $api_key );
+		Jetpack_Options::update_option( $option, $api_key );
 		return array(
-			"api_key" => get_option( $option, '' )
+			"api_key" => Jetpack_Options::get_option( $option, '' )
 		);
-	}
-
-	/**
-	 * Checks if service param is valid
-	 */
-	private static function check_api_key_service( $service ) {
-		$valid_services = array( 'googlemaps' );
-		return in_array( $service, $valid_services );
 	}
 
 	/**
