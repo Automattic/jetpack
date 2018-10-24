@@ -730,21 +730,18 @@ jQuery( function($) {
 							in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
 							&&
 							(
+								// New flags
 								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
 								||
-								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $connection->name )
+								// Old flags
+								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $service_name )
 							)
 						)
 						||
 						(
 							is_array( $connection )
 							&&
-							(
-								( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['meta']['external_id'] ] ) )
-								||
-								// Jetpack's connection data looks a little different.
-								( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection['external_id'] ] ) )
-							)
+							isset( $connection_meta['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection_meta['external_id'] ] )
 						)
 					);
 
