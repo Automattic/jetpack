@@ -535,44 +535,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 	padding: 0.84375em 0.875em 0.78125em;
 }
 
-/* Testimonial */
-.entry-content .testimonial-entry {
-	margin-bottom: 1.75em;
-}
-
-.entry-content .testimonial-entry-content {
-	margin: 0;
-}
-
-.entry-content .testimonial-entry-title,
-.entry-content .testimonial-entry-content p {
-	font-size: 13px;
-	font-size: 0.8125em;
-	line-height: 1.615384615;
-	margin: 0;
-}
-
-.entry-content .testimonial-entry-content p {
-	margin-bottom: 1.615384615em;
-}
-
-.entry-content .testimonial-entry-title {
-	float: left;
-}
-
-.entry-content .testimonial-entry-title a {
-	box-shadow: none;
-}
-
-.entry-content .testimonial-entry-title a:hover {
-	box-shadow: 0 1px 0 0 currentColor;
-}
-
-.entry-content .testimonial-featured-image img {
-	float: right;
-	max-width: 42px;
-}
-
 /* Twitter-timeline */
 .twitter-timeline {
 	margin-bottom: 1.75em !important;
@@ -586,133 +548,122 @@ iframe[src^="http://api.mixcloud.com/"] {
 	margin-bottom: 1.75em;
 }
 
+/**
+ * Author Bio/Description
+ */
+
+.author-description {
+	margin: calc(2 * 1rem) 1rem 1rem;
+}
+
+@media only screen and (min-width: 768px) {
+	.author-description {
+		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
+		max-width: calc(8 * (100vw / 12));
+	}
+}
+
+@media only screen and (min-width: 1168px) {
+	.author-description {
+		max-width: calc(6 * (100vw / 12));
+	}
+}
+
+.author-description h2.author-title {
+	display: inline;
+}
+
+.author-description p.author-bio {
+	word-spacing: -0.05em;
+	display: inline;
+	color: #767676;
+	line-height: 1.3;
+}
+
+.author-description p.author-bio:before {
+	display: inline-block;
+	content: "–";
+	transform: scaleX(1.8);
+	margin: 0 0.5em;
+}
+
+@media only screen and (min-width: 768px) {
+	.author-description p.author-bio:before {
+		margin: 0 0.35em;
+	}
+}
+
+@media only screen and (min-width: 1168px) {
+	.author-description p.author-bio:before {
+		margin: 0 0.3em;
+	}
+}
+
+.author-description p.author-bio a.author-link {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-weight: 700;
+	display: inline-block;
+}
+
+.author-description p.author-bio a.author-link:hover {
+	color: #005177;
+	text-decoration: none;
+}
+
+.entry-content > #jp-relatedposts {
+	margin: 32px 1rem;
+	max-width: calc(100vw - (2 * 1rem));
+}
+
+@media only screen and (min-width: 768px) {
+	.entry-content > #jp-relatedposts {
+		margin: 32px calc(2 * (100vw / 12));
+		max-width: calc(8 * (100vw / 12));
+	}
+}
+
+@media only screen and (min-width: 1168px) {
+	.entry-content > #jp-relatedposts {
+		max-width: calc(6 * (100vw / 12));
+	}
+}
+
+/**
+ * Akismet Comment Privacy Notice
+ */
+
+.akismet_comment_form_privacy_notice {
+	margin: calc(2 * 1rem) 1rem;
+}
+
+@media only screen and (min-width: 768px) {
+	.akismet_comment_form_privacy_notice {
+		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
+		max-width: calc(6 * (100vw / 12));
+	}
+}
 
 /**
  * Related Posts
  */
 
-.entry-content #jp-relatedposts {
-	margin: 0;
-	padding: 1.75em 0;
-	position: relative;
+.entry-content>#jp-relatedposts {
+	margin: 32px 1rem;
+	max-width: calc(100vw - (2 * 1rem));
 }
 
-.jp-relatedposts:before,
-.jp-relatedposts:last-child:after {
-	background-color: currentColor;
-	content: "";
-	height: 1px;
-	opacity: 0.2;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
+@media only screen and (min-width: 768px) {
+	.entry-content>#jp-relatedposts {
+		margin: 32px calc(2 * (100vw / 12));
+		max-width: calc(8 * (100vw / 12));
+	}
 }
 
-.jp-relatedposts:last-child:after {
-	bottom: 0;
-	top: auto;
+@media only screen and (min-width: 1168px) {
+	.entry-content>#jp-relatedposts {
+		max-width: calc(6 * (100vw / 12));
+	}
 }
-
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
-	color: inherit;
-	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
-	font-size: 0.8125rem;
-	font-weight: 400;
-	line-height: 1;
-	margin-bottom: 1.076923077em;
-}
-
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em:before {
-	display: none;
-}
-
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em {
-	font-weight: 400;
-}
-
-.jp-relatedposts-items:before,
-.jp-relatedposts-items:after {
-	content: "";
-	display: table;
-}
-
-.jp-relatedposts-items:after {
-	clear: both;
-}
-
-.entry-content .jp-relatedposts-post-aoverlay,
-.entry-content .jp-relatedposts-post-a {
-	box-shadow: none;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
-	margin-bottom: 1.75em;
-	width: 100%;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post:last-child {
-	margin-bottom: 0;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post span {
-	max-width: 100%;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items p,
-.entry-content #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
-	font-size: 13px;
-	font-size: 0.8125rem;
-	letter-spacing: 0;
-	line-height: 1.615384615;
-}
-
-.jp-relatedposts-post-date,
-.jp-relatedposts-post-context {
-	font-family: Montserrat, "Helvetica Neue", sans-serif;
-}
-
-.jp-relatedposts-post-title,
-#jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post-excerpt,
-.entry-content #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
-	margin-bottom: 1.076923077em;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
-	font-weight: 700;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a:hover,
-.entry-content .jp-relatedposts-post-aoverlay:hover + .jp-relatedposts-post-title .jp-relatedposts-post-a {
-	box-shadow: 0 1px 0 0 currentColor;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a:hover,
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post:hover .jp-relatedposts-post-title a {
-	text-decoration: none;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date,
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
-.entry-content #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {
-	opacity: 1;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {
-	padding-right: 0;
-}
-
-.entry-content .jp-relatedposts-post-a:hover img.jp-relatedposts-post-img,
-.entry-content .jp-relatedposts-post-a:focus img.jp-relatedposts-post-img {
-	opacity: 0.85;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post img.jp-relatedposts-post-img {
-	margin-bottom: 0.875em;
-	max-width: 100%;
-}
-
 
 /**
  * Sharing
