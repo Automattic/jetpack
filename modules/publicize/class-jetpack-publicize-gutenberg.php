@@ -84,6 +84,22 @@ class Jetpack_Publicize_Gutenberg {
 	}
 
 	/**
+	 * Retrieve full list of available Publicize connection services
+	 * send them as JSON encoded data.
+	 *
+	 * @see Publicize::get_available_service_data()
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return string JSON encoded connection services data.
+	 */
+	public function rest_get_publicize_available_services() {
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
+		return wp_json_encode( $this->publicize->get_available_service_data() );
+	}
+
+	/**
 	 * Add rest field to 'post' for Publicize support
 	 *
 	 * Sets up 'publicize' schema to submit publicize sharing title
@@ -146,6 +162,19 @@ class Jetpack_Publicize_Gutenberg {
 		register_rest_route( 'publicize/', '/connections', array(
 			'methods'             => 'GET',
 			'callback'            => array( $this, 'rest_get_publicize_connections' ),
+			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
+		) );
+
+		/**
+		 * REST endpoint to get available publicize connection services data.
+		 *
+		 * @see Publicize::get_available_service_data()
+		 *
+		 * @since 5.9.1
+		 */
+		register_rest_route( 'publicize/', '/services', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'rest_get_publicize_available_services' ),
 			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
 		) );
 
