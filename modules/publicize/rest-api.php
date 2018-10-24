@@ -325,15 +325,6 @@ class Publicize_REST_API {
 	public function post_page_enqueue( $hook ) {
 		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
 			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
-
-			wp_localize_script( 'jetpack-blocks-editor', 'gutenberg_publicize_setup',
-				array(
-					'staticConnectionList' => wp_json_encode( $this->publicize->get_filtered_connection_data() ),
-					'allServices'          => wp_json_encode( $this->publicize->get_available_service_data() ),
-					'api_nonce'            => wp_create_nonce( 'wp_rest' ),
-				)
-			);
-
 		}
 	}
 }
