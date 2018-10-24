@@ -66,6 +66,7 @@ class Jetpack_Gutenberg {
 			array(
 				'wp-element',
 				'wp-i18n',
+				'wp-api-fetch',
 			),
 			$version
 		);
