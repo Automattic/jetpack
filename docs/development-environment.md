@@ -249,5 +249,5 @@ While in Development Mode, some features will not be available at all as they re
 
 ### JETPACK__SANDBOX_DOMAIN
 
-External contributors shouldn't use this constant.
+External contributors do not need this constant.
 If you’re working on changes to the WordPress.com/server side of Jetpack, you’ll need to instruct your Jetpack installation to talk to your development server. Refer to internal documentation for detailed instructions.
