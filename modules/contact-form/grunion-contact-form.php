@@ -238,8 +238,8 @@ class Grunion_Contact_Form_Plugin {
 			register_block_type( 'jetpack/form', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			) );
-            // 👆 is negated by the filter 👇, if this change makes it into gutenberg core.
-            // https://github.com/WordPress/gutenberg/pull/10463#pullrequestreview-167500686
+			// 👆 is negated by the filter 👇, if this change makes it into gutenberg core.
+			// https://github.com/WordPress/gutenberg/pull/10463#pullrequestreview-167500686
 			add_filter( 'pre_do_block_jetpack/form', array( __CLASS__, 'pre_do_block_jetpack_form' ), 10, 3 );
 
 			// Field render methods.
@@ -304,30 +304,30 @@ class Grunion_Contact_Form_Plugin {
 		return Grunion_Contact_Form::parse( $block['attrs'], $pre_rendered_content );
 	}
 
-    public static function gutenblock_render_field_text( $atts, $content ) {
-        $atts['type'] = 'text';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
-    public static function gutenblock_render_field_name( $atts, $content ) {
-        $atts['type'] = 'name';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
-    public static function gutenblock_render_field_email( $atts, $content ) {
-        $atts['type'] = 'email';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
-    public static function gutenblock_render_field_url( $atts, $content ) {
-        $atts['type'] = 'url';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
-    public static function gutenblock_render_field_date( $atts, $content ) {
-        $atts['type'] = 'date';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
-    public static function gutenblock_render_field_telephone( $atts, $content ) {
-        $atts['type'] = 'telephone';
-        return Grunion_Contact_Form::parse_contact_field( $atts, $content );
-    }
+	public static function gutenblock_render_field_text( $atts, $content ) {
+		$atts['type'] = 'text';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_name( $atts, $content ) {
+		$atts['type'] = 'name';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_email( $atts, $content ) {
+		$atts['type'] = 'email';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_url( $atts, $content ) {
+		$atts['type'] = 'url';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_date( $atts, $content ) {
+		$atts['type'] = 'date';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_telephone( $atts, $content ) {
+		$atts['type'] = 'telephone';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
 		$atts['type'] = 'textarea';
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
