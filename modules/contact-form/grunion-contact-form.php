@@ -238,6 +238,9 @@ class Grunion_Contact_Form_Plugin {
 			register_block_type( 'jetpack/form', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			) );
+            // 👆 is negated by the filter 👇, if this change makes it into gutenberg core.
+            // https://github.com/WordPress/gutenberg/pull/10463#pullrequestreview-167500686
+			add_filter( 'pre_do_block_jetpack/form', array( __CLASS__, 'pre_do_block_jetpack_form' ), 10, 3 );
 
 			// These can all use a common render method.
 			register_block_type( 'jetpack/field-text', array(
@@ -301,6 +304,11 @@ class Grunion_Contact_Form_Plugin {
 	public static function gutenblock_render_field( $atts, $content ) {
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+	public static function pre_do_block_jetpack_form( $pre_rendered_content, $block, $all_blocks ) {
+		$pre_rendered_content = _recurse_blocks( $block['innerBlocks'], $all_blocks );
+		return Grunion_Contact_Form::parse( $block['attrs'], $pre_rendered_content );
+	}
+
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
 		$atts['type'] = 'textarea';
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
