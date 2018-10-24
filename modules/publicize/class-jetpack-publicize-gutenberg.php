@@ -61,7 +61,7 @@ class Jetpack_Publicize_Gutenberg {
 	 * @return string JSON encoded connection list data.
 	 */
 	public function rest_get_publicize_connections() {
-		return wp_json_encode( $this->publicize->get_publicize_conns_test_results() );
+		return $this->publicize->get_publicize_conns_test_results();
 	}
 
 	/**
