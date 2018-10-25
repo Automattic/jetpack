@@ -18,20 +18,20 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	private $user_id;
 
 	/**
-	 * Index in 'publicize_connections' test data of Facebook connection.
+	 * Index in 'publicize_connections' test data of normal connection.
 	 *
 	 * @since 6.7.0
-	 * @var integer FACEBOOK_CONNECTION_INDEX index number of facebook connection.
+	 * @var integer NORMAL_CONNECTION_INDEX index number of normal connection.
 	 */
-	const FACEBOOK_CONNECTION_INDEX = 0;
+	const NORMAL_CONNECTION_INDEX = 0;
 
 	/**
-	 * Index in 'publicize_connections' test data of Tumblr connection.
+	 * Index in 'publicize_connections' test data of global connection.
 	 *
 	 * @since 6.7.0
-	 * @var integer TUMBLR_CONNECTION_INDEX index number of Tumblr connection.
+	 * @var integer GLOBAL_CONNECTION_INDEX index number of global connection.
 	 */
-	const TUMBLR_CONNECTION_INDEX = 1;
+	const GLOBAL_CONNECTION_INDEX = 1;
 
 	public function setUp() {
 		parent::setUp();
@@ -47,24 +47,26 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		Jetpack_Options::update_options( array(
 			'publicize_connections' => array(
+				// Normally connected facebook
 				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
-								'display_name' => 'test-display-name123',
-							),
-						),
-					),
-				),
-				'tumblr'   => array(
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => $this->user_id,
 							'token_id' => 'test-unique-id456',
 							'meta'     => array(
 								'display_name' => 'test-display-name456',
+							),
+						),
+					),
+				),
+				// Globally connected tumblr
+				'tumblr' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => 0,
+							'token_id' => 'test-unique-id123',
+							'meta'     => array(
+								'display_name' => 'test-display-name123',
 							),
 						),
 					),
@@ -303,35 +305,35 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 */
 	public function test_get_filtered_connection_data_no_filters() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		$test_c          = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
+		$connection_data = $connection_list[0];
+		$this->assertEquals(
+			'facebook',
+			$connection_data['service_name'],
+			'First test connection name should be \'facebook\''
+		);
 		$this->assertEquals(
 			'test-unique-id456',
-			$test_c['unique_id']
+			$connection_data['unique_id']
 		);
 		$this->assertEquals(
-			'tumblr',
-			$test_c['service_name'],
-			'Second test connection name should be \'tumbler\''
-		);
-		$this->assertEquals(
-			'Tumblr: test-display-name456',
-			$test_c['label'],
+			'Facebook: test-display-name456',
+			$connection_data['label'],
 			'Label should follow pattern: [Service name]: [user-display-name].'
 		);
 		$this->assertTrue(
-			$test_c['enabled'],
+			$connection_data['enabled'],
 			'The connection has not been shared to and there are no filters so connection should be \'enabled\' by default.'
 		);
 		$this->assertFalse(
-			$test_c['done'],
+			$connection_data['done'],
 			'Connection should not be done since it has not been publicized to yet.'
 		);
 		$this->assertTrue(
-			$test_c['toggleable'],
+			$connection_data['toggleable'],
 			'Connection should be toggleable.'
 		);
 		$this->assertFalse(
-			$test_c['global'],
+			$connection_data['global'],
 			'Connection should not be global.'
 		);
 	}
@@ -369,14 +371,14 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		 * Simulate null post by not providing post_id argument and
 		 * when current $post value is unset.
 		 */
-		$connection_list   = $this->publicize->get_filtered_connection_data();
-		$tumblr_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
+		$connection_list = $this->publicize->get_filtered_connection_data();
+		$connection_data = $connection_list[0];
 		$this->assertTrue(
-			$tumblr_connection['enabled'],
+			$connection_data['enabled'],
 			'All connections should be enabled for null post id'
 		);
 		$this->assertFalse(
-			$tumblr_connection['done'],
+			$connection_data['done'],
 			'Connection should not yet be done for null post id'
 		);
 	}
@@ -391,117 +393,184 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 */
 	public function test_filter_wpas_submit_post() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		// Second connection should be 'tumblr' for unfiltered list.
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
+		$first_connection = $connection_list[0];
 		$this->assertEquals(
 			'facebook',
-			$facebook_connection['service_name'],
-			'Facebook connection should be available prior to filtering'
+			$first_connection['service_name'],
+			'Facebook (Normal) connection should be available prior to filtering'
 		);
 
-		add_filter( 'wpas_submit_post?', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
+		add_filter( 'wpas_submit_post?', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
 		// Get connection list again now that filter has been added.
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
 		$this->assertEquals(
 			1,
 			count( $connection_list ),
-			'Connection list should be 1 long after \'facebook\' connection removed.'
+			'Connection list should be 1 long after \'facebook\' (Normal) connection removed.'
 		);
-		// First and only connection should be 'tumblr' for unfiltered list.
-		$tumblr_connection = $connection_list[0];
+		$first_connection = $connection_list[0];
 		$this->assertEquals(
 			'tumblr',
-			$tumblr_connection['service_name'],
-			'Tumblr connection should still be available after filtering out facebook connection.'
+			$first_connection['service_name'],
+			'Tumblr (Global) connection should still be available after filtering out the Normal connection.'
 		);
 	}
 
 	/**
-	 * By default, global connections (where user_id == 0)
-	 * are hidden for users that do not have the appropriate
-	 * capability. This test verifies that the
-	 * 'publicize_checkbox_global_default' filter
-	 * can be used to cause such a connection to be shown.
+	 * By default, global connections (where user_id == 0) are checked
+	 * (though untoggleable) for users that do not have the
+	 * appropriate capability. This test verifies that the
+	 * 'publicize_checkbox_global_default' filter can be used to
+	 * uncheck such a global connection.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
-	public function test_filter_publicize_checkbox_global_default() {
+	public function test_filter_publicize_checkbox_global_default_for_global_connection() {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
+		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['global'],
-			'Facebook connection checkbox should be global.'
+			$global_connection['global'],
+			'Global connection checkbox should be global.'
+		);
+		$this->assertTrue(
+			$global_connection['enabled'],
+			'Global connection checkbox should be checked.'
 		);
 		$this->assertFalse(
-			$facebook_connection['toggleable'],
-			'Facebook connection checkbox should be disabled by default since test user does not permission to uncheck.'
+			$global_connection['toggleable'],
+			'Global connection checkbox should be disabled by default since test user does not have permission to uncheck.'
 		);
 
-		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
+		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_global' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
+		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['global'],
-			'Facebook connection checkbox should be global even after filtering to uncheck.'
+			$global_connection['global'],
+			'Global connection checkbox should be global even after filtering to uncheck.'
 		);
 		$this->assertFalse(
 			$global_connection['enabled'],
 			'Global connection checkbox should be unchecked after filter to uncheck.'
 		);
-
+		$this->assertFalse(
+			$global_connection['toggleable'],
+			'Global connection checkbox should still be disabled after filter to uncheck.'
+		);
 	}
 
 	/**
-	 *
-	 * By default, all connection checkboxes are 'checked'.
-	 * This test confirms that the 'publicize_checkbox_default'
-	 * can correctly set default value to unchecked.
+	 * This test verifies that the 'publicize_checkbox_global_default'
+	 * filter has no effect on a normal connection.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
-	public function test_filter_publicize_checkbox_default() {
+	public function test_filter_publicize_checkbox_global_default_for_normal_connection() {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
+		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
+		$this->assertFalse(
+			$normal_connection['global'],
+			'Normal connection checkbox should not be global.'
+		);
 		$this->assertTrue(
-			$facebook_connection['enabled'],
-			'Facebook connection should be enabled by default with no filtering applied.'
+			$normal_connection['enabled'],
+			'Normal connection checkbox should be checked.'
+		);
+		$this->assertTrue(
+			$normal_connection['toggleable'],
+			'Normal connection checkbox should not be disabled.'
 		);
 
-		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
+		$before = json_encode( $normal_connection );
+
+		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
+
+		// Get connection list again now that filter has been added.
+		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
+
+		$this->assertSame( $before, json_encode( $normal_connection ), 'Normal connection should be unaffected by filter to uncheck global connection' );
+	}
+
+	/**
+	 * By default, all connection checkboxes are 'checked'.
+	 * This test confirms that the 'publicize_checkbox_default'
+	 * can correctly set a normal connection unchecked.
+	 *
+	 * @covers Publicize::get_filtered_connection_data()
+	 * @since 6.7.0
+	 */
+	public function test_filter_publicize_checkbox_default_for_normal_connection() {
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
+		$this->assertTrue(
+			$normal_connection['enabled'],
+			'Normal connection should be enabled by default with no filtering applied.'
+		);
+
+		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
-		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
+		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertFalse(
-			$facebook_connection['enabled'],
-			'Facebook connection should be un-enabled by default after filtering applied.'
+			$normal_connection['enabled'],
+			'Normal connection should be un-enabled by default after filtering applied.'
+		);
+	}
+
+	/**
+	 * By default, all connection checkboxes are 'checked'.
+	 * This test confirms that the 'publicize_checkbox_default'
+	 * can be used to set a global connection to unchecked.
+	 *
+	 * @covers Publicize::get_filtered_connection_data()
+	 * @since 6.7.0
+	 */
+	public function test_filter_publicize_checkbox_default_for_global_connection() {
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
+		$this->assertTrue(
+			$global_connection['enabled'],
+			'Global connection should be enabled by default with no filtering applied.'
+		);
+
+		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_connection_filter_no_global' ), 10, 4 );
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+
+		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
+		$this->assertFalse(
+			$global_connection['enabled'],
+			'Global connection should be un-enabled by after filtering applied.'
 		);
 	}
 
 	/**
 	 * Confirms that a connection will be disabled after post is 'done.'
 	 *
-	 * If a post has already been published (and is this 'done' sharing),
-	 * its checkbox should be disabled.
+	 * If a post has already been published, its checkbox should be
+	 * disabled.
 	 *
 	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
-	public function test_get_filtered_connection_data_disabled_done_all() {
+	public function test_get_filtered_connection_data_disabled_after_publish() {
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		// First connection should be 'facebook' for unfiltered list.
-		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
+		$connection_data = $connection_list[0];
+		$this->assertTrue(
+			$connection_data['enabled'],
+			'Connection should be enabled before publishing.'
+		);
 		$this->assertFalse(
-			$facebook_connection['done'],
-			'Facebook connection should not be done yet.'
+			$connection_data['done'],
+			'Connection should not be done before publishing.'
 		);
 		$this->assertTrue(
-			$facebook_connection['toggleable'],
-			'Facebook connection should be toggleable if the post is not \'done\'.'
+			$connection_data['toggleable'],
+			'Connection should be toggleable if the post is not \'done\'.'
 		);
 
 		/**
@@ -511,20 +580,24 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->post->post_status = 'publish';
 		wp_insert_post( $this->post->to_array() );
 
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
-		$facebook_connection = $connection_list[ self::TUMBLR_CONNECTION_INDEX ];
-		$this->assertTrue(
-			$facebook_connection['done'],
-			'Facebook connection should be done now that it has been published.'
+		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_data = $connection_list[0];
+		$this->assertFalse(
+			$connection_data['enabled'],
+			'Connection should not be enabled after publishing.'
 		);
 		$this->assertFalse(
-			$facebook_connection['toggleable'],
-			'Facebook connection should be disabled if the post is \'done\'.'
+			$connection_data['done'],
+			'Individual connection should not be flagged as done if it did not get publicized.'
+		);
+		$this->assertFalse(
+			$connection_data['toggleable'],
+			'Connection should not be toggleable if the post is \'done\'.'
 		);
 	}
 
 	/**
-	 * Filter callback to uncheck checkbox for 'faceboook' connection.
+	 * Filter callback to uncheck checkbox for 'facebook' connection.
 	 *
 	 * Filter callback interface is the same for all filters within
 	 * get_filtered_connection_data so this callback can be reused
@@ -532,19 +605,48 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 *
 	 * @since 6.7.0
 	 *
-	 * @param bool   $enabled         Should the connection be enabled.
-	 * @param int    $post_id         Post ID.
-	 * @param string $service_name    Name of social service to share to.
-	 * @param array  $connection_data Array of information about all Publicize details for the site.
+	 * @param bool   $enabled      Should the connection be enabled.
+	 * @param int    $post_id      Post ID.
+	 * @param string $service_name Name of social service to share to.
+	 * @param array  $connection   Array of information about all Publicize details for the site.
 	 *
 	 * @return bool Whether or not the connection is enabled for the filter.
 	 */
-	public function publicize_connection_filter_no_facebook( $enabled, $post_id, $service_name, $connection_data ) {
-		// Block 'facebook' connection and let all others pass through.
-		if ( 'facebook' === $service_name ) {
+	public function publicize_connection_filter_no_normal( $enabled, $post_id, $service_name, $connection ) {
+		// This is silly - make this function work in both 'wpas_submit_post?' (fourth parameter $connection_data)
+		// and 'publicize_checkbox_default' (fourt parameter $connection) filters.
+		$connection_data = isset( $connection['connection_data'] ) ? $connection['connection_data'] : $connection;
+		if ( $connection_data['user_id'] ) {
 			return false;
 		} else {
-			return true;
+			return $enabled;
+		}
+	}
+
+	/**
+	 * Filter callback to uncheck checkbox for 'tumblr' connection.
+	 *
+	 * Filter callback interface is the same for all filters within
+	 * get_filtered_connection_data so this callback can be reused
+	 * for all filter test cases.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param bool   $enabled      Should the connection be enabled.
+	 * @param int    $post_id      Post ID.
+	 * @param string $service_name Name of social service to share to.
+	 * @param array  $connection   Array of information about all Publicize details for the site.
+	 *
+	 * @return bool Whether or not the connection is enabled for the filter.
+	 */
+	public function publicize_connection_filter_no_global( $enabled, $post_id, $service_name, $connection ) {
+		// This is silly - make this function work in both 'wpas_submit_post?' (fourth parameter $connection_data)
+		// and 'publicize_checkbox_default' (fourt parameter $connection) filters.
+		$connection_data = isset( $connection['connection_data'] ) ? $connection['connection_data'] : $connection;
+		if ( ! $connection_data['user_id'] ) {
+			return false;
+		} else {
+			return $enabled;
 		}
 	}
 }
