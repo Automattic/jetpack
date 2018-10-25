@@ -94,7 +94,7 @@ jQuery( document ).ready( function( $ ) {
 		// Add to Jetpack notices within the Jetpack settings app.
 		$template.prependTo( $( '#jp-admin-notices' ) );
 
-		$( '#jitm-banner__activate a' ).click( function() {
+		$template.find( '#jitm-banner__activate a' ).click( function() {
 			var $activate_button = $( this );
 			$.ajax( {
 				url: window.jitm_config.api_root + 'jetpack/v4/module/' + $activate_button.data( 'module' ) + '/active',
