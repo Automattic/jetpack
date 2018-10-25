@@ -533,7 +533,6 @@ abstract class Publicize_Base {
 	 *     @type bool   'done'         Has this connection already been publicized to?
 	 *     @type bool   'toggleable'   Is the user allowed to change the value for the connection?
 	 *     @type bool   'global'       Is this connection a global one?
-	 *     @type bool   'visible'      Should the connection be shown to the user?
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
@@ -632,10 +631,8 @@ abstract class Publicize_Base {
 				 * If this is a global connection and this user doesn't have enough permissions to modify
 				 * those connections, don't let them change it.
 				 */
-				$visible = true;
 				if ( ! $done && ( 0 == $connection_data['user_id'] && ! current_user_can( $this->GLOBAL_CAP ) ) ) {
 					$toggleable = false;
-					$visible = false;
 
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
@@ -649,7 +646,7 @@ abstract class Publicize_Base {
 					 * @param string $service_name Name of the connection (Facebook, Twitter, etc)
 					 * @param array  $connection Array of data about the connection.
 					 */
-					$enabled = apply_filters( 'publicize_checkbox_global_default', true, $post_id, $service_name, $connection );
+					$enabled = apply_filters( 'publicize_checkbox_global_default', $enabled, $post_id, $service_name, $connection );
 				}
 
 				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does.
@@ -673,7 +670,6 @@ abstract class Publicize_Base {
 					'done'         => $done,
 					'toggleable'   => $toggleable,
 					'global'       => 0 == $connection_data['user_id'],
-					'visible'      => $visible,
 				);
 			}
 		}

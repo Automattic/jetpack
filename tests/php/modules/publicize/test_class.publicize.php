@@ -334,10 +334,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			$test_c['global'],
 			'Connection should not be global.'
 		);
-		$this->assertTrue(
-			$test_c['visible'],
-			'Connection should be visible.'
-		);
 	}
 
 	/**
@@ -439,8 +435,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'Facebook connection checkbox should be global.'
 		);
 		$this->assertFalse(
-			$facebook_connection['visible'],
-			'Facebook connection checkbox should be hidden by default since test user does not have capability.'
+			$facebook_connection['toggleable'],
+			'Facebook connection checkbox should be disabled by default since test user does not permission to uncheck.'
 		);
 
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_facebook' ), 10, 4 );
@@ -449,8 +445,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$facebook_connection = $connection_list[ self::FACEBOOK_CONNECTION_INDEX ];
 		$this->assertTrue(
-			$facebook_connection['visible'],
-			'Facebook connection checkbox should not be set to hidden since filter set hidden to false.'
+			$facebook_connection['global'],
+			'Facebook connection checkbox should be global even after filtering to uncheck.'
+		);
+		$this->assertFalse(
+			$global_connection['enabled'],
+			'Global connection checkbox should be unchecked after filter to uncheck.'
 		);
 
 	}
