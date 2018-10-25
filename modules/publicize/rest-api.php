@@ -38,8 +38,6 @@ class Publicize_REST_API {
 		// which are also added to the `admin_enqueue_scripts` hook.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ), 20 );
 
-		add_action( 'rest_api_init', array( $this, 'add_publicize_rest_fields' ) );
-
 		// Set up publicize flags right before post is actually published.
 		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
 
@@ -107,102 +105,6 @@ class Publicize_REST_API {
 		add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
 
 		return $this->publicize->get_available_service_data();
-	}
-
-	/**
-	 * Add rest field to 'post' for Publicize support
-	 *
-	 * Sets up 'publicize' schema to submit publicize sharing title
-	 * and individual connection sharing enables/disables. This schema
-	 * is registered with the 'post' endpoint REST endpoint so publicize
-	 * options can be saved when a post is published.
-	 *
-	 * @since 5.9.1
-	 */
-	public function add_publicize_rest_fields() {
-		// Schema for wpas.submit[] field.
-		$publicize_submit_schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => esc_html__( 'Publicize data for publishing post', 'jetpack' ),
-			'type'       => 'object',
-			'properties' => array(
-				'connections' => array(
-					'description' => esc_html__( 'List of connections to be shared to (or not).', 'jetpack' ),
-					'type'        => 'array',
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'unique_id'    => array(
-								'description' => esc_html__( 'Unique identifier string for a connection', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'should_share' => array(
-								'description' => esc_html__( 'Whether or not connection should be shared to.', 'jetpack' ),
-								'type'        => 'boolean',
-							),
-
-						),
-					),
-				),
-				'title'       => array(
-					'description' => esc_html__( 'Optional title to share post with.', 'jetpack' ),
-					'type'        => 'string',
-				),
-			),
-		);
-
-		// Registering the publicize field with post endpoint.
-		register_rest_field(
-			'post',
-			'publicize',
-			array(
-				'get_callback'    => null,
-				'update_callback' => null, // Data read/processed before publishing post by 'rest_pre_insert_post' filter.
-				'schema'          => $publicize_submit_schema,
-			)
-		);
-
-		/**
-		 * REST endpoint to get connection list data for current user.
-		 *
-		 * @see Publicize::get_filtered_connection_data()
-		 *
-		 * @since 5.9.1
-		 */
-		register_rest_route( 'publicize/', '/connections', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'rest_get_publicize_connections' ),
-			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
-		) );
-
-		/**
-		 * REST endpoint to get available publicize connection services data.
-		 *
-		 * @see Publicize::get_available_service_data()
-		 *
-		 * @since 5.9.1
-		 */
-		register_rest_route( 'publicize/', '/services', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'rest_get_publicize_available_services' ),
-			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
-		) );
-
-		/**
-		 * REST endpoint to get connection list data for current user and post id.
-		 *
-		 * @see Publicize::get_filtered_connection_data()
-		 *
-		 * @since 5.9.1
-		 */
-		register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/connections', array(
-			'methods'             => 'GET',
-			'callback'            => array( $this, 'rest_get_publicize_connections_for_post' ),
-			'post_id'             => array(
-				'validate_post_id' => array( $this, 'rest_connections_validate_post_id' ),
-			),
-			'permission_callback' => array( $this, 'rest_connections_permission_callback' ),
-		) );
 	}
 
 	/**
