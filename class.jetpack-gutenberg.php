@@ -9,15 +9,15 @@ function jetpack_register_block( $type, $args = array() ) {
  */
 class Jetpack_Gutenberg {
 
-	public static $all_blocks = array();
+	public static $blocks = array();
 
 	public static function add_block( $type, $args ) {
-		self::$all_blocks[ $type ] = $args;
+		self::$blocks[ $type ] = $args;
 	}
 
 	public static function init() {
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		add_action( 'init', array( __CLASS__, 'load_all_blocks' ), 1000 );
+		add_action( 'init', array( __CLASS__, 'load_blocks' ), 1000 );
 	}
 
 	/**
@@ -31,12 +31,12 @@ class Jetpack_Gutenberg {
 		return function_exists( 'register_block_type' );
 	}
 
-	public static function load_all_blocks() {
+	public static function load_blocks() {
 		if ( ! self::is_gutenberg_available() ) {
 			return;
 		}
 
-		foreach ( self::$all_blocks as $type => $args ) {
+		foreach ( self::$blocks as $type => $args ) {
 			register_block_type(
 				'jetpack/' . $type,
 				$args
@@ -45,35 +45,26 @@ class Jetpack_Gutenberg {
 	}
 
 
-	public static function get_all_registed_blocks() {
+	public static function get_registed_blocks() {
 		return WP_Block_Type_Registry::get_instance()->get_all_registered();
 	}
 
 	public static function load_assets_as_required( $type ) {
 		// Enqueue styles
-		$style_relative_path = '_inc/blocks/'. $type .'/view.'. ( is_rtl() ? '.rtl' : '' ) .'css';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
-			$style_version       = Jetpack::is_development_version()
-				? filemtime( JETPACK__PLUGIN_DIR . $style_relative_path )
-				: JETPACK__VERSION;
-
-			$view_style  = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-
+		$style_relative_path = '_inc/blocks/' . $type . '/view.' . ( is_rtl() ? '.rtl' : '' ) . 'css';
+		if ( self::block_has_styles( $style_relative_path ) ) {
+			$style_version = self::get_version( $style_relative_path );
+			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 
 		// Enqueue script
-		$script_relative_path = '_inc/blocks/'. $type .'/view.js';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			$script_version       = Jetpack::is_development_version()
-				? filemtime( JETPACK__PLUGIN_DIR . $script_relative_path )
-				: JETPACK__VERSION;
-
-			$view_script  = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-
+		$script_relative_path = '_inc/blocks/' . $type . '/view.js';
+		if ( self::block_has_script( $script_relative_path ) ) {
+			$script_version = self::get_version( $script_relative_path );
+			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version );
 		}
-
 	}
 
 	/**
@@ -92,10 +83,7 @@ class Jetpack_Gutenberg {
 
 		$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
 		$editor_style  = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
-		$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-			: JETPACK__VERSION;
-
+		$version       = self::get_version( '_inc/blocks/editor.js' );
 
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
@@ -131,7 +119,7 @@ class Jetpack_Gutenberg {
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 		// enqueue all the assets for each block that is loaded.
-		foreach ( self::$all_blocks as $type => $args ) {
+		foreach ( self::$blocks as $type => $args ) {
 			self::load_assets_as_required( $type );
 		}
 	}
@@ -159,5 +147,19 @@ class Jetpack_Gutenberg {
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
 		return (bool) apply_filters( 'jetpack_gutenberg', true );
+	}
+
+	public static function get_version( $file ) {
+		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
+			? filemtime( JETPACK__PLUGIN_DIR . $file )
+			: JETPACK__VERSION;
+	}
+
+	public static function block_has_script( $file ) {
+		return file_exists( JETPACK__PLUGIN_DIR . $file );
+	}
+
+	public static function block_has_styles( $file ) {
+		return file_exists( JETPACK__PLUGIN_DIR . $file );
 	}
 }
