@@ -268,7 +268,7 @@ gulp.task( 'languages:extract', function( done ) {
 				phpArrayName: 'jetpack_strings',
 				format: 'PHP',
 				textdomain: 'jetpack',
-				keywords: [ 'translate', '__' ]
+				keywords: [ 'translate', '__', '_n', '_x', '_nx' ]
 			} );
 
 			done();
