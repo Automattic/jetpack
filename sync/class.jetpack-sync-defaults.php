@@ -148,7 +148,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of options.
 		 */
@@ -167,7 +167,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 6.1
+		 * @since 6.1.0
 		 *
 		 * @param array The list of options synced without content.
 		 */
@@ -202,7 +202,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of constants options.
 		 */
@@ -281,7 +281,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of callables.
 		 */
@@ -355,7 +355,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of multisite callables.
 		 */
@@ -408,7 +408,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of meta data keys.
 		 */
