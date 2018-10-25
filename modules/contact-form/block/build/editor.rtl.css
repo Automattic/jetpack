@@ -29,9 +29,6 @@
 .jetpack-form .jetpack-field span.required {
   float: left; }
 
-.jetpack-form .jetpack-submit-button {
-  padding: 5px; }
-
 .editor-block-list__block[data-type="jetpack/field-checkbox-multiple"] ol, .editor-block-list__block[data-type="jetpack/field-radio"] ol, .editor-block-list__block[data-type="jetpack/field-select"] ol {
   list-style-type: none; }
   .editor-block-list__block[data-type="jetpack/field-checkbox-multiple"] ol:empty, .editor-block-list__block[data-type="jetpack/field-radio"] ol:empty, .editor-block-list__block[data-type="jetpack/field-select"] ol:empty {
