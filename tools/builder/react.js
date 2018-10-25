@@ -47,7 +47,7 @@ gulp.task( 'react:master', function( done ) {
 		);
 	}
 
-	webpack( config ).run(
+	return webpack( config ).run(
 		onBuild.bind(
 			this,
 			function( error ) {
@@ -155,7 +155,7 @@ function onBuild( done, err, stats ) {
 		} );
 }
 
-export const build = gulp.series( 'react:master', buildStatic );
+export const build = gulp.series( 'react:master' );
 
 function buildStatic( done ) {
 	let path;

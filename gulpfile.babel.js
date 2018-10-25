@@ -287,7 +287,7 @@ gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
+	gulp.parallel( react_build, sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
 );
 gulp.task(
 	'watch',
