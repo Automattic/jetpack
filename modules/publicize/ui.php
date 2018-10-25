@@ -644,8 +644,8 @@ jQuery( function($) {
 		if ( ! is_array( $available_services ) )
 			$available_services = array();
 
-		if ( ! is_array( $services ) )
-			$services = array();
+		if ( ! is_array( $connections_data ) )
+			$connections_data = array();
 		?>
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
