@@ -51,7 +51,8 @@ export class Writing extends React.Component {
 			'infinite-scroll',
 			'minileven',
 			'videopress',
-			'lazy-images'
+			'lazy-images',
+			'photon-cdn'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
