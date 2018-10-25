@@ -188,6 +188,7 @@ class Jetpack_Calypsoify {
 	 * @since 6.7.0
 	 */
 	public function is_post_type_gutenberg( $post_type ) {
+		// @TODO: Remove function check once 5.0 is the minimum supported WP version.
 		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
 			return use_block_editor_for_post_type( $post_type );
 		} else {
