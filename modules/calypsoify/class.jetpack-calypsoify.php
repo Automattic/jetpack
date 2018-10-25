@@ -39,13 +39,20 @@ class Jetpack_Calypsoify {
 			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
 
-			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
-			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
 
 			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
+
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+
+			if ( 'plugins.php' === basename( $_SERVER['PHP_SELF'] ) ) {
+				add_action( 'admin_notices', array( $this, 'plugins_admin_notices' ) );
+			}
 		}
 		// Make this always available -- in case calypsoify gets toggled off.
 		add_action( 'wp_ajax_jetpack_toggle_autoupdate', array( $this, 'jetpack_toggle_autoupdate' ) );
+		add_filter( 'handle_bulk_actions-plugins', array( $this, 'handle_bulk_actions_plugins' ), 10, 3 );
 	}
 
 	public function manage_plugins_columns_header( $columns ) {
@@ -84,6 +91,40 @@ class Jetpack_Calypsoify {
 			</span>
 
 			<?php
+		}
+	}
+
+	public function bulk_actions_plugins( $bulk_actions ) {
+		$bulk_actions['jetpack_enable_plugin_autoupdates'] = __( 'Enable Automatic Updates', 'jetpack' );
+		$bulk_actions['jetpack_disable_plugin_autoupdates'] = __( 'Disable Automatic Updates', 'jetpack' );
+		return $bulk_actions;
+	}
+
+	public function handle_bulk_actions_plugins( $redirect_to, $action, $slugs ) {
+		$redirect_to = remove_query_arg( array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ), $redirect_to );
+		if ( in_array( $action, array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ) ) ) {
+			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$initial_qty = sizeof( $list );
+
+			if ( $action === 'jetpack_enable_plugin_autoupdates' ) {
+				$list = array_unique( array_merge( $list, $slugs ) );
+			} elseif ( $action === 'jetpack_disable_plugin_autoupdates' ) {
+				$list = array_diff( $list, $slugs );
+			}
+
+			Jetpack_Options::update_option( 'autoupdate_plugins', $list );
+			$redirect_to = add_query_arg( $action, absint( sizeof( $list ) - $initial_qty ), $redirect_to );
+		}
+		return $redirect_to;
+	}
+
+	public function plugins_admin_notices() {
+		if ( ! empty( $_GET['jetpack_enable_plugin_autoupdates'] ) ) {
+			$qty = (int) $_GET['jetpack_enable_plugin_autoupdates'];
+			printf( '<div id="message" class="updated fade"><p>' . _n( 'Enabled automatic updates on %d plugin.', 'Enabled automatic updates on %d plugins.', $qty, 'jetpack' ) . '</p></div>', $qty );
+		} elseif ( ! empty( $_GET['jetpack_disable_plugin_autoupdates'] ) ) {
+			$qty = (int) $_GET['jetpack_disable_plugin_autoupdates'];
+			printf( '<div id="message" class="updated fade"><p>' . _n( 'Disabled automatic updates on %d plugin.', 'Disabled automatic updates on %d plugins.', $qty, 'jetpack' ) . '</p></div>', $qty );
 		}
 	}
 

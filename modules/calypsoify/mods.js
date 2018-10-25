@@ -9,6 +9,7 @@
 				li.html( li.html().replace( '|', '' ).replace( '(', '' ).replace( ')', '' ) );
 			} );
 
+			// Add in the AJAX-y goodness for toggling autoupdates.
 			$( 'input.autoupdate-toggle' ).change( function( event ) {
 				const el = event.target;
 
