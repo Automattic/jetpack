@@ -70,6 +70,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint = new Jetpack_Core_API_Widget_Endpoint();
 
+		global $publicize;
+
 		register_rest_route( 'jetpack/v4', 'plans', array(
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => __CLASS__ . '::get_plans',
@@ -387,6 +389,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_plugin',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+		) );
+
+		// Publicize: get connection list data for current user.
+		register_rest_route( 'jetpack/v4', '/publicize/connections', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $publicize, 'get_publicize_conns_test_results' ),
+			'permission_callback' => __CLASS__ . '::publicize_permission_check',
+		) );
+
+		// Publicize: get available publicize connection services data.
+		register_rest_route( 'jetpack/v4', '/publicize/services', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $publicize, 'rest_get_publicize_available_services' ),
+			'permission_callback' => __CLASS__ . '::publicize_permission_check',
+		) );
+
+		// Publicize: get connection list data for current user and post id.
+		register_rest_route( 'jetpack/v4', '/publicize/posts/(?P<post_id>\d+)/connections', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $publicize, 'rest_get_publicize_connections_for_post' ),
+			'permission_callback' => __CLASS__ . '::publicize_permission_check',
 		) );
 
 		// Widgets: get information about a widget that supports it.
@@ -835,6 +858,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can publish posts.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return bool Whether user has the capability 'publish_posts'.
+	 */
+	public static function publicize_permission_check() {
+		return current_user_can( 'publish_posts' );
 	}
 
 	/**
