@@ -426,16 +426,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Get and set API keys.
 		register_rest_route(
 			'jetpack/v4',
-			'/api-key/(?P<service>[a-z\-_]+)',
+			'/service-api-keys/(?P<service>[a-z\-_]+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_api_key',
+					'callback'            => __CLASS__ . '::get_service_api_key',
 					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_api_key',
+					'callback'            => __CLASS__ . '::update_service_api_key',
 					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 					'args'                => array(
 						'api_key' => array(
@@ -446,7 +446,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => __CLASS__ . '::delete_api_key',
+					'callback'            => __CLASS__ . '::delete_service_api_key',
 					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 				),
 			)
@@ -3076,7 +3076,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
 	 * }
 	 */
-	public static function get_api_key( $request ) {
+	public static function get_service_api_key( $request ) {
 		$service = $request['service'];
 		$option  = self::key_for_api_service( $service );
 		return array(
@@ -3093,12 +3093,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
 	 * }
 	 */
-	public static function update_api_key( $request ) {
+	public static function update_service_api_key( $request ) {
 		$params     = $request->get_json_params();
 		$service    = $request['service'];
 		$api_key    = trim( $params['api_key'] );
 		$option     = self::key_for_api_service( $service );
-		$validation = self::validate_api_key( $api_key, $service );
+		$validation = self::validate_service_api_key( $api_key, $service );
 
 		if ( ! $validation['status'] ) {
 			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
@@ -3120,7 +3120,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
 	 * }
 	 */
-	public static function delete_api_key( $request ) {
+	public static function delete_service_api_key( $request ) {
 		$service = $request['service'];
 		$option  = self::key_for_api_service( $service );
 		Jetpack_Options::delete_option( $option );
@@ -3136,11 +3136,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param string $key The API key to be validated.
 	 * @param string $service The service the API key is for.
 	 */
-	public static function validate_api_key( $key = null, $service = null ) {
+	public static function validate_service_api_key( $key = null, $service = null ) {
 		$validation = false;
 		switch ( $service ) {
 			case 'googlemaps':
-				$validation = self::validate_api_key_googlemaps( $key );
+				$validation = self::validate_service_api_key_googlemaps( $key );
 				break;
 		}
 		return $validation;
@@ -3151,11 +3151,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $key The API key to be validated.
 	 */
-	public static function validate_api_key_googlemaps( $key = null ) {
+	public static function validate_service_api_key_googlemaps( $key = null ) {
 		$address = '1+broadway+new+york+ny+usa';
 		$path    = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&input=' . $address;
-		$path    = add_query_arg( 'key', $key, $path );
-		$json    = json_decode( wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) ), true );
+		$path    = add_query_arg(
+			'key',
+			$key,
+			$path
+		);
+		$result  = wp_safe_remote_get(
+			esc_url_raw( $path, null, null )
+		);
+		if ( is_wp_error( $result ) ) {
+			return array(
+				'status'        => false,
+				'error_message' => $result->error_message(),
+			);
+		}
+		$json = json_decode(
+			wp_remote_retrieve_body( $result ),
+			true
+		);
 		return array(
 			'status'        => ( 'ok' === strtolower( $json['status'] ) ),
 			'error_message' => ( isset( $json['error_message'] ) ? $json['error_message'] : null ),
