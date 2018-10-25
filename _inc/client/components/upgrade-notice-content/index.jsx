@@ -229,14 +229,10 @@ const UpgradeNoticeContent = moduleSettingsForm(
 					<div className="jp-dialogue__cta-container">
 						<Button
 							primary={ true }
-							href="https://wp.me/p1moTy-aEq"
+							href="https://jetpack.com/support/site-accelerator/"
 						>
-							{ __( 'Read the announcement' ) }
+							{ __( 'Learn more' ) }
 						</Button>
-
-						<p className="jp-dialogue__note">
-							<a href="https://jetpack.com/pricing">{ __( 'Compare paid plans' ) }</a>
-						</p>
 					</div>
 				</div>
 			);
