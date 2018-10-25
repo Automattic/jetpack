@@ -684,26 +684,13 @@ abstract class Publicize_Base {
 	/**
 	 * Checks if post has already been shared by Publicize in the past.
 	 *
-	 * We can set an _all flag to indicate that this post is completely done as
-	 * far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
-	 * have Publicize disabled.
-	 *
 	 * @since 6.7.0
-	 *
-	 * @global Publicize_UI $publicize_ui UI instance that contains the 'in_jetpack' property
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	public function done_sharing_post( $post_id = null ) {
-		global $publicize_ui;
-		$post = get_post( $post_id ); // Defaults to current post if $post_id is null.
-		if ( is_null( $post ) ) {
-			return false;
-		}
-		return get_post_meta( $post->ID, $this->POST_DONE . 'all', true ) || ( $publicize_ui->in_jetpack && 'publish' == $post->post_status );
-	}
+	abstract public function done_sharing_post( $post_id = null );
 
 	/**
 	 * Retrieves full list of available Publicize connection services.

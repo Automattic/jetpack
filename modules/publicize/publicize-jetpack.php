@@ -379,6 +379,29 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Checks if post has already been shared by Publicize in the past.
+	 *
+	 * Jetpack uses two methods:
+	 * 1. A POST_DONE . 'all' postmeta flag, or
+	 * 2. if the post has already been published.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
+	 *
+	 * @return bool True if post has already been shared by Publicize, false otherwise.
+	 */
+	public function done_sharing_post( $post_id = null ) {
+		// Defaults to current post if $post_id is null.
+		$post = get_post( $post_id );
+		if ( is_null( $post ) ) {
+			return false;
+		}
+
+		return 'publish' == $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
+	}
+
+	/**
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
