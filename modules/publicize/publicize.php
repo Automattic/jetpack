@@ -451,6 +451,21 @@ abstract class Publicize_Base {
 		wp_send_json_success( $this->get_publicize_conns_test_results );
 	}
 
+	/**
+	 * Run connection tests on all Connections
+	 * @return array {
+	 *     Array of connection test results.
+	 *
+	 *     @type string 'connectionID'          Connection identifier string that is unique for each connection
+	 *     @type string 'serviceName'           Slug of the connection's service (facebook, twitter, ...)
+	 *     @type bool   'connectionTestPassed'  Whether the connection test was successful
+	 *     @type string 'connectionTestMessage' Test success or error message
+	 *     @type bool   'userCanRefresh'        Whether the user can re-authenticate their connection to the service
+	 *     @type string 'refreshText'           Message instructing user to re-authenticate their connection to the service
+	 *     @type string 'refreshURL'            URL, which, when visited by the user, re-authenticates their connection to the service.
+	 *     @type string 'unique_id'             ID string representing connection
+	 * }
+	 */
 	function get_publicize_conns_test_results() {
 		$test_results = array();
 
