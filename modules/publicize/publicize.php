@@ -442,6 +442,10 @@ abstract class Publicize_Base {
 	 * @return void
 	 */
 	function test_publicize_conns() {
+		wp_send_json_success( $this->get_publicize_conns_test_results );
+	}
+
+	function get_publicize_conns_test_results() {
 		$test_results = array();
 
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
@@ -498,7 +502,7 @@ abstract class Publicize_Base {
 			}
 		}
 
-		wp_send_json_success( $test_results );
+		return $test_results;
 	}
 
 	/**
