@@ -182,6 +182,21 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * Return whether a post type should display the Gutenberg/block editor.
+	 *
+	 * @since 6.7.0
+	 */
+	public function is_post_type_gutenberg( $post_type ) {
+		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+			return use_block_editor_for_post_type( $post_type );
+		} else {
+			// We use the filter introduced in WordPress 5.0 to be backwards compatible.
+			/** This filter is already documented in core/wp-admin/includes/post.php */
+			return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
+		}
+	}
+
 	public function is_page_gutenberg() {
 		if ( ! Jetpack_Gutenberg::is_gutenberg_available() ) {
 			return false;
@@ -189,28 +204,17 @@ class Jetpack_Calypsoify {
 
 		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
 
-		/**
-		 * Allow third-party plugins to register support for their post types in the full-screen Calypsoify gutenberg mode.
-		 *
-		 * @module calypsoify
-		 *
-		 * @since 6.7.0
-		 *
-		 * @param array $post_types Allowed post types.
-		 */
-		$allowed_gutenberg_post_types = apply_filters( 'jetpack_calypsoify_allowed_gutenberg_post_types', array( 'post', 'page' ) );
-
 		if ( false !== strpos( $page, 'post-new.php' ) && empty ( $_GET['post_type'] ) ) {
 			return true;
 		}
 
-		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && in_array( $_GET['post_type'], $allowed_gutenberg_post_types ) ) {
+		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && $this->is_post_type_gutenberg( $_GET['post_type'] ) ) {
 			return true;
 		}
 
 		if ( false !== strpos( $page, 'post.php' ) ) {
 			$post = get_post( $_GET['post'] );
-			if ( isset( $post ) && isset( $post->post_type ) && in_array( $post->post_type, $allowed_gutenberg_post_types ) ) {
+			if ( isset( $post ) && isset( $post->post_type ) && $this->is_post_type_gutenberg( $post->post_type ) ) {
 				return true;
 			}
 		}
@@ -218,7 +222,7 @@ class Jetpack_Calypsoify {
 		if ( false !== strpos( $page, 'revision.php' ) ) {
 			$post   = get_post( $_GET['revision'] );
 			$parent = get_post( $post->post_parent );
-			if ( isset( $parent ) && isset( $parent->post_type ) && in_array( $parent->post_type, $allowed_gutenberg_post_types ) ) {
+			if ( isset( $parent ) && isset( $parent->post_type ) && $this->is_post_type_gutenberg( $parent->post_type ) ) {
 				return true;
 			}
 		}
