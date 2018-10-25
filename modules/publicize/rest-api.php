@@ -38,9 +38,6 @@ class Publicize_REST_API {
 		// which are also added to the `admin_enqueue_scripts` hook.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ), 20 );
 
-		// Set up publicize flags right before post is actually published.
-		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
-
 		$this->publicize = $publicize;
 	}
 
@@ -129,89 +126,6 @@ class Publicize_REST_API {
 	 */
 	public function rest_connections_validate_post_id( $param ) {
 		return is_int( $param );
-	}
-
-	/**
-	 * Set up Publicize meta fields for publishing post.
-	 *
-	 * Process 'publicize' REST field to setup Publicize for publishing
-	 * post. Sets post meta keys to enable/disable each connection for
-	 * the post and sets publicize title meta key if a title message
-	 * is provided.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param stdClass        $new_post_obj Updated post object about to be inserted view REST endpoint.
-	 * @param WP_REST_Request $request      Request object, possibly containing 'publicize' field {@see add_publicize_rest_fields()}.
-	 *
-	 * @return WP_Post Returns the original $new_post value unchanged.
-	 */
-	public function process_publicize_from_rest( $new_post_obj, $request ) {
-		global $publicize;
-		if ( property_exists( $new_post_obj, 'ID' ) ) {
-			$post = get_post( $new_post_obj->ID );
-		} else {
-			return $new_post_obj;
-		}
-
-		// If 'publicize' field has been set from editor and post is about to be published.
-		if ( isset( $request['publicize'] )
-				&& ( property_exists( $new_post_obj, 'post_status' ) && ( 'publish' === $new_post_obj->post_status ) )
-				&& ( 'publish' !== $post->post_status ) ) {
-
-			$publicize_field = $request['publicize'];
-
-			if ( empty( $publicize_field['title'] ) ) {
-				delete_post_meta( $post->ID, $publicize->POST_MESS );
-			} else {
-				update_post_meta( $post->ID, $publicize->POST_MESS, trim( stripslashes( $publicize_field['title'] ) ) );
-			}
-			if ( isset( $publicize_field['connections'] ) ) {
-				foreach ( (array) $publicize->get_services( 'connected' ) as $service_name => $connections ) {
-					foreach ( $connections as $connection ) {
-						if ( ! empty( $connection->unique_id ) ) {
-							$unique_id = $connection->unique_id;
-						} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-							$unique_id = $connection['connection_data']['token_id'];
-						}
-
-						if ( $this->connection_should_share( $publicize_field['connections'], $unique_id ) ) {
-							// Delete skip flag meta key.
-							delete_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id );
-						} else {
-							// Flag connection to be skipped for this post.
-							update_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id, 1 );
-						}
-					}
-				}
-			}
-		}
-		// Just pass post object through.
-		return $new_post_obj;
-	}
-
-	/**
-	 * Checks if a connection should be shared to.
-	 *
-	 * Checks $connection_id against $connections_array to see if the connection associated
-	 * with $connection_id should be shared to. Will return true if $connection_id is in the
-	 * array and 'should_share' property is set to true, and will default to false otherwise.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param array  $connections_array 'connections' from 'publicize' REST field {@see add_publicize_rest_fields()}.
-	 * @param string $connection_id     Connection identifier string that is unique for each connection.
-	 * @return boolean True if connection should be shared to, false otherwise.
-	 */
-	private function connection_should_share( $connections_array, $connection_id ) {
-		foreach ( $connections_array as $connection ) {
-			if ( isset( $connection['unique_id'] )
-				&& ( $connection['unique_id'] === $connection_id )
-				&& $connection['should_share'] ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
