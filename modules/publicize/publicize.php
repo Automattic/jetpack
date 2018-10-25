@@ -453,6 +453,7 @@ abstract class Publicize_Base {
 
 	/**
 	 * Run connection tests on all Connections
+	 *
 	 * @return array {
 	 *     Array of connection test results.
 	 *
@@ -1096,8 +1097,53 @@ abstract class Publicize_Base {
 	}
 
 /*
- * REST API Fields
+ * REST API
  */
+
+	/**
+	 * Retrieve current list of connected social accounts for a given post.
+	 *
+	 * Gets current list of connected accounts and send them as
+	 * JSON encoded data.
+	 *
+	 * @see Publicize::get_filtered_connection_data()
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param WP_REST_Request $request Request instance from REST call.
+	 *
+	 * @return string JSON encoded connection list data.
+	 */
+	public function rest_get_publicize_connections_for_post( $request ) {
+		$post_id = $request['post_id'];
+		return $this->get_filtered_connection_data( $post_id );
+	}
+
+	/**
+	 * Retrieve full list of available Publicize connection services
+	 * send them as JSON encoded data.
+	 *
+	 * @see Publicize::get_available_service_data()
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return string JSON encoded connection services data.
+	 */
+	public function rest_get_publicize_available_services() {
+		/**
+		 * We need this because Publicize::get_available_service_data() uses `Jetpack_Keyring_Service_Helper`
+		 * and `Jetpack_Keyring_Service_Helper` relies on `menu_page_url()`.
+		 *
+		 * We also need add_submenu_page(), as the URLs for connecting each service
+		 * rely on the `sharing` menu subpage being present.
+		 */
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
+		// The `sharing` submenu page must exist for service connect URLs to be correct.
+		add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
+
+		return $this->get_available_service_data();
+	}
 
 	/**
 	 * Add rest field to 'post' for Publicize support
