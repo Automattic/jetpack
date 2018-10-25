@@ -303,7 +303,7 @@ gulp.task( 'old-sass', function() {
 } );
 
 /*
-    Sass! (RTL)
+	Sass! (RTL)
  */
 gulp.task( 'old-sass:rtl', function() {
 	return gulp.src( 'scss/*.scss' )
@@ -352,7 +352,7 @@ gulp.task( 'php:lint', function() {
 } );
 
 /*
-    PHP Unit
+	PHP Unit
  */
 gulp.task( 'php:unit', function() {
 	return gulp.src( 'phpunit.xml.dist' )
@@ -454,15 +454,24 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 			require( './_inc/jetpack-strings.js' );
 
 			return gulp.src( [ 'languages/*.po' ] )
-				.pipe( po2json() )
+				.pipe( po2json( {
+					format: 'jed1.x',
+					domain: 'jetpack',
+				} ) )
 				.pipe( json_transform( function( data ) {
+					const localeData = data.locale_data.jetpack;
 					const filtered = {
-						'': data[ '' ]
+						'': localeData[ '' ]
 					};
 
-					Object.keys( data ).forEach( function( term ) {
+					Object.keys( localeData ).forEach( function( term ) {
 						if ( terms.hasOwnProperty( term ) ) {
-							filtered[ term ] = data[ term ];
+							filtered[ term ] = localeData[ term ];
+
+							// Having a &quot; in the JSON might cause errors with the JSON later
+							if ( typeof filtered[ term ] === 'string' ) {
+								filtered[ term ] = filtered[ term ].replace( '&quot;', '\"' );
+							}
 						}
 					} );
 
