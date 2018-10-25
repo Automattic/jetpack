@@ -183,7 +183,9 @@ class Jetpack_JITM {
 			true
 		);
 		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
-			'api_root' => esc_url_raw( rest_url() ),
+			'api_root'              => esc_url_raw( rest_url() ),
+			'activate_module_text'  => esc_html__( 'Activate', 'jetpack' ),
+			'activated_module_text' => esc_html__( 'Activated', 'jetpack' ),
 		) );
 	}
 
