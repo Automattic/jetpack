@@ -316,9 +316,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			$connection_data['unique_id']
 		);
 		$this->assertEquals(
-			'Facebook: test-display-name456',
-			$connection_data['label'],
-			'Label should follow pattern: [Service name]: [user-display-name].'
+			'Facebook',
+			$connection_data['service_label']
+		);
+		$this->assertEquals(
+			'test-display-name456',
+			$connection_data['display_name']
 		);
 		$this->assertTrue(
 			$connection_data['enabled'],
