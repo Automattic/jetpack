@@ -595,7 +595,7 @@ abstract class Publicize_Base {
 						&&
 						(
 							// New flags
-							get_post_meta( $post_id, $this->POST_SKIP . $unique_id, true )
+							get_post_meta( $post->ID, $this->POST_SKIP . $unique_id, true )
 							||
 							// Old flags
 							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
