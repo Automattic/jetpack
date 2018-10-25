@@ -33,11 +33,6 @@ class Publicize_REST_API {
 	 * @since 5.9.1
 	 */
 	public function __construct( $publicize ) {
-		// Do edit page specific setup.
-		// Priority 20 to make sure these scripts are enqueued after Gutenberg blocks,
-		// which are also added to the `admin_enqueue_scripts` hook.
-		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ), 20 );
-
 		$this->publicize = $publicize;
 	}
 
@@ -126,21 +121,5 @@ class Publicize_REST_API {
 	 */
 	public function rest_connections_validate_post_id( $param ) {
 		return is_int( $param );
-	}
-
-	/**
-	 * Enqueue scripts when they are needed for the edit page
-	 *
-	 * Enqueues necessary scripts for edit page for Gutenberg
-	 * editor only.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param string $hook Current page url.
-	 */
-	public function post_page_enqueue( $hook ) {
-		if ( ( 'post-new.php' === $hook || 'post.php' === $hook ) && ! isset( $_GET['classic-editor'] ) ) { // Input var okay.
-			wp_enqueue_style( 'social-logos', null, array( 'genericons' ) );
-		}
 	}
 }
