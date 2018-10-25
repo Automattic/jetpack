@@ -40,6 +40,9 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		if ( function_exists( 'register_meta' ) ) {
+			add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+		}
 	}
 
 	private function register_shortcode() {
@@ -284,6 +287,67 @@ class Jetpack_Simple_Payments {
 			'spay_multiple',
 			'spay_formatted_price',
 		) );
+	}
+
+	/**
+	 * Enable Simple payments custom meta values for access through the REST API.
+	 * Field’s value will be exposed on a .meta key in the endpoint response,
+	 * and WordPress will handle setting up the callbacks for reading and writing
+	 * to that meta key.
+	 *
+	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+	 * @link https://developer.wordpress.org/reference/functions/register_meta/
+	 */
+	public function register_meta_fields_in_rest_api() {
+			register_meta( 'post', 'spay_price', array(
+				// 'sanitize_callback' => array( $this, 'sanitize_status' ),
+				'type'         => 'number',
+				'description'  => esc_html__( 'Simple payments; price.', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_currency', array(
+				'type'         => 'string',
+				'description'  => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_cta', array(
+				'type'         => 'string',
+				'description'  => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_multiple', array(
+				'type'         => 'number',
+				'description'  => esc_html__( 'Simple payments; allow for multiple items', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_email', array(
+				'type'         => 'string',
+				'description'  => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_formatted_price', array(
+				'type'         => 'string',
+				'description'  => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
+
+			register_meta( 'post', 'spay_status', array(
+				'type'         => 'string',
+				'description'  => esc_html__( 'Simple payments; status.', 'jetpack' ),
+				'single'       => true,
+				'show_in_rest' => true,
+			) );
 	}
 
 	/**
