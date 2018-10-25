@@ -431,7 +431,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'callback'            => __CLASS__ . '::update_service_api_key',
 					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 					'args'                => array(
-						'api_key' => array(
+						'service_api_key' => array(
 							'required' => true,
 							'type'     => 'text',
 						),
@@ -3000,9 +3000,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! $service ) {
 			return self::service_api_invalid_service_response();
 		}
-		$option = self::key_for_api_service( $service );
+		$option  = self::key_for_api_service( $service );
+		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
 		return array(
-			'api_key' => Jetpack_Options::get_option( $option, '' ),
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
 		);
 	}
 
@@ -3021,18 +3025,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return self::service_api_invalid_service_response();
 		}
 		$params     = $request->get_json_params();
-		$api_key    = trim( $params['api_key'] );
+		$service_api_key    = trim( $params['service_api_key'] );
 		$option     = self::key_for_api_service( $service );
-		$validation = self::validate_service_api_key( $api_key, $service );
-
+		$validation = self::validate_service_api_key( $service_api_key, $service );
 		if ( ! $validation['status'] ) {
 			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
 		}
-
-		Jetpack_Options::update_option( $option, $api_key );
+		$message = esc_html__( 'API key updated successfully.', 'jetpack' );
+		Jetpack_Options::update_option( $option, $service_api_key );
 		return array(
-			'api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message' => esc_html__( 'API key set successfully!', 'jetpack' ),
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
 		);
 	}
 
@@ -3052,9 +3057,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		$option = self::key_for_api_service( $service );
 		Jetpack_Options::delete_option( $option );
+		$message = esc_html__( 'API key deleted successfully.', 'jetpack' );
 		return array(
-			'api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message' => esc_html__( 'API key deleted successfully!', 'jetpack' ),
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
 		);
 	}
 
