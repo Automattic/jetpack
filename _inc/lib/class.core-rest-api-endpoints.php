@@ -3077,8 +3077,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * }
 	 */
 	public static function get_service_api_key( $request ) {
-		$service = $request['service'];
-		$option  = self::key_for_api_service( $service );
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
+		$option = self::key_for_api_service( $service );
 		return array(
 			'api_key' => Jetpack_Options::get_option( $option, '' ),
 		);
@@ -3094,8 +3097,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * }
 	 */
 	public static function update_service_api_key( $request ) {
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
 		$params     = $request->get_json_params();
-		$service    = $request['service'];
 		$api_key    = trim( $params['api_key'] );
 		$option     = self::key_for_api_service( $service );
 		$validation = self::validate_service_api_key( $api_key, $service );
@@ -3121,12 +3127,42 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * }
 	 */
 	public static function delete_service_api_key( $request ) {
-		$service = $request['service'];
-		$option  = self::key_for_api_service( $service );
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
+		$option = self::key_for_api_service( $service );
 		Jetpack_Options::delete_option( $option );
 		return array(
 			'api_key' => Jetpack_Options::get_option( $option, '' ),
 			'message' => esc_html__( 'API key deleted successfully!', 'jetpack' ),
+		);
+	}
+
+	/**
+	 * Validate the service provided in /service-api-keys/ endpoints.
+	 * To add a service to these endpoints, add the service name to $valid_services
+	 * and add '{service name}_api_key' to the non-compact return array in get_option_names(),
+	 * in class-jetpack-options.php
+	 *
+	 * @param string $service The service the API key is for.
+	 * @return string Returns the service name if valid, null if invalid.
+	 */
+	public static function validate_service_api_service( $service = null ) {
+		$valid_services = array(
+			'googlemaps',
+		);
+		return in_array( $service, $valid_services, true ) ? $service : null;
+	}
+
+	/**
+	 * Error response for invalid service API key requests with an invalid service.
+	 */
+	public static function service_api_invalid_service_response() {
+		return new WP_Error(
+			'invalid_service',
+			esc_html__( 'Invalid Service', 'jetpack' ),
+			array( 'status' => 404 )
 		);
 	}
 
