@@ -8,16 +8,20 @@ function jetpack_register_block( $type, $args = array() ) {
  */
 class Jetpack_Gutenberg {
 
-	public static $all_blocks = array();
+	public static $blocks = array();
 	public static function add_block( $type, $args ) {
-		self::$all_blocks[ $type ] = $args;
+		self::$blocks[ $type ] = $args;
 	}
 
-	public static function load_all_blocks() {
+	public static function load_blocks() {
 		if ( ! self::is_gutenberg_available() ) {
 			return;
 		}
-		foreach ( self::$all_blocks as $type => $args ) {
+
+		if ( self::should_load_blocks() ) {
+			return;
+		}
+		foreach ( self::$blocks as $type => $args ) {
 			register_block_type(
 				'jetpack/' . $type,
 				$args
@@ -28,22 +32,29 @@ class Jetpack_Gutenberg {
 	public static function load_assets_as_required( $type ) {
 		// Enqueue styles
 		$style_relative_path = '_inc/blocks/'. $type .'/view.'. ( is_rtl() ? '.rtl' : '' ) .'css';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
-			$style_version       = Jetpack::is_development_version()
-				? filemtime( JETPACK__PLUGIN_DIR . $style_relative_path )
-				: JETPACK__VERSION;
+		if ( self::block_has_asset( $style_relative_path ) ) {
+			$style_version       = self::get_asset_version( $style_relative_path );
 			$view_style  = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
+
 		// Enqueue script
 		$script_relative_path = '_inc/blocks/'. $type .'/view.js';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			$script_version       = Jetpack::is_development_version()
-				? filemtime( JETPACK__PLUGIN_DIR . $script_relative_path )
-				: JETPACK__VERSION;
+		if ( self::block_has_asset( $script_relative_path ) ) {
+			$script_version       = self::get_asset_version( $script_relative_path );
 			$view_script  = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version );
 		}
+	}
+
+	public function block_has_asset( $file ) {
+		return file_exists( JETPACK__PLUGIN_DIR . $file );
+	}
+
+	public static function get_asset_version( $file ) {
+		return Jetpack::is_development_version() && self::block_has_asset( $file )
+			? filemtime( JETPACK__PLUGIN_DIR . $file )
+			: JETPACK__VERSION;
 	}
 
 	/**
