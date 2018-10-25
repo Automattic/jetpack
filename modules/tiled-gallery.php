@@ -30,3 +30,12 @@ function jetpack_tiled_gallery_configuration_load() {
 }
 
 jetpack_load_tiled_gallery();
+
+// Tile-gallery block definition can be found in wp-calypso repo
+jetpack_register_block( 'tiled-gallery', array(
+	'render_callback' => 'jetpack_tiled_gallery_load_assets'
+) );
+function jetpack_tiled_gallery_load_assets( $attr, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
+	return $content;
+}
