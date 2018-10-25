@@ -526,13 +526,14 @@ abstract class Publicize_Base {
 	 * @return array {
 	 *     Array of UI setup data for connection list form.
 	 *
-	 *     @type string 'unique_id'    ID string representing connection
-	 *     @type string 'service_name' Slug of the connection's service (facebook, twitter, ...)
-	 *     @type string 'label'        Service Label and Connection's Username: "Twitter: @jetpack"
-	 *     @type bool   'enabled'      Default value for the connection (e.g., for a checkbox).
-	 *     @type bool   'done'         Has this connection already been publicized to?
-	 *     @type bool   'toggleable'   Is the user allowed to change the value for the connection?
-	 *     @type bool   'global'       Is this connection a global one?
+	 *     @type string 'unique_id'     ID string representing connection
+	 *     @type string 'service_name'  Slug of the connection's service (facebook, twitter, ...)
+	 *     @type string 'service_label' Service Label (Facebook, Twitter, ...)
+	 *     @type string 'display_name'  Connection's human-readable Username: "@jetpack"
+	 *     @type bool   'enabled'       Default value for the connection (e.g., for a checkbox).
+	 *     @type bool   'done'          Has this connection already been publicized to?
+	 *     @type bool   'toggleable'    Is the user allowed to change the value for the connection?
+	 *     @type bool   'global'        Is this connection a global one?
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
@@ -654,17 +655,11 @@ abstract class Publicize_Base {
 					$enabled = true;
 				}
 
-				$label  = sprintf(
-					/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on Service (@jetpack, ...) */
-					__( '%1$s: %2$s', 'jetpack' ),
-					$this->get_service_label( $service_name ),
-					$this->get_display_name( $service_name, $connection )
-				);
-
 				$connection_list[] = array(
-					'unique_id'    => $unique_id,
-					'service_name' => $service_name,
-					'label'        => $label,
+					'unique_id'     => $unique_id,
+					'service_name'  => $service_name,
+					'service_label' => $this->get_service_label( $service_name ),
+					'display_name'  => $this->get_display_name( $service_name, $connection ),
 
 					'enabled'      => $enabled,
 					'done'         => $done,

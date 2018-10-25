@@ -626,6 +626,20 @@ jQuery( function($) {
 	}
 
 	/**
+	 * @param string $service_label Service's human-readable Label ("Facebook", "Twitter", ...)
+	 * @param string $display_name Connection's human-readable Username ("@jetpack", ...)
+	 * @return string
+	 */
+	private function connection_label( $service_label, $display_name ) {
+		return sprintf(
+			/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on Service (@jetpack, ...) */
+			__( '%1$s: %2$s', 'jetpack' ),
+			$service_label,
+			$display_name
+		);
+	}
+
+	/**
 	* Controls the metabox that is displayed on the post page
 	* Allows the user to customize the message that will be sent out to the social network, as well as pick which
 	* networks to publish to. Also displays the character counter and some other information.
@@ -661,7 +675,10 @@ jQuery( function($) {
 							continue;
 						}
 
-						$labels[] = sprintf( '<strong>%s</strong>', esc_html( $connection_data['label'] ) );
+						$labels[] = sprintf(
+							'<strong>%s</strong>',
+							esc_html( $this->connection_label( $connection_data['service_label'], $connection_data['display_name'] ) )
+						);
 					}
 
 				?>
@@ -753,7 +770,7 @@ jQuery( function($) {
 						/>
 					<?php endif; ?>
 
-						<?php echo esc_html( $connection_data['label'] ); ?>
+						<?php echo esc_html( $this->connection_label( $connection_data['service_label'], $connection_data['display_name'] ) ); ?>
 
 					</label>
 				</li>
