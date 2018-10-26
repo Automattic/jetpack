@@ -9,6 +9,7 @@ function jetpack_register_block( $type, $args = array() ) {
 class Jetpack_Gutenberg {
 
 	public static $blocks = array();
+
 	public static function add_block( $type, $args ) {
 		self::$blocks[ $type ] = $args;
 	}
@@ -21,6 +22,7 @@ class Jetpack_Gutenberg {
 		if ( self::should_load_blocks() ) {
 			return;
 		}
+
 		foreach ( self::$blocks as $type => $args ) {
 			register_block_type(
 				'jetpack/' . $type,
@@ -29,20 +31,56 @@ class Jetpack_Gutenberg {
 		}
 	}
 
+	/**
+	 * Check if Gutenberg editor is available
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return bool
+	 */
+	public static function is_gutenberg_available() {
+		return function_exists( 'register_block_type' );
+	}
+
+	/**
+	 * Check whether conditions indicate Gutenberg blocks should be loaded
+	 *
+	 * Loading blocks is enabled by default and may be disabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return bool
+	 */
+	public static function should_load_blocks() {
+		if ( ! Jetpack::is_active() ) {
+			return false;
+		}
+
+		/**
+		 * Filter to disable Gutenberg blocks
+		 *
+		 * @since 6.5.0
+		 *
+		 * @param bool true Whether to load Gutenberg blocks
+		 */
+		return (bool) apply_filters( 'jetpack_gutenberg', true );
+	}
+
 	public static function load_assets_as_required( $type ) {
 		// Enqueue styles
-		$style_relative_path = '_inc/blocks/'. $type .'/view.'. ( is_rtl() ? '.rtl' : '' ) .'css';
+		$style_relative_path = '_inc/blocks/' . $type . '/view.' . ( is_rtl() ? '.rtl' : '' ) . 'css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
-			$style_version       = self::get_asset_version( $style_relative_path );
-			$view_style  = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+			$style_version = self::get_asset_version( $style_relative_path );
+			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 
 		// Enqueue script
-		$script_relative_path = '_inc/blocks/'. $type .'/view.js';
+		$script_relative_path = '_inc/blocks/' . $type . '/view.js';
 		if ( self::block_has_asset( $script_relative_path ) ) {
-			$script_version       = self::get_asset_version( $script_relative_path );
-			$view_script  = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+			$script_version = self::get_asset_version( $script_relative_path );
+			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version );
 		}
 	}
@@ -55,17 +93,6 @@ class Jetpack_Gutenberg {
 		return Jetpack::is_development_version() && self::block_has_asset( $file )
 			? filemtime( JETPACK__PLUGIN_DIR . $file )
 			: JETPACK__VERSION;
-	}
-
-	/**
-	 * Check if Gutenberg editor is available
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return bool
-	 */
-	public static function is_gutenberg_available() {
-		return function_exists( 'register_block_type' );
 	}
 
 	/**
@@ -138,29 +165,5 @@ class Jetpack_Gutenberg {
 		Jetpack::setup_wp_i18n_locale_data();
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-	}
-
-	/**
-	 * Check whether conditions indicate Gutenberg blocks should be loaded
-	 *
-	 * Loading blocks is enabled by default and may be disabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return bool
-	 */
-	public static function should_load_blocks() {
-		if ( ! Jetpack::is_active() ) {
-			return false;
-		}
-		/**
-		 * Filter to disable Gutenberg blocks
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool true Whether to load Gutenberg blocks
-		 */
-		return (bool) apply_filters( 'jetpack_gutenberg', true );
 	}
 }
