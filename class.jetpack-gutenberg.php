@@ -80,7 +80,7 @@ class Jetpack_Gutenberg {
 
 	public static function load_assets_as_required( $type ) {
 		// Enqueue styles
-		$style_relative_path = '_inc/blocks/' . $type . '/view.' . ( is_rtl() ? '.rtl' : '' ) . 'css';
+		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
