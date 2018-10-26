@@ -35,6 +35,15 @@ jetpack_load_tiled_gallery();
 jetpack_register_block( 'tiled-gallery', array(
 	'render_callback' => 'jetpack_tiled_gallery_load_assets'
 ) );
+
+/**
+ * Renders the tiled gallery dynamically to the user
+ *
+ * @param $attr array - array of attributes
+ * @param $content string - content block
+ *
+ * @return mixed
+ */
 function jetpack_tiled_gallery_load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
 	return $content;

@@ -1,5 +1,16 @@
 <?php
+/**
+ * Helper function to register a Jetpack Gutenberg block
+ *
+ * @params $type sting  The type will be prefixed with jetpack/
+ * @param $args array   Arguments that are passed into the register_block_type
+ *
+ * @since 6.7.0
+ *
+ * @return void
+ */
 function jetpack_register_block( $type, $args = array() ) {
+
 	Jetpack_Gutenberg::add_block( $type, $args );
 }
 
