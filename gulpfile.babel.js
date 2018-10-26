@@ -252,7 +252,11 @@ gulp.task( 'languages:cleanup', function( done ) {
 gulp.task( 'languages:extract', function( done ) {
 	const paths = [];
 
-	gulp.src( [ '_inc/client/**/*.js', '_inc/client/**/*.jsx' ] )
+	gulp.src( [
+		'_inc/client/**/*.js',
+		'_inc/client/**/*.jsx',
+		'_inc/blocks/*.js'
+	] )
 		.pipe( tap( function( file ) {
 			paths.push( file.path );
 		} ) )
@@ -264,7 +268,7 @@ gulp.task( 'languages:extract', function( done ) {
 				phpArrayName: 'jetpack_strings',
 				format: 'PHP',
 				textdomain: 'jetpack',
-				keywords: [ 'translate', '__' ]
+				keywords: [ 'translate', '__', '_n', '_x', '_nx' ]
 			} );
 
 			done();
