@@ -296,57 +296,68 @@ class Jetpack_Simple_Payments {
 	 * to that meta key.
 	 *
 	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
-	 * @link https://developer.wordpress.org/reference/functions/register_meta/
 	 */
 	public function register_meta_fields_in_rest_api() {
 			register_meta( 'post', 'spay_price', array(
-				// 'sanitize_callback' => array( $this, 'sanitize_status' ),
-				'type'         => 'number',
-				'description'  => esc_html__( 'Simple payments; price.', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'number',
 			) );
 
 			register_meta( 'post', 'spay_currency', array(
-				'type'         => 'string',
-				'description'  => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
 			) );
 
 			register_meta( 'post', 'spay_cta', array(
-				'type'         => 'string',
-				'description'  => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
 			) );
 
 			register_meta( 'post', 'spay_multiple', array(
-				'type'         => 'number',
-				'description'  => esc_html__( 'Simple payments; allow for multiple items', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'integer',
 			) );
 
 			register_meta( 'post', 'spay_email', array(
-				'type'         => 'string',
-				'description'  => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+				'sanitize_callback' => 'sanitize_email',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
 			) );
 
 			register_meta( 'post', 'spay_formatted_price', array(
-				'type'         => 'string',
-				'description'  => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
 			) );
 
 			register_meta( 'post', 'spay_status', array(
-				'type'         => 'string',
-				'description'  => esc_html__( 'Simple payments; status.', 'jetpack' ),
-				'single'       => true,
-				'show_in_rest' => true,
+				'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+				'object_subtype'    => self::$post_type_product,
+				'sanitize_callback' => 'sanitize_text_field',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
 			) );
 	}
 
