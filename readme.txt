@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Featured Content: no longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
 * Likes: ensure that the Likes column is accessible.
+* Search: avoid PHP warning with Search widget.
 * Simple Payments / Widget Visibility: avoid potential Fatal errors on some specific server configurations when updating Jetpack.
 * Sitemaps: remove double encoding of site name in news sitemap.
 * Sitemaps: ensure homepage is only included once.
