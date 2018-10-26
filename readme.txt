@@ -121,7 +121,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* AMP: Add support for GitHub's Gist shortcodes.
+* AMP: add support for GitHub's Gist shortcodes.
+* PHP 7.3: update Infinite Scroll to avoid PHP warnings when using the latest version of PHP.
 * Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
 * Plugins: add a WordPress.com themed plugins page for users managing their plugins via the WordPress.com interface.
 
