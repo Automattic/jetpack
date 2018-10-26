@@ -1,4 +1,6 @@
-# Get Details About Your Activations
+# Get Details About Your Individual Activations
+
+This endpoint will list out individual activations in a paged method.
 
 ### Endpoint Information
 
