@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: update the VR block to be fully compatible with the latest version of WordPress and Gutenberg.
 * Comment Likes: only prefetch domains used by the feature.
+* CSS Concatenation: make sure all concatenated CSS is up to date.
 * Featured Content: no longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
 * Simple Payments / Widget Visibility: avoid potential Fatal errors on some specific server configurations when updating Jetpack.
