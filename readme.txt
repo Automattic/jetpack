@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: provide a mechanism so editor blocks can be translated.
 * REST API: introduce endpoint for retrieving related posts of a particular post.
 * Search: add an advanced `excess_boost` param which can be adjusted with filters to fine tune query scoring.
 * Sharing / Publicize: change the icons used in the Jetpack dashboard to clarify where the configuration links lead.
