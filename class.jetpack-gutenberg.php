@@ -19,7 +19,7 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		if ( self::should_load_blocks() ) {
+		if ( ! self::should_load_blocks() ) {
 			return;
 		}
 
@@ -85,7 +85,7 @@ class Jetpack_Gutenberg {
 		}
 	}
 
-	public function block_has_asset( $file ) {
+	public static function block_has_asset( $file ) {
 		return file_exists( JETPACK__PLUGIN_DIR . $file );
 	}
 
