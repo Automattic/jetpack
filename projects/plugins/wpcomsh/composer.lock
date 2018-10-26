@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "367d81e85e0f41032938a996a88f1ac1",
+    "content-hash": "edf4d1b55aa5211fdf078802862fb9f3",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -102,16 +102,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v0.2.3",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "2e3aacfcf23616c6aa34653582e044eb3dce80fe"
+                "reference": "81b7dc3b8e7af4c3894ac00d48ecad622ee49f8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/2e3aacfcf23616c6aa34653582e044eb3dce80fe",
-                "reference": "2e3aacfcf23616c6aa34653582e044eb3dce80fe",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/81b7dc3b8e7af4c3894ac00d48ecad622ee49f8b",
+                "reference": "81b7dc3b8e7af4c3894ac00d48ecad622ee49f8b",
                 "shasum": ""
             },
             "type": "library",
@@ -120,7 +120,7 @@
                     "wc-calypso-bridge.php"
                 ]
             },
-            "time": "2018-06-14T13:28:41+00:00"
+            "time": "2018-10-24T13:34:57+00:00"
         },
         {
             "name": "woocommerce/wc-api-dev",
