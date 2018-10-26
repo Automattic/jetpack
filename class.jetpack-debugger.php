@@ -305,8 +305,9 @@ class Jetpack_Debugger {
 							?>
 						</li>
 					<?php endif; ?>
-					<li><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'We are here to help! <a href="%s">Contact our Happiness team!</a>. When you do, please include the full debug information below.', 'jetpack' ), 'https://jetpack.com/contact-support/' ); ?></li>
 				</ol>
+				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
+				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'We are here to help! <a href="%s">Contact our Happiness team!</a>. When you do, please include the full debug information below.', 'jetpack' ), 'https://jetpack.com/contact-support/' ); ?></p>
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
