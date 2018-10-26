@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin page: add site Activity card.
 * Blocks: provide a mechanism so editor blocks can be translated.
 * REST API: introduce endpoint for retrieving related posts of a particular post.
 * Search: add an advanced `excess_boost` param which can be adjusted with filters to fine tune query scoring.
