@@ -129,13 +129,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Comment Likes: only prefetch domains used by the feature.
-* Featured Content: No longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
+* Featured Content: no longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
 * Simple Payments / Widget Visibility: avoid potential Fatal errors on some specific server configurations when updating Jetpack.
-* Sitemaps: Remove double encoding of site name in news sitemap.
-* Sitemaps: Ensure homepage is only included once.
-* Sitemaps: Provide richer "not found" message to site admins.
-* Sitemaps: Ensure sitemap is refreshed faster after upgrading Jetpack.
+* Sitemaps: remove double encoding of site name in news sitemap.
+* Sitemaps: ensure homepage is only included once.
+* Sitemaps: provide richer "not found" message to site admins.
+* Sitemaps: ensure sitemap is refreshed faster after upgrading Jetpack.
+* Sitemaps: avoid protocol mismatches between the sitemaps and the site.
 * Site Verification Tools: make sure we validate meta tags when saving.
 
 --------
