@@ -31,6 +31,23 @@ To test this change, try the following:
 - Enable an RTL language.
 - Repeat the above testing instructions to ensure everything looks ok
 
+### Site accelerator
+
+In Jetpack 6.6 we started beta-testing a new Jetpack feature that allows you to serve a lot of CSS and JS files from the WordPress.com CDN instead of using your site's resources. In Jetpack 6.7, we're removing the Beta label and making that feature available to everyone!
+
+To test this, you can go to Jetpack > Settings > Writing in your dashboard and turn the feature on.
+
+- You can choose to speed up both images and static files, thus enabling the image CDN (formerly known as Photon) and the new feature.
+- You can choose to only turn one of the features on.
+
+When turning on the file feature, you should see the following:
+
+1. All Jetpack's CSS and JS files are now served from a CDN, using the `c0.wp.com` domain.
+2. All core WordPress CSS and JS files are also served from the CDN.
+3. If you use the WooCommerce plugin on your site, its files should also benefit from the CDN.
+
+You can check your site's source code for that domain once you've activated the feature.
+
 ### Shortcodes
 
 We've made some changes to [the Gist shortcode](https://en.support.wordpress.com/gist/) in this release. It should now be fully compatible with the AMP plugin.

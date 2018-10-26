@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Site acceleration features: add option to toggle the 2 options from the Jetpack Dashboard.
 * Gutenberg: introduce new blocks in the editor.
 
 **Enhancements**
