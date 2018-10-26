@@ -271,7 +271,7 @@ class Jetpack_Debugger {
 						$response_code = wp_remote_retrieve_response_code( $test_info['result'] );
 						if ( 'PASS' !== $test_info['result'] && ( is_wp_error( $test_info['result'] ) ||
 								false === ( $response_code ) ||
-								'200' !== $response_code ) ) {
+								200 !== intval( $response_code ) ) ) {
 							$debug_info .= $test_name . ": FAIL\r\n";
 							?>
 							<div class="jetpack-test-error">
