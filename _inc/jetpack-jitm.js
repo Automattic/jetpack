@@ -86,6 +86,13 @@ jQuery( document ).ready( function( $ ) {
 		var $el = $( this );
 
 		var message_path = $el.data( 'message-path' );
+		// Check for sub-pages of the Jetpack dashboard.
+		if (
+			'wp:toplevel_page_jetpack:admin_notices' === message_path &&
+			'#/plans' === window.location.hash
+		) {
+			message_path = 'wp:toplevel_page_jetpack_plans:admin_notices';
+		}
 		var query = $el.data( 'query' );
 		var redirect = $el.data( 'redirect' );
 
