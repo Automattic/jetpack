@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Search: add an advanced `excess_boost` param which can be adjusted with filters to fine tune query scoring.
 * Sharing / Publicize: change the icons used in the Jetpack dashboard to clarify where the configuration links lead.
 * Secure Sign On: update wording on admin pages to avoid confusion.
+* Shortcodes: update the Polldaddy shortcode to use the new brand, Crowdsignal.
 * Sitemaps: coding standards changes.
 * Site Verification Tools: improve display of the tool's description on mobile devices.
 * Unit Tests: improve process for faster tests.

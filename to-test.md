@@ -50,7 +50,16 @@ You can check your site's source code for that domain once you've activated the 
 
 ### Shortcodes
 
-We've made some changes to [the Gist shortcode](https://en.support.wordpress.com/gist/) in this release. It should now be fully compatible with the AMP plugin.
+As you may know, [Polldaddy has changed its name to Crowdsignal](https://crowdsignal.com/2018/10/18/introducing-crowdsignal/). We are consequently updating the shortcode and embed methods available in Jetpack to match the new service. From now on, both the old embed methods and the new ones (using the new domains) should work.
+
+To test this, you can try adding polls and surveys to your site using both the old and the new domains. You can create new polls and surveys [here](https://polldaddy.com/dashboard/). Once you've done so, try inserting them into your posts using any of the methods available:
+- By pasting an embed code with some JavaScript.
+- By pasting a URL on its own line in the WordPress editor.
+- By pasting a `[polldaddy]` or `[crowdsignal]` shortcode provided in the "Collect responses" area of your Crowdsignal dashboard.
+
+Try to replace polldaddy by crowdsignal in all the tests you make, and check that both the new and old domains work.
+
+We've also made some changes to [the Gist shortcode](https://en.support.wordpress.com/gist/) in this release. It should now be fully compatible with the AMP plugin.
 
 To test this, try installing the AMP plugin on your site (either the current Stable version or [the Beta](https://github.com/Automattic/amp-wp/releases/tag/1.0-RC1-built)), and try adding Gists, using different formats, to one of your posts. Here are some examples:
 
