@@ -2554,6 +2554,23 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
+		/**
+		 * Fires an action hook right after the email(s) have been sent.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.6.2
+		 *
+		 * @param int $post_id Post contact form lives on.
+		 * @param string|array $to Array of valid email addresses, or single email address.
+		 * @param string $subject Feedback email subject.
+		 * @param string $message Feedback email message.
+		 * @param string|array $headers Optional. Additional headers.
+		 * @param array $all_values Contact form fields.
+		 * @param array $extra_values Contact form fields not included in $all_values
+		 */
+		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
 		}
