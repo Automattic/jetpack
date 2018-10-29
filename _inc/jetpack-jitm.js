@@ -94,8 +94,16 @@ jQuery( document ).ready( function( $ ) {
 		// Add to Jetpack notices within the Jetpack settings app.
 		$template.prependTo( $( '#jp-admin-notices' ) );
 
+		// Handle Module activation button if it exists.
 		$template.find( '#jitm-banner__activate a' ).click( function() {
 			var $activate_button = $( this );
+
+			// Do not allow any requests if the button is disabled.
+			if ( $activate_button.attr( 'disabled' ) ) {
+				return false;
+			}
+
+			// Make request to activate module.
 			$.ajax( {
 				url: window.jitm_config.api_root + 'jetpack/v4/module/' + $activate_button.data( 'module' ) + '/active',
 				method: 'POST',
