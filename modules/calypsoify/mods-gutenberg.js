@@ -2,7 +2,7 @@
 /* global wp, calypsoifyGutenberg */
 
 jQuery( function( $ ) {
-	if ( ! wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) {
+	if ( wp && wp.data && wp.data.select && ! wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) {
 		wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' );
 	}
 
