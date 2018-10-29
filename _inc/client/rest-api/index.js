@@ -113,12 +113,12 @@ function JetpackRestApiClient() {
 
 		fetchVerifySiteGoogleStatus: ( keyringId ) => {
 			const request = ( keyringId !== null )
-				? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }` )
-				: getRequest( `${ apiRoot }jetpack/v4/verify-site/google` );
+				? getRequest( `/jetpack/v4/verify-site/google/${ keyringId }` )
+				: getRequest( '/jetpack/v4/verify-site/google' );
 
 			return request;
-		}, 
-		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, {
+		},
+		verifySiteGoogle: ( keyringId ) => postRequest( '/jetpack/v4/verify-site/google', {
 			body: JSON.stringify( { keyring_id: keyringId } ),
 		} )
 	};
