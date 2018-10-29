@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * PHP 7.3: update Infinite Scroll to avoid PHP warnings when using the latest version of PHP.
 * Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
 * Plugins: add a WordPress.com themed plugins page for users managing their plugins via the WordPress.com interface.
+* Site Verification Tools: do not enable Google's Auto-verification option when a site using a maintenance / coming soon plugin.
 
 **Bug fixes**
 
