@@ -31,16 +31,16 @@ jQuery( document ).ready( function( $ ) {
 				html += '</div>';
 			}
 			html += '</div>';
-			if ( envelope.activate_module ) {
+			if ( envelope.has_activated_module ) {
 				html += '<div class="jitm-banner__action" id="jitm-banner__activate">';
-				html += '<a href="#" data-module="' + envelope.activate_module + '" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '-activate_module">' + window.jitm_config.activate_module_text + '</a>';
+				html += '<a href="#" data-module="' + envelope.has_activated_module + '" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '-activate_module">' + window.jitm_config.activate_module_text + '</a>';
 				html += '</div>';
 			}
 			if ( envelope.CTA.message ) {
 				var ctaClasses = 'jitm-button is-compact jptracks';
 				if (
 					envelope.CTA.primary &&
-					null === envelope.activate_module
+					null === envelope.has_activated_module
 				) {
 					ctaClasses += ' is-primary';
 				}
