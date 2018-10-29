@@ -735,7 +735,7 @@ jQuery( function($) {
 	private function get_metabox_form_connected( $connections_data ) {
 		global $post;
 
-		$all_done = $this->publicize->is_post_done_sharing();
+		$all_done = $this->publicize->post_is_done_sharing();
 		$all_connections_done = true;
 
 		ob_start();
