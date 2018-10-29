@@ -201,15 +201,6 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Does this site have a VIP index
-	 *
-	 * @since 6.0
-	 */
-	public function has_vip_index() {
-		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
-	}
-
-	/**
 	 * When an Elasticsearch query fails, this stores it and enqueues some debug information in the footer.
 	 *
 	 * @since 5.6.0
@@ -841,7 +832,7 @@ class Jetpack_Search {
 		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
 
 		if ( empty( $args['query_fields'] ) ) {
-			if ( $this->has_vip_index() ) {
+			if ( Jetpack_Search_Helpers::site_has_vip_index() ) {
 				// VIP indices do not have per language fields
 				$match_fields = $this->_get_caret_boosted_fields(
 					array(
