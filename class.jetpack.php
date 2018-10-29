@@ -7143,13 +7143,10 @@ p {
 			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
 
 			// We cache the result of the Akismet key verification for ten minutes.
-			if ( in_array( $cached_key_verification, array( 'valid', 'invalid' ) ) ) {
+			if ( $cached_key_verification ) {
 				$akismet_key_state = $cached_key_verification;
 			} else {
 				$akismet_key_state = Akismet::verify_key( $akismet_key );
-				if ( 'failed' === $akismet_key_state ) {
-					return false;
-				}
 				set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
 			}
 
