@@ -151,7 +151,7 @@ class Jetpack_Sitemap_Builder {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						sprintf( 'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our <a href="%s">server requirements</a>.', 'https://jetpack.com/support/server-requirements/' ),
+						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our >server requirements at https://jetpack.com/support/server-requirements/ .',
 						'jetpack'
 					),
 					true
