@@ -534,9 +534,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if (
 			'true' === $mm_coming_soon
 			|| 1 == $under_construction_activation_status // WPCS: loose comparison ok.
-			|| ( is_array( $ucp_options ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
-			|| ( is_array( $uuc_settings ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
-			|| ( is_array( $csp4 ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
+			|| ( isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
+			|| ( isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
+			|| ( isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
 			/**
 			 * Allow plugins to mark a site as "under construction".
 			 *
