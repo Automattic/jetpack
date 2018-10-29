@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_CONNECTION_TEST_FETCH,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -31,6 +32,35 @@ export const fetchSiteConnectionStatus = () => {
 				type: JETPACK_CONNECTION_STATUS_FETCH,
 				siteConnected: siteConnected
 			} );
+		} );
+	};
+};
+
+export const fetchSiteConnectionTest = () => {
+	return ( dispatch ) => {
+		dispatch( createNotice( 'is-info', __( 'Testing Jetpack Conncetion' ), { id: 'test-jetpack-connection' } ) );
+		return restApi.fetchSiteConnectionTest().then( connectionTest => {
+			dispatch( {
+				type: JETPACK_CONNECTION_TEST_FETCH,
+				connectionTest: connectionTest
+			} );
+			dispatch( removeNotice( 'test-jetpack-connection' ) );
+			dispatch( createNotice(
+				connectionTest.code === 'success' ? 'is-success' : 'is-error',
+				connectionTest.message,
+				{ id: 'test-jetpack-connection' }
+			) );
+		} ).catch( error => {
+			dispatch( removeNotice( 'test-jetpack-connection' ) );
+			dispatch( createNotice(
+				'is-error',
+				__( 'There was an error testing Jetpack. Error: %(error)s', {
+					args: {
+						error: error.message
+					}
+				} ),
+				{ id: 'test-jetpack-connection' }
+			) );
 		} );
 	};
 };

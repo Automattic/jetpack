@@ -105,6 +105,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
 
+		// Test current connection status of Jetpack
+		register_rest_route( 'jetpack/v4', '/connection/test', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::jetpack_connection_test',
+		) );
+
 		register_rest_route( 'jetpack/v4', '/rewind', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_rewind_data',
@@ -863,6 +869,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Test connection status for this Jetpack site.
+	 *
+	 * @since 6.8.0
+	 *
+	 * @return something
+	 */
+	public static function jetpack_connection_test() {
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
+			Jetpack_Client::WPCOM_JSON_API_VERSION
+		);
+
+		if ( is_wp_error( $response ) ) {
+			/* translators: %1$s is the error code, %2$s is the error message */
+			return new WP_Error( 'connection_test_failed', sprintf( __( 'Connection test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() ), array( 'status' => $response->get_error_code() ) );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( ! $body ) {
+			return new WP_Error( 'connection_test_failed', __( 'Connection test failed (empty response body)', 'jetpack' ), array( 'status' => $response->get_error_code() ) );
+		}
+
+		$result = json_decode( $body );
+		$is_connected = (bool) $result->connected;
+		$message = $result->message;
+
+		if ( $is_connected ) {
+			return rest_ensure_response( array(
+				'code' => 'success',
+				'message' => esc_html__( $message, 'jetpack' ),
+				'data' => wp_json_encode( $result ),
+			) );
+		} else {
+			return new WP_Error( 'connection_test_failed', $message, array( 'status' => $response->get_error_code() ) );
+		}
 	}
 
 	public static function rewind_data() {
