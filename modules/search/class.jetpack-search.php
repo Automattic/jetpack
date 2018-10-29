@@ -150,7 +150,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
 			return;
 		}
 
@@ -160,9 +160,9 @@ class Jetpack_Search {
 			return;
 		}
 
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'modules/widgets/search.php' );
 
 		$this->init_hooks();
 	}
@@ -189,6 +189,24 @@ class Jetpack_Search {
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
+	}
+
+	/**
+	 * Is search supported on the current plan
+	 *
+	 * @since 6.0
+	 */
+	public function is_search_supported() {
+		return Jetpack::active_plan_supports( 'search' );
+	}
+
+	/**
+	 * Does this site have a VIP index
+	 *
+	 * @since 6.0
+	 */
+	public function has_vip_index() {
+		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
 	}
 
 	/**
@@ -823,7 +841,7 @@ class Jetpack_Search {
 		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
 
 		if ( empty( $args['query_fields'] ) ) {
-			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+			if ( $this->has_vip_index() ) {
 				// VIP indices do not have per language fields
 				$match_fields = $this->_get_caret_boosted_fields(
 					array(
