@@ -7135,7 +7135,7 @@ p {
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
-		if ( method_exists( 'Akismet' , 'http_post' ) ) {
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
 			$akismet_key = Akismet::get_api_key();
 			if ( ! $akismet_key ) {
 				return false;
