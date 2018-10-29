@@ -230,6 +230,10 @@ class Jetpack_Debugger {
 
 		$tests = array();
 
+		$tests['XML']['result'] = ( function_exists( 'xml_parser_create' ) ) ? 'PASS' : false;
+		/* translators: Link to Jetpack Hosting support page. */
+		$tests['XML']['fail_message'] = esc_html__( 'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .', 'jetpack' );
+
 		$tests['HTTP']['result']       = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
 		$tests['HTTP']['fail_message'] = esc_html__( 'Your site isn’t reaching the Jetpack servers.', 'jetpack' );
 
