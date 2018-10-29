@@ -872,11 +872,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Test connection status for this Jetpack site.
+	 * Test connection status for this Jetpack site. It uses the /jetpack-blogs/%d/test-connection wpcom endpoint.
 	 *
 	 * @since 6.8.0
 	 *
-	 * @return something
+	 * @return array|WP_Error WP_Error returned if connection test does not succeed. 
 	 */
 	public static function jetpack_connection_test() {
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
