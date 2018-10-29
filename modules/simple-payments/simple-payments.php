@@ -296,67 +296,67 @@ class Jetpack_Simple_Payments {
 	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
 	 */
 	public function register_meta_fields_in_rest_api() {
-			register_meta( 'post', 'spay_price', array(
-				'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'number',
-			) );
+		register_meta( 'post', 'spay_price', array(
+			'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'absint',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'number',
+		) );
 
-			register_meta( 'post', 'spay_currency', array(
-				'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'sanitize_text_field',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-			) );
+		register_meta( 'post', 'spay_currency', array(
+			'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
 
-			register_meta( 'post', 'spay_cta', array(
-				'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'sanitize_text_field',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-			) );
+		register_meta( 'post', 'spay_cta', array(
+			'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
 
-			register_meta( 'post', 'spay_multiple', array(
-				'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'integer',
-			) );
+		register_meta( 'post', 'spay_multiple', array(
+			'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'absint',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'integer',
+		) );
 
-			register_meta( 'post', 'spay_email', array(
-				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
-				'sanitize_callback' => 'sanitize_email',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-			) );
+		register_meta( 'post', 'spay_email', array(
+			'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+			'sanitize_callback' => 'sanitize_email',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
 
-			register_meta( 'post', 'spay_formatted_price', array(
-				'description'       => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'sanitize_text_field',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-			) );
+		register_meta( 'post', 'spay_formatted_price', array(
+			'description'       => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
 
-			register_meta( 'post', 'spay_status', array(
-				'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
-				'object_subtype'    => self::$post_type_product,
-				'sanitize_callback' => 'sanitize_text_field',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'string',
-			) );
+		register_meta( 'post', 'spay_status', array(
+			'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
 	}
 
 	/**
