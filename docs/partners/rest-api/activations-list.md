@@ -29,7 +29,7 @@ This endpoint will list out individual activations in a paged method.
 - __external_user_id__: ?
 - __product_id__: The ID of the Jetpack product that the site has.
 - __created_on__: Datetime of the site's creation.
-- __activated_on__: Datetime of the site's actionvation.
+- __activated_on__: Datetime of the site's activation.
 - __cancelled_on__: Datetime of the site's cancellation. Probably `null`.
 - __disputed_on__: Probably `null`.
 - __site_registered__: Datetime.
