@@ -901,7 +901,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( $is_connected ) {
 			return rest_ensure_response( array(
 				'code' => 'success',
-				'message' => esc_html__( $message, 'jetpack' ),
+				'message' => $message,
 				'data' => wp_json_encode( $result ),
 			) );
 		} else {
