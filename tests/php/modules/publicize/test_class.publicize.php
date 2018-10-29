@@ -244,17 +244,17 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * the helper method that checks post flags to prevent re-sharing
 	 * of already shared post.
 	 *
-	 * @covers Publicize::done_sharing_post()
+	 * @covers Publicize::is_post_done_sharing()
 	 * @since 6.7.0
 	 */
-	public function test_done_sharing_post_for_done_all() {
+	public function test_is_post_done_sharing_for_done_all() {
 		$this->assertFalse(
-			$this->publicize->done_sharing_post( $this->post->ID ),
+			$this->publicize->is_post_done_sharing( $this->post->ID ),
 			'Unshared/published post should not be \'done\''
 		);
 		update_post_meta( $this->post->ID, $this->publicize->POST_DONE . 'all', true );
 		$this->assertTrue(
-			$this->publicize->done_sharing_post( $this->post->ID ),
+			$this->publicize->is_post_done_sharing( $this->post->ID ),
 			'Posts flagged as \'done\' should return true done sharing'
 		);
 	}
@@ -263,12 +263,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Verifies that "done sharing post" logic is correct. Checks
 	 * that already published post is correctly reported as 'done'.
 	 *
-	 * @covers Publicize::done_sharing_post()
+	 * @covers Publicize::is_post_done_sharing()
 	 * @since 6.7.0
 	 */
-	public function test_done_sharing_post_for_published() {
+	public function test_is_post_done_sharing_for_published() {
 		$this->assertFalse(
-			$this->publicize->done_sharing_post( $this->post->ID ),
+			$this->publicize->is_post_done_sharing( $this->post->ID ),
 			'Unshared/published post should not be \'done\''
 		);
 
@@ -277,7 +277,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertTrue(
-			$this->publicize->done_sharing_post( $this->post->ID ),
+			$this->publicize->is_post_done_sharing( $this->post->ID ),
 			'Published post should be flagged as \'done\''
 		);
 	}
@@ -346,15 +346,15 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * no current post. 'Done' return value should be false
 	 * so a new post will not have connections disabled.
 	 *
-	 * @covers Publicize::done_sharing_post()
+	 * @covers Publicize::is_post_done_sharing()
 	 * @since 6.7.0
 	 */
-	public function test_done_sharing_post_null_post() {
+	public function test_is_post_done_sharing_null_post() {
 		/**
 		 * Simulate null post by not providing post_id argument and
 		 * when current $post value is unset.
 		 */
-		$done_sharing = $this->publicize->done_sharing_post();
+		$done_sharing = $this->publicize->is_post_done_sharing();
 		$this->assertFalse(
 			$done_sharing,
 			'Done sharing value should be false for null post id'

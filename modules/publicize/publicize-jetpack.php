@@ -391,7 +391,7 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	public function done_sharing_post( $post_id = null ) {
+	public function is_post_done_sharing( $post_id = null ) {
 		// Defaults to current post if $post_id is null.
 		$post = get_post( $post_id );
 		if ( is_null( $post ) ) {

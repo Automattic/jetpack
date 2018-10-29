@@ -548,7 +548,7 @@ abstract class Publicize_Base {
 		}
 
 		$services = $this->get_services( 'connected' );
-		$all_done = $this->done_sharing_post( $post_id );
+		$all_done = $this->is_post_done_sharing( $post_id );
 
 		// We don't allow Publicizing to the same external id twice, to prevent spam.
 		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
@@ -681,7 +681,7 @@ abstract class Publicize_Base {
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
 	 */
-	abstract public function done_sharing_post( $post_id = null );
+	abstract public function is_post_done_sharing( $post_id = null );
 
 	/**
 	 * Retrieves full list of available Publicize connection services.
