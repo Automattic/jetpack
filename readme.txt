@@ -108,12 +108,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * Site acceleration features: add option to toggle the 2 options from the Jetpack Dashboard.
-* Gutenberg: introduce new blocks in the editor.
 
 **Enhancements**
 
 * Admin page: add site Activity card.
 * Blocks: provide a mechanism so editor blocks can be translated.
+* Blocks: enqueue Jetpack blocks in the block editor when blocks are available.
 * Debug tools: add information about missing XML extension in self-help tools.
 * REST API: introduce endpoint for retrieving related posts of a particular post.
 * Search: add an advanced `excess_boost` param which can be adjusted with filters to fine tune query scoring.
