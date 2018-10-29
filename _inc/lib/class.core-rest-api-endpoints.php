@@ -512,6 +512,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	public static function is_site_verified_and_token( $request ) {
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		/**
 		 * Return an error if the site uses a Maintenance / Coming Soon plugin
 		 * and if the plugin is configured to make the site private.
@@ -532,11 +533,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$uuc_settings                         = get_option( 'uuc_settings', array() );
 		$csp4                                 = get_option( 'seed_csp4_settings_content', array() );
 		if (
-			'true' === $mm_coming_soon
-			|| 1 == $under_construction_activation_status // WPCS: loose comparison ok.
-			|| ( isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
-			|| ( isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
-			|| ( isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
+			( is_plugin_active( 'mojo-marketplace-wp-plugin' ) && 'true' === $mm_coming_soon )
+			|| is_plugin_active( 'mojo-under-construction' ) && 1 == $under_construction_activation_status // WPCS: loose comparison ok.
+			|| ( is_plugin_active( 'under-construction-page' ) && isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
+			|| ( is_plugin_active( 'ultimate-under-construction' ) && isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
+			|| ( is_plugin_active( 'coming-soon' ) &&  isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
 			/**
 			 * Allow plugins to mark a site as "under construction".
 			 *
