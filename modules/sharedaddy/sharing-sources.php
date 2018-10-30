@@ -533,7 +533,7 @@ class Share_Email extends Sharing_Source {
 			/** This filter is documented in modules/stats.php */
 			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
-			<a rel="nofollow" href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
+			<a rel="nofollow" href="#cancel" class="sharing_cancel" role="button"><?php _e( 'Cancel', 'jetpack' ); ?></a>
 
 			<div class="errors errors-1" style="display: none;">
 				<?php _e( 'Post was not sent - check your email addresses!', 'jetpack' ); ?>
