@@ -187,26 +187,6 @@ class Jetpack_Sync_Actions {
 		return $response;
 	}
 
-	static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
-		if ( ! self::sync_allowed() ) {
-			return false;
-		}
-
-		$initial_sync_config = array(
-			'options'         => true,
-			'functions'       => true,
-			'constants'       => true,
-			'users'           => array( get_current_user_id() ),
-		);
-
-		if ( is_multisite() ) {
-			$initial_sync_config['network_options'] = true;
-		}
-
-		self::do_full_sync( $initial_sync_config );
-	}
-
 	static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
@@ -459,5 +439,4 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
-add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
 
