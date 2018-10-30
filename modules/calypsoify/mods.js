@@ -5,13 +5,13 @@
 		if ( 'plugins' === pagenow ) { // pagenow === $current_screen->id
 			// Remove | and () from the plugins filter bar
 			$.each( $( 'ul.subsubsub li' ), function( i, el ) {
-				const li = $( el );
+				var li = $( el );
 				li.html( li.html().replace( '|', '' ).replace( '(', '' ).replace( ')', '' ) );
 			} );
 
 			// Add in the AJAX-y goodness for toggling autoupdates.
 			$( 'input.autoupdate-toggle' ).change( function( event ) {
-				const el = event.target;
+				var el = event.target;
 
 				el.disabled = true;
 				el.classList.add( 'is-toggling' );
@@ -39,10 +39,10 @@
 		} );
 
 		if ( document && document.location && document.location.search ) {
-			const params_array = document.location.search.substr( 1 ).split( '&' ),
+			var params_array = document.location.search.substr( 1 ).split( '&' ),
 				params_object = {},
-				body = $( document.body );
-			let i, key_value, pluginEl;
+				body = $( document.body ),
+				i, key_value, pluginEl;
 
 			if ( params_array && params_array.length ) {
 				for ( i = 0; i < params_array.length; i++ ) {

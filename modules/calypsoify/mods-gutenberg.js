@@ -1,7 +1,7 @@
 /* global calypsoifyGutenberg */
 jQuery( function( $ ) {
-	const editPostHeaderInception = setInterval( function() {
-		const $editPostHeader = $( '.edit-post-header' );
+	var editPostHeaderInception = setInterval( function() {
+		var $editPostHeader = $( '.edit-post-header' );
 		if ( $editPostHeader.length < 1 ) {
 			return;
 		}
@@ -18,7 +18,7 @@ jQuery( function( $ ) {
 	} );
 
 	$( 'body.revision-php a' ).each( function() {
-		const href = $( this ).attr( 'href' );
+		var href = $( this ).attr( 'href' );
 		$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
 	}, 300 );
 } );
