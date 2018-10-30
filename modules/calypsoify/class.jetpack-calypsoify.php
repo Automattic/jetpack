@@ -120,9 +120,9 @@ class Jetpack_Calypsoify {
 			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 			$initial_qty = sizeof( $list );
 
-			if ( $action === 'jetpack_enable_plugin_autoupdates' ) {
+			if ( 'jetpack_enable_plugin_autoupdates' === $action ) {
 				$list = array_unique( array_merge( $list, $slugs ) );
-			} elseif ( $action === 'jetpack_disable_plugin_autoupdates' ) {
+			} elseif ( 'jetpack_disable_plugin_autoupdates' === $action ) {
 				$list = array_diff( $list, $slugs );
 			}
 
