@@ -285,6 +285,38 @@ class Jetpack_SSO_Helpers {
 	}
 
 	/**
+	 * Checks the initial `$_REQUEST` to see if `?connect` was set explicitly.
+	 *
+	 * Default behavior is to connect every SSO request, but if `?connect=0`
+	 * (or another falsy value) then we allow a user to log in without connecting.
+	 *
+	 * @since 6.8
+	 *
+	 * @return bool
+	 */
+	static function should_connect() {
+		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
+			return false;
+		}
+
+		$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
+
+		$parsed_url = wp_parse_url( $original_request );
+		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
+			return false;
+		}
+
+		$args = array();
+		wp_parse_str( $parsed_url['query'], $args );
+
+		if ( empty( $args ) || ! isset( $args['connect'] ) ) {
+			return true;
+		}
+
+		return filter_var( $args['connect'], FILTER_VALIDATE_BOOLEAN );
+	}
+
+	/**
 	 * This method returns an environment array that is meant to simulate `$_REQUEST` when the initial
 	 * JSON API auth request was made.
 	 *
