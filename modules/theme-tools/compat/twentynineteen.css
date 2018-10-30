@@ -243,3 +243,37 @@
 #wpstats {
 	display: none;
 }
+
+
+/**
+ * Widgets
+ */
+
+/* Authors Widget */
+.widget.widget_authors ul li > ul {
+	list-style-type: disc;
+	padding-left: 1rem;
+}
+
+/* Display WordPress Posts */
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts h4 {
+	font-size: 100%;
+	margin: 1rem 0;
+}
+
+/* GoodReads */
+.widget_goodreads div[class^="gr_custom_container"] {
+	border: none;
+}
+
+.widget_goodreads div[class^="gr_custom_each_container"] {
+	border-bottom: none;
+	margin-bottom: 1rem;
+	padding-bottom: 0;
+}
+
+.widget_goodreads h2[class^="gr_custom_header"],
+.widget_goodreads div[class^="gr_custom_author"] {
+	font-size: inherit;
+	line-height: 1.15;
+}
