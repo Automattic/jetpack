@@ -84,14 +84,14 @@ class Jetpack_Calypsoify {
 
 			<span class="form-toggle__wrapper">
 				<input
-						id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
-						name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
-						value="autoupdate"
-						class="form-toggle autoupdate-toggle"
-						type="checkbox"
-						<?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
-						readonly
-						data-slug="<?php echo esc_attr( $slug ); ?>"
+					id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
+					name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
+					value="autoupdate"
+					class="form-toggle autoupdate-toggle"
+					type="checkbox"
+					<?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
+					readonly
+					data-slug="<?php echo esc_attr( $slug ); ?>"
 				/>
 				<label class="form-toggle__label" for="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>">
 					<span class="form-toggle__switch" role="checkbox"></span>
