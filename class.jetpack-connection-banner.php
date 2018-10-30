@@ -873,7 +873,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Optimize: Upload images and videos directly to our powerful servers that present your media with lightning speed.',
+							"Optimize: Jetpack's site accelerator uploads images, videos, and static files like CSS to our powerful servers and delivers them at lightning-fast speeds to your visitors. You'll also save precious bandwidth.",
 							'jetpack'
 						);
 					?></p>
@@ -914,7 +914,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Optimize: activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.',
+							'Earn: Generate revenue with the WordPress.com ad program and accept payment for goods and services with our simple payments button.',
 							'jetpack'
 						);
 					?></p>
