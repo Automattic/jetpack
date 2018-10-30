@@ -1114,44 +1114,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
 	}
 
-	function test_initial_sync_doesnt_sync_subscribers() {
-		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
-		$this->factory->user->create( array( 'user_login' => 'theadmin', 'role' => 'administrator' ) );
-		foreach( range( 1, 10 ) as $i ) {
-			$this->factory->user->create( array( 'role' => 'subscriber' ) );
-		}
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
-		$this->server_replica_storage->reset();
-		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
-		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
-		$this->assertEquals( 3, count( $user_ids ) );
-		$this->full_sync->start( array( 'users' => 'initial' ) );
-		$this->sender->do_full_sync();
-		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
-		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
-		$current_user = wp_get_current_user();
-
-		$expected_sync_config = array( 
-			'options' => true,
-			'functions' => true, 
-			'constants' => true, 
-			'users' => array( $current_user->ID )
-		);
-
-		if ( is_multisite() ) {
-			$expected_sync_config['network_options'] = true;
-		}
-
-		$full_sync_status = $this->full_sync->get_status();
-		$this->assertEquals(
-			$expected_sync_config,
-			$full_sync_status[ 'config' ]
-		);
-	}
-
 	function test_full_sync_enqueues_limited_number_of_items() {
 		Jetpack_Sync_Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
 
