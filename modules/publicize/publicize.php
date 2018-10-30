@@ -448,7 +448,7 @@ abstract class Publicize_Base {
 	 * @return void
 	 */
 	function test_publicize_conns() {
-		wp_send_json_success( $this->get_publicize_conns_test_results );
+		wp_send_json_success( $this->get_publicize_conns_test_results() );
 	}
 
 	/**
