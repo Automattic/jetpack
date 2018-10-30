@@ -175,8 +175,10 @@ class Jetpack_Gutenberg {
 			/** This filter is already documented above */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
-			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style  = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
+			$beta = apply_filters( 'jetpack_beta_blocks', false ) ? '-beta' : '';
+			$editor_script = plugins_url( "_inc/blocks/editor{$beta}.js", JETPACK__PLUGIN_FILE );
+			$editor_style  = plugins_url( "_inc/blocks/editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
 			$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
 				: JETPACK__VERSION;
