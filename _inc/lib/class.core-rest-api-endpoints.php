@@ -918,7 +918,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( array(
 				'code' => 'success',
 				'message' => $message,
-				'data' => wp_json_encode( $result ),
 			) );
 		} else {
 			return new WP_Error( 'connection_test_failed', $message, array( 'status' => $response->get_error_code() ) );
