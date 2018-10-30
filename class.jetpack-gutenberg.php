@@ -18,7 +18,7 @@
  * @return void
  */
 function jetpack_register_block( $type, $args = array() ) {
-
+	$type = sanitize_title_with_dashes( $type );
 	Jetpack_Gutenberg::add_block( $type, $args );
 }
 
