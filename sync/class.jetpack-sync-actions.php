@@ -339,7 +339,7 @@ class Jetpack_Sync_Actions {
 		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
 		 * cron jobs across multiple sites in a network.
 		 *
-		 * @since 4.5
+		 * @since 4.5.0
 		 *
 		 * @param int    $start_time_offset
 		 * @param string $hook

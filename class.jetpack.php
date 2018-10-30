@@ -46,6 +46,7 @@ class Jetpack {
 		'sharedaddy',
 		'jetpack-slideshow',
 		'presentations',
+		'quiz',
 		'jetpack-subscriptions',
 		'jetpack-responsive-videos-style',
 		'jetpack-social-menu',
@@ -57,13 +58,13 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'jetpack-authors-widget',
 		'wordads',
 		'eu-cookie-law-style',
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
-		'jetpack-authors-widget',
 	);
 
 	/**
@@ -421,7 +422,7 @@ class Jetpack {
 
 		Jetpack::maybe_set_version_option();
 
-		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
+		if ( method_exists( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' ) ) {
 			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
 
@@ -532,8 +533,12 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
-		// Load Gutenberg editor blocks
-		add_action( 'init', array( $this, 'load_jetpack_gutenberg' ) );
+		/**
+		 * Prepare Gutenberg Editor functionality
+		 */
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		add_action( 'enqueue_block_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -635,9 +640,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		// gutenberg locale
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -2643,6 +2645,32 @@ class Jetpack {
 	}
 
 	/**
+	 * Add locale data setup to wp-i18n
+	 *
+	 * Any Jetpack script that depends on wp-i18n should use this method to set up the locale.
+	 *
+	 * The locale setup depends on an adding inline script. This is error-prone and could easily
+	 * result in multiple additions of the same script when exactly 0 or 1 is desireable.
+	 *
+	 * This method provides a safe way to request the setup multiple times but add the script at
+	 * most once.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return void
+	 */
+	public static function setup_wp_i18n_locale_data() {
+		static $script_added = false;
+		if ( ! $script_added ) {
+			$script_added = true;
+			wp_add_inline_script(
+				'wp-i18n',
+				'wp.i18n.setLocaleData( ' . Jetpack::get_i18n_data_json() . ', \'jetpack\' );'
+			);
+		}
+	}
+
+	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
 	 * @since 3.9.2
@@ -3870,13 +3898,6 @@ p {
 
 	function admin_menu_order() {
 		return true;
-	}
-
-	function enqueue_gutenberg_locale() {
-		wp_add_inline_script(
-			'wp-i18n',
-			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
-		);
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -7264,128 +7285,6 @@ p {
 		if ( $send_state_messages ) {
 			Jetpack::state( 'message', 'authorized' );
 		}
-	}
-
-	/**
-	 * Check if Gutenberg editor is available
-	 *
-	 * @since 6.5.0
-	 *
-	 * @return bool
-	 */
-	public static function is_gutenberg_available() {
-		return function_exists( 'register_block_type' );
-	}
-
-	/**
-	 * Load Gutenberg editor blocks.
-	 *
-	 * Loading blocks is enabled by default and may be disabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
-	 *
-	 * Note that when loaded locally, you need to build the files yourself:
-	 * - _inc/blocks/editor.js
-	 * - _inc/blocks/editor.css
-	 * - _inc/blocks/editor.rtl.css
-	 * - _inc/blocks/view.js
-	 * - _inc/blocks/view.css
-	 * - _inc/blocks/view.rtl.css
-	 *
-	 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-	 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
-	 *
-	 * @since 6.5.0
-	 *
-	 * @return void
-	 */
-	public static function load_jetpack_gutenberg() {
-		if ( ! Jetpack::is_active() ) {
-			return;
-		}
-
-		/**
-		 * Filter to disable Gutenberg blocks
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool true Whether to load Gutenberg blocks
-		 */
-		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', true ) ) {
-			return;
-		}
-
-		$rtl = is_rtl() ? '.rtl' : '';
-
-		/**
-		 * Filter to turn off serving blocks via CDN
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool false Whether to load Gutenberg blocks from CDN
-		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
-			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
-			$editor_script = "$cdn_base/editor.js";
-			$editor_style = "$cdn_base/editor$rtl.css";
-			$view_script = "$cdn_base/view.js";
-			$view_style = "$cdn_base/view$rtl.css";
-
-			/**
-			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
-			 *
-			 * @since 6.5.0
-			 *
-			 * @param string
-			 */
-			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
-		} else {
-			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
-			$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
-			$view_style = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
-			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-				: JETPACK__VERSION;
-		}
-
-		wp_register_script(
-			'jetpack-blocks-editor',
-			$editor_script,
-			array(
-				'lodash',
-				'wp-api-fetch',
-				'wp-blocks',
-				'wp-components',
-				'wp-compose',
-				'wp-data',
-				'wp-date',
-				'wp-editor',
-				'wp-element',
-				'wp-hooks',
-				'wp-i18n',
-				'wp-keycodes',
-				'wp-plugins',
-				'wp-token-list',
-			),
-			$version
-		);
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
-		);
-
-		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
-		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
-
-		register_block_type( 'jetpack/blocks', array(
-				'script'        => 'jetpack-blocks-view',
-				'style'         => 'jetpack-blocks-view',
-				'editor_script' => 'jetpack-blocks-editor',
-				'editor_style'  => 'jetpack-blocks-editor',
-		) );
 	}
 
 	/**

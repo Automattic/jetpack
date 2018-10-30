@@ -37,8 +37,8 @@ const admincss = [
 	'modules/widget-visibility/widget-conditions/widget-conditions.css',
 	'modules/widgets/gallery/css/admin.css',
 	'modules/sso/jetpack-sso-login.css', // Displayed when logging into the site.
-	'calypsoify/style-gutenberg.css',
-	'calypsoify/style.css'
+	'modules/calypsoify/style-gutenberg.css',
+	'modules/calypsoify/style.css'
 ];
 
 // Minimizes admin css for modules.  Outputs to same folder as min.css
@@ -73,3 +73,5 @@ gulp.task( 'admincss:rtl', function() {
 			util.log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
+
+export default gulp.parallel( 'admincss', 'admincss:rtl' );

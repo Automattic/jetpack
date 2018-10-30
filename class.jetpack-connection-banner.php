@@ -351,7 +351,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack protects your site against brute force attacks and unauthorized logins. We also monitor your site for downtime and keep your plugins updated.',
+								'Jetpack protects your site against brute force attacks and unauthorized logins. We also monitor your site for downtime and keep your plugins updated. You can view a chronological list of these activities.',
 								'jetpack'
 							);
 							?>
@@ -449,29 +449,21 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 4: Performance -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
-						<h2><?php esc_html_e( 'Faster site speeds through the WordPress.com CDN', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Faster performance and site speeds', 'jetpack' ); ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'images/cloud-based.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
-									esc_attr_e(
-										'Jetpack automatically optimizes and speeds up images using the global WordPress.com Content Delivery Network (CDN)',
+							<img src="<?php echo esc_url( plugins_url( 'images/cloud-based.svg', JETPACK__PLUGIN_FILE ) ); ?>" alt="<?php
+								esc_attr_e(
+									'Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.',
 									'jetpack'
-								); ?>" height="auto" width="225" />
+								);
+							?>" height="auto" width="225" />
 						</div>
 
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack automatically optimizes and speeds up images using the global WordPress.com Content Delivery Network (CDN). Let us do the heavy lifting for you by reducing bandwidth usage which could potentially lower your hosting costs.',
-								'jetpack'
-							);
-							?>
-						</p>
-
-						<p>
-							<?php
-							esc_html_e(
-								'Use of our CDN is unlimited and scales with your site for free. You can also use it for your theme images to further speed up your site.',
+								'Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.',
 								'jetpack'
 							);
 							?>
@@ -881,7 +873,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Optimize: Upload images and videos directly to our powerful servers that present your media with lightning speed.',
+							'Optimize: Jetpack’s site accelerator uploads images, videos, and static files like CSS to our powerful servers and delivers them at lightning-fast speeds to your visitors. You’ll also save precious bandwidth.',
 							'jetpack'
 						);
 					?></p>
@@ -922,7 +914,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							'Earn: Generate revenue with the WordPress.com ad program and accept payment for goods and services via PayPal.',
+							'Earn: Generate revenue with the WordPress.com ad program and accept payment for goods and services with our simple payments button.',
 							'jetpack'
 						);
 					?></p>

@@ -44,7 +44,6 @@ const concat_list = [
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
-	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',
@@ -75,7 +74,7 @@ const pathModifier = function( file, contents ) {
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
+gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
@@ -123,3 +122,9 @@ gulp.task( 'frontendcss:separate', function() {
 			return path.dirname( file.path );
 		} ) );
 } );
+
+export default gulp.parallel(
+	'frontendcss',
+	'frontendcss:separate'
+);
+

@@ -183,7 +183,10 @@ class Jetpack_JITM {
 			true
 		);
 		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
-			'api_root' => esc_url_raw( rest_url() ),
+			'api_root'               => esc_url_raw( rest_url() ),
+			'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
+			'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
+			'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
 		) );
 	}
 
@@ -256,6 +259,7 @@ class Jetpack_JITM {
 		$path = add_query_arg( array(
 			'external_user_id' => urlencode_deep( $user->ID ),
 			'query_string'     => urlencode_deep( $query ),
+			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache

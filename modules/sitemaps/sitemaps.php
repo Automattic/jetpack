@@ -225,12 +225,20 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch master sitemap xml.
 			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
+				$sitemap_content = $this->librarian->get_sitemap_text(
+					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+					JP_MASTER_SITEMAP_TYPE
+				);
+
+				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404
+				if ( empty( $sitemap_content ) ) {
+					$builder = new Jetpack_Sitemap_Builder();
+					$sitemap_content = $builder->empty_sitemap_xml();
+				}
+
 				$this->serve_raw_and_die(
 					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
-						JP_MASTER_SITEMAP_TYPE
-					)
+					$sitemap_content
 				);
 			}
 
