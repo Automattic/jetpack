@@ -162,7 +162,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			return (
 				<div className="jp-upgrade-notice__content">
 					<p>
-						{ __( 'This release of Jetpack brings major new features and big improvements to your WordPress site.' ) }
+						{ __( 'This release of Jetpack brings with it a major new free feature!' ) }
 					</p>
 
 					<h2>
@@ -242,7 +242,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			return (
 				<JetpackDialogue
 					svg={ <img src={ imagePath + 'jetpack-performance.svg' } width="250" alt={ __( "Jetpack's site accelerator" ) } /> }
-					title={ __( 'Major new features from Jetpack' ) }
+					title={ __( 'New in Jetpack!' ) }
 					content={ this.renderInnerContent() }
 					dismiss={ this.props.dismiss }
 				/>
