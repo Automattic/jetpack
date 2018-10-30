@@ -160,7 +160,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @since 6.5.0
 		 *
-		 * @param bool true Whether to load Gutenberg blocks
+		 * @param bool $jetpack_gutenberg Whether to load Gutenberg blocks
 		 */
 		return (bool) apply_filters( 'jetpack_gutenberg', false );
 	}
