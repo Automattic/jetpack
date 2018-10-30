@@ -194,6 +194,14 @@ class PlanBody extends React.Component {
 						'is-business-plan' === planClass && getRewindVaultPressCard()
 					}
 
+					<div className="jp-landing__plan-features-card">
+						<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
+						<p>{ __( 'View a chronological list of all the changes and updates to your site in an organized, readable way.' ) }</p>
+						<Button onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
+							{ __( 'View your site activity' ) }
+						</Button>
+					</div>
+
 					{
 						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
 						( 'inactive' !== this.props.getModuleOverride( 'wordads' ) ) && (
@@ -406,6 +414,14 @@ class PlanBody extends React.Component {
 								<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
 							</div>
 						}
+
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
+							<p>{ __( 'View a chronological list of all the changes and updates to your site in an organized, readable way.' ) }</p>
+							<Button onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) } href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl } className="is-primary">
+								{ __( 'View your site activity' ) }
+							</Button>
+						</div>
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>

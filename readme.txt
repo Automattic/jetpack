@@ -11,7 +11,7 @@ The ideal plugin for stats, related posts, search engine optimization, social sh
 
 Hassle-free design, marketing, and security — all in one place.
 
-= Design Services =
+= Design and Customization Services =
 Create and customize your WordPress site from start to finish. Jetpack helps you with:
 
 * Hundreds of professional themes for any kind of site
@@ -20,7 +20,7 @@ Create and customize your WordPress site from start to finish. Jetpack helps you
 * Lazy image loading for a faster mobile experience
 * Integration with the official WordPress mobile apps
 
-= Marketing Services =
+= Marketing and Performance Services =
 Measure, promote, and earn money from your site. Jetpack helps you with:
 
 * Site stats and analytics
@@ -29,14 +29,16 @@ Measure, promote, and earn money from your site. Jetpack helps you with:
 * SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com
 * Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 * Simple PayPal payment buttons
+* Optimize: Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.
 
-= Security Services =
+= Security and Backups Services =
 Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
 
 * Brute force attack protection, spam filtering, and downtime monitoring
 * Daily or real-time backups of your entire site
 * Secure logins with optional two-factor authentication
 * Malware scanning, code scanning, and automated threat resolution
+* Activity: a record of every change and update on your site
 * Fast, priority support from WordPress experts
 
 = Expert Support =

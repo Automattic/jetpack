@@ -256,6 +256,7 @@ class Jetpack_JITM {
 		$path = add_query_arg( array(
 			'external_user_id' => urlencode_deep( $user->ID ),
 			'query_string'     => urlencode_deep( $query ),
+			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
