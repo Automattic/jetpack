@@ -2,8 +2,10 @@
 /**
  * Helper function to register a Jetpack Gutenberg block
  *
- * @params $type sting  The type will be prefixed with jetpack/
+ * @param $type string  The type will be prefixed with jetpack/
  * @param $args array   Arguments that are passed into the register_block_type
+ *
+ * @see register_block_type
  *
  * @since 6.7.0
  *
