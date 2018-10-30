@@ -842,7 +842,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 6.8.0
 	 *
-	 * @return bool Whether user has the capability `jetpack_admin_page`.
+	 * @return bool|WP_Error True if user has the capability `jetpack_admin_page`. WP_Error if not.
 	 */
 	public static function jetpack_connection_test_permission_callback() {
 		if ( current_user_can( 'jetpack_admin_page' ) ) {
