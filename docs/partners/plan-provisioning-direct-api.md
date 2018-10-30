@@ -110,10 +110,18 @@ Plans can be provisioned by making a request using your partner token from the s
 
 ### Response Parameters (/provision)
 
+Below, the responses are grouped by whether the call to provision a plan was successful or not.
+
+#### Successful response
+
 - __success__:       (bool) Was the operation successful?.
+- __auth_required__: (bool) Does the user need to authorize the connection on WordPress.com to finish provisioning?
+- __next_url__:      (string) When `auth_required` is true, the URL to redirect the user to in order to finish authorization.
+
+#### Errored response
+
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
-- __auth_required__: (bool) Does the user need to authorize the connection on WordPress.com to finish provisioning?
 
 ### Endpoint Errors (/provision)
 
@@ -215,7 +223,14 @@ Plans can be cancelled by making a request using your partner token from the ste
 
 ### Response Parameters (/partner-cancel)
 
-- __success__:       (bool) Was the operation successful?.
+Below, the response parameters are grouped by whether the request to cancel errored or not.
+
+#### Successful response (/partner-cancel)
+
+- __success__:       (bool) Was the operation successful?. It is possible for success to be false if a plan did not exist for the site.
+
+#### Errored response (/partner-cancel)
+
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
 

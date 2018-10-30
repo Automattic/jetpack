@@ -74,7 +74,7 @@ const pathModifier = function( file, contents ) {
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
+gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
@@ -122,3 +122,9 @@ gulp.task( 'frontendcss:separate', function() {
 			return path.dirname( file.path );
 		} ) );
 } );
+
+export default gulp.parallel(
+	'frontendcss',
+	'frontendcss:separate'
+);
+

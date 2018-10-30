@@ -42,7 +42,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
 		 * that Jetpack uses to retrieve assets. Expects the values to be returned in an array.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $values array( $version  = core assets version, i.e. 4.9.8, $locale = desired locale )
 		 */
@@ -97,7 +99,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * the assets are not yet published, so you may need to override the version value to either
 		 * trunk, or the latest available version. Expects the values to be returned in an array.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $values array( $slug = the plugin repository slug, i.e. jetpack, $version = the plugin version, i.e. 6.6 )
 		 */
@@ -159,7 +163,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * prevent the need of storing them in an option or an external api request
 		 * to w.org.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $assets The assets array for the plugin.
 		 * @param string $version The version of the plugin being requested.
@@ -238,4 +244,15 @@ class Jetpack_Photon_Static_Assets_CDN {
 		return false;
 	}
 }
-Jetpack_Photon_Static_Assets_CDN::go();
+/**
+ * Allow plugins to short-circuit the Asset CDN, even when the module is on.
+ *
+ * @module photon-cdn
+ *
+ * @since 6.7.0
+ *
+ * @param false bool Should the Asset CDN be blocked? False by default.
+ */
+if ( true !== apply_filters( 'jetpack_force_disable_site_accelerator', false ) ) {
+	Jetpack_Photon_Static_Assets_CDN::go();
+}
