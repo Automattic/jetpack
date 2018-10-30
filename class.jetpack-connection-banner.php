@@ -873,7 +873,7 @@ class Jetpack_Connection_Banner {
 					?></p>
 					<p><?php
 						esc_html_e(
-							"Optimize: Jetpack's site accelerator uploads images, videos, and static files like CSS to our powerful servers and delivers them at lightning-fast speeds to your visitors. You'll also save precious bandwidth.",
+							'Optimize: Jetpack’s site accelerator uploads images, videos, and static files like CSS to our powerful servers and delivers them at lightning-fast speeds to your visitors. You’ll also save precious bandwidth.',
 							'jetpack'
 						);
 					?></p>
