@@ -221,6 +221,36 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		remove_filter( 'jetpack_sso_allowed_actions', array( $this, 'allow_hello_world_login_action_for_sso' ) );
 	}
 
+	function test_should_connect_helper() {
+		// With no cookie returns true
+		unset( $_COOKIE['jetpack_sso_original_request'] );
+		$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), 'no cookie' );
+
+		// With empty cookie returns true
+		$_COOKIE['jetpack_sso_original_request'] = '';
+		$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), 'empty cookie' );
+
+		// With empty query, returns true
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com';
+		$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), 'no query' );
+
+		// With no `connect` query argument, returns true
+		$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?hello=world';
+		$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), '?hello=world' );
+
+		// With `connect=[truthy]`, returns true
+		foreach ( [ '1', 'yes', 'on', 'true', 'yeS', 'oN', 'TruE' ] as $_truthy ) {
+			$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?connect=' . rawurlencode( $_truthy );
+			$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), '?connect=' . $_truthy );
+		}
+
+		// With `connect=[anything else]`, returns false
+		foreach ( [ '0', 'no', 'off', 'false', 'nO', 'oFf', 'FalsE', 'abc', '123' ] as $_falsy ) {
+			$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?connect=' . rawurlencode( $_falsy );
+			$this->assertFalse( Jetpack_SSO_Helpers::should_connect(), '?connect=' . $_falsy );
+		}
+	}
+
 	function test_get_json_api_auth_environment() {
 		// With no cookie returns false
 		$_COOKIE['jetpack_sso_original_request'] = '';

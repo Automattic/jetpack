@@ -296,14 +296,14 @@ class Jetpack_SSO_Helpers {
 	 */
 	static function should_connect() {
 		if ( empty( $_COOKIE['jetpack_sso_original_request'] ) ) {
-			return false;
+			return true;
 		}
 
 		$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
 
 		$parsed_url = wp_parse_url( $original_request );
 		if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {
-			return false;
+			return true;
 		}
 
 		$args = array();
