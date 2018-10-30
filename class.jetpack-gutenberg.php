@@ -1,9 +1,15 @@
 <?php
 /**
+ * Handle the registration and use of all blocks available in Jetpack for the block editor, aka Gutenberg.
+ *
+ * @package Jetpack
+ */
+
+/**
  * Helper function to register a Jetpack Gutenberg block
  *
- * @param $type string  The type will be prefixed with jetpack/
- * @param $args array   Arguments that are passed into the register_block_type
+ * @param string $type Slug of the block. Will be prefixed with jetpack/.
+ * @param array  $args Arguments that are passed into the register_block_type.
  *
  * @see register_block_type
  *
@@ -21,12 +27,28 @@ function jetpack_register_block( $type, $args = array() ) {
  */
 class Jetpack_Gutenberg {
 
+	/**
+	 * Array of blocks we will be registering.
+	 *
+	 * @var array $blocks Array of blocks we will be registering.
+	 */
 	public static $blocks = array();
 
+	/**
+	 * Add a block to the list of blocks to be registered.
+	 *
+	 * @param string $type Slug of the block.
+	 * @param array  $args Arguments that are passed into the register_block_type.
+	 */
 	public static function add_block( $type, $args ) {
 		self::$blocks[ $type ] = $args;
 	}
 
+	/**
+	 * Register all Jetpack blocks available.
+	 *
+	 * @return void|WP_Block_Type|false The registered block type on success, or false on failure.
+	 */
 	public static function load_blocks() {
 		if ( ! self::is_gutenberg_available() ) {
 			return;
@@ -80,8 +102,15 @@ class Jetpack_Gutenberg {
 		return (bool) apply_filters( 'jetpack_gutenberg', true );
 	}
 
+	/**
+	 * Only enqueue block assets when needed.
+	 *
+	 * @param string $type slug of the block.
+	 *
+	 * @return void
+	 */
 	public static function load_assets_as_required( $type ) {
-		// Enqueue styles
+		// Enqueue styles.
 		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
@@ -89,19 +118,33 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 
-		// Enqueue script
+		// Enqueue script.
 		$script_relative_path = '_inc/blocks/' . $type . '/view.js';
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version, false );
 		}
 	}
 
+	/**
+	 * Check if an asset exists for a block.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 *
+	 * @return bool $block_has_asset Does the file exist.
+	 */
 	public static function block_has_asset( $file ) {
 		return file_exists( JETPACK__PLUGIN_DIR . $file );
 	}
 
+	/**
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 *
+	 * @return string $script_version Version number.
+	 */
 	public static function get_asset_version( $file ) {
 		return Jetpack::is_development_version() && self::block_has_asset( $file )
 			? filemtime( JETPACK__PLUGIN_DIR . $file )
@@ -159,7 +202,8 @@ class Jetpack_Gutenberg {
 				'wp-token-list',
 				'wp-url',
 			),
-			$version
+			$version,
+			false
 		);
 
 		wp_localize_script(
