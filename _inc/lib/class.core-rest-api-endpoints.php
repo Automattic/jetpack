@@ -868,7 +868,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether user has the capability 'publish_posts'.
 	 */
 	public static function publicize_permission_check() {
-		return current_user_can( 'publish_posts' );
+		if ( current_user_can( 'publish_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_publicize', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
