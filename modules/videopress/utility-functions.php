@@ -663,7 +663,7 @@ function video_get_post_by_guid( $guid ) {
  *
  * When the MP4 hasn't been processed yet or this is not a VideoPress video, this will return null.
  *
- * @param int $post_id
+ * @param int $post_id Post ID of the attachment.
  * @return string|null
  */
 function videopress_get_attachment_url( $post_id ) {
@@ -678,12 +678,15 @@ function videopress_get_attachment_url( $post_id ) {
 	if ( ! isset( $meta['videopress']['files']['hd']['mp4'] ) ) {
 		// Use the original file as the url if it isn't transcoded yet.
 		if ( isset( $meta['original'] ) ) {
-			return $meta['original'];
+			$return = $meta['original'];
+		} else {
+			// Otherwise, there isn't much we can do.
+			return null;
 		}
-
-		// Otherwise, there isn't much we can do.
-		return null;
+	} else {
+		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
 	}
 
-	return $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
+	// If the URL is a string, return it. Otherwise, we shouldn't to avoid errors downstream, so null.
+	return ( is_string( $return ) ) ? $return : null;
 }
