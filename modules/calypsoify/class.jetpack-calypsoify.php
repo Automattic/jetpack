@@ -63,13 +63,22 @@ class Jetpack_Calypsoify {
 	}
 
 	public function manage_plugins_custom_column( $column_name, $slug ) {
+		static $repo_plugins = array();
+
 		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
 			return;
+		}
+
+		if ( empty( $repo_plugins ) ) {
+			$repo_plugins = self::get_dotorg_repo_plugins();
 		}
 
 		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		if ( 'autoupdate' === $column_name ) {
+			if ( ! in_array( $slug, $repo_plugins ) ) {
+				return;
+			}
 			// Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle
 			?>
 
@@ -92,6 +101,11 @@ class Jetpack_Calypsoify {
 
 			<?php
 		}
+	}
+
+	public static function get_dotorg_repo_plugins() {
+		$plugins = get_site_transient( 'update_plugins' );
+		return array_merge( array_keys( $plugins->response ), array_keys( $plugins->no_update ) );
 	}
 
 	public function bulk_actions_plugins( $bulk_actions ) {
