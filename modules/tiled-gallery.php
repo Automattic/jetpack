@@ -30,3 +30,22 @@ function jetpack_tiled_gallery_configuration_load() {
 }
 
 jetpack_load_tiled_gallery();
+
+// Tile-gallery block definition can be found in wp-calypso repo
+jetpack_register_block( 'tiled-gallery', array(
+	'render_callback' => 'jetpack_tiled_gallery_load_assets' // This is needed to enqueue front end assets as we request them instead of always
+) );
+
+/**
+ * Renders the tiled gallery dynamically to the user
+ * Currently we use the render_callback to include only load the front end assets when they are required.
+ *
+ * @param $attr array - array of attributes
+ * @param $content string - content block
+ *
+ * @return string
+ */
+function jetpack_tiled_gallery_load_assets( $attr, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
+	return $content;
+}

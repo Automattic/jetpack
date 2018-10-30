@@ -255,7 +255,8 @@ gulp.task( 'languages:extract', function( done ) {
 	gulp.src( [
 		'_inc/client/**/*.js',
 		'_inc/client/**/*.jsx',
-		'_inc/blocks/*.js'
+		'_inc/blocks/*.js',
+		'_inc/blocks/**/*.js'
 	] )
 		.pipe( tap( function( file ) {
 			paths.push( file.path );
