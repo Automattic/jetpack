@@ -107,7 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Site acceleration features: add option to toggle the 2 options from the Jetpack Dashboard.
+* Site acceleration: new toggle to serve both your images and static files (like CSS and JavaScript) from our CDN.
+* Activity: update Jetpack dashboard to include links to our Activity page, where you can view a record of every change and update on your site.
 
 **Enhancements**
 
