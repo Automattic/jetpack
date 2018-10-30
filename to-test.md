@@ -1,5 +1,11 @@
 ## 6.7
 
+### Block Editor
+
+We've made numerous changes to the infrastructure that will provide Jetpack blocks to the new Block editor in WordPress. We've added a first block, for the Markdown feature. You can test it by going to Posts > Add New on your site after installing the Gutenberg plugin, or switching to WordPress 5.0 Beta.
+
+Try adding the module to your posts, use it, switch between editing and previewing, and let us know what you think about it.
+
 ### Calypsoify
 
 If you are used to manage your site via the WordPress.com interface, you can now click on the "Plugins" link in Calypso and be redirected to a WordPress.com themed Plugins page in your site's dashboard (wp-admin).
