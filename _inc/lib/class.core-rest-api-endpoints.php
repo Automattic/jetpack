@@ -389,13 +389,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
 
-		// Publicize: get connection list data for current user and post id.
-		register_rest_route( 'jetpack/v4', '/publicize/posts/(?P<post_id>\d+)/connections', array(
-			'methods'             => WP_REST_Server::READABLE,
-			'callback'            => array( $publicize, 'rest_get_publicize_connections_for_post' ),
-			'permission_callback' => __CLASS__ . '::publicize_permission_check',
-		) );
-
 		// Widgets: get information about a widget that supports it.
 		register_rest_route( 'jetpack/v4', '/widgets/(?P<id>[0-9a-z\-_]+)', array(
 			'methods' => WP_REST_Server::READABLE,
