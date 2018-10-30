@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { danger, warn, markdown, results, schedule } from 'danger';
+import { danger, warn, markdown, results } from 'danger';
 const moment = require( 'moment' );
 
 const pr = danger.github.pr;
@@ -41,22 +41,11 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 if ( results.warnings.length > 0 || results.fails.length > 0 ) {
 	markdown( "This is automated check which relies on [`PULL_REQUEST_TEMPLATE`](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md).We encourage you to follow that template as it helps Jetpack maintainers do their job. If you think 'Testing instructions' or 'Proposed changelog entry' are not needed for your PR - please explain why you think so. Thanks for cooperation :robot:" );
 } else {
-	schedule( async () => {
-		const internalContributor = await github.api.orgs.checkMembership( { org: 'Automattic', username: pr.user.login } );
-		if ( internalContributor ) {
-			markdown(
+	markdown(
 `**Thank you for the great PR description!**
 
-When this PR is ready for review, please apply the \`[Status] Needs Review\` label and if possible have someone from your team review the code. The Jetpack team will also review this PR and merge it to be included in the next Jetpack release.` );
-		} else {
-			markdown(
-`**That's a great PR description, thank you so much for your effort!**
+When this PR is ready for review, please apply the \`[Status] Needs Review label\`. If you are an a11n, please have someone from your team review the code if possible. The Jetpack team will also review this PR and merge it to be included in the next Jetpack release.
 
-Wondering what will happen next? The Jetpack team will jump in and review this PR, and merge it once all the feedback has been addressed. Once the PR is merged, your changes will be included in the next Jetpack release.` );
-		}
-		markdown( `
 Scheduled Jetpack release: _${ jetpackReleaseDate }_.
-Scheduled code freeze: _${ codeFreezeDate }_`
-		);
-	} );
+Scheduled code freeze: _${ codeFreezeDate }_` );
 }
