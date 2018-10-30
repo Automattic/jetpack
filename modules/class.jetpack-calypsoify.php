@@ -105,7 +105,6 @@ class Jetpack_Calypsoify {
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
 			array(
-				'closeLabel' => __( 'Close', 'jetpack' ),
 				'closeUrl'   => $this->get_close_gutenberg_url(),
 			)
 		);
