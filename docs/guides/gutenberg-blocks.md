@@ -10,6 +10,14 @@ _Note: Since the Gutenberg SDK is still being actively developed, the developmen
     yarn docker:wp plugin install gutenberg --activate
     ```
 
+1. In Jetpack, enable loading block assets by adding following filters to your local mu-plugins folder:
+
+```php
+add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+```
+
+If you use Jetpack-Docker, you could add these to `docker/mu-plugins/0-custom.php`
+
 1. Jetpack will now load these files when editing posts in Gutenberg:
 
     ```
