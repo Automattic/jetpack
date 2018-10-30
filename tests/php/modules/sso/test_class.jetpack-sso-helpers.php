@@ -239,13 +239,13 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), '?hello=world' );
 
 		// With `connect=[truthy]`, returns true
-		foreach ( [ '1', 'yes', 'on', 'true', 'yeS', 'oN', 'TruE' ] as $_truthy ) {
+		foreach ( array( '1', 'yes', 'on', 'true', 'yeS', 'oN', 'TruE' ) as $_truthy ) {
 			$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?connect=' . rawurlencode( $_truthy );
 			$this->assertTrue( Jetpack_SSO_Helpers::should_connect(), '?connect=' . $_truthy );
 		}
 
 		// With `connect=[anything else]`, returns false
-		foreach ( [ '0', 'no', 'off', 'false', 'nO', 'oFf', 'FalsE', 'abc', '123' ] as $_falsy ) {
+		foreach ( array( '0', 'no', 'off', 'false', 'nO', 'oFf', 'FalsE', 'abc', '123' ) as $_falsy ) {
 			$_COOKIE['jetpack_sso_original_request'] = 'http://website.com?connect=' . rawurlencode( $_falsy );
 			$this->assertFalse( Jetpack_SSO_Helpers::should_connect(), '?connect=' . $_falsy );
 		}
