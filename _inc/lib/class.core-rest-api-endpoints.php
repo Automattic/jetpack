@@ -109,7 +109,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/connection/test', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::jetpack_connection_test',
-			'permission_callback' => __CLASS__ . '::jetpack_connection_test_permission_callback',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/rewind', array(
@@ -835,21 +835,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Verify that a user can view Jetpack admin page.
-	 *
-	 * @since 6.8.0
-	 *
-	 * @return bool|WP_Error True if user has the capability `jetpack_admin_page`. WP_Error if not.
-	 */
-	public static function jetpack_connection_test_permission_callback() {
-		if ( current_user_can( 'jetpack_admin_page' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_jetpack_connection_test', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
