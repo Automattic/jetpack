@@ -19,5 +19,5 @@ jQuery( function( $ ) {
 	$( 'body.revision-php a' ).each( function() {
 		var href = $( this ).attr( 'href' );
 		$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
-	}, 300 );
+	} );
 } );
