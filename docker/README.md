@@ -15,16 +15,17 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 _**All commands mentioned in this document should be run from the base Jetpack directory. Not from the `docker` directory!**_
 
-#### Prerequisites:
-- [Docker](https://www.docker.com/community-edition)
-- [NodeJS](https://nodejs.org)
-- [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
-- Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+### Prerequisites
+
+* [Docker](https://www.docker.com/community-edition)
+* [NodeJS](https://nodejs.org)
+* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
+* Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites and clone the repository:
 
 ```sh
-git clone https://github.com/Automattic/jetpack.git && cd jetpack
+git clone git@github.com:Automattic/jetpack.git && cd jetpack
 ```
 
 Optionally, copy settings file to modify it:

@@ -24,7 +24,7 @@
 
 // we want to place.jp-form-input-with-prefix's margin after this element
 .jp-form-input-with-prefix-bottom-message {
-	top: rem( -24px );
+	top: rem( -20px );
 	position: relative;
 	line-height: 2em;
 	margin-top: 5px;
@@ -72,6 +72,7 @@
 
 .jp-form-site-verification-buttons {
 	flex: 0 1 20em;
+	display: inline-flex;
 }
 
 .jp-form-site-verification-verified-note {

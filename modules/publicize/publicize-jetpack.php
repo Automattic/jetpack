@@ -23,8 +23,6 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
 
-		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
-
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 3 );
@@ -123,12 +121,17 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
+		if ( false === $_user_id ) {
+			$_user_id = $this->user_id();
+		}
+
 		$connections           = $this->get_all_connections();
 		$connections_to_return = array();
+
 		if ( ! empty( $connections ) && is_array( $connections ) ) {
 			if ( ! empty( $connections[ $service_name ] ) ) {
 				foreach ( $connections[ $service_name ] as $id => $connection ) {
-					if ( 0 == $connection['connection_data']['user_id'] || $this->user_id() == $connection['connection_data']['user_id'] ) {
+					if ( 0 == $connection['connection_data']['user_id'] || $_user_id == $connection['connection_data']['user_id'] ) {
 						$connections_to_return[ $id ] = $connection;
 					}
 				}
@@ -163,6 +166,10 @@ class Publicize extends Publicize_Base {
 
 	function get_connection_id( $connection ) {
 		return $connection['connection_data']['id'];
+	}
+
+	function get_connection_unique_id( $connection ) {
+		return $connection['connection_data']['token_id'];
 	}
 
 	function get_connection_meta( $connection ) {
@@ -231,29 +238,44 @@ class Publicize extends Publicize_Base {
 
 	function globalization() {
 		if ( 'on' == $_REQUEST['global'] ) {
-			$id = $_REQUEST['connection'];
+			$globalize_connection = $_REQUEST['connection'];
 
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) {
 				return;
 			}
 
-			Jetpack::load_xml_rpc_client();
-			$xml = new Jetpack_IXR_Client();
-			$xml->query( 'jetpack.globalizePublicizeConnection', $id, 'globalize' );
-
-			if ( ! $xml->isError() ) {
-				$response = $xml->getResponse();
-				Jetpack_Options::update_option( 'publicize_connections', $response );
-			}
+			$this->globalize_connection( $connection_id );
 		}
 	}
 
-	function connect_url( $service_name ) {
-		return Jetpack_Keyring_Service_Helper::connect_url( $service_name );
+	function globalize_connection( $connection_id ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'globalize' );
+
+		if ( ! $xml->isError() ) {
+			$response = $xml->getResponse();
+			$this->receive_updated_publicize_connections( $response );
+		}
 	}
 
-	function refresh_url( $service_name ) {
-		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name );
+	function unglobalize_connection( $connection_id ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'unglobalize' );
+
+		if ( ! $xml->isError() ) {
+			$response = $xml->getResponse();
+			$this->receive_updated_publicize_connections( $response );
+		}
+	}
+
+	function connect_url( $service_name, $for = 'publicize' ) {
+		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
+	}
+
+	function refresh_url( $service_name, $for = 'publicize' ) {
+		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
 	}
 
 	function disconnect_url( $service_name, $id ) {
@@ -270,7 +292,7 @@ class Publicize extends Publicize_Base {
 	 *
 	 * @return array List of social networks.
 	 */
-	function get_services( $filter = 'all' ) {
+	function get_services( $filter = 'all', $_blog_id = false, $_user_id = false ) {
 		$services = array(
 			'facebook'    => array(),
 			'twitter'     => array(),
@@ -283,17 +305,17 @@ class Publicize extends Publicize_Base {
 			return $services;
 		} else {
 			$connected_services = array();
-			foreach ( $services as $service => $empty ) {
-				$connections = $this->get_connections( $service );
+			foreach ( $services as $service_name => $empty ) {
+				$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
 				if ( $connections ) {
-					$connected_services[ $service ] = $connections;
+					$connected_services[ $service_name ] = $connections;
 				}
 			}
 			return $connected_services;
 		}
 	}
 
-	function get_connection( $service, $id, $_blog_id = false, $_user_id = false ) {
+	function get_connection( $service_name, $id, $_blog_id = false, $_user_id = false ) {
 		// Stub
 	}
 
@@ -354,6 +376,29 @@ class Publicize extends Publicize_Base {
 		);
 
 		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+	}
+
+	/**
+	 * Checks if post has already been shared by Publicize in the past.
+	 *
+	 * Jetpack uses two methods:
+	 * 1. A POST_DONE . 'all' postmeta flag, or
+	 * 2. if the post has already been published.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
+	 *
+	 * @return bool True if post has already been shared by Publicize, false otherwise.
+	 */
+	public function post_is_done_sharing( $post_id = null ) {
+		// Defaults to current post if $post_id is null.
+		$post = get_post( $post_id );
+		if ( is_null( $post ) ) {
+			return false;
+		}
+
+		return 'publish' == $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 	}
 
 	/**
@@ -649,18 +694,6 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'save_' . $service_name . '_token_' . $_REQUEST['connection'] );
 		$this->globalization();
-	}
-
-	/**
-	 * Already-published posts should not be Publicized by default. This filter sets checked to
-	 * false if a post has already been published.
-	 */
-	function publicize_checkbox_default( $checked, $post_id, $name, $connection ) {
-		if ( 'publish' == get_post_status( $post_id ) ) {
-			return false;
-		}
-
-		return $checked;
 	}
 
 	/**

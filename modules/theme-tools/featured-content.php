@@ -384,7 +384,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function hide_featured_term( $terms, $taxonomies, $args ) {
 
 			// This filter is only appropriate on the front-end.
-			if ( is_admin() ) {
+			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
 				return $terms;
 			}
 

@@ -42,6 +42,8 @@ export const Publicize = moduleSettingsForm(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackClickConfigure }
+							target="_blank"
+							rel="noopener noreferrer"
 							href={ 'https://wordpress.com/sharing/' + siteRawUrl }>
 							{ __( 'Connect your social media accounts' ) }
 						</Card>
@@ -50,6 +52,8 @@ export const Publicize = moduleSettingsForm(
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
+							target="_blank"
+							rel="noopener noreferrer"
 							href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }>
 							{ __( 'Connect your user account to WordPress.com to use this feature' ) }
 						</Card>

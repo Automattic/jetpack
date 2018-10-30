@@ -150,8 +150,6 @@ class The_Neverending_Home_Page {
 								break;
 
 							default:
-								continue;
-
 								break;
 						}
 					}

@@ -2,10 +2,15 @@
 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 
-**Recommended Environment**
+## Before moving forward
+
+In most cases you want to have accessible an WordPress installation for Jetpack development. We suggest to use a `Docker` container which we provide. Follow [this guide](../docker/README.md#to-get-started) to configure your Docker development environment.
+
+**Recommended Environment:**
 
 * Node.js 10
 * Yarn 1.7
+* PHP 7.0 (in case you are running WordPress locally)
 
 ## A note on Node versions used for the build tasks
 
@@ -20,19 +25,17 @@ run this command before building again. Otherwise you may experience errors on t
 $ yarn distclean
 ```
 
-**Start Development**
+### Start Development
 
 1. Make sure you have `git`, `node`, `npm`, and a working WordPress installation.
 2. Clone this repository inside your Plugins directory.
 
-	```
-	$ git clone https://github.com/Automattic/jetpack.git
+	```sh
+	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
 
-3. Install yarn
-
-Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
+3. Install yarn. Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
 4. Make sure the Jetpack plugin is active and run
 
@@ -172,18 +175,18 @@ _There's also a handy `yarn php:lint` that will run `composer php:lint` if you p
 $ yarn php:lint
 ```
 
-### Checking Jetpack's PHP for PHP 5.2 Compatibility
+### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.2
 
 We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.2
 
 ```sh
-$ composer php:5.2-compatibility .
+$ composer php:compatibility .
 ```
 
-_There's also a handy `yarn php:5.2-compatibility` that will run `composer php:5.2-compatibility` if you prefer_.
+_There's also a handy `yarn php:compatibility` that will run `composer php:compatibility` if you prefer_.
 
 ```sh
-$ yarn php:5.2-compatibility .
+$ yarn php:compatibility .
 ```
 
 ### Linting Jetpack's JavaScript
@@ -203,9 +206,48 @@ _If you haven't done it yet, you may need to run `yarn` before `yarn lint` for i
 
 When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
 
-
 ## Developing with docker
 
 We provide a standard installation of WordPress for making Jetpack development easier.
 
 You can read the details in [docker/README.md](../docker/README.md)
+
+## Standard Development/debug Tools
+
+### WP_DEBUG
+
+You should do all Jetpack development with `define( 'WP_DEBUG', true );` in your `wp-config.php`, making sure that you’re not generating any Notices or other PHP issues in your error_log.
+
+### WP-CLI
+
+Jetpack CLI is a command line interface for Jetpack, extending off of wp-cli for WordPress. You can easily modify your installation of Jetpack with a just a few simple commands. All you need is SSH access and a basic understanding of command line tools.
+
+Usage:
+
+* `wp jetpack status [<full>]`
+* `wp jetpack module <list|activate|deactivate|toggle> [<module_name>]`
+* `wp jetpack options <list|get|delete|update> [<option_name>] [<option_value>]`
+* `wp jetpack protect <whitelist> [<ip|ip_low-ip_high|list|clear>]`
+* `wp jetpack reset <modules|options>`
+* `wp jetpack disconnect <blog|user> [<user_identifier>]`
+* `wp jetpack status`
+* `wp jetpack status [<full>]`
+
+More info can be found in [our support documentation](https://jetpack.com/support/jetpack-cli/).
+
+### JETPACK_DEV_DEBUG
+
+`JETPACK_DEV_DEBUG` constant can be used to enable development mode in Jetpack. Add `define( 'JETPACK_DEV_DEBUG', true );` in your `wp-config.php` to enable it. With Development Mode, features that do not require a connection to WordPress.com servers can be activated on a local WordPress installation for testing.
+
+Development mode automatically gets enabled if you don’t have a period in your site’s hostname, i.e. localhost. If you use a different URL, such as mycooltestsite.local, then you will need to define the `JETPACK_DEV_DEBUG` constant.
+
+You can also enable Jetpack’s development mode through a plugin, thanks to the jetpack_development_mode filter:
+
+`add_filter( 'jetpack_development_mode', '__return_true' );`
+
+While in Development Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Development Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
+
+### JETPACK__SANDBOX_DOMAIN
+
+External contributors do not need this constant.
+If you’re working on changes to the WordPress.com/server side of Jetpack, you’ll need to instruct your Jetpack installation to talk to your development server. Refer to internal documentation for detailed instructions.

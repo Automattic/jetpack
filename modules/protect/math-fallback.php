@@ -130,14 +130,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				<span style="vertical-align:super;">
 					<?php echo "$num1 &nbsp; + &nbsp; $num2 &nbsp; = &nbsp;"; ?>
 				</span>
-				<input
-					type="text"
-					id="jetpack_protect_answer"
-					name="jetpack_protect_num"
-					value=""
-					size="2"
-					style="width:30px;height:25px;vertical-align:middle;font-size:13px;"
-					class="input" />
+				<input type="text" id="jetpack_protect_answer" name="jetpack_protect_num" value="" size="2" style="width:30px;height:25px;vertical-align:middle;font-size:13px;" class="input" />
 				<input type="hidden" name="jetpack_protect_answer" value="<?php echo $ans; ?>" />
 			</div>
 		<?php

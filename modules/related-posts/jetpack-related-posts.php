@@ -980,7 +980,7 @@ EOT;
 	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_post_data_for_post( $post_id, $position, $origin ) {
+	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 
 		return array(
@@ -1198,7 +1198,7 @@ EOT;
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
-			$related_posts[] = $this->_get_related_post_data_for_post( $hit['id'], $i, $post_id );
+			$related_posts[] = $this->get_related_post_data_for_post( $hit['id'], $i, $post_id );
 		}
 		return $related_posts;
 	}
@@ -1536,6 +1536,7 @@ EOT;
 
 	/**
 	 * Build an array of Related Posts.
+	 * By default returns cached results that are stored for up to 12 hours.
 	 *
 	 * @since 4.4.0
 	 *

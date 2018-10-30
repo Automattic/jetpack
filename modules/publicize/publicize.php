@@ -107,33 +107,210 @@ abstract class Publicize_Base {
 		// then check meta and publicize based on that. stage 3 implemented on wpcom
 		add_action( 'transition_post_status', array( $this, 'flag_post_for_publicize' ), 10, 3 );
 		add_action( 'save_post', array( &$this, 'save_meta' ), 20, 2 );
+
+		// Default checkbox state for each Connection
+		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
+
+		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 	}
 
+/*
+ * Services: Facebook, Twitter, etc.
+ */
+
 	/**
-	* Functions to be implemented by the extended class (publicize-wpcom or publicize-jetpack)
-	*/
-	abstract function get_connection_id( $connection );
+	 * Get services for the given blog and user.
+	 *
+	 * Can return all available services or just the ones with an active connection.
+	 *
+	 * @param string $filter
+	 *        'all' (default) - Get all services available for connecting
+	 *        'connected'     - Get all services currently connected
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user
+	 * @return array
+	 */
+	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
+
+	/**
+	 * Does the given user have a connection to the service on the given blog?
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user
+	 * @return bool
+	 */
+	function is_enabled( $service_name, $_blog_id = false, $_user_id = false ) {
+		if ( !$_blog_id )
+			$_blog_id = $this->blog_id();
+
+		if ( !$_user_id )
+			$_user_id = $this->user_id();
+
+		$connections = $this->get_connections( $service_name, $_blog_id, $_user_id );
+		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
+	}
+
+	/**
+	 * Generates a connection URL.
+	 *
+	 * This is the URL, which, when visited by the user, starts the authentication
+	 * process required to forge a connection.
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @return string
+	 */
 	abstract function connect_url( $service_name );
-	abstract function disconnect_url( $service_name, $id );
+
+	/**
+	 * Generates a Connection refresh URL.
+	 *
+	 * This is the URL, which, when visited by the user, re-authenticates their
+	 * connection to the service.
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @return string
+	 */
+	abstract function refresh_url( $service_name );
+
+	/**
+	 * Generates a disconnection URL.
+	 *
+	 * This is the URL, which, when visited by the user, breaks their connection
+	 * with the service.
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param string $connection_id Connection ID
+	 * @return string
+	 */
+	abstract function disconnect_url( $service_name, $connection_id );
+
+	/**
+	 * Returns a display name for the Service
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @return string
+	 */
+	public static function get_service_label( $service_name ) {
+		switch ( $service_name ) {
+			case 'linkedin':
+				return 'LinkedIn';
+				break;
+			case 'google_plus':
+				return  'Google+';
+				break;
+			case 'twitter':
+			case 'facebook':
+			case 'tumblr':
+			default:
+				return ucfirst( $service_name );
+				break;
+		}
+	}
+
+/*
+ * Connections: For each Service, there can be multiple connections
+ * for a given user. For example, one user could be connected to Twitter
+ * as both @jetpack and as @wordpressdotcom
+ *
+ * For historical reasons, Connections are represented as an object
+ * on WordPress.com and as an array in Jetpack.
+ */
+
+	/**
+	 * Get the active Connections of a Service
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user
+	 * @return false|object[]|array[] false if no connections exist
+	 */
+	abstract function get_connections( $service_name, $_blog_id = false, $_user_id = false );
+
+	/**
+	 * Get a single Connection of a Service
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param string $connection_id Connection ID
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user
+	 * @return false|object[]|array[] false if no connections exist
+	 */
+	abstract function get_connection( $service_name, $connection_id, $_blog_id = false, $_user_id = false );
+
+	/**
+	 * Get the Connection ID.
+	 *
+	 * Note that this is different than the Connection's uniqueid.
+	 *
+	 * Via a quirk of history, ID is globally unique and unique_id
+	 * is only unique per site.
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return string
+	 */
+	abstract function get_connection_id( $connection );
+
+	/**
+	 * Get the Connection unique_id
+	 *
+	 * Note that this is different than the Connections ID.
+	 *
+	 * Via a quirk of history, ID is globally unique and unique_id
+	 * is only unique per site.
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return string
+	 */
+	abstract function get_connection_unique_id( $connection );
+
+	/**
+	 * Get the Connection's Meta data
+	 *
+	 * @param object|array Connection
+	 * @return array Connection Meta
+	 */
 	abstract function get_connection_meta( $connection );
-	abstract function get_services( $filter = 'all' );
-	abstract function get_connections( $service, $_blog_id = false, $_user_id = false );
-	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
-	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
-	abstract function test_connection( $service_name, $connection );
-	abstract function disconnect( $service, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
-	* Shared Functions
-	*/
+	 * Disconnect a Connection
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param string $connection_id Connection ID
+	 * @param false|int $_blog_id The blog ID. Use false (default) for the current blog
+	 * @param false|int $_user_id The user ID. Use false (default) for the current user
+	 * @param bool $force_delete Whether to skip permissions checks
+	 * @return false|void False on failure. Void on success.
+	 */
+	abstract function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
-	* Returns an external URL to the connection's profile
-	*/
+	 * Globalizes a Connection
+	 *
+	 * @param string $connection_id Connection ID
+	 * @return bool Falsey on failure. Truthy on success.
+	 */
+	abstract function globalize_connection( $connection_id );
+
+	/**
+	 * Unglobalizes a Connection
+	 *
+	 * @param string $connection_id Connection ID
+	 * @return bool Falsey on failure. Truthy on success.
+	 */
+	abstract function unglobalize_connection( $connection_id );
+
+	/**
+	 * Returns an external URL to the Connection's profile
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return false|string False on failure. URL on success.
+	 */
 	function get_profile_link( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
@@ -176,19 +353,14 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	* Returns a display name for the connection
-	*/
+	 * Returns a display name for the Connection
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return string
+	 */
 	function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
-
-		if ( 'facebook' === $service_name ) {
-			if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
-				return $cmeta['connection_data']['meta']['display_name'];
-			}
-
-			return __( 'Connecting...', 'jetpack' );
-
-		}
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
@@ -204,23 +376,13 @@ abstract class Publicize_Base {
 		}
 	}
 
-	public static function get_service_label( $service_name ) {
-		switch ( $service_name ) {
-			case 'linkedin':
-				return 'LinkedIn';
-				break;
-			case 'google_plus':
-				return  'Google+';
-				break;
-			case 'twitter':
-			case 'facebook':
-			case 'tumblr':
-			default:
-				return ucfirst( $service_name );
-				break;
-		}
-	}
-
+	/**
+	 * Whether the user needs to select additional options after connecting
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
 	function show_options_popup( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
@@ -245,33 +407,352 @@ abstract class Publicize_Base {
 		return false;
 	}
 
+	/**
+	 * Whether the Connection is "valid" wrt Facebook's requirements.
+	 *
+	 * Must be connected to a Page (not a Profile).
+	 * (Also returns true if we're in the middle of the connection process)
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
+	function is_valid_facebook_connection( $connection ) {
+		if ( $this->is_connecting_connection( $connection ) ) {
+			return true;
+		}
+		$connection_meta = $this->get_connection_meta( $connection );
+		$connection_data = $connection_meta['connection_data'];
+		return isset( $connection_data[ 'meta' ][ 'facebook_page' ] );
+	}
+
+	/**
+	 * Whether the Connection currently being connected
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
+	function is_connecting_connection( $connection ) {
+		$connection_meta = $this->get_connection_meta( $connection );
+		$connection_data = $connection_meta['connection_data'];
+		return isset( $connection_data[ 'meta' ]['options_responses'] );
+	}
+
+	/**
+	 * AJAX Handler to run connection tests on all Connections
+	 * @return void
+	 */
+	function test_publicize_conns() {
+		$test_results = array();
+
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			foreach ( $connections as $connection ) {
+
+				$id = $this->get_connection_id( $connection );
+
+				$connection_test_passed = true;
+				$connection_test_message = __( 'This connection is working correctly.' , 'jetpack' );
+				$user_can_refresh = false;
+				$refresh_text = '';
+				$refresh_url = '';
+
+				$connection_test_result = true;
+				if ( method_exists( $this, 'test_connection' ) ) {
+					$connection_test_result = $this->test_connection( $service_name, $connection );
+				}
+
+				if ( is_wp_error( $connection_test_result ) ) {
+					$connection_test_passed = false;
+					$connection_test_message = $connection_test_result->get_error_message();
+					$error_data = $connection_test_result->get_error_data();
+
+					$user_can_refresh = $error_data['user_can_refresh'];
+					$refresh_text = $error_data['refresh_text'];
+					$refresh_url = $error_data['refresh_url'];
+				}
+				// Mark facebook profiles as deprecated
+				if ( 'facebook' === $service_name ) {
+					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
+						$connection_test_passed = false;
+						$user_can_refresh = false;
+						$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.' );
+					}
+				}
+
+				$unique_id = null;
+				if ( ! empty( $connection->unique_id ) ) {
+					$unique_id = $connection->unique_id;
+				} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
+					$unique_id = $connection['connection_data']['token_id'];
+				}
+
+				$test_results[] = array(
+					'connectionID'          => $id,
+					'serviceName'           => $service_name,
+					'connectionTestPassed'  => $connection_test_passed,
+					'connectionTestMessage' => esc_attr( $connection_test_message ),
+					'userCanRefresh'        => $user_can_refresh,
+					'refreshText'           => esc_attr( $refresh_text ),
+					'refreshURL'            => $refresh_url,
+					'unique_id'             => $unique_id,
+				);
+			}
+		}
+
+		wp_send_json_success( $test_results );
+	}
+
+	/**
+	 * Run the connection test for the Connection
+	 *
+	 * @param string $service_name 'facebook', 'twitter', etc.
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return WP_Error|true WP_Error on failure. True on success
+	 */
+	abstract function test_connection( $service_name, $connection );
+
+	/**
+	 * Retrieves current list of connections and applies filters.
+	 *
+	 * Retrieves current available connections and checks if the connections
+	 * have already been used to share current post. Finally, the checkbox
+	 * form UI fields are calculated. This function exposes connection form
+	 * data directly as array so it can be retrieved for static HTML generation
+	 * or JSON consumption.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
+	 *
+	 * @return array {
+	 *     Array of UI setup data for connection list form.
+	 *
+	 *     @type string 'unique_id'     ID string representing connection
+	 *     @type string 'service_name'  Slug of the connection's service (facebook, twitter, ...)
+	 *     @type string 'service_label' Service Label (Facebook, Twitter, ...)
+	 *     @type string 'display_name'  Connection's human-readable Username: "@jetpack"
+	 *     @type bool   'enabled'       Default value for the connection (e.g., for a checkbox).
+	 *     @type bool   'done'          Has this connection already been publicized to?
+	 *     @type bool   'toggleable'    Is the user allowed to change the value for the connection?
+	 *     @type bool   'global'        Is this connection a global one?
+	 * }
+	 */
+	public function get_filtered_connection_data( $selected_post_id = null ) {
+		$connection_list = array();
+
+		$post = get_post( $selected_post_id ); // Defaults to current post if $post_id is null.
+		// Handle case where there is no current post.
+		if ( ! empty( $post ) ) {
+			$post_id = $post->ID;
+		} else {
+			$post_id = null;
+		}
+
+		$services = $this->get_services( 'connected' );
+		$all_done = $this->post_is_done_sharing( $post_id );
+
+		// We don't allow Publicizing to the same external id twice, to prevent spam.
+		$service_id_done = (array) get_post_meta( $post_id, $this->POST_SERVICE_DONE, true );
+
+		foreach ( $services as $service_name => $connections ) {
+			foreach ( $connections as $connection ) {
+				$connection_meta = $this->get_connection_meta( $connection );
+				$connection_data = $connection_meta['connection_data'];
+
+				$unique_id = $this->get_connection_unique_id( $connection );
+
+
+				// Was this connection (OR, old-format service) already Publicized to?
+				$done = ! empty( $post ) && (
+					// New flags
+					1 == get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true )
+					||
+					// old flags
+					1 == get_post_meta( $post->ID, $this->POST_DONE . $service_name, true )
+				);
+
+				/**
+				 * Filter whether a post should be publicized to a given service.
+				 *
+				 * @module publicize
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param bool true Should the post be publicized to a given service? Default to true.
+				 * @param int $post_id Post ID.
+				 * @param string $service_name Service name.
+				 * @param array $connection_data Array of information about all Publicize details for the site.
+				 */
+				if ( ! apply_filters( 'wpas_submit_post?', true, $post_id, $service_name, $connection_data ) ) {
+					continue;
+				}
+
+				// Should we be skipping this one?
+				$skip = (
+					(
+						! empty( $post )
+						&&
+						in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
+						&&
+						(
+							// New flags
+							get_post_meta( $post->ID, $this->POST_SKIP . $unique_id, true )
+							||
+							// Old flags
+							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
+						)
+					)
+					||
+					(
+						is_array( $connection )
+						&&
+						isset( $connection_meta['external_id'] ) && ! empty( $service_id_done[ $service_name ][ $connection_meta['external_id'] ] )
+					)
+				);
+
+				// If this one has already been publicized to, don't let it happen again.
+				$toggleable = ! $done && ! $all_done;
+
+				// Determine the state of the checkbox (on/off) and allow filtering.
+				$enabled = $done || ! $skip;
+				/**
+				 * Filter the checkbox state of each Publicize connection appearing in the post editor.
+				 *
+				 * @module publicize
+				 *
+				 * @since 2.0.1
+				 *
+				 * @param bool $enabled Should the Publicize checkbox be enabled for a given service.
+				 * @param int $post_id Post ID.
+				 * @param string $service_name Service name.
+				 * @param array $connection Array of connection details.
+				 */
+				$enabled = apply_filters( 'publicize_checkbox_default', $enabled, $post_id, $service_name, $connection );
+
+				/**
+				 * If this is a global connection and this user doesn't have enough permissions to modify
+				 * those connections, don't let them change it.
+				 */
+				if ( ! $done && ( 0 == $connection_data['user_id'] && ! current_user_can( $this->GLOBAL_CAP ) ) ) {
+					$toggleable = false;
+
+					/**
+					 * Filters the checkboxes for global connections with non-prilvedged users.
+					 *
+					 * @module publicize
+					 *
+					 * @since 3.7.0
+					 *
+					 * @param bool   $enabled Indicates if this connection should be enabled. Default true.
+					 * @param int    $post_id ID of the current post
+					 * @param string $service_name Name of the connection (Facebook, Twitter, etc)
+					 * @param array  $connection Array of data about the connection.
+					 */
+					$enabled = apply_filters( 'publicize_checkbox_global_default', $enabled, $post_id, $service_name, $connection );
+				}
+
+				// Force the checkbox to be checked if the post was DONE, regardless of what the filter does.
+				if ( $done ) {
+					$enabled = true;
+				}
+
+				$connection_list[] = array(
+					'unique_id'     => $unique_id,
+					'service_name'  => $service_name,
+					'service_label' => $this->get_service_label( $service_name ),
+					'display_name'  => $this->get_display_name( $service_name, $connection ),
+
+					'enabled'      => $enabled,
+					'done'         => $done,
+					'toggleable'   => $toggleable,
+					'global'       => 0 == $connection_data['user_id'],
+				);
+			}
+		}
+
+		return $connection_list;
+	}
+
+	/**
+	 * Checks if post has already been shared by Publicize in the past.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
+	 *
+	 * @return bool True if post has already been shared by Publicize, false otherwise.
+	 */
+	abstract public function post_is_done_sharing( $post_id = null );
+
+	/**
+	 * Retrieves full list of available Publicize connection services.
+	 *
+	 * Retrieves current available publicize service connections
+	 * with associated labels and URLs.
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return array {
+	 *     Array of UI service connection data for all services
+	 *
+	 *     @type string 'name'  Name of service.
+	 *     @type string 'label' Display label for service.
+	 *     @type string 'url'   URL for adding connection to service.
+	 * }
+	 */
+	function get_available_service_data() {
+		$available_services     = $this->get_services( 'all' );
+		$available_service_data = array();
+
+		foreach ( $available_services as $service_name => $service ) {
+			$available_service_data[] = array(
+				'name'  => $service_name,
+				'label' => $this->get_service_label( $service_name ),
+				'url'   => $this->connect_url( $service_name ),
+			);
+		}
+
+		return $available_service_data;
+	}
+
+/*
+ * Site Data
+ */
+
 	function user_id() {
-		global $current_user;
-		return $current_user->ID;
+		return get_current_user_id();
 	}
 
 	function blog_id() {
 		return get_current_blog_id();
 	}
 
-	/**
-	* Returns true if a user has a connection to a particular service, false otherwise
-	*/
-	function is_enabled( $service, $_blog_id = false, $_user_id = false ) {
-		if ( !$_blog_id )
-			$_blog_id = $this->blog_id();
-
-		if ( !$_user_id )
-			$_user_id = $this->user_id();
-
-		$connections = $this->get_connections( $service, $_blog_id, $_user_id );
-		return ( is_array( $connections ) && count( $connections ) > 0 ? true : false );
-	}
+/*
+ * Posts
+ */
 
 	/**
-	* Fires when a post is saved, checks conditions and saves state in postmeta so that it
-	* can be picked up later by @see ::publicize_post() on WordPress.com codebase.
-	*/
+	 * Checks old and new status to see if the post should be flagged as
+	 * ready to Publicize.
+	 *
+	 * Attached to the `transition_post_status` filter.
+	 *
+	 * @param string $new_status
+	 * @param string $old_status
+	 * @param WP_Post $post
+	 * @return void
+	 */
+	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
+
+	/**
+	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
+	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 *
+	 * Attached to the `save_post` action.
+	 *
+	 * @param int $post_id
+	 * @param WP_Post $post
+	 * @return void
+	 */
 	function save_meta( $post_id, $post ) {
 		$cron_user = null;
 		$submit_post = true;
@@ -428,6 +909,15 @@ abstract class Publicize_Base {
 		// Next up will be ::publicize_post()
 	}
 
+	/**
+	 * Alters the "Post Published" message to include information about where the post
+	 * was Publicized to.
+	 *
+	 * Attached to the `post_updated_messages` filter
+	 *
+	 * @param string[] $messages
+	 * @return string[]
+	 */
 	public function update_published_message( $messages ) {
 		global $post_type, $post_type_object, $post;
 		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
@@ -454,11 +944,11 @@ abstract class Publicize_Base {
 		}
 
 		$labels = array();
-		foreach ( $services as $service => $display_names ) {
+		foreach ( $services as $service_name => $display_names ) {
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack' ),
-				esc_html( $service ),
+				esc_html( $service_name ),
 				esc_html( implode( ', ', $display_names ) )
 			);
 		}
@@ -489,6 +979,14 @@ abstract class Publicize_Base {
 		return $messages;
 	}
 
+	/**
+	 * Get the Connections the Post was just Publicized to.
+	 *
+	 * Only reliable just after the Post was published.
+	 *
+	 * @param int $post_id
+	 * @return string[] Array of Service display name => Connection display name
+	 */
 	function get_publicizing_services( $post_id ) {
 		$services = array();
 
@@ -513,14 +1011,38 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	* Is a given post type Publicize-able?
-	*
-	* Not every CPT lends itself to Publicize-ation.  Allow CPTs to register by adding their CPT via
-	* the publicize_post_types array filter.
-	*
-	* @param string $post_type The post type to check.
-	* @return bool True if the post type can be Publicized.
-	*/
+	 * Is the post Publicize-able?
+	 *
+	 * Only valid prior to Publicizing a Post.
+	 *
+	 * @param WP_Post $post
+	 * @return bool
+	 */
+	function post_is_publicizeable( $post ) {
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) )
+			return false;
+
+		// This is more a precaution. To only publicize posts that are published. (Mostly relevant for Jetpack sites)
+		if ( 'publish' !== $post->post_status ) {
+			return false;
+		}
+
+		// If it's not flagged as ready, then abort. @see ::flag_post_for_publicize()
+		if ( ! get_post_meta( $post->ID, $this->PENDING, true ) )
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Is a given post type Publicize-able?
+	 *
+	 * Not every CPT lends itself to Publicize-ation.  Allow CPTs to register by adding their CPT via
+	 * the publicize_post_types array filter.
+	 *
+	 * @param string $post_type The post type to check.
+	 * @return bool True if the post type can be Publicized.
+	 */
 	function post_type_is_publicizeable( $post_type ) {
 		if ( 'post' == $post_type )
 			return true;
@@ -528,79 +1050,38 @@ abstract class Publicize_Base {
 		return post_type_supports( $post_type, 'publicize' );
 	}
 
-	function is_valid_facebook_connection( $connection ) {
-		if ( $this->is_connecting_connection( $connection ) ) {
-			return true;
+	/**
+	 * Already-published posts should not be Publicized by default. This filter sets checked to
+	 * false if a post has already been published.
+	 *
+	 * Attached to the `publicize_checkbox_default` filter
+	 *
+	 * @param bool $checked
+	 * @param int $post_id
+	 * @param string $service_name 'facebook', 'twitter', etc
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
+	function publicize_checkbox_default( $checked, $post_id, $service_name, $connection ) {
+		if ( 'publish' == get_post_status( $post_id ) ) {
+			return false;
 		}
-		return isset( $connection['connection_data']['meta']['facebook_page'] );
+
+		return $checked;
 	}
 
-	function is_connecting_connection( $connection ) {
-		return isset( $connection['connection_data']['meta']['options_responses'] );
-	}
+/*
+ * Util
+ */
 
 	/**
-	 * Runs tests on all the connections and returns the results to the caller
+	 * Converts a Publicize message template string into a sprintf format string
+	 *
+	 * @param string[] $args
+	 *               0 - The Publicize message template: 'Check out my post: %title% @ %url'
+	 *             ... - The template tags 'title', 'url', etc.
+	 * @return string
 	 */
-	function test_publicize_conns() {
-		$test_results = array();
-
-		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
-			foreach ( $connections as $connection ) {
-
-				$id = $this->get_connection_id( $connection );
-
-				$connection_test_passed = true;
-				$connection_test_message = __( 'This connection is working correctly.' , 'jetpack' );
-				$user_can_refresh = false;
-				$refresh_text = '';
-				$refresh_url = '';
-
-				$connection_test_result = true;
-				if ( method_exists( $this, 'test_connection' ) ) {
-					$connection_test_result = $this->test_connection( $service_name, $connection );
-				}
-
-				if ( is_wp_error( $connection_test_result ) ) {
-					$connection_test_passed = false;
-					$connection_test_message = $connection_test_result->get_error_message();
-					$error_data = $connection_test_result->get_error_data();
-
-					$user_can_refresh = $error_data['user_can_refresh'];
-					$refresh_text = $error_data['refresh_text'];
-					$refresh_url = $error_data['refresh_url'];
-				}
-
-				// Mark facebook profiles as deprecated
-				if ( 'facebook' === $service_name && ! $this->is_valid_facebook_connection( $connection ) ) {
-					$connection_test_passed = false;
-					$user_can_refresh = false;
-					$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.', 'jetpack');
-				}
-
-				$unique_id = null;
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} else if ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
-				$test_results[] = array(
-					'connectionID'          => $id,
-					'serviceName'           => $service_name,
-					'connectionTestPassed'  => $connection_test_passed,
-					'connectionTestMessage' => esc_attr( $connection_test_message ),
-					'userCanRefresh'        => $user_can_refresh,
-					'refreshText'           => esc_attr( $refresh_text ),
-					'refreshURL'            => $refresh_url,
-					'unique_id'             => $unique_id,
-				);
-			}
-		}
-
-		wp_send_json_success( $test_results );
-	}
-
 	protected static function build_sprintf( $args ) {
 		$search = array();
 		$replace = array();

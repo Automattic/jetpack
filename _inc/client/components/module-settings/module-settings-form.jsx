@@ -61,7 +61,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		};
 
 		resetFormStateOption = ( optionToReset ) => {
-			this.setState( { options: omit( this.state.options, optionToReset ) } );
+			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
 			return true;
 		};
 

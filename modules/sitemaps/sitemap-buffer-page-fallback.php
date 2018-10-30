@@ -44,7 +44,7 @@ class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
 				. "<?xml-stylesheet type='text/xsl' href='{$sitemap_xsl_url}'?>" . PHP_EOL
 				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>',
-				'</urlset>'
+				'</urlset>',
 			);
 
 			$this->byte_capacity -= strlen( join( '', $this->root ) );

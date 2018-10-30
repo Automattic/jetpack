@@ -31,6 +31,7 @@
  * @author Automattic
  */
 
+/* Include all of the sitemap subclasses. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 require_once dirname( __FILE__ ) . '/sitemap-stylist.php';
@@ -50,6 +51,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 class Jetpack_Sitemap_Manager {
 
 	/**
+	 * Librarian object for storing and retrieving sitemap data.
+	 *
 	 * @see Jetpack_Sitemap_Librarian
 	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Librarian $librarian Librarian object for storing and retrieving sitemap data.
@@ -57,6 +60,8 @@ class Jetpack_Sitemap_Manager {
 	private $librarian;
 
 	/**
+	 * Logger object for reporting debug messages.
+	 *
 	 * @see Jetpack_Sitemap_Logger
 	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Logger $logger Logger object for reporting debug messages.
@@ -64,9 +69,11 @@ class Jetpack_Sitemap_Manager {
 	private $logger;
 
 	/**
+	 * Finder object for handling sitemap URIs.
+	 *
 	 * @see Jetpack_Sitemap_Finder
 	 * @since 4.8.0
-	 * @var Jetpack_Sitemap_Finder $finder Finder object for dealing with sitemap URIs.
+	 * @var Jetpack_Sitemap_Finder $finder Finder object for handling with sitemap URIs.
 	 */
 	private $finder;
 
@@ -78,7 +85,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
-		$this->finder = new Jetpack_Sitemap_Finder();
+		$this->finder    = new Jetpack_Sitemap_Finder();
 
 		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
@@ -128,8 +135,6 @@ class Jetpack_Sitemap_Manager {
 			array( $this, 'callback_action_filter_sitemap_location' ),
 			999
 		);
-
-		return;
 	}
 
 	/**
@@ -149,8 +154,15 @@ class Jetpack_Sitemap_Manager {
 		set_query_var( 'feed', 'sitemap' );
 
 		if ( '' === $the_content ) {
+			$error = __( 'No sitemap found. Please try again later.', 'jetpack' );
+			if ( current_user_can( 'manage_options' ) ) {
+				$next = human_time_diff( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+				/* translators: %s is a human_time_diff until next sitemap generation. */
+				$error = sprintf( __( 'No sitemap found. The system will try to build it again in %s.', 'jetpack' ), $next );
+			}
+
 			wp_die(
-				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
+				esc_html( $error ),
 				esc_html__( 'Sitemaps', 'jetpack' ),
 				array(
 					'response' => 404,
@@ -213,12 +225,20 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch master sitemap xml.
 			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
+				$sitemap_content = $this->librarian->get_sitemap_text(
+					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+					JP_MASTER_SITEMAP_TYPE
+				);
+
+				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404
+				if ( empty( $sitemap_content ) ) {
+					$builder = new Jetpack_Sitemap_Builder();
+					$sitemap_content = $builder->empty_sitemap_xml();
+				}
+
 				$this->serve_raw_and_die(
 					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
-						JP_MASTER_SITEMAP_TYPE
-					)
+					$sitemap_content
 				);
 			}
 
@@ -337,9 +357,6 @@ class Jetpack_Sitemap_Manager {
 				);
 			}
 		}
-
-		// URL did not match any sitemap patterns.
-		return;
 	}
 
 	/**
@@ -379,7 +396,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	private function schedule_sitemap_generation() {
 		// Add cron schedule.
-		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) );
+		add_filter( 'cron_schedules', array( $this, 'callback_add_sitemap_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
 		add_action(
 			'jp_sitemap_cron_hook',
@@ -387,8 +404,20 @@ class Jetpack_Sitemap_Manager {
 		);
 
 		if ( ! wp_next_scheduled( 'jp_sitemap_cron_hook' ) ) {
+			/**
+			 * Filter the delay in seconds until sitemap generation cron job is started.
+			 *
+			 * This filter allows a site operator or hosting provider to potentialy spread out sitemap generation for a
+			 * lot of sites over time. By default, it will be randomly done over 15 minutes.
+			 *
+			 * @module sitemaps
+			 * @since 6.6.1
+			 *
+			 * @param int $delay Time to delay in seconds.
+			 */
+			$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * wp_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
 			wp_schedule_event(
-				time(),
+				time() + $delay,
 				'sitemap-interval',
 				'jp_sitemap_cron_hook'
 			);
@@ -414,7 +443,7 @@ class Jetpack_Sitemap_Manager {
 		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
 
 		if ( true === $discover_sitemap ) {
-			$sitemap_url      = $this->finder->construct_sitemap_url( 'sitemap.xml' );
+			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $sitemap_url ) . "\n";
 		}
 
@@ -432,8 +461,6 @@ class Jetpack_Sitemap_Manager {
 			$news_sitemap_url = $this->finder->construct_sitemap_url( 'news-sitemap.xml' );
 			echo 'Sitemap: ' . esc_url( $news_sitemap_url ) . "\n";
 		}
-
-		return;
 	}
 
 	/**
@@ -451,10 +478,14 @@ class Jetpack_Sitemap_Manager {
 	 *
 	 * @access public
 	 * @since 5.3.0
+	 * @since 6.7.0 Schedules a regeneration.
 	 */
 	public function callback_action_purge_data() {
 		$this->callback_action_flush_news_sitemap_cache();
 		$this->librarian->delete_all_stored_sitemap_data();
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		$delay = apply_filters( 'jetpack_sitemap_generation_delay', MINUTE_IN_SECONDS * wp_rand( 1, 15 ) ); // Randomly space it out to start within next fifteen minutes.
+		wp_schedule_single_event( time() + $delay, 'jp_sitemap_cron_hook' );
 	}
 
 	/**
@@ -502,8 +533,6 @@ class Jetpack_Sitemap_Manager {
 				''
 			)
 		);
-
-		return;
 	}
 
 } // End Jetpack_Sitemap_Manager class.

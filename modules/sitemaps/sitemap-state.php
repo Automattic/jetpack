@@ -7,6 +7,7 @@
  * @author Automattic
  */
 
+/* Include standard constants and librarian. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 
@@ -43,7 +44,7 @@ class Jetpack_Sitemap_State {
 	 *     @type array  max           The latest index of each sitemap type seen.
 	 * }
 	 */
-	private static function initial( $type = '' ) {
+	private static function initial( $type = JP_PAGE_SITEMAP_TYPE ) {
 		return array(
 			'sitemap-type'  => $type,
 			'last-added'    => 0,
@@ -75,16 +76,15 @@ class Jetpack_Sitemap_State {
 	 * @access public
 	 * @since 4.8.0
 	 *
-	 * @param array $state {
+	 * @param array $state Array of the Sitemap state details.
 	 *     @type string sitemap-type  The type of sitemap to be generated.
 	 *     @type int    last-added    The largest index to be added to a generated sitemap page.
 	 *     @type int    number        The index of the last sitemap to be generated.
 	 *     @type string last-modified The latest timestamp seen.
-	 * }
 	 */
 	public static function check_in( $state ) {
 		// Get the old max value.
-		$sitemap_old = get_option( 'jetpack-sitemap-state', self::initial() );
+		$sitemap_old  = get_option( 'jetpack-sitemap-state', self::initial() );
 		$state['max'] = $sitemap_old['max'];
 
 		// Update the max value of the current type.

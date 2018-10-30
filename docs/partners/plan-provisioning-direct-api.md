@@ -107,14 +107,21 @@ Plans can be provisioned by making a request using your partner token from the s
 - __force_connect__:  (optional) A true/false value indicating whether to re-connect a user even if we already have tokens for them. Useful for sites that have gotten into a bad state.
 - __onboarding__:     (optional) If true, put the user through our onboarding wizard for new sites.
 - __wpcom_user_id__:  (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively.
-- __wpcom_user_email__: (optional) For certain keys, enables auto-connecting a WordPress.com user to the site non-interactively, and if necessary creating a WordPress.com account.
 
 ### Response Parameters (/provision)
 
+Below, the responses are grouped by whether the call to provision a plan was successful or not.
+
+#### Successful response
+
 - __success__:       (bool) Was the operation successful?.
+- __auth_required__: (bool) Does the user need to authorize the connection on WordPress.com to finish provisioning?
+- __next_url__:      (string) When `auth_required` is true, the URL to redirect the user to in order to finish authorization.
+
+#### Errored response
+
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
-- __auth_required__: (bool) Does the user need to authorize the connection on WordPress.com to finish provisioning?
 
 ### Endpoint Errors (/provision)
 
@@ -216,7 +223,14 @@ Plans can be cancelled by making a request using your partner token from the ste
 
 ### Response Parameters (/partner-cancel)
 
-- __success__:       (bool) Was the operation successful?.
+Below, the response parameters are grouped by whether the request to cancel errored or not.
+
+#### Successful response (/partner-cancel)
+
+- __success__:       (bool) Was the operation successful?. It is possible for success to be false if a plan did not exist for the site.
+
+#### Errored response (/partner-cancel)
+
 - __error_code__:    (string) Error code, if any.
 - __error_message__: (string) Error message, if any.
 

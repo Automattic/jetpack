@@ -85,7 +85,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 					if ( this.props.googleSiteVerificationError ) {
 						const errorMessage = this.props.googleSiteVerificationError.message;
 						analytics.tracks.recordEvent( 'jetpack_site_verification_google_verify_error', {
-							message: errorMessage
+							error_message: errorMessage
 						} );
 						this.props.createNotice(
 							'is-error',
