@@ -165,6 +165,7 @@ class Jetpack_Gutenberg {
 		}
 
 		$rtl = is_rtl() ? '.rtl' : '';
+		$beta = defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ? '-beta' : '';
 
 		/** This filter is already documented above */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
@@ -175,8 +176,6 @@ class Jetpack_Gutenberg {
 			/** This filter is already documented above */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
-			/** This filter is already documented above */
-			$beta = apply_filters( 'jetpack_beta_blocks', false ) ? '-beta' : '';
 			$editor_script = plugins_url( "_inc/blocks/editor{$beta}.js", JETPACK__PLUGIN_FILE );
 			$editor_style  = plugins_url( "_inc/blocks/editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
