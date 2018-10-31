@@ -396,6 +396,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = false;
 			break;
 		case 'url' :
+			if ( is_object( $value ) && isset( $value->url ) && false !== strpos( $value->url, 'https://videos.files.wordpress.com/' ) ) {
+				$value = $value->url;
+			}
+			// Check for string since esc_url_raw() expects one.
+			if ( ! is_string( $value ) ) {
+				break;
+			}
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
