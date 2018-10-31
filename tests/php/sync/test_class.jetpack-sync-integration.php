@@ -66,11 +66,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_starts_full_sync_on_user_authorized() {
-		do_action( 'jetpack_user_authorized', 'abcd1234' );
-		$this->assertTrue( Jetpack_Sync_Modules::get_module( 'full-sync' )->is_started() );
-	}
-
 	function test_sends_updating_jetpack_version_event() {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
