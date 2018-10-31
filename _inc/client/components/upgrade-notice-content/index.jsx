@@ -24,6 +24,13 @@ import analytics from 'lib/analytics';
 
 const UpgradeNoticeContent = moduleSettingsForm(
 	class extends Component {
+		trackLearnMoreClick = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_learn_more',
+				version: this.props.version
+			} );
+		};
+
 		toggleModule = ( name, value ) => {
 			this.props.updateOptions( { [ name ]: ! value } );
 		};
@@ -82,12 +89,14 @@ const UpgradeNoticeContent = moduleSettingsForm(
 				// Track the main toggle switch.
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'on'
+					toggled: 'on',
+					from: 'warm_welcome'
 				} );
 			} else {
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'off'
+					toggled: 'off',
+					from: 'warm_welcome'
 				} );
 			}
 
@@ -95,7 +104,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			if ( this.props.getOptionValue( 'photon' ) !== newPhotonStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon',
-					toggled: ( false === newPhotonStatus ) ? 'off' : 'on'
+					toggled: ( false === newPhotonStatus ) ? 'off' : 'on',
+					from: 'warm_welcome'
 				} );
 			}
 
@@ -103,7 +113,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			if ( this.props.getOptionValue( 'photon-cdn' ) !== newAssetCdnStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon-cdn',
-					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on'
+					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on',
+					from: 'warm_welcome'
 				} );
 			}
 		};
@@ -230,6 +241,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 						<Button
 							primary={ true }
 							href="https://jetpack.com/support/site-accelerator/"
+							onClick={ this.trackLearnMoreClick }
 						>
 							{ __( 'Learn more' ) }
 						</Button>
@@ -254,6 +266,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 JetpackDialogue.propTypes = {
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
+	version: PropTypes.string,
 };
 
 export default connect(

@@ -236,6 +236,7 @@ class JetpackStateNotices extends React.Component {
 				<UpgradeNoticeContent
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
+					version={ versionForUpgradeNotice }
 				/>
 			);
 		}
