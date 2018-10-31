@@ -44,6 +44,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
 
 		return $publicize->get_available_service_data();
 	}
+
 	/**
 	 * Verify that user can publish posts.
 	 *
@@ -60,7 +61,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
 			'invalid_user_permission_publicize',
 			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
 			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
-		);	}
+		);
+	}
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Services' );

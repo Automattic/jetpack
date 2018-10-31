@@ -18,7 +18,6 @@ class WPCOM_REST_API_V2_Endpoint_Get_Post_Publicize_Connections {
 		) );
 	}
 
-
 	/**
 	 * Retrieve current list of connected social accounts for a given post.
 	 *
