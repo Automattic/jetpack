@@ -290,7 +290,7 @@ class Jetpack_SSO_Helpers {
 	 * Default behavior is to connect every SSO request, but if `?connect=0`
 	 * (or another falsy value) then we allow a user to log in without connecting.
 	 *
-	 * @since 6.8
+	 * @since 6.8.0
 	 *
 	 * @return bool
 	 */
