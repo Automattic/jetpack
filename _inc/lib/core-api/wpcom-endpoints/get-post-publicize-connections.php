@@ -12,16 +12,34 @@ class WPCOM_REST_API_V2_Endpoint_Get_Post_Publicize_Connections {
 		register_rest_route( 'wpcom/v2', '/publicize/posts/(?P<post_id>\d+)/connections', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_data' ),
+				'callback'            => array( $this, 'get_publicize_connections_for_post' ),
 				'permission_callback' => __CLASS__ . '::permission_check',
 			),
 		) );
 	}
 
-	public function get_data( $request ) {
+
+	/**
+	 * Retrieve current list of connected social accounts for a given post.
+	 *
+	 * Gets current list of connected accounts and send them as
+	 * JSON encoded data.
+	 *
+	 * @see Publicize::get_filtered_connection_data()
+	 *
+	 * @since 6.7.0
+	 *
+	 * @param WP_REST_Request $request Request instance from REST call.
+	 *
+	 * @return string JSON encoded connection list data.
+	 */
+	public function get_publicize_connections_for_post( $request ) {
 		global $publicize;
-		return $publicize->rest_get_publicize_connections_for_post();
+
+		$post_id = $request['post_id'];
+		return $publicize->get_filtered_connection_data( $post_id );
 	}
+
 	/**
 	 * Verify that user can publish posts.
 	 *
@@ -42,4 +60,3 @@ class WPCOM_REST_API_V2_Endpoint_Get_Post_Publicize_Connections {
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Get_Post_Publicize_Connections' );
-
