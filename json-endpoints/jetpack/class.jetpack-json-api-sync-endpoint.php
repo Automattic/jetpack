@@ -22,6 +22,9 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
 			if ( 'users' === $module_name && isset( $args[ $module_name ] ) && 'initial' === $args[ $module_name ] ) {
 				$modules[ 'users' ] = 'initial';
+			} elseif ( 'posts' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
+				$posts = get_posts();
+				error_log(print_r( $posts, true));
 			} elseif ( isset( $args[ $module_name ] ) ) {
 				$ids = explode( ',', $args[ $module_name ] );
 				if ( count( $ids ) > 0 ) {
