@@ -15,10 +15,10 @@
   },
   "scripts": {
     "watch": "yarn install-if-deps-outdated && ./node_modules/.bin/gulp watch",
-    "clean-client": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html css/",
+    "clean-client": "rm -rf _inc/build/ css/",
     "install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
     "distclean": "rm -rf node_modules && yarn cache clean",
-    "build": "yarn install-if-deps-outdated && yarn build-client",
+    "build": "yarn install-if-deps-outdated && yarn clean-client && yarn build-client",
     "build-client": "gulp",
     "build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
     "build-production": "yarn distclean && yarn && gulp languages:extract && yarn build-production-client",
