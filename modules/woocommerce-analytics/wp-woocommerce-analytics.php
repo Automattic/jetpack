@@ -72,7 +72,7 @@ class Jetpack_WooCommerce_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
-		$analytics = new Jetpack_WooCommerce_Analytics_Universal();
+		self::$analytics = new Jetpack_WooCommerce_Analytics_Universal();
 	}
 
 	/**
