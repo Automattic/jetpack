@@ -3159,6 +3159,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_service_api_service( $service = null ) {
 		$valid_services = array(
 			'googlemaps',
+			'mapbox',
 		);
 		return in_array( $service, $valid_services, true ) ? $service : null;
 	}
@@ -3185,6 +3186,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		switch ( $service ) {
 			case 'googlemaps':
 				$validation = self::validate_service_api_key_googlemaps( $key );
+				break;
+			case 'mapbox':
+				$validation = self::validate_service_api_key_mapbox( $key );
 				break;
 		}
 		return $validation;
@@ -3219,6 +3223,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return array(
 			'status'        => ( 'ok' === strtolower( $json['status'] ) ),
 			'error_message' => ( isset( $json['error_message'] ) ? $json['error_message'] : null ),
+		);
+	}
+
+	/**
+	 * Validate Mapbox API key
+	 * TODO: Implement validation. Currently anything key is accepted.
+	 *
+	 * @param string $key The API key to be validated.
+	 */
+	public static function validate_service_api_key_mapbox( $key ) {
+		return array(
+			'status'        => $key ? true : false,
+			'error_message' => mull,
 		);
 	}
 
