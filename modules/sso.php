@@ -620,14 +620,15 @@ class Jetpack_SSO {
 	}
 
 	static function request_initial_nonce() {
-		$nonce = ! empty( $_COOKIE[ 'jetpack_sso_nonce' ] )
+		$user_id = get_current_user_id();
+		$nonce   = ! empty( $_COOKIE[ 'jetpack_sso_nonce' ] )
 			? $_COOKIE[ 'jetpack_sso_nonce' ]
 			: false;
 
 		if ( ! $nonce ) {
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => get_current_user_id(),
+				'user_id' => Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
 			) );
 			$xml->query( 'jetpack.sso.requestNonce' );
 
@@ -654,12 +655,13 @@ class Jetpack_SSO {
 	 * The function that actually handles the login!
 	 */
 	function handle_login() {
+		$user_id       = get_current_user_id();
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
+			'user_id' => Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
