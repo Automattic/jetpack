@@ -1,93 +1,111 @@
-## 6.6
+## 6.7
 
-### Admin Page
+### Block Editor
 
-We've made some design changes to all the Jetpack settings screens in this release, so all the Jetpack pages share the same design as the main Jetpack dashboard.
+We've made numerous changes to the infrastructure that will provide Jetpack blocks to the new Block editor in WordPress. We've added a first block, for the Markdown feature. You can test it by going to Posts > Add New on your site after installing the Gutenberg plugin, or switching to WordPress 5.0 Beta.
 
-You can test this on different devices and browsers. The following pages were changed:
+Try adding the module to your posts, use it, switch between editing and previewing, and let us know what you think about it.
 
-- Jetpack > Site Stats
-- Jetpack > Site Stats > Configure
-- Jetpack > Debug
-- Jetpack > Debug > All Modules list
-- **Settings > Sharing**
-- On Multisite networks, we have updated Network > Jetpack Sites
-- Still on Multisite, check Network > Jetpack settings
+### Calypsoify
 
-### Verification Tools
+If you are used to manage your site via the WordPress.com interface, you can now click on the "Plugins" link in Calypso and be redirected to a WordPress.com themed Plugins page in your site's dashboard (wp-admin).
 
-We've made a big improvement to the process needed to verify a site with Google. Here are the details steps you can follow to test the new process:
+To test this change, try the following:
 
-1. Open a brand new site ([you can use Jurassic Ninja for this](https://jurassic.ninja/create?jetpack-beta&branch=master&shortlived&wp-debug-log)
-2. Set Up Jetpack and connect to a WordPress.com account.
-3. Choose a Free Plan.
-4. Navigate to `https://[my-site].jurassic.ninja/wp-admin/admin.php?page=jetpack#/traffic`
-5. Scroll to the "Site verification" pane.
-6. Click "auto-verify with Google".
-7. Choose a Google Account and log into it.
-8. Confirm that the Google Site Verification field has a green check marks and the text "Your site is verified with Google".
-9. You should see a link to the Google Search Console, click on it and verify that you can access your site there.
-10. Click the "Edit" button and edit the text field, clear it, and click save.
-11. Navigate to https://www.google.com/webmasters/verification/home and confirm you can see your site.
-12. Click on  "Verification Details" to the right of your site.
-13. Click "Unverify" near the bottom right and "Unverify" in the dialog.
-14. Confirm that the site is removed from the list of properties and that no error appears
-15. Return to `https://[my-site].jurassic.ninja/wp-admin/admin.php?page=jetpack#/traffic` or refresh and confirm that the Google Site Verification field has reverted to its original two button layout. 
+**Pre-testing:**
 
-### Infinite Scroll
+- You must have an active Jetpack connection
+- Open/watch your browser console for errors.
 
-Infinite Scroll was not fully compatible with the Privacy options that were recently added to WordPress. We've fixed that! To test, try the following:
+**Plugins:**
 
-1. Publish a privacy policy page on your site.
-2. Enable infinite scroll.
-3. Scroll down to display the infinite footer.
-4. Confirm that it now includes a link to the privacy policy page.
+- Visit `/wp-admin/plugins.php?calypsoify=1`: see the new skin
+- Visit `/wp-admin/` with no params. Skin should be removed. Note: you can also click to go "back" to Calypso, and then when in Calypso, click "wp-admin".
+- Repeat the above steps after collapsing the WordPress menu
+- Repeat the above steps with multiple admin color schemes
+- Install a few plugins that have settings pages and ensure that they are displaying properly when Claypsoified.
+- Ensure that none of the .js or .css are loading when not Calypsoified in both the admin and front end.
 
-### Lazy Images
+**Gutenberg:**
 
-We've made some changes to the Lazy Images feature in this release. You'll want to make sure none of the images on your site are broken after this release.
+- Install the Gutenberg plugin
+- Visit `wp-admin/post-new.php?calypsoify=1` to view the Calypso skin
+- You should not see the sidebar (It's meant to be a "full screen" experience)
 
-You will want to try to insert images of different sizes, galleries, but also images from other sites via the "insert via URL" option.
+**RTL**
 
-In addition to this, you can make the following tests:
+- Enable an RTL language.
+- Repeat the above testing instructions to ensure everything looks ok
 
-1. Ensure that lazy images module is on
-2. Create a post/page with images in it. You can also test this with other post types. Try for example to create WooCommerce Products with images.
-3. View source on page load and ensure that the placeholder is loaded via the `srcset` attribute
-4. After scrolling down, ensure the image loads properly and the `srcset` attribute now contains the actual images OR the `srcset` attribute has been removed in favor of just using `src`.
+### Site accelerator
 
-### Search
+In Jetpack 6.6 we started beta-testing a new Jetpack feature that allows you to serve a lot of CSS and JS files from the WordPress.com CDN instead of using your site's resources. In Jetpack 6.7, we're removing the Beta label and making that feature available to everyone!
 
-We have made some changes to the Search feature and how it could be enabled in this release. Try starting from a brand new site, with a free plan. Look at the different prompts to upgrade to a Professional plan to get Jetpack Search, and make sure everything looks good.
+To test this, you can go to Jetpack > Settings > Writing in your dashboard and turn the feature on.
 
-Then, try the following:
+- You can choose to speed up both images and static files, thus enabling the image CDN (formerly known as Photon) and the new feature.
+- You can choose to only turn one of the features on.
 
-1. Upgrade to a Professional plan.
-2. Go to https://wordpress.com/settings/traffic/{your site}
-3. Make sure Jetpack Search (bottom of page) is disabled
-4. Go to {your site}/wp-admin/widgets.php
-5. Add the "Search (Jetpack)" widget.
-6. Go back to https://wordpress.com/settings/traffic/{your site} (reload the page)
-7. (Wait a second or two)
-8. See that Jetpack Search is enabled.
+When turning on the file feature, you should see the following:
+
+1. All Jetpack's CSS and JS files are now served from a CDN, using the `c0.wp.com` domain.
+2. All core WordPress CSS and JS files are also served from the CDN.
+3. If you use the WooCommerce plugin on your site, its files should also benefit from the CDN.
+
+You can check your site's source code for that domain once you've activated the feature.
 
 ### Shortcodes
 
-#### MailChimp
+As you may know, [Polldaddy has changed its name to Crowdsignal](https://crowdsignal.com/2018/10/18/introducing-crowdsignal/). We are consequently updating the shortcode and embed methods available in Jetpack to match the new service. From now on, both the old embed methods and the new ones (using the new domains) should work.
 
-Mailchimp updated their newsletter embed code, and the old one does not work anymore.
+To test this, you can try adding polls and surveys to your site using both the old and the new domains. You can create new polls and surveys [here](https://polldaddy.com/dashboard/). Once you've done so, try inserting them into your posts using any of the methods available:
+- By pasting an embed code with some JavaScript.
+- By pasting a URL on its own line in the WordPress editor.
+- By pasting a `[polldaddy]` or `[crowdsignal]` shortcode provided in the "Collect responses" area of your Crowdsignal dashboard.
 
-To test the changes, try the following:
+Try to replace polldaddy by crowdsignal in all the tests you make, and check that both the new and old domains work.
 
-- As an admin, add the new embed code to a new post.
-- As a contributor, add the new embed code to a new post and save your draft. Watch the code convert into a shortcode.
-- Make sure the newsletter pop up appears on your site when you view the post.
-- Make sure no JavaScript errors appear in your browser console.
+We've also made some changes to [the Gist shortcode](https://en.support.wordpress.com/gist/) in this release. It should now be fully compatible with the AMP plugin.
 
-If possible, try to create your own embed code as explained [here](https://jetpack.com/support/extra-sidebar-widgets/mailchimp-subscriber-popup-widget/). If not, here is an example embed code you can add to your post:
+To test this, try installing the AMP plugin on your site (either the current Stable version or [the Beta](https://github.com/Automattic/amp-wp/releases/tag/1.0-RC1-built)), and try adding Gists, using different formats, to one of your posts. Here are some examples:
 
 ```html
-<script type="text/javascript" src="//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us8.list-manage.com","uuid":"be06c2a596db91bfe4099fde8","lid":"08cf5fa008","uniqueMethods":true}) })</script>
+oEmbed: Full gist:
+
+https://gist.github.com/sebastianbenz/1d449dee039202d8b7464f1131eae449
+
+oEmbed: Linking to a file via in a Gist:
+
+https://gist.github.com/sebastianbenz/1d449dee039202d8b7464f1131eae449#file-sw-html
+
+oEmbed: Linking to file without username in URL.
+
+https://gist.github.com/1d449dee039202d8b7464f1131eae449#file-sw-html
+
+Example from WordPress.com docs:
+
+[gist https://gist.github.com/2314628 /]
+
+Second example from WordPress.com docs:
+
+[gist]2314628[/gist]
 ```
+
+### Sitemaps
+
+We've made multiple changes to the Sitemaps feature in this release. To test this:
+
+- Try visiting the Sitemaps right after upgrading.
+- Try deactivating the sitemaps feature, activate it back, and then immediately visit the Sitemaps pages.
+- Under Settings > Reading, set a static front page and a blog page, and check that they both appear in the sitemaps, without being duplicated.
+
+### Twenty Nineteen
+
+This release also includes support for the new default theme, Twenty Nineteen. To test, start by installing the latest version of the theme from [here](https://github.com/WordPress/twentynineteen/archive/master.zip). Then, try to use the following features:
+
+- Add Infinite Scroll support.
+- Support for Responsive Videos. Test this by inserting videos in your posts and seeing them on mobile devices.
+- Add Content Options support for author-bio, blog-display, post-details, and featured-images. You can see those settings under Appearance > Customize > Content Options.
+- Style widgets and shortcodes to match the style of the theme. Try this by adding Jetpack widgets and shortcodes to your site.
 
 **Thank you for all your help!**
