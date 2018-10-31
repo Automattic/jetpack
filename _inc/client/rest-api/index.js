@@ -67,6 +67,10 @@ function JetpackRestApiClient( root, nonce ) {
 		fetchSiteConnectionStatus: () => getRequest( `${ apiRoot }jetpack/v4/connection`, getParams )
 			.then( parseJsonResponse ),
 
+		fetchSiteConnectionTest: () => getRequest( `${ apiRoot }jetpack/v4/connection/test`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
 		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
 			.then( parseJsonResponse ),
 

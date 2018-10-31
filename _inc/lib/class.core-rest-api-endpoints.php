@@ -105,6 +105,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
 
+		// Test current connection status of Jetpack
+		register_rest_route( 'jetpack/v4', '/connection/test', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::jetpack_connection_test',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
 		register_rest_route( 'jetpack/v4', '/rewind', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_rewind_data',
@@ -541,6 +548,43 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	public static function is_site_verified_and_token( $request ) {
+		/**
+		 * Return an error if the site uses a Maintenance / Coming Soon plugin
+		 * and if the plugin is configured to make the site private.
+		 *
+		 * We currently handle the following plugins:
+		 * - https://github.com/mojoness/mojo-marketplace-wp-plugin (used by bluehost)
+		 * - https://wordpress.org/plugins/mojo-under-construction
+		 * - https://wordpress.org/plugins/under-construction-page
+		 * - https://wordpress.org/plugins/ultimate-under-construction
+		 * - https://wordpress.org/plugins/coming-soon
+		 *
+		 * You can handle this in your own plugin thanks to the `jetpack_is_under_construction_plugin` filter.
+		 * If the filter returns true, we will consider the site as under construction.
+		 */
+		$mm_coming_soon                       = get_option( 'mm_coming_soon', null );
+		$under_construction_activation_status = get_option( 'underConstructionActivationStatus', null );
+		$ucp_options                          = get_option( 'ucp_options', array() );
+		$uuc_settings                         = get_option( 'uuc_settings', array() );
+		$csp4                                 = get_option( 'seed_csp4_settings_content', array() );
+		if (
+			( Jetpack::is_plugin_active( 'mojo-marketplace-wp-plugin/mojo-marketplace.php' ) && 'true' === $mm_coming_soon )
+			|| Jetpack::is_plugin_active( 'mojo-under-construction/mojo-contruction.php' ) && 1 == $under_construction_activation_status // WPCS: loose comparison ok.
+			|| ( Jetpack::is_plugin_active( 'under-construction-page/under-construction.php' ) && isset( $ucp_options['status'] ) && 1 == $ucp_options['status'] ) // WPCS: loose comparison ok.
+			|| ( Jetpack::is_plugin_active( 'ultimate-under-construction/ultimate-under-construction.php' ) && isset( $uuc_settings['enable'] ) && 1 == $uuc_settings['enable'] ) // WPCS: loose comparison ok.
+			|| ( Jetpack::is_plugin_active( 'coming-soon/coming-soon.php' ) &&  isset( $csp4['status'] ) && ( 1 == $csp4['status'] || 2 == $csp4['status'] ) ) // WPCS: loose comparison ok.
+			/**
+			 * Allow plugins to mark a site as "under construction".
+			 *
+			 * @since 6.7.0
+			 *
+			 * @param false bool Is the site under construction? Default to false.
+			 */
+			|| true === apply_filters( 'jetpack_is_under_construction_plugin', false )
+		) {
+			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
+		}
+
 		Jetpack::load_xml_rpc_client();
  		$xml = new Jetpack_IXR_Client( array(
  			'user_id' => get_current_user_id(),
@@ -855,6 +899,43 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Test connection status for this Jetpack site. It uses the /jetpack-blogs/%d/test-connection wpcom endpoint.
+	 *
+	 * @since 6.8.0
+	 *
+	 * @return array|WP_Error WP_Error returned if connection test does not succeed. 
+	 */
+	public static function jetpack_connection_test() {
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
+			Jetpack_Client::WPCOM_JSON_API_VERSION
+		);
+
+		if ( is_wp_error( $response ) ) {
+			/* translators: %1$s is the error code, %2$s is the error message */
+			return new WP_Error( 'connection_test_failed', sprintf( __( 'Connection test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() ), array( 'status' => $response->get_error_code() ) );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( ! $body ) {
+			return new WP_Error( 'connection_test_failed', __( 'Connection test failed (empty response body)', 'jetpack' ), array( 'status' => $response->get_error_code() ) );
+		}
+
+		$result = json_decode( $body );
+		$is_connected = (bool) $result->connected;
+		$message = $result->message;
+
+		if ( $is_connected ) {
+			return rest_ensure_response( array(
+				'code' => 'success',
+				'message' => $message,
+			) );
+		} else {
+			return new WP_Error( 'connection_test_failed', $message, array( 'status' => $response->get_error_code() ) );
+		}
 	}
 
 	public static function rewind_data() {

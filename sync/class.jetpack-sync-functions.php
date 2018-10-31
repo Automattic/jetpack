@@ -210,7 +210,7 @@ class Jetpack_Sync_Functions {
 		/**
 		 * Allows overriding of the home_url value that is synced back to WordPress.com.
 		 *
-		 * @since 5.2
+		 * @since 5.2.0
 		 *
 		 * @param string $home_url
 		 */
@@ -223,7 +223,7 @@ class Jetpack_Sync_Functions {
 		/**
 		 * Allows overriding of the site_url value that is synced back to WordPress.com.
 		 *
-		 * @since 5.2
+		 * @since 5.2.0
 		 *
 		 * @param string $site_url
 		 */
