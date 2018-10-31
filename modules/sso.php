@@ -628,7 +628,7 @@ class Jetpack_SSO {
 		if ( ! $nonce ) {
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
+				'user_id' => $user_id && Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
 			) );
 			$xml->query( 'jetpack.sso.requestNonce' );
 
@@ -661,7 +661,7 @@ class Jetpack_SSO {
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
+			'user_id' => $user_id && Jetpack::is_user_connected( $user_id ) ? $user_id : 0,
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
@@ -673,7 +673,8 @@ class Jetpack_SSO {
 		}
 
 		$user_data = (object) $user_data;
-		$user = null;
+		$user      = null;
+		$user_id   = 0;
 
 		/**
 		 * Fires before Jetpack's SSO modifies the log in form.
