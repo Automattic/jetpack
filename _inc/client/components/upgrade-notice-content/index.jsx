@@ -31,6 +31,22 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			} );
 		};
 
+		trackNoticeView = () => {
+			analytics.tracks.recordEvent(
+				'jetpack_warm_welcome_view',
+				{ version: this.props.version }
+			);
+		};
+
+		dismissNotice = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_learn_more',
+				version: this.props.version
+			} );
+
+			return this.props.dismiss;
+		};
+
 		toggleModule = ( name, value ) => {
 			this.props.updateOptions( { [ name ]: ! value } );
 		};
@@ -120,6 +136,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderInnerContent() {
+			this.trackNoticeView();
+
 			const foundPhoton = this.props.isModuleFound( 'photon' );
 			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
 
@@ -256,7 +274,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 					svg={ <img src={ imagePath + 'jetpack-performance.svg' } width="250" alt={ __( "Jetpack's site accelerator" ) } /> }
 					title={ __( 'New in Jetpack!' ) }
 					content={ this.renderInnerContent() }
-					dismiss={ this.props.dismiss }
+					dismiss={ this.dismissNotice }
 				/>
 			);
 		}
