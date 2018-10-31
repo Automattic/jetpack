@@ -99,4 +99,13 @@ We've made multiple changes to the Sitemaps feature in this release. To test thi
 - Try deactivating the sitemaps feature, activate it back, and then immediately visit the Sitemaps pages.
 - Under Settings > Reading, set a static front page and a blog page, and check that they both appear in the sitemaps, without being duplicated.
 
+### Twenty Nineteen
+
+This release also includes support for the new default theme, Twenty Nineteen. To test, start by installing the latest version of the theme from [here](https://github.com/WordPress/twentynineteen/archive/master.zip). Then, try to use the following features:
+
+- Add Infinite Scroll support.
+- Support for Responsive Videos. Test this by inserting videos in your posts and seeing them on mobile devices.
+- Add Content Options support for author-bio, blog-display, post-details, and featured-images. You can see those settings under Appearance > Customize > Content Options.
+- Style widgets and shortcodes to match the style of the theme. Try this by adding Jetpack widgets and shortcodes to your site.
+
 **Thank you for all your help!**

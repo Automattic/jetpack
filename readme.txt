@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Themes: ensure compatibility between Jetpack features and the new WordPress default theme, Twenty Nineteen.
 * AMP: add support for GitHub's Gist shortcodes.
 * PHP 7.3: update Infinite Scroll to avoid PHP warnings when using the latest version of PHP.
 * Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
