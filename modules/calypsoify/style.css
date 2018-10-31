@@ -370,11 +370,29 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 
 #wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus, 
 #wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus, 
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item, 
-#wpadminbar .ab-top-menu > li.hover > .ab-item,
 #wpadminbar .ab-top-menu > li.ab-hover > .ab-item {
 	background: transparent !important;
 }
+
+#wpadminbar .ab-top-menu > li.hover > .ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #0099d8 !important;
+	color: #fff;
+}
+
+#wpadminbar ul li#wp-admin-bar-ab-new-post:hover,
+#wpadminbar ul li#wp-admin-bar-ab-new-post:hover > .ab-item {
+	background: #fff !important;
+	opacity: 1;
+	border-radius: 5px;
+}
+
+
+#wpadminbar ul li#wp-admin-bar-notes.active,
+#wpadminbar ul li#wp-admin-bar-notes.active > .ab-item {
+	background: #004967 !important;
+}
+
 
 #wpadminbar .ab-top-menu > li.my-sites > .ab-item,
 #wpadminbar .ab-top-menu > li.my-sites.hover > .ab-item,
@@ -394,7 +412,7 @@ div#wpadminbar .quicklinks > ul > li#wp-admin-bar-notes > a.ab-item span.noticon
 
 #wpadminbar ul li#wp-admin-bar-ab-new-post a {
 	padding: 6px 20px;
-	color: #0087be !important
+	color: #0087be !important;
 }
 
 #wpadminbar ul li#wp-admin-bar-ab-new-post a span {
