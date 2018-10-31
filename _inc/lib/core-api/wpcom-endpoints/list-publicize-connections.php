@@ -11,16 +11,17 @@ class WPCOM_REST_API_V2_Endpoint_List_publicize_Connections {
 		register_rest_route( 'wpcom/v2', '/publicize/connections', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_data' ),
+				'callback'            => array( $this, 'get_publicize_connections_test_results' ),
 				'permission_callback' => __CLASS__ . '::permission_check',
 			),
 		) );
 	}
 
-	public function get_data( $request ) {
+	public function get_publicize_connections_test_results( $request ) {
 		global $publicize;
 		return $publicize->get_publicize_conns_test_results();
 	}
+
 	/**
 	 * Verify that user can publish posts.
 	 *
@@ -42,4 +43,3 @@ class WPCOM_REST_API_V2_Endpoint_List_publicize_Connections {
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_publicize_Connections' );
-
