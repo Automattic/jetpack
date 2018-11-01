@@ -16,8 +16,6 @@ add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 require_once( 'constants.php' );
 
 require_once( 'footer-credit/footer-credit.php' );
-require_once( 'custom-fonts/custom-fonts.php' );
-require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-colors/colors.php' );
 require_once( 'privacy/participating-plugins.php' );
@@ -158,6 +156,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-cleanfix/index.php' => '"wp-cleanfix" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
+        'nextgen-download-gallery/extgen-download-gallery.php' => '"extgen-download-gallery" is not supported on WordPress.com. If you want to send files to users we recommend using a dedicated file sharing service',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
