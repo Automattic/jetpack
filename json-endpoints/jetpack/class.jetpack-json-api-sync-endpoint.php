@@ -27,7 +27,7 @@ error_log("Modules at the start of result()" .  print_r( $args, true));
 		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
 			if ( 'users' === $module_name && isset( $args[ $module_name ] ) && 'initial' === $args[ $module_name ] ) {
 				$modules[ 'users' ] = 'initial';
-			} elseif ( 'comments' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
+			} elseif ( 1 == 2 && 'comments' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
 				$comments = get_posts();
 				$ids = array();
 				foreach( $comments as $comment ) {
@@ -35,7 +35,7 @@ error_log("Modules at the start of result()" .  print_r( $args, true));
 				}
 				$modules[ $module_name ] = $ids;
 				error_log("here are the comments: " . print_r( $comments, true));
-			} elseif ( 'posts' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
+			} elseif ( 1 == 2 && 'posts' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
 				$posts = get_posts();
 				$ids = array();
 				foreach( $posts as $post ) {
