@@ -33,6 +33,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function start( $module_configs = null ) {
+		error_log("Full sync module start() was called with: " . print_r( $module_configs, true));
 		$was_already_running = $this->is_started() && ! $this->is_finished();
 
 		// remove all evidence of previous full sync items and status
