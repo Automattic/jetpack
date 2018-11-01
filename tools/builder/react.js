@@ -158,8 +158,6 @@ function onBuild( done, err, stats ) {
 export const build = gulp.series( 'react:master' );
 
 function buildStatic( done ) {
-	let path;
-
 	const jsdom = require( 'jsdom' );
 
 	log( 'Building static HTML from built JS…' );
@@ -184,9 +182,13 @@ function buildStatic( done ) {
 		};
 
 		try {
-			path = __dirname + '/../../_inc/build/static.js';
+			// normalize path
+			const path = require.resolve( __dirname + '/../../_inc/build/static.js' );
 
-			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
+			// Making sure NodeJS requires this file every time this is called
+			delete require.cache[ path ];
+
+			// Will throw when `path` does not exist, skipping file generation below that depends on `path`.
 			require( path );
 
 			gulp.src( [ '_inc/build/static*' ] )
