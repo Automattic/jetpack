@@ -241,6 +241,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Get POST body data
 	function input( $return_default_values = true, $cast_and_filter = true ) {
+		error_log("Raw input: " . print_r( $this->api->post_body, true));
 		$input = trim( $this->api->post_body );
 		$content_type = $this->api->content_type;
 		if ( $content_type ) {
