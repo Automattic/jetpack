@@ -156,7 +156,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-cleanfix/index.php' => '"wp-cleanfix" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
-        'nextgen-download-gallery/extgen-download-gallery.php' => '"extgen-download-gallery" is not supported on WordPress.com. If you want to send files to users we recommend using a dedicated file sharing service',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
