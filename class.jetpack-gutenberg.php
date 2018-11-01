@@ -109,7 +109,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return void
 	 */
-	public static function load_assets_as_required( $type ) {
+	public static function load_assets_as_required( $type, $dependencies = null ) {
 		$type = sanitize_title_with_dashes( $type );
 		// Enqueue styles.
 		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
@@ -124,7 +124,7 @@ class Jetpack_Gutenberg {
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, array(), $script_version, false );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $dependencies, $script_version, false );
 		}
 	}
 

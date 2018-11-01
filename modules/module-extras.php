@@ -27,6 +27,7 @@ $tools = array(
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'geo-location.php',
 	'class.jetpack-calypsoify.php',
+	'blocks.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode
