@@ -9,7 +9,12 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 
 	protected function result() {
+		$function = debug_backtrace();
+		$function = $function[1]['function'];
+		error_log("result called by " . $function);
+
 		$args = $this->input();
+		error_log(print_r( $args, true));
 
 		$modules = null;
 
