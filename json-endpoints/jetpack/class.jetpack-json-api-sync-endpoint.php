@@ -23,13 +23,18 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( isset( $args['modules'] ) && ! empty( $args['modules'] ) ) {
 			$modules = array_map( '__return_true', array_flip( array_map( 'trim', explode( ',', $args['modules'] ) ) ) );
 		}
-error_log("Modules at the start of result()" .  print_r( $modules, true));
+error_log("Modules at the start of result()" .  print_r( $args, true));
 		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
 			if ( 'users' === $module_name && isset( $args[ $module_name ] ) && 'initial' === $args[ $module_name ] ) {
 				$modules[ 'users' ] = 'initial';
 			} elseif ( 'posts' === $module_name && isset( $args[ $module_name ] ) && 'all' === $args[ $module_name ] ) {
 				$posts = get_posts();
-				error_log(print_r( $posts, true));
+				$ids = array();
+				foreach( $posts as $post ) {
+					$ids[] = $post->ID;
+				}
+				$modules[ $module_name ] = $ids;
+				error_log("here are the posts: " . print_r( $posts, true));
 			} elseif ( isset( $args[ $module_name ] ) ) {
 				$ids = explode( ',', $args[ $module_name ] );
 				if ( count( $ids ) > 0 ) {
