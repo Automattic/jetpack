@@ -13,6 +13,9 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
+		$functionx = debug_backtrace();
+		$function = $functionx[1]['function'];
+		error_log("Callback was called from " . $function . ' ' . $functionx[2]['function'] . ' ' . $functionx[3]['function']);
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities ) ) ) {
 			return $error;
 		}
