@@ -3147,14 +3147,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Validate Mapbox API key
-	 * TODO: Implement validation. Currently anything key is accepted.
+	 * Based loosely on https://github.com/mapbox/geocoding-example/blob/master/php/MapboxTest.php
 	 *
 	 * @param string $key The API key to be validated.
 	 */
 	public static function validate_service_api_key_mapbox( $key ) {
+		$status          = true;
+		$msg             = null;
+		$mapbox_url      = sprintf(
+			'https://api.mapbox.com?%s',
+			$key
+		);
+		$mapbox_response = wp_safe_remote_get( esc_url_raw( $mapbox_url ) );
+		$mapbox_body     = wp_remote_retrieve_body( $mapbox_response );
+		if ( '{"api":"mapbox"}' !== $mapbox_body ) {
+			$status = false;
+			$msg    = esc_html__( 'Can\'t connect to Mapbox', 'jetpack' );
+			return array(
+				'status'        => $status,
+				'error_message' => $msg,
+			);
+		}
+		$mapbox_geocode_url      = esc_url_raw(
+			sprintf(
+				'https://api.mapbox.com/geocoding/v5/mapbox.places/%s.json?access_token=%s',
+				'1+broadway+new+york+ny+usa',
+				$key
+			)
+		);
+		$mapbox_geocode_response = wp_safe_remote_get( esc_url_raw( $mapbox_geocode_url ) );
+		$mapbox_geocode_body     = wp_remote_retrieve_body( $mapbox_geocode_response );
+		$mapbox_geocode_json     = json_decode( $mapbox_geocode_body );
+		if ( isset( $mapbox_geocode_json->message ) && ! isset( $mapbox_geocode_json->query ) ) {
+			$status = false;
+			$msg    = $mapbox_geocode_json->message;
+		}
 		return array(
-			'status'        => $key ? true : false,
-			'error_message' => mull,
+			'status'        => $status,
+			'error_message' => $msg,
 		);
 	}
 
