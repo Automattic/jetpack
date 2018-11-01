@@ -188,6 +188,8 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_full_sync( $modules = null ) {
+		error_log( "static sync actions do_full_sync()");
+		error_log(print_r( $modules, true));
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}

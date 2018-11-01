@@ -81,6 +81,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_full_sync() {
+		error_log("sender do_full_sync()");
 		if ( ! Jetpack_Sync_Modules::get_module( 'full-sync' ) ) {
 			return;
 		}
