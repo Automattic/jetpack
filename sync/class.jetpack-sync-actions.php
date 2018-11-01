@@ -188,7 +188,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_full_sync( $modules = null ) {
-		error_log( "static sync actions do_full_sync() called by " . debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2)[1]['function']);
+		error_log( "static sync actions do_full_sync() called by " . debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2)[1]['function'] );
 		error_log(print_r( $modules, true));
 		if ( ! self::sync_allowed() ) {
 			return false;
