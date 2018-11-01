@@ -9,11 +9,11 @@
 jetpack_register_block(
 	'map',
 	array(
-		'render_callback' => 'jetpack_map_load_assets',
+		'render_callback' => 'jetpack_map_block_load_assets',
 	)
 );
 
-function jetpack_map_load_assets( $attr, $content ) {
+function jetpack_map_block_load_assets( $attr, $content ) {
 	$dependencies = array(
 		'wp-element',
 		'wp-i18n',
