@@ -669,6 +669,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @covers Publicize::process_publicize_from_rest()
 	 * @since 6.7.0
 	 */
+
+	/*
 	public function test_flag_connection_for_no_share() {
 		// Simulate request to publish the draft post.
 		$new_post              = clone $this->post;
@@ -691,6 +693,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$skip_meta = get_post_meta( $this->post->ID, $this->publicize->POST_SKIP . self::CONNECTION_UID, true );
 		$this->assertEquals( '1', $skip_meta, 'Post skip meta key should be true for request to NOT share post to connection.' );
 	}
+	*/
 
 	/**
 	 * Verifies that 'publicize' field correctly sets up
