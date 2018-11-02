@@ -36,4 +36,4 @@ This endpoint will list out individual activations in a paged method.
 - __site_url__: The site's URL.
 - __site_name__: The site's name.
 - __site_icon__: The site's icon. Can be `null`.
-- __current_product_id__: Always same as `product_id` ?
+- __current_product_id__: Always same as `product_id`
