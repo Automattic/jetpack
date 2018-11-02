@@ -431,12 +431,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_service_api_key',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::update_service_api_key',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::edit_others_posts_check',
 					'args'                => array(
 						'service_api_key' => array(
 							'required' => true,
@@ -447,7 +446,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => __CLASS__ . '::delete_service_api_key',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::edit_others_posts_check',
 				),
 			)
 		);
@@ -864,6 +863,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can edit other's posts (Editors and Administrators).
+	 *
+	 * @return bool Whether user has the capability 'edit_others_posts'.
+	 */
+	public static function edit_others_posts_check() {
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_edit_others_posts', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
