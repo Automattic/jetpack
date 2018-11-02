@@ -231,11 +231,13 @@ class JetpackStateNotices extends React.Component {
 		// Show custom message for upgraded Jetpack
 		const currentVersion = this.props.currentVersion;
 		const versionForUpgradeNotice = /(6\.7).*/;
-		if ( 'modules_activated' === message && currentVersion.match( versionForUpgradeNotice ) ) {
+		const match = currentVersion.match( versionForUpgradeNotice );
+		if ( 'modules_activated' === message && match ) {
 			return (
 				<UpgradeNoticeContent
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
+					version={ match[ '1' ] }
 				/>
 			);
 		}

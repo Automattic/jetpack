@@ -24,6 +24,29 @@ import analytics from 'lib/analytics';
 
 const UpgradeNoticeContent = moduleSettingsForm(
 	class extends Component {
+		componentDidMount() {
+			analytics.tracks.recordEvent(
+				'jetpack_warm_welcome_view',
+				{ version: this.props.version }
+			);
+		}
+
+		trackLearnMoreClick = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_learn_more',
+				version: this.props.version
+			} );
+		};
+
+		dismissNotice = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_dismiss',
+				version: this.props.version
+			} );
+
+			this.props.dismiss();
+		};
+
 		toggleModule = ( name, value ) => {
 			this.props.updateOptions( { [ name ]: ! value } );
 		};
@@ -82,12 +105,14 @@ const UpgradeNoticeContent = moduleSettingsForm(
 				// Track the main toggle switch.
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'on'
+					toggled: 'on',
+					from: 'warm_welcome'
 				} );
 			} else {
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'off'
+					toggled: 'off',
+					from: 'warm_welcome'
 				} );
 			}
 
@@ -95,7 +120,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			if ( this.props.getOptionValue( 'photon' ) !== newPhotonStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon',
-					toggled: ( false === newPhotonStatus ) ? 'off' : 'on'
+					toggled: ( false === newPhotonStatus ) ? 'off' : 'on',
+					from: 'warm_welcome'
 				} );
 			}
 
@@ -103,7 +129,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			if ( this.props.getOptionValue( 'photon-cdn' ) !== newAssetCdnStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon-cdn',
-					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on'
+					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on',
+					from: 'warm_welcome'
 				} );
 			}
 		};
@@ -230,6 +257,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 						<Button
 							primary={ true }
 							href="https://jetpack.com/support/site-accelerator/"
+							onClick={ this.trackLearnMoreClick }
 						>
 							{ __( 'Learn more' ) }
 						</Button>
@@ -244,7 +272,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 					svg={ <img src={ imagePath + 'jetpack-performance.svg' } width="250" alt={ __( "Jetpack's site accelerator" ) } /> }
 					title={ __( 'New in Jetpack!' ) }
 					content={ this.renderInnerContent() }
-					dismiss={ this.props.dismiss }
+					dismiss={ this.dismissNotice }
 				/>
 			);
 		}
@@ -254,6 +282,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 JetpackDialogue.propTypes = {
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
+	version: PropTypes.string,
 };
 
 export default connect(
