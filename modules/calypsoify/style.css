@@ -186,6 +186,12 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 	height: auto;
 }
 
+@media screen and (max-width:782px) {
+	#calypso-sidebar-header ul li#calypso-sitename {
+		width: 150px;
+	}
+}
+
 #calypso-sidebar-header ul li#calypso-plugins {
 	font-weight: bold;
 	color: #2e4453;
