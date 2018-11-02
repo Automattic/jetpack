@@ -214,6 +214,6 @@ class Jetpack_Gutenberg {
 
 		Jetpack::setup_wp_i18n_locale_data();
 
-		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array( 'social-logos' ), $version );
 	}
 }
