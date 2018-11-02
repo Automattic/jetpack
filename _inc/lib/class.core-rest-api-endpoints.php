@@ -916,6 +916,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
+		jetpack_require_lib( 'debugger' );
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
 			Jetpack_Client::WPCOM_JSON_API_VERSION

@@ -225,44 +225,9 @@ class Jetpack_Debugger {
 
 		$debug_info .= "\r\n" . esc_html( 'PROTECT_TRUSTED_HEADER: ' . wp_json_encode( get_site_option( 'trusted_ip_header' ) ) );
 
-		$debug_info    .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
-		$debug_raw_info = '';
+		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 
-		$tests = array();
-
-		$tests['XML']['result'] = ( function_exists( 'xml_parser_create' ) ) ? 'PASS' : false;
-		/* translators: Link to Jetpack Hosting support page. */
-		$tests['XML']['fail_message'] = esc_html__( 'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .', 'jetpack' );
-
-		$tests['HTTP']['result']       = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
-		$tests['HTTP']['fail_message'] = esc_html__( 'Your site isn’t reaching the Jetpack servers.', 'jetpack' );
-
-		$tests['HTTPS']['result']       = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
-		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
-
-		$identity_crisis_message = '';
-		$identity_crisis         = Jetpack::check_identity_crisis();
-		if ( $identity_crisis ) {
-			$identity_crisis_message .= sprintf(
-				/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-				__( 'Your url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`!', 'jetpack' ),
-				$identity_crisis['home'],
-				$identity_crisis['wpcom_home']
-			);
-			$identity_crisis = new WP_Error( 'identity-crisis', $identity_crisis_message, $identity_crisis );
-		} else {
-			$identity_crisis = 'PASS';
-		}
-		$tests['IDENTITY_CRISIS']['result']       = $identity_crisis;
-		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
-
-		$tests['SELF']['result'] = self::run_self_test();
-
-		if ( is_wp_error( $tests['SELF']['result'] ) && 0 == strpos( $tests['SELF']['result']->get_error_message(), 'Operation timed out' ) ) {
-			$tests['SELF']['fail_message'] = esc_html__( 'Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server.', 'jetpack' );
-		} else {
-			$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
-		}
+		$cxntests = new Jetpack_Cxn_Tests();
 
 		?>
 		<div class="wrap">
@@ -270,49 +235,38 @@ class Jetpack_Debugger {
 				<h3><?php esc_html_e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
 				<div class="jetpack-debug-test-container">
 					<?php
-					ob_start();
-					foreach ( $tests as $test_name => $test_info ) :
-						$response_code = wp_remote_retrieve_response_code( $test_info['result'] );
-						if ( 'PASS' !== $test_info['result'] && ( is_wp_error( $test_info['result'] ) ||
-								false === ( $response_code ) ||
-								200 !== intval( $response_code ) ) ) {
-							$debug_info .= $test_name . ": FAIL\r\n";
-							?>
-							<div class="jetpack-test-error">
-							<p>
-								<a class="jetpack-test-heading" href="#"><?php echo esc_html( $test_info['fail_message'] ); ?>
-									<span class="noticon noticon-collapse"></span>
-								</a>
-							</p>
-						<pre class="jetpack-test-details"><?php echo esc_html( $test_name ); ?>:
-							<?php echo esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r ?></pre>
-							</div>
-							<?php
-						} else {
-							$debug_info .= $test_name . ": PASS\r\n";
-						}
-						$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-						?>
-						<?php
-					endforeach;
-					$html = ob_get_clean();
-
-					if ( '' === trim( $html ) ) {
-						echo '<div class="jetpack-tests-succed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
+					if ( $cxntests->pass() ) {
+						echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
+						$debug_info .= "All tests passed.\r\n";
 					} else {
-						echo '<h3>' . esc_html__( 'There seems to be a problem with your site’s ability to communicate with Jetpack!', 'jetpack' ) . '</h3>';
-						echo $html;
+						$failures = $cxntests->list_fails();
+						foreach ( $failures as $test => $fail ) {
+							echo '<div class="jetpack-test-error">';
+							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['message'] );
+							echo '<span class="noticon noticon-collapse"></span></a></p>';
+							echo '<p class="jetpack-test-details">' . esc_html( $fail['resolution'] ) . '</p>';
+							echo '</div>';
+
+							$debug_info .= "$test: " . $fail['message'] . "\r\n";
+						}
 					}
-					$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info . "\r\n";
 					?>
 				</div>
-
 			<div class="entry-content">
 				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
 				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
 				<ol>
-					<?php /* translators: URLs to Jetpack support pages. */ ?>
-					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' ); ?></li>
+					<li><b><em>
+					<?php
+					/* translators: URLs to Jetpack support pages. */
+								esc_html_e( 'A known issue.', 'jetpack' );
+					?>
+								</em></b>  
+								<?php
+								/* translators: URLs to Jetpack support pages. */
+								echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' );
+								?>
+						</li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
 					<li>
 						<b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>
@@ -432,7 +386,7 @@ class Jetpack_Debugger {
 				margin-bottom: 30px;
 			}
 
-			.jetpack-tests-succed {
+			.jetpack-tests-succeed {
 				font-size: large;
 				color: #8BAB3E;
 			}
