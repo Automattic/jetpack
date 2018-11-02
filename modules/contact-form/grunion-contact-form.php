@@ -232,6 +232,110 @@ class Grunion_Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		if ( function_exists( 'register_block_type' ) ) {
+			register_block_type( 'jetpack/form', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+			) );
+
+			// Field render methods.
+			register_block_type( 'jetpack/field-text', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
+			) );
+			register_block_type( 'jetpack/field-name', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
+			) );
+			register_block_type( 'jetpack/field-email', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
+			) );
+			register_block_type( 'jetpack/field-url', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
+			) );
+			register_block_type( 'jetpack/field-date', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
+			) );
+			register_block_type( 'jetpack/field-telephone', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
+			) );
+			register_block_type( 'jetpack/field-textarea', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
+			) );
+			register_block_type( 'jetpack/field-checkbox', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
+			) );
+			register_block_type( 'jetpack/field-checkbox-multiple', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
+			) );
+			register_block_type( 'jetpack/field-radio', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			) );
+			register_block_type( 'jetpack/field-select', array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
+			) );
+		}
+	}
+
+	public static function enqueue_block_editor_assets() {
+		wp_enqueue_script( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.js', __FILE__ ), array(
+			'wp-blocks',
+			'wp-i18n',
+			'wp-element',
+		), filemtime( dirname( __FILE__ ) . '/block/build/editor.js' ) );
+
+		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.css', __FILE__ ), array(
+			'wp-blocks',
+		), filemtime( dirname( __FILE__ ) . '/block/build/editor.css' ) );
+		wp_style_add_data( 'jetpack-cf-gutenblock', 'rtl', 'replace' );
+	}
+
+	public static function gutenblock_render_form( $atts, $content ) {
+		return Grunion_Contact_Form::parse( $atts, $content );
+	}
+
+	public static function gutenblock_render_field_text( $atts, $content ) {
+		$atts['type'] = 'text';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_name( $atts, $content ) {
+		$atts['type'] = 'name';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_email( $atts, $content ) {
+		$atts['type'] = 'email';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_url( $atts, $content ) {
+		$atts['type'] = 'url';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_date( $atts, $content ) {
+		$atts['type'] = 'date';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_telephone( $atts, $content ) {
+		$atts['type'] = 'telephone';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_textarea( $atts, $content ) {
+		$atts['type'] = 'textarea';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox( $atts, $content ) {
+		$atts['type'] = 'checkbox';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
+		$atts['type'] = 'checkbox-multiple';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_radio( $atts, $content ) {
+		$atts['type'] = 'radio';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_select( $atts, $content ) {
+		$atts['type'] = 'select';
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
@@ -1687,7 +1791,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'show_subject'       => 'no', // only used in back-compat mode
 			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
 			'id'                 => null, // Not exposed to the user. Set above.
-			'submit_button_text' => __( 'Submit &#187;', 'jetpack' ),
+			'submit_button_text' => __( 'Submit', 'jetpack' ),
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -2032,7 +2136,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = esc_html( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
-					$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
+					if ( is_array( $val ) ) {
+						$att_strs[] = esc_html( $att ) . '=\'' . implode( ',', array_map( 'esc_html', $val ) ) . '\'';
+					} elseif ( is_bool( $val ) ) {
+						$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ? '1' : '' ) . '\'';
+					} else {
+						$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
+					}
 				}
 			}
 
