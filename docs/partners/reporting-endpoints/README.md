@@ -2,6 +2,13 @@
 
 An alternative to manually using the Jetpack Partner Portal is to query the REST API endpoints that it uses.
 
+## Endpoints
+
+- [Activations List](activations-list.md)
+- [Activations Summary](activations-summary.md)
+- [Past Invoices](invoices-past.md)
+- [Upcoming Invoices](invoices-upcoming.md)
+
 ## Authentication
 
 To retrieve reports via the WordPress.com API, you'll need to authenticate with a bearer token passed via the `Authorization` header. That would look a bit like this:
