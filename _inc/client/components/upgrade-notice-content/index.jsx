@@ -24,6 +24,13 @@ import analytics from 'lib/analytics';
 
 const UpgradeNoticeContent = moduleSettingsForm(
 	class extends Component {
+		componentDidMount() {
+			analytics.tracks.recordEvent(
+				'jetpack_warm_welcome_view',
+				{ version: this.props.version }
+			);
+		}
+
 		trackLearnMoreClick = () => {
 			analytics.tracks.recordJetpackClick( {
 				target: 'warm_welcome_learn_more',
@@ -31,20 +38,13 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			} );
 		};
 
-		trackNoticeView = () => {
-			analytics.tracks.recordEvent(
-				'jetpack_warm_welcome_view',
-				{ version: this.props.version }
-			);
-		};
-
 		dismissNotice = () => {
 			analytics.tracks.recordJetpackClick( {
-				target: 'warm_welcome_learn_more',
+				target: 'warm_welcome_dismiss',
 				version: this.props.version
 			} );
 
-			return this.props.dismiss;
+			this.props.dismiss();
 		};
 
 		toggleModule = ( name, value ) => {
@@ -136,8 +136,6 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderInnerContent() {
-			this.trackNoticeView();
-
 			const foundPhoton = this.props.isModuleFound( 'photon' );
 			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
 
