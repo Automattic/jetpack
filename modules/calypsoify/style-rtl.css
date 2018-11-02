@@ -162,6 +162,34 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 #calypso-sidebar-header ul li#calypso-sitename {
 	font-size: 12px;
 	color: #537994;
+	overflow: hidden;
+	white-space: nowrap;
+	width: 225px;
+}
+
+#calypso-sidebar-header ul li#calypso-sitename:after {
+	content: '';
+	display: block;
+	position: absolute;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	background: linear-gradient(to left, rgba(255,255,255,0), #fff 90%);
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: auto;
+	width: 20%;
+	height: auto;
+}
+
+@media screen and (max-width:782px) {
+	#calypso-sidebar-header ul li#calypso-sitename {
+		width: 150px;
+	}
 }
 
 #calypso-sidebar-header ul li#calypso-plugins {

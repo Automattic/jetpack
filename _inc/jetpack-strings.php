@@ -517,8 +517,6 @@ __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:185
 __( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:131
 __( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:131
-__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:47
-__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:48
 __( "Welcome to Jetpack", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:24
 __( "Hassle-free design, marketing, and security for your WordPress site. Connect Jetpack to a WordPress.com account to start building your own success story.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:29
 __( "WordPress themes and customization tools for designing your site.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:36
@@ -560,6 +558,8 @@ __( "Guard your site against brute force login attacks, spam, and harmfulmalware
 __( "Backup and restore", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:191
 __( "Automatic, real-time backups mean your entire site is always ready to be restored.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:195
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:209
+__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:47
+__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:48
 __( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:44
 __( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:48
 __( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:52
@@ -692,17 +692,17 @@ __( "{{p}}To create a beautiful site that looks and works exactly how you want i
 __( "{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:71
 __( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:87
 __( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:93
-__( "This release of Jetpack brings with it a major new free feature!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:165
-__( "Speed up your site and its content", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:169
-__( "Jetpack 6.7 introduces a new feature to help make your site faster. Our site accelerator already offered speedier and optimized images served from our global Content Delivery Network. Now we can also speed up your site by serving your static files (think CSS and JavaScript) from the same network.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:173
-__( "Turn on one or both and see decreased page load speeds, as well as reduced bandwidth usage—which may lead to lower hosting costs.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:180
-__( "Enable site acceleration now by clicking the toggle below.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:186
-__( "Enable site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:199
-__( "Speed up image load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:211
-__( "Speed up static file load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:222
-__( "Learn more", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:234
-__( "Jetpack's site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:244
-__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:245
+__( "This release of Jetpack brings with it a major new free feature!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:192
+__( "Speed up your site and its content", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:196
+__( "Jetpack 6.7 introduces a new feature to help make your site faster. Our site accelerator already offered speedier and optimized images served from our global Content Delivery Network. Now we can also speed up your site by serving your static files (think CSS and JavaScript) from the same network.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:200
+__( "Turn on one or both and see decreased page load speeds, as well as reduced bandwidth usage—which may lead to lower hosting costs.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:207
+__( "Enable site acceleration now by clicking the toggle below.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:213
+__( "Enable site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:226
+__( "Speed up image load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:238
+__( "Speed up static file load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:249
+__( "Learn more", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:262
+__( "Jetpack's site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:272
+__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:273
 __( "Security", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:16
 __( "Your Jetpack plan gives you everything you need to keep your hard work safe, including on-demand backups and malware scans with one-click restores and issue resolution. Your site will be fully protected against spam, malicious code, and brute force login attempts.", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:18
 __( "Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and scanning for security threats.", "jetpack" ), // _inc/client/components/welcome-new-plan/personal.jsx:29
