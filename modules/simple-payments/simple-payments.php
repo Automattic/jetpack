@@ -299,7 +299,7 @@ class Jetpack_Simple_Payments {
 		register_meta( 'post', 'spay_price', array(
 			'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
 			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'absint',
+			'sanitize_callback' => array( $this, 'sanitize_price' ),
 			'show_in_rest'      => true,
 			'single'            => true,
 			'type'              => 'number',
@@ -308,7 +308,7 @@ class Jetpack_Simple_Payments {
 		register_meta( 'post', 'spay_currency', array(
 			'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
 			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => array( $this, 'sanitize_currency' ),
 			'show_in_rest'      => true,
 			'single'            => true,
 			'type'              => 'string',
@@ -357,6 +357,62 @@ class Jetpack_Simple_Payments {
 			'single'            => true,
 			'type'              => 'string',
 		) );
+	}
+
+	/**
+	 * Sanitize three-character ISO-4217 Simple payments currency
+	 *
+	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+	 *
+	 * List has to be in sync with list at the client side:
+	 * @link https://github.com/Automattic/wp-calypso/blob/6d02ffe73cc073dea7270a22dc30881bff17d8fb/client/lib/simple-payments/constants.js
+	 */
+	public function sanitize_currency( $currency ) {
+		$valid_currencies = array(
+			'USD',
+			'EUR',
+			'AUD',
+			'BRL',
+			'CAD',
+			'CZK',
+			'DKK',
+			'HKD',
+			'HUF',
+			'ILS',
+			'JPY',
+			'MYR',
+			'MXN',
+			'TWD',
+			'NZD',
+			'NOK',
+			'PHP',
+			'PLN',
+			'GBP',
+			'RUB',
+			'SGD',
+			'SEK',
+			'CHF',
+			'THB',
+		);
+
+		return in_array( $currency, $valid_currencies ) ? $currency : false;
+	}
+
+	/**
+	 * Sanitize price:
+	 *
+	 * Positive integers and floats
+	 * Supports two decimal places.
+	 * Maximum length: 10.
+	 *
+	 * See `price` from PayPal docs:
+	 * @link https://developer.paypal.com/docs/api/orders/v1/#definition-item
+	 *
+	 * @param      $value
+	 * @return null|string
+	 */
+	public static function sanitize_price( $price ) {
+		return preg_match( '/^[0-9]{0,10}(\.[0-9]{0,2})?$/', $price ) ? $price : false;
 	}
 
 	/**
