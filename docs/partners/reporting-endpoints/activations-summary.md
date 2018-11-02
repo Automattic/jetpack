@@ -1,6 +1,6 @@
 # Get A Summary Of Your Activations
 
-This is the endpoint used to make the graph in the [Jetpack Partner Portal](#).
+This is the endpoint used to make the graph in the Jetpack Partner Portal.
 
 ### Endpoint Information
 

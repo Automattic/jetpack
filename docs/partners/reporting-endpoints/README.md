@@ -1,6 +1,6 @@
 # Partners REST API Endpoint Documentation
 
-An alternative to manually using the [Jetpack Partner Portal](#) is to query the REST API endpoints that it uses.
+An alternative to manually using the Jetpack Partner Portal is to query the REST API endpoints that it uses.
 
 ## Authentication
 
