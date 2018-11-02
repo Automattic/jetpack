@@ -3170,7 +3170,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function validate_service_api_service( $service = null ) {
 		$valid_services = array(
-			'googlemaps',
 			'mapbox',
 		);
 		return in_array( $service, $valid_services, true ) ? $service : null;
@@ -3196,46 +3195,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_service_api_key( $key = null, $service = null ) {
 		$validation = false;
 		switch ( $service ) {
-			case 'googlemaps':
-				$validation = self::validate_service_api_key_googlemaps( $key );
-				break;
 			case 'mapbox':
 				$validation = self::validate_service_api_key_mapbox( $key );
 				break;
 		}
 		return $validation;
-	}
-
-	/**
-	 * Validate Google Maps API key
-	 *
-	 * @param string $key The API key to be validated.
-	 */
-	public static function validate_service_api_key_googlemaps( $key = null ) {
-		$address = '1+broadway+new+york+ny+usa';
-		$path    = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&input=' . $address;
-		$path    = add_query_arg(
-			'key',
-			$key,
-			$path
-		);
-		$result  = wp_safe_remote_get(
-			esc_url_raw( $path, null, null )
-		);
-		if ( is_wp_error( $result ) ) {
-			return array(
-				'status'        => false,
-				'error_message' => $result->error_message(),
-			);
-		}
-		$json = json_decode(
-			wp_remote_retrieve_body( $result ),
-			true
-		);
-		return array(
-			'status'        => ( 'ok' === strtolower( $json['status'] ) ),
-			'error_message' => ( isset( $json['error_message'] ) ? $json['error_message'] : null ),
-		);
 	}
 
 	/**
