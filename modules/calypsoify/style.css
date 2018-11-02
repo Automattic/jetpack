@@ -375,6 +375,7 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 	-webkit-box-shadow: none;
 	-mozilla-box-shadow: none;
 	height: 46px;
+	position: fixed;
 }
 
 #wpadminbar .ab-top-menu > li > .ab-item {
