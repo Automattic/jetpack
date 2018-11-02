@@ -214,9 +214,9 @@ class Grunion_Contact_Form_Plugin {
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] )
-		&&
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' == $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] )
 		) {
 			add_action( 'template_redirect', array( $this, 'process_form_submission' ) );
@@ -233,7 +233,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		if ( function_exists( 'register_block_type' ) ) {
 			register_block_type( 'jetpack/form', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
@@ -276,18 +275,6 @@ class Grunion_Contact_Form_Plugin {
 		}
 	}
 
-	public static function enqueue_block_editor_assets() {
-		wp_enqueue_script( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.js', __FILE__ ), array(
-			'wp-blocks',
-			'wp-i18n',
-			'wp-element',
-		), filemtime( dirname( __FILE__ ) . '/block/build/editor.js' ) );
-
-		wp_enqueue_style( 'jetpack-cf-gutenblock', plugins_url( 'block/build/editor.css', __FILE__ ), array(
-			'wp-blocks',
-		), filemtime( dirname( __FILE__ ) . '/block/build/editor.css' ) );
-		wp_style_add_data( 'jetpack-cf-gutenblock', 'rtl', 'replace' );
-	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
 		return Grunion_Contact_Form::parse( $atts, $content );
@@ -773,12 +760,12 @@ class Grunion_Contact_Form_Plugin {
 		// so this inline JS moves it from the top of the page to the bottom.
 		?>
 		<script type='text/javascript'>
-		var menu = document.getElementById( 'feedback-export' ),
-		wrapper = document.getElementsByClassName( 'wrap' )[0];
-		<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
-		wrapper.appendChild(menu);
-		<?php endif; ?>
-		menu.style.display = 'block';
+            var menu = document.getElementById( 'feedback-export' ),
+                wrapper = document.getElementsByClassName( 'wrap' )[0];
+			<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
+            wrapper.appendChild(menu);
+			<?php endif; ?>
+            menu.style.display = 'block';
 		</script>
 		<?php
 	}
@@ -1024,7 +1011,7 @@ class Grunion_Contact_Form_Plugin {
 					$messages[] = esc_html( $prevention_message );
 				} else {
 					$messages[] = sprintf(
-						// translators: %d: Post ID.
+					// translators: %d: Post ID.
 						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
 						$post_id
 					);
@@ -1040,7 +1027,7 @@ class Grunion_Contact_Form_Plugin {
 			} else {
 				$retained   = true;
 				$messages[] = sprintf(
-					// translators: %d: Post ID.
+				// translators: %d: Post ID.
 					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
 					$post_id
 				);
@@ -1927,9 +1914,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $_GET['contact-form-id'] )
-			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
+		     && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
+		     && isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+		     && hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -2170,9 +2157,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if (
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
-		&&
+			&&
 			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
@@ -2339,7 +2326,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field          = $this->fields[ $field_ids['name'] ];
 			$comment_author = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
 				)
 			);
@@ -2350,7 +2337,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field                = $this->fields[ $field_ids['email'] ];
 			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
 				)
 			);
@@ -2361,7 +2348,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field              = $this->fields[ $field_ids['url'] ];
 			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
 				)
 			);
@@ -2496,7 +2483,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
-					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
+		           'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
 
 		// Build feedback reference
 		$feedback_time  = current_time( 'mysql' );
@@ -2770,8 +2757,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$html_message = sprintf(
-			// The tabs are just here so that the raw code is correctly formatted for developers
-			// They're removed so that they don't affect the final message sent to users
+		// The tabs are just here so that the raw code is correctly formatted for developers
+		// They're removed so that they don't affect the final message sent to users
 			str_replace(
 				"\t", '',
 				'<!doctype html>
@@ -3054,16 +3041,16 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		} elseif (
 			is_user_logged_in() &&
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-			/**
-			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.2.0
-			 *
-			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			 */
-			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			  /**
+			   * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+			   *
+			   * @module contact-form
+			   *
+			   * @since 3.2.0
+			   *
+			   * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+			   */
+			  true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 			)
 		) {
 			// Special defaults for logged-in users
@@ -3247,7 +3234,7 @@ function grunion_delete_old_spam() {
 		 *
 		 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 		 */
-		apply_filters( 'grunion_optimize_table', false )
+	apply_filters( 'grunion_optimize_table', false )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
