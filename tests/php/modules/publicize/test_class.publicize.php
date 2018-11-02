@@ -669,7 +669,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @covers Publicize::process_publicize_from_rest()
 	 * @since 6.7.0
 	 */
-
 	/*
 	public function test_flag_connection_for_no_share() {
 		// Simulate request to publish the draft post.
