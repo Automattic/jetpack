@@ -537,7 +537,10 @@ class Jetpack_Beta {
 			return $manifest->{$section}->version;
 		}
 
-		if ( isset( $manifest->{$section}->{$branch}->version ) ) {
+		if ( isset( $manifest->{$section} ) &&
+		     isset( $manifest->{$section}->{$branch} ) &&
+		     isset( $manifest->{$section}->{$branch}->version )
+		   ) {
 			return $manifest->{$section}->{$branch}->version;
 		}
 		return 0;
