@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Featured Content: no longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
 * Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
 * Likes: ensure that the Likes column is accessible.
+* REST API: Ensure only strings as escaped as URLs.
 * Search: avoid PHP warning with Search widget.
 * Sharing: improve accessibility of email sharing button.
 * Simple Payments / Widget Visibility: avoid potential Fatal errors on some specific server configurations when updating Jetpack.
