@@ -110,7 +110,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return void
 	 */
-	public static function load_assets_as_required( $type, $script_dependencies = null ) {
+	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
 		$type = sanitize_title_with_dashes( $type );
 		// Enqueue styles.
 		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
