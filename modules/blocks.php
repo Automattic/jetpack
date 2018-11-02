@@ -13,6 +13,14 @@ jetpack_register_block(
 	)
 );
 
+/**
+ * Map block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the map block attributes.
+ * @param string $content - String containing the map block content.
+ *
+ * @return string
+ */
 function jetpack_map_block_load_assets( $attr, $content ) {
 	$dependencies = array(
 		'wp-element',
