@@ -7142,8 +7142,10 @@ p {
 			}
 			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
 
+			// Do not used the cache result in wp-admin or REST API requests if the key isn't valid, in case someone is actively renewing, etc.
+			$recheck = ( ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && 'valid' !== $cached_key_verification ) ? true : false;
 			// We cache the result of the Akismet key verification for ten minutes.
-			if ( $cached_key_verification ) {
+			if ( $cached_key_verification && ! $recheck ) {
 				$akismet_key_state = $cached_key_verification;
 			} else {
 				$akismet_key_state = Akismet::verify_key( $akismet_key );
