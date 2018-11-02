@@ -293,3 +293,10 @@
 	}
 }
 
+/**
+ * Content Options
+ */
+.twentynineteen-customizer .entry .entry-meta > span,
+.twentynineteen-customizer .entry .entry-footer > span {
+	display: inline;
+}

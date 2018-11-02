@@ -108,3 +108,19 @@ function twentynineteen_override_post_thumbnail( $width ) {
 	}
 }
 add_filter( 'twentynineteen_can_show_post_thumbnail', 'twentynineteen_override_post_thumbnail', 10, 2 );
+
+/**
+ * Adds custom classes to the array of body classes.
+ *
+ * @param array $classes Classes for the body element.
+ * @return array
+ */
+function twentynineteen_jetpack_body_classes( $classes ) {
+	// Adds a class if we're in the Customizer
+	if ( is_customize_preview() ) :
+		$classes[] = 'twentynineteen-customizer';
+	endif;
+
+	return $classes;
+}
+add_filter( 'body_class', 'twentynineteen_jetpack_body_classes' );
