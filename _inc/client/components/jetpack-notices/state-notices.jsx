@@ -16,6 +16,7 @@ import {
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription
 } from 'state/jetpack-notices';
+import { isUnavailableInDevMode } from 'state/connection';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
 import { getSiteAdminUrl } from 'state/initial-state';
@@ -229,10 +230,15 @@ class JetpackStateNotices extends React.Component {
 
 		// Show custom message for upgraded Jetpack
 		const currentVersion = this.props.currentVersion;
-		const versionForUpgradeNotice = /(5\.8).*/;
-		if ( 'modules_activated' === message && currentVersion.match( versionForUpgradeNotice ) ) {
+		const versionForUpgradeNotice = /(6\.7).*/;
+		const match = currentVersion.match( versionForUpgradeNotice );
+		if ( 'modules_activated' === message && match ) {
 			return (
-				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } adminUrl={ this.props.adminUrl } />
+				<UpgradeNoticeContent
+					dismiss={ this.dismissJetpackStateNotice }
+					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
+					version={ match[ '1' ] }
+				/>
 			);
 		}
 
@@ -271,6 +277,7 @@ export default connect(
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
 			adminUrl: getSiteAdminUrl( state ),
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 		};
 	}
 )( JetpackStateNotices );

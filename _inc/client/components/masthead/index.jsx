@@ -14,6 +14,7 @@ import analytics from 'lib/analytics';
  */
 import { getSiteConnectionStatus, getSandboxDomain } from 'state/connection';
 import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
+import { fetchSiteConnectionTest } from 'state/connection';
 
 export class Masthead extends React.Component {
 	static defaultProps = {
@@ -41,12 +42,22 @@ export class Masthead extends React.Component {
 		} );
 	};
 
+	testConnection = () => {
+		return this.props.testConnection();
+	};
+
 	render() {
 		const devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>Dev Mode</code>
 			: '',
 			sandboxedBadge = this.props.sandboxDomain
-				? <code id="sandbox-domain-badge" title={ this.props.sandboxDomain }>API Sandboxed</code>
+				? <code
+					id="sandbox-domain-badge"
+					onClick={ this.testConnection }
+					onKeyDown={ this.testConnection }
+					role="button"
+					tabIndex={ 0 }
+					title={ `Sandboxing via ${ this.props.sandboxDomain }. Click to test connection.` }>API Sandboxed</code>
 				: '',
 			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/plans' ], this.props.route.path ),
 			isStatic = '' === this.props.route.path;
@@ -109,6 +120,11 @@ export default connect(
 			sandboxDomain: getSandboxDomain( state ),
 			currentVersion: getCurrentVersion( state ),
 			userCanEditPosts: userCanEditPosts( state )
+		};
+	},
+	dispatch => {
+		return {
+			testConnection: () => dispatch( fetchSiteConnectionTest() )
 		};
 	}
 )( Masthead );

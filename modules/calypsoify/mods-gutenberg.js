@@ -1,24 +1,23 @@
-/* global calypsoifyGutenberg */
+/* eslint-disable no-var */
+/* global wp, calypsoifyGutenberg */
+
 jQuery( function( $ ) {
+	if ( wp && wp.data && wp.data.select && ! wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ) ) {
+		wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' );
+	}
+
 	var editPostHeaderInception = setInterval( function() {
-		var $editPostHeader = $( '.edit-post-header' );
-		if ( $editPostHeader.length < 1 ) {
+		var $closeButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
+		if ( $closeButton.length < 1 ) {
 			return;
 		}
 		clearInterval( editPostHeaderInception );
 
-		$( '<button/>', {
-			'class': 'editor-ground-control__back',
-			html: calypsoifyGutenberg.closeLabel
-		} )
-		.bind( 'click', function() {
-			window.location.href = calypsoifyGutenberg.closeUrl;
-		} )
-		.prependTo( $editPostHeader );
+		$closeButton.attr( 'href', calypsoifyGutenberg.closeUrl );
 	} );
 
 	$( 'body.revision-php a' ).each( function() {
 		var href = $( this ).attr( 'href' );
 		$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
-	}, 300 );
+	} );
 } );
