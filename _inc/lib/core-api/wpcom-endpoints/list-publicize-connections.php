@@ -2,7 +2,7 @@
 /**
  * Publicize: get connection list data for current user.
  */
-class WPCOM_REST_API_V2_Endpoint_List_publicize_Connections {
+class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -42,4 +42,4 @@ class WPCOM_REST_API_V2_Endpoint_List_publicize_Connections {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_publicize_Connections' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections' );
