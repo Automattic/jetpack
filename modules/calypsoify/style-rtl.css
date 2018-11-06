@@ -375,6 +375,7 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 	-webkit-box-shadow: none;
 	-mozilla-box-shadow: none;
 	height: 46px;
+	position: fixed;
 }
 
 #wpadminbar .ab-top-menu > li > .ab-item {
@@ -399,11 +400,33 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 
 #wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus, 
 #wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus, 
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item, 
-#wpadminbar .ab-top-menu > li.hover > .ab-item,
 #wpadminbar .ab-top-menu > li.ab-hover > .ab-item {
 	background: transparent !important;
 }
+
+#wpadminbar .ab-top-menu > li.hover > .ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #0099d8 !important;
+	color: #fff;
+}
+
+#wpadminbar ul li#wp-admin-bar-ab-new-post {
+	border-radius: 3px;
+}
+
+#wpadminbar ul li#wp-admin-bar-ab-new-post:hover,
+#wpadminbar ul li#wp-admin-bar-ab-new-post:hover > .ab-item {
+	background: #fff !important;
+	opacity: 1;
+	border-radius: 3px !important;
+}
+
+
+#wpadminbar ul li#wp-admin-bar-notes.active,
+#wpadminbar ul li#wp-admin-bar-notes.active > .ab-item {
+	background: #004967 !important;
+}
+
 
 #wpadminbar .ab-top-menu > li.my-sites > .ab-item,
 #wpadminbar .ab-top-menu > li.my-sites.hover > .ab-item,
@@ -422,8 +445,8 @@ div#wpadminbar .quicklinks > ul > li#wp-admin-bar-notes > a.ab-item span.noticon
 }
 
 #wpadminbar ul li#wp-admin-bar-ab-new-post a {
-	padding: 6px 20px;
-	color: #0087be !important
+	padding: 6px 15px;
+	color: #0087be !important;
 }
 
 #wpadminbar ul li#wp-admin-bar-ab-new-post a span {
@@ -431,8 +454,8 @@ div#wpadminbar .quicklinks > ul > li#wp-admin-bar-notes > a.ab-item span.noticon
 	font-size: 14px !important;
 }
 
-#wpadminbar ul li#wp-admin-bar-ab-new-post a:before, #wpadminbar ul li#wp-admin-bar-ab-new-post a:after {
-	filter: brightness(4);
+#wpadminbar ul li#wp-admin-bar-ab-new-post a:before {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMCIgZmlsbD0ibm9uZSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ii8+PGc+PHBhdGggZmlsbD0iIzAwODdiZSIgZD0iTTIxIDE0djVjMCAxLjEwNS0uODk1IDItMiAySDVjLTEuMTA1IDAtMi0uODk1LTItMlY1YzAtMS4xMDUuODk1LTIgMi0yaDV2Mkg1djE0aDE0di01aDJ6Ii8+PHBhdGggZmlsbD0iIzAwODdiZSIgZD0iTTIxIDdoLTRWM2gtMnY0aC00djJoNHY0aDJWOWg0Ii8+PC9nPjwvc3ZnPg==) !important;
 }
 
 #wpadminbar li#wp-admin-bar-blog.menupop > .ab-sub-wrapper,
