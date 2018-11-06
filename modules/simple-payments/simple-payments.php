@@ -340,15 +340,6 @@ class Jetpack_Simple_Payments {
 			'type'              => 'string',
 		) );
 
-		register_meta( 'post', 'spay_formatted_price', array(
-			'description'       => esc_html__( 'Simple payments; formatted price.', 'jetpack' ),
-			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'sanitize_text_field',
-			'show_in_rest'      => true,
-			'single'            => true,
-			'type'              => 'string',
-		) );
-
 		register_meta( 'post', 'spay_status', array(
 			'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
 			'object_subtype'    => self::$post_type_product,
