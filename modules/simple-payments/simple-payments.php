@@ -22,7 +22,7 @@ class Jetpack_Simple_Payments {
 	static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->register_init_hook();
+			self::$instance->register_init_hooks();
 		}
 		return self::$instance;
 	}
@@ -38,7 +38,7 @@ class Jetpack_Simple_Payments {
 		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 
-	private function register_init_hook() {
+	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
