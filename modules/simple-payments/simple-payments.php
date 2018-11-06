@@ -353,10 +353,11 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Sanitize three-character ISO-4217 Simple payments currency
 	 *
-	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
-	 *
 	 * List has to be in sync with list at the client side:
 	 * @link https://github.com/Automattic/wp-calypso/blob/6d02ffe73cc073dea7270a22dc30881bff17d8fb/client/lib/simple-payments/constants.js
+	 *
+	 * Currencies should be supported by PayPal:
+	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
 	 */
 	public static function sanitize_currency( $currency ) {
 		$valid_currencies = array(
