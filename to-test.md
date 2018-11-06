@@ -1,4 +1,4 @@
-## 6.7.1
+## 6.8
 
 This release focuses on making Jetpack fully compatible with the Block Editor, also known as Gutenberg, that will be part of the new version of WordPress scheduled to be released on November 19th.
 
