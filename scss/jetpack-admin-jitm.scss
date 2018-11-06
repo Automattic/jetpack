@@ -119,6 +119,7 @@
 
 .jitm-card {
 	display: block;
+	clear: both;
 	position: relative;
 	margin: rem( 16px ) 0 0 auto;
 	padding: rem( 16px );
@@ -398,4 +399,8 @@
 
 .jitm-banner__action + .jitm-banner__dismiss {
 	margin-left: rem( 10px );
+}
+
+#dolly + .jitm-card {
+  margin: 3rem 1rem 0 auto;
 }
