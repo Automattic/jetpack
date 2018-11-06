@@ -278,6 +278,20 @@
 	line-height: 1.15;
 }
 
+/* EU cookie law */
+.widget_eu_cookie_law_widget #eu-cookie-law {
+	border-color: #ccc;
+	color: #767676;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 0.68182em;
+	padding: 0.5rem 1rem;
+}
+
+.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+	font-size: 1em;
+	padding: 10px 12px;
+}
+
 /**
  * Shortcodes
  */
