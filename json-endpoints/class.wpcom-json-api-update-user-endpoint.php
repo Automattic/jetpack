@@ -65,6 +65,16 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return false != $user && is_a( $user, 'WP_User' );
 	}
 
+	protected function domain_subscriptions_for_site_owned_by_user( $user_id ) {
+		$subscriptions = WPCOM_Store::get_subscriptions( get_current_blog_id(), $user_id, domains::get_domain_products() );
+
+		$domains = array_unique( array_map( function( $subscription ){
+			return $subscription->meta;
+		}, $subscriptions ) );
+
+		return $domains;
+	}
+
 	/**
 	 * Validates user input and then decides whether to remove or delete a user.
 	 * @param  int $user_id
@@ -73,6 +83,13 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function delete_or_remove_user( $user_id ) {
 		if ( 0 == $user_id ) {
 			return new WP_Error( 'invalid_input', 'A valid user ID must be specified.', 400 );
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$domains = $this->domain_subscriptions_for_site_owned_by_user( $user_id );
+			if ( ! empty( $domains ) ) {
+				return new WP_Error( 'user_owns_domain_subscription', join( ', ', $domains ) );
+			}
 		}
 
 		if ( get_current_user_id() == $user_id ) {
