@@ -326,10 +326,10 @@ class Jetpack_Simple_Payments {
 		register_meta( 'post', 'spay_multiple', array(
 			'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
 			'object_subtype'    => self::$post_type_product,
-			'sanitize_callback' => 'absint',
+			'sanitize_callback' => 'rest_sanitize_boolean',
 			'show_in_rest'      => true,
 			'single'            => true,
-			'type'              => 'integer',
+			'type'              => 'boolean',
 		) );
 
 		register_meta( 'post', 'spay_email', array(
