@@ -15,9 +15,7 @@ function JetpackRestApiClient() {
 		},
 		fetchSiteConnectionStatus: () => getRequest( '/jetpack/v4/connection' ),
 
-		fetchSiteConnectionStatus: () => getRequest( '/jetpack/v4/connection' )
-
-		fetchSiteConnectionTest: () => getRequest( '/jetpack/v4/connection/test' )
+		fetchSiteConnectionTest: () => getRequest( '/jetpack/v4/connection/test' ),
 
 		fetchUserConnectionData: () => getRequest( '/jetpack/v4/connection/data' ),
 
