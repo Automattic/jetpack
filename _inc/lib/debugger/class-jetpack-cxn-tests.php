@@ -81,7 +81,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function test__master_user_exists_on_site() {
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return; // Skip test.
+			return $result = $this->skipped_test(); // Skip test.
 		}
 		$local_user = $this->helper_retrieve_local_master_user();
 
@@ -107,7 +107,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function test__master_user_can_manage_options() {
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return; // Skip test.
+			return $result = $this->skipped_test(); // Skip test.
 		}
 		$master_user = $this->helper_retrieve_local_master_user();
 

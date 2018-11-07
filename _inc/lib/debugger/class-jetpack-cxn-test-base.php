@@ -102,7 +102,8 @@ class Jetpack_Cxn_Test_Base {
 		$results = $this->raw_results();
 
 		foreach ( $results as $result ) {
-			if ( isset( $result['pass'] ) && ! $result['pass'] ) {
+			// 'pass' could be true, false, or 'skipped'. We only want false.
+			if ( isset( $result['pass'] ) && false === $result['pass'] ) {
 				return false;
 			}
 		}
@@ -121,7 +122,7 @@ class Jetpack_Cxn_Test_Base {
 
 		foreach ( $results as $test => $result ) {
 			// We do not want tests that passed or ones that are misconfigured (no pass status or no failure message).
-			if ( ! isset( $result['pass'] ) || true === $result['pass'] || ! isset( $result['message'] ) ) {
+			if ( ! isset( $result['pass'] ) || false !== $result['pass'] || ! isset( $result['message'] ) ) {
 				unset( $results[ $test ] );
 			}
 		}
@@ -159,6 +160,19 @@ class Jetpack_Cxn_Test_Base {
 		return array(
 			'pass'       => true,
 			'message'    => __( 'Test Passed!', 'jetpack' ),
+			'resolution' => false,
+		);
+	}
+
+	/**
+	 * Helper function to return consistent responses for a skipped test
+	 *
+	 * @return array Test results.
+	 */
+	protected function skipped_test() {
+		return array(
+			'pass'       => 'skipped',
+			'message'    => __( 'Test Skipped.', 'jetpack' ),
 			'resolution' => false,
 		);
 	}
