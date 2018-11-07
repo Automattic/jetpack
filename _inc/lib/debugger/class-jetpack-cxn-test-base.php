@@ -85,7 +85,7 @@ class Jetpack_Cxn_Test_Base {
 	 */
 	public function run_tests() {
 		foreach ( $this->tests as $test ) {
-			$result = call_user_func( $test );
+			$result          = call_user_func( $test );
 			$this->results[] = $result;
 			if ( false === $result['pass'] ) {
 				$this->pass = false;
@@ -166,7 +166,7 @@ class Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Helper function to return consistent responses for a passing test
+	 * Helper function to return consistent responses for a passing test.
 	 *
 	 * @param string $name Test name.
 	 *
@@ -182,7 +182,7 @@ class Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Helper function to return consistent responses for a skipped test
+	 * Helper function to return consistent responses for a skipped test.
 	 *
 	 * @param string $name Test name.
 	 *
@@ -198,18 +198,36 @@ class Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * Helper function to return consistent responses for a failing test.
+	 *
+	 * @param string $name Test name.
+	 * @param string $message Message detailing the failure.
+	 * @param string $resolution Steps to resolve.
+	 *
+	 * @return array Test results.
+	 */
+	public static function failing_test( $name, $message, $resolution = false ) {
+		return array(
+			'name'       => $name,
+			'pass'       => false,
+			'message'    => $message,
+			'resolution' => $resolution,
+		);
+	}
+
+	/**
 	 * Provide WP_CLI friendly testing results.
 	 */
 	public function output_results_for_cli() {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			WP_CLI::line( __( 'TEST RESULTS:' ) );
+			WP_CLI::line( __( 'TEST RESULTS:', 'jetpack' ) );
 			foreach ( $this->raw_results() as $test ) {
 				if ( true === $test['pass'] ) {
-					WP_CLI::log( WP_CLI::colorize( "%gPassed:%n  " . $test['name'] ) );
-				} else if ( 'skipped' === $test['pass'] ) {
-					WP_CLI::log( WP_CLI::colorize( "%ySkipped:%n " . $test['name'] ) );
-				} else { // Failed
-					WP_CLI::log( WP_CLI::colorize( "%rFailed:%n  " . $test['name'] ) );
+					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
+				} elseif ( 'skipped' === $test['pass'] ) {
+					WP_CLI::log( WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
+				} else { // Failed.
+					WP_CLI::log( WP_CLI::colorize( '%rFailed:%n  ' . $test['name'] ) );
 				}
 			}
 		}

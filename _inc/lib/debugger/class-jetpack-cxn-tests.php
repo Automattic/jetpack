@@ -241,7 +241,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function last__wpcom_self_test() {
 		$name = 'test__wpcom_self_test';
 		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
-			return Jetpack_Cxn_Tests::skipped_test( $name );
+			return self::skipped_test( $name );
 		}
 
 		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
@@ -255,7 +255,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-			return Jetpack_Cxn_Tests::passing_test( $name );
+			return self::passing_test( $name );
 		} else {
 			return array(
 				'name'       => 'WP.com Self Test',

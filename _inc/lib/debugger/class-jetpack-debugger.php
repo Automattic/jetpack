@@ -220,7 +220,7 @@ class Jetpack_Debugger {
 						$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 					} else {
 						$failures = $cxntests->list_fails();
-						foreach ( $failures as $test => $fail ) {
+						foreach ( $failures as $fail ) {
 							echo '<div class="jetpack-test-error">';
 							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['message'] );
 							echo '<span class="noticon noticon-collapse"></span></a></p>';
@@ -228,7 +228,7 @@ class Jetpack_Debugger {
 							echo '</div>';
 
 							$debug_info .= "FAILED TESTS!\r\n";
-							$debug_info .= $fail['name'] .': ' . $fail['message'] . "\r\n";
+							$debug_info .= $fail['name'] . ': ' . $fail['message'] . "\r\n";
 							$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 						}
 					}
