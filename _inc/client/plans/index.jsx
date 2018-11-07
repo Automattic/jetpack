@@ -13,6 +13,7 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import {
+	getSitePlan,
 	getAvailableFeatures,
 	getActiveFeatures,
 } from 'state/site';
@@ -24,6 +25,7 @@ import PlanGrid from './plan-grid';
 
 export class Plans extends React.Component {
 	themesPromo = () => {
+		const sitePlan = this.props.sitePlan.product_slug || '';
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( sitePlan )
 			: 'dev';
@@ -71,6 +73,7 @@ export default connect(
 	( state ) => {
 		return {
 			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
+			sitePlan: getSitePlan( state ),
 			availableFeatures: getAvailableFeatures( state ),
 			activeFeatures: getActiveFeatures( state ),
 		};
