@@ -34,7 +34,7 @@ export class Navigation extends React.Component {
 	};
 
 	trackPlansClick = () => {
-		this.trackNavClick( 'dashboard' );
+		this.trackNavClick( 'plans' );
 	};
 
 	render() {
