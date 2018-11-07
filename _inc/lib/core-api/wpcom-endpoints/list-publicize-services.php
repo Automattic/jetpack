@@ -103,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 *
 	 * @return bool Whether user has the capability 'publish_posts'.
 	 */
-	public static function get_items_permission_check() {
+	public function get_items_permission_check() {
 		if ( current_user_can( 'publish_posts' ) ) {
 			return true;
 		}
