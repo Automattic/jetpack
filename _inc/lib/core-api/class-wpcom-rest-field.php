@@ -20,7 +20,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 			return;
 		}
 
-		register_rest_field( 'post', 'jetpack_publicize_connections', array(
+		register_rest_field( $this->object_type, $this->field_name, array(
 			'get_callback' => array( $this, 'get_for_response' ),
 			'update_callback' => array( $this, 'update_from_request' ),
 			'schema' => $this->get_schema(),
