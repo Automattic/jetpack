@@ -37,6 +37,15 @@ class Jetpack_Cxn_Test_Base {
 	protected $results = array();
 
 	/**
+	 * Status of the testing suite.
+	 *
+	 * Used internally to determine if a test should be skipped since the tests are already failing. Assume passing.
+	 *
+	 * @var bool $pass
+	 */
+	protected $pass = true;
+
+	/**
 	 * Jetpack_Cxn_Test constructor.
 	 */
 	private function __construct() {
@@ -76,7 +85,11 @@ class Jetpack_Cxn_Test_Base {
 	 */
 	public function run_tests() {
 		foreach ( $this->tests as $test ) {
-			$this->results[] = call_user_func( $test );
+			$result = call_user_func( $test );
+			$this->results[] = $result;
+			if ( false === $result['pass'] ) {
+				$this->pass = false;
+			}
 		}
 	}
 
@@ -139,11 +152,12 @@ class Jetpack_Cxn_Test_Base {
 	 *
 	 * @return string Human-readable steps to resolve a failed test.
 	 */
-	protected function serve_message( $resolution = null ) {
+	public static function serve_message( $resolution = null ) {
 		switch ( $resolution ) {
 			case 'cycle_connection':
 				$message = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
 				break;
+			case 'support':
 			default:
 				$message = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
 		}
@@ -154,10 +168,13 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a passing test
 	 *
+	 * @param string $name Test name.
+	 *
 	 * @return array Test results.
 	 */
-	protected function passing_test() {
+	public static function passing_test( $name = 'Unnamed' ) {
 		return array(
+			'name'       => $name,
 			'pass'       => true,
 			'message'    => __( 'Test Passed!', 'jetpack' ),
 			'resolution' => false,
@@ -167,10 +184,13 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a skipped test
 	 *
+	 * @param string $name Test name.
+	 *
 	 * @return array Test results.
 	 */
-	protected function skipped_test() {
+	public static function skipped_test( $name = 'Unnamed' ) {
 		return array(
+			'name'       => $name,
 			'pass'       => 'skipped',
 			'message'    => __( 'Test Skipped.', 'jetpack' ),
 			'resolution' => false,

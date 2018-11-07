@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Jetpack Debugger functionality allowing for self-service diagnostic information.
  *
@@ -84,26 +84,6 @@ class Jetpack_Debugger {
 				exit;
 			}
 		}
-	}
-
-	/**
-	 * Calls to WP.com to run the connection diagnostic testing suite.
-	 *
-	 * @return array|WP_Error Standard WP_HTTP return array: 'headers', 'body', 'response', 'cookies', 'filename' on success.
-	 */
-	public static function run_self_test() {
-		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
-
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
-
-		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
-		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
-
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-
-		return $response;
-
 	}
 
 	/**
@@ -228,7 +208,6 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 
 		$cxntests = new Jetpack_Cxn_Tests();
-
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Debugging Center', 'jetpack' ); ?></h2>
@@ -238,6 +217,7 @@ class Jetpack_Debugger {
 					if ( $cxntests->pass() ) {
 						echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
 						$debug_info .= "All tests passed.\r\n";
+						$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 					} else {
 						$failures = $cxntests->list_fails();
 						foreach ( $failures as $test => $fail ) {
@@ -247,7 +227,9 @@ class Jetpack_Debugger {
 							echo '<p class="jetpack-test-details">' . esc_html( $fail['resolution'] ) . '</p>';
 							echo '</div>';
 
-							$debug_info .= "$test: " . $fail['message'] . "\r\n";
+							$debug_info .= "FAILED TESTS!\r\n";
+							$debug_info .= $fail['name'] .': ' . $fail['message'] . "\r\n";
+							$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 						}
 					}
 					?>

@@ -33,6 +33,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		 * @since 6.8.0
 		 */
 		do_action( 'jetpack_connection_tests_loaded' );
+
+		/**
+		 * Intentionally added last as it checks for an existing failure state before attempting.
+		 * Generally, any failed location condition would result in the WP.com check to fail too, so
+		 * we will skip it to avoid confusing error messages.
+		 */
+		$this->add_test( array( $this, 'last__wpcom_self_test' ) );
 	}
 
 	/**
@@ -46,28 +53,25 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Is Jetpack even connected?
-	 *
-	 * @todo Make this better. Just a quick hack for testing.
+	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		if ( Jetpack_Options::get_option( 'master_user' ) ) {
-			return true;
-		}
-		return false;
+		return ( Jetpack::is_active() && ! Jetpack::is_development_mode() );
 	}
 
 	/**
 	 * Test if Jetpack is connected.
 	 */
 	protected function test__check_if_connected() {
+		$name = __FUNCTION__;
 		if ( $this->helper_is_jetpack_connected() ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'Jetpack is not connected.', 'jetpack' ),
-				'resolution' => $this->serve_message( 'cycle_connection' ),
+				'resolution' => self::serve_message( 'cycle_connection' ),
 			);
 		}
 
@@ -80,18 +84,20 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__master_user_exists_on_site() {
+		$name = __FUNCTION__;
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return $result = $this->skipped_test(); // Skip test.
+			return self::skipped_test( $name ); // Skip test.
 		}
 		$local_user = $this->helper_retrieve_local_master_user();
 
 		if ( $local_user->exists() ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ),
-				'resolution' => $this->serve_message( 'cycle_connection' ),
+				'resolution' => self::serve_message( 'cycle_connection' ),
 			);
 		}
 
@@ -106,15 +112,17 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__master_user_can_manage_options() {
+		$name = __FUNCTION__;
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return $result = $this->skipped_test(); // Skip test.
+			return self::skipped_test( $name ); // Skip test.
 		}
 		$master_user = $this->helper_retrieve_local_master_user();
 
 		if ( user_can( $master_user, 'manage_options' ) ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'The user who setup the Jetpack connection is not an administrator.', 'jetpack' ),
 				'resolution' => __( 'Either upgrade the user or cycle.', 'jetpack' ), // @todo: Provide the user name, link to the right places.
@@ -132,10 +140,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__xml_parser_available() {
+		$name = __FUNCTION__;
 		if ( function_exists( 'xml_parser_create' ) ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'PHP XML manipluation libraries are not available.', 'jetpack' ),
 				'resolution' => __( "Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ and enable PHP's XML module.", 'jetpack' ),
@@ -151,13 +161,15 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__outbound_http() {
+		$name    = __FUNCTION__;
 		$request = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
 		$code    = wp_remote_retrieve_response_code( $request );
 
 		if ( 200 === intval( $code ) ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ),
 				'resolution' => __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com', 'jetpack' ),
@@ -173,13 +185,15 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__outbound_https() {
+		$name    = __FUNCTION__;
 		$request = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
 		$code    = wp_remote_retrieve_response_code( $request );
 
 		if ( 200 === intval( $code ) ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ),
 				'resolution' => __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com', 'jetpack' ),
@@ -195,10 +209,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__identity_crisis() {
+		$name            = __FUNCTION__;
 		$identity_crisis = Jetpack::check_identity_crisis();
 
 		if ( ! $identity_crisis ) {
-			$result = $this->passing_test();
+			$result = self::passing_test( $name );
 		} else {
 			$message = sprintf(
 				/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
@@ -207,11 +222,47 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				$identity_crisis['wpcom_home']
 			);
 			$result = array(
+				'name'       => $name,
 				'pass'       => false,
 				'message'    => $message,
-				'resolution' => $this->serve_message(), // Contact support for now. @todo better message.
+				'resolution' => self::serve_message(), // Contact support for now. @todo better message.
 			);
 		}
 		return $result;
+	}
+
+	/**
+	 * Calls to WP.com to run the connection diagnostic testing suite.
+	 *
+	 * Intentionally added last as it will be skipped if any local failed conditions exist.
+	 *
+	 * @return array|WP_Error Standard WP_HTTP return array: 'headers', 'body', 'response', 'cookies', 'filename' on success.
+	 */
+	protected function last__wpcom_self_test() {
+		$name = 'test__wpcom_self_test';
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+			return Jetpack_Cxn_Tests::skipped_test( $name );
+		}
+
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+
+		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+
+		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+			return Jetpack_Cxn_Tests::passing_test( $name );
+		} else {
+			return array(
+				'name'       => 'WP.com Self Test',
+				'pass'       => false,
+				'message'    => __( 'Jetpack.com detected an error.', 'jetpack' ), // @todo: Direct link to the jetpack.com debugger.
+				'resolution' => __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ), // @todo direct links.
+			);
+		}
 	}
 }
