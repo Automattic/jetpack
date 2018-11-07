@@ -852,6 +852,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 		$subscribers_total      = $this->fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
 
+		if ( $instance['show_only_email_and_button'] ) {
+			unset( $instance['title']);
+			$subscribe_text = false;
+		}
+
 		// Give the input element a unique ID
 		/**
 		 * Filter the subscription form's ID prefix.
@@ -908,7 +913,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		} else { ?>
 			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
-				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) {
+				if ( $subscribe_text && ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
 					?><div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
 				}
 
@@ -1108,12 +1113,15 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance = array();
 	}
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
+	$show_only_email_and_button = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 
 	$instance = shortcode_atts(
 		Jetpack_Subscriptions_Widget::defaults(),
 		$instance,
 		'jetpack_subscription_form'
 	);
+	$instance['show_only_email_and_button'] = $show_only_email_and_button;
+
 	$args = array(
 		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
 	);
@@ -1121,4 +1129,11 @@ function jetpack_do_subscription_form( $instance ) {
 	the_widget( 'Jetpack_Subscriptions_Widget', $instance, $args );
 	$output = ob_get_clean();
 	return $output;
+}
+
+jetpack_register_block( 'subscriptions', array( 'render_callback' => 'show_subscription_block' ) );
+
+function show_subscription_block( $attr, $content ) {
+	$attr['show_only_email_and_button'] = true;
+	return jetpack_do_subscription_form( $attr );
 }
