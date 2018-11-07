@@ -2,7 +2,6 @@
 
 /*
  * TODO
- * Object (hash) or array (list) for connections? Currently object.
  * Always return connectionns? What about permissions?
  */
 
@@ -17,12 +16,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
 			'title' => 'jetpack-publicize-post-connections',
-			'type' => 'object',
+			'type' => 'array',
 			'context' => array( 'view', 'edit' ),
-			'patternProperties' => array(
-				'^[a-z0-9]+$' => $this->post_connection_schema(),
-			),
-			'additionalProperties' => false,
+			'items' => $this->post_connection_schema(),
 		);
 	}
 
@@ -31,8 +27,13 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
 			'title' => 'jetpack-publicize-post-connection',
 			'type' => 'object',
-			'context' => array( 'view', 'edit' ),
 			'properties' => array(
+				'id' => array(
+					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+					'type' => 'string',
+					'context' => array( 'view', 'edit' ),
+					'readonly' => true,
+				),
 				'service_name' => array(
 					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
 					'type' => 'string',
@@ -118,7 +119,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				}
 			}
 
-			$output_connections[(string) $connection['unique_id']] = $output_connection;
+			$output_connection['id'] = (string) $connection['unique_id'];
+
+			$output_connections[] = $output_connection;
 		}
 
 		return $output_connections;

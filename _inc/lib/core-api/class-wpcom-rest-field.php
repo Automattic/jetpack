@@ -31,8 +31,12 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$schema = $this->get_schema();
 
-		$validated = $this->validate( $value, $schema );
-		return $this->filter_response_by_context( $validated, $schema, $context );
+		$is_valid = rest_validate_value_from_schema( $value, $schema, $this->field_name );
+		if ( is_wp_error( $is_valid ) ) {
+			return $is_valid;
+		}
+
+		return $this->filter_response_by_context( $value, $schema, $context );
 	}
 
 	public function get_for_response( $object_data, $field_name, $request, $object_type ) {
@@ -88,108 +92,31 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
                 _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::get_schema', sprintf( __( "Method '%s' must be overridden." ), __METHOD__ ), 'Jetpack 6.8' );
 	}
 
-	public function validate( $value, $schema ) {
-		switch ( $schema['type'] ) {
-		case 'integer' :
-			return (int) $value;
-		case 'number' :
-			return (float) $value;
-		case 'string' :
-			return (string) $value;
-		case 'boolean' :
-			return (bool) $value;
-		case 'null' :
-			return null;
-		case 'array' :
-			$value = (array) $value;
-			if ( ! isset( $schema['items'] ) ) {
-				return $value;				
-			}
-
-			$keys = array_keys( $value );
-
-			if ( isset( $schema['items'][0] ) ) {
-				// tuple
-				$items = array_map( array( $this, 'validate' ), $value, $schema['items'] );
-			} else {
-				// list
-				$items = array_map( array( $this, 'validate' ), $value, array_fill( 0, count( $keys ), $schema['items'] ) );
-			}
-
-			return array_combine( $keys, $items );
-		case 'object' :
-			$value = is_object( $value ) ? get_object_vars( $value ) : (array) $value;
-			$output = array();
-
-			if ( isset( $schema['properties'] ) ) {
-				foreach ( $schema['properties'] as $field_name => $field_schema ) {
-					if ( isset( $value[$field_name] ) ) {
-						$output[$field_name] = $this->validate( $value[$field_name], $field_schema );
-						unset( $value[$field_name] );
-					}
-				}
-			}
-
-			if ( isset( $schema['patternProperties'] ) ) {
-				foreach ( $value as $field_name => $field_value ) {
-					foreach ( $schema['patternProperties'] as $pattern => $pattern_schema ) {
-						if ( preg_match( "/$pattern/", $field_name ) ) {
-							$value[$field_name] = $this->validate( $field_value, $pattern_schema );
-						}
-					}
-				}
-			}
-
-			$output += $value;
-
-			return $output;
-		}
+	function is_valid_for_context( $schema, $context ) {
+		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
 	}
 
 	function filter_response_by_context( $value, $schema, $context ) {
-		if ( empty( $schema['context'] ) ) {
-			return $value;
-		}
-
-		if ( ! in_array( $context, $schema['context'], true ) ) {
-			// The Core REST API code will remove the root
-			// property if the cotext doesn't match
-			// For sub-properties, we filter them out later
-			// using this hack.
+		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
 			return new WP_Error( '__wrong-context__' );
 		}
 
 		switch ( $schema['type'] ) {
-		case 'integer' :
-		case 'number' :
-		case 'string' :
-		case 'boolean' :
-		case 'null' :
-			return $value;
 		case 'array' :
 			if ( ! isset( $schema['items'] ) ) {
-				return $value;				
+				return $value;
 			}
+
+			// Shortcircuit if we know none of the items are valid for this context.
+			// This would only happen in a strangely written schema.
+			if ( ! $this->is_valid_for_context( $schema['items'], $context ) ) {
+				return array();
+			}
+
+			// Recurse to prune sub-properties of each item.
 
 			$keys = array_keys( $value );
 
-			if ( isset( $schema['items'][0] ) ) {
-				// tuple
-				$items = array_map(
-					array( $this, 'filter_response_by_context' ),
-					$value,
-					$schema['items'],
-					array_fill( 0, count( $keys ), $context )
-				);
-
-				// It doesn't make sense for tuples to have one item with one context and another with another.
-				// Instead, we depend on the context details for the propertie one level up.
-				// (We still do the array_map above, though, so that sub-properties of the tuple's items will
-				// have their contexts processed.)
-				return array_combine( $keys, $items );
-			}
-
-			// else: list
 			$items = array_map(
 				array( $this, 'filter_response_by_context' ),
 				$value,
@@ -197,48 +124,27 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 				array_fill( 0, count( $keys ), $context )
 			);
 
-			$value = array_combine( $keys, $items );
-
-			foreach ( $value as $key => $item ) {
-				if ( is_wp_error( $item ) && '__wrong-context__' === $item->get_error_code() ) {
-					unset( $value[$key] );
-				}
-			}
-
-			return $value;
+			return array_combine( $keys, $items );
 		case 'object' :
-			$output = array();
+			if ( ! isset( $schema['properties'] ) ) {
+				return $value;
+			}
 
-			if ( isset( $schema['properties'] ) ) {
-				foreach ( $value as $field_name => $field_value ) {
-					if ( isset( $schema['properties'][$field_name] ) ) {
-						$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][$field_name], $context );
-						if ( ! is_wp_error( $field_value ) || '__wrong-context__' !== $field_value->get_error_code() ) {
-							$output[$field_name] = $field_value;
-						}
+			foreach ( $value as $field_name => $field_value ) {
+				if ( isset( $schema['properties'][$field_name] ) ) {
+					$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][$field_name], $context );
+					if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
 						unset( $value[$field_name] );
+					} else {
+						// Respect recursion that pruned sub-properties of each property.
+						$value[$field_name] = $field_value;
 					}
 				}
 			}
 
-			if ( isset( $schema['patternProperties'] ) ) {
-				foreach ( $schema['patternProperties'] as $pattern => $pattern_schema ) {
-					foreach ( $value as $field_name => $field_value ) {
-						if ( preg_match( "/$pattern/", $field_name ) ) {
-							$field_value = $this->filter_response_by_context( $field_value, $pattern_schema, $context );
-							if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
-								unset( $value[$field_name] );
-							} else {
-								$value[$field_name] = $field_value;
-							}
-						}
-					}
-				}
-			}
-
-			$output += $value;
-
-			return (object) $output;
+			return (object) $value;
 		}
+
+		return $value;
 	}
 }
