@@ -123,10 +123,8 @@ class Jetpack_Simple_Payments {
 		), $attrs );
 
 		$data['price'] = $this->format_price(
-			get_post_meta( $product->ID, 'spay_formatted_price', true ),
 			get_post_meta( $product->ID, 'spay_price', true ),
-			get_post_meta( $product->ID, 'spay_currency', true ),
-			$data
+			get_post_meta( $product->ID, 'spay_currency', true )
 		);
 
 		$data['id'] = $attrs['id'];
@@ -241,7 +239,7 @@ class Jetpack_Simple_Payments {
 			esc_attr( "${css_prefix}-description" ),
 			$data['description'],
 			esc_attr( "${css_prefix}-price" ),
-			esc_html( $data['price'] ),
+			$data['price'], // Escaped by format_price
 			esc_attr( "${css_prefix}-purchase-message" ),
 			esc_attr( "{$data['dom_id']}-message-container" ),
 			esc_attr( "${css_prefix}-purchase-box" ),
@@ -251,11 +249,40 @@ class Jetpack_Simple_Payments {
 		);
 	}
 
-	function format_price( $formatted_price, $price, $currency, $all_data ) {
-		if ( $formatted_price ) {
-			return $formatted_price;
+	/**
+	 * HTML format price for display
+	 *
+	 * Uses currency-aware formatting to output a formatted price for HTML with a simple fallback.
+	 *
+	 * Largely inspired by WordPress.com's Store_Price::display_currency
+	 *
+	 * @param  string $price    Price.
+	 * @param  string $currency Currency.
+	 * @return string           HTML-ready price to display
+	 */
+	private function format_price( $price, $currency ) {
+		$currency_details = self::get_currency( $currency );
+
+		if ( $currency_details ) {
+			$symbol = sprintf(
+				'<abbr title="%s">%s</abbr>',
+				esc_attr( $currency_details['desc'] ),
+				esc_html( $currency_details['symbol'] )
+			);
+
+			// Ensure USD displays as 1234.56 even in non-US locales.
+			$amount = 'USD' === $currency
+				? number_format( $price, $currency_details['decimal'], '.', ',' )
+				: number_format_i18n( $price, $currency_details['decimal'] );
+
+			return sprintf(
+				$currency_details['format'],
+				$symbol,
+				esc_html( $amount )
+			);
 		}
-		return "$price $currency";
+
+		return esc_html( "$price $currency" );
 	}
 
 	/**
