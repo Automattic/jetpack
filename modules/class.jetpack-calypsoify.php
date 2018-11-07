@@ -182,8 +182,9 @@ class Jetpack_Calypsoify {
 	}
 
 	public function get_switch_to_classic_editor_api_url() {
+		$api_root = esc_url_raw( rest_url() );
 		$site_slug = Jetpack::build_raw_urls( home_url() );
-		return "https://public-api.wordpress.com/wpcom/v2/sites/${site_slug}/gutenberg?platform=web&editor=classic";
+		return "${api_root}wpcom/v2/sites/${site_slug}/gutenberg?platform=web&editor=classic";
 	}
 
 	public function check_param() {
