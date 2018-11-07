@@ -45,6 +45,8 @@ import { getTracksUserData } from 'state/initial-state';
 import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+import QueryJitm from 'components/data/query-jitm';
+import Jitm from 'components/jitm';
 
 class Main extends React.Component {
 	componentWillMount() {
@@ -255,7 +257,8 @@ class Main extends React.Component {
 			<div>
 				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
-						{ this.props.isSiteConnected && <QueryRewindStatus /> }
+						{ this.props.isSiteConnected && <QueryRewindStatus /> && <QueryJitm route={ this.props.route } /> }
+						<Jitm />
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
