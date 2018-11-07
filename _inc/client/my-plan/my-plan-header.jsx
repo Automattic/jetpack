@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import { imagePath } from 'constants/urls';
 import { showBackups } from 'state/initial-state';
 
-class PlanHeader extends React.Component {
+class MyPlanHeader extends React.Component {
 	trackLearnMore = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'learn-more',
@@ -168,4 +168,4 @@ export default connect(
 			showBackups: showBackups( state ),
 		};
 	}
-)( PlanHeader );
+)( MyPlanHeader );
