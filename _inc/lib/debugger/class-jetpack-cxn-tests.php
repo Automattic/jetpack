@@ -24,6 +24,15 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			}
 			$this->add_test( array( $this, $method ) );
 		}
+
+		/**
+		 * Fires after loading default Jetpack Connection tests.
+		 *
+		 * Tests can be added by calling the $object->add_test( $callable ) format on this hook.
+		 *
+		 * @since 6.8.0
+		 */
+		do_action( 'jetpack_connection_tests_loaded' );
 	}
 
 	/**
