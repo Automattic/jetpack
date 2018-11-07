@@ -4,7 +4,6 @@
  * TODO
  * Object (hash) or array (list) for connections? Currently object.
  * Always return connectionns? What about permissions?
- * Figure out why core's context filter isn't removing edit-only things from view context
  */
 
 /**
@@ -109,8 +108,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		$properties = array_keys( $schema['properties'] );
 
 		$connections = $publicize->get_filtered_connection_data( $post_array['id'] );
-
-		// @TODO: Figure out why core's context filter isn't removing edit-only things from view context
 
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
