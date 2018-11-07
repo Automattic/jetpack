@@ -127,15 +127,67 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		return $output_connections;
 	}
 
-	public function update( $connections, $post_array, $request ) {
-		$permission_check = $this->permission_check();
+	public function update( $requested_connections, $post, $request ) {
+		global $publicize;
 
-		if ( is_wp_error( $permission_check ) ) {
-			return $permission_check;
+		$available_connections = $publicize->get_filtered_connection_data( $post->ID );
+
+		$connections = array();
+
+		$available_connections_by_unique_id = array();
+		$available_connections_by_service_name = array();
+		foreach ( $available_connections as $available_connection ) {
+			$available_connections_by_unique_id[$available_connection['unique_id']] = $available_connection;
+			if ( ! isset( $available_connections_by_service_name[$available_connection['service_name']] ) ) {
+				$available_connections_by_service_name[$available_connection['service_name']] = array();
+			}
+			$available_connections_by_service_name[$available_connection['service_name']][] = $available_connection;
+		}
+
+		// { service_name: $service_name, enabled: (bool) }
+		foreach ( $requested_connections as $requested_connection ) {
+			if ( ! isset( $requested_connection['service_name'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $available_connections_by_service_name[$requested_connection['service_name']] ) ) {
+				continue;
+			}
+
+			foreach ( $available_connections_by_service_name[$requested_connection['service_name']] as $available_connection ) {
+				$connections[$available_connection['unique_id']] = $requested_connection['enabled'];
+			}
+		}
+
+		// { id: $id, enabled: (bool) }
+		// These override the service_name settings
+		foreach ( $requested_connections as $requested_connection ) {
+			if ( ! isset( $requested_connection['id'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $available_connections_by_unique_id[$requested_connection['id']] ) ) {
+				continue;
+			}
+
+			$connections[$requested_connection['id']] = $requested_connection['enabled'];
+		}
+
+		foreach ( $connections as $id => $enabled ) {
+			$connection = $available_connections_by_unique_id[$id];
+
+			if ( $connection['done'] || ! $connection['toggleable'] ) {
+				continue;
+			}
+
+			$available_connections_by_unique_id[$id]['enabled'] = $enabled;
+		}
+
+		foreach ( $available_connections_by_unique_id as $available_connection ) {
+			error_log( sprintf( '%s: %s = %d', $available_connection['unique_id'], $available_connection['service_name'], $available_connection['enabled'] ) );
 		}
 
 		// @todo - implement :)
-		// support { $unique_id: { enabled: true } } and { $service_name: { enabled: true } }?
 		return 'ok';
 	}
 }
