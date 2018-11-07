@@ -71,7 +71,7 @@ describe( 'Navigation', () => {
 		} );
 
 		it( 'renders tabs with At a Glance, My Plan, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,MyPlan,Plans' );
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,My Plan,Plans' );
 		} );
 
 	} );
