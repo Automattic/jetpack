@@ -200,10 +200,17 @@ class Jetpack_Gutenberg {
 			false
 		);
 
+		// This variable will be used by the blocks script to find parts of a code-split bundle.
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+		);
+		// This variable will be used by the blocks script locate static assets.
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Static_Block_Assets_Base_Url',
+			plugins_url( '_inc/blocks/static', JETPACK__PLUGIN_FILE )
 		);
 
 		$jp_react_page = new Jetpack_React_Page();
