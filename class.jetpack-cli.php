@@ -31,7 +31,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class-jetpack-debugger.php' );
+		jetpack_require_lib( 'debugger' );
 
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
 

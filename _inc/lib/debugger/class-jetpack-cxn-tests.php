@@ -211,7 +211,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				'message'    => $message,
 				'resolution' => $this->serve_message(), // Contact support for now. @todo better message.
 			);
-
 		}
 		return $result;
 	}
