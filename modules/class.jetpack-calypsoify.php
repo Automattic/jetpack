@@ -105,7 +105,10 @@ class Jetpack_Calypsoify {
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
 			array(
-				'closeUrl'   => $this->get_close_gutenberg_url(),
+				'closeUrl'                   => $this->get_close_gutenberg_url(),
+				'switchToClassicLabel'       => __( 'Switch to Classic Editor' ),
+				'switchToClassicRedirectUrl' => $this->get_switch_to_classic_editor_redirect_url(),
+				'switchToClassicAPIUrl'      => $this->get_switch_to_classic_editor_api_url(),
 			)
 		);
 	}
@@ -145,15 +148,42 @@ class Jetpack_Calypsoify {
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
-	public function get_close_gutenberg_url() {
+	public function get_calypso_url( $post_id = null ) {
 		$screen = get_current_screen();
+		$post_type = $screen->post_type;
+		if ( is_null( $post_id ) ) {
+			// E.g. `/posts`, `/pages`, or `/types/some_custom_post_type`
+			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
+				? "/${post_type}s"
+				: "/types/${post_type}";
 
-		// E.g. `posts`, `pages`, or `types/some_custom_post_type`
-		$post_type = ( 'post' === $screen->post_type || 'page' === $screen->post_type )
-			? $screen->post_type . 's'
-			: 'types/' . $screen->post_type;
+			$post_suffix = '';
+		} else {
+			// E.g. `/post`, `/pages`, or `/edit/some_custom_post_type`
+			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
+				? "/${post_type}"
+				: "/edit/${post_type}";
 
-		return 'https://wordpress.com/' . $post_type . '/' . Jetpack::build_raw_urls( home_url() );
+			$post_suffix = "/${post_id}";
+		}
+
+		$site_slug = Jetpack::build_raw_urls( home_url() );
+		$site_suffix = "/${site_slug}";
+
+		return "https://wordpress.com${post_type_suffix}${site_suffix}${post_suffix}";
+	}
+
+	public function get_close_gutenberg_url() {
+		return $this->get_calypso_url();
+	}
+
+	public function get_switch_to_classic_editor_redirect_url() {
+		return add_query_arg( 'force', 'true', $this->get_calypso_url( get_the_ID() ) );
+	}
+
+	public function get_switch_to_classic_editor_api_url() {
+		$site_slug = Jetpack::build_raw_urls( home_url() );
+		return "https://public-api.wordpress.com/wpcom/v2/sites/${site_slug}/gutenberg?platform=web&editor=classic";
 	}
 
 	public function check_param() {
