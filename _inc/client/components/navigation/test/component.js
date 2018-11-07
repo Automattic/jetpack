@@ -70,8 +70,8 @@ describe( 'Navigation', () => {
 			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 2 );
 		} );
 
-		it( 'renders tabs with At a Glance, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Plans' );
+		it( 'renders tabs with At a Glance, My Plan, Plans', () => {
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,MyPlan,Plans' );
 		} );
 
 	} );
