@@ -377,5 +377,173 @@ class Jetpack_Simple_Payments {
 		register_post_type( self::$post_type_product, $product_args );
 	}
 
+	/**
+	 * Format a price for display
+	 *
+	 * Largely taken from WordPress.com Store_Price class
+	 *
+	 * The currency array will have the shape:
+	 *   format  => string sprintf format with placeholders `%1$s`: Symbol `%2$s`: Price.
+	 *   symbol  => string Symbol string
+	 *   desc    => string Text description of currency
+	 *   decimal => int    Number of decimal places
+	 *
+	 * @param  string $the_currency The desired currency, e.g. 'USD'.
+	 * @return ?array               Currency object or null if not found.
+	 */
+	private static function get_currency( $the_currency ) {
+		$currencies = array(
+			'USD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '$',
+				'desc'    => _x( 'United States Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'GBP' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#163;',
+				'desc'    => _x( 'British Pounds', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'JPY' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#165;',
+				'desc'    => _x( 'Japanese Yen', 'currency', 'jetpack' ),
+				'decimal' => 0,
+			),
+			'BRL' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'R$',
+				'desc'    => _x( 'Brazilian real', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'EUR' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#8364;',
+				'desc'    => _x( 'Euro', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'NZD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'NZ$',
+				'desc'    => _x( 'New Zealand Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'AUD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'A$',
+				'desc'    => _x( 'Australian Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'CAD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'C$',
+				'desc'    => _x( 'Canadian Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'INR' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₹',
+				'desc'    => _x( 'Indian Rupees', 'currency', 'jetpack' ),
+				'decimal' => 0,
+			),
+			'ILS' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₪',
+				'desc'    => _x( 'New Israeli Shekels', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'RUB' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₽',
+				'desc'    => _x( 'Russian Rubles', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'MXN' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'MX$',
+				'desc'    => _x( 'Mexican Pesos', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'SEK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Skr',
+				'desc'    => _x( 'Swedish Kronor', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'HUF' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Ft',
+				'desc'    => _x( 'Hungarian Forints', 'currency', 'jetpack' ),
+				'decimal' => 0, // Decimals are supported by Stripe but not by PayPal.
+			),
+			'CHF' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'CHF',
+				'desc'    => _x( 'Swiss Francs', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'CZK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Kč',
+				'desc'    => _x( 'Czech Koruna', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'DKK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Dkr',
+				'desc'    => _x( 'Denmark Kroner', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'HKD' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'HK$',
+				'desc'    => _x( 'Hong Kong Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'NOK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Kr',
+				'desc'    => _x( 'Norway Kroner', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'PHP' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₱',
+				'desc'    => _x( 'Philippine Peso', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'PLN' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'PLN',
+				'desc'    => _x( 'Polish Zloty', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'SGD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'S$',
+				'desc'    => _x( 'Singapore Dollars', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+			'TWD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'NT$',
+				'desc'    => _x( 'New Taiwan Dollars', 'currency', 'jetpack' ),
+				'decimal' => 0, // Decimals are supported by Stripe but not by PayPal.
+			),
+			'THB' => array(
+				'format'  => '%2$s%1$s', // 1: Symbol 2: currency value
+				'symbol'  => '฿',
+				'desc'    => _x( 'Thai Baht', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
+
+		);
+
+		if ( isset( $currencies[ $the_currency ] ) ) {
+			return $currencies[ $the_currency ];
+		}
+		return null;
+	}
 }
 Jetpack_Simple_Payments::getInstance();
