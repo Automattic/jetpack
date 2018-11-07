@@ -66,8 +66,8 @@ describe( 'Navigation', () => {
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 2 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 2 );
+		it( 'renders 3 NavItem components', () => {
+			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 3 );
 		} );
 
 		it( 'renders tabs with At a Glance, My Plan, Plans', () => {
