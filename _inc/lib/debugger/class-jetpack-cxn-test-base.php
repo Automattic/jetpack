@@ -157,6 +157,9 @@ class Jetpack_Cxn_Test_Base {
 			case 'cycle_connection':
 				$message = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
 				break;
+			case 'outbound_requests':
+				$message = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
+				break;
 			case 'support':
 			default:
 				$message = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.

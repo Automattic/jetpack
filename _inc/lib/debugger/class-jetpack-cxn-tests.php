@@ -67,12 +67,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'Jetpack is not connected.', 'jetpack' ),
-				'resolution' => self::serve_message( 'cycle_connection' ),
-			);
+			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), self::serve_message( 'cycle_connection' ) );
 		}
 
 		return $result;
@@ -93,12 +88,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $local_user->exists() ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ),
-				'resolution' => self::serve_message( 'cycle_connection' ),
-			);
+			$result = self::failing_test( $name, __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ), self::serve_message( 'cycle_connection' ) );
 		}
 
 		return $result;
@@ -121,12 +111,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( user_can( $master_user, 'manage_options' ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'The user who setup the Jetpack connection is not an administrator.', 'jetpack' ),
-				'resolution' => __( 'Either upgrade the user or cycle.', 'jetpack' ), // @todo: Provide the user name, link to the right places.
-			);
+			$result = self::failing_test( $name, __( 'The user who setup the Jetpack connection is not an administrator.', 'jetpack' ), __( 'Either upgrade the user or cycle.', 'jetpack' ) ); // @todo: Provide the user name, link to the right places.
 		}
 
 		return $result;
@@ -144,12 +129,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( function_exists( 'xml_parser_create' ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'PHP XML manipluation libraries are not available.', 'jetpack' ),
-				'resolution' => __( "Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ and enable PHP's XML module.", 'jetpack' ),
-			);
+			$result = self::failing_test( $name, __( 'PHP XML manipluation libraries are not available.', 'jetpack' ), __( "Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ and enable PHP's XML module.", 'jetpack' ) );
 		}
 
 		return $result;
@@ -168,12 +148,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === intval( $code ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ),
-				'resolution' => __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com', 'jetpack' ),
-			);
+			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ), self::serve_message( 'outbound_requests' ) );
 		}
 
 		return $result;
@@ -192,12 +167,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === intval( $code ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ),
-				'resolution' => __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com', 'jetpack' ),
-			);
+			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ), self::serve_message( 'outbound_requests' ) );
 		}
 
 		return $result;
@@ -221,12 +191,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				$identity_crisis['home'],
 				$identity_crisis['wpcom_home']
 			);
-			$result = array(
-				'name'       => $name,
-				'pass'       => false,
-				'message'    => $message,
-				'resolution' => self::serve_message(), // Contact support for now. @todo better message.
-			);
+			$result = self::failing_test( $name, $message, self::serve_message() ); // Contact support for a IDC.
 		}
 		return $result;
 	}
@@ -257,12 +222,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( $name );
 		} else {
-			return array(
-				'name'       => 'WP.com Self Test',
-				'pass'       => false,
-				'message'    => __( 'Jetpack.com detected an error.', 'jetpack' ), // @todo: Direct link to the jetpack.com debugger.
-				'resolution' => __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ), // @todo direct links.
-			);
+			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ) ); // @todo direct links.
 		}
 	}
 }
