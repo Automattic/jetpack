@@ -3,19 +3,46 @@
 /**
  * Publicize: get available publicize connection services data.
  */
-class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
+class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Controller {
 	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'publicize/services';
 	}
 
 	public function register_routes() {
-		register_rest_route( 'wpcom/v2', '/publicize/services', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_publicize_available_services' ),
-				'permission_callback' => __CLASS__ . '::permission_check',
+				'callback'            => array( $this, 'get_items' ),
+				'permission_callback' => array( $this, 'get_items_permission_check' ),
 			),
+			'schema' => array( $this, 'get_public_item_schema' ),
 		) );
+	}
+
+	public function get_item_schema() {
+		$schema = array(
+			'$schema' => 'http://json-schema.org/draft-04/schema#',
+			'title' => 'jetpack-publicize-service',
+			'type' => 'object',
+			'properties' => array(
+				'name' => array(
+					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+					'type' => 'string',
+				),
+				'label' => array(
+					'description' => __( 'Human readable label for the Publicize Service', 'jetpack' ),
+					'type' => 'string',
+				),
+				'url' => array(
+					'description' => __( 'The URL used to connect to the Publicize Service', 'jetpack' ),
+					'type' => 'string',
+					'format' => 'uri',
+				),
+			),
+		);
+
+		return $this->add_additional_fields_schema( $schema );
 	}
 
 	/**
@@ -28,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
 	 *
 	 * @return string JSON encoded connection services data.
 	 */
-	public function get_publicize_available_services() {
+	public function get_items( $request ) {
 		global $publicize;
 		/**
 		 * We need this because Publicize::get_available_service_data() uses `Jetpack_Keyring_Service_Helper`
@@ -42,7 +69,31 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
 		// The `sharing` submenu page must exist for service connect URLs to be correct.
 		add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
 
-		return $publicize->get_available_service_data();
+		$services_data = $publicize->get_available_service_data();
+
+		$services = array();
+		foreach ( $services_data as $service_data ) {
+			$services[] = $this->prepare_item_for_response( $service_data, $request );
+		}
+
+		$response = rest_ensure_response( $services );
+		$response->header( 'X-WP-Total', count( $services ) );
+		$response->header( 'X-WP-TotalPages', 1 );
+
+		return $response;
+	}
+
+	function prepare_item_for_response( $service, $request ) {
+		$fields = $this->get_fields_for_response( $request );
+
+		$response_data = array();
+		foreach ( $service as $field => $value ) {
+			if ( in_array( $field, $fields, true ) ) {
+				$response_data[$field] = $value;
+			}
+		}
+
+		return $response_data;
 	}
 
 	/**
@@ -52,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services {
 	 *
 	 * @return bool Whether user has the capability 'publish_posts'.
 	 */
-	public static function permission_check() {
+	public static function get_items_permission_check() {
 		if ( current_user_can( 'publish_posts' ) ) {
 			return true;
 		}
