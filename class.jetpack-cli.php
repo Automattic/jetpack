@@ -49,13 +49,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$cxntests = new Jetpack_Cxn_Tests();
 
 		if ( $cxntests->pass() ) {
-			foreach ( $cxntests->raw_results() as $test ) {
-				if ( true === $test['pass'] ) {
-					WP_CLI::log( WP_CLI::colorize( "%gPassed:%n " . $test['name'] ) );
-				} else if ( 'skipped' === $test['pass'] ) {
-					WP_CLI::log( WP_CLI::colorize( "%ySkipped:%n " . $test['name'] ) );
-				}
-			}
+			$cxntests->output_results_for_cli();
+
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 		} else {
 			$error = array();
@@ -63,6 +58,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$error[] = $fail['name'] . ': ' . $fail['message'];
 			}
 			WP_CLI::error_multi_line( $error );
+
+			$cxntests->output_results_for_cli();
+
 			WP_CLI::error( __('Jetpack connection is broken.', 'jetpack' ) ); // Exit CLI.
 		}
 

@@ -196,4 +196,22 @@ class Jetpack_Cxn_Test_Base {
 			'resolution' => false,
 		);
 	}
+
+	/**
+	 * Provide WP_CLI friendly testing results.
+	 */
+	public function output_results_for_cli() {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			WP_CLI::line( __( 'TEST RESULTS:' ) );
+			foreach ( $this->raw_results() as $test ) {
+				if ( true === $test['pass'] ) {
+					WP_CLI::log( WP_CLI::colorize( "%gPassed:%n  " . $test['name'] ) );
+				} else if ( 'skipped' === $test['pass'] ) {
+					WP_CLI::log( WP_CLI::colorize( "%ySkipped:%n " . $test['name'] ) );
+				} else { // Failed
+					WP_CLI::log( WP_CLI::colorize( "%rFailed:%n  " . $test['name'] ) );
+				}
+			}
+		}
+	}
 }
