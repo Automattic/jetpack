@@ -7,30 +7,24 @@
  * Figure out why core's context filter isn't removing edit-only things from view context
  */
 
-
 /**
  * Publicize: get connection list data for current user and post id.
  */
-class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
-	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'add_fields' ) );
-	}
+class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
+	protected $object_type = 'post';
+	protected $field_name = 'jetpack_publicize_connections';
 
-	public function add_fields() {
-		register_rest_field( 'post', 'jetpack_publicize_connections', array(
-			'get_callback' => array( $this, 'get_connections' ),
-			'update_callback' => array( $this, 'set_connections' ),
-			'schema' => array(
-				'$schema' => 'http://json-schema.org/draft-04/schema#',
-				'title' => 'jetpack-publicize-post-connections',
-				'type' => 'object',
-				'context' => array( 'view', 'edit' ),
-				'patternProperties' => array(
-					'^[a-z0-9]+$' => $this->post_connection_schema(),
-				),
-				'additionalProperties' => false,
+	public function get_schema() {
+		return array(
+			'$schema' => 'http://json-schema.org/draft-04/schema#',
+			'title' => 'jetpack-publicize-post-connections',
+			'type' => 'object',
+			'context' => array( 'view', 'edit' ),
+			'patternProperties' => array(
+				'^[a-z0-9]+$' => $this->post_connection_schema(),
 			),
-		) );
+			'additionalProperties' => false,
+		);
 	}
 
 	private function post_connection_schema() {
@@ -38,13 +32,13 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
 			'title' => 'jetpack-publicize-post-connection',
 			'type' => 'object',
+			'context' => array( 'view', 'edit' ),
 			'properties' => array(
 				'service_name' => array(
 					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
 					'type' => 'string',
 					'context' => array( 'view', 'edit' ),
 					'readonly' => true,
-					// 'enum' => todo?
 				),
 				'display_name' => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
@@ -79,6 +73,23 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
 		);
 	}
 
+	function get_permission_check( $request ) {
+		// @todo?
+		return true;
+	}
+
+	public function update_permission_check( $value, $request ) {
+		if ( current_user_can( 'publish_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_publicize',
+			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
+			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
+		);
+	}
+
 	/**
 	 * Retrieve current list of connected social accounts for a given post.
 	 *
@@ -87,12 +98,11 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
 	 * @since 6.7.0
 	 *
 	 * @param array $post_array post data
-	 * @param string $field_name
 	 * @param WP_REST_Request
 	 *
 	 * @return string JSON encoded connection list data.
 	 */
-	public function get_connections( $post_array, $field_name, $request ) {
+	public function get( $post_array, $request ) {
 		global $publicize;
 
 		$schema = $this->post_connection_schema();
@@ -117,7 +127,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
 		return $output_connections;
 	}
 
-	public function set_connection( $connections, $post_array ) {
+	public function update( $connections, $post_array, $request ) {
 		$permission_check = $this->permission_check();
 
 		if ( is_wp_error( $permission_check ) ) {
@@ -127,25 +137,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field {
 		// @todo - implement :)
 		// support { $unique_id: { enabled: true } } and { $service_name: { enabled: true } }?
 		return 'ok';
-	}
-
-	/**
-	 * Verify that user can publish posts.
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return bool|WP_Error Whether user has the capability 'publish_posts'.
-	 */
-	public function permission_check() {
-		if ( current_user_can( 'publish_posts' ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_publicize',
-			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
-			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
-		);
 	}
 }
 
