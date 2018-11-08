@@ -22,7 +22,7 @@ class Jetpack_Simple_Payments {
 	static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->register_init_hook();
+			self::$instance->register_init_hooks();
 		}
 		return self::$instance;
 	}
@@ -38,8 +38,9 @@ class Jetpack_Simple_Payments {
 		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 
-	private function register_init_hook() {
+	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
 	private function register_shortcode() {
@@ -49,7 +50,9 @@ class Jetpack_Simple_Payments {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		$this->register_scripts_and_styles();
+		if ( ! is_admin() ) {
+			$this->register_scripts_and_styles();
+		}
 		$this->register_shortcode();
 		$this->setup_cpts();
 
@@ -123,10 +126,8 @@ class Jetpack_Simple_Payments {
 		), $attrs );
 
 		$data['price'] = $this->format_price(
-			get_post_meta( $product->ID, 'spay_formatted_price', true ),
 			get_post_meta( $product->ID, 'spay_price', true ),
-			get_post_meta( $product->ID, 'spay_currency', true ),
-			$data
+			get_post_meta( $product->ID, 'spay_currency', true )
 		);
 
 		$data['id'] = $attrs['id'];
@@ -251,10 +252,33 @@ class Jetpack_Simple_Payments {
 		);
 	}
 
-	function format_price( $formatted_price, $price, $currency, $all_data ) {
-		if ( $formatted_price ) {
-			return $formatted_price;
+	/**
+	 * Format a price with currency
+	 *
+	 * Uses currency-aware formatting to output a formatted price with a simple fallback.
+	 *
+	 * Largely inspired by WordPress.com's Store_Price::display_currency
+	 *
+	 * @param  string $price    Price.
+	 * @param  string $currency Currency.
+	 * @return string           Formatted price.
+	 */
+	private function format_price( $price, $currency ) {
+		$currency_details = self::get_currency( $currency );
+
+		if ( $currency_details ) {
+			// Ensure USD displays as 1234.56 even in non-US locales.
+			$amount = 'USD' === $currency
+				? number_format( $price, $currency_details['decimal'], '.', ',' )
+				: number_format_i18n( $price, $currency_details['decimal'] );
+
+			return sprintf(
+				$currency_details['format'],
+				$currency_details['symbol'],
+				$amount
+			);
 		}
+
 		return "$price $currency";
 	}
 
@@ -284,6 +308,126 @@ class Jetpack_Simple_Payments {
 			'spay_multiple',
 			'spay_formatted_price',
 		) );
+	}
+
+	/**
+	 * Enable Simple payments custom meta values for access through the REST API.
+	 * Field’s value will be exposed on a .meta key in the endpoint response,
+	 * and WordPress will handle setting up the callbacks for reading and writing
+	 * to that meta key.
+	 *
+	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+	 */
+	public function register_meta_fields_in_rest_api() {
+		register_meta( 'post', 'spay_price', array(
+			'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => array( $this, 'sanitize_price' ),
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'number',
+		) );
+
+		register_meta( 'post', 'spay_currency', array(
+			'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => array( $this, 'sanitize_currency' ),
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_cta', array(
+			'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_multiple', array(
+			'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'boolean',
+		) );
+
+		register_meta( 'post', 'spay_email', array(
+			'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+			'sanitize_callback' => 'sanitize_email',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_status', array(
+			'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+	}
+
+	/**
+	 * Sanitize three-character ISO-4217 Simple payments currency
+	 *
+	 * List has to be in sync with list at the client side:
+	 * @link https://github.com/Automattic/wp-calypso/blob/6d02ffe73cc073dea7270a22dc30881bff17d8fb/client/lib/simple-payments/constants.js
+	 *
+	 * Currencies should be supported by PayPal:
+	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+	 */
+	public static function sanitize_currency( $currency ) {
+		$valid_currencies = array(
+			'USD',
+			'EUR',
+			'AUD',
+			'BRL',
+			'CAD',
+			'CZK',
+			'DKK',
+			'HKD',
+			'HUF',
+			'ILS',
+			'JPY',
+			'MYR',
+			'MXN',
+			'TWD',
+			'NZD',
+			'NOK',
+			'PHP',
+			'PLN',
+			'GBP',
+			'RUB',
+			'SGD',
+			'SEK',
+			'CHF',
+			'THB',
+		);
+
+		return in_array( $currency, $valid_currencies ) ? $currency : false;
+	}
+
+	/**
+	 * Sanitize price:
+	 *
+	 * Positive integers and floats
+	 * Supports two decimal places.
+	 * Maximum length: 10.
+	 *
+	 * See `price` from PayPal docs:
+	 * @link https://developer.paypal.com/docs/api/orders/v1/#definition-item
+	 *
+	 * @param      $value
+	 * @return null|string
+	 */
+	public static function sanitize_price( $price ) {
+		return preg_match( '/^[0-9]{0,10}(\.[0-9]{0,2})?$/', $price ) ? $price : false;
 	}
 
 	/**
@@ -377,5 +521,148 @@ class Jetpack_Simple_Payments {
 		register_post_type( self::$post_type_product, $product_args );
 	}
 
+	/**
+	 * Format a price for display
+	 *
+	 * Largely taken from WordPress.com Store_Price class
+	 *
+	 * The currency array will have the shape:
+	 *   format  => string sprintf format with placeholders `%1$s`: Symbol `%2$s`: Price.
+	 *   symbol  => string Symbol string
+	 *   desc    => string Text description of currency
+	 *   decimal => int    Number of decimal places
+	 *
+	 * @param  string $the_currency The desired currency, e.g. 'USD'.
+	 * @return ?array               Currency object or null if not found.
+	 */
+	private static function get_currency( $the_currency ) {
+		$currencies = array(
+			'USD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '$',
+				'decimal' => 2,
+			),
+			'GBP' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#163;',
+				'decimal' => 2,
+			),
+			'JPY' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#165;',
+				'decimal' => 0,
+			),
+			'BRL' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'R$',
+				'decimal' => 2,
+			),
+			'EUR' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => '&#8364;',
+				'decimal' => 2,
+			),
+			'NZD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'NZ$',
+				'decimal' => 2,
+			),
+			'AUD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'A$',
+				'decimal' => 2,
+			),
+			'CAD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'C$',
+				'decimal' => 2,
+			),
+			'ILS' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₪',
+				'decimal' => 2,
+			),
+			'RUB' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₽',
+				'decimal' => 2,
+			),
+			'MXN' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'MX$',
+				'decimal' => 2,
+			),
+			'MYR' => array(
+				'format'  => '%2$s%1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'RM',
+				'decimal' => 2,
+			),
+			'SEK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Skr',
+				'decimal' => 2,
+			),
+			'HUF' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Ft',
+				'decimal' => 0, // Decimals are supported by Stripe but not by PayPal.
+			),
+			'CHF' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'CHF',
+				'decimal' => 2,
+			),
+			'CZK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Kč',
+				'decimal' => 2,
+			),
+			'DKK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Dkr',
+				'decimal' => 2,
+			),
+			'HKD' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'HK$',
+				'decimal' => 2,
+			),
+			'NOK' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'Kr',
+				'decimal' => 2,
+			),
+			'PHP' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => '₱',
+				'decimal' => 2,
+			),
+			'PLN' => array(
+				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'PLN',
+				'decimal' => 2,
+			),
+			'SGD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'S$',
+				'decimal' => 2,
+			),
+			'TWD' => array(
+				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value
+				'symbol'  => 'NT$',
+				'decimal' => 0, // Decimals are supported by Stripe but not by PayPal.
+			),
+			'THB' => array(
+				'format'  => '%2$s%1$s', // 1: Symbol 2: currency value
+				'symbol'  => '฿',
+				'decimal' => 2,
+			),
+		);
+
+		if ( isset( $currencies[ $the_currency ] ) ) {
+			return $currencies[ $the_currency ];
+		}
+		return null;
+	}
 }
 Jetpack_Simple_Payments::getInstance();

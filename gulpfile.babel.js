@@ -280,7 +280,7 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenberg Blocks for Jetpack
  */
 gulp.task( 'gutenberg:blocks', function() {
-	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/*.{js,css}' ] )
+	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/**/*' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
 
