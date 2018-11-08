@@ -492,6 +492,12 @@ class Jetpack_Simple_Payments {
 				'desc'    => _x( 'Mexican Pesos', 'currency', 'jetpack' ),
 				'decimal' => 2,
 			),
+			'MYR' => array(
+				'format'  => '%2$s%1$s', // 1: Symbol 2: currency value
+				'symbol'  => 'RM',
+				'desc'    => _x( 'Malaysian ringgit', 'currency', 'jetpack' ),
+				'decimal' => 2,
+			),
 			'SEK' => array(
 				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
 				'symbol'  => 'Skr',
