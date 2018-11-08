@@ -2,7 +2,7 @@
 
 /*
  * TODO
- * Always return connectionns? What about permissions?
+ * URLs
  */
 
 /**
@@ -33,6 +33,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			'type' => 'array',
 			'context' => array( 'view', 'edit' ),
 			'items' => $this->post_connection_schema(),
+			'default' => array(),
 		);
 	}
 
@@ -87,13 +88,10 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		);
 	}
 
-	function get_permission_check( $post_array, $request ) {
-		// @todo?
-		return true;
-	}
+	function permission_check( $post_id ) {
+		global $publicize;
 
-	public function update_permission_check( $value, $post, $request ) {
-		if ( current_user_can( 'publish_post', $post->ID ) ) {
+		if ( $publicize->current_user_can_edit_post_data( $post_id ) ) {
 			return true;
 		}
 
@@ -102,6 +100,15 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
 			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
 		);
+	}
+
+	function get_permission_check( $post_array, $request ) {
+		return $this->permission_check( $post_array['id'] );
+
+	}
+
+	public function update_permission_check( $value, $post, $request ) {
+		return $this->permission_check( $post->ID );
 	}
 
 	/**

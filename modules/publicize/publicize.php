@@ -773,8 +773,27 @@ abstract class Publicize_Base {
 		add_post_type_support( 'post', 'publicize' );
 	}
 
+	function current_user_can_edit_post_data( $post_id = 0 ) {
+		/**
+		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
+		 *
+		 * @module publicize
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param string $capability User capability needed to use publicize
+		 */
+		$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
+
+		if ( 'publish_posts' == $capability && $post_id ) {
+			return current_user_can( 'publish_post', $post_id );
+		}
+
+		return current_user_can( $capability );
+	}
+
 	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
-		return current_user_can( 'edit_post', $object_id );
+		return $this->current_user_can_edit_post_data( $object_id );
 	}
 
 	function register_post_meta() {
