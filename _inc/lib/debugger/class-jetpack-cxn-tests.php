@@ -254,6 +254,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function test__server_port_value() {
 		$name        = __FUNCTION__;
+		if ( ! isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) && ! isset( $_SERVER['SERVER_PORT'] ) {
+			$message = "The server port values are not defined. This is most common when running PHP via a CLI.";
+			return self::skipped_test( $name, $message );
+		}
 		$site_port   = wp_parse_url( home_url(), PHP_URL_PORT );
 		$server_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? (int) $_SERVER['HTTP_X_FORWARDED_PORT'] : (int) $_SERVER['SERVER_PORT'];
 		$http_ports  = array( 80 );
