@@ -185,6 +185,7 @@ class Jetpack_Cxn_Test_Base {
 	 * Helper function to return consistent responses for a skipped test.
 	 *
 	 * @param string $name Test name.
+	 * @param string $message Reason for skipping the test. Optional.
 	 *
 	 * @return array Test results.
 	 */

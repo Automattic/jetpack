@@ -253,9 +253,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results
 	 */
 	protected function test__server_port_value() {
-		$name        = __FUNCTION__;
-		if ( ! isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) && ! isset( $_SERVER['SERVER_PORT'] ) {
-			$message = "The server port values are not defined. This is most common when running PHP via a CLI.";
+		$name = __FUNCTION__;
+		if ( ! isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) && ! isset( $_SERVER['SERVER_PORT'] ) ) {
+			$message = 'The server port values are not defined. This is most common when running PHP via a CLI.';
 			return self::skipped_test( $name, $message );
 		}
 		$site_port   = wp_parse_url( home_url(), PHP_URL_PORT );
@@ -263,11 +263,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$http_ports  = array( 80 );
 		$https_ports = array( 80, 443 );
 
-		if ( defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) ) {
+		if ( defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ) {
 			$http_ports[] = JETPACK_SIGNATURE__HTTP_PORT;
 		}
 
-		if ( defined( 'JETPACK_SIGNATURE__HTTPS_PORT') ) {
+		if ( defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ) {
 			$https_ports[] = JETPACK_SIGNATURE__HTTPS_PORT;
 		}
 
@@ -275,9 +275,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::skipped_test( $name ); // Not currently testing for this situation.
 		}
 
-		if ( is_ssl() && in_array( $server_port, $https_ports ) ) {
+		if ( is_ssl() && in_array( $server_port, $https_ports, true ) ) {
 			return self::passing_test( $name );
-		} else if ( in_array( $server_port, $http_ports) ) {
+		} elseif ( in_array( $server_port, $http_ports, true ) ) {
 			return self::passing_test( $name );
 		} else {
 			if ( is_ssl() ) {
@@ -285,8 +285,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			} else {
 				$needed_constant = 'JETPACK_SIGNATURE__HTTP_PORT';
 			}
-			$message = __( 'The server port value is unexpected.' );
-			$resolution = __( 'Try adding the following to your wp-config.php file:' ) . " define( '$needed_constant', $server_port );";
+			$message    = __( 'The server port value is unexpected.', 'jetpack' );
+			$resolution = __( 'Try adding the following to your wp-config.php file:', 'jetpack' ) . " define( '$needed_constant', $server_port );";
 			return self::failing_test( $name, $message, $resolution );
 		}
 	}
