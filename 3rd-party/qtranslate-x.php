@@ -1,12 +1,22 @@
 <?php
 /**
+ * Q Translate X.
+ *
+ * @package Jetpack
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Prevent qTranslate X from redirecting REST calls.
  *
  * @since 5.3
  *
  * @param string $url_lang Language URL to redirect to.
  * @param string $url_orig Original URL.
- * @param array $url_info  Pieces of original URL.
+ * @param array  $url_info  Pieces of original URL.
  *
  * @return bool
  */

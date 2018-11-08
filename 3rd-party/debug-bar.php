@@ -1,4 +1,13 @@
 <?php
+/**
+ * Debug Bar.
+ *
+ * @package Jetpack
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Checks if the search module is active, and if so, will initialize the singleton instance

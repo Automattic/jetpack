@@ -1,5 +1,15 @@
 <?php
 /**
+ * WPML.
+ *
+ * @package Jetpack
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
  * Only load these if WPML plugin is installed and active.
  */
 
@@ -48,7 +58,7 @@ function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
  *
  * @return string
  */
-function grunion_contact_form_field_html_filter( $r, $field_label, $id ){
+function grunion_contact_form_field_html_filter( $r, $field_label, $id ) {
 	global $sitepress;
 
 	if ( function_exists( 'icl_translate' ) ) {

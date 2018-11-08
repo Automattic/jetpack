@@ -1,19 +1,34 @@
 <?php
 /**
- * Beaverbuilder Compatibility.
+ * Beaver Builder.
+ *
+ * @package Jetpack
  */
-class Jetpack_BeaverBuilderCompat {
 
-	function __construct() {
-		add_action( 'init', array( $this, 'beaverbuilder_refresh' ) );
-	}
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+if ( ! class_exists( 'Jetpack_BeaverBuilderCompat' ) ) {
 	/**
-	 * If masterbar module is active force BeaverBuilder to refresh when publishing a layout.
+	 * Beaverbuilder Compatibility.
 	 */
-	function beaverbuilder_refresh() {
-		if ( Jetpack::is_module_active( 'masterbar' ) ) {
-			add_filter( 'fl_builder_should_refresh_on_publish', '__return_true' );
+	class Jetpack_BeaverBuilderCompat {
+
+		/**
+		 * Constructor.
+		 */
+		function __construct() {
+			add_action( 'init', array( $this, 'beaverbuilder_refresh' ) );
+		}
+
+		/**
+		 * If masterbar module is active force BeaverBuilder to refresh when publishing a layout.
+		 */
+		function beaverbuilder_refresh() {
+			if ( Jetpack::is_module_active( 'masterbar' ) ) {
+				add_filter( 'fl_builder_should_refresh_on_publish', '__return_true' );
+			}
 		}
 	}
 }
