@@ -33,7 +33,7 @@ class Publicize_UI {
 		);
 
 		// Show only to users with the capability required to manage their Publicize connections.
-		if ( ! $this->publicize->current_user_can_edit_post_data() ) {
+		if ( ! $this->publicize->current_user_can_access_publicize_data() ) {
 			return;
 		}
 

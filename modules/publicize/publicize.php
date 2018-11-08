@@ -773,7 +773,13 @@ abstract class Publicize_Base {
 		add_post_type_support( 'post', 'publicize' );
 	}
 
-	function current_user_can_edit_post_data( $post_id = 0 ) {
+	/**
+	 * Can the current user access Publicize Data.
+	 *
+	 * @param int $post_id. 0 for general access. Post_ID for specific access.
+	 * @return bool
+	 */
+	function current_user_can_access_publicize_data( $post_id = 0 ) {
 		/**
 		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
 		 *
@@ -793,7 +799,7 @@ abstract class Publicize_Base {
 	}
 
 	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
-		return $this->current_user_can_edit_post_data( $object_id );
+		return $this->current_user_can_access_publicize_data( $object_id );
 	}
 
 	function register_post_meta() {

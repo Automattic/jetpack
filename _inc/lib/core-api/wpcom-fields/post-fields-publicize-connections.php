@@ -91,7 +91,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	function permission_check( $post_id ) {
 		global $publicize;
 
-		if ( $publicize->current_user_can_edit_post_data( $post_id ) ) {
+		if ( $publicize->current_user_can_access_publicize_data( $post_id ) ) {
 			return true;
 		}
 

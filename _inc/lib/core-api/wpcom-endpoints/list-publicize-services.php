@@ -97,14 +97,14 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	}
 
 	/**
-	 * Verify that user can publish posts.
+	 * Verify that user can access Publicize data
 	 *
-	 * @since 6.7.0
-	 *
-	 * @return bool Whether user has the capability 'publish_posts'.
+	 * @return true|WP_Error
 	 */
 	public function get_items_permission_check() {
-		if ( current_user_can( 'publish_posts' ) ) {
+		global $publicize;
+
+		if ( $publicize->current_user_can_access_publicize_data() ) {
 			return true;
 		}
 
