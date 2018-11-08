@@ -1,9 +1,71 @@
 <?php
+/**
+ * Handle the registration and use of all blocks available in Jetpack for the block editor, aka Gutenberg.
+ *
+ * @package Jetpack
+ */
+
+/**
+ * Helper function to register a Jetpack Gutenberg block
+ *
+ * @param string $type Slug of the block. Will be prefixed with jetpack/.
+ * @param array  $args Arguments that are passed into the register_block_type.
+ *
+ * @see register_block_type
+ *
+ * @since 6.7.0
+ *
+ * @return void
+ */
+function jetpack_register_block( $type, $args = array() ) {
+	$type = sanitize_title_with_dashes( $type );
+	Jetpack_Gutenberg::add_block( $type, $args );
+}
 
 /**
  * General Gutenberg editor specific functionality
  */
 class Jetpack_Gutenberg {
+
+	/**
+	 * Array of blocks we will be registering.
+	 *
+	 * @var array $blocks Array of blocks we will be registering.
+	 */
+	public static $blocks = array();
+
+	/**
+	 * Add a block to the list of blocks to be registered.
+	 *
+	 * @param string $type Slug of the block.
+	 * @param array  $args Arguments that are passed into the register_block_type.
+	 */
+	public static function add_block( $type, $args ) {
+		self::$blocks[ $type ] = $args;
+	}
+
+	/**
+	 * Register all Jetpack blocks available.
+	 *
+	 * @return void|WP_Block_Type|false The registered block type on success, or false on failure.
+	 */
+	public static function load_blocks() {
+		if ( ! self::is_gutenberg_available() ) {
+			return;
+		}
+
+		if ( ! self::should_load_blocks() ) {
+			return;
+		}
+
+		foreach ( self::$blocks as $type => $args ) {
+			register_block_type(
+				'jetpack/' . $type,
+				$args
+			);
+		}
+	}
+
 	/**
 	 * Check if Gutenberg editor is available
 	 *
@@ -16,63 +78,79 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Load Gutenberg assets
+	 * Check whether conditions indicate Gutenberg blocks should be loaded
+	 *
+	 * Loading blocks is enabled by default and may be disabled via filter:
+	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
 	 * @since 6.7.0
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function enqueue_block_assets() {
-		if ( ! self::should_load_blocks() ) {
-			return;
+	public static function should_load_blocks() {
+		if ( ! Jetpack::is_active() ) {
+			return false;
 		}
 
-		$rtl = is_rtl() ? '.rtl' : '';
-
 		/**
-		 * Filter to enable serving blocks via CDN
-		 *
-		 * CDN cache is busted once a day or when Jetpack version changes. To customize it:
-		 *   add_filter( 'jetpack_gutenberg_cdn_cache_buster', function( $version ) { return time(); }, 10, 1 );
+		 * Filter to disable Gutenberg blocks
 		 *
 		 * @since 6.5.0
 		 *
-		 * @param bool false Whether to load Gutenberg blocks from CDN
+		 * @param bool true Whether to load Gutenberg blocks
 		 */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
-			$cdn_base    = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
-			$view_script = "$cdn_base/view.js";
-			$view_style  = "$cdn_base/view$rtl.css";
+		return (bool) apply_filters( 'jetpack_gutenberg', true );
+	}
 
-			/**
-			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
-			 *
-			 * @since 6.5.0
-			 *
-			 * @param string
-			 */
-			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
-		} else {
-			$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
-			$view_style  = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
-			$version     = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/view.js' )
-				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/view.js' )
-				: JETPACK__VERSION;
+	/**
+	 * Only enqueue block assets when needed.
+	 *
+	 * @param string $type slug of the block.
+	 * @param array $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 *
+	 * @return void
+	 */
+	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
+		$type = sanitize_title_with_dashes( $type );
+		// Enqueue styles.
+		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		if ( self::block_has_asset( $style_relative_path ) ) {
+			$style_version = self::get_asset_version( $style_relative_path );
+			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 
-		wp_enqueue_script(
-			'jetpack-blocks-view',
-			$view_script,
-			array(
-				'wp-element',
-				'wp-i18n',
-			),
-			$version
-		);
+		// Enqueue script.
+		$script_relative_path = '_inc/blocks/' . $type . '/view.js';
+		if ( self::block_has_asset( $script_relative_path ) ) {
+			$script_version = self::get_asset_version( $script_relative_path );
+			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+		}
+	}
 
-		Jetpack::setup_wp_i18n_locale_data();
+	/**
+	 * Check if an asset exists for a block.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 *
+	 * @return bool $block_has_asset Does the file exist.
+	 */
+	public static function block_has_asset( $file ) {
+		return file_exists( JETPACK__PLUGIN_DIR . $file );
+	}
 
-		wp_enqueue_style( 'jetpack-blocks-view', $view_style, array(), $version );
+	/**
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 *
+	 * @return string $script_version Version number.
+	 */
+	public static function get_asset_version( $file ) {
+		return Jetpack::is_development_version() && self::block_has_asset( $file )
+			? filemtime( JETPACK__PLUGIN_DIR . $file )
+			: JETPACK__VERSION;
 	}
 
 	/**
@@ -88,22 +166,14 @@ class Jetpack_Gutenberg {
 		}
 
 		$rtl = is_rtl() ? '.rtl' : '';
+		$beta = defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ? '-beta' : '';
 
-		/** This filter is already documented above */
-		if ( apply_filters( 'jetpack_gutenberg_cdn', false ) ) {
-			$cdn_base      = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
-			$editor_script = "$cdn_base/editor.js";
-			$editor_style  = "$cdn_base/editor$rtl.css";
+		$editor_script = plugins_url( "_inc/blocks/editor{$beta}.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "_inc/blocks/editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
-			/** This filter is already documented above */
-			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
-		} else {
-			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style  = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
-			$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-				: JETPACK__VERSION;
-		}
+		$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+			? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+			: JETPACK__VERSION;
 
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
@@ -126,7 +196,8 @@ class Jetpack_Gutenberg {
 				'wp-token-list',
 				'wp-url',
 			),
-			$version
+			$version,
+			false
 		);
 
 		wp_localize_script(
@@ -145,29 +216,5 @@ class Jetpack_Gutenberg {
 		Jetpack::setup_wp_i18n_locale_data();
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-	}
-
-	/**
-	 * Check whether conditions indicate Gutenberg blocks should be loaded
-	 *
-	 * Loading blocks is enabled by default and may be disabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return bool
-	 */
-	public static function should_load_blocks() {
-		if ( ! Jetpack::is_active() ) {
-			return false;
-		}
-		/**
-		 * Filter to disable Gutenberg blocks
-		 *
-		 * @since 6.5.0
-		 *
-		 * @param bool true Whether to load Gutenberg blocks
-		 */
-		return (bool) apply_filters( 'jetpack_gutenberg', true );
 	}
 }
