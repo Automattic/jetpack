@@ -117,11 +117,37 @@ abstract class Publicize_Base {
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
-		// Add Publicize data to the REST API Post response.
-		add_action( 'rest_api_init',  array( $this, 'add_publicize_rest_fields' ) );
+		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 
 		// Set up publicize flags right before post is actually published.
 		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
+	}
+
+	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+		return current_user_can( 'edit_post', $object_id );
+	}
+
+	function register_post_meta() {
+		$args = array(
+			'type' => 'string',
+			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'single' => true,
+			'default' => '',
+			'show_in_rest' => array(
+				'name' => 'jetpack_publicize_message'
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
+
+			$args['object_subtype'] = $post_type;
+
+			register_meta( 'post', $this->POST_MESS, $args );
+		}
 	}
 
 /*
@@ -1094,60 +1120,6 @@ abstract class Publicize_Base {
 		}
 
 		return $checked;
-	}
-
-	/**
-	 * Add rest field to 'post' for Publicize support
-	 *
-	 * Sets up 'publicize' schema to submit publicize sharing title
-	 * and individual connection sharing enables/disables. This schema
-	 * is registered with the 'post' endpoint REST endpoint so publicize
-	 * options can be saved when a post is published.
-	 *
-	 * @since 6.7.0
-	 */
-	public function add_publicize_rest_fields() {
-		// Schema for wpas.submit[] field.
-		$publicize_submit_schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => esc_html__( 'Publicize data for publishing post', 'jetpack' ),
-			'type'       => 'object',
-			'properties' => array(
-				'connections' => array(
-					'description' => esc_html__( 'List of connections to be shared to (or not).', 'jetpack' ),
-					'type'        => 'array',
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'unique_id'    => array(
-								'description' => esc_html__( 'Unique identifier string for a connection', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'should_share' => array(
-								'description' => esc_html__( 'Whether or not connection should be shared to.', 'jetpack' ),
-								'type'        => 'boolean',
-							),
-
-						),
-					),
-				),
-				'title'       => array(
-					'description' => esc_html__( 'Optional title to share post with.', 'jetpack' ),
-					'type'        => 'string',
-				),
-			),
-		);
-
-		// Registering the publicize field with post endpoint.
-		register_rest_field(
-			'post',
-			'publicize',
-			array(
-				'get_callback'    => null,
-				'update_callback' => null, // Data read/processed before publishing post by 'rest_pre_insert_post' filter.
-				'schema'          => $publicize_submit_schema,
-			)
-		);
 	}
 
 	/**
