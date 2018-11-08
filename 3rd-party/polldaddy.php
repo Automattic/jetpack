@@ -1,6 +1,6 @@
 <?php
 /**
- * Poll Daddy.
+ * PollDaddy.
  *
  * @package Jetpack
  */
