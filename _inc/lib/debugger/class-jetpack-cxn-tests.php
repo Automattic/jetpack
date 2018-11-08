@@ -237,6 +237,57 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * Tests the port number to ensure it is an expected value.
+	 *
+	 * We expect that sites on be on one of:
+	 * port 80,
+	 * port 443 (https sites only),
+	 * the value of JETPACK_SIGNATURE__HTTP_PORT,
+	 * unless the site is intentionally on a different port (e.g. example.com:8080 is the site's URL).
+	 *
+	 * If the value isn't one of those and the site's URL doesn't include a port, then the signature verification will fail.
+	 *
+	 * This happens most commonly on sites with reverse proxies, so the edge (e.g. Varnish) is running on 80/443, but nginx
+	 * or Apache is responding internally on a different port (e.g. 81).
+	 *
+	 * @return array Test results
+	 */
+	protected function test__server_port_value() {
+		$name        = __FUNCTION__;
+		$site_port   = wp_parse_url( home_url(), PHP_URL_PORT );
+		$server_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? (int) $_SERVER['HTTP_X_FORWARDED_PORT'] : (int) $_SERVER['SERVER_PORT'];
+		$http_ports  = array( 80 );
+		$https_ports = array( 80, 443 );
+
+		if ( defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) ) {
+			$http_ports[] = JETPACK_SIGNATURE__HTTP_PORT;
+		}
+
+		if ( defined( 'JETPACK_SIGNATURE__HTTPS_PORT') ) {
+			$https_ports[] = JETPACK_SIGNATURE__HTTPS_PORT;
+		}
+
+		if ( $site_port ) {
+			return self::skipped_test( $name ); // Not currently testing for this situation.
+		}
+
+		if ( is_ssl() && in_array( $server_port, $https_ports ) ) {
+			return self::passing_test( $name );
+		} else if ( in_array( $server_port, $http_ports) ) {
+			return self::passing_test( $name );
+		} else {
+			if ( is_ssl() ) {
+				$needed_constant = 'JETPACK_SIGNATURE__HTTPS_PORT';
+			} else {
+				$needed_constant = 'JETPACK_SIGNATURE__HTTP_PORT';
+			}
+			$message = __( 'The server port value is unexpected.' );
+			$resolution = __( 'Try adding the following to your wp-config.php file:' ) . " define( '$needed_constant', $server_port );";
+			return self::failing_test( $name, $message, $resolution );
+		}
+	}
+
+	/**
 	 * Calls to WP.com to run the connection diagnostic testing suite.
 	 *
 	 * Intentionally added last as it will be skipped if any local failed conditions exist.

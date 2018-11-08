@@ -36,6 +36,10 @@ class Jetpack_Signature {
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
 
+		/**
+		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Please update the test if any changes are made in this logic.
+		 */
 		if ( is_ssl() ) {
 			// 443: Standard Port
 			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
