@@ -28,8 +28,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		/**
 		 * Fires after loading default Jetpack Connection tests.
 		 *
-		 * Tests can be added by calling the $object->add_test( $callable ) format on this hook.
-		 *
 		 * @since 6.8.0
 		 */
 		do_action( 'jetpack_connection_tests_loaded' );
@@ -67,7 +65,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), self::serve_message( 'cycle_connection' ) );
+			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
 		}
 
 		return $result;
@@ -88,7 +86,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $local_user->exists() ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = self::failing_test( $name, __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ), self::serve_message( 'cycle_connection' ) );
+			$result = self::failing_test( $name, __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ), 'cycle_connection' );
 		}
 
 		return $result;
@@ -148,7 +146,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === intval( $code ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ), self::serve_message( 'outbound_requests' ) );
+			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ), 'outbound_requests');
 		}
 
 		return $result;
@@ -167,7 +165,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === intval( $code ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ), self::serve_message( 'outbound_requests' ) );
+			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ), 'outbound_requests' );
 		}
 
 		return $result;
@@ -191,7 +189,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				$identity_crisis['home'],
 				$identity_crisis['wpcom_home']
 			);
-			$result = self::failing_test( $name, $message, self::serve_message() ); // Contact support for a IDC.
+			$result = self::failing_test( $name, $message, 'support' );
 		}
 		return $result;
 	}

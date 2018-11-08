@@ -144,31 +144,6 @@ class Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Returns standard resolution steps.
-	 *
-	 * Tests can provide their own messaging, but for any failed tests with the same steps, let's keep it DRY.
-	 *
-	 * @param string $resolution Standard resolution.
-	 *
-	 * @return string Human-readable steps to resolve a failed test.
-	 */
-	public static function serve_message( $resolution = null ) {
-		switch ( $resolution ) {
-			case 'cycle_connection':
-				$message = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
-				break;
-			case 'outbound_requests':
-				$message = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
-				break;
-			case 'support':
-			default:
-				$message = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
-		}
-
-		return $message;
-	}
-
-	/**
 	 * Helper function to return consistent responses for a passing test.
 	 *
 	 * @param string $name Test name.
@@ -210,6 +185,19 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function failing_test( $name, $message, $resolution = false ) {
+		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
+		switch ( $resolution ) {
+			case 'cycle_connection':
+				$resolution = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
+				break;
+			case 'outbound_requests':
+				$resolution = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
+				break;
+			case 'support':
+				$resolution = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
+				break;
+		}
+
 		return array(
 			'name'       => $name,
 			'pass'       => false,
