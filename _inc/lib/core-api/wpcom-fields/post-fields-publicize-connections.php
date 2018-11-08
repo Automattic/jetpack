@@ -15,6 +15,14 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	public function register_fields() {
 		$this->object_type = get_post_types_by_support( 'publicize' );
 
+		foreach ( $this->object_type as $post_type ) {
+			// Adds meta support for those post types that don't already have it.
+			// Only runs during REST API requests, so it doesn't impact UI.
+			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
+				add_post_type_support( $post_type, 'custom-fields' );
+			}
+		}
+
 		parent::register_fields();
 	}
 

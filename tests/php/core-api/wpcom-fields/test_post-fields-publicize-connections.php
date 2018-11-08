@@ -13,9 +13,14 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	private $draft_id = 0;
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		register_post_type( 'example', array(
+		register_post_type( 'example-with', array(
 			'show_in_rest' => true,
 			'supports' => array( 'publicize', 'custom-fields' )
+		) );
+
+		register_post_type( 'example-without', array(
+			'show_in_rest' => true,
+			'supports' => array( 'publicize' )
 		) );
 
 		add_post_type_support( 'post', 'publicize' );
@@ -77,13 +82,26 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
 	}
 
-	public function test_register_fields_custom_post_type() {
-		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example' );
+	public function test_register_fields_custom_post_type_with_custom_fields_support() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
+	}
+
+	public function test_register_fields_custom_post_type_without_custom_fields_support() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$schema   = $data['schema'];
+
+		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
 	}
 
 	public function test_response() {
