@@ -117,6 +117,7 @@ abstract class Publicize_Base {
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
+		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 
 		// Set up publicize flags right before post is actually published.
@@ -767,6 +768,10 @@ abstract class Publicize_Base {
 	 * @return void
 	 */
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
+
+	function add_post_type_support() {
+		add_post_type_support( 'post', 'publicize' );
+	}
 
 	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
 		return current_user_can( 'edit_post', $object_id );
