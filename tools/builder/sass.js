@@ -31,6 +31,20 @@ gulp.task( 'sass:dashboard', function( done ) {
 		} );
 } );
 
+gulp.task( 'sass:calypsoify', function() {
+	log( 'Building Calypsoify CSS bundle...' );
+
+	return gulp.src( './modules/calypsoify/*.scss' )
+		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
+		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( './modules/calypsoify' ) )
+		.on( 'end', function() {
+			log( 'Calypsoify CSS finished.' );
+		} );
+} );
+
 gulp.task( 'sass:dops', function( done ) {
 	log( 'Building dops-components CSS bundle...' );
 
@@ -106,9 +120,10 @@ gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
 
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:dops' ),
+	'sass:calypsoify',
 	'sass:old'
 );
 
 export const watch = function() {
-	return gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], gulp.parallel( 'sass:dashboard', 'sass:dops', 'sass:old' ) );
+	return gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:dops', 'sass:old' ) );
 };
