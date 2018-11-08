@@ -68,12 +68,16 @@ class Jetpack_Cxn_Test_Base {
 	 * Adds a new test to the Jetpack Connection Testing suite.
 	 *
 	 * @param callable $callable Test to add to queue.
+	 * @param array    $groups Testing groups to add test to.
 	 *
 	 * @return bool True if successfully added. False for a failure.
 	 */
-	public function add_test( $callable ) {
+	public function add_test( $callable, $groups = array( 'default' ) ) {
 		if ( is_callable( $callable ) ) {
-			$this->tests[] = $callable;
+			$this->tests[] = array(
+				'test'  => $callable,
+				'group' => $groups,
+			);
 			return true;
 		}
 
@@ -85,7 +89,8 @@ class Jetpack_Cxn_Test_Base {
 	 */
 	public function run_tests() {
 		foreach ( $this->tests as $test ) {
-			$result          = call_user_func( $test );
+			$result          = call_user_func( $test['test'] );
+			$result['group'] = $test['group'];
 			$this->results[] = $result;
 			if ( false === $result['pass'] ) {
 				$this->pass = false;
@@ -96,23 +101,38 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Returns the full results array.
 	 *
+	 * @param string $group Testing group whose results we want. Defaults to "default" group. Use "all" for all tests.
 	 * @return array Array of test results.
 	 */
-	public function raw_results() {
+	public function raw_results( $group = 'default' ) {
 		if ( ! $this->results ) {
 			$this->run_tests();
 		}
 
-		return $this->results;
+		$results = $this->results;
+
+		if ( 'all' === $group ) {
+				return $results;
+		}
+
+		foreach ( $results as $test => $result ) {
+			if ( ! in_array( $group, $result['group'], true ) ) {
+				unset( $results[ $test ] );
+			}
+		}
+
+		return $results;
 	}
 
 	/**
 	 * Returns the status of the connection suite.
 	 *
+	 * @param string $group Testing group to check status of. Optional, default all tests.
+	 *
 	 * @return true|array True if all tests pass. Array of failed tests.
 	 */
-	public function pass() {
-		$results = $this->raw_results();
+	public function pass( $group = 'default' ) {
+		$results = $this->raw_results( $group );
 
 		foreach ( $results as $result ) {
 			// 'pass' could be true, false, or 'skipped'. We only want false.
@@ -128,10 +148,12 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Return array of failed test messages.
 	 *
+	 * @param string $group Testing group whose failures we want. Defaults to "default". Use "all" for all tests.
+	 *
 	 * @return false|array False if no failed tests. Otherwise, array of failed tests.
 	 */
-	public function list_fails() {
-		$results = $this->raw_results();
+	public function list_fails( $group = 'default' ) {
+		$results = $this->raw_results( $group );
 
 		foreach ( $results as $test => $result ) {
 			// We do not want tests that passed or ones that are misconfigured (no pass status or no failure message).
@@ -208,11 +230,13 @@ class Jetpack_Cxn_Test_Base {
 
 	/**
 	 * Provide WP_CLI friendly testing results.
+	 *
+	 * @param string $group Testing group whose results we are outputting. Default "default". Use "all" for all tests.
 	 */
-	public function output_results_for_cli() {
+	public function output_results_for_cli( $group = 'default' ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::line( __( 'TEST RESULTS:', 'jetpack' ) );
-			foreach ( $this->raw_results() as $test ) {
+			foreach ( $this->raw_results( $group ) as $test ) {
 				if ( true === $test['pass'] ) {
 					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 				} elseif ( 'skipped' === $test['pass'] ) {
