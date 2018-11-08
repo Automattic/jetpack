@@ -62,9 +62,11 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 			return $permission_check;
 		}
 
-		$new_value = $this->update( $value, $object_data, $request );
+		$updated = $this->update( $value, $object_data, $request );
 
-		$this->prepare_for_response( $new_value, $request );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
 	}
 
 	public function get_permission_check( $request ) {
