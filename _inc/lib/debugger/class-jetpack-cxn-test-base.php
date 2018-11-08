@@ -188,11 +188,14 @@ class Jetpack_Cxn_Test_Base {
 	 *
 	 * @return array Test results.
 	 */
-	public static function skipped_test( $name = 'Unnamed' ) {
+	public static function skipped_test( $name = 'Unnamed', $message = null ) {
+		if ( ! $message ) {
+			$message = __( 'Test Skipped.', 'jetpack' );
+		}
 		return array(
 			'name'       => $name,
 			'pass'       => 'skipped',
-			'message'    => __( 'Test Skipped.', 'jetpack' ),
+			'message'    => $message,
 			'resolution' => false,
 		);
 	}
