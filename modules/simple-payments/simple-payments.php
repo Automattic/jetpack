@@ -22,7 +22,7 @@ class Jetpack_Simple_Payments {
 	static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->register_init_hook();
+			self::$instance->register_init_hooks();
 		}
 		return self::$instance;
 	}
@@ -38,8 +38,9 @@ class Jetpack_Simple_Payments {
 		wp_register_style( 'jetpack-simple-payments', plugins_url( '/simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 	}
 
-	private function register_init_hook() {
+	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
 	private function register_shortcode() {
@@ -286,6 +287,126 @@ class Jetpack_Simple_Payments {
 			'spay_multiple',
 			'spay_formatted_price',
 		) );
+	}
+
+	/**
+	 * Enable Simple payments custom meta values for access through the REST API.
+	 * Field’s value will be exposed on a .meta key in the endpoint response,
+	 * and WordPress will handle setting up the callbacks for reading and writing
+	 * to that meta key.
+	 *
+	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+	 */
+	public function register_meta_fields_in_rest_api() {
+		register_meta( 'post', 'spay_price', array(
+			'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => array( $this, 'sanitize_price' ),
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'number',
+		) );
+
+		register_meta( 'post', 'spay_currency', array(
+			'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => array( $this, 'sanitize_currency' ),
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_cta', array(
+			'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_multiple', array(
+			'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'boolean',
+		) );
+
+		register_meta( 'post', 'spay_email', array(
+			'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+			'sanitize_callback' => 'sanitize_email',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+
+		register_meta( 'post', 'spay_status', array(
+			'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+			'object_subtype'    => self::$post_type_product,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+		) );
+	}
+
+	/**
+	 * Sanitize three-character ISO-4217 Simple payments currency
+	 *
+	 * List has to be in sync with list at the client side:
+	 * @link https://github.com/Automattic/wp-calypso/blob/6d02ffe73cc073dea7270a22dc30881bff17d8fb/client/lib/simple-payments/constants.js
+	 *
+	 * Currencies should be supported by PayPal:
+	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+	 */
+	public static function sanitize_currency( $currency ) {
+		$valid_currencies = array(
+			'USD',
+			'EUR',
+			'AUD',
+			'BRL',
+			'CAD',
+			'CZK',
+			'DKK',
+			'HKD',
+			'HUF',
+			'ILS',
+			'JPY',
+			'MYR',
+			'MXN',
+			'TWD',
+			'NZD',
+			'NOK',
+			'PHP',
+			'PLN',
+			'GBP',
+			'RUB',
+			'SGD',
+			'SEK',
+			'CHF',
+			'THB',
+		);
+
+		return in_array( $currency, $valid_currencies ) ? $currency : false;
+	}
+
+	/**
+	 * Sanitize price:
+	 *
+	 * Positive integers and floats
+	 * Supports two decimal places.
+	 * Maximum length: 10.
+	 *
+	 * See `price` from PayPal docs:
+	 * @link https://developer.paypal.com/docs/api/orders/v1/#definition-item
+	 *
+	 * @param      $value
+	 * @return null|string
+	 */
+	public static function sanitize_price( $price ) {
+		return preg_match( '/^[0-9]{0,10}(\.[0-9]{0,2})?$/', $price ) ? $price : false;
 	}
 
 	/**
