@@ -40,6 +40,10 @@ function wpcom_rest_api_v2_register_routes() {
 		if ( is_subclass_of( $maybe_controller, 'WP_REST_Controller' ) ) {
 			$maybe_controller->register_routes();
 		}
+
+		if ( is_subclass_of( $maybe_controller, 'WPCOM_REST_API_V2_Field_Controller' ) ) {
+			$maybe_controller->register_fields();
+		}
 	}
 }
 

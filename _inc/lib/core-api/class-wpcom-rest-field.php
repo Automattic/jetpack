@@ -19,7 +19,9 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	                _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::$field_name', sprintf( __( "Property '%s' must be overridden.", 'jetpack' ), 'field_name' ), 'Jetpack 6.8' );
 			return;
 		}
+	}
 
+	public function register_fields() {
 		register_rest_field( $this->object_type, $this->field_name, array(
 			'get_callback' => array( $this, 'get_for_response' ),
 			'update_callback' => array( $this, 'update_from_request' ),
