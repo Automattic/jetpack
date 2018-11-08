@@ -12,6 +12,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	protected $object_type = 'post';
 	protected $field_name = 'jetpack_publicize_connections';
 
+	public function register_fields() {
+		$this->object_type = get_post_types_by_support( 'publicize' );
+
+		parent::register_fields();
+	}
+
 	public function get_schema() {
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
