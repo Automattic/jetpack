@@ -174,6 +174,33 @@ body,
       &#calypso-sitename {
         font-size: 12px;
         color: $_537994;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 225px;
+
+        @media screen and (max-width:782px) {
+          width: 150px;
+        }
+
+        &:after {
+          content: '';
+          display: block;
+          position: absolute;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          pointer-events: none;
+          background: -webkit-gradient(linear, left top, right top, from(rgba(255,255,255,0)), color-stop(90%, #fff));
+          background: linear-gradient(to right, rgba(255,255,255,0), #fff 90%);
+          top: 0px;
+          bottom: 0px;
+          right: 0px;
+          left: auto;
+          width: 20%;
+          height: auto;
+        }
       }
 
       &#calypso-plugins {
@@ -385,9 +412,17 @@ body,
   -webkit-box-shadow: none;
   -mozilla-box-shadow: none;
   height: 46px;
+  position: fixed;
 
-  .ab-top-menu > li > .ab-item {
-    font-size: 14px;
+  .ab-top-menu > li {
+    > .ab-item {
+      font-size: 14px;
+    }
+
+    &.hover > .ab-item {
+      background: $_0099d8 !important;
+      color: $_fff;
+    }
   }
 
   * {
@@ -412,17 +447,20 @@ body,
 
   &:not(.mobile) .ab-top-menu > li > .ab-item:focus,
   &.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
-  &:not(.mobile) .ab-top-menu > li:hover > .ab-item,
-  .ab-top-menu > li.hover > .ab-item,
   .ab-top-menu > li.ab-hover > .ab-item {
     background: transparent !important;
+  }
+
+  &:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+    background: $_0099d8 !important;
+    color: #fff;
   }
 
   .ab-top-menu > li.my-sites {
     > .ab-item,
     &.hover > .ab-item,
     &.ab-hover > .ab-item {
-      background: #004967 !important;
+      background: $_004967 !important;
     }
   }
 
@@ -431,18 +469,29 @@ body,
     margin-top: 12px;
   }
 
-  ul li#wp-admin-bar-ab-new-post a {
-    padding: 6px 20px;
-    color: $_0087be !important
+  ul li#wp-admin-bar-ab-new-post {
+    border-radius: 3px;
 
-    span {
+    a {
+      padding: 6px 15px;
       color: $_0087be !important;
-      font-size: 14px !important;
+
+      span {
+        color: $_0087be !important;
+        font-size: 14px !important;
+      }
+
+      &:before,
+      &:after {
+        background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="0" fill="none" width="24" height="24"/><g><path fill="%230087be" d="M21 14v5c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h5v2H5v14h14v-5h2z"/><path fill="%230087be" d="M21 7h-4V3h-2v4h-4v2h4v4h2V9h4"/></g></svg>') !important;
+      }
     }
 
-    &:before,
-    &:after {
-      filter: brightness(4);
+    &:hover,
+    &:hover > .ab-item {
+      background: $_fff !important;
+      opacity: 1;
+      border-radius: 3px !important;
     }
   }
 
@@ -452,8 +501,15 @@ body,
     display: none !important;
   }
 
-  li#wp-admin-bar-notes > #wpnt-notes-panel2 {
-    top: 46px;
+  li#wp-admin-bar-notes {
+    &.active,
+    &.active > .ab-item {
+      background: $_004967 !important;
+    }
+
+    > #wpnt-notes-panel2 {
+      top: 46px;
+    }
   }
 
   .ab-top-menu > li.ab-active > .ab-item,
