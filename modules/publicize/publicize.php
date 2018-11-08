@@ -123,33 +123,6 @@ abstract class Publicize_Base {
 		add_filter( 'rest_pre_insert_post', array( $this, 'process_publicize_from_rest' ), 10, 2 );
 	}
 
-	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
-		return current_user_can( 'edit_post', $object_id );
-	}
-
-	function register_post_meta() {
-		$args = array(
-			'type' => 'string',
-			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
-			'single' => true,
-			'default' => '',
-			'show_in_rest' => array(
-				'name' => 'jetpack_publicize_message'
-			),
-			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
-		);
-
-		foreach ( get_post_types() as $post_type ) {
-			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
-				continue;
-			}
-
-			$args['object_subtype'] = $post_type;
-
-			register_meta( 'post', $this->POST_MESS, $args );
-		}
-	}
-
 /*
  * Services: Facebook, Twitter, etc.
  */
@@ -794,6 +767,33 @@ abstract class Publicize_Base {
 	 * @return void
 	 */
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
+
+	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+		return current_user_can( 'edit_post', $object_id );
+	}
+
+	function register_post_meta() {
+		$args = array(
+			'type' => 'string',
+			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'single' => true,
+			'default' => '',
+			'show_in_rest' => array(
+				'name' => 'jetpack_publicize_message'
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
+
+			$args['object_subtype'] = $post_type;
+
+			register_meta( 'post', $this->POST_MESS, $args );
+		}
+	}
 
 	/**
 	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
