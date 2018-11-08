@@ -3,12 +3,91 @@
 class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type = 'example';
 	protected $field_name = 'example';
+
+	private $test_schema = array();
+
+	public function __construct( $test_schema ) {
+		$this->test_schema = $test_schema;
+
+		parent::__construct();
+	}
+
+	public function get_schema() {
+		return $this->test_schema;
+	}
+
+	public function get_permission_check() {
+		return new WP_Error( 'nope' );
+	}
 }
 
 /**
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
+	public function provide_type_defaults() {
+		return array(
+			'string'  => array( 'string',  '' ),
+			'integer' => array( 'integer', 0 ),
+			'number'  => array( 'number',  0 ),
+			'array'   => array( 'array',   array() ),
+//			'object'  => [sic] handled separately
+			'boolean' => array( 'boolean', false ),
+			'null'    => array( 'null',    null ),
+		);
+	}
+
+	public function test_default_value_provided_by_schema() {
+		$schema = array(
+			'default' => 'hello',
+		);
+
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
+
+		$actual = $controller->default_value( $schema );
+
+		$this->assertSame( 'hello', $actual );
+	}
+
+	/**
+	 * @dataProvider provide_type_defaults()
+	 */
+	public function test_default_value_guessed_from_type( $type, $expected ) {
+		$schema = array(
+			'type' => $type,
+		);
+
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
+
+		$actual = $controller->default_value( $schema );
+
+		$this->assertSame( $expected, $actual );
+	}
+
+	public function test_default_value_guessed_from_object_type() {
+		$schema = array(
+			'type' => 'object',
+		);
+
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
+
+		$actual = $controller->default_value( $schema );
+
+		$this->assertInternalType( 'object', $actual );
+		$this->assertEquals( new stdClass, $actual );
+	}
+
+	public function test_get_for_response_returns_default_value_for_users_without_permission() {
+		$schema = array(
+			'default' => 'hello',
+		);
+
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
+		$actual = $controller->get_for_response( 1, 2, 3, 4 );
+
+		$this->assertSame( 'hello', $actual );
+	}
+
 	public function test_filter_response_by_context_for_scalar_with_correct_context() {
 		$value = 1;
 		$schema = array(
@@ -17,7 +96,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'edit';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -32,7 +111,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -54,7 +133,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'edit';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -72,7 +151,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -93,7 +172,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -120,7 +199,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'edit';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -143,7 +222,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -170,7 +249,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
@@ -211,7 +290,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		);
 		$context = 'view';
 
-		$controller = new Example_WPCOM_REST_API_V2_Field_Controller();
+		$controller = new Example_WPCOM_REST_API_V2_Field_Controller( $schema );
 
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 

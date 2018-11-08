@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @todo - nicer API for array values
+ * @todo - nicer API for array values?
  */
 abstract class WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type;
@@ -43,11 +43,35 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		return $this->filter_response_by_context( $value, $schema, $context );
 	}
 
-	public function get_for_response( $object_data, $field_name, $request, $object_type ) {
+	final public function default_value( $schema ) {
+		if ( isset( $schema['default'] ) ) {
+			return $schema['default'];
+		}
+
+		// If you have something more complicated, use $schema['default'];
+		switch ( isset( $schema['type'] ) ? $schema['type'] : 'null' ) {
+		case 'string' :
+			return '';
+		case 'integer' :
+		case 'number' :
+			return 0;
+		case 'object' :
+			return (object) array();
+		case 'array' :
+			return array();
+		case 'boolean' :
+			return false;
+		case 'null' :
+		default :
+			return null;
+		}
+	}
+
+	final public function get_for_response( $object_data, $field_name, $request, $object_type ) {
 		$permission_check = $this->get_permission_check( $object_data, $request );
 
 		if ( ! $permission_check || is_wp_error( $permission_check ) ) {
-			return;
+			return $this->default_value( $this->get_schema() );
 		}
 
 		$value = $this->get( $object_data, $request );
@@ -55,7 +79,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		return $this->prepare_for_response( $value, $request );
 	}
 
-	public function update_from_request( $value, $object_data, $field_name, $request, $object_type ) {
+	final public function update_from_request( $value, $object_data, $field_name, $request, $object_type ) {
 		$permission_check = $this->update_permission_check( $value, $object_data, $request );
 
 		if ( ! $permission_check ) {
@@ -102,7 +126,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
 	}
 
-	function filter_response_by_context( $value, $schema, $context ) {
+	final function filter_response_by_context( $value, $schema, $context ) {
 		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
 			return new WP_Error( '__wrong-context__' );
 		}
