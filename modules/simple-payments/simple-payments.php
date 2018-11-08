@@ -49,7 +49,9 @@ class Jetpack_Simple_Payments {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		$this->register_scripts_and_styles();
+		if ( ! is_admin() ) {
+			$this->register_scripts_and_styles();
+		}
 		$this->register_shortcode();
 		$this->setup_cpts();
 
