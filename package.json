@@ -15,7 +15,7 @@
   },
   "scripts": {
     "watch": "yarn install-if-deps-outdated && ./node_modules/.bin/gulp watch",
-    "clean-client": "rm -rf _inc/build/ css/",
+    "clean-client": "rm -rf _inc/build/ _inc/blocks/ css/",
     "install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
     "distclean": "rm -rf node_modules && yarn cache clean",
     "build": "yarn install-if-deps-outdated && yarn clean-client && yarn build-client",
