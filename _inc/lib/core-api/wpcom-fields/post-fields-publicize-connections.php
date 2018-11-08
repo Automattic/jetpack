@@ -79,13 +79,13 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		);
 	}
 
-	function get_permission_check( $request ) {
+	function get_permission_check( $post_array, $request ) {
 		// @todo?
 		return true;
 	}
 
-	public function update_permission_check( $value, $request ) {
-		if ( current_user_can( 'publish_posts' ) ) {
+	public function update_permission_check( $value, $post, $request ) {
+		if ( current_user_can( 'publish_post', $post->ID ) ) {
 			return true;
 		}
 

@@ -44,7 +44,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	}
 
 	public function get_for_response( $object_data, $field_name, $request, $object_type ) {
-		$permission_check = $this->get_permission_check( $request );
+		$permission_check = $this->get_permission_check( $object_data, $request );
 
 		if ( ! $permission_check || is_wp_error( $permission_check ) ) {
 			return;
@@ -56,7 +56,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	}
 
 	public function update_from_request( $value, $object_data, $field_name, $request, $object_type ) {
-		$permission_check = $this->update_permission_check( $value, $request );
+		$permission_check = $this->update_permission_check( $value, $object_data, $request );
 
 		if ( ! $permission_check ) {
 			return;
@@ -73,7 +73,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		}
 	}
 
-	public function get_permission_check( $request ) {
+	public function get_permission_check( $object_data, $request ) {
 		/* translators: %s: get_permission_check() */
                 _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::get_permission_check', sprintf( __( "Method '%s' must be overridden." ), __METHOD__ ), 'Jetpack 6.8' );
 	}
@@ -83,7 +83,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
                 _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::get', sprintf( __( "Method '%s' must be overridden." ), __METHOD__ ), 'Jetpack 6.8' );
 	}
 
-	public function update_permission_check( $value, $request ) {
+	public function update_permission_check( $value, $object_data, $request ) {
 		/* translators: %s: update_permission_check() */
                 _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::update_permission_check', sprintf( __( "Method '%s' must be overridden." ), __METHOD__ ), 'Jetpack 6.8' );
 	}
