@@ -468,12 +468,6 @@ class Jetpack_Simple_Payments {
 				'desc'    => _x( 'Canadian Dollars', 'currency', 'jetpack' ),
 				'decimal' => 2,
 			),
-			'INR' => array(
-				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
-				'symbol'  => '₹',
-				'desc'    => _x( 'Indian Rupees', 'currency', 'jetpack' ),
-				'decimal' => 0,
-			),
 			'ILS' => array(
 				'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
 				'symbol'  => '₪',
