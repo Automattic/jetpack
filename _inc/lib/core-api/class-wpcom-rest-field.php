@@ -22,11 +22,13 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	}
 
 	public function register_fields() {
-		register_rest_field( $this->object_type, $this->field_name, array(
-			'get_callback' => array( $this, 'get_for_response' ),
-			'update_callback' => array( $this, 'update_from_request' ),
-			'schema' => $this->get_schema(),
-		) );
+		foreach ( (array) $this->object_type as $object_type ) {
+			register_rest_field( $object_type, $this->field_name, array(
+				'get_callback' => array( $this, 'get_for_response' ),
+				'update_callback' => array( $this, 'update_from_request' ),
+				'schema' => $this->get_schema(),
+			) );
+		}
 	}
 
 	function prepare_for_response( $value, $request ) {
