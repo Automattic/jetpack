@@ -132,12 +132,13 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 		$available_connections = $publicize->get_filtered_connection_data( $post->ID );
 
-		$connections = array();
+		$changed_connections = array();
 
 		$available_connections_by_unique_id = array();
 		$available_connections_by_service_name = array();
 		foreach ( $available_connections as $available_connection ) {
 			$available_connections_by_unique_id[$available_connection['unique_id']] = $available_connection;
+
 			if ( ! isset( $available_connections_by_service_name[$available_connection['service_name']] ) ) {
 				$available_connections_by_service_name[$available_connection['service_name']] = array();
 			}
@@ -155,7 +156,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			}
 
 			foreach ( $available_connections_by_service_name[$requested_connection['service_name']] as $available_connection ) {
-				$connections[$available_connection['unique_id']] = $requested_connection['enabled'];
+				$changed_connections[$available_connection['unique_id']] = $requested_connection['enabled'];
 			}
 		}
 
@@ -170,25 +171,26 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				continue;
 			}
 
-			$connections[$requested_connection['id']] = $requested_connection['enabled'];
+			$changed_connections[$requested_connection['id']] = $requested_connection['enabled'];
 		}
 
-		foreach ( $connections as $id => $enabled ) {
-			$connection = $available_connections_by_unique_id[$id];
+		foreach ( $changed_connections as $unique_id => $enabled ) {
+			$connection = $available_connections_by_unique_id[$unique_id];
 
 			if ( $connection['done'] || ! $connection['toggleable'] ) {
 				continue;
 			}
 
-			$available_connections_by_unique_id[$id]['enabled'] = $enabled;
+			$available_connections_by_unique_id[$unique_id]['enabled'] = $enabled;
 		}
 
-		foreach ( $available_connections_by_unique_id as $available_connection ) {
-			error_log( sprintf( '%s: %s = %d', $available_connection['unique_id'], $available_connection['service_name'], $available_connection['enabled'] ) );
+		foreach ( $available_connections_by_unique_id as $unique_id => $available_connection ) {
+			if ( $available_connection['enabled'] ) {
+				delete_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id );
+			} else {
+				update_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id, 1 );
+			}
 		}
-
-		// @todo - implement :)
-		return 'ok';
 	}
 }
 
