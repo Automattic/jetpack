@@ -112,7 +112,7 @@ class Jetpack_Cxn_Test_Base {
 		$results = $this->results;
 
 		if ( 'all' === $group ) {
-				return $results;
+			return $results;
 		}
 
 		foreach ( $results as $test => $result ) {
@@ -246,5 +246,35 @@ class Jetpack_Cxn_Test_Base {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Provide single WP Error instance of all failures.
+	 *
+	 * @param string $group Testing group whose failures we want converted. Default "default". Use "all" for all tests.
+	 *
+	 * @return WP_Error|false WP_Error with all failed tests or false if there were no failures.
+	 */
+	public function output_fails_as_wp_error( $group = 'default' ) {
+		if ( $this->pass( $group ) ) {
+			return false;
+		}
+		$fails = $this->list_fails( $group );
+		$error = false;
+
+		foreach ( $fails as $result ) {
+			$code    = 'failed_' . $result['name'];
+			$message = $result['message'];
+			$data    = array(
+				'resolution' => $result['resolution'],
+			);
+			if ( ! $error ) {
+				$error = new WP_Error( $code, $message, $data );
+			} else {
+				$error->add( $code, $message, $data );
+			}
+		}
+
+		return $error;
 	}
 }

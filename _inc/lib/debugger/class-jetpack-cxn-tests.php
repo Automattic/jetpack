@@ -195,11 +195,53 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * Tests connection status against wp.com's test-connection endpoint
+	 *
+	 * @todo: Compare with the wpcom_self_test. We only need one of these.
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__wpcom_connection_test() {
+		$name = __FUNCTION__;
+
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+			return self::skipped_test( $name );
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
+			Jetpack_Client::WPCOM_JSON_API_VERSION
+		);
+
+		if ( is_wp_error( $response ) ) {
+			/* translators: %1$s is the error code, %2$s is the error message */
+			$message = sprintf( __( 'Connection test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() );
+			return self::failing_test( $name, $message );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( ! $body ) {
+			$message = __( 'Connection test failed (empty response body)', 'jetpack' ) . wp_remote_retrieve_response_code( $response );
+			return self::failing_test( $name, $message );
+		}
+
+		$result       = json_decode( $body );
+		$is_connected = (bool) $result->connected;
+		$message      = $result->message . wp_remote_retrieve_response_code( $response );
+
+		if ( $is_connected ) {
+			return self::passing_test( $name );
+		} else {
+			return self::failing_test( $name, $message );
+		}
+	}
+
+	/**
 	 * Calls to WP.com to run the connection diagnostic testing suite.
 	 *
 	 * Intentionally added last as it will be skipped if any local failed conditions exist.
 	 *
-	 * @return array|WP_Error Standard WP_HTTP return array: 'headers', 'body', 'response', 'cookies', 'filename' on success.
+	 * @return array Test results.
 	 */
 	protected function last__wpcom_self_test() {
 		$name = 'test__wpcom_self_test';
