@@ -239,7 +239,7 @@ class Jetpack_Simple_Payments {
 			esc_attr( "${css_prefix}-description" ),
 			$data['description'],
 			esc_attr( "${css_prefix}-price" ),
-			$data['price'], // Escaped by format_price
+			esc_html( $data['price'] ),
 			esc_attr( "${css_prefix}-purchase-message" ),
 			esc_attr( "{$data['dom_id']}-message-container" ),
 			esc_attr( "${css_prefix}-purchase-box" ),
@@ -250,26 +250,20 @@ class Jetpack_Simple_Payments {
 	}
 
 	/**
-	 * HTML format price for display
+	 * Format a price with currency
 	 *
-	 * Uses currency-aware formatting to output a formatted price for HTML with a simple fallback.
+	 * Uses currency-aware formatting to output a formatted price with a simple fallback.
 	 *
 	 * Largely inspired by WordPress.com's Store_Price::display_currency
 	 *
 	 * @param  string $price    Price.
 	 * @param  string $currency Currency.
-	 * @return string           HTML-ready price to display
+	 * @return string           Formatted price.
 	 */
 	private function format_price( $price, $currency ) {
 		$currency_details = self::get_currency( $currency );
 
 		if ( $currency_details ) {
-			$symbol = sprintf(
-				'<abbr title="%s">%s</abbr>',
-				esc_attr( $currency_details['desc'] ),
-				esc_html( $currency_details['symbol'] )
-			);
-
 			// Ensure USD displays as 1234.56 even in non-US locales.
 			$amount = 'USD' === $currency
 				? number_format( $price, $currency_details['decimal'], '.', ',' )
@@ -277,12 +271,12 @@ class Jetpack_Simple_Payments {
 
 			return sprintf(
 				$currency_details['format'],
-				$symbol,
-				esc_html( $amount )
+				$currency_details['symbol'],
+				$amount
 			);
 		}
 
-		return esc_html( "$price $currency" );
+		return "$price $currency";
 	}
 
 	/**
