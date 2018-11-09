@@ -305,21 +305,6 @@
 }
 
 /**
- * Shortcodes
- */
-.entry-content .jetpack-recipe,
-.entry-content .presentation-wrapper {
-	margin: 32px 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.entry-content .jetpack-recipe,
-	.entry-content .presentation-wrapper {
-		margin: 32px calc(2 * (100vw / 12));
-	}
-}
-
-/**
  * Content Options
  */
 .twentynineteen-customizer .entry .entry-meta > span,
