@@ -79,7 +79,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__master_user_exists_on_site() {
 		$name = __FUNCTION__;
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return self::skipped_test( $name ); // Skip test.
+			return self::skipped_test( $name, __( 'Jetpack is not connected. No master user to check.', 'jetpack' ) ); // Skip test.
 		}
 		$local_user = $this->helper_retrieve_local_master_user();
 
@@ -102,7 +102,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__master_user_can_manage_options() {
 		$name = __FUNCTION__;
 		if ( ! $this->helper_is_jetpack_connected() ) {
-			return self::skipped_test( $name ); // Skip test.
+			return self::skipped_test( $name, __( 'Jetpack is not connected.', 'jetpack' ) ); // Skip test.
 		}
 		$master_user = $this->helper_retrieve_local_master_user();
 
@@ -177,7 +177,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__identity_crisis() {
-		$name            = __FUNCTION__;
+		$name = __FUNCTION__;
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			return self::skipped_test( $name, __( 'Jetpack is not connected.', 'jetpack' ) ); // Skip test.
+		}
 		$identity_crisis = Jetpack::check_identity_crisis();
 
 		if ( ! $identity_crisis ) {

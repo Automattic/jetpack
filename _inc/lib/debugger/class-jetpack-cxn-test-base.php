@@ -189,10 +189,7 @@ class Jetpack_Cxn_Test_Base {
 	 *
 	 * @return array Test results.
 	 */
-	public static function skipped_test( $name = 'Unnamed', $message = null ) {
-		if ( ! $message ) {
-			$message = __( 'Test Skipped.', 'jetpack' );
-		}
+	public static function skipped_test( $name = 'Unnamed', $message = false ) {
 		return array(
 			'name'       => $name,
 			'pass'       => 'skipped',
@@ -245,8 +242,12 @@ class Jetpack_Cxn_Test_Base {
 					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 				} elseif ( 'skipped' === $test['pass'] ) {
 					WP_CLI::log( WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
+					if ( $test['message'] ) {
+						WP_CLI::log( '         ' . $test['message'] ); // Number of spaces to "tab indent" the reason.
+					}
 				} else { // Failed.
 					WP_CLI::log( WP_CLI::colorize( '%rFailed:%n  ' . $test['name'] ) );
+					WP_CLI::log( '         ' . $test['message'] ); // Number of spaces to "tab indent" the reason.
 				}
 			}
 		}
