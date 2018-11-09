@@ -288,6 +288,12 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
+		// Fall back to unspecified currency sign:
+		// https://en.wikipedia.org/wiki/Currency_sign_(typography).
+		if ( ! $currency ) {
+			$currency = '¤';
+		}
+
 		return "$price $currency";
 	}
 
