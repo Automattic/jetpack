@@ -1,10 +1,5 @@
 <?php
 
-/*
- * TODO
- * URLs
- */
-
 /**
  * Add per-post Publicize Connection data.
  *
@@ -17,7 +12,6 @@
  *     enabled:      (boolean) Is this connection slated to be shared to? context=edit only
  *     done:         (boolean) Is this post (or connection) done sharing? context=edit only
  *     toggleable:   (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
- *     url:          (string)  URL of the shared content on the service. Not dependable, in part because Publicize is asynchronous.
  *   }
  *   ...
  *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
@@ -103,12 +97,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
 					'type' => 'boolean',
 					'context' => array( 'edit' ),
-					'readonly' => true,
-				),
-				'url' => array(
-					'description' => __( 'The URL of the post as shared on the service', 'jetpack' ),
-					'type' => 'boolean',
-					'context' => array( 'view', 'edit' ),
 					'readonly' => true,
 				),
 			),
