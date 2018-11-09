@@ -6,12 +6,36 @@
  */
 
 /**
- * Publicize: get connection list data for current user and post id.
+ * Add per-post Publicize Connection data.
+ *
+ * { # Post Object
+ *   ...
+ *   jetpack_publicize_connections: { # Defined below in this file. See schema for more detail.
+ *     id:           (string)  Connection unique_id
+ *     service_name: (string)  Service slug
+ *     display_name: (string)  User name/display name of user/connection on Service
+ *     enabled:      (boolean) Is this connection slated to be shared to? context=edit only
+ *     done:         (boolean) Is this post (or connection) done sharing? context=edit only
+ *     toggleable:   (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
+ *     url:          (string)  URL of the shared content on the service. Not dependable, in part because Publicize is asynchronous.
+ *   }
+ *   ...
+ *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
+ *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
+ *   }
+ *   ...
+ * }
+ *
+ * @since 6.8.0
  */
 class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type = 'post';
 	protected $field_name = 'jetpack_publicize_connections';
 
+	/**
+	 * Registers the jetpack_publicize_connections field. Called
+	 * automatically on `rest_api_init()`.
+	 */
 	public function register_fields() {
 		$this->object_type = get_post_types_by_support( 'publicize' );
 
@@ -26,6 +50,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		parent::register_fields();
 	}
 
+	/**
+	 * Defines data structure and what elements are visible in which contexts
+	 */
 	public function get_schema() {
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
@@ -88,6 +115,10 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		);
 	}
 
+	/**
+	 * @param int $post_id
+	 * @return true|WP_Error
+	 */
 	function permission_check( $post_id ) {
 		global $publicize;
 
@@ -102,26 +133,34 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		);
 	}
 
+	/**
+	 * Getter permission check
+	 * @param array $post_array Response data from Post Endpoint
+	 * @return true|WP_Error
+	 */
 	function get_permission_check( $post_array, $request ) {
 		return $this->permission_check( $post_array['id'] );
 
 	}
 
+	/**
+	 * Setter permission check
+	 * @param WP_Post $post
+	 * @return true|WP_Error
+	 */
 	public function update_permission_check( $value, $post, $request ) {
 		return $this->permission_check( $post->ID );
 	}
 
 	/**
-	 * Retrieve current list of connected social accounts for a given post.
+	 * Getter: Retrieve current list of connected social accounts for a given post.
 	 *
 	 * @see Publicize::get_filtered_connection_data()
 	 *
-	 * @since 6.7.0
-	 *
-	 * @param array $post_array post data
+	 * @param array $post_array Response from Post Endpoint
 	 * @param WP_REST_Request
 	 *
-	 * @return string JSON encoded connection list data.
+	 * @return array List of connections
 	 */
 	public function get( $post_array, $request ) {
 		global $publicize;
@@ -148,6 +187,14 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		return $output_connections;
 	}
 
+	/**
+	 * Update the connections slated to be shared to.
+	 *
+	 * @param array $requested_connections
+	 *              Items are eitheer `{ id: (string) }` or `{ service_name: (string) }`
+	 * @param WP_Post $post
+	 * @param WP_REST_Request
+	 */
 	public function update( $requested_connections, $post, $request ) {
 		global $publicize;
 
@@ -155,6 +202,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 		$changed_connections = array();
 
+		// Build lookup mappings
 		$available_connections_by_unique_id = array();
 		$available_connections_by_service_name = array();
 		foreach ( $available_connections as $available_connection ) {
@@ -166,7 +214,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$available_connections_by_service_name[$available_connection['service_name']][] = $available_connection;
 		}
 
-		// { service_name: $service_name, enabled: (bool) }
+		// Handle { service_name: $service_name, enabled: (bool) }
 		foreach ( $requested_connections as $requested_connection ) {
 			if ( ! isset( $requested_connection['service_name'] ) ) {
 				continue;
@@ -181,7 +229,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			}
 		}
 
-		// { id: $id, enabled: (bool) }
+		// Handle { id: $id, enabled: (bool) }
 		// These override the service_name settings
 		foreach ( $requested_connections as $requested_connection ) {
 			if ( ! isset( $requested_connection['id'] ) ) {
@@ -195,6 +243,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$changed_connections[$requested_connection['id']] = $requested_connection['enabled'];
 		}
 
+		// Set all changed connections to their new value
 		foreach ( $changed_connections as $unique_id => $enabled ) {
 			$connection = $available_connections_by_unique_id[$unique_id];
 
@@ -205,6 +254,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$available_connections_by_unique_id[$unique_id]['enabled'] = $enabled;
 		}
 
+		// For all connections, ensure correct post_meta
 		foreach ( $available_connections_by_unique_id as $unique_id => $available_connection ) {
 			if ( $available_connection['enabled'] ) {
 				delete_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id );

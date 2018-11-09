@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Publicize: get available publicize connection services data.
+ * Publicize: List Publicize Services
+ *
+ * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Controller {
 	public function __construct() {
@@ -9,6 +11,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		$this->rest_base = 'publicize/services';
 	}
 
+	/**
+	 * Called automatically on `rest_api_init()`.
+	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
 			array(
@@ -46,14 +51,12 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	}
 
 	/**
-	 * Retrieve full list of available Publicize connection services
-	 * send them as JSON encoded data.
+	 * Retrieves available Publicize Services.
 	 *
 	 * @see Publicize::get_available_service_data()
 	 *
-	 * @since 6.7.0
-	 *
-	 * @return string JSON encoded connection services data.
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
 		global $publicize;
@@ -83,6 +86,13 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		return $response;
 	}
 
+	/**
+	 * Filters out data based on ?_fields= request parameter
+	 *
+	 * @param array $service
+	 * @param WP_REST_Request $request
+	 * @return array filtered $service
+	 */
 	function prepare_item_for_response( $service, $request ) {
 		$fields = $this->get_fields_for_response( $request );
 

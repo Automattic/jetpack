@@ -3,7 +3,11 @@
 require_once dirname( __FILE__ ) . '/list-publicize-connections.php';
 
 /**
- * Publicize: get connection test result data
+ * Publicize: List Conection Test Result Data
+ *
+ * All the same data as the Publicize Connections Endpoint, plus test results.
+ *
+ * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
 	public function __construct() {
@@ -11,6 +15,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		$this->rest_base = 'publicize/connection-test-results';
 	}
 
+	/**
+	 * Called automatically on `rest_api_init()`.
+	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
 			array(
@@ -22,6 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		) );
 	}
 
+	/**
+	 * Adds the test results properties to the Connection schema.
+	 */
 	public function get_item_schema() {
 		$schema = array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
@@ -55,6 +65,11 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		return $this->add_additional_fields_schema( $schema );
 	}
 
+	/**
+	 * @param WP_REST_Request
+	 * @see Publicize::get_publicize_conns_test_results()
+	 * @return WP_REST_Response suitable for 1-page collection
+	 */
 	public function get_items( $request ) {
 		global $publicize;
 

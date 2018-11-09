@@ -769,6 +769,11 @@ abstract class Publicize_Base {
 	 */
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
 
+	/**
+	 * Ensures the Post internal post-type supports `publicize`
+	 *
+	 * This feature support flag is used by the REST API.
+	 */
 	function add_post_type_support() {
 		add_post_type_support( 'post', 'publicize' );
 	}
@@ -798,10 +803,23 @@ abstract class Publicize_Base {
 		return current_user_can( $capability );
 	}
 
+	/**
+	 * Auth callback for the protected ->POST_MESS post_meta
+	 *
+	 * @param bool $allowed
+	 * @param string $meta_key
+	 * @param int $object_id Post ID
+	 * @return bool
+	 */
 	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
 		return $this->current_user_can_access_publicize_data( $object_id );
 	}
 
+	/**
+	 * Registers the ->POST_MESS post_meta for use in the REST API.
+	 *
+	 * Registers for each post type that with `publicize` feature support.
+	 */
 	function register_post_meta() {
 		$args = array(
 			'type' => 'string',
