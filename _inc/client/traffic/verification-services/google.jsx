@@ -207,7 +207,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 										className="jp-form-site-verification-edit-button"
 										disabled={ this.props.isUpdating( 'google' ) }
 										onClick={ this.handleClickAutoVerify }>
-										{ __( 'Auto-Verify' ) }
+										{ __( 'Verify' ) }
 									</Button>
 								}
 							</div>
