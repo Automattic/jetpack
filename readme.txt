@@ -105,13 +105,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: November 14, 2018
 * Release post: https://wp.me/p1moTy-ceQ
 
-**Enhancements**
-
 **Improved compatibility**
 
 * Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
-
-**Bug fixes**
+* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
 
 = 6.7 =
 
