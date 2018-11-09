@@ -18,6 +18,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connections';
+
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**

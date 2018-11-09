@@ -18,6 +18,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/services';
+
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**

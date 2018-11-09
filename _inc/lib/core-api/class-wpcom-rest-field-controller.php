@@ -29,6 +29,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	                _doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::$field_name', sprintf( __( "Property '%s' must be overridden.", 'jetpack' ), 'field_name' ), 'Jetpack 6.8' );
 			return;
 		}
+
+		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 	}
 
 	/**

@@ -33,24 +33,8 @@ function wpcom_rest_api_v2_load_plugin( $class_name ) {
 	}
 }
 
-function wpcom_rest_api_v2_register_routes() {
-	global $wpcom_rest_api_v2_plugins;
-
-	foreach ( $wpcom_rest_api_v2_plugins as $maybe_controller ) {
-		if ( is_subclass_of( $maybe_controller, 'WP_REST_Controller' ) ) {
-			$maybe_controller->register_routes();
-		}
-
-		if ( is_subclass_of( $maybe_controller, 'WPCOM_REST_API_V2_Field_Controller' ) ) {
-			$maybe_controller->register_fields();
-		}
-	}
-}
-
 require dirname( __FILE__ ) . '/class-wpcom-rest-field-controller.php';
 
 // Now load the endpoint files.
 wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
 wpcom_rest_api_v2_load_plugin_files( 'wpcom-fields/*.php' );
-
-add_action( 'rest_api_init', 'wpcom_rest_api_v2_register_routes' );
