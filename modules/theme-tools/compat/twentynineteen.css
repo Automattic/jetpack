@@ -252,7 +252,33 @@
 /* Authors Widget */
 .widget.widget_authors ul li > ul {
 	list-style-type: disc;
-	padding-left: 1rem;
+	padding-left: 4.25rem;
+}
+
+.rtl .widget.widget_authors ul li > ul {
+	padding-left: 0;
+	padding-right: 1rem;
+}
+
+.widget_authors > ul > li > a {
+	display: block;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	position: relative;
+}
+
+.widget.widget_authors li a strong {
+	line-height: 1.2;
+	position: absolute;
+	top: 0;
+}
+
+.widget.widget_authors .avatar {
+	float: left;
+	margin-right: 1em;
+}
+
+.widget_authors li > ul {
+	clear: both;
 }
 
 /* Display WordPress Posts */
@@ -276,6 +302,35 @@
 .widget_goodreads div[class^="gr_custom_author"] {
 	font-size: inherit;
 	line-height: 1.15;
+}
+
+/* EU cookie law */
+.widget_eu_cookie_law_widget #eu-cookie-law {
+	border-color: #ccc;
+	color: #767676;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 0.68182em;
+	padding: 0.5rem 1rem;
+}
+
+.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+	font-size: 1em;
+	padding: 10px 12px;
+}
+
+/* RSS Links */
+.widget_rss_links ul {
+	list-style: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.widget_rss_links li {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: calc(22px * 1.125);
+	font-weight: bold;
+	line-height: 1.2;
+	padding-bottom: 0.75rem;
 }
 
 /**
