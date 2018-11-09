@@ -72,68 +72,6 @@
 }
 
 /**
- * Author Bio/Description
- */
-
-.author-description {
-	margin: calc(2 * 1rem) 1rem 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.author-description {
-		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
-		max-width: calc(8 * (100vw / 12));
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.author-description {
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-.author-description h2.author-title {
-	display: inline;
-}
-
-.author-description p.author-bio {
-	word-spacing: -0.05em;
-	display: inline;
-	color: #767676;
-	line-height: 1.3;
-}
-
-.author-description p.author-bio:before {
-	display: inline-block;
-	content: "–";
-	transform: scaleX(1.8);
-	margin: 0 0.5em;
-}
-
-@media only screen and (min-width: 768px) {
-	.author-description p.author-bio:before {
-		margin: 0 0.35em;
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.author-description p.author-bio:before {
-		margin: 0 0.3em;
-	}
-}
-
-.author-description p.author-bio a.author-link {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-	font-weight: 700;
-	display: inline-block;
-}
-
-.author-description p.author-bio a.author-link:hover {
-	color: #005177;
-	text-decoration: none;
-}
-
-/**
  * Related Posts
  */
 
