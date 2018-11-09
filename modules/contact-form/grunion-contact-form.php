@@ -234,7 +234,7 @@ class Grunion_Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		if ( function_exists( 'register_block_type' ) ) {
-			register_block_type( 'jetpack/form', array(
+			register_block_type( 'jetpack/contact-form', array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 			) );
 
@@ -3130,7 +3130,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				break;
 			case 'checkbox-multiple':
 				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+				foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 					$r     .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$r     .= "<input type='checkbox' name='" . esc_attr( $field_id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $field_class . checked( in_array( $option, (array) $field_value ), true, false ) . ' /> ';
