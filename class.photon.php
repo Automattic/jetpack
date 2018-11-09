@@ -473,34 +473,6 @@ class Jetpack_Photon {
 			return $image;
 		}
 
-		// Similar to the need to skip the admin, we should skip the REST API to avoid Photonizing images out of context.
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			global $wp;
-			if ( false !== strpos( $wp->query_vars['rest_route'], '/wp/v2/media/' ) && ! empty( $_REQUEST['context'] ) && 'edit' === $_REQUEST['context'] && // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
-				/**
-				 * Provide plugins a way of running Photon for images for the REST API (media endpoint).
-				 *
-				 * Note: enabling this will result in Photon URLs added to REST API responses in the edit context, which breaks Gutenberg, and possibly other REST API consumers.
-				 *
-				 * @module photon
-				 *
-				 * @since 6.7.1
-				 *
-				 * @param bool false Allow Photon to run on the REST API media endpoint. Default to false.
-				 * @param array $args {
-				 *     Array of image details.
-				 *
-				 *     @type array|bool  $image Image URL or false.
-				 *     @type int          $attachment_id Attachment ID of the image.
-				 *     @type array|string $size Image size. Can be a string (name of the image size, e.g. full) or an array of height and width.
-				 * }
-				 */
-				false === apply_filters( 'photon_restapi_allow_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) )
-			) {
-				return $image;
-			}
-		}
-
 		/**
 		 * Provide plugins a way of preventing Photon from being applied to images retrieved from WordPress Core.
 		 *
