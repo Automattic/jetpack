@@ -288,13 +288,13 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
-		// Fall back to unspecified currency sign:
-		// https://en.wikipedia.org/wiki/Currency_sign_(typography).
+		// Fall back to unspecified currency symbol like `¤1,234.05`.
+		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
 		if ( ! $currency ) {
-			$currency = '¤';
+			return '¤' . number_format_i18n( $price );
 		}
 
-		return $currency . number_format_i18n( $price );
+		return number_format_i18n( $price ) . ' ' . $currency;
 	}
 
 	/**
