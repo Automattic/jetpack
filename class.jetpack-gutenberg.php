@@ -206,11 +206,23 @@ class Jetpack_Gutenberg {
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
 
-		$jp_react_page = new Jetpack_React_Page();
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Initial_State',
-			$jp_react_page->get_initial_state()
+			array(
+				'getModules' => array(
+					'markdown'      => array(
+						'name'      => 'markdown',
+						'activated' => Jetpack::is_module_active( 'markdown' ),
+						'override'  => Jetpack_Modules_Overrides::instance()->get_module_override( 'markdown' )
+					),
+					'related-posts' => array(
+						'name'      => 'related-posts',
+						'activated' => Jetpack::is_module_active( 'related-posts' ),
+						'override'  => Jetpack_Modules_Overrides::instance()->get_module_override( 'related-posts' )
+					)
+				)
+			)
 		);
 
 		Jetpack::setup_wp_i18n_locale_data();
