@@ -3,6 +3,15 @@
 /**
  * Publicize: List Publicize Services
  *
+ * [
+ *   { # Service Object. See schema for more detail.
+ *     name:  (string) Service slug
+ *     label: (string) Human readable label for the Service
+ *     url:   (string) Connect URL
+ *   },
+ *   ...
+ * ]
+ *
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Controller {

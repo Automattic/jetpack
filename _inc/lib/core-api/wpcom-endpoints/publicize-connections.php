@@ -1,7 +1,17 @@
 <?php
+
 /**
  * Publicize: List Connections
  *
+ * [
+ *   { # Connnection Object. See schema for more detail.
+ *     id:           (string)  Connection unique_id
+ *     service_name: (string)  Service slug
+ *     display_name: (string)  User name/display name of user/connection on Service
+ *     global:       (boolean) Is the Connection available to all users of the site?
+ *   },
+ *   ...
+ * ]
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Controller {
