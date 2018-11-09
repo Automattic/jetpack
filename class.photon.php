@@ -45,8 +45,9 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	private function setup() {
-		if ( ! function_exists( 'jetpack_photon_url' ) )
+		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return;
+		}
 
 		// Images in post content and galleries
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
