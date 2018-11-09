@@ -47,7 +47,7 @@ function wpcom_rest_api_v2_register_routes() {
 	}
 }
 
-require dirname( __FILE__ ) . '/class-wpcom-rest-field.php';
+require dirname( __FILE__ ) . '/class-wpcom-rest-field-controller.php';
 
 // Now load the endpoint files.
 wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );

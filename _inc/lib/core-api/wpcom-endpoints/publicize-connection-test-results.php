@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/list-publicize-connections.php';
+require_once dirname( __FILE__ ) . '/publicize-connections.php';
 
 /**
  * Publicize: List Conection Test Result Data
