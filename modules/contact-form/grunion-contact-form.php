@@ -2123,6 +2123,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
 			$att_strs = array();
+			if ( ! isset( $attributes['label'] ) ) {
+				$attributes['label'] = self::get_default_label_from_type( $attributes['type'] );
+			}
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = esc_html( $val );
@@ -2172,6 +2175,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Output HTML
 		return $field->render();
+	}
+
+	static function get_default_label_from_type( $type ) {
+		switch ( $type ) {
+			case 'text':
+				return __( 'Text', 'jetpack' );
+			case 'name':
+				return __( 'Name', 'jetpack' );
+			case 'email':
+				return __( 'Email', 'jetpack' );
+			case 'url':
+				return __( 'Url', 'jetpack' );
+			case 'date':
+				return __( 'Date', 'jetpack' );
+			case 'telephone':
+				return __( 'Phone', 'jetpack' );
+			case 'textarea':
+				return __( 'Message', 'jetpack' );
+			case 'checkbox':
+				return __( 'Checkbox', 'jetpack' );
+			case 'checkbox-multiple':
+				return __( 'Choose several', 'jetpack' );
+			case 'radio':
+				return __( 'Choose one', 'jetpack' );
+			case 'select':
+				return __( 'Select one', 'jetpack' );
+			default:
+				return __( 'Unknown', 'jetpack' );
+		}
 	}
 
 	/**
