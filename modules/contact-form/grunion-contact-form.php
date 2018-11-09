@@ -277,7 +277,7 @@ class Grunion_Contact_Form_Plugin {
 
 
 	public static function gutenblock_render_form( $atts, $content ) {
-		return Grunion_Contact_Form::parse( $atts, $content );
+		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
 	public static function gutenblock_render_field_text( $atts, $content ) {
