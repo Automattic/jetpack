@@ -143,6 +143,18 @@ __( "Allows readers to subscribe to your posts or comments, and receive notifica
 __( "Show a \"follow blog\" option in the comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:106
 __( "Show a \"follow comments\" option in the comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:116
 _n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:20
+_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:61
+_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:62
+_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:63
+_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:64
+_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:65
+_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:66
+_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:100
+__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:106
+__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:116
+__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:131
+__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:144
+__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:158
 __( "Daily backup of all your site data with unlimited space and one-click restores", "jetpack" ), // _inc/client/plans/plan-body.jsx:104
 __( "Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:107
 __( "Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:110
@@ -230,18 +242,6 @@ __( "Welcome to Jetpack Professional", "jetpack" ), // _inc/client/plans/plan-he
 __( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:124
 __( "Your site is on Development Mode", "jetpack" ), // _inc/client/plans/plan-header.jsx:137
 __( "Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:138
-_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:61
-_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:62
-_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:63
-_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:64
-_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:65
-_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:66
-_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:100
-__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:106
-__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:116
-__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:131
-__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:144
-__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:158
 _x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
 _x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
 _x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
@@ -254,6 +254,8 @@ __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:118
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:122
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:155
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:75
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:32
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:40
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:93
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:97
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:102
@@ -301,8 +303,6 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com log in and secure authentication. If you have multiple sites with this option enabled, you will be able to log into every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:32
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:40
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
 __( "Adds like buttons to your content so that visitors can show their appreciation or enjoyment.", "jetpack" ), // _inc/client/sharing/likes.jsx:31
 __( "Allow readers to show their appreciation of your posts by adding a like button to your content", "jetpack" ), // _inc/client/sharing/likes.jsx:41
@@ -750,7 +750,8 @@ __( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.j
 __( "Verify with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:288
 __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:291
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:297
-__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor-beta.js:1
+__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor-beta.js:12
+__( "Connect new service", "jetpack" ), // _inc/blocks/editor-beta.js:12
 __( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Use regular characters and punctuation to style text, links, and lists.", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Support reference", "jetpack" ), // _inc/blocks/editor-beta.js:25
@@ -761,6 +762,39 @@ __( "Write your _Markdown_ **here**...", "jetpack" ), // _inc/blocks/editor-beta
 __( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Preview", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Share this post", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Connect and select social media services to share this post.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Customize your message", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Publicize + Gutenberg :)", "jetpack" ), // _inc/blocks/editor-beta.js:25
+_n( "%d character remaining", "%d characters remaining", 1, "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Payment button", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Simple Payments lets you create and embed credit and debit card payment buttons on your WordPress.com and Jetpack-enabled sites with minimal setup.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Simple Payments", "jetpack" ), // _inc/blocks/editor-beta.js:25
+_n( "shop", "block search term", 1, "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Invalid price", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Your price is negative — enter a positive number so people can pay the right amount.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "We know every penny counts, but prices can’t contain decimal values.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+_n( "The price cannot have more than %d decimal place.", "The price cannot have more than %d decimal places.", 1, "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "If you’re selling something, you need a price tag. Add yours here.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "%s is not a valid email address.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "We want to make sure payments reach you, so please add an email address.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Please add a brief title so that people know what they’re paying for.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "%s is not a valid email address.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Invalid price.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Support reference", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Item name", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Item name", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Enter a description for your item", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Enter a description for your item", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Currency", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Price", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Allow people to buy more than one item at a time", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Email", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Email", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "This is where PayPal will send your money. To claim a payment, you'll need a PayPal account connected to a bank account.", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Create an account at PayPal", "jetpack" ), // _inc/blocks/editor-beta.js:25
+__( "Pay with PayPal", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "VR Image", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Related Posts", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "similar", "jetpack" ), // _inc/blocks/editor-beta.js:25
@@ -783,7 +817,8 @@ __( "Enter URL to VR image", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "View Type", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "360°", "jetpack" ), // _inc/blocks/editor-beta.js:25
 __( "Cinema", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor.js:1
+__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor.js:12
+__( "Connect new service", "jetpack" ), // _inc/blocks/editor.js:12
 __( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
 __( "Use regular characters and punctuation to style text, links, and lists.", "jetpack" ), // _inc/blocks/editor.js:25
 __( "Support reference", "jetpack" ), // _inc/blocks/editor.js:25
@@ -794,5 +829,38 @@ __( "Write your _Markdown_ **here**...", "jetpack" ), // _inc/blocks/editor.js:2
 __( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
 __( "Preview", "jetpack" ), // _inc/blocks/editor.js:25
 __( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Share this post", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Connect and select social media services to share this post.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Customize your message", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Publicize + Gutenberg :)", "jetpack" ), // _inc/blocks/editor.js:25
+_n( "%d character remaining", "%d characters remaining", 1, "jetpack" ), // _inc/blocks/editor.js:25
+__( "Payment button", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Simple Payments lets you create and embed credit and debit card payment buttons on your WordPress.com and Jetpack-enabled sites with minimal setup.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Simple Payments", "jetpack" ), // _inc/blocks/editor.js:25
+_n( "shop", "block search term", 1, "jetpack" ), // _inc/blocks/editor.js:25
+__( "Invalid price", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Your price is negative — enter a positive number so people can pay the right amount.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "We know every penny counts, but prices can’t contain decimal values.", "jetpack" ), // _inc/blocks/editor.js:25
+_n( "The price cannot have more than %d decimal place.", "The price cannot have more than %d decimal places.", 1, "jetpack" ), // _inc/blocks/editor.js:25
+__( "If you’re selling something, you need a price tag. Add yours here.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "%s is not a valid email address.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "We want to make sure payments reach you, so please add an email address.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Please add a brief title so that people know what they’re paying for.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "%s is not a valid email address.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Invalid price.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Support reference", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Item name", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Item name", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Enter a description for your item", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Enter a description for your item", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Currency", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Price", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Allow people to buy more than one item at a time", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Email", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Email", "jetpack" ), // _inc/blocks/editor.js:25
+__( "This is where PayPal will send your money. To claim a payment, you'll need a PayPal account connected to a bank account.", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Create an account at PayPal", "jetpack" ), // _inc/blocks/editor.js:25
+__( "Pay with PayPal", "jetpack" ), // _inc/blocks/editor.js:25
 );
 /* THIS IS THE END OF THE GENERATED FILE */
