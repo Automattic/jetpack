@@ -270,7 +270,8 @@
 	opacity: 1;
 }
 
-.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
+.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 1em;
 	letter-spacing: -0.02em;
@@ -280,8 +281,15 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title a {
+.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title a,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post span a {
 	font-weight: 700;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-excerpt {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
@@ -290,6 +298,14 @@
 	font-size: 0.71111em;
 	font-weight: 500;
 }
+
+.entry #jp-relatedposts .jp-relatedposts-items p,
+.entry #jp-relatedposts .jp-relatedposts-items-visual
+.entry h4.jp-relatedposts-post-title {
+	font-size: 0.667em;
+	letter-spacing: normal;
+}
+
 
 /**
  * Stats
