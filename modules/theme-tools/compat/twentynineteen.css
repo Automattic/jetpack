@@ -72,43 +72,6 @@
 }
 
 /**
- * Related Posts
- */
-
-.entry-content > #jp-relatedposts {
-	margin: 32px 1rem;
-	max-width: calc(100vw - (2 * 1rem));
-}
-
-@media only screen and (min-width: 768px) {
-	.entry-content > #jp-relatedposts {
-		margin: 32px calc(2 * (100vw / 12));
-		max-width: calc(8 * (100vw / 12));
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.entry-content > #jp-relatedposts {
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-/**
- * Akismet Comment Privacy Notice
- */
-
-.akismet_comment_form_privacy_notice {
-	margin: calc(2 * 1rem) 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.akismet_comment_form_privacy_notice {
-		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-/**
  * Sharing
  */
 
