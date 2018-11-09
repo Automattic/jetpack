@@ -1,0 +1,11 @@
+{
+  "blocks": [
+    "markdown",
+    "publicize",
+    "simple-payments"
+  ],
+  "betaBlocks": [
+    "related-posts",
+    "vr"
+  ]
+}
