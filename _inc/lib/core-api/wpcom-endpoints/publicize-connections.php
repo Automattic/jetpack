@@ -154,8 +154,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
-			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
+			__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 }

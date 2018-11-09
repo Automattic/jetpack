@@ -116,8 +116,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg,
-			array( 'status' => Jetpack_Core_Json_Api_Endpoints::rest_authorization_required_code() )
+			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 
