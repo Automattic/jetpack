@@ -2123,8 +2123,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
 			$att_strs = array();
-			if ( ! isset( $attributes['label'] ) ) {
-				$attributes['label'] = self::get_default_label_from_type( $attributes['type'] );
+			if ( ! isset( $attributes['label'] )  ) {
+				$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+				$attributes['label'] = self::get_default_label_from_type( $type );
 			}
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
@@ -2202,7 +2203,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			case 'select':
 				return __( 'Select one', 'jetpack' );
 			default:
-				return __( 'Unknown', 'jetpack' );
+				return null;
 		}
 	}
 
