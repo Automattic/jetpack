@@ -16,7 +16,7 @@ class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field
 		return $this->test_schema;
 	}
 
-	public function get_permission_check() {
+	public function get_permission_check( $object_data, $request  ) {
 		return new WP_Error( 'nope' );
 	}
 }
