@@ -3,6 +3,9 @@
  */
 import React from 'react';
 
-export default () => ( <div>
-	hola mundo
-</div> );
+export default function SiteImporter( { active } ) {
+	if ( ! active ) {
+		return false;
+	}
+	return <div>hola mundo</div>;
+}

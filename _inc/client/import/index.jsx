@@ -3,8 +3,11 @@
  */
 import React from 'react';
 
+/**
+ * Internal dependencies
+ */
 import SiteImporter from 'components/site-importer';
 
-export default ( props ) => ( <div>
-	<SiteImporter { ...props } />
-</div> );
+export default function ImportSection( props ) {
+	return <SiteImporter { ...props } />;
+}
