@@ -16,6 +16,7 @@ import Privacy from 'privacy';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import Sharing from 'sharing';
+import SiteImporter from 'import';
 import Traffic from 'traffic';
 import Writing from 'writing';
 
@@ -45,6 +46,7 @@ export default class extends React.Component {
 					active={ '/discussion' === this.props.route.path }
 					{ ...commonProps }
 				/>
+				<SiteImporter active={ '/import' === this.props.route.path } { ...commonProps } />
 				<Performance
 					active={
 						'/performance' === this.props.route.path || '/settings' === this.props.route.path

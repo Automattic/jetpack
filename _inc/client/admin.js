@@ -90,6 +90,11 @@ function render() {
 						component={ Main }
 					/>
 					<Route
+						path="/import"
+						name={ i18n.translate( 'Import', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
 						path="/discussion"
 						name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) }
 						component={ Main }

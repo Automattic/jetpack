@@ -227,6 +227,7 @@ class Main extends React.Component {
 			case '/settings':
 			case '/general':
 			case '/engagement':
+			case '/import':
 			case '/security':
 			case '/traffic':
 			case '/discussion':
