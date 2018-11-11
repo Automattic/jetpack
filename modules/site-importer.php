@@ -5,6 +5,9 @@
  */
 
 function jetpack_load_import_tools() {
-	l( 'ready to import!' );
+	if ( ! current_user_can( 'import' ) ) {
+		return;
+	}
+	// ready to import!
 }
-add_action( 'init', 'jetpack_load_import_tools' );
+add_action( 'admin_init', 'jetpack_load_import_tools' );
