@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
-    "@automattic/jetpack-blocks": "6.8.0-beta.1",
+    "@automattic/jetpack-blocks": "6.8.0",
     "ansi-colors": "^1.0.1",
     "babel-core": "6.8.0",
     "babel-eslint": "6.1.2",
