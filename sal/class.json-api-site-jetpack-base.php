@@ -97,7 +97,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	}
 
 	function is_vip() {
-		return false; // this may change for VIP Go sites, which sync using Jetpack
+		return defined( 'WPCOM_IS_VIP_ENV' ) ? (bool) WPCOM_IS_VIP_ENV : false;
 	}
 
 	function featured_images_enabled() {
