@@ -70,7 +70,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 *
 	 * @param array $schema
 	 */
-	final public function default_value( $schema ) {
+	final public function get_default_value( $schema ) {
 		if ( isset( $schema['default'] ) ) {
 			return $schema['default'];
 		}
@@ -108,7 +108,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		$permission_check = $this->get_permission_check( $object_data, $request );
 
 		if ( ! $permission_check || is_wp_error( $permission_check ) ) {
-			return $this->default_value( $this->get_schema() );
+			return $this->get_default_value( $this->get_schema() );
 		}
 
 		$value = $this->get( $object_data, $request );
