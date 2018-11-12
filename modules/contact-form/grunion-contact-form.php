@@ -279,7 +279,6 @@ class Grunion_Contact_Form_Plugin {
 		) );
 	}
 
-
 	public static function gutenblock_render_form( $atts, $content ) {
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -3271,7 +3270,7 @@ function grunion_delete_old_spam() {
 		 *
 		 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 		 */
-	apply_filters( 'grunion_optimize_table', false )
+		apply_filters( 'grunion_optimize_table', false )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
