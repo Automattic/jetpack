@@ -268,6 +268,12 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 */
 	final function filter_response_by_context( $value, $schema, $context ) {
 		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
+			// We use this intentionally odd looking WP_Error object
+			// internally only in this recursive function (see below
+			// in the `object` case). It will never be output by the REST API.
+			// If we return this for the top level object, Core
+			// correctly remove the top level object from the response
+			// for us.
 			return new WP_Error( '__wrong-context__' );
 		}
 
