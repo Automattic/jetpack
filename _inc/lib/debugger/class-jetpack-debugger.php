@@ -392,6 +392,11 @@ class Jetpack_Debugger {
 				padding: 0;
 			}
 
+			p.jetpack-test-details {
+				margin: 4px 6px;
+				padding: 10px;
+			}
+
 			.jetpack-test-error a.jetpack-test-heading {
 				padding: 4px 6px;
 				display: block;

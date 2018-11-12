@@ -20,7 +20,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	# because if running the containers for the first time,
 	# the mysql container will reject connections until it has set the database data
 	# See "No connections until MySQL init completes" in https://hub.docker.com/_/mysql/
-	times=15
+	times=30
 	i=1
 	while [ "$i" -le "$times" ]; do
 		sleep 3
