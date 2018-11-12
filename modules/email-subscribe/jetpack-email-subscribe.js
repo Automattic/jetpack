@@ -6,10 +6,8 @@
  */
 /**
 
-/* global paypal */
 /* global jQuery */
-/* exported PaypalExpressCheckout */
-/* jshint unused:false, es3:false, esversion:5 */
+/* jshint esversion: 6, es3:false */
 const JetpackEmailSubscribe = {
 	validateEmail: function( email ) {
 		const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
