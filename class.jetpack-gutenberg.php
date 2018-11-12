@@ -299,25 +299,6 @@ class Jetpack_Gutenberg {
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
-			'Jetpack_Initial_State',
-			array(
-				'getModules' => array(
-					'markdown'      => array(
-						'name'      => 'markdown',
-						'activated' => Jetpack::is_module_active( 'markdown' ),
-						'override'  => Jetpack_Modules_Overrides::instance()->get_module_override( 'markdown' )
-					),
-					'related-posts' => array(
-						'name'      => 'related-posts',
-						'activated' => Jetpack::is_module_active( 'related-posts' ),
-						'override'  => Jetpack_Modules_Overrides::instance()->get_module_override( 'related-posts' )
-					)
-				)
-			)
-		);
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'available_blocks' => self::get_block_availability(),
