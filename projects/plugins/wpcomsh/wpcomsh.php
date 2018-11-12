@@ -447,6 +447,26 @@ function wpcomsh_get_attachment_url( $url, $post_id ) {
 add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
 
 /**
+ * When WordPress.com passes along an expiration for auth cookies and it is smaller
+ * than the value set by Jetpack by default (YEAR_IN_SECONDS), use the smaller
+ * value.
+ *
+ * @param int $seconds The cookie expiration in seconds
+ * @return int The filtered cookie expiration in seconds
+ */
+function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
+	if ( isset( $_GET['expires'] ) ) {
+		$expires = absint( $_GET['expires'] );
+
+		if ( ! empty( $expires ) && $expires < $seconds ) {
+			$seconds = $expires;
+		}
+	}
+	return intval( $seconds );
+}
+add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
+
+/**
  * If a user is logged in to WordPress.com, log him in automatically to wp-login
  */
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
