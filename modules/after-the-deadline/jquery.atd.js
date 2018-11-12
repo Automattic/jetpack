@@ -47,7 +47,9 @@ AtD.showTypes = function(string) {
 AtD.checkCrossAJAX = function(container_id, callback_f) {
 	/* checks if a global var for click stats exists and increments it if it does... */
 	if (typeof AtD_proofread_click_count !== 'undefined') {
+		/* jshint ignore:start */
 		AtD_proofread_click_count++;
+		/* jshint ignore:end */
 	}
 
 	AtD.callback_f = callback_f; /* remember the callback for later */
@@ -110,7 +112,9 @@ AtD.checkCrossAJAX = function(container_id, callback_f) {
 AtD.check = function(container_id, callback_f) {
 	/* checks if a global var for click stats exists and increments it if it does... */
 	if (typeof AtD_proofread_click_count !== 'undefined') {
+		/* jshint ignore:start */
 		AtD_proofread_click_count++;
+		/* jshint ignore:end */
 	}
 
 	AtD.callback_f = callback_f; /* remember the callback for later */

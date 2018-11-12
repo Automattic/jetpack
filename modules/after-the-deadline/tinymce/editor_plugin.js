@@ -122,7 +122,9 @@
          {
             /* checks if a global var for click stats exists and increments it if it does... */
             if (typeof AtD_proofread_click_count !== 'undefined') {
-               AtD_proofread_click_count++;
+				/* jshint ignore:start */
+	AtD_proofread_click_count++;
+				/* jshint ignore:end */
             }
 
             /* create the nifty spinny thing that says "hizzo, I'm doing something fo realz" */
