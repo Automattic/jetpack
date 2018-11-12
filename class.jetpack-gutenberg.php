@@ -61,7 +61,7 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		 * Filter the list of blocks that are available though jetpack.
+		 * Filter the list of blocks that are available through jetpack.
 		 *
 		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks
 		 *
@@ -296,7 +296,7 @@ class Jetpack_Gutenberg {
 			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
 		);
-		
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Initial_State',
