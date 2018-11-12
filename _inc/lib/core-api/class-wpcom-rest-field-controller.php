@@ -50,6 +50,10 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * Ensures the response matches the schema and request context.
 	 *
 	 * You shouldn't have to extend this method.
+	 *
+	 * @param mixed $value
+	 * @param WP_REST_Request $request
+	 * @return mixed
 	 */
 	function prepare_for_response( $value, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
@@ -69,6 +73,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * If there is no default, returns the type's falsey value.
 	 *
 	 * @param array $schema
+	 * @return mixed
 	 */
 	final public function get_default_value( $schema ) {
 		if ( isset( $schema['default'] ) ) {
@@ -101,8 +106,9 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 *
 	 * @param mixed $object_data Probably an array. Whatever the endpoint returns.
 	 * @param string $field_name Should always match `->field_name`
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @param $object_type Should always match `->object_type`
+	 * @return mixed
 	 */
 	final public function get_for_response( $object_data, $field_name, $request, $object_type ) {
 		$permission_check = $this->get_permission_check( $object_data, $request );
@@ -124,13 +130,16 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * @param mixed $value The new value for the field.
 	 * @param mixed $object_data Probably a WordPress object (e.g., WP_Post)
 	 * @param string $field_name Should always match `->field_name`
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @param $object_type Should always match `->object_type`
+	 * @return void|WP_Error
 	 */
 	final public function update_from_request( $value, $object_data, $field_name, $request, $object_type ) {
 		$permission_check = $this->update_permission_check( $value, $object_data, $request );
 
 		if ( ! $permission_check ) {
+			/* translators: %s: get_permission_check() */
+			_doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::update_permission_check', sprintf( __( "Method '%s' must return either true or WP_Error." ), 'update_permission_check' ), 'Jetpack 6.8' );
 			return;
 		}
 
@@ -216,6 +225,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * As of WordPress 5.0, Core does not support:
 	 * * Multiple type: `type: [ 'string', 'integer' ]`
 	 * * $ref, allOf, anyOf, oneOf, not, const
+	 *
+	 * @return array
 	 */
 	public function get_schema() {
 		/* translators: %s: get_schema() */
@@ -225,6 +236,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	/**
 	 * @param array $schema
 	 * @param string $context REST API Request context
+	 * @return bool
 	 */
 	private function is_valid_for_context( $schema, $context ) {
 		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
