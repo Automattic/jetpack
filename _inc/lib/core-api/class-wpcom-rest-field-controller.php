@@ -77,20 +77,20 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 
 		// If you have something more complicated, use $schema['default'];
 		switch ( isset( $schema['type'] ) ? $schema['type'] : 'null' ) {
-		case 'string' :
-			return '';
-		case 'integer' :
-		case 'number' :
-			return 0;
-		case 'object' :
-			return (object) array();
-		case 'array' :
-			return array();
-		case 'boolean' :
-			return false;
-		case 'null' :
-		default :
-			return null;
+			case 'string' :
+				return '';
+			case 'integer' :
+			case 'number' :
+				return 0;
+			case 'object' :
+				return (object) array();
+			case 'array' :
+				return array();
+			case 'boolean' :
+				return false;
+			case 'null' :
+			default :
+				return null;
 		}
 	}
 
@@ -260,47 +260,47 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		}
 
 		switch ( $schema['type'] ) {
-		case 'array' :
-			if ( ! isset( $schema['items'] ) ) {
-				return $value;
-			}
+			case 'array' :
+				if ( ! isset( $schema['items'] ) ) {
+					return $value;
+				}
 
-			// Shortcircuit if we know none of the items are valid for this context.
-			// This would only happen in a strangely written schema.
-			if ( ! $this->is_valid_for_context( $schema['items'], $context ) ) {
-				return array();
-			}
+				// Shortcircuit if we know none of the items are valid for this context.
+				// This would only happen in a strangely written schema.
+				if ( ! $this->is_valid_for_context( $schema['items'], $context ) ) {
+					return array();
+				}
 
-			// Recurse to prune sub-properties of each item.
+				// Recurse to prune sub-properties of each item.
 
-			$keys = array_keys( $value );
+				$keys = array_keys( $value );
 
-			$items = array_map(
-				array( $this, 'filter_response_by_context' ),
-				$value,
-				array_fill( 0, count( $keys ), $schema['items'] ),
-				array_fill( 0, count( $keys ), $context )
-			);
+				$items = array_map(
+					array( $this, 'filter_response_by_context' ),
+					$value,
+					array_fill( 0, count( $keys ), $schema['items'] ),
+					array_fill( 0, count( $keys ), $context )
+				);
 
-			return array_combine( $keys, $items );
-		case 'object' :
-			if ( ! isset( $schema['properties'] ) ) {
-				return $value;
-			}
+				return array_combine( $keys, $items );
+			case 'object' :
+				if ( ! isset( $schema['properties'] ) ) {
+					return $value;
+				}
 
-			foreach ( $value as $field_name => $field_value ) {
-				if ( isset( $schema['properties'][$field_name] ) ) {
-					$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][$field_name], $context );
-					if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
-						unset( $value[$field_name] );
-					} else {
-						// Respect recursion that pruned sub-properties of each property.
-						$value[$field_name] = $field_value;
+				foreach ( $value as $field_name => $field_value ) {
+					if ( isset( $schema['properties'][$field_name] ) ) {
+						$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][$field_name], $context );
+						if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
+							unset( $value[$field_name] );
+						} else {
+							// Respect recursion that pruned sub-properties of each property.
+							$value[$field_name] = $field_value;
+						}
 					}
 				}
-			}
 
-			return (object) $value;
+				return (object) $value;
 		}
 
 		return $value;
