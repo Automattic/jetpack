@@ -38,7 +38,7 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			fetchJitm: () => dispatch( fetchJitm() )
+			fetchJitm: ( message_path ) => dispatch( fetchJitm( message_path ) )
 		};
 	}
 )( QueryJitm );
