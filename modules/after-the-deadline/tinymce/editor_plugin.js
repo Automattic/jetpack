@@ -123,7 +123,7 @@
             /* checks if a global var for click stats exists and increments it if it does... */
             if (typeof AtD_proofread_click_count !== 'undefined') {
 				/* jshint ignore:start */
-	AtD_proofread_click_count++;
+				AtD_proofread_click_count++;
 				/* jshint ignore:end */
             }
 
