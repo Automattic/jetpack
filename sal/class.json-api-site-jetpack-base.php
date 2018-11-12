@@ -97,7 +97,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	}
 
 	function is_vip() {
-		return defined( 'WPCOM_IS_VIP_ENV' ) ? (bool) WPCOM_IS_VIP_ENV : false;
+		return defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV;
 	}
 
 	function featured_images_enabled() {
