@@ -8,7 +8,10 @@
 
 /**
  * Class Jetpack_Email_Subscribe
- * This class encapsulates..
+ * This class encapsulates shortcode for subscribing to a MailChimp list.
+ * It displays a simple signup form that gets an email address from the user and signs him for a list
+ * selected in "Sharing" section in calypso.
+ * Other Email services can be implemented as well in the future.
  */
 class Jetpack_Email_Subscribe {
 
