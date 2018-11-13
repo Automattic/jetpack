@@ -10,6 +10,7 @@
 			<file>tests/php/test_class.jetpack-client-server.php</file>
 			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
+			<file>tests/php/test_class.jetpack-gutenberg.php</file>
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
