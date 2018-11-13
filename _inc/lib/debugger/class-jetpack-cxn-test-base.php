@@ -282,4 +282,41 @@ class Jetpack_Cxn_Test_Base {
 
 		return $error;
 	}
+
+	/**
+	 * Encrypt data for sending to WordPress.com.
+	 *
+	 * @param string $data Data to encrypt with the WP.com Public Key.
+	 *
+	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.
+	 */
+	public function encrypt_string_for_wpcom( $data ) {
+		if ( ! function_exists( 'openssl_get_publickey' ) || ! function_exists( 'openssl_seal' ) ) {
+			return false;
+		}
+
+		$cert       = <<<CERT
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+uLLVoxGCY71LS6KFc6
+1UnF6QGBAsi5XF8ty9kR3/voqfOkpW+gRerM2Kyjy6DPCOmzhZj7BFGtxSV2ZoMX
+9ZwWxzXhl/Q/6k8jg8BoY1QL6L2K76icXJu80b+RDIqvOfJruaAeBg1Q9NyeYqLY
+lEVzN2vIwcFYl+MrP/g6Bc2co7Jcbli+tpNIxg4Z+Hnhbs7OJ3STQLmEryLpAxQO
+q8cbhQkMx+FyQhxzSwtXYI/ClCUmTnzcKk7SgGvEjoKGAmngILiVuEJ4bm7Q1yok
+xl9+wcfW6JAituNhml9dlHCWnn9D3+j8pxStHihKy2gVMwiFRjLEeD8K/7JVGkb/
+EwIDAQAB
+-----END PUBLIC KEY-----
+
+CERT;
+		$public_key = openssl_get_publickey( $cert );
+
+		if ( openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
+			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
+			return array(
+				'data' => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'key'  => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			);
+		}
+
+		return false;
+	}
 }

@@ -112,6 +112,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
+		// Endpoint specific for privileged servers to request detailed debug information.
+		register_rest_route( 'jetpack/v4', '/connection/test-wpcom/', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::jetpack_connection_test_for_external',
+		) );
+
 		register_rest_route( 'jetpack/v4', '/rewind', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_rewind_data',
@@ -909,7 +915,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Test connection status for this Jetpack site. It uses the /jetpack-blogs/%d/test-connection wpcom endpoint.
+	 * Test connection status for this Jetpack site.
 	 *
 	 * @since 6.8.0
 	 *
@@ -929,7 +935,71 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			return $cxntests->output_fails_as_wp_error();
 		}
+	}
 
+	/**
+	 * Test connection status for this Jetpack site, encrypt the results for decryption by a third-party.
+	 *
+	 * @since 6.8.0
+	 *
+	 * @return array|mixed|object|WP_Error
+	 */
+	public static function jetpack_connection_test_for_external() {
+		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
+		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
+		jetpack_require_lib( 'debugger' );
+		$cxntests = new Jetpack_Cxn_Tests();
+
+		if ( $cxntests->pass() ) {
+			$result = array(
+				'code'    => 'success',
+				'message' => __( 'All connection tests passed.', 'jetpack' ),
+			);
+		} else {
+			$error  = $cxntests->output_fails_as_wp_error(); // Using this so the output is similar both ways.
+			$errors = array();
+
+			// Borrowed from WP_REST_Server::error_to_response().
+			foreach ( (array) $error->errors as $code => $messages ) {
+				foreach ( (array) $messages as $message ) {
+					$errors[] = array(
+						'code'    => $code,
+						'message' => $message,
+						'data'    => $error->get_error_data( $code ),
+					);
+				}
+			}
+
+			$result = $errors[0];
+			if ( count( $errors ) > 1 ) {
+				// Remove the primary error.
+				array_shift( $errors );
+				$result['additional_errors'] = $errors;
+			}
+		}
+
+		$result = wp_json_encode( $result );
+
+		$encrypted = $cxntests->encrypt_string_for_wpcom( $result );
+
+		if ( ! $encrypted || ! is_array( $encrypted ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'action_required',
+					'message' => 'Please request results from the in-plugin debugger',
+				)
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'  => 'response',
+				'debug' => array(
+					'data' => $encrypted['data'],
+					'key'  => $encrypted['key'],
+				),
+			)
+		);
 	}
 
 	public static function rewind_data() {

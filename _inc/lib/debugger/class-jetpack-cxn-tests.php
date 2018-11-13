@@ -28,16 +28,25 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		/**
 		 * Fires after loading default Jetpack Connection tests.
 		 *
-		 * @since 6.8.0
+		 * @since 6.9.0
 		 */
 		do_action( 'jetpack_connection_tests_loaded' );
 
 		/**
-		 * Intentionally added last as it checks for an existing failure state before attempting.
-		 * Generally, any failed location condition would result in the WP.com check to fail too, so
-		 * we will skip it to avoid confusing error messages.
+		 * Determines if the WP.com testing suite should be included.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param bool $run_test To run the WP.com testing suite. Default true.
 		 */
-		$this->add_test( array( $this, 'last__wpcom_self_test' ) );
+		if ( apply_filters( 'jetpack_debugger_run_self_test', true ) ) {
+			/**
+			 * Intentionally added last as it checks for an existing failure state before attempting.
+			 * Generally, any failed location condition would result in the WP.com check to fail too, so
+			 * we will skip it to avoid confusing error messages.
+			 */
+			$this->add_test( array( $this, 'last__wpcom_self_test' ) );
+		}
 	}
 
 	/**
