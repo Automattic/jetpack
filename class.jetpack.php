@@ -554,6 +554,19 @@ class Jetpack {
 			}
 
 			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
+
+			add_filter( 'xmlrpc_methods', function( $methods ) {
+//				remove all but jetpack. methods
+				$jetpack_methods = array();
+
+				foreach ( $methods as $method => $callback ) {
+					if ( 0 === strpos( $method, 'jetpack.' ) ) {
+						$jetpack_methods[$method] = $callback;
+					}
+				}
+
+				return $jetpack_methods;
+			}, PHP_INT_MAX );
 		}
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
