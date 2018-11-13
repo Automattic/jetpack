@@ -3,7 +3,7 @@
 require_once dirname( __FILE__ ) . '/publicize-connections.php';
 
 /**
- * Publicize: List Conection Test Result Data
+ * Publicize: List Connection Test Result Data
  *
  * All the same data as the Publicize Connections Endpoint, plus test results.
  *

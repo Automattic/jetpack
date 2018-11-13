@@ -179,7 +179,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * Update the connections slated to be shared to.
 	 *
 	 * @param array $requested_connections
-	 *              Items are eitheer `{ id: (string) }` or `{ service_name: (string) }`
+	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`
 	 * @param WP_Post $post
 	 * @param WP_REST_Request
 	 */
