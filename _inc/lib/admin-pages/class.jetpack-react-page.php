@@ -231,11 +231,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
-		// Get number of subscribers
-		$subscriptions = new Jetpack_Subscriptions_Widget();
-		$subscriber_info = $subscriptions->fetch_subscriber_count();
-		$subscriber_count = $subscriber_info['value'];
-
 		return array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
@@ -276,7 +271,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
-				'subscriberCount'  => $subscriber_count,
 			),
 			'siteData' => array(
 				'icon' => has_site_icon()
