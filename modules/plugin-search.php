@@ -50,35 +50,29 @@ class Jetpack_Plugin_Search {
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
-		// @todo Move this to somewhere else, and build out a big mapping.
-		// @todo Build dynamically from a combination of module headers and descriptions
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
 
+		// Never suggest this module
+		unset( $jetpack_modules_list['plugin-search'] );
+
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
-			l('Got a search query');
-
-			// @todo Apply sanitization/normalization
-			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
-			$normalized_term = strtolower( $args->search );
+			$normalized_term = $this->sanitize_search_term( $args->search );
 			$matching_module = null;
 
 			function sort_by_sort_opt($m1, $m2) {
 				return $m1['sort'] - $m2['sort'];
 			};
-			usort( $jetpack_modules_list, 'sort_by_sort_opt');
+			usort( $jetpack_modules_list, 'sort_by_sort_opt' );
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				$search_terms = $module_opts['name'] . ', ' . $module_opts['search_terms'];
-				l( $search_terms );
+				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] . ', ' . $module_opts['description'] );
 				$terms_array = explode( ', ', $search_terms );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
 					break;
 				}
 			}
-
-			l( $matching_module );
 
 			if ( isset( $matching_module ) ) {
 				// @todo load the live Jetpack plugin data locally and prefill this array, or else avoiding needing most of this if possible
@@ -115,7 +109,21 @@ class Jetpack_Plugin_Search {
 						'svg' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
 					)
 				);
+
+				// Splice in the base module data
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ] );
+
+				// Supplement name/description so that they clearly indicate this was added.
+				$inject['name'] = sprintf(
+					__( 'Jetpack: %s', 'Jetpack: Module Name' ),
+					$jetpack_modules_list[ $matching_module ]['name']
+				);
+				$inject['short_description'] = sprintf(
+					__( 'You already have Jetpack installed, and it provides this functionality. %s', 'You already have Jetpack installed... Module description.' ),
+					$jetpack_modules_list[ $matching_module ]['short_description']
+				);
+
+				// Add it to the top of the list
 				array_unshift( $result->plugins, $inject );
 			}
 		}
@@ -123,12 +131,28 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
+	 * Take a raw search query and return something a bit more standardized and
+	 * easy to work with.
+	 * @param  String $term The raw search term
+	 * @return String A simplified/sanitized version.
+	 */
+	private function sanitize_search_term( $term ) {
+		$term = strtolower( urldecode( $term ) );
+
+		// remove non-alpha/space chars
+		$term = preg_replace( '/[^a-z ]/', '', $term );
+
+		// remove strings that don't help matches
+		$term = trim( str_replace( array( 'jetpack', 'jp', 'free', 'wordpress' ), '', $term ) );
+
+		return $term;
+	}
+
+	/**
 	 * Put some more appropriate links on our custom result cards.
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
 		if ( 'jetpack' === $plugin['slug'] ) {
-			// l($links);
-			// l($plugin);
 			// @todo Introduce logic to handle different scenarios (see top of file)
 			$links = array(
 				'<button type="button" class="button">Activate Module</button>',
