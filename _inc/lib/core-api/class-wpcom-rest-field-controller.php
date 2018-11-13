@@ -163,7 +163,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	/**
 	 * Permission Check for the field's getter. Must be implemented in the inheriting class.
 	 *
-	 * @param mixed $object_data Whatever the endpoint would returnn for its response.
+	 * @param mixed $object_data Whatever the endpoint would return for its response.
 	 * @param WP_REST_Request $request
 	 * @return true|WP_Error
 	 */
@@ -175,7 +175,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	/**
 	 * The field's "raw" getter. Must be implemented in the inheriting class.
 	 *
-	 * @param mixed $object_data Whatever the endpoint would returnn for its response.
+	 * @param mixed $object_data Whatever the endpoint would return for its response.
 	 * @param WP_REST_Request $request
 	 * @return mixed
 	 */
