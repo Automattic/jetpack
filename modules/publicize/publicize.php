@@ -118,6 +118,7 @@ abstract class Publicize_Base {
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
+		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 	}
 
 /*
@@ -449,6 +450,7 @@ abstract class Publicize_Base {
 
 	/**
 	 * Run connection tests on all Connections
+	 *
 	 * @return array {
 	 *     Array of connection test results.
 	 *
@@ -796,6 +798,46 @@ abstract class Publicize_Base {
 		}
 
 		return current_user_can( $capability );
+	}
+
+	/**
+	 * Auth callback for the protected ->POST_MESS post_meta
+	 *
+	 * @param bool $allowed
+	 * @param string $meta_key
+	 * @param int $object_id Post ID
+	 * @return bool
+	 */
+	function message_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+		return $this->current_user_can_access_publicize_data( $object_id );
+	}
+
+	/**
+	 * Registers the ->POST_MESS post_meta for use in the REST API.
+	 *
+	 * Registers for each post type that with `publicize` feature support.
+	 */
+	function register_post_meta() {
+		$args = array(
+			'type' => 'string',
+			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'single' => true,
+			'default' => '',
+			'show_in_rest' => array(
+				'name' => 'jetpack_publicize_message'
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
+
+			$args['object_subtype'] = $post_type;
+
+			register_meta( 'post', $this->POST_MESS, $args );
+		}
 	}
 
 	/**
