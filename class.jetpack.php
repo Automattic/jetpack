@@ -555,18 +555,7 @@ class Jetpack {
 
 			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
 
-			add_filter( 'xmlrpc_methods', function( $methods ) {
-//				remove all but jetpack. methods
-				$jetpack_methods = array();
-
-				foreach ( $methods as $method => $callback ) {
-					if ( 0 === strpos( $method, 'jetpack.' ) ) {
-						$jetpack_methods[$method] = $callback;
-					}
-				}
-
-				return $jetpack_methods;
-			}, PHP_INT_MAX );
+			add_filter( 'xmlrpc_methods', array( $this, 'remove_non_jetpack_xmlrpc_methods' ), 1000 );
 		}
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
@@ -796,6 +785,26 @@ class Jetpack {
 	}
 
 	/**
+	 * Removes all XML-RPC methods that are not `jetpack.*`.
+	 * Only used in our alternate XML-RPC endpoint, where we want to
+	 * ensure that Core and other plugins' methods are not exposed.
+	 *
+	 * @param array $methods
+	 * @return array filtered $methods
+	 */
+	function remove_non_jetpack_xmlrpc_methods( $methods ) {
+		$jetpack_methods = array();
+
+		foreach ( $methods as $method => $callback ) {
+			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+				$jetpack_methods[$method] = $callback;
+			}
+		}
+
+		return $jetpack_methods;
+	}
+
+	/**
 	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
 	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
 	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
@@ -803,6 +812,7 @@ class Jetpack {
 	 * from /xmlrpc.php so that we're replicating it as closely as possible.
 	 */
 	function alternate_xmlrpc() {
+		// phpcs:disable PHPCompatibility.PHP.RemovedGlobalVariables.http_raw_post_dataDeprecatedRemoved
 		global $HTTP_RAW_POST_DATA;
 
 		// Some browser-embedded clients send cookies. We don't want them.
@@ -818,6 +828,8 @@ class Jetpack {
 		if ( isset( $HTTP_RAW_POST_DATA ) ) {
 			$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
 		}
+
+		// phpcs:enable
 
 		include_once( ABSPATH . 'wp-admin/includes/admin.php' );
 		include_once( ABSPATH . WPINC . '/class-IXR.php' );
