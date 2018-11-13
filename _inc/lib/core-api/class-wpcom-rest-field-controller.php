@@ -49,13 +49,11 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	/**
 	 * Ensures the response matches the schema and request context.
 	 *
-	 * You shouldn't have to extend this method.
-	 *
 	 * @param mixed $value
 	 * @param WP_REST_Request $request
 	 * @return mixed
 	 */
-	function prepare_for_response( $value, $request ) {
+	private function prepare_for_response( $value, $request ) {
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$schema = $this->get_schema();
 
@@ -272,7 +270,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * @param string $context REST API Request context
 	 * @return mixed Filtered $value
 	 */
-	final function filter_response_by_context( $value, $schema, $context ) {
+	final public function filter_response_by_context( $value, $schema, $context ) {
 		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
 			// We use this intentionally odd looking WP_Error object
 			// internally only in this recursive function (see below
