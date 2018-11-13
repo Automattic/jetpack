@@ -158,7 +158,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * Permission Check for the field's getter. Must be implemented in the inheriting class.
 	 *
 	 * @param mixed $object_data Whatever the endpoint would returnn for its response.
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @return true|WP_Error
 	 */
 	public function get_permission_check( $object_data, $request ) {
@@ -170,7 +170,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 * The field's "raw" getter. Must be implemented in the inheriting class.
 	 *
 	 * @param mixed $object_data Whatever the endpoint would returnn for its response.
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @return mixed
 	 */
 	public function get( $object_data, $request ) {
@@ -183,7 +183,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 *
 	 * @param mixed $value The new value for the field.
 	 * @param mixed $object_data Probably a WordPress object (e.g., WP_Post)
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @return true|WP_Error
 	 */
 	public function update_permission_check( $value, $object_data, $request ) {
@@ -196,7 +196,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 *
 	 * @param mixed $value The new value for the field.
 	 * @param mixed $object_data Probably a WordPress object (e.g., WP_Post)
-	 * @param WP_REST_Request
+	 * @param WP_REST_Request $request
 	 * @return mixed
 	 */
 	public function update( $value, $object_data, $request ) {
