@@ -7,19 +7,19 @@
 /**
 
 /* global jQuery */
-/* jshint esversion: 6, es3:false */
-const JetpackEmailSubscribe = {
+/* jshint esversion: 5, es3:false */
+var JetpackEmailSubscribe = {
 	validateEmail: function( email ) {
-		const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		return re.test( String( email ).toLowerCase() );
 	},
 	activate: function( blogId, domId, cssPrefix ) {
-		const form = jQuery( '#' + domId );
+		var form = jQuery( '#' + domId );
 		form.submit( function( e ) {
 			e.preventDefault();
-			const emailField = form.find( '.' + cssPrefix + '-email' );
+			var emailField = form.find( '.' + cssPrefix + '-email' );
 			emailField.removeClass( cssPrefix + '-form-error' );
-			const email = emailField.val();
+			var email = emailField.val();
 
 			if ( ! JetpackEmailSubscribe.validateEmail( email ) ) {
 				emailField.addClass( cssPrefix + '-form-error' );
