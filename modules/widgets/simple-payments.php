@@ -18,7 +18,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			'USD' => '$',
 			'GBP' => '&#163;',
 			'JPY' => '&#165;',
-			'BRL' => 'R$',
 			'EUR' => '&#8364;',
 			'NZD' => 'NZ$',
 			'AUD' => 'A$',
