@@ -1,19 +1,24 @@
 <?php
+
 /*
  * WARNING: This file is distributed verbatim in Jetpack.
  * There should be nothing WordPress.com specific in this file.
  *
  * @hide-in-jetpack
  */
+
 class Jetpack_Email_Subscribe {
 
-	static $shortcode = 'jetpack-email-subscribe';
+	private static $shortcode = 'jetpack-email-subscribe';
 
-	static $css_classname_prefix = 'jetpack-email-subscribe';
+	private static $css_classname_prefix = 'jetpack-email-subscribe';
 
 	// Classic singleton pattern:
 	private static $instance;
-	private function __construct() {}
+
+	private function __construct() {
+	}
+
 	static function getInstance() {
 		// Do not load this at all if it's neither a WPCOM or a connected JP site.
 		if ( ! ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) ) {
@@ -24,6 +29,7 @@ class Jetpack_Email_Subscribe {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
 		}
+
 		return self::$instance;
 	}
 
@@ -45,7 +51,7 @@ class Jetpack_Email_Subscribe {
 		$this->register_shortcode();
 	}
 
-	function get_blog_id() {
+	private function get_blog_id() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
 		}
@@ -54,36 +60,41 @@ class Jetpack_Email_Subscribe {
 	}
 
 
-	function parse_shortcode( $attrs, $content = false ) {
-		// We allow for overriding the presentation labels
-		$data = shortcode_atts( array(
-			'blog_id'     => $this->get_blog_id(),
-			'title'       => __( 'Join my email list', 'jetpack' ),
-			'email_placeholder' => __( 'Enter your email', 'jetpack' ),
-			'submit_label' => __( 'Join My Email List', 'jetpack' ),
-			'consent_text' => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
-			'processing_label' => __( 'Processing...', 'jetpack' ),
-			'success_label' => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
-			'error_label' => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
-			'classname' => self::$css_classname_prefix,
-			'dom_id' => uniqid( self::$css_classname_prefix . '_', false ),
-		), $attrs );
-
+	public function parse_shortcode( $attrs ) {
+		// We allow for overriding the presentation labels.
+		$data = shortcode_atts(
+			array(
+				'blog_id'           => $this->get_blog_id(),
+				'title'             => __( 'Join my email list', 'jetpack' ),
+				'email_placeholder' => __( 'Enter your email', 'jetpack' ),
+				'submit_label'      => __( 'Join My Email List', 'jetpack' ),
+				'consent_text'      => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
+				'processing_label'  => __( 'Processing...', 'jetpack' ),
+				'success_label'     => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
+				'error_label'       => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
+				'classname'         => self::$css_classname_prefix,
+				'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
+			),
+			$attrs
+		);
 
 		if ( ! wp_script_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
 			wp_enqueue_script( 'jetpack-email-subscribe' );
 		}
 
-		if( ! wp_style_is( 'jetpack-email-subscribe', 'enqueue' ) ) {
+		if ( ! wp_style_is( 'jetpack-email-subscribe', 'enqueue' ) ) {
 			wp_enqueue_style( 'jetpack-email-subscribe' );
 		}
 
-		wp_add_inline_script( 'jetpack-email-subscribe', sprintf(
-			"try{JetpackEmailSubscribe.activate( '%s', '%s', '%s' );}catch(e){}",
-			esc_js( $data['blog_id'] ),
-			esc_js( $data['dom_id'] ),
-			esc_js( $data['classname'] )
-		) );
+		wp_add_inline_script(
+			'jetpack-email-subscribe',
+			sprintf(
+				"try{JetpackEmailSubscribe.activate( '%s', '%s', '%s' );}catch(e){}",
+				esc_js( $data['blog_id'] ),
+				esc_js( $data['dom_id'] ),
+				esc_js( $data['classname'] )
+			)
+		);
 
 		return sprintf(
 			'<div class="%1$s" id="%2$s">
@@ -112,4 +123,5 @@ class Jetpack_Email_Subscribe {
 	}
 
 }
+
 Jetpack_Email_Subscribe::getInstance();
