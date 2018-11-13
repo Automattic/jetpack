@@ -3207,10 +3207,14 @@ p {
 	 * @return null              [description]
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
+		} else {
+			// If a Jetpack is still active but not connected when updating verion, remind them to connect with the banner.
+			if ( ! Jetpack::is_active() ) {
+				Jetpack_Options::update_option( 'dismissed_connection_banner', false );
+			}
 		}
 	}
 
