@@ -24,6 +24,7 @@
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
+jetpack_require_lib( 'tracks/client' );
 
 class Jetpack_Plugin_Search {
 	public static function init() {
@@ -53,21 +54,28 @@ class Jetpack_Plugin_Search {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
 
-		// Never suggest this module
+		// Never suggest this module.
 		unset( $jetpack_modules_list['plugin-search'] );
 
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
+
+			// @todo Apply sanitization/normalization
+			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
+			$this->track_search_term( $args->search );
 			$normalized_term = $this->sanitize_search_term( $args->search );
 			$matching_module = null;
 
-			function sort_by_sort_opt($m1, $m2) {
+			// Callback function to sort the array of modules by the sort option.
+			function sort_by_sort_opt( $m1, $m2 ) {
 				return $m1['sort'] - $m2['sort'];
 			};
 			usort( $jetpack_modules_list, 'sort_by_sort_opt' );
+
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
 				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] );
-				$terms_array = explode( ', ', $search_terms );
+				$terms_array  = explode( ', ', $search_terms );
+				$terms_array  = array_map( 'strtolower', $terms_array );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
 					break;
@@ -80,6 +88,7 @@ class Jetpack_Plugin_Search {
 				// $plugin_meta = plugins_api( 'plugin_information', array( 'slug' => 'jetpack' ) );
 
 				$inject = array(
+					'plugin-search' => true,
 					'name' => '',
 					'slug' => 'jetpack',
 					'version' => '',
@@ -133,6 +142,7 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Take a raw search query and return something a bit more standardized and
 	 * easy to work with.
+	 *
 	 * @param  String $term The raw search term
 	 * @return String A simplified/sanitized version.
 	 */
@@ -149,10 +159,20 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
+	 * Tracks every search term used in plugins search
+	 *
+	 * @param String $term The raw search term.
+	 * @return true|WP_Error true for success, WP_Error if error occured.
+	 */
+	private function track_search_term( $term ) {
+		return JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $term ) );
+	}
+
+	/**
 	 * Put some more appropriate links on our custom result cards.
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
-		if ( 'jetpack' === $plugin['slug'] ) {
+		if ( 'jetpack' === $plugin['slug'] && array_key_exists( 'plugin-search', $plugin )   ) {
 			// @todo Introduce logic to handle different scenarios (see top of file)
 			$links = array(
 				'<button type="button" class="button">Activate Module</button>',
