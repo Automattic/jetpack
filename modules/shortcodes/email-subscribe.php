@@ -5,7 +5,7 @@
  *
  * @hide-in-jetpack
  */
-class Email_Subscribe {
+class Jetpack_Email_Subscribe {
 
 	static $shortcode = 'jetpack-email-subscribe';
 
@@ -15,6 +15,11 @@ class Email_Subscribe {
 	private static $instance;
 	private function __construct() {}
 	static function getInstance() {
+		// Do not load this at all if it's neither a WPCOM or a connected JP site.
+		if ( ! ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) ) {
+			return null;
+		}
+
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
@@ -23,8 +28,8 @@ class Email_Subscribe {
 	}
 
 	private function register_scripts_and_styles() {
-		wp_register_script( 'jetpack-email-subscribe', plugins_url( '/jetpack-email-subscribe.js', __FILE__ ), array( 'jquery' ) );
-		wp_register_style( 'jetpack-email-subscribe', plugins_url( '/jetpack-email-subscribe.css', __FILE__ ) );
+		wp_register_script( 'jetpack-email-subscribe', plugins_url( '/js/jetpack-email-subscribe.js', __FILE__ ), array( 'jquery' ) );
+		wp_register_style( 'jetpack-email-subscribe', plugins_url( '/js/jetpack-email-subscribe.css', __FILE__ ) );
 	}
 
 	private function register_init_hook() {
@@ -53,13 +58,13 @@ class Email_Subscribe {
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
 			'blog_id'     => $this->get_blog_id(),
-			'title'       => __( 'Join my email list' ),
-			'email_placeholder' => __( 'Enter your email' ),
-			'submit_label' => __( 'Join My Email List' ),
-			'consent_text' => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.' ),
-			'processing_label' => __( 'Processing...' ),
-			'success_label' => __( 'Success! You\'ve been added to the list.' ),
-			'error_label' => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more." ),
+			'title'       => __( 'Join my email list', 'jetpack' ),
+			'email_placeholder' => __( 'Enter your email', 'jetpack' ),
+			'submit_label' => __( 'Join My Email List', 'jetpack' ),
+			'consent_text' => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
+			'processing_label' => __( 'Processing...', 'jetpack' ),
+			'success_label' => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
+			'error_label' => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
 			'classname' => self::$css_classname_prefix,
 			'dom_id' => uniqid( self::$css_classname_prefix . '_', false ),
 		), $attrs );
@@ -107,4 +112,4 @@ class Email_Subscribe {
 	}
 
 }
-Email_Subscribe::getInstance();
+Jetpack_Email_Subscribe::getInstance();
