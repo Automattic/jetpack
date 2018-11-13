@@ -82,18 +82,18 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 
 		// If you have something more complicated, use $schema['default'];
 		switch ( isset( $schema['type'] ) ? $schema['type'] : 'null' ) {
-			case 'string' :
+			case 'string':
 				return '';
-			case 'integer' :
-			case 'number' :
+			case 'integer':
+			case 'number':
 				return 0;
-			case 'object' :
+			case 'object':
 				return (object) array();
-			case 'array' :
+			case 'array':
 				return array();
-			case 'boolean' :
+			case 'boolean':
 				return false;
-			case 'null' :
+			case 'null':
 			default :
 				return null;
 		}
@@ -278,7 +278,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		}
 
 		switch ( $schema['type'] ) {
-			case 'array' :
+			case 'array':
 				if ( ! isset( $schema['items'] ) ) {
 					return $value;
 				}
@@ -301,7 +301,7 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 				);
 
 				return array_combine( $keys, $items );
-			case 'object' :
+			case 'object':
 				if ( ! isset( $schema['properties'] ) ) {
 					return $value;
 				}
