@@ -834,6 +834,7 @@ class Jetpack {
 		$wp_xmlrpc_server = new $wp_xmlrpc_server_class;
 
 		// Fire off the request
+		nocache_headers();
 		$wp_xmlrpc_server->serve_request();
 
 		exit;
