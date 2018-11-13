@@ -116,6 +116,8 @@ abstract class Publicize_Base {
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
+
+		add_action( 'init', array( $this, 'add_post_type_support' ) );
 	}
 
 /*
@@ -761,6 +763,15 @@ abstract class Publicize_Base {
 	 * @return void
 	 */
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
+
+	/**
+	 * Ensures the Post internal post-type supports `publicize`
+	 *
+	 * This feature support flag is used by the REST API.
+	 */
+	function add_post_type_support() {
+		add_post_type_support( 'post', 'publicize' );
+	}
 
 	/**
 	 * Can the current user access Publicize Data.
