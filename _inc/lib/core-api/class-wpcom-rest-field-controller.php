@@ -113,7 +113,13 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	final public function get_for_response( $object_data, $field_name, $request, $object_type ) {
 		$permission_check = $this->get_permission_check( $object_data, $request );
 
-		if ( ! $permission_check || is_wp_error( $permission_check ) ) {
+		if ( ! $permission_check ) {
+			/* translators: %s: get_permission_check() */
+			_doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::get_permission_check', sprintf( __( "Method '%s' must return either true or WP_Error.", 'jetpack' ), 'get_permission_check' ), 'Jetpack 6.8' );
+			return $this->get_default_value( $this->get_schema() );
+		}
+
+		if ( is_wp_error( $permission_check ) ) {
 			return $this->get_default_value( $this->get_schema() );
 		}
 
