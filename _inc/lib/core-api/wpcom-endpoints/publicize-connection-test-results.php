@@ -33,6 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 
 	/**
 	 * Adds the test results properties to the Connection schema.
+	 * @return array
 	 */
 	public function get_item_schema() {
 		$schema = array(

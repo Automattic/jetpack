@@ -36,6 +36,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		) );
 	}
 
+	/**
+	 * @return array
+	 */
 	public function get_item_schema() {
 		$schema = array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
