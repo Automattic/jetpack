@@ -23,74 +23,119 @@
  * - Activate module via AJAX, then prompt to configure/settings
  */
 
-/**
- * Intercept the plugins API response and add in an appropriate card for Jetpack
- */
-add_filter( 'plugins_api_result', function( $result, $action, $args ) {
-	// @todo Move this to somewhere else, and build out a big mapping.
-	// @todo Build dynamically from a combination of module headers and descriptions
-	$jetpack_feature_map = array(
-		'contact form' => array(
-			'name' => 'Jetpack: Contact Form',
-			'short_description' => 'Jetpack contains a complete Contact Form solution which allows you to build custom forms for collecting information from site visitors.',
-		),
-	);
+add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
 
-	// Looks like a search query; it's matching time
-	if ( ! empty( $args->search ) ) {
-		// @todo Apply sanitization/normalization
-		// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
-		$term = $args->search;
-		if ( ! empty( $jetpack_feature_map[ $term ] ) ) {
-			// @todo load the live Jetpack plugin data locally and prefill this array, or else avoiding needing most of this if possible
-			$inject = array(
-				'name' => '',
-				'slug' => 'jetpack',
-				'version' => '',
-				'author' => '',
-				'author_profile' => '',
-				'requires' => '',
-				'tested' => '',
-				'requires_php' => '',
-				'rating' => 100,
-				'ratings' => array('1'=>1,'2'=>2,'3'=>3,'4'=>4,'5'=>5),
-				'num_ratings' => 100,
-				'support_threads' => 100,
-				'support_threads_resolved' => 100,
-				'active_installs' => 3000000,
-				'downloaded' => 10000000,
-				'last_updated' => '',
-				'added' => '',
-				'homepage' => '',
-				'download_link' => '',
-				'tags' => array(),
-				'donate_link' => '',
-				'short_description' => '',
-				'description' => '',
-				'icons' => array(
-					'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
-					'2x'  => 'https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404',
-					'svg' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
-				)
-			);
-			$inject = array_merge( $inject, $jetpack_feature_map[ $term ] );
-			array_unshift( $result->plugins, $inject );
+class Jetpack_Plugin_Search {
+	public static function init() {
+		static $instance = null;
+
+		if ( ! $instance ) {
+			$instance = new Jetpack_Plugin_Search();
 		}
-	}
-	return $result;
-}, 10, 3 );
 
-/**
- * Put some more appropriate links on our custom result cards.
- */
-add_filter( 'plugin_install_action_links', function( $links, $plugin ) {
-	if ( 'jetpack' == $plugin['slug'] ) {
-		// @todo Introduce logic to handle different scenarios (see top of file)
-		$links = array(
-			'<button type="button" class="button">Activate Module</button>',
-			'<a href="">More Information</a>',
-		);
+		return $instance;
 	}
 
-	return $links;
-}, 10, 2 );
+	function __construct() {
+		add_action( 'init', array( &$this, 'action_init' ) );
+	}
+
+	function action_init() {
+		add_filter( 'plugins_api_result', array( $this, 'inject_jetpack_module_suggestion' ), 10, 3 );
+		add_filter( 'plugin_install_action_links', array( $this, 'insert_module_related_links' ), 10, 2 );
+	}
+
+
+	/**
+	 * Intercept the plugins API response and add in an appropriate card for Jetpack
+	 */
+	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
+		// @todo Move this to somewhere else, and build out a big mapping.
+		// @todo Build dynamically from a combination of module headers and descriptions
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
+
+		// Looks like a search query; it's matching time
+		if ( ! empty( $args->search ) ) {
+			l('Got a search query');
+
+			// @todo Apply sanitization/normalization
+			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
+			$normalized_term = strtolower( $args->search );
+			$matching_module = null;
+
+			function sort_by_sort_opt($m1, $m2) {
+				return $m1['sort'] - $m2['sort'];
+			};
+			usort( $jetpack_modules_list, 'sort_by_sort_opt');
+			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
+				$search_terms = $module_opts['name'] . ', ' . $module_opts['search_terms'];
+				l( $search_terms );
+				$terms_array = explode( ', ', $search_terms );
+				if ( in_array( $normalized_term, $terms_array ) ) {
+					$matching_module = $module_slug;
+					break;
+				}
+			}
+
+			l( $matching_module );
+
+			if ( isset( $matching_module ) ) {
+				// @todo load the live Jetpack plugin data locally and prefill this array, or else avoiding needing most of this if possible
+				// include_once ABSPATH . '/wp-admin/includes/plugin-install.php';
+				// $plugin_meta = plugins_api( 'plugin_information', array( 'slug' => 'jetpack' ) );
+
+				$inject = array(
+					'name' => '',
+					'slug' => 'jetpack',
+					'version' => '',
+					'author' => '',
+					'author_profile' => '',
+					'requires' => '',
+					'tested' => '',
+					'requires_php' => '',
+					'rating' => 100,
+					'ratings' => array('1'=>1,'2'=>2,'3'=>3,'4'=>4,'5'=>5),
+					'num_ratings' => 100,
+					'support_threads' => 100,
+					'support_threads_resolved' => 100,
+					'active_installs' => 3000000,
+					'downloaded' => 10000000,
+					'last_updated' => '',
+					'added' => '',
+					'homepage' => '',
+					'download_link' => '',
+					'tags' => array(),
+					'donate_link' => '',
+					'short_description' => '',
+					'description' => '',
+					'icons' => array(
+						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
+						'2x'  => 'https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404',
+						'svg' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
+					)
+				);
+				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ] );
+				array_unshift( $result->plugins, $inject );
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Put some more appropriate links on our custom result cards.
+	 */
+	public function insert_module_related_links( $links, $plugin ) {
+		if ( 'jetpack' === $plugin['slug'] ) {
+			// l($links);
+			// l($plugin);
+			// @todo Introduce logic to handle different scenarios (see top of file)
+			$links = array(
+				'<button type="button" class="button">Activate Module</button>',
+				'<a href="">More Information</a>',
+			);
+		}
+
+		return $links;
+	}
+}
