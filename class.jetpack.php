@@ -548,7 +548,7 @@ class Jetpack {
 		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
 
 		// Alternate XML-RPC, via ?for=jetpack&jetpack=xmlrpc
-		if ( isset( $_GET['jetpack'] ) && 'xmlrpc' == $_GET['jetpack'] ) {
+		if ( isset( $_GET['jetpack'] ) && 'comms' == $_GET['jetpack'] ) {
 			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
 				define( 'XMLRPC_REQUEST', true );
 			}
