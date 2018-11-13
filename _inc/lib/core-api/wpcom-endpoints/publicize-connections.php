@@ -96,10 +96,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				$connection_data = $connection_meta['connection_data'];
 
 				$items[] = array(
-					'id' => (string) $publicize->get_connection_unique_id( $connection ),
+					'id'           => (string) $publicize->get_connection_unique_id( $connection ),
 					'service_name' => $service_name,
 					'display_name' => $publicize->get_display_name( $service_name, $connection ),
-					'global' => 0 == $connection_data['user_id'],
+					'global'       => 0 == $connection_data['user_id'],
 				);
 			}
 		}
