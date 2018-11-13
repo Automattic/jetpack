@@ -239,42 +239,42 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	private static function register_contact_form_blocks() {
-		register_block_type( 'jetpack/contact-form', array(
+		jetpack_register_block( 'contact-form', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 		) );
 
 		// Field render methods.
-		register_block_type( 'jetpack/field-text', array(
+		jetpack_register_block( 'field-text', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
 		) );
-		register_block_type( 'jetpack/field-name', array(
+		jetpack_register_block( 'field-name', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
 		) );
-		register_block_type( 'jetpack/field-email', array(
+		jetpack_register_block( 'field-email', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
 		) );
-		register_block_type( 'jetpack/field-url', array(
+		jetpack_register_block( 'field-url', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
 		) );
-		register_block_type( 'jetpack/field-date', array(
+		jetpack_register_block( 'field-date', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
 		) );
-		register_block_type( 'jetpack/field-telephone', array(
+		jetpack_register_block( 'field-telephone', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
 		) );
-		register_block_type( 'jetpack/field-textarea', array(
+		jetpack_register_block( 'field-textarea', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 		) );
-		register_block_type( 'jetpack/field-checkbox', array(
+		jetpack_register_block( 'field-checkbox', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 		) );
-		register_block_type( 'jetpack/field-checkbox-multiple', array(
+		jetpack_register_block( 'field-checkbox-multiple', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 		) );
-		register_block_type( 'jetpack/field-radio', array(
+		jetpack_register_block( 'field-radio', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 		) );
-		register_block_type( 'jetpack/field-select', array(
+		jetpack_register_block( 'field-select', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 		) );
 	}
@@ -3229,7 +3229,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 }
 
-add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ) );
+add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ), 9 );
 
 add_action( 'grunion_scheduled_delete', 'grunion_delete_old_spam' );
 
