@@ -66,7 +66,7 @@ class Jetpack_Plugin_Search {
 			};
 			usort( $jetpack_modules_list, 'sort_by_sort_opt' );
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] . ', ' . $module_opts['description'] );
+				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] );
 				$terms_array = explode( ', ', $search_terms );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
