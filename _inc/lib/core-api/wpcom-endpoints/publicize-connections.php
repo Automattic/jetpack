@@ -99,6 +99,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'id'           => (string) $publicize->get_connection_unique_id( $connection ),
 					'service_name' => $service_name,
 					'display_name' => $publicize->get_display_name( $service_name, $connection ),
+					// We expect an integer, but do loose comparison below in case some other type is stored
 					'global'       => 0 == $connection_data['user_id'],
 				);
 			}
