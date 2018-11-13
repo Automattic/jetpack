@@ -1036,12 +1036,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'A non-empty token argument must be passed.', 'jetpack' ) );
 		}
 
-		$token = sanitize_text_field( $named_args['token'] );
-
 		$is_master_user  = ! Jetpack::is_active();
 		$current_user_id = get_current_user_id();
 
-		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
 
 		WP_CLI::log( wp_json_encode( $named_args ) );
 
