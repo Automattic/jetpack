@@ -1,25 +1,34 @@
 <?php
-
-/*
+/**
  * WARNING: This file is distributed verbatim in Jetpack.
  * There should be nothing WordPress.com specific in this file.
  *
  * @hide-in-jetpack
- */
+ **/
 
+/**
+ * Class Jetpack_Email_Subscribe
+ * This class encapsulates..
+ */
 class Jetpack_Email_Subscribe {
 
 	private static $shortcode = 'jetpack-email-subscribe';
 
 	private static $css_classname_prefix = 'jetpack-email-subscribe';
 
-	// Classic singleton pattern:
 	private static $instance;
+
+	private static $version = '1.0';
 
 	private function __construct() {
 	}
 
-	static function getInstance() {
+	/**
+	 * This follows a classic singleton pattern.
+	 *
+	 * @return Jetpack_Email_Subscribe|null
+	 */
+	public static function get_instance() {
 		// Do not load this at all if it's neither a WPCOM or a connected JP site.
 		if ( ! ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) ) {
 			return null;
@@ -34,8 +43,8 @@ class Jetpack_Email_Subscribe {
 	}
 
 	private function register_scripts_and_styles() {
-		wp_register_script( 'jetpack-email-subscribe', Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/jetpack-email-subscribe.min.js', 'modules/shortcodes/js/jetpack-email-subscribe.js' ), array( 'jquery' ) );
-		wp_register_style( 'jetpack-email-subscribe', plugins_url( '/css/jetpack-email-subscribe.css', __FILE__ ) );
+		wp_register_script( 'jetpack-email-subscribe', Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/jetpack-email-subscribe.min.js', 'modules/shortcodes/js/jetpack-email-subscribe.js' ), array( 'jquery' ), self::$version );
+		wp_register_style( 'jetpack-email-subscribe', plugins_url( '/css/jetpack-email-subscribe.css', __FILE__ ), array(), self::$version );
 	}
 
 	private function register_init_hook() {
@@ -124,4 +133,4 @@ class Jetpack_Email_Subscribe {
 
 }
 
-Jetpack_Email_Subscribe::getInstance();
+Jetpack_Email_Subscribe::get_instance();
