@@ -114,8 +114,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		}
 
 		$response = rest_ensure_response( $items );
-                $response->header( 'X-WP-Total', count( $items ) );
-                $response->header( 'X-WP-TotalPages', 1 );
+		$response->header( 'X-WP-Total', count( $items ) );
+		$response->header( 'X-WP-TotalPages', 1 );
 
 		return $response;
 	}
