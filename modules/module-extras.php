@@ -6,7 +6,6 @@
 
 // Include extra tools that aren't modules, in a filterable way
 $tools = array(
-	'email-subscribe/email-subscribe.php',
 	'theme-tools/social-links.php',
 	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
