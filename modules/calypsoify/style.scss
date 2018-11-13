@@ -755,13 +755,12 @@ div.mce-toolbar-grp,
   }
 
   & + .form-toggle__label .form-toggle__switch {
-    background: $_537994;
+    background: $_a8bece;
   }
 
   &:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $_a8bece;
-
+      background: $_87a6bc;
     }
   }
 
