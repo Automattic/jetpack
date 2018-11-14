@@ -116,6 +116,8 @@ abstract class Publicize_Base {
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
+
+		jetpack_register_block( 'publicize' );
 	}
 
 /*
