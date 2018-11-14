@@ -424,6 +424,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Get and set API keys.
+		// Note: permission_callback intentionally omitted from the GET method.
+		// Map block requires open access to API keys on the front end.
 		register_rest_route(
 			'jetpack/v4',
 			'/service-api-keys/(?P<service>[a-z\-_]+)',
@@ -918,7 +920,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 6.8.0
 	 *
-	 * @return array|WP_Error WP_Error returned if connection test does not succeed. 
+	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
