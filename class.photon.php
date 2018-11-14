@@ -56,7 +56,7 @@ class Jetpack_Photon {
 
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
-		add_filter( 'rest_request_before_callbacks', array( $this, 'should_rest_photon_image_downsize', 10, 3 ) );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'should_rest_photon_image_downsize' ), 10, 3 );
 
 
 		// Responsive image srcset substitution
