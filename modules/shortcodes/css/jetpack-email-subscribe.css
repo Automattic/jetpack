@@ -4,13 +4,6 @@
     width: 50%;
 }
 
-.jetpack-email-subscribe-email::-webkit-input-placeholder,
-.jetpack-email-subscribe-email::-moz-placeholder,
-.jetpack-email-subscribe-email:-ms-input-placeholder,
-.jetpack-email-subscribe-email:-moz-placeholder  {
-    color: #ddd;
-}
-
 .jetpack-email-subscribe-consent-label {
     color: #999;
     display: block;
