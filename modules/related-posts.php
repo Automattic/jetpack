@@ -76,4 +76,3 @@ class Jetpack_RelatedPosts_Module {
 
 // Do it.
 Jetpack_RelatedPosts_Module::instance();
-jetpack_register_block( 'related-posts' );
