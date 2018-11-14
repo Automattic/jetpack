@@ -14,8 +14,6 @@
  *
  * @todo Wrap it in a class, proper instantiation, etc.
  *
- * @todo Improve our logging of searches to ensure we're capturing everything.
- *
  * @todo Handle different scenarios:
  * - Jetpack installed, active, not connected; prompt to connect to get feature
  * - Installed, active, feature not enabled; prompt to enable
@@ -88,7 +86,6 @@ class Jetpack_Plugin_Search {
 				// $plugin_meta = plugins_api( 'plugin_information', array( 'slug' => 'jetpack' ) );
 
 				$inject = array(
-					'plugin-search' => true,
 					'name' => '',
 					'slug' => 'jetpack',
 					'version' => '',
@@ -122,6 +119,8 @@ class Jetpack_Plugin_Search {
 				// Splice in the base module data
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ] );
 
+				// Helps to determine if that an injected card.
+				$inject['plugin-search'] = true;
 				// Supplement name/description so that they clearly indicate this was added.
 				$inject['name'] = sprintf(
 					__( 'Jetpack: %s', 'Jetpack: Module Name' ),
@@ -159,7 +158,7 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Tracks every search term used in plugins search
+	 * Tracks every search term used in plugins search as 'jetpack_wpa_plugin_search_term'
 	 *
 	 * @param String $term The raw search term.
 	 * @return true|WP_Error true for success, WP_Error if error occured.
@@ -172,14 +171,32 @@ class Jetpack_Plugin_Search {
 	 * Put some more appropriate links on our custom result cards.
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
-		if ( 'jetpack' === $plugin['slug'] && array_key_exists( 'plugin-search', $plugin )   ) {
-			// @todo Introduce logic to handle different scenarios (see top of file)
+		if (
+			! 'jetpack' === $plugin['slug'] ||
+			! array_key_exists( 'plugin-search', $plugin ) ||
+			// Make sure we show injected card only on first page.
+			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
+			) {
+			return $links;
+		}
+
+		// Jetpack installed, active, feature not enabled; prompt to enable.
+		if ( Jetpack::is_active() && ! Jetpack::is_module_active( $plugin['module'] ) ) {
+			$activate_url = admin_url( 'admin.php' ) . '?page=jetpack&#038;action=activate&#038;module=' . $plugin['module'] . '&#038;_wpnonce=' . $plugin['activate_nonce'];
 			$links = array(
-				'<button type="button" class="button">Activate Module</button>',
-				'<a href="">More Information</a>',
+				'<button type="button" class="button primary" ><a href=' . $activate_url . '>' . __('Activate Module', 'jetpack') . '</a></button>',
+			);
+		// Jetpack installed, active, feature enabled; link to settings.
+		} elseif ( Jetpack::is_active() && Jetpack::is_module_active( $plugin['module'] ) ) {
+			$links = array(
+				'<button type="button" class="button"><a href="' . $plugin['configure_url'] . '">' . __('Module Settings', 'jetpack') . '</a></button>',
 			);
 		}
 
+		// Adds More Information link.
+		$links[] = '<a href="' . $plugin['learn_more_button'] . '">' . __('More Information', 'jetpack') . '</a>';
+		// Add some styling.
+		$links[] = '<style>.plugin-card-jetpack { border: solid 2px green; }</style>';
 		return $links;
 	}
 }
