@@ -14,6 +14,11 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 			'id_field'  => 'attribute_id',
 		),
 
+		'woocommerce_downloadable_product_permission' => array(
+			'table'    => 'woocommerce_downloadable_product_permissions',
+			'id_field' => 'permission_id',
+		),
+
 		'woocommerce_order_item' => array(
 			'table'     => 'woocommerce_order_items',
 			'id_field'  => 'order_item_id',
