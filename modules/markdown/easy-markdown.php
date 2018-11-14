@@ -69,6 +69,9 @@ class WPCom_Markdown {
 		}
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
 		add_action( 'admin_init', array( $this, 'maybe_unload_for_bulk_edit' ) );
+
+		jetpack_register_block( 'markdown' );
+
 		if ( current_theme_supports( 'o2' ) || class_exists( 'P2' ) ) {
 			$this->add_o2_helpers();
 		}
