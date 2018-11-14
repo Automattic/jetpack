@@ -217,6 +217,12 @@ class Jetpack_Gutenberg {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+
+			wp_localize_script(
+				'jetpack-block-' . $type,
+				'Jetpack_Block_Assets_Base_Url',
+				plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+			);
 		}
 	}
 
