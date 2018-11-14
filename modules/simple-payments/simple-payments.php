@@ -41,6 +41,13 @@ class Jetpack_Simple_Payments {
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
+
+		if ( $this->is_enabled_jetpack_simple_payments() ) {
+			jetpack_register_block( 'simple-payments' );
+		} else {
+			jetpack_register_block( 'simple-payments', array(), array( 'available' => false, 'unavailable_reason' => 'missing_plan' ) );
+		}
+
 	}
 
 	private function register_shortcode() {
