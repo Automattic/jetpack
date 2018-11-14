@@ -37,8 +37,6 @@ const admincss = [
 	'modules/widget-visibility/widget-conditions/widget-conditions.css',
 	'modules/widgets/gallery/css/admin.css',
 	'modules/sso/jetpack-sso-login.css', // Displayed when logging into the site.
-	'modules/calypsoify/style-gutenberg.css',
-	'modules/calypsoify/style.css'
 ];
 
 // Minimizes admin css for modules.  Outputs to same folder as min.css
