@@ -210,6 +210,15 @@
 
 
 /**
+ * Comments
+ */
+
+.comments-area .comments-title-wrap + .comment-respond .comment-reply-title {
+	display: none;
+}
+
+
+/**
  * Widgets
  */
 
