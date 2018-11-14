@@ -38,11 +38,148 @@ class Jetpack_Calypsoify {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
 			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
+
+
+			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
+
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+
+			if ( 'plugins.php' === basename( $_SERVER['PHP_SELF'] ) ) {
+				add_action( 'admin_notices', array( $this, 'plugins_admin_notices' ) );
+			}
+		}
+		// Make this always available -- in case calypsoify gets toggled off.
+		add_action( 'wp_ajax_jetpack_toggle_autoupdate', array( $this, 'jetpack_toggle_autoupdate' ) );
+		add_filter( 'handle_bulk_actions-plugins', array( $this, 'handle_bulk_actions_plugins' ), 10, 3 );
+	}
+
+	public function manage_plugins_columns_header( $columns ) {
+		if ( current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			$columns['autoupdate'] = __( 'Automatic Update', 'jetpack' );
+		}
+		return $columns;
+	}
+
+	public function manage_plugins_custom_column( $column_name, $slug ) {
+		static $repo_plugins = array();
+
+		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			return;
+		}
+
+		if ( empty( $repo_plugins ) ) {
+			$repo_plugins = self::get_dotorg_repo_plugins();
+		}
+
+		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
+		if ( 'autoupdate' === $column_name ) {
+			if ( ! in_array( $slug, $repo_plugins ) ) {
+				return;
+			}
+			// Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle
+			?>
+
+			<span class="form-toggle__wrapper">
+				<input
+					id="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>"
+					name="autoupdate_plugins[<?php echo esc_attr( $slug ) ?>]"
+					value="autoupdate"
+					class="form-toggle autoupdate-toggle"
+					type="checkbox"
+					<?php checked( in_array( $slug, $autoupdating_plugins ) ); ?>
+					readonly
+					data-slug="<?php echo esc_attr( $slug ); ?>"
+				/>
+				<label class="form-toggle__label" for="autoupdate_plugin-toggle-<?php echo esc_attr( $slug ) ?>">
+					<span class="form-toggle__switch" role="checkbox"></span>
+					<span class="form-toggle__label-content"><?php /*  */ ?></span>
+				</label>
+			</span>
+
+			<?php
 		}
 	}
 
+	public static function get_dotorg_repo_plugins() {
+		$plugins = get_site_transient( 'update_plugins' );
+		return array_merge( array_keys( $plugins->response ), array_keys( $plugins->no_update ) );
+	}
+
+	public function bulk_actions_plugins( $bulk_actions ) {
+		$bulk_actions['jetpack_enable_plugin_autoupdates'] = __( 'Enable Automatic Updates', 'jetpack' );
+		$bulk_actions['jetpack_disable_plugin_autoupdates'] = __( 'Disable Automatic Updates', 'jetpack' );
+		return $bulk_actions;
+	}
+
+	public function handle_bulk_actions_plugins( $redirect_to, $action, $slugs ) {
+		$redirect_to = remove_query_arg( array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ), $redirect_to );
+		if ( in_array( $action, array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ) ) ) {
+			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$initial_qty = sizeof( $list );
+
+			if ( 'jetpack_enable_plugin_autoupdates' === $action ) {
+				$list = array_unique( array_merge( $list, $slugs ) );
+			} elseif ( 'jetpack_disable_plugin_autoupdates' === $action ) {
+				$list = array_diff( $list, $slugs );
+			}
+
+			Jetpack_Options::update_option( 'autoupdate_plugins', $list );
+			$redirect_to = add_query_arg( $action, absint( sizeof( $list ) - $initial_qty ), $redirect_to );
+		}
+		return $redirect_to;
+	}
+
+	public function plugins_admin_notices() {
+		if ( ! empty( $_GET['jetpack_enable_plugin_autoupdates'] ) ) {
+			$qty = (int) $_GET['jetpack_enable_plugin_autoupdates'];
+			printf( '<div id="message" class="updated fade"><p>' . _n( 'Enabled automatic updates on %d plugin.', 'Enabled automatic updates on %d plugins.', $qty, 'jetpack' ) . '</p></div>', $qty );
+		} elseif ( ! empty( $_GET['jetpack_disable_plugin_autoupdates'] ) ) {
+			$qty = (int) $_GET['jetpack_disable_plugin_autoupdates'];
+			printf( '<div id="message" class="updated fade"><p>' . _n( 'Disabled automatic updates on %d plugin.', 'Disabled automatic updates on %d plugins.', $qty, 'jetpack' ) . '</p></div>', $qty );
+		}
+	}
+
+	public function jetpack_toggle_autoupdate() {
+		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
+			wp_send_json_error();
+			return;
+		}
+
+		$type   = $_POST['type'];
+		$slug   = $_POST['slug'];
+		$active = 'false' !== $_POST['active'];
+
+		check_ajax_referer( "jetpack_toggle_autoupdate-{$type}" );
+
+		if ( ! in_array( $type, array( 'plugins', 'plugins_translations' ) ) ) {
+			wp_send_json_error();
+			return;
+		}
+
+		$jetpack_option_name = "autoupdate_{$type}";
+
+		$list = Jetpack_Options::get_option( $jetpack_option_name, array() );
+
+		if ( $active ) {
+			$list = array_unique( array_merge( $list, (array) $slug ) );
+		} else {
+			$list = array_diff( $list, (array) $slug );
+		}
+
+		Jetpack_Options::update_option( $jetpack_option_name, $list );
+
+		wp_send_json_success( $list );
+	}
+
+	public function admin_color_override( $color ) {
+		return 'fresh';
+	}
+
 	public function mock_masterbar_activation() {
-		include dirname( __FILE__ ) . '/masterbar/masterbar.php';
+		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
 		new A8C_WPCOM_Masterbar;
 	}
 
@@ -90,17 +227,25 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
+        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '-min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods.js', false, JETPACK__VERSION );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
+		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
+			'nonces' => array(
+				'autoupdate_plugins' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
+				'autoupdate_plugins_translations' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins_translations' ),
+			)
+		) );
 	}
 
 	public function enqueue_for_gutenberg() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'calypsoify/style-gutenberg.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg-min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
+        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '-min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'calypsoify/mods-gutenberg.js', false, JETPACK__VERSION );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
@@ -126,15 +271,15 @@ class Jetpack_Calypsoify {
 		global $wp_admin_bar;
 
 		// Add proper links to masterbar top sections.
-		$my_sites_node       = $wp_admin_bar->get_node( 'blog' );
+		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
 		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
 		$wp_admin_bar->add_node( $my_sites_node );
 
-		$reader_node       = $wp_admin_bar->get_node( 'newdash' );
+		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
 		$reader_node->href = 'https://wordpress.com';
 		$wp_admin_bar->add_node( $reader_node );
 
-		$me_node       = $wp_admin_bar->get_node( 'my-account' );
+		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );
 		$me_node->href = 'https://wordpress.com/me';
 		$wp_admin_bar->add_node( $me_node );
 	}
