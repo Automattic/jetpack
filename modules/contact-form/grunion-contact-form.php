@@ -2110,6 +2110,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return $compiled_form;
 	}
 
+	static function remove_empty( $single_value ) {
+		return ( $single_value !== '' );
+	}
+
 	/**
 	 * The contact-field shortcode processor
 	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
@@ -2130,7 +2134,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = esc_html( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
-					if ( is_array( $val ) ) {
+					if ( ( $att === 'options' || $att === 'values' ) && is_string( $val ) ) { // remove any empty strings
+						$val = explode( ',', $val );
+					}
+ 					if ( is_array( $val ) ) {
+						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) );
 						$att_strs[] = esc_html( $att ) . '=\'' . implode( ',', array_map( 'esc_html', $val ) ) . '\'';
 					} elseif ( is_bool( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ? '1' : '' ) . '\'';
@@ -3147,7 +3155,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				break;
 			case 'radio':
 				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+				foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 					if ( $option ) {
 						$r     .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
@@ -3183,7 +3191,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$r .= "\n<div>\n";
 				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label select" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
 				$r .= "\t<select name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : '' ) . ">\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+				foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 					if ( $option ) {
 						$r     .= "\t\t<option" . selected( $option, $field_value, false ) . " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "'>" . esc_html( $option ) . "</option>\n";

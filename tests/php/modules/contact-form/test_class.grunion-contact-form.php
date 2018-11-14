@@ -528,6 +528,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( "[contact-field type='name' required='1' label='Name'/]", $html );
 	}
 
+	public function test_make_sure_that_we_remove_empty_optsions_from_formfield() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
+		$html = do_shortcode( $shortcode );
+		$this->assertEquals( "[contact-field type='select' required='1' options='fun,run' label='fun times' values='go,have some fun'/]", $html );
+	}
+
 	/**
 	 * @author tonykova
 	 * @covers Grunion_Contact_Form::parse_contact_field
