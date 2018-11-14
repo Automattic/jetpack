@@ -112,6 +112,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 * @return array filtered $service
 	 */
 	public function prepare_item_for_response( $service, $request ) {
+		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
+			return $service;
+		}
+
 		$fields = $this->get_fields_for_response( $request );
 
 		$response_data = array();

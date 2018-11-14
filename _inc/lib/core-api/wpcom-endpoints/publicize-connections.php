@@ -139,6 +139,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 * @return array filtered $connection
 	 */
 	public function prepare_item_for_response( $connection, $request ) {
+		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
+			return $connection;
+		}
+
 		$fields = $this->get_fields_for_response( $request );
 
 		$response_data = array();
