@@ -1,26 +1,105 @@
+// swiped from https://github.com/Automattic/wp-calypso/blob/master/assets/stylesheets/shared/_colors.scss
+
+// Primary Accent (Blues)
+$blue-wordpress:         #0087be;
+$blue-light:             #78dcfa;
+$blue-medium:            #00aadc;
+$blue-dark:              #005082;
+
+// Jetpack Green
+$green-jetpack:          #00be28;
+
+// Grays
+$gray:                   #87a6bc;
+$gray-light:             lighten( $gray, 33% ); //#f3f6f8
+$gray-dark:              darken( $gray, 38% ); //#2e4453
+
+// $gray-text: ideal for standard, non placeholder text
+// $gray-text-min: minimum contrast needed for WCAG 2.0 AA on white background
+$gray-text:              $gray-dark;
+$gray-text-min:          darken( $gray, 18% ); //#537994
+
+// Shades of gray
+$gray-lighten-10: lighten( $gray, 10% ); // #a8bece
+$gray-lighten-20: lighten( $gray, 20% ); // #c8d7e1
+$gray-lighten-30: lighten( $gray, 30% ); // #e9eff3
+$gray-darken-10:  darken( $gray, 10% );  // #668eaa
+$gray-darken-20:  darken( $gray, 20% );  // #4f748e
+$gray-darken-30:  darken( $gray, 30% );  // #3d596d
+//
+// See wordpress.com/design-handbook/colors/ for more info.
+
+// Secondary Accent (Oranges)
+$orange-jazzy:           #f0821e;
+$orange-fire:            #d54e21;
+
+// Alerts
+$alert-yellow:           #f0b849;
+$alert-red:              #d94f4f;
+$alert-green:            #4ab866;
+$alert-purple:           #855DA6;
+
+// Link hovers
+$link-highlight:         tint($blue-medium, 20%);
+
+// Essentials
+$white:                  rgba(255,255,255,1);
+$transparent:            rgba(255,255,255,0);
+
+// Uncommon
+$border-ultra-light-gray: #e8f0f5;
+// $green-text-min: minimum contrast needed for WCAG 2.0 AA on white background
+$green-text-min:          darken( $alert-green, 14% ); // #358649
+
+// Layout
+$masterbar-color:          $blue-wordpress;
+$sidebar-bg-color:         lighten( $gray, 30% );
+$sidebar-text-color:       $gray-dark;
+$sidebar-selected-color:   $gray-text-min;
+
+
+//Social media colors
+$color-facebook: #39579a;
+$color-twitter: #55ACEE;
+$color-gplus: #df4a32;
+$color-tumblr: #35465c;
+$color-linkedin: #0976b4;
+$color-path: #df3b2f;
+$color-instagram: #d93174;
+$color-eventbrite: #ff8000;
+$color-stumbleupon: #eb4924;
+$color-reddit: #5f99cf;
+$color-pinterest: #cc2127;
+$color-pocket: #ee4256;
+$color-email: #f8f8f8;
+$color-print: #f8f8f8;
+$color-skype: #00AFF0;
+$color-telegram: #0088cc;
+$color-whatsapp: #43d854;
+
 // @todo: rename colors more descriptively
-$_fff:    #fff;
+$_fff:    $white;
 
-$_f3f6f8: #f3f6f8;
-$_e9eff3: #e9eff3;
+$_f3f6f8: $gray-light;
+$_e9eff3: $gray-lighten-30;
 $_d9e3ea: #d9e3ea;
-$_c8d7e1: #c8d7e1;
-$_a8bece: #a8bece;
-$_87a6bc: #87a6bc;
-$_537994: #537994;
-$_2e4453: #2e4453;
+$_c8d7e1: $gray-lighten-20;
+$_a8bece: $gray-lighten-10;
+$_87a6bc: $gray;
+$_537994: $gray-text-min;
+$_2e4453: $gray-dark; // or $gray-text
 
-$_00aadc: #00aadc;
+$_00aadc: $blue-medium;
 $_0099d8: #0099d8;
 $_0096c3: #0096c3;
 $_008ab3: #008ab3;
-$_0087be: #0087be;
+$_0087be: $blue-wordpress;
 $_0073aa: #0073aa;
-$_005082: #005082;
+$_005082: $blue-dark;
 $_004967: #004967;
 
-$_f0b849: #f0b849;
-$_d94f4f: #d94f4f;
-$_4ab866: #4ab866;
+$_f0b849: $alert-yellow;
+$_d94f4f: $alert-red;
+$_4ab866: $alert-green;
 
 $rgba-grey: rgba(200,215,225,0.5);
