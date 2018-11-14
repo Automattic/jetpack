@@ -1053,7 +1053,7 @@ class Jetpack_Photon {
 	 */
 	public function should_rest_photon_image_downsize( $response, $handler, $request ) {
 		/** This filter is already documented in Core wp-includes/rest-api.php */
-		if ( ! is_a( $handler, apply_filters( 'wp_rest_server_class', 'WP_REST_Server' ) ) || ! is_a( $request , 'WP_REST_Request' ) ) {
+		if ( ! is_a( $request , 'WP_REST_Request' ) ) {
 			return $response; // Something odd is happening. Do nothing and return the response.
 		}
 
