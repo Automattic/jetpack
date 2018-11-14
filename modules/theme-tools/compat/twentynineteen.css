@@ -67,70 +67,8 @@
 /**
  * Responsive Videos
  */
-.hentry .jetpack-video-wrapper {
+.entry .jetpack-video-wrapper {
 	margin-bottom: 1.75em;
-}
-
-/**
- * Author Bio/Description
- */
-
-.author-description {
-	margin: calc(2 * 1rem) 1rem 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.author-description {
-		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
-		max-width: calc(8 * (100vw / 12));
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.author-description {
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-.author-description h2.author-title {
-	display: inline;
-}
-
-.author-description p.author-bio {
-	word-spacing: -0.05em;
-	display: inline;
-	color: #767676;
-	line-height: 1.3;
-}
-
-.author-description p.author-bio:before {
-	display: inline-block;
-	content: "–";
-	transform: scaleX(1.8);
-	margin: 0 0.5em;
-}
-
-@media only screen and (min-width: 768px) {
-	.author-description p.author-bio:before {
-		margin: 0 0.35em;
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.author-description p.author-bio:before {
-		margin: 0 0.3em;
-	}
-}
-
-.author-description p.author-bio a.author-link {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-	font-weight: 700;
-	display: inline-block;
-}
-
-.author-description p.author-bio a.author-link:hover {
-	color: #005177;
-	text-decoration: none;
 }
 
 /**
@@ -185,8 +123,8 @@
 	padding-bottom: 1.125em;
 }
 
-.hentry div.sharedaddy h3.sd-title,
-.hentry h3.sd-title {
+.entry div.sharedaddy h3.sd-title,
+.entry h3.sd-title {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	font-size: 1.125em;
 	font-weight: 700;
@@ -197,8 +135,8 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.hentry div.sharedaddy h3.sd-title:before,
-.hentry h3.sd-title:before {
+.entry div.sharedaddy h3.sd-title:before,
+.entry h3.sd-title:before {
 	background: #767676;
 	border-top: none;
 	content: "\020";
@@ -222,17 +160,87 @@
 	margin-bottom: -0.625em !important;
 }
 
-.hentry #sharing_email .sharing_send,
-.hentry .sd-content ul li .option a.share-ustom,
-.hentry .sd-content ul li a.sd-button,
-.hentry .sd-content ul li.advanced a.share-more,
-.hentry .sd-content ul li.preview-item div.option.option-smart-off a,
-.hentry .sd-social-icon .sd-content ul li a.sd-button,
-.hentry .sd-social-icon-text .sd-content ul li a.sd-button,
-.hentry .sd-social-official .sd-content > ul > li .digg_button > a,
-.hentry .sd-social-official .sd-content > ul > li > a.sd-button,
-.hentry .sd-social-text .sd-content ul li a.sd-button {
+.entry #sharing_email .sharing_send,
+.entry .sd-content ul li .option a.share-ustom,
+.entry .sd-content ul li a.sd-button,
+.entry .sd-content ul li.advanced a.share-more,
+.entry .sd-content ul li.preview-item div.option.option-smart-off a,
+.entry .sd-social-icon .sd-content ul li a.sd-button,
+.entry .sd-social-icon-text .sd-content ul li a.sd-button,
+.entry .sd-social-official .sd-content > ul > li .digg_button > a,
+.entry .sd-social-official .sd-content > ul > li > a.sd-button,
+.entry .sd-social-text .sd-content ul li a.sd-button {
 	box-shadow: none;
+}
+
+/**
+ * Related Posts
+ */
+
+.entry #jp-relatedposts h3.jp-relatedposts-headline {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 1.125em;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin-bottom: 0.5em;
+	margin-top: 0.5em;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.entry #jp-relatedposts h3.jp-relatedposts-headline:before {
+	background: #767676;
+	border-top: none;
+	content: "\020";
+	display: block;
+	height: 2px;
+	margin: 1rem 0;
+	width: 1em;
+	min-width: inherit;
+}
+
+.entry #jp-relatedposts h3.jp-relatedposts-headline em:before {
+	display: none;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {
+	opacity: 1;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 1em;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin-bottom: 0.5em;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title a,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post span a {
+	font-weight: 700;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-excerpt {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
+.entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 0.71111em;
+	font-weight: 500;
+}
+
+.entry #jp-relatedposts .jp-relatedposts-items p,
+.entry #jp-relatedposts .jp-relatedposts-items-visual
+.entry h4.jp-relatedposts-post-title {
+	letter-spacing: normal;
 }
 
 
@@ -252,7 +260,33 @@
 /* Authors Widget */
 .widget.widget_authors ul li > ul {
 	list-style-type: disc;
-	padding-left: 1rem;
+	padding-left: 4.25rem;
+}
+
+.rtl .widget.widget_authors ul li > ul {
+	padding-left: 0;
+	padding-right: 1rem;
+}
+
+.widget_authors > ul > li > a {
+	display: block;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	position: relative;
+}
+
+.widget.widget_authors li a strong {
+	line-height: 1.2;
+	position: absolute;
+	top: 0;
+}
+
+.widget.widget_authors .avatar {
+	float: left;
+	margin-right: 1em;
+}
+
+.widget_authors li > ul {
+	clear: both;
 }
 
 /* Display WordPress Posts */
@@ -276,6 +310,35 @@
 .widget_goodreads div[class^="gr_custom_author"] {
 	font-size: inherit;
 	line-height: 1.15;
+}
+
+/* EU cookie law */
+.widget_eu_cookie_law_widget #eu-cookie-law {
+	border-color: #ccc;
+	color: #767676;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: 0.68182em;
+	padding: 0.5rem 1rem;
+}
+
+.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+	font-size: 1em;
+	padding: 10px 12px;
+}
+
+/* RSS Links */
+.widget_rss_links ul {
+	list-style: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.widget_rss_links li {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: calc(22px * 1.125);
+	font-weight: bold;
+	line-height: 1.2;
+	padding-bottom: 0.75rem;
 }
 
 /**

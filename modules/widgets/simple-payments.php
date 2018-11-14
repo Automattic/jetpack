@@ -23,7 +23,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			'NZD' => 'NZ$',
 			'AUD' => 'A$',
 			'CAD' => 'C$',
-			'INR' => '₹',
 			'ILS' => '₪',
 			'RUB' => '₽',
 			'MXN' => 'MX$',
