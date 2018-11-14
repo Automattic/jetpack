@@ -521,6 +521,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $shortcode, $html );
 	}
 
+	public function test_make_sure_that_we_add_defatul_lable_when_non_is_present() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		$shortcode = "[contact-field type='name' required='1' /]";
+		$html = do_shortcode( $shortcode );
+		$this->assertEquals( "[contact-field type='name' required='1' label='Name'/]", $html );
+	}
+
 	/**
 	 * @author tonykova
 	 * @covers Grunion_Contact_Form::parse_contact_field
