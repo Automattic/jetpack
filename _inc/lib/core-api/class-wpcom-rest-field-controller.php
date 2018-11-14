@@ -148,7 +148,8 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		if ( ! $permission_check ) {
 			/* translators: %s: update_permission_check() */
 			_doing_it_wrong( 'WPCOM_REST_API_V2_Field_Controller::update_permission_check', sprintf( __( "Method '%s' must return either true or WP_Error.", 'jetpack' ), 'update_permission_check' ), 'Jetpack 6.8' );
-			return;
+			/* translators: %s: the name of an API response field */
+			return new WP_Error( 'invalid_user_permission', sprintf( __( "You are not allowed to access the '%s' field.", 'jetpack' ), $this->field_name ) );
 		}
 
 		if ( is_wp_error( $permission_check ) ) {
