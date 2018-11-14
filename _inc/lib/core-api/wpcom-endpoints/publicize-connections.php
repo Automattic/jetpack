@@ -12,6 +12,7 @@
  *   },
  *   ...
  * ]
+ *
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Controller {
@@ -26,14 +27,18 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permission_check' ),
-			),
-			'schema' => array( $this, 'get_public_item_schema' ),
-		) );
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'get_items_permission_check' ),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
 	}
 
 	/**
@@ -45,21 +50,21 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 */
 	protected function get_connection_schema_properties() {
 		return array(
-			'id' => array(
+			'id'           => array(
 				'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
-				'type' => 'string',
+				'type'        => 'string',
 			),
 			'service_name' => array(
 				'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
-				'type' => 'string',
+				'type'        => 'string',
 			),
 			'display_name' => array(
 				'description' => __( 'Username of the connected account', 'jetpack' ),
-				'type' => 'string',
+				'type'        => 'string',
 			),
-			'global' => array(
+			'global'       => array(
 				'description' => __( 'Is this connection available to all users?', 'jetpack' ),
-				'type' => 'boolean',
+				'type'        => 'boolean',
 			),
 		);
 	}
@@ -69,9 +74,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 */
 	public function get_item_schema() {
 		$schema = array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title' => 'jetpack-publicize-connection',
-			'type' => 'object',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-publicize-connection',
+			'type'       => 'object',
 			'properties' => $this->get_connection_schema_properties(),
 		);
 
@@ -129,7 +134,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	/**
 	 * Filters out data based on ?_fields= request parameter
 	 *
-	 * @param array $connection
+	 * @param array           $connection
 	 * @param WP_REST_Request $request
 	 * @return array filtered $connection
 	 */
@@ -139,7 +144,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		$response_data = array();
 		foreach ( $connection as $field => $value ) {
 			if ( in_array( $field, $fields, true ) ) {
-				$response_data[$field] = $value;
+				$response_data[ $field ] = $value;
 			}
 		}
 

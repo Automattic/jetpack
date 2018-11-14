@@ -26,14 +26,18 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permission_check' ),
-			),
-			'schema' => array( $this, 'get_public_item_schema' ),
-		) );
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'get_items_permission_check' ),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
 	}
 
 	/**
@@ -41,22 +45,22 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 */
 	public function get_item_schema() {
 		$schema = array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title' => 'jetpack-publicize-service',
-			'type' => 'object',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-publicize-service',
+			'type'       => 'object',
 			'properties' => array(
-				'name' => array(
+				'name'  => array(
 					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
-					'type' => 'string',
+					'type'        => 'string',
 				),
 				'label' => array(
 					'description' => __( 'Human readable label for the Publicize Service', 'jetpack' ),
-					'type' => 'string',
+					'type'        => 'string',
 				),
-				'url' => array(
+				'url'   => array(
 					'description' => __( 'The URL used to connect to the Publicize Service', 'jetpack' ),
-					'type' => 'string',
-					'format' => 'uri',
+					'type'        => 'string',
+					'format'      => 'uri',
 				),
 			),
 		);
@@ -81,7 +85,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		 * We also need add_submenu_page(), as the URLs for connecting each service
 		 * rely on the `sharing` menu subpage being present.
 		 */
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		// The `sharing` submenu page must exist for service connect URLs to be correct.
 		add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
@@ -103,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	/**
 	 * Filters out data based on ?_fields= request parameter
 	 *
-	 * @param array $service
+	 * @param array           $service
 	 * @param WP_REST_Request $request
 	 * @return array filtered $service
 	 */
@@ -113,7 +117,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		$response_data = array();
 		foreach ( $service as $field => $value ) {
 			if ( in_array( $field, $fields, true ) ) {
-				$response_data[$field] = $value;
+				$response_data[ $field ] = $value;
 			}
 		}
 

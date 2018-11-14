@@ -21,46 +21,51 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'get_items_permission_check' ),
-			),
-			'schema' => array( $this, 'get_public_item_schema' ),
-		) );
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'get_items_permission_check' ),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
 	}
 
 	/**
 	 * Adds the test results properties to the Connection schema.
+	 *
 	 * @return array
 	 */
 	public function get_item_schema() {
 		$schema = array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title' => 'jetpack-publicize-connection-test-results',
-			'type' => 'object',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-publicize-connection-test-results',
+			'type'       => 'object',
 			'properties' => $this->get_connection_schema_properties() + array(
 				'test_success' => array(
 					'description' => __( 'Did the Publicize Connection test pass?', 'jetpack' ),
-					'type' => 'boolean'
+					'type'        => 'boolean',
 				),
 				'test_message' => array(
 					'description' => __( 'Publicize Connection success or error message', 'jetpack' ),
-					'type' => 'string',
+					'type'        => 'string',
 				),
-				'can_refresh' => array(
+				'can_refresh'  => array(
 					'description' => __( 'Can the current user refresh the Publicize Connection?', 'jetpack' ),
-					'type' => 'boolean',
+					'type'        => 'boolean',
 				),
 				'refresh_text' => array(
 					'description' => __( 'Message instructing the user to refresh their Connection to the Publicize Service', 'jetpack' ),
-					'type' => 'string',
+					'type'        => 'string',
 				),
-				'refresh_url' => array(
+				'refresh_url'  => array(
 					'description' => __( 'URL for refreshing the Connection to the Publicize Service', 'jetpack' ),
-					'type' => 'string',
-					'format' => 'uri',
+					'type'        => 'string',
+					'format'      => 'uri',
 				),
 			),
 		);
@@ -78,10 +83,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 
 		$items = $this->get_connections();
 
-		$test_results = $publicize->get_publicize_conns_test_results();
+		$test_results              = $publicize->get_publicize_conns_test_results();
 		$test_results_by_unique_id = array();
 		foreach ( $test_results as $test_result ) {
-			$test_results_by_unique_id[$test_result['unique_id']] = $test_result;
+			$test_results_by_unique_id[ $test_result['unique_id'] ] = $test_result;
 		}
 
 		$mapping = array(
@@ -93,10 +98,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		);
 
 		foreach ( $items as &$item ) {
-			$test_result = $test_results_by_unique_id[$item['id']];
+			$test_result = $test_results_by_unique_id[ $item['id'] ];
 
 			foreach ( $mapping as $field => $test_result_field ) {
-				$item[$field] = $test_result[$test_result_field];
+				$item[ $field ] = $test_result[ $test_result_field ];
 			}
 		}
 

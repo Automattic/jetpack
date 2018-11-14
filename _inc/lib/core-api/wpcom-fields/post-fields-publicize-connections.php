@@ -24,7 +24,7 @@
  */
 class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type = 'post';
-	protected $field_name = 'jetpack_publicize_connections';
+	protected $field_name  = 'jetpack_publicize_connections';
 
 	/**
 	 * Registers the jetpack_publicize_connections field. Called
@@ -50,54 +50,54 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	public function get_schema() {
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title' => 'jetpack-publicize-post-connections',
-			'type' => 'array',
+			'title'   => 'jetpack-publicize-post-connections',
+			'type'    => 'array',
 			'context' => array( 'view', 'edit' ),
-			'items' => $this->post_connection_schema(),
+			'items'   => $this->post_connection_schema(),
 			'default' => array(),
 		);
 	}
 
 	private function post_connection_schema() {
 		return array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title' => 'jetpack-publicize-post-connection',
-			'type' => 'object',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-publicize-post-connection',
+			'type'       => 'object',
 			'properties' => array(
-				'id' => array(
+				'id'           => array(
 					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
-					'type' => 'string',
-					'context' => array( 'view', 'edit' ),
-					'readonly' => true,
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 				'service_name' => array(
 					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
-					'type' => 'string',
-					'context' => array( 'view', 'edit' ),
-					'readonly' => true,
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
 				'display_name' => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
-					'type' => 'string',
-					'context' => array( 'view', 'edit' ),
-					'readonly' => true,
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
 				),
-				'enabled' => array(
+				'enabled'      => array(
 					'description' => __( 'Whether to share to this connection', 'jetpack' ),
-					'type' => 'boolean',
-					'context' => array( 'edit' ),
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
 				),
-				'done' => array(
+				'done'         => array(
 					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack' ),
-					'type' => 'boolean',
-					'context' => array( 'edit' ),
-					'readonly' => true,
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
 				),
-				'toggleable' => array(
+				'toggleable'   => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
-					'type' => 'boolean',
-					'context' => array( 'edit' ),
-					'readonly' => true,
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
 				),
 			),
 		);
@@ -123,6 +123,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 	/**
 	 * Getter permission check
+	 *
 	 * @param array $post_array Response data from Post Endpoint
 	 * @return true|WP_Error
 	 */
@@ -133,6 +134,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 	/**
 	 * Setter permission check
+	 *
 	 * @param WP_Post $post
 	 * @return true|WP_Error
 	 */
@@ -145,7 +147,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 *
 	 * @see Publicize::get_filtered_connection_data()
 	 *
-	 * @param array $post_array Response from Post Endpoint
+	 * @param array           $post_array Response from Post Endpoint
 	 * @param WP_REST_Request
 	 *
 	 * @return array List of connections
@@ -153,7 +155,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	public function get( $post_array, $request ) {
 		global $publicize;
 
-		$schema = $this->post_connection_schema();
+		$schema     = $this->post_connection_schema();
 		$properties = array_keys( $schema['properties'] );
 
 		$connections = $publicize->get_filtered_connection_data( $post_array['id'] );
@@ -161,9 +163,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
-			foreach ( $properties as $property  ) {
-				if ( isset( $connection[$property] ) ) {
-					$output_connection[$property] = $connection[$property];
+			foreach ( $properties as $property ) {
+				if ( isset( $connection[ $property ] ) ) {
+					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
 
@@ -178,9 +180,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	/**
 	 * Update the connections slated to be shared to.
 	 *
-	 * @param array $requested_connections
+	 * @param array           $requested_connections
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`
-	 * @param WP_Post $post
+	 * @param WP_Post         $post
 	 * @param WP_REST_Request
 	 */
 	public function update( $requested_connections, $post, $request ) {
@@ -191,15 +193,15 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		$changed_connections = array();
 
 		// Build lookup mappings
-		$available_connections_by_unique_id = array();
+		$available_connections_by_unique_id    = array();
 		$available_connections_by_service_name = array();
 		foreach ( $available_connections as $available_connection ) {
-			$available_connections_by_unique_id[$available_connection['unique_id']] = $available_connection;
+			$available_connections_by_unique_id[ $available_connection['unique_id'] ] = $available_connection;
 
-			if ( ! isset( $available_connections_by_service_name[$available_connection['service_name']] ) ) {
-				$available_connections_by_service_name[$available_connection['service_name']] = array();
+			if ( ! isset( $available_connections_by_service_name[ $available_connection['service_name'] ] ) ) {
+				$available_connections_by_service_name[ $available_connection['service_name'] ] = array();
 			}
-			$available_connections_by_service_name[$available_connection['service_name']][] = $available_connection;
+			$available_connections_by_service_name[ $available_connection['service_name'] ][] = $available_connection;
 		}
 
 		// Handle { service_name: $service_name, enabled: (bool) }
@@ -208,12 +210,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				continue;
 			}
 
-			if ( ! isset( $available_connections_by_service_name[$requested_connection['service_name']] ) ) {
+			if ( ! isset( $available_connections_by_service_name[ $requested_connection['service_name'] ] ) ) {
 				continue;
 			}
 
-			foreach ( $available_connections_by_service_name[$requested_connection['service_name']] as $available_connection ) {
-				$changed_connections[$available_connection['unique_id']] = $requested_connection['enabled'];
+			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
+				$changed_connections[ $available_connection['unique_id'] ] = $requested_connection['enabled'];
 			}
 		}
 
@@ -224,22 +226,22 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				continue;
 			}
 
-			if ( ! isset( $available_connections_by_unique_id[$requested_connection['id']] ) ) {
+			if ( ! isset( $available_connections_by_unique_id[ $requested_connection['id'] ] ) ) {
 				continue;
 			}
 
-			$changed_connections[$requested_connection['id']] = $requested_connection['enabled'];
+			$changed_connections[ $requested_connection['id'] ] = $requested_connection['enabled'];
 		}
 
 		// Set all changed connections to their new value
 		foreach ( $changed_connections as $unique_id => $enabled ) {
-			$connection = $available_connections_by_unique_id[$unique_id];
+			$connection = $available_connections_by_unique_id[ $unique_id ];
 
 			if ( $connection['done'] || ! $connection['toggleable'] ) {
 				continue;
 			}
 
-			$available_connections_by_unique_id[$unique_id]['enabled'] = $enabled;
+			$available_connections_by_unique_id[ $unique_id ]['enabled'] = $enabled;
 		}
 
 		// For all connections, ensure correct post_meta
