@@ -1,18 +1,13 @@
-input[type=email].jetpack-email-subscribe-email {
+.jetpack-email-subscribe-email {
     display: block;
     padding: 3px 9px;
     width: 50%;
 }
-input[type=email].jetpack-email-subscribe-email::-webkit-input-placeholder {
-    color: #ddd;
-}
-input[type=email].jetpack-email-subscribe-email::-moz-placeholder {
-    color: #ddd;
-}
-input[type=email].jetpack-email-subscribe-email:-ms-input-placeholder {
-    color: #ddd;
-}
-input[type=email].jetpack-email-subscribe-email:-moz-placeholder {
+
+.jetpack-email-subscribe-email::-webkit-input-placeholder,
+.jetpack-email-subscribe-email::-moz-placeholder,
+.jetpack-email-subscribe-email:-ms-input-placeholder,
+.jetpack-email-subscribe-email:-moz-placeholder  {
     color: #ddd;
 }
 
