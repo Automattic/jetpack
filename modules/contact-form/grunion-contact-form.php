@@ -2379,7 +2379,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field          = $this->fields[ $field_ids['name'] ];
 			$comment_author = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-				/** This filter is already documented in core/wp-includes/comment-functions.php */
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
 				)
 			);
@@ -2390,7 +2390,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field                = $this->fields[ $field_ids['email'] ];
 			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-				/** This filter is already documented in core/wp-includes/comment-functions.php */
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
 				)
 			);
@@ -2401,7 +2401,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field              = $this->fields[ $field_ids['url'] ];
 			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-				/** This filter is already documented in core/wp-includes/comment-functions.php */
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
 				)
 			);
@@ -2810,8 +2810,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$html_message = sprintf(
-		// The tabs are just here so that the raw code is correctly formatted for developers
-		// They're removed so that they don't affect the final message sent to users
+			// The tabs are just here so that the raw code is correctly formatted for developers
+			// They're removed so that they don't affect the final message sent to users
 			str_replace(
 				"\t", '',
 				'<!doctype html>
@@ -3060,13 +3060,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	function render() {
 		global $current_user, $user_identity;
 
-
-		$field_id       = $this->get_attribute( 'id' );
-		$field_type     = $this->get_attribute( 'type' );
-		$field_label    = $this->get_attribute( 'label' );
-		$field_required = $this->get_attribute( 'required' );
+		$field_id          = $this->get_attribute( 'id' );
+		$field_type        = $this->get_attribute( 'type' );
+		$field_label       = $this->get_attribute( 'label' );
+		$field_required    = $this->get_attribute( 'required' );
 		$field_placeholder = $this->get_attribute( 'placeholder' );
-		$class          = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
 		/**
 		 * Filters the "class" attribute of the contact form input
@@ -3123,8 +3122,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_value = Grunion_Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Grunion_Contact_Form_Plugin::strip_tags( $field_label );
 
-		$r = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required );
-
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required );
 
 		/**
 		 * Filter the HTML of the Contact Form.
@@ -3133,11 +3131,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @since 2.6.0
 		 *
-		 * @param string $r Contact Form HTML output.
+		 * @param string $rendered_field Contact Form HTML output.
 		 * @param string $field_label Field label.
 		 * @param int|null $id Post ID.
 		 */
-		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
+		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
 	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
