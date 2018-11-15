@@ -57,6 +57,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		) );
 	}
 
+	public static function wpTearDownAfterClass() {
+		unregister_post_type( 'example-with' );
+		unregister_post_type( 'example-without' );
+	}
+
 	public function setUp() {
 		parent::setUp();
 
