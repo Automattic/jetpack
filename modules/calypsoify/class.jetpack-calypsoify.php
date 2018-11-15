@@ -227,9 +227,9 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-min.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '-min' );
+        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
 		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
@@ -241,9 +241,9 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue_for_gutenberg() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg-min.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '-min' );
+        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION );
 		wp_localize_script(

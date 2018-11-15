@@ -38,7 +38,7 @@ gulp.task( 'sass:calypsoify', function( done ) {
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
 		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
-		.pipe( rename( { suffix: '-min' } ) )
+		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/calypsoify' ) )
 		.on( 'end', function() {
 			log( 'Calypsoify CSS finished.' );
