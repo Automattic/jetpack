@@ -72,55 +72,11 @@
 }
 
 /**
- * Related Posts
- */
-
-.entry-content > #jp-relatedposts {
-	margin: 32px 1rem;
-	max-width: calc(100vw - (2 * 1rem));
-}
-
-@media only screen and (min-width: 768px) {
-	.entry-content > #jp-relatedposts {
-		margin: 32px calc(2 * (100vw / 12));
-		max-width: calc(8 * (100vw / 12));
-	}
-}
-
-@media only screen and (min-width: 1168px) {
-	.entry-content > #jp-relatedposts {
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-/**
- * Akismet Comment Privacy Notice
- */
-
-.akismet_comment_form_privacy_notice {
-	margin: calc(2 * 1rem) 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.akismet_comment_form_privacy_notice {
-		margin: calc(3 * 1rem) calc(2 * (100vw / 12));
-		max-width: calc(6 * (100vw / 12));
-	}
-}
-
-/**
  * Sharing
  */
 
-.sharedaddy {
-}
-
 .sd-block {
 	line-height: 1;
-}
-
-.sd-like {
-	padding-bottom: 1.125em;
 }
 
 .entry div.sharedaddy h3.sd-title,
@@ -173,9 +129,16 @@
 	box-shadow: none;
 }
 
+
 /**
  * Related Posts
  */
+
+.entry #jp-relatedposts {
+	padding-top: 0;
+	margin-top: 32px;
+	margin-bottom: 32px;
+}
 
 .entry #jp-relatedposts h3.jp-relatedposts-headline {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -184,7 +147,6 @@
 	letter-spacing: -0.02em;
 	line-height: 1.2;
 	margin-bottom: 0.5em;
-	margin-top: 0.5em;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
@@ -233,7 +195,7 @@
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-	font-size: 0.71111em;
+	font-size: 13px;
 	font-weight: 500;
 }
 
@@ -249,6 +211,15 @@
  */
 
 #wpstats {
+	display: none;
+}
+
+
+/**
+ * Comments
+ */
+
+.comments-area .comments-title-wrap + .comment-respond .comment-reply-title {
 	display: none;
 }
 
@@ -339,21 +310,6 @@
 	font-weight: bold;
 	line-height: 1.2;
 	padding-bottom: 0.75rem;
-}
-
-/**
- * Shortcodes
- */
-.entry-content .jetpack-recipe,
-.entry-content .presentation-wrapper {
-	margin: 32px 1rem;
-}
-
-@media only screen and (min-width: 768px) {
-	.entry-content .jetpack-recipe,
-	.entry-content .presentation-wrapper {
-		margin: 32px calc(2 * (100vw / 12));
-	}
 }
 
 /**
