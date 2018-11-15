@@ -8,7 +8,7 @@
     "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/text-media-widget-styles": "~1.0",
-    "automattic/wc-calypso-bridge": "1.0.0",
+    "automattic/wc-calypso-bridge": "1.0.1",
     "woocommerce/wc-api-dev": "0.9.9"
   },
   "require-dev": {
