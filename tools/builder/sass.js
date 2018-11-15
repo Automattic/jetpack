@@ -60,6 +60,7 @@ gulp.task( 'sass:dops', function( done ) {
 
 function doRTL( files, done ) {
 	let dest = './inc/build',
+		renameArgs = { suffix: '.rtl' },
 		path, success;
 
 	switch ( files ) {
@@ -72,9 +73,13 @@ function doRTL( files, done ) {
 			success = 'DOPS Components RTL CSS finished.';
 			break;
 		case 'calypsoify':
-			path = './modules/calypsoify/style*.css';
+			path = './modules/calypsoify/style*.min.css';
 			dest = './modules/calypsoify';
 			success = 'Calypsoify RTL CSS finished.';
+			renameArgs = function( pathx ) {
+				pathx.basename = pathx.basename.replace( '.min', '' );
+				pathx.extname = '-rtl.min.css';
+			};
 			break;
 		default:
 			// unknown value, fail out
@@ -83,7 +88,7 @@ function doRTL( files, done ) {
 
 	gulp.src( path )
 		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
+		.pipe( rename( renameArgs ) )
 		.pipe( sourcemaps.init() )
 		.pipe( sourcemaps.write( './' ) )
 		.pipe( gulp.dest( dest ) )
@@ -142,8 +147,7 @@ gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
 } ) );
 
 export const build = gulp.parallel(
-	gulp.series( 'sass:dashboard', 'sass:dops' ),
-	'sass:calypsoify',
+	gulp.series( 'sass:dashboard', 'sass:dops', 'sass:calypsoify' ),
 	'sass:old'
 );
 
