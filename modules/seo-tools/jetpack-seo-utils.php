@@ -41,7 +41,7 @@ class Jetpack_SEO_Utils {
 				$site_id = get_current_blog_id();
 			}
 
-			return has_any_blog_stickers( [ 'business-plan', 'ecommerce-plan' ], $site_id );
+			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
 		// For all Jetpack sites
