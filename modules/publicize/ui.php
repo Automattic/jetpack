@@ -33,17 +33,7 @@ class Publicize_UI {
 		);
 
 		// Show only to users with the capability required to manage their Publicize connections.
-		/**
-		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
-		 *
-		 * @module publicize
-		 *
-		 * @since 4.1.0
-		 *
-		 * @param string $capability User capability needed to use publicize
-		 */
-		$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! $this->publicize->current_user_can_access_publicize_data() ) {
 			return;
 		}
 
