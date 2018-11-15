@@ -3152,16 +3152,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 	}
 
-	function render_input_field( $type, $id, $value, $class, $placeholder, $required, $pattern = null, $title = null ) {
-		$pattern_render = $pattern ? " pattern='". ( $pattern ) ."'" : '';
-		$title_render = $title ? " title='".esc_attr( $title )."' " :  '';
+	function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
 		return "<input 
 					type='". esc_attr( $type ) ."' 
 					name='" . esc_attr( $id ) . "' 
 					id='" . esc_attr( $id ) . "' 
-					value='" . esc_attr( $value ) . "' "
-		            . $class . $placeholder . $pattern_render . $title_render
-					. ( $required ? " required aria-required='true' " : '' ) . " 
+					value='" . esc_attr( $value ) . "' 
+					" . $class . $placeholder . ' 
+					' . ( $required ? "required aria-required='true'" : '' ) . " 
 				/>\n";
 	}
 
@@ -3177,9 +3175,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
-	function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $pattern, $title ) {
+	function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field = $this->render_label( 'url', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required, $pattern, $title );
+		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
@@ -3314,10 +3312,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'url':
-				// @todo: this could be improved
-				$url_pattern = "(https?://)?(www\.)?([a-zA-Z0-9_%]*)\b\.[a-z]{2,22}(\.[a-z]{2})?((/[a-zA-Z0-9_%]*)+)?(\.[a-z]*)?";
-				$title = __( 'Enter a valid URL', 'jetpack' );
-				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $url_pattern, $title );
+				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'textarea':
 				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
