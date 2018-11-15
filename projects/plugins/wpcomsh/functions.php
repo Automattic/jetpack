@@ -218,31 +218,6 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 	return wpcomsh_delete_symlinked_theme( $template );
 }
 
-/**
- * Returns whether site administrator(s) can manage (install, update, activate, etc) plugins.
- *
- * @return bool
- */
-function wpcomsh_can_manage_plugins() {
-	if ( WPCOMSH_PLAN_BUSINESS === wpcomsh_get_site_plan_slug() ) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
- * Returns whether site administrator(s) can manage (install, update, activate, etc) themes.
- *
- * @return bool
- */
-function wpcomsh_can_manage_themes() {
-	if ( WPCOMSH_PLAN_BUSINESS === wpcomsh_get_site_plan_slug() ) {
-		return true;
-	}
-
-	return false;
-}
 
 /**
  * Retrieves the list of AT options containing things like:
@@ -252,19 +227,4 @@ function wpcomsh_can_manage_themes() {
  */
 function wpcomsh_get_at_options() {
 	return get_option( 'at_options', array() );
-}
-
-/**
- * Returns the slug of the site's plan.
- *
- * @return string Returns the slug of the site's plan or WPCOMSH_PLAN_BUSINESS if not known.
- */
-function wpcomsh_get_site_plan_slug() {
-	$at_options = wpcomsh_get_at_options();
-
-	if ( array_key_exists( 'plan_slug', $at_options ) ) {
-		return $at_options['plan_slug'];
-	}
-
-	return WPCOMSH_PLAN_BUSINESS;
 }

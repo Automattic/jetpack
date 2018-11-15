@@ -284,52 +284,14 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  * @return array Primitive caps.
  */
 function wpcomsh_map_caps( $required_caps, $cap ) {
-	require_once( 'functions.php' );
-
-	switch ( $cap ) {
-
-		case 'edit_themes':
-			// Disallow managing themes for WPCom free plan.
-			if ( ! wpcomsh_can_manage_themes() ) {
-				$required_caps[] = 'do_not_allow';
-
-				break;
-			}
-
-			// Disallow editing 3rd party WPCom premium themes.
-			$theme = wp_get_theme();
-			if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
-			     && 'Automattic' !== $theme->get( 'Author' ) ) {
-				$required_caps[] = 'do_not_allow';
-			}
-			break;
-
-		// Disallow managing plugins for WPCom free plan.
-		case 'activate_plugins':
-		case 'install_plugins':
-		case 'edit_plugins':
-		case 'delete_plugins':
-		case 'upload_plugins':
-		case 'update_plugins':
-			if ( ! wpcomsh_can_manage_plugins() ) {
-				$required_caps[] = 'do_not_allow';
-			}
-
-			break;
-
-		// Disallow managing themes for WPCom free plan.
-		case 'switch_themes':
-		case 'install_themes':
-		case 'update_themes':
-		case 'delete_themes':
-		case 'upload_themes':
-			if ( ! wpcomsh_can_manage_themes() ) {
-				$required_caps[] = 'do_not_allow';
-			}
-
-			break;
+	if ( 'edit_themes' === $cap ) {
+		require_once( 'functions.php' );
+		$theme = wp_get_theme();
+		if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
+			&& 'Automattic' !== $theme->get( 'Author' ) ) {
+			$required_caps[] = 'do_not_allow';
+		}
 	}
-
 	return $required_caps;
 }
 add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
