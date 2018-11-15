@@ -54,6 +54,12 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
+const WPCOMSH_MANAGED_PLUGINS_FILENAME = [
+	'jetpack/jetpack.php',
+	'akismet/akismet.php',
+	'vaultpress/vaultpress.php',
+];
+
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
 		// "reset" - break/interfere with provided functionality
@@ -182,7 +188,7 @@ add_action(
 	11 // Priority 11 so it runs after VaultPress `admin_head` hook
 );
 
-function wpcomsh_register_symlinked_plugins_action_links() {
+function wpcomsh_managed_plugins_action_links() {
 	$plugin_files = array_keys( get_plugins() );
 	foreach( $plugin_files as $plugin ) {
 		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
@@ -193,16 +199,24 @@ function wpcomsh_register_symlinked_plugins_action_links() {
 
 			add_action(
 				"after_plugin_row_{$plugin}",
-				'wpcomsh_show_plugin_auto_managed_notice'
+				'wpcomsh_show_plugin_auto_managed_notice', 10, 2
 			);
         }
     }
 }
-add_action( 'admin_init', 'wpcomsh_register_symlinked_plugins_action_links' );
+add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
 function wpcomsh_is_managed_plugin( $plugin_file ) {
-	  $plugin_dir = WP_PLUGIN_DIR . '/' . dirname( $plugin_file );
-	  return is_dir( $plugin_dir ) && is_link( $plugin_dir ) && fileowner( $plugin_dir ) === 0;
+	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+		$plugin_dir = WP_PLUGIN_DIR . '/' . dirname( $plugin_file );
+		return is_dir( $plugin_dir ) && is_link( $plugin_dir ) && fileowner( $plugin_dir ) === 0;
+	}
+
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		return in_array( $plugin_file, WPCOMSH_MANAGED_PLUGINS_FILENAME );
+	}
+
+	return false;
 }
 
 function hide_vaultpress_from_plugin_list() {
