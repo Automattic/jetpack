@@ -59,7 +59,7 @@ gulp.task( 'sass:dops', function( done ) {
 } );
 
 function doRTL( files, done ) {
-	let dest = './inc/build',
+	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
 		path, success;
 
