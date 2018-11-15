@@ -129,9 +129,16 @@
 	box-shadow: none;
 }
 
+
 /**
  * Related Posts
  */
+
+.entry #jp-relatedposts {
+	padding-top: 0;
+	margin-top: 32px;
+	margin-bottom: 32px;
+}
 
 .entry #jp-relatedposts h3.jp-relatedposts-headline {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -140,7 +147,6 @@
 	letter-spacing: -0.02em;
 	line-height: 1.2;
 	margin-bottom: 0.5em;
-	margin-top: 0.5em;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
@@ -189,7 +195,7 @@
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
 .entry #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-	font-size: 0.71111em;
+	font-size: 13px;
 	font-weight: 500;
 }
 
