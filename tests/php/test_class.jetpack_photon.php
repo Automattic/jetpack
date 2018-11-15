@@ -13,6 +13,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function setUp() {
 		parent::setUp();
 
+		// The version of PHPUnit we're using on TravisCI doesn't support @requires
+		// Skip manually.
+		if ( version_compare( phpversion(), '5.3', '<' ) ) {
+			$this->markTestSkipped( 'Testing the Jetpack_Photon singleton requires PHP 5.3' );
+		}
+
 		// Preserving global variables
 		global $content_width;
 		$this->_globals['content_width'] = $content_width;
@@ -27,6 +33,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	public function tearDown() {
+		// ::tearDown runs even if the test is skipped.
+		if ( version_compare( phpversion(), '5.3', '<' ) ) {
+			return parent::tearDown();
+		}
+
 		// Restoring global variables
 		global $content_width;
 		$content_width = $this->_globals['content_width'];
