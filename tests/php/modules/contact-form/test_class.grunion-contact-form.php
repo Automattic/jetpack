@@ -687,9 +687,15 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
+		return $this->getFirstElement( $doc, 'div' );
+	}
 
-		$div = $doc->getElementsByTagName('div' );
-		return $div[0];
+	public function getFirstElement( $dom, $tag, $index = 0) {
+		$elements = $dom->getElementsByTagName( $tag );
+		if ( !is_array( $elements ) ) {
+			$elements = iterator_to_array( $elements );
+		}
+		return $elements[ $index ];
 	}
 
 	public function assertCommonValidHtml( $wrapperDiv, $attributes ) {
@@ -704,8 +710,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		// Get label
-		$labels = $wrapperDiv->getElementsByTagName( 'label' );
-		$label = $labels[0];
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
 
 		$this->assertEquals( trim( $label->nodeValue), $attributes['label'], 'Label is not what we expect it to be...' );
 	}
@@ -716,16 +721,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
 
 		// Get label
-		$labels = $wrapperDiv->getElementsByTagName( 'label' );
-		$label = $labels[0];
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
 
 		//Input
-		$inputs =  (
+		$input =  (
 			$attributes['type'] === 'textarea'
-			? $wrapperDiv->getElementsByTagName( 'textarea' )
-			: $wrapperDiv->getElementsByTagName( 'input' )
+			? $this->getFirstElement( $wrapperDiv, 'textarea' )
+			: $this->getFirstElement( $wrapperDiv, 'input' )
 		);
-		$input = $inputs[0];
 
 		// label matches for matches input ID
 		$this->assertEquals(
@@ -775,13 +778,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$wrapperDiv = $this->getCommonDiv( $html );
 		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
 
-		$labels = $wrapperDiv->getElementsByTagName( 'label' );
-		$label = $labels[0];
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+		$input = $this->getFirstElement( $label, 'input' );
 
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label '.$attributes['type'], 'label class doesn\'t match' );
 
-		$inputs = $label->getElementsByTagName( 'input' );
-		$input = $inputs[0];
+
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( $input->getAttribute( 'value' ), 'Yes', 'Input value doesn\'t match' );
 		$this->assertEquals( $input->getAttribute( 'type' ), $attributes['type'], 'Input type doesn\'t match' );
@@ -798,14 +800,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
 
 		// Get label
-		$labels = $wrapperDiv->getElementsByTagName( 'label' );
-		$label = $labels[0]; // Main Label
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
 
 		//Inputs
 		if ( $attributes['type'] === 'select' ) {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label select', 'label class doesn\'t match' );
-			$inputs = $wrapperDiv->getElementsByTagName( 'select' );
-			$select = $inputs[0];
+
+			$select = $this->getFirstElement( $wrapperDiv, 'select' );
 			$this->assertEquals(
 				$label->getAttribute( 'for' ),
 				$select->getAttribute( 'id' ),
@@ -821,8 +822,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertEquals( $select->getAttribute( 'class' ), 'select '. $attributes['class'], ' select class does not match expected' );
 
 			// First Option
-			$options = $select->getElementsByTagName( 'option' );
-			$option = $options[0];
+			$option = $this->getFirstElement( $select, 'option' );
 			$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][0], 'Input value doesn\'t match' );
 			$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
 			$this->assertEquals( $option->nodeValue, $attributes['options'][0], 'Input does not match the option' );
@@ -830,11 +830,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		} else {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
 			// Radio and Checkboxes
-			$second_label = $labels[1];
-			$inputs = $second_label->getElementsByTagName( 'input' );
+			$second_label = $this->getFirstElement( $wrapperDiv, 'label', 1 );
 			$this->assertEquals( $second_label->nodeValue, ' ' . $attributes['options'][0] ); // extra space added for a padding
 
-			$input = $inputs[0];
+			$input = $this->getFirstElement( $second_label, 'input' );
 			$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 			if (  $attributes['input_type'] === 'radio' ) {
 				$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
