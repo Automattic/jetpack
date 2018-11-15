@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
 Stable tag: 6.7
 Requires at least: 4.8
-Tested up to: 4.9
+Tested up to: 5.0
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
