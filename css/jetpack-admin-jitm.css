@@ -119,7 +119,6 @@ https://github.com/thoughtbot/bourbon
 
 .jitm-card {
   display: block;
-  clear: both;
   position: relative;
   margin: 1rem 0 0 auto;
   padding: 1rem;
@@ -484,10 +483,6 @@ https://github.com/thoughtbot/bourbon
 
 .jitm-banner__action + .jitm-banner__dismiss {
   margin-left: 0.625rem;
-}
-
-#dolly + .jitm-card {
-  margin: 3rem 1rem 0 auto;
 }
 
 /*# sourceMappingURL=jetpack-admin-jitm.css.map */
