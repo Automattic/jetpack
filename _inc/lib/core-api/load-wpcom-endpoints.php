@@ -33,5 +33,8 @@ function wpcom_rest_api_v2_load_plugin( $class_name ) {
 	}
 }
 
+require dirname( __FILE__ ) . '/class-wpcom-rest-field-controller.php';
+
 // Now load the endpoint files.
 wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
+wpcom_rest_api_v2_load_plugin_files( 'wpcom-fields/*.php' );
