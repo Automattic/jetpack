@@ -3,7 +3,7 @@ jQuery( '#plugin-select-activate' ).click( function() {
 } );
 
 function ajaxActivateModule( moduleName ) {
-	const body = {};
+	var body = {};
 	body[ moduleName ] = true;
 	jQuery( '#plugin-select-activate' ).toggleClass( 'install-now updating-message' );
 	jQuery( '#plugin-select-activate' ).text( window.pluginSearchState.activatingString );
