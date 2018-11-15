@@ -8,7 +8,8 @@ const gitFiles = execSync( 'git diff --cached --name-only --diff-filter=ACM' )
 	.toString()
 	.split( '\n' )
 	.map( name => name.trim() );
-const jsFiles = gitFiles.filter( name => name.endsWith( '.js' ) || name.endsWith( '.jsx' ) );
+const jsFiles = gitFiles.filter( name => name.startsWith( '_inc' ) )
+	.filter( name => name.endsWith( '.js' ) || name.endsWith( '.jsx' ) );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 
 // linting should happen after formatting
