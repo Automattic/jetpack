@@ -2,7 +2,7 @@
 
 body,
 #wp-content-editor-tools {
-  background: $_f3f6f8;
+  background: $gray-light;
 }
 
 #wpwrap {
@@ -24,7 +24,7 @@ body,
 #adminmenuwrap,
 #adminmenuback,
 #adminmenu {
-  background: $_e9eff3;
+  background: $gray-lighten-30;
 }
 
 #adminmenuback {
@@ -53,7 +53,7 @@ body,
   li>a.menu-top:focus,
   li.wp-menu-open,
   a:hover {
-    background: $_f3f6f8;
+    background: $gray-light;
   }
 
   .wp-submenu-head,
@@ -67,7 +67,7 @@ body,
   }
 
   .wp-submenu a:hover {
-    background: $_fff;
+    background: $white;
   }
 
   > li.wp-first-item {
@@ -89,13 +89,13 @@ body,
 
   a,
   div.wp-menu-image:before{
-    color: $_2e4453 !important;
+    color: $gray-dark !important;
   }
 
 
   li.current a.menu-top,
   li.wp-has-current-submenu a.wp-has-current-submenu {
-    background: $_537994;
+    background: $gray-text-min;
   }
 
   div.wp-menu-image.svg {
@@ -108,11 +108,11 @@ body,
 
   li.wp-menu-open div.wp-menu-image:before,
   li.wp-menu-open div.wp-menu-name {
-    color: $_fff !important;
+    color: $white !important;
   }
 
   div.wp-menu-name {
-    color: $_2e4453;
+    color: $gray-text;
     font-size: 15px;
     padding: 9px 0 8px 41px;
   }
@@ -123,7 +123,7 @@ body,
 
   .awaiting-mod,
   .update-plugins {
-    background-color: $_00aadc;
+    background-color: $blue-medium;
   }
 }
 
@@ -152,7 +152,7 @@ body,
   left: 0;
   width: 272px;
   height: 70px;
-  background: $_fff;
+  background: $white;
   z-index: 10000;
 
   svg {
@@ -173,7 +173,7 @@ body,
 
       &#calypso-sitename {
         font-size: 12px;
-        color: $_537994;
+        color: $gray-text-min;
         overflow: hidden;
         white-space: nowrap;
         width: 225px;
@@ -205,7 +205,7 @@ body,
 
       &#calypso-plugins {
         font-weight: bold;
-        color: $_2e4453;
+        color: $gray-text;
         font-size: 16px;
       }
     }
@@ -222,7 +222,7 @@ body,
     .opensub .wp-submenu,
     .opensub .wp-submenu:after,
     a.wp-has-current-submenu:focus+.wp-submenu {
-      background: $_e9eff3 !important;
+      background: $gray-lighten-30 !important;
     }
 
     li.menu-top .wp-submenu>li>a {
@@ -233,7 +233,7 @@ body,
     li.current.menu-top,
     li.wp-has-current-submenu,
     li.wp-has-current-submenu .wp-submenu .wp-submenu-head {
-      background: $_537994;
+      background: $gray-text-min;
     }
 
     .wp-submenu .wp-submenu-head {
@@ -260,7 +260,7 @@ body,
   }
 
   .no-js li.wp-has-current-submenu:hover .wp-submenu {
-    background: $_e9eff3 !important;
+    background: $gray-lighten-30 !important;
   }
 
   #toplevel_page_plugins div.wp-menu-image.svg {
@@ -315,14 +315,14 @@ body,
   #adminmenu li.opensub>a.menu-top,
   #adminmenu li>a.menu-top:focus,
   #adminmenu li.wp-menu-open {
-    background: $_537994 !important;
+    background: $gray-text-min !important;
   }
 
   #adminmenu .wp-submenu,
   .auto-fold #adminmenu .selected .wp-submenu,
   .auto-fold #adminmenu .wp-menu-open .wp-submenu,
   #adminmenu a.wp-has-current-submenu:focus+.wp-submenu {
-    background: $_f3f6f8 !important;
+    background: $gray-light !important;
   }
 
   .auto-fold #adminmenu li.selected div.wp-menu-image.svg {
@@ -331,7 +331,7 @@ body,
 
   .auto-fold #adminmenu li.selected div.wp-menu-image:before,
   .auto-fold #adminmenu li.selected div.wp-menu-name {
-    color: $_fff !important;
+    color: $white !important;
   }
 
   #wpadminbar .quicklinks > ul > li > a,
@@ -374,7 +374,7 @@ body,
 .nav-tab-wrapper,
 .wrap h2.nav-tab-wrapper {
   margin: 10px 0 25px;
-  background: $_fff;
+  background: $white;
   border: 1px solid $rgba-grey;
 }
 
@@ -383,7 +383,7 @@ body,
   background: none;
   font-weight: 400;
   padding: 3px 13px 12px;
-  color: $_0087be;
+  color: $blue-wordpress;
 }
 
 .nav-tab-active,
@@ -401,14 +401,14 @@ body,
 .nav-tab-active,
 .nav-tab-active:focus,
 .nav-tab-active:focus:active {
-  border-bottom: 2px solid $_2e4453;
-  color: $_2e4453;
+  border-bottom: 2px solid $gray-dark;
+  color: $gray-text;
 }
 
 /* Admin Bar */
 
 #wpadminbar {
-  background: $_0087be;
+  background: $blue-wordpress;
   -webkit-box-shadow: none;
   -mozilla-box-shadow: none;
   height: 46px;
@@ -421,7 +421,7 @@ body,
 
     &.hover > .ab-item {
       background: $_0099d8 !important;
-      color: $_fff;
+      color: $white;
     }
   }
 
@@ -474,10 +474,10 @@ body,
 
     a {
       padding: 6px 15px;
-      color: $_0087be !important;
+      color: $blue-wordpress !important;
 
       span {
-        color: $_0087be !important;
+        color: $blue-wordpress !important;
         font-size: 14px !important;
       }
 
@@ -489,7 +489,7 @@ body,
 
     &:hover,
     &:hover > .ab-item {
-      background: $_fff !important;
+      background: $white !important;
       opacity: 1;
       border-radius: 3px !important;
     }
@@ -515,7 +515,7 @@ body,
   .ab-top-menu > li.ab-active > .ab-item,
   > #wp-toolbar .wpnt-show span.noticon,
   #wp-admin-bar-notes.wpnt-show .noticon {
-    color: $_fff !important;
+    color: $white !important;
   }
 
   .ab-active > a.ab-item:before,
@@ -552,7 +552,7 @@ body,
 .subsubsub,
 .wp-filter {
   margin: 10px 0 25px;
-  background: $_fff;
+  background: $white;
   border: 1px solid $rgba-grey;
   width: 100%;
   box-shadow: none;
@@ -565,7 +565,7 @@ body,
   display: inline-block;
   font-size: 14px;
   margin: 0;
-  color: $_0073aa;
+  color: $highlight-color;
   border-bottom: none;
   outline: none;
 }
@@ -582,12 +582,12 @@ body,
 .count {
   display: inline-block;
   padding: 1px 6px;
-  border: solid 1px $_87a6bc;
+  border: solid 1px $gray;
   border-radius: 12px;
   font-size: 11px;
   font-weight: bold;
   line-height: 14px;
-  color: $_537994;
+  color: $gray-text-min;
   text-align: center;
   margin-left: 2px;
 }
@@ -616,9 +616,9 @@ body,
   .add-new-h2:active,
   .page-title-action,
   .page-title-action:active {
-    background: $_00aadc;
+    background: $blue-medium;
     border-color: $_008ab3;
-    color: $_fff;
+    color: $white;
     border-style: solid;
     border-width: 1px 1px 2px;
     cursor: pointer;
@@ -643,25 +643,25 @@ body,
   }
 
   .wp-heading-inline+.page-title-action:hover {
-    border-color: $_005082;
+    border-color: $blue-dark;
   }
 }
 
 .wp-core-ui {
   .button {
-    background: $_fff;
+    background: $white;
   }
   .button-primary {
-    background: $_00aadc;
+    background: $blue-medium;
     border-color: $_008ab3;
-    color: $_fff;
+    color: $white;
     text-shadow: none;
   }
 }
 
 .ui-tabs-nav li,
 .wp-switch-editor {
-  background-color: $_e9eff3 !important;
+  background-color: $gray-lighten-30 !important;
 }
 
 .plugin-card-bottom,
@@ -677,7 +677,7 @@ div.mce-toolbar-grp,
 #post-status-info,
 .quicktags-toolbar,
 #major-publishing-actions {
-  background-color: $_f3f6f8 !important;
+  background-color: $gray-light !important;
   border-color: $_d9e3ea;
 }
 
@@ -720,14 +720,14 @@ div.mce-toolbar-grp,
   &:after {
     left: 0;
     border-radius: 50%;
-    background: $_fff;
+    background: $white;
     transition: all .2s ease;
   }
   &:before {
     display: none;
   }
   .accessible-focus &:focus{
-    box-shadow: 0 0 0 2px $_008ab3;
+    box-shadow: 0 0 0 2px $blue-medium;
   }
 }
 
@@ -747,26 +747,26 @@ div.mce-toolbar-grp,
 .form-toggle {
   .accessible-focus &:focus {
     + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $_008ab3;
+      box-shadow: 0 0 0 2px $blue-medium;
     }
     &:checked + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $_00aadc;
+      box-shadow: 0 0 0 2px $blue-light;
     }
   }
 
   & + .form-toggle__label .form-toggle__switch {
-    background: $_a8bece;
+    background: $gray-lighten-10;
   }
 
   &:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $_87a6bc;
+      background: $gray-lighten-20;
     }
   }
 
   &:checked{
     + .form-toggle__label .form-toggle__switch {
-      background: $_008ab3;
+      background: $blue-medium;
 
       &:after {
         left: 16px;
@@ -776,7 +776,7 @@ div.mce-toolbar-grp,
 
   &:checked:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $_00aadc;
+      background: $blue-light;
     }
   }
 
@@ -791,11 +791,11 @@ div.mce-toolbar-grp,
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
   + .form-toggle__label .form-toggle__switch {
-    background: $_008ab3;
+    background: $blue-medium;
   }
   &:checked {
     + .form-toggle__label .form-toggle__switch {
-      background: $_87a6bc;
+      background: $gray-lighten-20;
     }
   }
 }
