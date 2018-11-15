@@ -422,6 +422,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		) );
+
+		// Get and set API keys.
+		// Note: permission_callback intentionally omitted from the GET method.
+		// Map block requires open access to API keys on the front end.
+		register_rest_route(
+			'jetpack/v4',
+			'/service-api-keys/(?P<service>[a-z\-_]+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_service_api_key',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_service_api_key',
+					'permission_callback' => __CLASS__ . '::edit_others_posts_check',
+					'args'                => array(
+						'service_api_key' => array(
+							'required' => true,
+							'type'     => 'text',
+						),
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => __CLASS__ . '::delete_service_api_key',
+					'permission_callback' => __CLASS__ . '::edit_others_posts_check',
+				),
+			)
+		);
 	}
 
 	public static function get_plans( $request ) {
@@ -838,6 +868,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can edit other's posts (Editors and Administrators).
+	 *
+	 * @return bool Whether user has the capability 'edit_others_posts'.
+	 */
+	public static function edit_others_posts_check() {
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_edit_others_posts', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
 	 * Contextual HTTP error code for authorization failure.
 	 *
 	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
@@ -877,7 +920,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 6.8.0
 	 *
-	 * @return array|WP_Error WP_Error returned if connection test does not succeed. 
+	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
@@ -3035,6 +3078,182 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return array();
+	}
+
+
+	/**
+	 * Get third party plugin API keys.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
+	 */
+	public static function get_service_api_key( $request ) {
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
+		$option  = self::key_for_api_service( $service );
+		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
+		return array(
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
+		);
+	}
+
+	/**
+	 * Update third party plugin API keys.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
+	 */
+	public static function update_service_api_key( $request ) {
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
+		$params     = $request->get_json_params();
+		$service_api_key    = trim( $params['service_api_key'] );
+		$option     = self::key_for_api_service( $service );
+		$validation = self::validate_service_api_key( $service_api_key, $service );
+		if ( ! $validation['status'] ) {
+			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
+		}
+		$message = esc_html__( 'API key updated successfully.', 'jetpack' );
+		Jetpack_Options::update_option( $option, $service_api_key );
+		return array(
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
+		);
+	}
+
+	/**
+	 * Delete a third party plugin API key.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
+	 * }
+	 */
+	public static function delete_service_api_key( $request ) {
+		$service = self::validate_service_api_service( $request['service'] );
+		if ( ! $service ) {
+			return self::service_api_invalid_service_response();
+		}
+		$option = self::key_for_api_service( $service );
+		Jetpack_Options::delete_option( $option );
+		$message = esc_html__( 'API key deleted successfully.', 'jetpack' );
+		return array(
+			'code'            => 'success',
+			'service'         => $service,
+			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
+			'message'         => $message,
+		);
+	}
+
+	/**
+	 * Validate the service provided in /service-api-keys/ endpoints.
+	 * To add a service to these endpoints, add the service name to $valid_services
+	 * and add '{service name}_api_key' to the non-compact return array in get_option_names(),
+	 * in class-jetpack-options.php
+	 *
+	 * @param string $service The service the API key is for.
+	 * @return string Returns the service name if valid, null if invalid.
+	 */
+	public static function validate_service_api_service( $service = null ) {
+		$valid_services = array(
+			'mapbox',
+		);
+		return in_array( $service, $valid_services, true ) ? $service : null;
+	}
+
+	/**
+	 * Error response for invalid service API key requests with an invalid service.
+	 */
+	public static function service_api_invalid_service_response() {
+		return new WP_Error(
+			'invalid_service',
+			esc_html__( 'Invalid Service', 'jetpack' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	/**
+	 * Validate API Key
+	 *
+	 * @param string $key The API key to be validated.
+	 * @param string $service The service the API key is for.
+	 */
+	public static function validate_service_api_key( $key = null, $service = null ) {
+		$validation = false;
+		switch ( $service ) {
+			case 'mapbox':
+				$validation = self::validate_service_api_key_mapbox( $key );
+				break;
+		}
+		return $validation;
+	}
+
+	/**
+	 * Validate Mapbox API key
+	 * Based loosely on https://github.com/mapbox/geocoding-example/blob/master/php/MapboxTest.php
+	 *
+	 * @param string $key The API key to be validated.
+	 */
+	public static function validate_service_api_key_mapbox( $key ) {
+		$status          = true;
+		$msg             = null;
+		$mapbox_url      = sprintf(
+			'https://api.mapbox.com?%s',
+			$key
+		);
+		$mapbox_response = wp_safe_remote_get( esc_url_raw( $mapbox_url ) );
+		$mapbox_body     = wp_remote_retrieve_body( $mapbox_response );
+		if ( '{"api":"mapbox"}' !== $mapbox_body ) {
+			$status = false;
+			$msg    = esc_html__( 'Can\'t connect to Mapbox', 'jetpack' );
+			return array(
+				'status'        => $status,
+				'error_message' => $msg,
+			);
+		}
+		$mapbox_geocode_url      = esc_url_raw(
+			sprintf(
+				'https://api.mapbox.com/geocoding/v5/mapbox.places/%s.json?access_token=%s',
+				'1+broadway+new+york+ny+usa',
+				$key
+			)
+		);
+		$mapbox_geocode_response = wp_safe_remote_get( esc_url_raw( $mapbox_geocode_url ) );
+		$mapbox_geocode_body     = wp_remote_retrieve_body( $mapbox_geocode_response );
+		$mapbox_geocode_json     = json_decode( $mapbox_geocode_body );
+		if ( isset( $mapbox_geocode_json->message ) && ! isset( $mapbox_geocode_json->query ) ) {
+			$status = false;
+			$msg    = $mapbox_geocode_json->message;
+		}
+		return array(
+			'status'        => $status,
+			'error_message' => $msg,
+		);
+	}
+
+	/**
+	 * Create site option key for service
+	 *
+	 * @param string $service The service  to create key for.
+	 */
+	private static function key_for_api_service( $service ) {
+		return $service . '_api_key';
 	}
 
 	/**
