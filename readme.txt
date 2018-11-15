@@ -111,6 +111,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
+* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
+
 **Bug fixes**
 
 
