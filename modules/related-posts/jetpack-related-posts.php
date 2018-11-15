@@ -79,6 +79,8 @@ class Jetpack_RelatedPosts {
 		if ( function_exists( 'register_rest_field' ) ) {
 			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
 		}
+
+		jetpack_register_block( 'related-posts' );
 	}
 
 	/**
