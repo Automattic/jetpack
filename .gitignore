@@ -40,6 +40,7 @@ phpcs.xml
 /_inc/blocks
 /_inc/build
 /modules/**/*.min.css
+/modules/**/*.min.css.map
 /modules/**/*-rtl.css
 /css
 _inc/jetpack-strings.php
