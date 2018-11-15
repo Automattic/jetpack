@@ -3139,10 +3139,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+
+		$type_class = $type ? ' ' .$type : '';
 		return
 			"<label 
 				for='" . esc_attr( $id ) . "' 
-				class='grunion-field-label {$type}" . ( $this->is_error() ? ' form-error' : '' ) . "'
+				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'
 				>"
 				. esc_html( $label )
 				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
@@ -3174,13 +3176,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$field = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+		$field = $this->render_label( 'url', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
 	function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$field = $this->render_label( 'textarea', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
 		                name='" . esc_attr( $id ) . "' 
 		                id='contact-form-comment-" . esc_attr( $id ) . "' 
@@ -3194,7 +3196,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
