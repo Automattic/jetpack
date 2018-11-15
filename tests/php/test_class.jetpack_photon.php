@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * The tests require PHP 5.3 :( The feature does not.
+ *
+ * @requires PHP 5.3
+ */
 class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	protected static $test_image;
 
