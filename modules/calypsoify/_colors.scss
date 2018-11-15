@@ -1,3 +1,14 @@
+// Colors that aren't pulled from Calypso or Core:
+
+$_0099d8: #0099d8; // Pacific Blue
+$_0096c3: #0096c3; // Pacific Blue
+$_008ab3: #008ab3; // Bondi Blue
+$_004967: #004967; // Prussian Blue
+
+// These colors are used several times in Calypso, but never actually stored in a variable.
+$_d9e3ea: #d9e3ea; // Pattens Blue
+$rgba-grey: rgba(200,215,225,0.5);
+
 // swiped from https://github.com/Automattic/wp-calypso/blob/master/assets/stylesheets/shared/_colors.scss
 
 // Primary Accent (Blues)
@@ -77,29 +88,67 @@ $color-skype: #00AFF0;
 $color-telegram: #0088cc;
 $color-whatsapp: #43d854;
 
-// @todo: rename colors more descriptively
-$_fff:    $white;
 
-$_f3f6f8: $gray-light;
-$_e9eff3: $gray-lighten-30;
-$_d9e3ea: #d9e3ea;
-$_c8d7e1: $gray-lighten-20;
-$_a8bece: $gray-lighten-10;
-$_87a6bc: $gray;
-$_537994: $gray-text-min;
-$_2e4453: $gray-dark; // or $gray-text
 
-$_00aadc: $blue-medium;
-$_0099d8: #0099d8;
-$_0096c3: #0096c3;
-$_008ab3: #008ab3;
-$_0087be: $blue-wordpress;
-$_0073aa: #0073aa;
-$_005082: $blue-dark;
-$_004967: #004967;
 
-$_f0b849: $alert-yellow;
-$_d94f4f: $alert-red;
-$_4ab866: $alert-green;
 
-$rgba-grey: rgba(200,215,225,0.5);
+// swiped from https://github.com/WordPress/WordPress/blob/master/wp-admin/css/colors/_variables.scss
+
+// assign default value to all undefined variables
+
+
+// core variables
+
+$text-color: #fff !default;
+$base-color: #23282d !default;
+$icon-color: hsl( hue( $base-color ), 7%, 95% ) !default;
+$highlight-color: #0073aa !default;
+$notification-color: #d54e21 !default;
+
+
+// global
+
+$body-background: #f1f1f1 !default;
+
+$link: #0073aa !default;
+$link-focus: lighten( $link, 10% ) !default;
+
+$button-color: $highlight-color !default;
+$form-checked: $highlight-color !default;
+
+
+// admin menu & admin-bar
+
+$menu-text: $text-color !default;
+$menu-icon: $icon-color !default;
+$menu-background: $base-color !default;
+
+$menu-highlight-text: $text-color !default;
+$menu-highlight-icon: $text-color !default;
+$menu-highlight-background: $highlight-color !default;
+
+$menu-current-text: $menu-highlight-text !default;
+$menu-current-icon: $menu-highlight-icon !default;
+$menu-current-background: $menu-highlight-background !default;
+
+$menu-submenu-text: mix( $base-color, $text-color, 30% ) !default;
+$menu-submenu-background: darken( $base-color, 7% ) !default;
+$menu-submenu-background-alt: desaturate( lighten( $menu-background, 7% ), 7% ) !default;
+
+$menu-submenu-focus-text: $highlight-color !default;
+$menu-submenu-current-text: $text-color !default;
+
+$menu-bubble-text: $text-color !default;
+$menu-bubble-background: $notification-color !default;
+$menu-bubble-current-text: $text-color !default;
+$menu-bubble-current-background: $menu-submenu-background !default;
+
+$menu-collapse-text: $menu-icon !default;
+$menu-collapse-icon: $menu-icon !default;
+$menu-collapse-focus-text: $text-color !default;
+$menu-collapse-focus-icon: $menu-highlight-icon !default;
+
+$adminbar-avatar-frame: lighten( $menu-background, 7% ) !default;
+$adminbar-input-background: lighten( $menu-background, 7% ) !default;
+
+$menu-customizer-text: mix( $base-color, $text-color, 40% ) !default;
