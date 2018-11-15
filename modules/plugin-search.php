@@ -16,8 +16,8 @@
  *
  * @todo Handle different scenarios:
  * - Jetpack installed, active, not connected; prompt to connect to get feature
- * - Installed, active, feature not enabled; prompt to enable
- * - Installed, active, feature enabled; link to settings
+ * - Done: Installed, active, feature not enabled; prompt to enable
+ * - Done: Installed, active, feature enabled; link to settings
  * - Activate module via AJAX, then prompt to configure/settings
  */
 
@@ -35,13 +35,33 @@ class Jetpack_Plugin_Search {
 		return $instance;
 	}
 
-	function __construct() {
+	public function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
 	}
 
-	function action_init() {
+	public function action_init() {
 		add_filter( 'plugins_api_result', array( $this, 'inject_jetpack_module_suggestion' ), 10, 3 );
 		add_filter( 'plugin_install_action_links', array( $this, 'insert_module_related_links' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_plugins_search_script' ) );
+	}
+
+	public function load_plugins_search_script( $hook ) {
+		if( 'plugin-install.php' !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script( 'plugin-search', plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		wp_localize_script(
+			'plugin-search',
+			'pluginSearchState',
+			array(
+				'jetpackWPNonce'       => wp_create_nonce( 'wp_rest' ),
+				'manageSettingsString' => __( 'Module Settings', 'jetpack' ),
+				'activateModuleString' => __( 'Activate Module', 'jetpack' ),
+				'activatedString'      => __( 'Activated', 'jetpack' ),
+				'activatingString'     => __( 'Activating', 'jetpack' ),
+			)
+		);
 	}
 
 
@@ -57,19 +77,15 @@ class Jetpack_Plugin_Search {
 
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
+			$matching_module = null;
 
-			// @todo Apply sanitization/normalization
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
 			$this->track_search_term( $args->search );
 			$normalized_term = $this->sanitize_search_term( $args->search );
-			$matching_module = null;
 
-			// Callback function to sort the array of modules by the sort option.
-			function sort_by_sort_opt( $m1, $m2 ) {
-				return $m1['sort'] - $m2['sort'];
-			};
-			usort( $jetpack_modules_list, 'sort_by_sort_opt' );
+			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
+			// Try to match a passed search term with module's search terms
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
 				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] );
 				$terms_array  = explode( ', ', $search_terms );
@@ -87,7 +103,7 @@ class Jetpack_Plugin_Search {
 
 				$inject = array(
 					'name' => '',
-					'slug' => 'jetpack',
+					'slug' => 'jetpack-plugin-search',
 					'version' => '',
 					'author' => '',
 					'author_profile' => '',
@@ -113,7 +129,7 @@ class Jetpack_Plugin_Search {
 						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
 						'2x'  => 'https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404',
 						'svg' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
-					)
+					),
 				);
 
 				// Splice in the base module data
@@ -148,10 +164,10 @@ class Jetpack_Plugin_Search {
 	private function sanitize_search_term( $term ) {
 		$term = strtolower( urldecode( $term ) );
 
-		// remove non-alpha/space chars
+		// remove non-alpha/space chars.
 		$term = preg_replace( '/[^a-z ]/', '', $term );
 
-		// remove strings that don't help matches
+		// remove strings that don't help matches.
 		$term = trim( str_replace( array( 'jetpack', 'jp', 'free', 'wordpress' ), '', $term ) );
 
 		return $term;
@@ -161,10 +177,17 @@ class Jetpack_Plugin_Search {
 	 * Tracks every search term used in plugins search as 'jetpack_wpa_plugin_search_term'
 	 *
 	 * @param String $term The raw search term.
-	 * @return true|WP_Error true for success, WP_Error if error occured.
+	 * @return true|WP_Error true for success, WP_Error if error occurred.
 	 */
 	private function track_search_term( $term ) {
 		return JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $term ) );
+	}
+
+	/**
+	 * Callback function to sort the array of modules by the sort option.
+	 */
+	private function by_sorting_option( $m1, $m2 ) {
+		return $m1['sort'] - $m2['sort'];
 	}
 
 	/**
@@ -172,31 +195,32 @@ class Jetpack_Plugin_Search {
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
 		if (
-			! 'jetpack' === $plugin['slug'] ||
-			! array_key_exists( 'plugin-search', $plugin ) ||
-			// Make sure we show injected card only on first page.
+			! 'jetpack-plugin-search' === $plugin['slug'] ||
+			// Make sure we show injected this card only on first page.
 			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
 			) {
 			return $links;
 		}
+		// Inject module data into js.
+		wp_localize_script( 'plugin-search', 'jetpackModuleInfo', $plugin );
 
 		// Jetpack installed, active, feature not enabled; prompt to enable.
 		if ( Jetpack::is_active() && ! Jetpack::is_module_active( $plugin['module'] ) ) {
-			$activate_url = admin_url( 'admin.php' ) . '?page=jetpack&#038;action=activate&#038;module=' . $plugin['module'] . '&#038;_wpnonce=' . $plugin['activate_nonce'];
 			$links = array(
-				'<button type="button" class="button primary" ><a href=' . $activate_url . '>' . __('Activate Module', 'jetpack') . '</a></button>',
+				'<a id="plugin-select-activate" class="button activate-now"> ' . __( 'Activate Module', 'jetpack' ) . '</a>',
 			);
 		// Jetpack installed, active, feature enabled; link to settings.
 		} elseif ( Jetpack::is_active() && Jetpack::is_module_active( $plugin['module'] ) ) {
 			$links = array(
-				'<button type="button" class="button"><a href="' . $plugin['configure_url'] . '">' . __('Module Settings', 'jetpack') . '</a></button>',
+				'<a id="plugin-select-settings" class="button" href="' . $plugin['configure_url'] . '">' . __( 'Module Settings', 'jetpack' ) . '</a>',
 			);
 		}
 
-		// Adds More Information link.
-		$links[] = '<a href="' . $plugin['learn_more_button'] . '">' . __('More Information', 'jetpack') . '</a>';
+		// Adds "More Information" link.
+		$links[] = '<a href="' . $plugin['learn_more_button'] . '">' . __( 'More Information', 'jetpack' ) . '</a>';
+
 		// Add some styling.
-		$links[] = '<style>.plugin-card-jetpack { border: solid 2px green; }</style>';
+		$links[] = '<style>.plugin-card-jetpack-plugin-search { border: solid 2px green; }</style>';
 		return $links;
 	}
 }
