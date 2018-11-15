@@ -283,57 +283,63 @@ class Grunion_Contact_Form_Plugin {
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
-	public static function guten_block_attrebutes_to_shotcode_attributes( $atts, $type ) {
+	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
 		$atts['type'] = $type;
 		if ( isset( $atts['className'] ) ) {
 			$atts['class'] = $atts['className'];
 			unset( $atts['className'] );
 		}
+
+		if ( isset( $atts['defaultValue'] ) ) {
+			$atts['default'] = $atts['defaultValue'];
+			unset( $atts['defaultValue'] );
+		}
+
 		return $atts;
 	}
 
 	public static function gutenblock_render_field_text( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'text' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_name( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'name' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_email( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'email' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_url( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'url' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_date( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'date' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_telephone( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'telephone' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'textarea' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_checkbox( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'checkbox' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'checkbox-multiple' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_radio( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'radio' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 	public static function gutenblock_render_field_select( $atts, $content ) {
-		$atts = self::guten_block_attrebutes_to_shotcode_attributes( $atts, 'select' );
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
