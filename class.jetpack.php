@@ -797,7 +797,7 @@ class Jetpack {
 
 		foreach ( $methods as $method => $callback ) {
 			if ( 0 === strpos( $method, 'jetpack.' ) ) {
-				$jetpack_methods[$method] = $callback;
+				$jetpack_methods[ $method ] = $callback;
 			}
 		}
 
@@ -820,7 +820,7 @@ class Jetpack {
 
 		// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
 		// but we can do it ourself.
-		if ( !isset( $HTTP_RAW_POST_DATA ) ) {
+		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
 			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
 		}
 
