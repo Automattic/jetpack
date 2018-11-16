@@ -692,8 +692,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public function getFirstElement( $dom, $tag, $index = 0) {
 		$elements = $dom->getElementsByTagName( $tag );
-		if ( !is_array( $elements ) ) {
-			$elements = iterator_to_array( $elements );
+		if ( ! is_array( $elements ) ) {
+			return $elements->item( $index );
 		}
 		return $elements[ $index ];
 	}
