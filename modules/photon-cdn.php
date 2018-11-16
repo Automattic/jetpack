@@ -151,11 +151,11 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return array
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
-		if (
-			'jetpack' === $plugin
-			&& JETPACK__VERSION === $version
-			&& self::is_public_version( $version )
-		) {
+		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
+			if ( ! self::is_public_version( $version ) ) {
+				return array();
+			}
+
 			$assets = array(); // The variable will be redefined in the included file.
 
 			include JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php';
