@@ -515,7 +515,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function test_parse_contact_field_keeps_string_unchaned_when_no_escaping_necesssary() {
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 
-		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]";
+		$shortcode = "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=\"email\" required=\"1\"/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]";
 		$html = do_shortcode( $shortcode );
 
 		$this->assertEquals( $shortcode, $html );
@@ -525,14 +525,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 		$shortcode = "[contact-field type='name' required='1' /]";
 		$html = do_shortcode( $shortcode );
-		$this->assertEquals( "[contact-field type='name' required='1' label='Name'/]", $html );
+		$this->assertEquals( "[contact-field type=\"name\" required=\"1\" label=\"Name\"/]", $html );
 	}
 
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
 		$html = do_shortcode( $shortcode );
-		$this->assertEquals( "[contact-field type='select' required='1' options='fun,run' label='fun times' values='go,have some fun'/]", $html );
+		$this->assertEquals( "[contact-field type=\"select\" required=\"1\" options=\"fun,run\" label=\"fun times\" values=\"go,have some fun\"/]", $html );
 	}
 
 	public function test_make_sure_text_field_renders_as_expected() {
@@ -861,9 +861,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// sure we don't output anything harmful
 
 		if ( version_compare( $wp_version, '4.9-alpha', '>') ){
-			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]", $html );
+			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]", $html );
 		} else {
-			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]", $html );
 		}
 	}
 
