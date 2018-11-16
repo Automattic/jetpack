@@ -2125,6 +2125,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return $compiled_form;
 	}
 
+	/**
+	 * Only strip out empty string values and keep all the other values as they are.
+     *
+	 * @param $single_value
+	 *
+	 * @return bool
+	 */
 	static function remove_empty( $single_value ) {
 		return ( $single_value !== '' );
 	}
