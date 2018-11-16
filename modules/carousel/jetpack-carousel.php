@@ -200,7 +200,7 @@ class Jetpack_Carousel {
 	}
 
 	function check_content_for_blocks( $content ) {
-		if ( has_block( 'gallery', $content ) ) {
+		if ( function_exists( 'has_block' ) && has_block( 'gallery', $content ) ) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
