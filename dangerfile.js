@@ -48,7 +48,7 @@ function setReleaseDates() {
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future
 		const nextMilestone = milestones.data
-		.filter( m => ! isNaN( m.title ) )
+		.filter( m => m.title.match( /\d\.\d/ ) )
 		.sort( ( m1, m2 ) => parseFloat( m1.title ) - parseFloat( m2.title ) )
 		.find( milestone => milestone.due_on && moment( milestone.due_on ) > moment() );
 
