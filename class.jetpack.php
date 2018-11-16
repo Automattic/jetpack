@@ -3213,7 +3213,7 @@ p {
 		} else {
 			// If a Jetpack is still active but not connected when updating verion, remind them to connect with the banner.
 			if ( ! Jetpack::is_active() ) {
-				Jetpack_Options::update_option( 'dismissed_connection_banner', false );
+				Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 			}
 		}
 	}
