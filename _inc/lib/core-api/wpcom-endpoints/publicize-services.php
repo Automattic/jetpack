@@ -15,6 +15,14 @@
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Controller {
+	/**
+	 * Flag to help WordPress.com decide where it should look for
+	 * Publicize data. Ignored for direct requests to Jetpack sites.
+	 *
+	 * @var bool $wpcom_is_wpcom_only_endpoint
+	 */
+	public $wpcom_is_wpcom_only_endpoint = true;
+
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/services';
