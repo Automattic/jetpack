@@ -153,7 +153,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function get_plugin_assets( $plugin, $version ) {
 		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
 			if ( ! self::is_public_version( $version ) ) {
-				return array();
+				return false;
 			}
 
 			$assets = array(); // The variable will be redefined in the included file.
@@ -177,6 +177,10 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$assets = apply_filters( "jetpack_cdn_plugin_assets-{$plugin}", null, $version );
 		if ( is_array( $assets ) ) {
 			return $assets;
+		}
+
+		if ( ! self::is_public_version( $version ) ) {
+			return false;
 		}
 
 		$cache = Jetpack_Options::get_option( 'static_asset_cdn_files', array() );
