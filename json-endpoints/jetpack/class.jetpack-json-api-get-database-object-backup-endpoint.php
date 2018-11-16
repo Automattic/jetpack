@@ -45,7 +45,6 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 	);
 
 	function validate_input( $object ) {
-		global $wpdb;
 		$query_args = $this->query_args();		
 
 		if ( empty( $query_args['object_type'] ) || empty( $query_args['object_id'] ) ) {
