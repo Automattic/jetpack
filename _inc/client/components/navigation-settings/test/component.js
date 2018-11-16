@@ -42,7 +42,8 @@ describe( 'NavigationSettings', () => {
 			context: {
 				router: {
 					goBack: () => {},
-					listen: () => {}
+					listen: () => {},
+					getCurrentLocation: () => ( {} ),
 				},
 			},
 			moduleList: []
