@@ -311,6 +311,7 @@ class Jetpack_Gutenberg {
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 
 		// The social-logos styles are used for Publicize service icons
+		// TODO: Remove when we ship the icons with the Gutenberg blocks build
 		wp_enqueue_style( 'social-logos' );
 	}
 }
