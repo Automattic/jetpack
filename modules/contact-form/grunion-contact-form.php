@@ -2160,12 +2160,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 						$val = explode( ',', $val );
 					}
  					if ( is_array( $val ) ) {
-						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) );
-						$att_strs[] = esc_html( $att ) . '=\'' . implode( ',', array_map( 'esc_html', $val ) ) . '\'';
+						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
+						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( 'esc_html', $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
-						$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ? '1' : '' ) . '\'';
+						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ? '1' : '' ) . '"';
 					} else {
-						$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
+						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ) . '"';
 					}
 				}
 			}
