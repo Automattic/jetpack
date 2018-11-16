@@ -2,18 +2,19 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.3.38
+ * Version: 2.3.39
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.3.38' );
+define( 'WPCOMSH_VERSION', '2.3.39' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
+require_once( 'functions.php' );
 
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'storefront/storefront.php' );
@@ -285,7 +286,6 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  */
 function wpcomsh_map_caps( $required_caps, $cap ) {
 	if ( 'edit_themes' === $cap ) {
-		require_once( 'functions.php' );
 		$theme = wp_get_theme();
 		if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
 			&& 'Automattic' !== $theme->get( 'Author' ) ) {
@@ -297,7 +297,6 @@ function wpcomsh_map_caps( $required_caps, $cap ) {
 add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
 
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
-	require_once( 'functions.php' );
 
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
 		if ( wpcomsh_is_wpcom_theme( $theme_slug ) || wpcomsh_is_symlinked_storefront_theme( $theme_slug ) ) {
@@ -311,7 +310,6 @@ add_filter( 'wp_prepare_themes_for_js', 'wpcomsh_remove_theme_delete_button' );
 
 
 function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
-	require_once( 'functions.php' );
 
 	$theme_type = wpcomsh_get_wpcom_theme_type( $theme_slug );
 
@@ -364,7 +362,6 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 }
 
 function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
-	require_once( 'functions.php' );
 
 	if (
 		! wpcomsh_is_wpcom_theme( $theme_slug ) ||
