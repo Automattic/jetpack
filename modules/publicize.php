@@ -46,6 +46,10 @@ class Jetpack_Publicize {
 			if ( in_array( 'publicize', $active ) && !in_array( 'sharedaddy', $active ) )
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 		}
+
+		// TODO: Not really a block. The underlying logic doesn't care, so we should rename to
+		// `jetpack_register_gutenberg_extension()` (to account for both Gutenblocks and Gutenplugins).
+		jetpack_register_block( 'publicize' );
 	}
 
 	function jetpack_configuration_load() {
