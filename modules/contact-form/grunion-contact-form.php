@@ -778,11 +778,11 @@ class Grunion_Contact_Form_Plugin {
 		// so this inline JS moves it from the top of the page to the bottom.
 		?>
 		<script type='text/javascript'>
-            var menu = document.getElementById( 'feedback-export' ),
+		    var menu = document.getElementById( 'feedback-export' ),
                 wrapper = document.getElementsByClassName( 'wrap' )[0];
-			<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
+            <?php if ( 'edit-feedback' === $current_screen->id ) : ?>
             wrapper.appendChild(menu);
-			<?php endif; ?>
+            <?php endif; ?>
             menu.style.display = 'block';
 		</script>
 		<?php
