@@ -300,16 +300,11 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 				}
 
 				// Recurse to prune sub-properties of each item.
-				$keys = array_keys( $value );
+				foreach ( $value as $key => $item ) {
+					$value[ $key ] = $this->filter_response_by_context( $item, $schema['items'], $context );
+				}
 
-				$items = array_map(
-					array( $this, 'filter_response_by_context' ),
-					$value,
-					array_fill( 0, count( $keys ), $schema['items'] ),
-					array_fill( 0, count( $keys ), $context )
-				);
-
-				return array_combine( $keys, $items );
+				return $value;
 			case 'object':
 				if ( ! isset( $schema['properties'] ) ) {
 					return $value;
