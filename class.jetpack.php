@@ -3071,11 +3071,6 @@ class Jetpack {
 		add_action( 'jetpack_module_configuration_load_' . $module, $method );
 	}
 
-	public static function module_configuration_head( $module, $method ) {
-		$module = Jetpack::get_module_slug( $module );
-		add_action( 'jetpack_module_configuration_head_' . $module, $method );
-	}
-
 	public static function module_configuration_screen( $module, $method ) {
 		$module = Jetpack::get_module_slug( $module );
 		add_action( 'jetpack_module_configuration_screen_' . $module, $method );
@@ -3888,12 +3883,6 @@ p {
 		}
 
 		return $jp_menu_order;
-	}
-
-	function admin_head() {
-		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) )
-			/** This action is documented in class.jetpack-admin-page.php */
-			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
 	}
 
 	function admin_banner_styles() {

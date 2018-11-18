@@ -32,7 +32,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
-	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
 
 	// Generate the tracking code after wp() has queried for posts.
@@ -831,27 +830,6 @@ function stats_configuration_load() {
 		wp_safe_redirect( Jetpack::module_configuration_url( 'stats' ) );
 		exit;
 	}
-}
-
-/**
- * Stats Configuration Head.
- *
- * @access public
- * @return void
- */
-function stats_configuration_head() {
-?>
-	<style type="text/css">
-		#statserror {
-			border: 1px solid #766;
-			background-color: #d22;
-			padding: 1em 3em;
-		}
-		.stats-smiley {
-			vertical-align: 1px;
-		}
-	</style>
-	<?php
 }
 
 /**

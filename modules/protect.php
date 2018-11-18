@@ -312,7 +312,6 @@ class Jetpack_Protect_Module {
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
 		Jetpack::module_configuration_load( __FILE__, array ( $this, 'configuration_load' ) );
-		Jetpack::module_configuration_head( __FILE__, array ( $this, 'configuration_head' ) );
 		Jetpack::module_configuration_screen( __FILE__, array ( $this, 'configuration_screen' ) );
 	}
 
@@ -651,10 +650,6 @@ class Jetpack_Protect_Module {
 
 		$this->api_key = get_site_option( 'jetpack_protect_key', false );
 		$this->user_ip = jetpack_protect_get_ip();
-	}
-
-	public function configuration_head() {
-		wp_enqueue_style( 'jetpack-protect' );
 	}
 
 	/**
