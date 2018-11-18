@@ -3145,9 +3145,26 @@ class Jetpack {
 		add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
 	}
 
+	/**
+	 * Composes a module configure URL. It uses Jetpack settings search as default value
+	 * It is possible to redefine resulting URL by using "jetpack_module_configuration_url_$module" filter
+	 *
+	 * @param string $module Module slug
+	 * @return string $url module configuration URL
+	 */
 	public static function module_configuration_url( $module ) {
 		$module = Jetpack::get_module_slug( $module );
-		return Jetpack::admin_url( array( 'page' => 'jetpack', 'configure' => $module ) );
+		$default_url =  Jetpack::admin_url() . "#/settings?term=$module";
+		/**
+		 * Allows to modify configure_url of specific module to be able to redirect to some custom location.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param string $default_url Default url, which redirects to jetpack settings page.
+		 */
+		$url = apply_filters( 'jetpack_module_configuration_url_' . $module, $default_url );
+
+		return $url;
 	}
 
 	public static function module_configuration_load( $module, $method ) {
