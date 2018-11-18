@@ -7184,7 +7184,7 @@ p {
 	public static function jetpack_tos_agreed() {
 		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
 	}
-	
+
 	/**
 	 * Handles activating default modules as well general cleanup for the new connection.
 	 *
