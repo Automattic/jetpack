@@ -89,12 +89,7 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// Check if we are looking at the main dashboard
-		if (
-			isset( $_GET['page'] ) &&
-			'jetpack' === $_GET['page'] &&
-		     empty( $_GET['configure'] )
-		)
-		{
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			$this->page_render();
 			return;
 		}
