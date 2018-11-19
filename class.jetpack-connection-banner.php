@@ -867,19 +867,19 @@ class Jetpack_Connection_Banner {
 					<h4><?php esc_html_e( 'Design & Customization', 'jetpack' ); ?></h4>
 					<p><?php
 						esc_html_e(
-							'Design: Choose from hundreds of website theme designs and customize your site further with feature-rich widgets.',
+							'Design: Choose from hundreds of website theme designs and customize your site.',
 							'jetpack'
 						);
 					?></p>
+                    <p><?php
+						esc_html_e(
+							'Customize: Jetpack features have been completely redesigned for the new WordPress content creation and editing experience, Gutenberg. Get more customization options for Jetpack features right in the new editor.',
+							'jetpack'
+						);
+						?></p>
 					<p><?php
 						esc_html_e(
 							'Optimize: Jetpack’s site accelerator uploads images, videos, and static files like CSS to our powerful servers and delivers them at lightning-fast speeds to your visitors. You’ll also save precious bandwidth.',
-							'jetpack'
-						);
-					?></p>
-					<p><?php
-						esc_html_e(
-							'Publish: Post on the go from any device using the WordPress apps for iOS, Android, Windows, Linux, and macOS.',
 							'jetpack'
 						);
 					?></p>
