@@ -45,7 +45,7 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 	);
 
 	function validate_input( $object ) {
-		$query_args = $this->query_args();		
+		$query_args = $this->query_args();
 
 		if ( empty( $query_args['object_type'] ) || empty( $query_args['object_id'] ) ) {
 			return new WP_Error( 'invalid_args', __( 'You must specify both an object type and id to fetch', 'jetpack' ), 400 );
