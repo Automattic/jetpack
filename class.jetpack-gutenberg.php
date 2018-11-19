@@ -102,7 +102,8 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the contents of `_inc/blocks/blocks-manifest.json`
+	 * using the merged contents of `_inc/blocks/blocks-manifest.json` ( $preset_blocks )
+	 * and self::$jetpack_blocks ( $internal_blocks )
 	 *
 	 * @param $blocks The default list.
 	 *
@@ -111,12 +112,14 @@ class Jetpack_Gutenberg {
 	public static function jetpack_set_available_blocks( $blocks ) {
 		$preset_blocks_manifest =  self::preset_exists( 'block-manifest' ) ? self::get_preset( 'block-manifest' ) : (object) array( 'blocks' => $blocks );
 		$preset_blocks = isset( $preset_blocks_manifest->blocks ) ? (array) $preset_blocks_manifest->blocks : array() ;
+		$internal_blocks = array_keys( self::$jetpack_blocks );
+
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_blocks = isset( $preset_blocks_manifest->betaBlocks ) ? (array) $preset_blocks_manifest->betaBlocks : array();
-			return array_merge( $preset_blocks, $beta_blocks );
+			return array_unique( array_merge( $preset_blocks, $beta_blocks, $internal_blocks ) );
 		}
 
-		return $preset_blocks;
+		return array_unique( array_merge( $preset_blocks, $internal_blocks ) );
 	}
 
 	/**
