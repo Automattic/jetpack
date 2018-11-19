@@ -58,11 +58,9 @@ class Jetpack_SSO {
 	 **/
 	public static function module_configure_button() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array( __CLASS__, 'module_configuration_load' ) );
 		Jetpack::module_configuration_screen( __FILE__, array( __CLASS__, 'module_configuration_screen' ) );
 	}
 
-	public static function module_configuration_load() {}
 
 	public static function module_configuration_screen() {
 		?>

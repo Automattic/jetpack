@@ -40,13 +40,11 @@ add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
 
 function jetpack_widgets_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_widgets_configuration_load' );
 	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
 }
 
-function jetpack_widgets_configuration_load() {
-	wp_safe_redirect( admin_url( 'widgets.php' ) );
-	exit;
+function jetpack_widgets_configuration_url() {
+	return admin_url( 'widgets.php' );
 }
 
 /**

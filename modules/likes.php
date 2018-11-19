@@ -48,9 +48,7 @@ class Jetpack_Likes {
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
 			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
@@ -117,13 +115,6 @@ class Jetpack_Likes {
 		delete_option( 'social_notifications_like' );
 	}
 
-	/**
-	 * Redirects to the likes section of the sharing page.
-	 */
-	function configuration_redirect() {
-		wp_safe_redirect( admin_url( 'options-general.php?page=sharing#likes' ) );
-		die();
-	}
 
 	/**
 	 * Overrides default configuration url

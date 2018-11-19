@@ -31,7 +31,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
  */
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
 
 	// Generate the tracking code after wp() has queried for posts.
@@ -796,40 +795,6 @@ function stats_convert_post_title( $matches ) {
 	if ( isset( $stats_posts[$post_id] ) )
 		return '<a href="' . get_permalink( $post_id ) . '" target="_blank">' . get_the_title( $post_id ) . '</a>';
 	return $matches[0];
-}
-
-/**
- * Stats Configuration Load.
- *
- * @access public
- * @return void
- */
-function stats_configuration_load() {
-	if ( isset( $_POST['action'] ) && 'save_options' === $_POST['action'] && $_POST['_wpnonce'] === wp_create_nonce( 'stats' ) ) {
-		$options = stats_get_options();
-		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
-		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
-
-		$options['roles'] = array( 'administrator' );
-		foreach ( get_editable_roles() as $role => $details ) {
-			if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] ) {
-				$options['roles'][] = $role;
-			}
-		}
-
-		$options['count_roles'] = array();
-		foreach ( get_editable_roles() as $role => $details ) {
-			if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] ) {
-				$options['count_roles'][] = $role;
-			}
-		}
-
-		stats_set_options( $options );
-		stats_update_blog();
-		Jetpack::state( 'message', 'module_configured' );
-		wp_safe_redirect( Jetpack::module_configuration_url( 'stats' ) );
-		exit;
-	}
 }
 
 /**

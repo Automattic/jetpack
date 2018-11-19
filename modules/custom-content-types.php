@@ -18,14 +18,8 @@ function jetpack_load_custom_post_types() {
 
 function jetpack_custom_post_types_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_custom_post_types_configuration_load' );
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_custom_post_types_loaded' );
-
-function jetpack_custom_post_types_configuration_load() {
-	wp_safe_redirect( admin_url( 'options-writing.php#cpt-options' ) );
-	exit;
-}
 
 // Add Settings Section for CPT
 function jetpack_cpt_settings_api_init() {

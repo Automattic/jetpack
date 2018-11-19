@@ -24,26 +24,7 @@ add_action( 'jetpack_modules_loaded', 'minileven_loaded' );
 
 function minileven_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'minileven_configuration_load' );
 	Jetpack::module_configuration_screen( __FILE__, 'minileven_configuration_screen' );
-}
-
-function minileven_configuration_load() {
-	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'minileven' ) ) {
-		if ( isset( $_POST['wp_mobile_excerpt'] ) ) {
-			update_option( 'wp_mobile_excerpt', '1' == $_POST['wp_mobile_excerpt'] ? '1' : '0' );
-		}
-
-		if ( isset( $_POST['wp_mobile_featured_images'] ) ) {
-			update_option( 'wp_mobile_featured_images', '1' == $_POST['wp_mobile_featured_images'] ? '1' : '0' );
-		}
-
-		update_option( 'wp_mobile_app_promos', ( isset( $_POST['wp_mobile_app_promos'] ) ) ? '1' : '0' );
-
-		Jetpack::state( 'message', 'module_configured' );
-		wp_safe_redirect( Jetpack::module_configuration_url( 'minileven' ) );
-		exit;
-	}
 }
 
 function minileven_configuration_screen() {

@@ -30,24 +30,7 @@ class Jetpack_Monitor {
 
 	public function jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( $this->module );
-		Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
 		Jetpack::module_configuration_screen( $this->module, array( $this, 'jetpack_configuration_screen' ) );
-	}
-
-	public function jetpack_configuration_load() {
-		if ( Jetpack::is_user_connected() && ! self::is_active() ) {
-			Jetpack::deactivate_module( $this->module );
-			Jetpack::state( 'message', 'module_deactivated' );
-			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
-			die();
-		}
-		if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'monitor-save' ) {
-			check_admin_referer( 'monitor-settings' );
-			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
-			Jetpack::state( 'message', 'module_configured' );
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-			exit;
-		}
 	}
 
 	public function jetpack_configuration_screen() {

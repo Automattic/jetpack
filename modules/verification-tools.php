@@ -17,13 +17,12 @@ function jetpack_load_verification_tools() {
 
 function jetpack_verification_tools_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_verification_tools_configuration_load' );
+	add_filter( 'jetpack_module_configuration_url_verification-tools', 'jetpack_verification_tools_configuration_url' );
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_verification_tools_loaded' );
 
-function jetpack_verification_tools_configuration_load() {
-	wp_safe_redirect( admin_url( 'tools.php' ) );
-	exit;
+function jetpack_verification_tools_configuration_url() {
+	return admin_url( 'tools.php' );
 }
 
 jetpack_load_verification_tools();
