@@ -148,7 +148,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 *
 	 * @param string $plugin plugin slug string.
 	 * @param string $version plugin version number string.
-	 * @return array
+	 * @return array|bool Will return false if not a public version.
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
 		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
