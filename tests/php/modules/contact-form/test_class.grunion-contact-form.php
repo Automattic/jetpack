@@ -515,10 +515,335 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function test_parse_contact_field_keeps_string_unchaned_when_no_escaping_necesssary() {
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 
-		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]";
+		$shortcode = "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=\"email\" required=\"1\"/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]";
 		$html = do_shortcode( $shortcode );
 
 		$this->assertEquals( $shortcode, $html );
+	}
+
+	public function test_make_sure_that_we_add_defatul_lable_when_non_is_present() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		$shortcode = "[contact-field type='name' required='1' /]";
+		$html = do_shortcode( $shortcode );
+		$this->assertEquals( "[contact-field type=\"name\" required=\"1\" label=\"Name\"/]", $html );
+	}
+
+	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
+		$html = do_shortcode( $shortcode );
+		$this->assertEquals( "[contact-field type=\"select\" required=\"1\" options=\"fun,run\" label=\"fun times\" values=\"go,have some fun\"/]", $html );
+	}
+
+	public function test_make_sure_text_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'text',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+	public function test_make_sure_email_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'email',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'email' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_url_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'url',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_telephone_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'telephone',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_date_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'date',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_textarea_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'textarea',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'textarea' ) );
+		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_checkbox_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'checkbox',
+			'class' => 'lalala',
+			'default' => 'foo',
+			'placeholder' => 'PLACEHOLDTHIS!',
+			'id' => 'funID'
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
+		$this->assertValidCheckboxField( $this->render_field( $attributes ), $expected_attributes );
+	}
+	// Multiple fields
+	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'checkbox-multiple',
+			'class' => 'lalala',
+			'default' => 'option 1',
+			'id' => 'funID',
+			'options' => array( 'option 1', 'option 2' ),
+			'values' => array( 'option 1', 'option 2' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_radio_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'radio',
+			'class' => 'lalala',
+			'default' => 'option 1',
+			'id' => 'funID',
+			'options' => array( 'option 1', 'option 2' ),
+			'values' => array( 'option 1', 'option 2' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_select_field_renders_as_expected() {
+		$attributes = array(
+			'label' => 'fun',
+			'type' => 'select',
+			'class' => 'lalala',
+			'default' => 'option 1',
+			'id' => 'funID',
+			'options' => array( 'option 1', 'option 2' ),
+			'values' => array( 'o1', 'o2' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function render_field( $attributes ) {
+		$form = new Grunion_Contact_Form( array() );
+		$field = new Grunion_Contact_Form_Field( $attributes, '', $form );
+		return $field->render();
+	}
+
+	public function getCommonDiv( $html ) {
+
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
+		return $this->getFirstElement( $doc, 'div' );
+	}
+
+	public function getFirstElement( $dom, $tag, $index = 0) {
+		$elements = $dom->getElementsByTagName( $tag );
+		if ( ! is_array( $elements ) ) {
+			return $elements->item( $index );
+		}
+		return $elements[ $index ];
+	}
+
+	public function assertCommonValidHtml( $wrapperDiv, $attributes ) {
+
+		if ( $attributes['type'] === 'date' ) {
+			$attributes['class'] = 'jp-contact-form-date';
+		}
+		$this->assertEquals(
+			$wrapperDiv->getAttribute( 'class' ),
+			"grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap",
+			'div class attribute doesn\'t match'
+		);
+
+		// Get label
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+
+		$this->assertEquals( trim( $label->nodeValue), $attributes['label'], 'Label is not what we expect it to be...' );
+	}
+
+	public function assertValidField( $html, $attributes ) {
+
+		$wrapperDiv = $this->getCommonDiv( $html );
+		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
+
+		// Get label
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+
+		//Input
+		$input =  (
+			$attributes['type'] === 'textarea'
+			? $this->getFirstElement( $wrapperDiv, 'textarea' )
+			: $this->getFirstElement( $wrapperDiv, 'input' )
+		);
+
+		// label matches for matches input ID
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$input->getAttribute( 'id' ),
+			'label for does not equal input ID!'
+		);
+
+		$this->assertEquals( $input->getAttribute( 'placeholder' ), $attributes['placeholder'], 'Placeholder doesn\'t match' );
+		if ( $attributes['type'] === 'textarea' ) {
+			$this->assertEquals( $input->nodeValue, $attributes['default'], 'value and default doesn\'t match' );
+			$this->assertEquals(
+				$label->getAttribute( 'for' ),
+				'contact-form-comment-' . $input->getAttribute( 'name' )
+				, 'label for doesn\'t match the input name'
+			);
+		} else {
+			$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+			$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
+			// label matches for matches input name
+			$this->assertEquals(
+				$label->getAttribute( 'for' ),
+				$input->getAttribute( 'name' )
+				, 'label for doesn\'t match the input name'
+			);
+		}
+
+		if ( $attributes['type'] === 'date' ) {
+			$this->assertEquals(
+				$input->getAttribute( 'class' ),
+				"{$attributes['type']} jp-contact-form-date",
+				'input class attribute doesn\'t match'
+			);
+		} else {
+			$this->assertEquals(
+				$input->getAttribute( 'class' ),
+				"{$attributes['type']} {$attributes['class']}",
+				'input class attribute doesn\'t match'
+			);
+		}
+
+
+	}
+
+	public function assertValidCheckboxField( $html, $attributes ) {
+
+		$wrapperDiv = $this->getCommonDiv( $html );
+		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
+
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+		$input = $this->getFirstElement( $label, 'input' );
+
+		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label '.$attributes['type'], 'label class doesn\'t match' );
+
+
+		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'value' ), 'Yes', 'Input value doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'type' ), $attributes['type'], 'Input type doesn\'t match' );
+		if ( $attributes['default'] ) {
+			$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+		}
+
+		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' .$attributes['class'], 'Input class doesn\'t match' );
+	}
+
+	public function assertValidFieldMultiField( $html, $attributes ) {
+
+		$wrapperDiv = $this->getCommonDiv( $html );
+		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
+
+		// Get label
+		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+
+		//Inputs
+		if ( $attributes['type'] === 'select' ) {
+			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label select', 'label class doesn\'t match' );
+
+			$select = $this->getFirstElement( $wrapperDiv, 'select' );
+			$this->assertEquals(
+				$label->getAttribute( 'for' ),
+				$select->getAttribute( 'id' ),
+				'label for does not equal input ID!'
+			);
+
+			$this->assertEquals(
+				$label->getAttribute( 'for' ),
+				$select->getAttribute( 'name' ),
+				'label for does not equal input name!'
+			);
+
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select '. $attributes['class'], ' select class does not match expected' );
+
+			// First Option
+			$option = $this->getFirstElement( $select, 'option' );
+			$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][0], 'Input value doesn\'t match' );
+			$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
+			$this->assertEquals( $option->nodeValue, $attributes['options'][0], 'Input does not match the option' );
+
+		} else {
+			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
+			// Radio and Checkboxes
+			$second_label = $this->getFirstElement( $wrapperDiv, 'label', 1 );
+			$this->assertEquals( $second_label->nodeValue, ' ' . $attributes['options'][0] ); // extra space added for a padding
+
+			$input = $this->getFirstElement( $second_label, 'input' );
+			$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+			if (  $attributes['input_type'] === 'radio' ) {
+				$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
+			} else {
+				$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
+			}
+			$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][0], 'Input value doesn\'t match' );
+			$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' '. $attributes['class'], 'Input class doesn\'t match' );
+			$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+		}
 	}
 
 	/**
@@ -536,12 +861,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// sure we don't output anything harmful
 
 		if ( version_compare( $wp_version, '4.9-alpha', '>') ){
-			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]", $html );
+			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]", $html );
 		} else {
-			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
 		}
 	}
-
 
 	/**
 	 * Test get_export_data_for_posts with fully vaid data input.
