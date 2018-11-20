@@ -99,7 +99,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 					<p>
 						{ __( 'Today, we are introducing the first wave of Jetpack-specific blocks built specifically ' +
-							'for the new editor experience: Simple Payment button, Contact form, Maps, and Markdown.'
+							'for the new editor experience: Simple Payment button, Form, Map, and Markdown.'
 						) }
 					</p>
 					<p>
