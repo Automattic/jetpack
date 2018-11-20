@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 	/**
 	 * Prior to updating the post, first calculate which Services to
-	 * Publicze to and which to skip.
+	 * Publicize to and which to skip.
 	 *
 	 * @param object $post Post data to insert/update.
 	 * @param WP_REST_Request $request
