@@ -47,7 +47,6 @@ class Jetbench {
 		$disabled_modules = array();
 
 		foreach ( Jetpack::get_available_modules() as $module ) {
-			error_log("setting status for $module");
 			if ( isset( self::$settings[$module] ) ) {
 				// enable module based on truthiness of configuration value
 				if ( self::$force_module_statuses[$module] = !! self::$settings[$module] ) {
