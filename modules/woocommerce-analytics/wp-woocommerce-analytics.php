@@ -10,7 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once plugin_basename( 'classes/wp-woocommerce-analytics-universal.php' );
-require_once( ABSPATH .'wp-admin/includes/plugin.php' );
 
 /**
  * Class Jetpack_WooCommerce_Analytics
@@ -44,7 +43,7 @@ class Jetpack_WooCommerce_Analytics {
 		 *
 		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
 		 */
-		if ( !is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
 			return false;
 		}
 		// Tracking only Site pages
