@@ -57,7 +57,12 @@ const UpgradeNoticeContent = moduleSettingsForm(
 							'for the new editor experience: payment buttons, contact forms, maps, and markdown.'
 						) }
 					</p>
-					{ /* TODO: Add screen shot */ }
+					<p>
+						<img
+							src={ imagePath + 'block-picker.png' }
+							width="250"
+							alt={ __( 'Jetpack is ready for the new WordPress editor' ) } />
+					</p>
 					<div className="jp-dialogue__cta-container">
 						<Button
 							primary={ true }
@@ -78,7 +83,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			return (
 				// TODO: update SVG?
 				<JetpackDialogue
-					svg={ <img src={ imagePath + 'jetpack-performance.svg' } width="250" alt={ __( "Jetpack's site accelerator" ) } /> }
+					svg={ <img src={ imagePath + 'jetpack-gutenberg.svg' } width="250" alt={ __( 'Jetpack is ready for the new WordPress editor' ) } /> }
 					title={ __( 'New in Jetpack!' ) }
 					content={ this.renderInnerContent() }
 					dismiss={ this.dismissNotice }
