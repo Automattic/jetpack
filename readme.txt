@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* General: improve ability to create and troubleshoot Jetpack connections.
 * REST API: new endpoint for testing the Jetpack connection.
 
 **Improved compatibility**
