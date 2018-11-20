@@ -26,6 +26,8 @@ node_modules
 languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
+modules/calypsoify/*.css.map
+modules/calypsoify/*.scss
 to-test.md
 webpack.config.js
 .editorconfig
