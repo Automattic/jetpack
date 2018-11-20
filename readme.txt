@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Asset CDN: do not try to serve assets from non-public versions.
+* Carousel: handle galleries created via the Gallery block in the new block editor.
 
 
 --------
