@@ -231,7 +231,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			return;
 		}
 
-		$this->memoized_updates[$post->ID] = $this->memoized_updates[0];
+		$this->memoized_updates[ $post->ID ] = $this->memoized_updates[0];
 		unset( $this->memoized_updates[0] );
 	}
 
