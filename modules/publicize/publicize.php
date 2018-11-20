@@ -837,7 +837,31 @@ abstract class Publicize_Base {
 			$args['object_subtype'] = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $args );
+
+			add_filter( 'rest_pre_insert_' . $post_type, array( $this, 'rest_pre_insert' ), 10, 2 );
 		}
+	}
+
+	/**
+	 * Insert the Publicize Message post_meta prior directly in the wp_insert_post() call.
+	 * This ensures the post_meta is set before any wp_insert_post actions.
+	 *
+	 * @param object $post Post data to insert/update.
+	 * @param WP_REST_Request $request
+	 * @return Filtered $post
+	 */
+	function rest_pre_insert( $post, $request ) {
+		if ( ! isset( $request['meta'] ) || ! isset( $request['meta']['jetpack_publicize_message'] ) ) {
+			return $post;
+		}
+
+		if ( ! isset( $post->meta_input ) ) {
+			$post->meta_input = array();
+		}
+
+		$post->meta_input[$this->POST_MESS] = $request['meta']['jetpack_publicize_message'];
+
+		return $post;
 	}
 
 	/**

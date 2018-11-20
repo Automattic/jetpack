@@ -26,6 +26,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	protected $object_type = 'post';
 	protected $field_name  = 'jetpack_publicize_connections';
 
+	public $memoized_updates = array();
+
 	/**
 	 * Registers the jetpack_publicize_connections field. Called
 	 * automatically on `rest_api_init()`.
@@ -39,6 +41,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
 				add_post_type_support( $post_type, 'custom-fields' );
 			}
+
+			add_filter( 'rest_pre_insert_' . $post_type, array( $this, 'rest_pre_insert' ), 10, 2 );
+			add_action( 'rest_insert_' . $post_type, array( $this, 'rest_insert' ), 10, 3 );
 		}
 
 		parent::register_fields();
@@ -128,7 +133,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * @return true|WP_Error
 	 */
 	function get_permission_check( $post_array, $request ) {
-		return $this->permission_check( $post_array['id'] );
+		return $this->permission_check( isset( $post_array['id'] ) ? $post_array['id'] : 0 );
 
 	}
 
@@ -139,7 +144,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * @return true|WP_Error
 	 */
 	public function update_permission_check( $value, $post, $request ) {
-		return $this->permission_check( $post->ID );
+		return $this->permission_check( isset( $post->ID ) ? $post->ID : 0 );
 	}
 
 	/**
@@ -178,17 +183,71 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	}
 
 	/**
-	 * Update the connections slated to be shared to.
+	 * Prior to updating the post, first calculate which Services to
+	 * Publicze to and which to skip.
 	 *
-	 * @param array           $requested_connections
-	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`
-	 * @param WP_Post         $post
-	 * @param WP_REST_Request
+	 * @param object $post Post data to insert/update.
+	 * @param WP_REST_Request $request
+	 * @return Filtered $post
 	 */
-	public function update( $requested_connections, $post, $request ) {
+	public function rest_pre_insert( $post, $request ) {
+		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
+			return $post;
+		}
+
+		$permission_check = $this->update_permission_check( $request['jetpack_publicize_connections'], $post, $request );
+
+		if ( is_wp_error( $permission_check ) ) {
+			return $permission_check;
+		}
+
+		$meta_to_update = $this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
+
+		if ( ! isset( $post->meta_input ) ) {
+			$post->meta_input = array();
+		}
+
+		$post->meta_input = array_merge( $post->meta_input, $meta_to_update );
+
+		return $post;
+	}
+
+	/**
+	 * After creating a new post, update our cached data to reflect
+	 * the new post ID.
+	 *
+	 * @param WP_Post $post
+	 * @param WP_REST_Request $request
+	 * @param bool $is_new
+	 */
+	public function rest_insert( $post, $request, $is_new ) {
+		if ( ! $is_new ) {
+			// An existing post was edited - no need to update
+			// our cache - we started out knowing the correct
+			// post ID.
+			return;
+		}
+
+		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
+			return;
+		}
+
+		if ( ! isset( $this->memoized_updates[0] ) ) {
+			return;
+		}
+
+		$this->memoized_updates[$post->ID] = $this->memoized_updates[0];
+		unset( $this->memoized_updates[0] );
+	}
+
+	protected function get_meta_to_update( $requested_connections, $post_id = 0 ) {
 		global $publicize;
 
-		$available_connections = $publicize->get_filtered_connection_data( $post->ID );
+		if ( isset( $this->memoized_updates[$post_id] ) ) {
+			return $this->memoized_updates[$post_id];
+		}
+
+		$available_connections = $publicize->get_filtered_connection_data( $post_id );
 
 		$changed_connections = array();
 
@@ -244,12 +303,35 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$available_connections_by_unique_id[ $unique_id ]['enabled'] = $enabled;
 		}
 
+		$meta_to_update = array();
 		// For all connections, ensure correct post_meta
 		foreach ( $available_connections_by_unique_id as $unique_id => $available_connection ) {
 			if ( $available_connection['enabled'] ) {
-				delete_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id );
+				$meta_to_update[$publicize->POST_SKIP . $unique_id] = null;
 			} else {
-				update_post_meta( $post->ID, $publicize->POST_SKIP . $unique_id, 1 );
+				$meta_to_update[$publicize->POST_SKIP . $unique_id] = 1;
+			}
+		}
+
+		$this->memoized_updates[$post_id] = $meta_to_update;
+
+		return $meta_to_update;
+	}
+
+	/**
+	 * Update the connections slated to be shared to.
+	 *
+	 * @param array           $requested_connections
+	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`
+	 * @param WP_Post         $post
+	 * @param WP_REST_Request
+	 */
+	public function update( $requested_connections, $post, $request ) {
+		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
+			if ( is_null( $meta_value ) ) {
+				delete_post_meta( $post->ID, $meta_key );
+			} else {
+				update_post_meta( $post->ID, $meta_key, $meta_value );
 			}
 		}
 	}
