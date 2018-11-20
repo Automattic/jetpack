@@ -48,6 +48,10 @@ export function getCurrentVersion( state ) {
 	return get( state.jetpack.initialState, 'currentVersion', '' );
 }
 
+export function getWpCurrentVersion( state ) {
+	return get( state.jetpack.initialState, 'wpCurrentVersion', '' );
+}
+
 export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }

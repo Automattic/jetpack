@@ -42,7 +42,9 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderInnerContent() {
-			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
+			const versionSupportsGutenberg = /(5\.0).*/;
+			const match = this.props.wpVersion.match( versionSupportsGutenberg );
+			const blockEditorUrl = `${ this.props.adminUrl }${ match ? 'post-new.php' : 'update-core.php' }`;
 			return (
 				<div className="jp-upgrade-notice__content">
 					<p>
@@ -109,6 +111,7 @@ JetpackDialogue.propTypes = {
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
 	version: PropTypes.string,
+	wpVersion: PropTypes.string,
 };
 
 export default UpgradeNoticeContent;

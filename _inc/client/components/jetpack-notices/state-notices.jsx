@@ -10,7 +10,7 @@ import SimpleNotice from 'components/notice';
  * Internal dependencies
  */
 
-import { getCurrentVersion } from 'state/initial-state';
+import { getCurrentVersion, getWpCurrentVersion } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -239,6 +239,7 @@ class JetpackStateNotices extends React.Component {
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ match[ '1' ] }
+					wpVersion={ this.props.wpCurrentVersion }
 				/>
 			);
 		}
@@ -274,6 +275,7 @@ export default connect(
 	( state ) => {
 		return {
 			currentVersion: getCurrentVersion( state ),
+			wpCurrentVersion: getWpCurrentVersion( state ),
 			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
