@@ -27,7 +27,14 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 		trackLearnMoreClick = () => {
 			analytics.tracks.recordJetpackClick( {
-				target: 'warm_welcome_learn_more',
+				target: 'warm_welcome_view_editor',
+				version: this.props.version
+			} );
+		};
+
+		trackUpdateClick = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_update_wordpress',
 				version: this.props.version
 			} );
 		};
@@ -41,10 +48,35 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			this.props.dismiss();
 		};
 
-		renderInnerContent() {
+		renderLearnMore = () => {
 			const versionSupportsGutenberg = /(5\.0).*/;
 			const match = this.props.wpVersion.match( versionSupportsGutenberg );
-			const blockEditorUrl = `${ this.props.adminUrl }${ match ? 'post-new.php' : 'update-core.php' }`;
+			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
+			const updateUrl = `${ this.props.adminUrl }update-core.php`;
+
+			if ( match ) {
+				return (
+					<Button
+						primary={ true }
+						href={ blockEditorUrl }
+						onClick={ this.trackLearnMoreClick }
+					>
+						{ __( 'Take me to the new editor' ) }
+					</Button>
+				);
+			}
+			return (
+				<Button
+					primary={ true }
+					href={ updateUrl }
+					onClick={ this.trackUpdateClick }
+				>
+					{ __( 'Update to get the new editor' ) }
+				</Button>
+			);
+		};
+
+		renderInnerContent() {
 			return (
 				<div className="jp-upgrade-notice__content">
 					<p>
@@ -77,13 +109,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 							alt={ __( 'Jetpack is ready for the new WordPress editor' ) } />
 					</p>
 					<div className="jp-dialogue__cta-container">
-						<Button
-							primary={ true }
-							href={ blockEditorUrl }
-							onClick={ this.trackLearnMoreClick }
-						>
-							{ __( 'Take me to the new editor' ) }
-						</Button>
+						{ this.renderLearnMore() }
 						<Button onClick={ this.dismissNotice }>
 							{ __( 'Okay, got it!' ) }
 						</Button>
