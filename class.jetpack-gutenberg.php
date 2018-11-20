@@ -72,6 +72,11 @@ class Jetpack_Gutenberg {
 		self::$blocks_index = apply_filters( 'jetpack_set_available_blocks', array() );
 
 		foreach ( self::$jetpack_blocks as $type => $args ) {
+			if ( 'publicize' === $type ) {
+				// publicize is not actually a block, it's a gutenberg plugin.
+				// We will handle it's registration on the client-side.
+				continue;
+			}
 			if ( isset( $args['availability']['available'] ) && $args['availability']['available'] && in_array( $type, self::$blocks_index ) ) {
 				register_block_type( 'jetpack/' . $type, $args['args'] );
 			}
