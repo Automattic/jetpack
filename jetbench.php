@@ -27,8 +27,6 @@ if ( ! $jetbench_settings ) {
 	return;
 }
 
-error_log(print_r($jetbench_settings,1));
-
 class Jetbench {
 	static $force_module_statuses = array();
 	static $settings;
