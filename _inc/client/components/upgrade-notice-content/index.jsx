@@ -45,7 +45,14 @@ const UpgradeNoticeContent = moduleSettingsForm(
 				<div className="jp-upgrade-notice__content">
 					<p>
 						{ __( 'The features you rely on, adapted for the new WordPress editor.' ) }<br />
-						{ __( 'A new editor? Yes! Learn more.' ) }
+						{ __( 'A new editor? Yes! {{a}}Learn more{{/a}}.',
+							components: {
+								a: <ExternalLink
+									target='_blank' rel='noopener noreferrer'
+									href={'https://jetpack.com/2018/11/17/jetpack-6-8-gutenberg-and-jetpack-together-at-last/'}
+								/>
+							}
+						) }
 					</p>
 
 					<h2>
@@ -54,7 +61,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 					<p>
 						{ __( 'Today, we are introducing the first wave of Jetpack-specific blocks built specifically ' +
-							'for the new editor experience: payment buttons, contact forms, maps, and markdown.'
+							'for the new editor experience: Simple Payment button, Contact form, Maps, and Markdown.'
 						) }
 					</p>
 					<p>
@@ -69,7 +76,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 							href="https://jetpack.com/support/site-accelerator/"
 							onClick={ this.trackLearnMoreClick }
 						>
-							{ __( 'Learn more' ) }
+							{ __( 'Take me to the new editor' ) }
 						</Button>
 						<Button onClick={ this.dismissNotice }>
 							{ __( 'Okay, got it!' ) }
