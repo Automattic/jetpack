@@ -201,13 +201,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			return $permission_check;
 		}
 
-		$meta_to_update = $this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
-
-		if ( ! isset( $post->meta_input ) ) {
-			$post->meta_input = array();
-		}
-
-		$post->meta_input = array_merge( $post->meta_input, $meta_to_update );
+		// memoize
+		$this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
 
 		return $post;
 	}
