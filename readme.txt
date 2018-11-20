@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* This release introduces the first wave of Jetpack blocks built for the new block editor, available in WordPress 5.0.
+
 **Enhancements**
 
 * General: improve ability to create and troubleshoot Jetpack connections.
