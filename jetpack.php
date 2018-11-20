@@ -29,6 +29,8 @@ defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API
 
 defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
 
+defined( 'JETPACK__BENCHMARK_COOKIE' ) or define( 'JETPACK__BENCHMARK_COOKIE', 'jetbench' );
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
@@ -65,6 +67,7 @@ function jetpack_should_use_minified_assets() {
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
+require_once( JETPACK__PLUGIN_DIR . 'jetbench.php'                    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
