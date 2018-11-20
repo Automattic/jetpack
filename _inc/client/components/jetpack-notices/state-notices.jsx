@@ -235,6 +235,7 @@ class JetpackStateNotices extends React.Component {
 		if ( 'modules_activated' === message && match ) {
 			return (
 				<UpgradeNoticeContent
+					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ match[ '1' ] }

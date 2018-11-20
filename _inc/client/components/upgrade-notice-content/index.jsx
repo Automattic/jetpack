@@ -42,6 +42,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderInnerContent() {
+			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
 			return (
 				<div className="jp-upgrade-notice__content">
 					<p>
@@ -76,7 +77,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 					<div className="jp-dialogue__cta-container">
 						<Button
 							primary={ true }
-							href="https://jetpack.com/support/site-accelerator/"
+							href={ blockEditorUrl }
 							onClick={ this.trackLearnMoreClick }
 						>
 							{ __( 'Take me to the new editor' ) }
@@ -104,6 +105,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 );
 
 JetpackDialogue.propTypes = {
+	adminUrl: PropTypes.string,
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
 	version: PropTypes.string,
