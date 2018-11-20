@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
 Stable tag: 6.7
 Requires at least: 4.8
-Tested up to: 4.9
+Tested up to: 5.0
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
@@ -100,68 +100,32 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.7.1 =
+= 6.8 =
 
-* Release date: November 14, 2018
-* Release post: https://wp.me/p1moTy-ceQ
-
-**Improved compatibility**
-
-* Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
-* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
-
-= 6.7 =
-
-* Release date: November 6, 2018
-* Release post: https://wp.me/p1moTy-aEq
+* Release date: November 26, 2018
+* Release post: https://wp.me/p1moTy-cee
 
 **Major Enhancements**
 
-* Site acceleration: new toggle to serve both your images and static files (like CSS and JavaScript) from our CDN.
-* Activity: update Jetpack dashboard to include links to our Activity page, where you can view a record of every change and update on your site.
+* This release introduces the first wave of Jetpack blocks built for the new block editor, available in WordPress 5.0.
 
 **Enhancements**
 
-* Admin page: add site Activity card.
-* Blocks: provide a mechanism so editor blocks can be translated.
-* Blocks: enqueue Jetpack blocks in the block editor when blocks are available.
-* Debug tools: add information about missing XML extension in self-help tools.
-* REST API: introduce endpoint for retrieving related posts of a particular post.
-* Search: add an advanced `excess_boost` param which can be adjusted with filters to fine tune query scoring.
-* Sharing / Publicize: change the icons used in the Jetpack dashboard to clarify where the configuration links lead.
-* Secure Sign On: update wording on admin pages to avoid confusion.
-* Shortcodes: update the Polldaddy shortcode to use the new brand, Crowdsignal.
-* Sitemaps: coding standards changes.
-* Site Verification Tools: improve display of the tool's description on mobile devices.
-* Unit Tests: improve process for faster tests.
+* General: improve ability to create and troubleshoot Jetpack connections.
+* REST API: new endpoint for testing the Jetpack connection.
 
 **Improved compatibility**
 
-* Themes: ensure compatibility between Jetpack features and the new WordPress default theme, Twenty Nineteen.
-* AMP: add support for GitHub's Gist shortcodes.
-* PHP 7.3: update Infinite Scroll to avoid PHP warnings when using the latest version of PHP.
-* Protect: fix output of Protect's Math challenge on login forms created by third-party plugins.
-* Plugins: add a WordPress.com themed plugins page for users managing their plugins via the WordPress.com interface.
-* Site Verification Tools: do not enable Google's Auto-verification option when a site using a maintenance / coming soon plugin.
+* Akismet: improve caching of all queries for Akismet status.
+* Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
+* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
 
 **Bug fixes**
 
-* Blocks: update the VR block to be fully compatible with the latest version of WordPress and Gutenberg.
-* Comment Likes: only prefetch domains used by the feature.
-* CSS Concatenation: make sure all concatenated CSS is up to date.
-* Featured Content: no longer hides the "featured" tag from the WordPress.com Editor or the mobile apps.
-* Geolocation: avoid a PHP notice when setting location for a post in the WordPress.com post editor.
-* Likes: ensure that the Likes column is accessible.
-* REST API: Ensure only strings as escaped as URLs.
-* Search: avoid PHP warning with Search widget.
-* Sharing: improve accessibility of email sharing button.
-* Simple Payments / Widget Visibility: avoid potential Fatal errors on some specific server configurations when updating Jetpack.
-* Sitemaps: remove double encoding of site name in news sitemap.
-* Sitemaps: ensure homepage is only included once.
-* Sitemaps: provide richer "not found" message to site admins.
-* Sitemaps: ensure sitemap is refreshed faster after upgrading Jetpack.
-* Sitemaps: avoid protocol mismatches between the sitemaps and the site.
-* Site Verification Tools: make sure we validate meta tags when saving.
+* Asset CDN: do not try to serve assets from non-public versions.
+* Carousel: handle galleries created via the Gallery block in the new block editor.
+* Photon: make sure our image CDN is fully compatible with the block editor.
+
 
 --------
 
