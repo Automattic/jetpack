@@ -2216,7 +2216,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			case 'email':
 				return __( 'Email', 'jetpack' );
 			case 'url':
-				return __( 'Url', 'jetpack' );
+				return __( 'Website', 'jetpack' );
 			case 'date':
 				return __( 'Date', 'jetpack' );
 			case 'telephone':
