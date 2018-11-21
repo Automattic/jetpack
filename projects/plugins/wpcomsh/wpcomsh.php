@@ -209,7 +209,7 @@ function wpcomsh_is_managed_plugin( $plugin_file ) {
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		if ( class_exists( 'Atomic_Mu_Plugin' ) ) {
-			return (new Atomic_Mu_Plugin)->is_managed_plugin( $plugin_file );
+			return ( new Atomic_Mu_Plugin )->is_managed_plugin( $plugin_file );
 		}
 	}
 
