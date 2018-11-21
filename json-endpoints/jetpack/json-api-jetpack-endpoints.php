@@ -956,6 +956,35 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 
 //	BACKUPS
 
+// GET /sites/%s/database-object/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-database-object-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a database object, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/database-object/backup',
+	'stat'           => 'database-objects:1:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'query_parameters' => array(
+		'object_type' => '(string) Type of object to fetch from the database',
+		'object_id'   => '(int) ID of the database object to fetch',
+	),
+	'response_format' => array(
+		'object'   => '(array) Database object row',
+		'meta'     => '(array) Associative array of key/value metadata associated with the row',
+		'children' => '(array) Where appropriate, child records associated with the object. eg: Woocommerce tax rate locations',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/database-object/backup'
+) );
+
 // GET /sites/%s/comments/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
