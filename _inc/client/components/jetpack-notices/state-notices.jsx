@@ -229,10 +229,10 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for upgraded Jetpack
-		const currentVersion = this.props.currentVersion;
+		const { currentVersion, gutenbergAvailable } = this.props;
 		const versionForUpgradeNotice = /(6\.8).*/;
 		const match = currentVersion.match( versionForUpgradeNotice );
-		if ( 'modules_activated' === message && match && true === isGutenbergAvailable ) {
+		if ( 'modules_activated' === message && match && gutenbergAvailable ) {
 			return (
 				<UpgradeNoticeContent
 					adminUrl={ this.props.adminUrl }
@@ -274,7 +274,7 @@ export default connect(
 	( state ) => {
 		return {
 			currentVersion: getCurrentVersion( state ),
-			isGutenbergAvailable: isGutenbergAvailable( state ),
+			gutenbergAvailable: isGutenbergAvailable( state ),
 			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),

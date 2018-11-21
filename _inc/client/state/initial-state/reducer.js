@@ -73,7 +73,7 @@ export function isSitePublic( state ) {
 }
 
 export function isGutenbergAvailable( state ) {
-	return get( state.jetpack.initialState, 'is_gutenberg_available', '' );
+	return get( state.jetpack.initialState, 'is_gutenberg_available', false );
 }
 
 export function userIsSubscriber( state ) {
