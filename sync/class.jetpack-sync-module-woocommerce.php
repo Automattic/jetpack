@@ -44,6 +44,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
@@ -137,6 +138,10 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 	public function add_woocommerce_post_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_post_meta_whitelist );
+	}
+
+	public function add_woocommerce_comment_meta_whitelist( $list ) {
+		return array_merge( $list, self::$wc_comment_meta_whitelist );
 	}
 
 	private static $wc_options_whitelist = array(
@@ -298,5 +303,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_order_version',
 		'_prices_include_tax',
 		'_payment_tokens',
+	);
+
+	private static $wc_comment_meta_whitelist = array(
+		'rating',
 	);
 }

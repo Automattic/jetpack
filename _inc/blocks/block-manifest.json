@@ -1,0 +1,13 @@
+{
+  "blocks": [
+    "contact-form",
+    "map",
+    "markdown",
+    "publicize",
+    "simple-payments"
+  ],
+  "betaBlocks": [
+    "related-posts",
+    "vr"
+  ]
+}

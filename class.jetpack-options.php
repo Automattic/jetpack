@@ -55,6 +55,7 @@ class Jetpack_Options {
 				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
 				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
+				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
 			);
 
 		case 'private' :

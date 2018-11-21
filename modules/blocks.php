@@ -23,6 +23,7 @@ jetpack_register_block(
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
 	$dependencies = array(
+		'lodash',
 		'wp-element',
 		'wp-i18n',
 		'wp-api-fetch',

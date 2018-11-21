@@ -99,9 +99,9 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For WPCOM sites
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_blog_sticker' ) ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 			$site_id = $this->get_blog_id();
-			return has_blog_sticker( 'premium-plan', $site_id ) || has_blog_sticker( 'business-plan', $site_id );
+			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
 		// For all Jetpack sites

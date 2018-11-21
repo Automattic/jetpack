@@ -77,6 +77,7 @@ class Jetpack_Carousel {
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
+			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
@@ -196,6 +197,14 @@ class Jetpack_Carousel {
 		$this->enqueue_assets();
 
 		return $output;
+	}
+
+	function check_content_for_blocks( $content ) {
+		if ( function_exists( 'has_block' ) && has_block( 'gallery', $content ) ) {
+			$this->enqueue_assets();
+			$content = $this->add_data_to_container( $content );
+		}
+		return $content;
 	}
 
 	function enqueue_assets() {
@@ -493,6 +502,7 @@ class Jetpack_Carousel {
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
 			foreach ( (array) $extra_data as $data_key => $data_values ) {
 				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' ", $html );
+				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
 			}
 		}
 

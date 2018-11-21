@@ -72,6 +72,11 @@ class Jetpack_Gutenberg {
 		self::$blocks_index = apply_filters( 'jetpack_set_available_blocks', array() );
 
 		foreach ( self::$jetpack_blocks as $type => $args ) {
+			if ( 'publicize' === $type ) {
+				// publicize is not actually a block, it's a gutenberg plugin.
+				// We will handle it's registration on the client-side.
+				continue;
+			}
 			if ( isset( $args['availability']['available'] ) && $args['availability']['available'] && in_array( $type, self::$blocks_index ) ) {
 				register_block_type( 'jetpack/' . $type, $args['args'] );
 			}
@@ -102,7 +107,8 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the contents of `_inc/blocks/blocks-manifest.json`
+	 * using the merged contents of `_inc/blocks/blocks-manifest.json` ( $preset_blocks )
+	 * and self::$jetpack_blocks ( $internal_blocks )
 	 *
 	 * @param $blocks The default list.
 	 *
@@ -111,12 +117,14 @@ class Jetpack_Gutenberg {
 	public static function jetpack_set_available_blocks( $blocks ) {
 		$preset_blocks_manifest =  self::preset_exists( 'block-manifest' ) ? self::get_preset( 'block-manifest' ) : (object) array( 'blocks' => $blocks );
 		$preset_blocks = isset( $preset_blocks_manifest->blocks ) ? (array) $preset_blocks_manifest->blocks : array() ;
+		$internal_blocks = array_keys( self::$jetpack_blocks );
+
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_blocks = isset( $preset_blocks_manifest->betaBlocks ) ? (array) $preset_blocks_manifest->betaBlocks : array();
-			return array_merge( $preset_blocks, $beta_blocks );
+			return array_unique( array_merge( $preset_blocks, $beta_blocks, $internal_blocks ) );
 		}
 
-		return $preset_blocks;
+		return array_unique( array_merge( $preset_blocks, $internal_blocks ) );
 	}
 
 	/**
@@ -202,12 +210,17 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
 		$type = sanitize_title_with_dashes( $type );
 		// Enqueue styles.
 		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
-			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_DIR );
+			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 
@@ -218,6 +231,12 @@ class Jetpack_Gutenberg {
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
 		}
+
+		wp_localize_script(
+			'jetpack-block-' . $type,
+			'Jetpack_Block_Assets_Base_Url',
+			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+		);
 	}
 
 	/**
@@ -309,5 +328,9 @@ class Jetpack_Gutenberg {
 		Jetpack::setup_wp_i18n_locale_data();
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+
+		// The social-logos styles are used for Publicize service icons
+		// TODO: Remove when we ship the icons with the Gutenberg blocks build
+		wp_enqueue_style( 'social-logos' );
 	}
 }
