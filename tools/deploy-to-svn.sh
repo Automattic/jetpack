@@ -59,8 +59,8 @@ for file in $(find $JETPACK_SVN_DIR/trunk/* -not -path "*.svn*"); do
 done
 echo "Done!"
 
-echo "Rsync'ing everything over from Git except for .git stuffs"
-rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
+echo "Rsync'ing everything over from Git except for .git stuffs and stuff in .svnignore"
+rsync -r --exclude-from "$JETPACK_GIT_DIR/.svnignore" $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
 echo "Done!"
 
 echo "Purging .po files"
