@@ -10,7 +10,7 @@ import SimpleNotice from 'components/notice';
  * Internal dependencies
  */
 
-import { getCurrentVersion } from 'state/initial-state';
+import { getCurrentVersion, getWpCurrentVersion } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -230,14 +230,16 @@ class JetpackStateNotices extends React.Component {
 
 		// Show custom message for upgraded Jetpack
 		const currentVersion = this.props.currentVersion;
-		const versionForUpgradeNotice = /(6\.7).*/;
+		const versionForUpgradeNotice = /(6\.8).*/;
 		const match = currentVersion.match( versionForUpgradeNotice );
 		if ( 'modules_activated' === message && match ) {
 			return (
 				<UpgradeNoticeContent
+					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ match[ '1' ] }
+					wpVersion={ this.props.wpCurrentVersion }
 				/>
 			);
 		}
@@ -273,6 +275,7 @@ export default connect(
 	( state ) => {
 		return {
 			currentVersion: getCurrentVersion( state ),
+			wpCurrentVersion: getWpCurrentVersion( state ),
 			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
