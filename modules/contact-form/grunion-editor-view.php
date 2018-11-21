@@ -106,7 +106,7 @@ class Grunion_Editor_View {
 	public static function editor_view_js_templates() {
 		?>
 <script type="text/html" id="tmpl-grunion-contact-form">
-	<form class="card" action='#' method='post' class='contact-form commentsblock' onsubmit="return false;">
+	<form class="card jetpack-contact-form-shortcode-preview" action='#' method='post' class='contact-form commentsblock' onsubmit="return false;">
 		{{{ data.body }}}
 		<p class='contact-submit'>
 			<input type='submit' value='{{ data.submit_button_text }}' class='pushbutton-wide'/>
