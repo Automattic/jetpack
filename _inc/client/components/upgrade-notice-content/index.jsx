@@ -49,12 +49,11 @@ const UpgradeNoticeContent = moduleSettingsForm(
 		};
 
 		renderLearnMore = () => {
-			const versionSupportsGutenberg = /(5\.0).*/;
-			const match = this.props.wpVersion.match( versionSupportsGutenberg );
+			const { isGutenbergAvailable } = this.props;
 			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
 			const updateUrl = `${ this.props.adminUrl }update-core.php`;
 
-			if ( match ) {
+			if ( isGutenbergAvailable ) {
 				return (
 					<Button
 						primary={ true }
@@ -137,7 +136,7 @@ JetpackDialogue.propTypes = {
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
 	version: PropTypes.string,
-	wpVersion: PropTypes.string,
+	isGutenbergAvailable: PropTypes.bool,
 };
 
 export default UpgradeNoticeContent;

@@ -48,10 +48,6 @@ export function getCurrentVersion( state ) {
 	return get( state.jetpack.initialState, 'currentVersion', '' );
 }
 
-export function getWpCurrentVersion( state ) {
-	return get( state.jetpack.initialState, 'wpCurrentVersion', '' );
-}
-
 export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
@@ -74,6 +70,10 @@ export function getSiteAdminUrl( state ) {
 
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
+}
+
+export function isGutenbergAvailable( state ) {
+	return get( state.jetpack.initialState, 'is_gutenberg_available', '' );
 }
 
 export function userIsSubscriber( state ) {
