@@ -55,12 +55,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
-const WPCOMSH_MANAGED_PLUGINS_FILENAME = [
-	'jetpack/jetpack.php',
-	'akismet/akismet.php',
-	'vaultpress/vaultpress.php',
-];
-
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
 		// "reset" - break/interfere with provided functionality
@@ -214,7 +208,9 @@ function wpcomsh_is_managed_plugin( $plugin_file ) {
 	}
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		return in_array( $plugin_file, WPCOMSH_MANAGED_PLUGINS_FILENAME );
+		if ( class_exists( 'Atomic_Mu_Plugin' ) ) {
+			return ( new Atomic_Mu_Plugin )->is_managed_plugin( $plugin_file );
+		}
 	}
 
 	return false;
