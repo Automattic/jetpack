@@ -232,14 +232,13 @@ class JetpackStateNotices extends React.Component {
 		const currentVersion = this.props.currentVersion;
 		const versionForUpgradeNotice = /(6\.8).*/;
 		const match = currentVersion.match( versionForUpgradeNotice );
-		if ( 'modules_activated' === message && match ) {
+		if ( 'modules_activated' === message && match && true === isGutenbergAvailable ) {
 			return (
 				<UpgradeNoticeContent
 					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ match[ '1' ] }
-					isGutenbergAvailable={ this.props.isGutenbergAvailable }
 				/>
 			);
 		}
