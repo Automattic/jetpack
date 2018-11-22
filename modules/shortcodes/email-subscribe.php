@@ -58,9 +58,46 @@ class Jetpack_Email_Subscribe {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	private function register_gutenberg_block() {
+		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
+			// If I use `jetpack_register_block`, `ServerSideRender` component does not render this in UI.
+			register_block_type( 'jetpack/email-subscribe', array(
+				'attributes' => array(
+					'title' => array(
+						'type' => 'string',
+					),
+					'email_placeholder' => array(
+						'type' => 'string',
+					),
+					'submit_label' => array(
+						'type' => 'string',
+					),
+					'consent_text' => array(
+						'type' => 'string',
+					),
+					'processing_label' => array(
+						'type' => 'string',
+					),
+					'success_label' => array(
+						'type' => 'string',
+					),
+					'error_label' => array(
+						'type' => 'string',
+					),
+					'className' => array(
+						'type' => 'string',
+					),
+				),
+				'style' => 'jetpack-email-subscribe',
+				'render_callback' => array( $this, 'parse_shortcode' ),
+			) );
+		}
+	}
+
 	public function init_hook_action() {
 		$this->register_scripts_and_styles();
 		$this->register_shortcode();
+		$this->register_gutenberg_block();
 	}
 
 	private function get_blog_id() {
@@ -74,6 +111,7 @@ class Jetpack_Email_Subscribe {
 
 	public function parse_shortcode( $attrs ) {
 		// We allow for overriding the presentation labels.
+
 		$data = shortcode_atts(
 			array(
 				'blog_id'           => $this->get_blog_id(),
@@ -87,7 +125,7 @@ class Jetpack_Email_Subscribe {
 				'classname'         => self::$css_classname_prefix,
 				'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
 			),
-			$attrs
+			array_filter( $attrs )
 		);
 
 		if ( ! wp_script_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
