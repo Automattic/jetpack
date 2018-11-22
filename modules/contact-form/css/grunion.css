@@ -2,6 +2,16 @@
 	clear: both;
 }
 
+.contact-form input::placeholder {
+	transition: opacity .3s ease-out;
+}
+.contact-form input:hover::placeholder {
+	opacity: 0.5;
+}
+.contact-form input:focus::placeholder {
+	opacity: 0.3;
+}
+
 .contact-form input[type='text'],
 .contact-form input[type='email'],
 .contact-form input[type='url'] {
