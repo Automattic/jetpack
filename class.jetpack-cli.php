@@ -35,10 +35,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
 
-		//if ( ! Jetpack::is_active() ) {
-		//	WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
-		//}
-
 		if ( isset( $args[0] ) && 'full' !== $args[0] ) {
 			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $args[0] ) );
