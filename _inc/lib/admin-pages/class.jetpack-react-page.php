@@ -252,7 +252,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
-			'wpCurrentVersion' => $GLOBALS['wp_version'],
+			'is_gutenberg_available' => Jetpack_Gutenberg::is_gutenberg_available(),
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),

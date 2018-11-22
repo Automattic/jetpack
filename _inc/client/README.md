@@ -96,7 +96,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getApiRootUrl( state )**
 * **getConnectUrl( state )**
 * **getCurrentVersion( state )**
-* **getWpCurrentVersion( state )**
 * **getInitialStateStatsData( state )**
 * **getJetpackNotices( state )**
 * **getJetpackStateNoticesErrorCode( state )**
@@ -126,6 +125,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUserWpComEmail( state )**
 * **getUserWpComLogin( state )**
 * **getUsername( state )**
+* **isGutenbergAvailable( state )**
 
 ### Available action creators (thunks)
 
