@@ -32,13 +32,6 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			} );
 		};
 
-		trackUpdateClick = () => {
-			analytics.tracks.recordJetpackClick( {
-				target: 'warm_welcome_update_wordpress',
-				version: this.props.version
-			} );
-		};
-
 		dismissNotice = () => {
 			analytics.tracks.recordJetpackClick( {
 				target: 'warm_welcome_dismiss',
@@ -48,35 +41,8 @@ const UpgradeNoticeContent = moduleSettingsForm(
 			this.props.dismiss();
 		};
 
-		renderLearnMore = () => {
-			const versionSupportsGutenberg = /(5\.0).*/;
-			const match = this.props.wpVersion.match( versionSupportsGutenberg );
-			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
-			const updateUrl = `${ this.props.adminUrl }update-core.php`;
-
-			if ( match ) {
-				return (
-					<Button
-						primary={ true }
-						href={ blockEditorUrl }
-						onClick={ this.trackLearnMoreClick }
-					>
-						{ __( 'Take me to the new editor' ) }
-					</Button>
-				);
-			}
-			return (
-				<Button
-					primary={ true }
-					href={ updateUrl }
-					onClick={ this.trackUpdateClick }
-				>
-					{ __( 'Update to get the new editor' ) }
-				</Button>
-			);
-		};
-
 		renderInnerContent() {
+			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
 			return (
 				<div className="jp-upgrade-notice__content">
 					<p>
@@ -109,7 +75,13 @@ const UpgradeNoticeContent = moduleSettingsForm(
 							alt={ __( 'Jetpack is ready for the new WordPress editor' ) } />
 					</p>
 					<div className="jp-dialogue__cta-container">
-						{ this.renderLearnMore() }
+						<Button
+							primary={ true }
+							href={ blockEditorUrl }
+							onClick={ this.trackLearnMoreClick }
+						>
+							{ __( 'Take me to the new editor' ) }
+						</Button>
 						<Button onClick={ this.dismissNotice }>
 							{ __( 'Okay, got it!' ) }
 						</Button>
@@ -137,7 +109,6 @@ JetpackDialogue.propTypes = {
 	dismiss: PropTypes.func,
 	isUnavailableInDevMode: PropTypes.func,
 	version: PropTypes.string,
-	wpVersion: PropTypes.string,
 };
 
 export default UpgradeNoticeContent;
