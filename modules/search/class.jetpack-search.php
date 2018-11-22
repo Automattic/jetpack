@@ -1610,7 +1610,20 @@ class Jetpack_Search {
 			} // End foreach().
 		} // End foreach().
 
-		return $aggregation_data;
+		/**
+		 * Modify the aggregation filters returned by get_filters().
+		 *
+		 * Useful if you are setting custom filters outside of the supported filters (taxonomy, post_type etc.) and
+		 * want to hook them up so they're returned when you call `get_filters()`.
+		 *
+		 * @module search
+		 *
+		 * @since  6.9.0
+		 *
+		 * @param array    $aggregation_data The array of filters keyed on label.
+		 * @param WP_Query $query            The WP_Query object.
+		 */
+		return apply_filters( 'jetpack_search_get_filters', $aggregation_data, $query );
 	}
 
 	/**
