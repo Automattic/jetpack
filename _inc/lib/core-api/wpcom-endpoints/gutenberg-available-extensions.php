@@ -1,9 +1,18 @@
 <?php
 
 /*
- * Plugin Name: Available Gutenberg Extensions (Blocks and Plugins) for wpcom/v2 WP-API
+ * Gutenberg: List Available Gutenberg Extensions (Blocks and Plugins)
+ *
+ * [
+ *   { # Availabilty Object. See schema for more detail.
+ *     available:          (boolean) Whether the extension is available
+ *     unavailable_reason: (string)  Human readable reason for the extension not being available
+ *   },
+ *   ...
+ * ]
+ *
+ * @since 6.9
  */
-
 class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_Controller {
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
@@ -39,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 					'type'        => 'boolean',
 				),
 				'unavailable_reason' => array(
-					'description' => __( 'Human readable reason for the extensiongutenberg/available-extensions not being available', 'jetpack' ),
+					'description' => __( 'Human readable reason for the extension not being available', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),
@@ -51,10 +60,10 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 	/**
 	 * Ensure the user has proper permissions
 	 *
-	 * @return WP_Error|boolean
+	 * @return boolean
 	 */
 	public function get_items_permission_check() {
-		return current_user_can( 'edit_posts' );
+		return current_user_can( 'jetpack_manage_modules' );
 	}
 }
 
