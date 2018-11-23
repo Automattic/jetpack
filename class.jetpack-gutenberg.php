@@ -1,7 +1,7 @@
 <?php
 /**
  * Handles server-side registration and use of all blocks available in Jetpack for the block editor, aka Gutenberg.
- * Works in tandem with client-side block registration via `_inc/blocks/block-manifest.json`
+ * Works in tandem with client-side block registration via `block-manifest.json`
  *
  * @package Jetpack
  */
@@ -84,30 +84,39 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Checks for a given .json file in the `_inc/blocks` folder.
+	 * Return the Gutenberg extensions (blocks and plugins) directory
+	 *
+	 * @return string The Gutenberg extensions directory
+	 */
+	public static function get_blocks_directory() {
+		return '_inc/blocks/';
+	}
+
+	/**
+	 * Checks for a given .json file in the blocks folder.
 	 *
 	 * @param $preset The name of the .json file to look for.
 	 *
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
-		return file_exists( JETPACK__PLUGIN_DIR . '/_inc/blocks/' . $preset . '.json' );
+		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
 	}
 
 	/**
-	 * Decodes JSON loaded from a preset file in `_inc/blocks`
+	 * Decodes JSON loaded from a preset file in the blocks folder
 	 *
 	 * @param $preset The name of the .json file to load.
 	 *
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
 	public static function get_preset( $preset ) {
-		return json_decode( file_get_contents(  JETPACK__PLUGIN_DIR . '/_inc/blocks/' . $preset . '.json' ) );
+		return json_decode( file_get_contents(  JETPACK__PLUGIN_DIR .self::get_blocks_directory() . $preset . '.json' ) );
 	}
 
 	/**
 	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the merged contents of `_inc/blocks/blocks-manifest.json` ( $preset_blocks )
+	 * using the merged contents of `blocks-manifest.json` ( $preset_blocks )
 	 * and self::$jetpack_blocks ( $internal_blocks )
 	 *
 	 * @param $blocks The default list.
@@ -217,7 +226,7 @@ class Jetpack_Gutenberg {
 
 		$type = sanitize_title_with_dashes( $type );
 		// Enqueue styles.
-		$style_relative_path = '_inc/blocks/' . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
@@ -225,7 +234,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue script.
-		$script_relative_path = '_inc/blocks/' . $type . '/view.js';
+		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
@@ -235,7 +244,7 @@ class Jetpack_Gutenberg {
 		wp_localize_script(
 			'jetpack-block-' . $type,
 			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+			plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE )
 		);
 	}
 
@@ -277,12 +286,13 @@ class Jetpack_Gutenberg {
 
 		$rtl = is_rtl() ? '.rtl' : '';
 		$beta = Jetpack_Constants::is_true('JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
+		$blocks_dir = self::get_blocks_directory();
 
-		$editor_script = plugins_url( "_inc/blocks/editor{$beta}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "_inc/blocks/editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
-		$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+		$version       = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
+			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			: JETPACK__VERSION;
 
 		wp_enqueue_script(
@@ -313,7 +323,7 @@ class Jetpack_Gutenberg {
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( '_inc/blocks/', JETPACK__PLUGIN_FILE )
+			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
 		);
 
 		wp_localize_script(
