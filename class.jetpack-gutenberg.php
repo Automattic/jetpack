@@ -89,7 +89,7 @@ class Jetpack_Gutenberg {
 	 * @return string The Gutenberg extensions directory
 	 */
 	public static function get_blocks_directory() {
-		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+		if ( apply_filters( 'jetpack_blocks_load_staging', false ) ) {
 			return '_inc/blocks-staging/';
 		}
 		return '_inc/blocks/';
