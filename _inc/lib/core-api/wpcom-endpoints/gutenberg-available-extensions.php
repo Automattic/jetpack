@@ -5,14 +5,6 @@
  */
 
 class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_Controller {
-	/**
-	 * Flag to help WordPress.com decide where it should look for
-	 * extenstion availability data. Ignored for direct requests to Jetpack sites.
-	 *
-	 * @var bool $wpcom_is_wpcom_only_endpoint
-	 */
-	public $wpcom_is_wpcom_only_endpoint = true;
-
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'gutenberg/available-extensions';
