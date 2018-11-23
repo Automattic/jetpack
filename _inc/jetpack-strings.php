@@ -232,17 +232,6 @@ __( "Welcome to Jetpack Professional", "jetpack" ), // _inc/client/plans/plan-he
 __( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:124
 __( "Your site is on Development Mode", "jetpack" ), // _inc/client/plans/plan-header.jsx:137
 __( "Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support.", "jetpack" ), // _inc/client/plans/plan-header.jsx:138
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
-_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
-_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
-_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:95
-_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:97
-_x( "Upgrade", "Caption for a button to purchase a pro plan.", "jetpack" ), // _inc/client/pro-status/index.jsx:103
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:108
-_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:112
-__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:118
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:122
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:155
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:61
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:62
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:63
@@ -255,6 +244,17 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:131
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:144
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:158
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
+_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
+_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
+_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:95
+_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:97
+_x( "Upgrade", "Caption for a button to purchase a pro plan.", "jetpack" ), // _inc/client/pro-status/index.jsx:103
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:108
+_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:112
+__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:118
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:122
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:155
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:75
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:93
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -694,16 +694,15 @@ __( "{{p}}To create a beautiful site that looks and works exactly how you want i
 __( "{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:71
 __( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:87
 __( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:93
-__( "Take me to the new editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:64
-__( "Update to get the new editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:74
-__( "The features you rely on, adapted for the new WordPress editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:83
-__( "A new editor? Yes! {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:85
-__( "Build your Jetpack site with blocks", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:97
-__( "Today, we are introducing the first wave of Jetpack-specific blocks built specifically for the new editor experience: Simple Payment button, Form, Map, and Markdown.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:101
-__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:109
-__( "Okay, got it!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:114
-__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:125
-__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:126
+__( "The features you rely on, adapted for the new WordPress editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:49
+__( "A new editor? Yes! {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:51
+__( "Build your Jetpack site with blocks", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:63
+__( "Today, we are introducing the first wave of Jetpack-specific blocks built specifically for the new editor experience: Simple Payment button, Form, Map, and Markdown.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:67
+__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:75
+__( "Take me to the new editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:83
+__( "Okay, got it!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:86
+__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:97
+__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:98
 __( "Security", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:16
 __( "Your Jetpack plan gives you everything you need to keep your hard work safe, including on-demand backups and malware scans with one-click restores and issue resolution. Your site will be fully protected against spam, malicious code, and brute force login attempts.", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:18
 __( "Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and scanning for security threats.", "jetpack" ), // _inc/client/components/welcome-new-plan/personal.jsx:29
