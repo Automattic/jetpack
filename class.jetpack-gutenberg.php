@@ -89,10 +89,14 @@ class Jetpack_Gutenberg {
 	 * @return string The Gutenberg extensions directory
 	 */
 	public static function get_blocks_directory() {
-		if ( apply_filters( 'jetpack_blocks_load_staging', false ) ) {
-			return '_inc/blocks-staging/';
-		}
-		return '_inc/blocks/';
+		/**
+		 * Filter to select Gutenberg blocks directory
+		 *
+		 * @since 6.9
+		 *
+		 * @param string default: '_inc/blocks/'
+		 */
+		return apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
 	}
 
 	/**
