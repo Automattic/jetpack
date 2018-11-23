@@ -21,14 +21,4 @@ li.toplevel_page_jetpack .wp-menu-image:before {
   content: '\f100';
 }
 
-#menu-posts-feedback .wp-menu-image:before {
-  font-family: dashicons !important;
-  content: '\f175';
-}
-
-#adminmenu #menu-posts-feedback div.wp-menu-image {
-  background: none !important;
-  background-repeat: no-repeat;
-}
-
 /*# sourceMappingURL=jetpack-icons.css.map */

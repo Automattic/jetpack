@@ -119,6 +119,7 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+		add_action( 'init', array( $this, 'register_gutenberg_extension' ), 30 );
 	}
 
 /*
@@ -773,6 +774,15 @@ abstract class Publicize_Base {
 	 */
 	function add_post_type_support() {
 		add_post_type_support( 'post', 'publicize' );
+	}
+
+	/**
+	 * Register the Publicize Gutenberg extension
+	 */
+	function register_gutenberg_extension() {
+		// TODO: Not really a block. The underlying logic doesn't care, so we should rename to
+		// `jetpack_register_gutenberg_extension()` (to account for both Gutenblocks and Gutenplugins).
+		jetpack_register_block( 'publicize' );
 	}
 
 	/**
