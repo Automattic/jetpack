@@ -6,7 +6,7 @@
  * [
  *   { # Availabilty Object. See schema for more detail.
  *     available:          (boolean) Whether the extension is available
- *     unavailable_reason: (string)  Human readable reason for the extension not being available
+ *     unavailable_reason: (string)  Reason for the extension not being available
  *   },
  *   ...
  * ]
