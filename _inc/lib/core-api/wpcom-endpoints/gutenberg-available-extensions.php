@@ -48,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 					'type'        => 'boolean',
 				),
 				'unavailable_reason' => array(
-					'description' => __( 'Human readable reason for the extension not being available', 'jetpack' ),
+					'description' => __( 'Reason for the extension not being available', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),
