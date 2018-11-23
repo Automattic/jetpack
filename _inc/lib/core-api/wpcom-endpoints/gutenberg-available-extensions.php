@@ -63,7 +63,7 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 	 * @return boolean
 	 */
 	public function get_items_permission_check() {
-		return current_user_can( 'jetpack_manage_modules' );
+		return current_user_can( 'edit_posts' );
 	}
 }
 
