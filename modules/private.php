@@ -27,6 +27,7 @@ class Jetpack_Private {
 		add_action( 'wp_head', array( __CLASS__, 'private_no_pinning' ) );
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'disable_rest_api' ) );
+		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 	}
 
 	/**
@@ -265,6 +266,23 @@ class Jetpack_Private {
 		}
 
 		die( __( 'This site is private.', 'jetpack' ) );
+	}
+
+	static function module_override( $modules ) {
+		$disabled_modules = array(
+			'publicize',
+			'sharedaddy',
+			'subscriptions',
+		);
+
+		foreach ( $disabled_modules as $module_slug ) {
+			$found = array_search( $module_slug, $modules );
+			if ( false !== $found ) {
+				unset( $modules[ $found ] );
+			}
+		}
+
+		return $modules;
 	}
 }
 
