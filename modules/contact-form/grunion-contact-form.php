@@ -2153,7 +2153,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
 				$attributes['label'] = self::get_default_label_from_type( $type );
 			}
-			foreach ( $attributes as $att => $val ) {
+			foreach ( (array) $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = esc_html( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
