@@ -28,6 +28,7 @@ class Jetpack_Private {
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
+		add_action( 'pre_update_option_blog_public', array( __CLASS__, 'prevent_update_option_blog_public' ) );
 	}
 
 	/**
@@ -283,6 +284,14 @@ class Jetpack_Private {
 		}
 
 		return $modules;
+	}
+
+	/**
+	 * Prevent changes to the blog_public option when the module is enabled
+	 */
+	static function prevent_update_option_blog_public() {
+		add_settings_error( 'general', 'setting_not_updated', __( "Can't update this setting —	 it's being mananged by Jetpack.", 'jetpack' ), 'error' );
+		return -1;
 	}
 }
 
