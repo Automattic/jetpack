@@ -59,7 +59,7 @@ export class Masthead extends React.Component {
 					tabIndex={ 0 }
 					title={ `Sandboxing via ${ this.props.sandboxDomain }. Click to test connection.` }>API Sandboxed</code>
 				: '',
-			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/plans' ], this.props.route.path ),
+			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/my-plan', '/plans' ], this.props.route.path ),
 			isStatic = '' === this.props.route.path;
 
 		return (
