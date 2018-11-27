@@ -45,14 +45,16 @@ class WelcomePremium extends Component {
 	renderInnerContent() {
 		return (
 			<div>
-				<Button onClick={ this.clickCtaDismissGetStarted }>
-					{ __( 'Get started' ) }
-				</Button>
 				<p>
 					{ __( 'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
 						' security threats, and enabling monetization features.'
 					) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Get started' ) }
+					</Button>
+				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
