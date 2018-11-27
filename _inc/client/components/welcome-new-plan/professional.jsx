@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 
@@ -26,6 +27,7 @@ class WelcomeProfessional extends Component {
 		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
 		this.clickCtaDismissSearch = this.clickCtaDismiss.bind( this, 'search' );
 		this.clickCtaDismissSeo = this.clickCtaDismiss.bind( this, 'seo' );
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
 	}
 
 	componentDidMount() {
@@ -51,6 +53,11 @@ class WelcomeProfessional extends Component {
 						' indexing your content for search, scanning for security threats, and granting access to premium themes.'
 					) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Get started' ) }
+					</Button>
+				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Professional, you can create the perfect site with one of over 300 professionally-designed' +
