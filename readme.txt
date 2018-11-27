@@ -100,44 +100,26 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.8.1 =
+= 6.9 =
 
-* Release date: December 6, 2018
-* Release post: https://wp.me/p1moTy-d3t
-
-**Bug fixes**
-
-* Contact Form: security changes to improve the display of success messages after submitting a form.
-* Publicize: avoid Fatal errors when trying to create or edit posts from a Custom Post Type that supports Publicize.
-* Sync: improve synchronization of WooCommerce events.
-* WordPress.com REST API: handle WooCommerce Product reviews for a better display in apps that use the API.
-
-= 6.8 =
-
-* Release date: November 26, 2018
-* Release post: https://wp.me/p1moTy-cee
+* Release date: January 10, 2018
+* Release post: https://wp.me/p1moTy-cEZ
 
 **Major Enhancements**
 
-* This release introduces the first wave of Jetpack blocks built for the new block editor, available in WordPress 5.0.
+*
 
 **Enhancements**
 
-* General: improve ability to create and troubleshoot Jetpack connections.
-* REST API: new endpoint for testing the Jetpack connection.
+*
 
 **Improved compatibility**
 
-* Akismet: improve caching of all queries for Akismet status.
-* Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
-* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
+*
 
 **Bug fixes**
 
-* Asset CDN: do not try to serve assets from non-public versions.
-* Carousel: handle galleries created via the Gallery block in the new block editor.
-* Photon: make sure our image CDN is fully compatible with the block editor.
-
+*
 
 --------
 

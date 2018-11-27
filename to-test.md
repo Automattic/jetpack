@@ -1,35 +1,4 @@
-## 6.8
-
-This release focuses on making Jetpack fully compatible with the Block Editor, also known as Gutenberg, that will be part of the new version of WordPress scheduled to be released on November 27th.
-
-To test this Beta, it's best to be running the latest Beta version of WordPress, 5.0 Beta 5 at the moment. You can also install the new default theme, Twenty Nineteen, to test our plugin's compatibility with this as well.
-
-To install the Twenty Nineteen theme on your site, start by downloading the latest version of the theme from [here](https://github.com/WordPress/twentynineteen/archive/master.zip). Unzip it, rename the folder to `twentynineteen`, rezip it, then upload and activate it on your site.
-
-Once you are ready to start testing, we would recommend that you try the following actions:
-
-- Activate different features, and deactivate others under Jetpack > Settings.
-- Go to Posts > Add New, and ensure that you can publish new posts.
-- Try updating old posts as well, and see that you can.
-- Try adding some of [our shortcodes](https://jetpack.com/support/shortcode-embeds/) to your posts, and see that they work well.
-- Try adding [the classic editor](https://wordpress.org/plugins/classic-editor/) plugin and see that there are no errors in the editor.
-- Try publishing posts and see that Publicize and subscriptions still work.
-- Try adding widgets to your site, and see that they look good with the Twenty Nineteen theme.
-
-### Testing Blocks
-
-This release will introduce 3 blocks that we would like you to test:
-
-- A [Simple Payments](https://github.com/Automattic/jetpack/pull/10631/files) block.
-- A Map block.
-- A [Markdown](https://jetpack.com/support/markdown/) block.
-
-Try adding those blocks to your editor and playing with their different options. You will also want to make sure the blocks are only available when you need them:
-
-- when the feature is available on your site (for example, when you have a Premium plan in the case of the Simple Payments block).
-- when the feature is enabled on your site.
-
-We also integrated the Publicize feature to the sidebar that appears in the block editor whenever you click on the Publish button. Give it a try after adding a few Publicize connections to your site, and let us know if you run into any issues!
+## 6.9
 
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
