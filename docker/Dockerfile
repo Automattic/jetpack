@@ -9,26 +9,26 @@ RUN apt-get update && apt-get install -y \
 	composer \
 	curl \
 	less \
-	libapache2-mod-php7.0 \
+	libapache2-mod-php7.2 \
 	mysql-client \
 	nano \
 	php-apcu \
 	php-xdebug \
-	php7.0 \
-	php7.0-cli \
-	php7.0-curl \
-	php7.0-gd \
-	php7.0-json \
-	php7.0-ldap \
-	php7.0-mbstring \
-	php7.0-mysql \
-	php7.0-opcache \
-	php7.0-pgsql \
-	php7.0-soap \
-	php7.0-sqlite3 \
-	php7.0-xml \
-	php7.0-xsl \
-	php7.0-zip \
+	php7.2 \
+	php7.2-cli \
+	php7.2-curl \
+	php7.2-gd \
+	php7.2-json \
+	php7.2-ldap \
+	php7.2-mbstring \
+	php7.2-mysql \
+	php7.2-opcache \
+	php7.2-pgsql \
+	php7.2-soap \
+	php7.2-sqlite3 \
+	php7.2-xml \
+	php7.2-xsl \
+	php7.2-zip \
 	ssmtp \
 	subversion \
 	sudo \
@@ -51,8 +51,8 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
 
 # Copy a default set of settings for PHP (php.ini)
-COPY ./config/php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./config/php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.2/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.2/cli/conf.d/20-jetpack-wordpress.ini
 
 # Copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /tmp/htaccess
