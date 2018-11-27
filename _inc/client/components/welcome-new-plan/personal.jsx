@@ -16,10 +16,26 @@ import { imagePath } from 'constants/urls';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
 
 class WelcomePersonal extends Component {
+	constructor( props ) {
+		super( props );
+
+		// Preparing event handlers once to avoid calling bind on every render
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
+	}
+
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
 			planClass: this.props.planClass,
 		} );
+	}
+
+	clickCtaDismiss( cta ) {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click', {
+			planClass: this.props.planClass,
+			cta: cta,
+		} );
+
+		this.props.dismiss();
 	}
 
 	renderInnerContent() {
@@ -30,6 +46,11 @@ class WelcomePersonal extends Component {
 						'scanning for security threats.'
 					) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Get started' ) }
+					</Button>
+				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Personal, you have access to more than 100 free, professionally-designed WordPress ' +
