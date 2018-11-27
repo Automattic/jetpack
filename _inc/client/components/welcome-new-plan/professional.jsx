@@ -5,13 +5,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import Card from 'components/card';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
+import Card from 'components/card';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
