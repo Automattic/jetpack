@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 
@@ -24,6 +25,7 @@ class WelcomePremium extends Component {
 		// Preparing event handlers once to avoid calling bind on every render
 		this.clickCtaDismissVideo = this.clickCtaDismiss.bind( this, 'video' );
 		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
 	}
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
@@ -43,6 +45,9 @@ class WelcomePremium extends Component {
 	renderInnerContent() {
 		return (
 			<div>
+				<Button onClick={ this.clickCtaDismissGetStarted }>
+					{ __( 'Get started' ) }
+				</Button>
 				<p>
 					{ __( 'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
 						' security threats, and enabling monetization features.'
