@@ -16,8 +16,6 @@
 class Jetpack_Private {
 	static function init() {
 		add_action( 'parse_request', array( __CLASS__, 'privatize_blog' ), 100 );
-		add_action( 'jetpack_activate_module_private', array( __CLASS__, 'make_blog_private' ) );
-		add_action( 'jetpack_deactivate_module_private', array( __CLASS__, 'make_blog_public' ) );
 		add_action( 'login_init', array( __CLASS__, 'privatize_blog_maybe_mask_blog_name' ) );
 		add_filter( 'preprocess_comment', array( __CLASS__, 'privatize_blog_comments' ) );
 		add_action( 'blog_privacy_selector', array( __CLASS__, 'privatize_blog_priv_selector' ) );
@@ -28,14 +26,7 @@ class Jetpack_Private {
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
-		add_action( 'pre_update_option_blog_public', array( __CLASS__, 'prevent_update_option_blog_public' ) );
-	}
-
-	/**
-	 * Tests whether the current blog is private.
-	 */
-	static function is_private_blog() {
-		return '-1' === get_option( 'blog_public' );
+		add_action( 'update_option_blog_public', array( __CLASS__, 'prevent_update_option_blog_public' ) );
 	}
 
 	/**
@@ -45,10 +36,6 @@ class Jetpack_Private {
 	 */
 	static function privatize_blog( $wp ) {
 		global $pagenow, $current_user, $wpdb;
-
-		if ( ! Jetpack_Private::is_private_blog() ) {
-			return;
-		}
 
 		if ( 'wp-login.php' === $pagenow ) {
 			return;
@@ -112,27 +99,9 @@ class Jetpack_Private {
 	}
 
 	/**
-	 * Changes a blog to private
-	 */
-	static function make_blog_private() {
-		update_option( 'blog_public', -1 );
-	}
-
-	/**
-	 * Changes a blog to public
-	 */
-	static function make_blog_public() {
-		update_option( 'blog_public', 1 );
-	}
-
-	/**
 	 * Hides the blog's name on the login form for private blogs.
 	 */
 	static function privatize_blog_maybe_mask_blog_name() {
-		if ( ! Jetpack_Private::is_private_blog() ) {
-			return;
-		}
-
 		add_filter( 'bloginfo', array( __CLASS__, 'privatize_blog_mask_blog_name' ), 3, 2 );
 	}
 
@@ -163,11 +132,19 @@ class Jetpack_Private {
 
 	/**
 	 * Extend the 'Site Visibility' privacy options to also include a private option
-	 */
+	 **/
 	static function privatize_blog_priv_selector() {
 		?>
-		<br /><input id="blog-private" type="radio" name="blog_public" value="-1" <?php checked( '-1', get_option( 'blog_public' ) ); ?> />
-		<label for="blog-private"><?php esc_html_e( 'I would like my site to be private, visible only to myself and users I choose', 'jetpack' ); ?></label>
+		<style>
+			.jetpack-private__setting-disabled {
+				font-weight: bold;
+				margin-top: 10px;
+				padding: 10px;
+			}
+		</style>
+		<div class="jetpack-private__setting-disabled highlight">
+        	<?php _e( 'This setting is ignored because you made your site private in Jetpack', 'jetpack' ); ?>
+         </div>
 		<?php
 	}
 
@@ -178,11 +155,8 @@ class Jetpack_Private {
 	 * @param string $output Robots.txt output.
 	 */
 	static function private_robots_txt( $output ) {
-		if ( Jetpack_Private::is_private_blog() ) {
-			$output  = "User-agent: *\n"; // Purposefully overriding current output; we only want these rules.
-			$output .= "Disallow: /\n";
-		}
-
+		$output  = "User-agent: *\n"; // Purposefully overriding current output; we only want these rules.
+		$output .= "Disallow: /\n";
 		return $output;
 	}
 
@@ -192,11 +166,7 @@ class Jetpack_Private {
 	 * @param string $text Default attribute text.
 	 */
 	static function privatize_privacy_on_link_title( $text ) {
-		if ( Jetpack_Private::is_private_blog() ) {
-			return __( 'Your site is visible only to registered members', 'jetpack' );
-		}
-
-		return $text;
+		return __( 'Your site is visible only to registered members', 'jetpack' );
 	}
 
 	/**
@@ -205,11 +175,7 @@ class Jetpack_Private {
 	 * @param string $text Default text.
 	 */
 	static function privatize_privacy_on_link_text( $text ) {
-		if ( Jetpack_Private::is_private_blog() ) {
-			return __( 'Private', 'jetpack' );
-		}
-
-		return $text;
+		return __( 'Private', 'jetpack' );
 	}
 
 	/**
@@ -230,7 +196,7 @@ class Jetpack_Private {
 	static function private_blog_ajax_nonce_check( $action, $result ) {
 		global $current_user, $wpdb;
 
-		if ( is_super_admin() || ! Jetpack_Private::is_private_blog() ) {
+		if ( is_super_admin() ) {
 			return;
 		}
 
@@ -257,10 +223,6 @@ class Jetpack_Private {
 	 */
 	static function disable_rest_api() {
 		global $pagenow, $current_user, $wpdb;
-
-		if ( ! Jetpack_Private::is_private_blog() ) {
-			return;
-		}
 
 		if ( $current_user && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $current_user ) ) ) {
 			return;
@@ -291,10 +253,8 @@ class Jetpack_Private {
 	 */
 	static function prevent_update_option_blog_public() {
 		if ( function_exists( 'add_settings_error') ) {
-			add_settings_error( 'general', 'setting_not_updated', __( "Can't update this setting —	 it's being mananged by Jetpack.", 'jetpack' ), 'error' );
+			add_settings_error( 'general', 'setting_not_updated', __( "Can't update this setting — it's being mananged by Jetpack.", 'jetpack' ), 'error' );
 		}
-		
-		return -1;
 	}
 }
 
