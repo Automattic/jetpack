@@ -240,8 +240,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 		if ( preg_match( '/^\d+(\.\d+)+$/', $version ) ) {
 			// matches `1` `1.2` `1.2.3`.
 			return true;
-		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc)\d?)$/i', $version ) ) {
-			// matches `1.2.3` `1.2.3-beta` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
+		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc|pressable)\d?)$/i', $version ) ) {
+			// matches `1.2.3` `1.2.3-beta` `1.2.3-pressable` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
 			return true;
 		}
 		// unrecognized version.
