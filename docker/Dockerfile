@@ -2,37 +2,45 @@ FROM ubuntu:xenial
 
 VOLUME ["/var/www/html"]
 
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
 # Install required Ubuntu packages for having Apache PHP as a module
 # as well a bunch of other packages
-RUN apt-get update && apt-get install -y \
-	apache2 \
-	composer \
-	curl \
-	less \
-	libapache2-mod-php7.2 \
-	mysql-client \
-	nano \
-	php-apcu \
-	php-xdebug \
-	php7.2 \
-	php7.2-cli \
-	php7.2-curl \
-	php7.2-gd \
-	php7.2-json \
-	php7.2-ldap \
-	php7.2-mbstring \
-	php7.2-mysql \
-	php7.2-opcache \
-	php7.2-pgsql \
-	php7.2-soap \
-	php7.2-sqlite3 \
-	php7.2-xml \
-	php7.2-xsl \
-	php7.2-zip \
-	ssmtp \
-	subversion \
-	sudo \
-	vim \
+RUN \
+	apt-get update \
+	&& apt-get install -y language-pack-en-base software-properties-common \
+	&& add-apt-repository ppa:ondrej/php \
+	&& apt-get update \
+	&& apt-get install -y \
+		apache2 \
+		composer \
+		curl \
+		less \
+		libapache2-mod-php7.2 \
+		mysql-client \
+		nano \
+		php-apcu \
+		php-xdebug \
+		php7.2 \
+		php7.2-cli \
+		php7.2-curl \
+		php7.2-gd \
+		php7.2-json \
+		php7.2-ldap \
+		php7.2-mbstring \
+		php7.2-mysql \
+		php7.2-opcache \
+		php7.2-pgsql \
+		php7.2-soap \
+		php7.2-sqlite3 \
+		php7.2-xml \
+		php7.2-xsl \
+		php7.2-zip \
+		ssmtp \
+		subversion \
+		sudo \
+		vim \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite in Apache
