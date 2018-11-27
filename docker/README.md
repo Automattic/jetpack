@@ -239,6 +239,8 @@ Alternative to the above configuration file is running ngrok in the container wi
 Add these variables to your `docker/.env` file:
 
 This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
+Possible values for `NGROK_REGION` are:  (United States, default), eu (Europe), ap (Asia/Pacific) or au (Australia).
+[Read more about ngrok regions](https://ngrok.com/docs#global-locations)
 ```
 NGROK_AUTH=<your auth key>
 NGROK_SUBDOMAIN=example
