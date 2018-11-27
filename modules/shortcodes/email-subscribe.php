@@ -76,7 +76,6 @@ class Jetpack_Email_Subscribe {
 		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
-				'blog_id'           => $this->get_blog_id(),
 				'title'             => __( 'Join my email list', 'jetpack' ),
 				'email_placeholder' => __( 'Enter your email', 'jetpack' ),
 				'submit_label'      => __( 'Join My Email List', 'jetpack' ),
@@ -84,11 +83,16 @@ class Jetpack_Email_Subscribe {
 				'processing_label'  => __( 'Processing...', 'jetpack' ),
 				'success_label'     => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
 				'error_label'       => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
-				'classname'         => self::$css_classname_prefix,
-				'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
 			),
 			$attrs
 		);
+
+		// We don't allow users to change these parameters:
+		$data = array_merge( $data, array(
+			'blog_id'           => $this->get_blog_id(),
+			'classname'         => self::$css_classname_prefix,
+			'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
+		) );
 
 		if ( ! wp_script_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
 			wp_enqueue_script( 'jetpack-email-subscribe' );
