@@ -230,9 +230,31 @@ If you use one-off domains, you'll have to re-install WordPress and re-connect J
 
 You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
 
+### Docker Ngrok
+
+Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
+
+**1. Configure environment**
+
+Add these variables to your `docker/.env` file:
+
+This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
+```
+NGROK_AUTH=<your auth key>
+NGROK_SUBDOMAIN=example
+NGROK_REGION=us
+```
+
+**2. Start docker with Ngrok**
+
+Start container with `yarn docker:ngrok-up -d`
+Stop container with `yarn docker:ngrok-down -d`
+
+All the other docker-compose commands can be invoked via `yarn docker:ngrok COMMAND`
+
 ### Configuration file
 
-If you're developing Jetpack often with Ngrok, you could create a config file for your setup. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
+If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
 
 In your configuration file, add:
 
@@ -259,30 +281,6 @@ You can now start both tunnels:
 ```bash
 ngrok start jetpack jetpack-sftp
 ```
-
-### Docker ngrok
-
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
-
-**1. Configure environment**
-
-Add these variables to your `docker/.env` file:
-
-This configures `artpijet.eu.ngrok.io` reserved domain that is available on my basic plan.
-```
-NGROK_AUTH=<your auth key>
-NGROK_SUBDOMAIN=artpijet
-NGROK_REGION=eu
-```
-
-**2. Start docker with additional file**
-
-Instead of starting docker with `yarn docker:up`, you will have to use `docker-compose -f docker/docker-compose.yml -f docker/docker-compose-ngrok.yml up`.
-
-All the coresponding docker commands should match that pattern.
-
-
-
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
 
