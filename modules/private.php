@@ -290,7 +290,10 @@ class Jetpack_Private {
 	 * Prevent changes to the blog_public option when the module is enabled
 	 */
 	static function prevent_update_option_blog_public() {
-		add_settings_error( 'general', 'setting_not_updated', __( "Can't update this setting —	 it's being mananged by Jetpack.", 'jetpack' ), 'error' );
+		if ( function_exists( 'add_settings_error') ) {
+			add_settings_error( 'general', 'setting_not_updated', __( "Can't update this setting —	 it's being mananged by Jetpack.", 'jetpack' ), 'error' );
+		}
+		
 		return -1;
 	}
 }
