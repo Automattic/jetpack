@@ -16,13 +16,13 @@
 class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_Controller {
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'gutenberg/available-extensions';
+		$this->rest_base = 'gutenberg';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+		register_rest_route( $this->namespace, $this->rest_base . '/available-extensions', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( 'Jetpack_Gutenberg', 'get_block_availability' ),
