@@ -17,6 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'gutenberg';
+		$this->wpcom_is_site_specific_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
