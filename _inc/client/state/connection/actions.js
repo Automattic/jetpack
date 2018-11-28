@@ -38,7 +38,7 @@ export const fetchSiteConnectionStatus = () => {
 
 export const fetchSiteConnectionTest = () => {
 	return ( dispatch ) => {
-		dispatch( createNotice( 'is-info', __( 'Testing Jetpack Conncetion' ), { id: 'test-jetpack-connection' } ) );
+		dispatch( createNotice( 'is-info', __( 'Testing Jetpack Connection' ), { id: 'test-jetpack-connection' } ) );
 		return restApi.fetchSiteConnectionTest().then( connectionTest => {
 			dispatch( {
 				type: JETPACK_CONNECTION_TEST_FETCH,
