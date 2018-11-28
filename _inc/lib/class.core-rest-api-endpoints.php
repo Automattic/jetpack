@@ -368,6 +368,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
+		// Import...
+		register_rest_route( 'jetpack/v4', '/import', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::import',
+			'permission_callback' => function () { return current_user_can( 'import' ); },
+		) );
+
 		// Plugins: get list of all plugins.
 		register_rest_route( 'jetpack/v4', '/plugins', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -686,6 +693,142 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Handles Jetpack-optimized site import...
+	 *
+	 * @since ...
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function import( $request ) {
+/*
+		add_filter( 'upload_mimes', function ( $types ) {
+			return array_merge( $types , array(
+				'zip' => 'application/zip',
+				'gz|gzip' => 'application/x-gzip',
+				'xml' => 'text/xml',
+			 ) );
+		} );
+*/
+		$original_file_name = $request->get_header( 'uploader_original_filename' );
+		$file_ext = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
+
+		if ( ! in_array( $file_ext, array( 'xml', 'zip' ) ) ) {
+			return new WP_Error( 'invalid_filetype', 'The uploader-original-filename header must specify a file of allowed type', 400 );
+		}
+
+		$file_id = $request->get_header( 'uploader_file_id' );
+		if ( $file_id === false || (int) $file_id != $file_id || $file_id < ( time() - 1 * HOUR_IN_SECONDS ) ) {
+			return new WP_Error( 'invalid_id' , 'A valid integer `uploader_file_id` was not present in this request\'s headers. It should be the timestamp of the upload star time (in ms).', 400 );
+		}
+
+		$chunk_number = $request->get_header( 'uploader_chunk_number' );
+		if ( $chunk_number === false || $chunk_number < 0 || (int) $chunk_number != $chunk_number ) {
+			return new WP_Error( 'invalid_chunk_number', 'The `uploader_chunk_number` request header must be a non-negative integer', 400 );
+		}
+
+		$chunks_total = $request->get_header( 'uploader_chunks_total' );
+
+		$upload_dir_info = wp_upload_dir( '0000/00' );
+		if ( $upload_dir_info['error'] ) {
+			return new WP_Error( 'upload_dir_error', $upload_dir_info['error'], 500 );
+		}
+
+		$upload_dir_path = $upload_dir_info['path'];
+		if ( empty( $upload_dir_path ) || ! is_dir( $upload_dir_path ) ) {
+			return new WP_Error( 'invalid_upload_dir', 'Upload dir path is missing or invalid', 500 );
+		}
+
+		if ( ! is_writable( $upload_dir_path ) ) {
+			return new WP_Error( 'unwritable_upload_dir', 'Upload dir path is not writable for the current context', 403 );
+		}
+
+		$chunk_file_dest_dir = sprintf(
+			'%s/%s/%s',
+			$upload_dir_path,
+			'jp-imports', // @TODO make this a constant or something
+			wp_generate_uuid4()
+		);
+
+		if ( ! wp_mkdir_p( $chunk_file_dest_dir ) ) {
+			return new WP_Error( 'chunk_dir_error', 'Chunk dir could not be created', 500 );
+		}
+
+		$file_data = $request->get_file_params();
+		if ( empty( $file_data ) || empty( $file_data['file'] ) || empty( $file_data['file']['tmp_name'] ) ) {
+			return new WP_Error( 'invalid_file_params', 'Compatible file data was not present in this request body', 400 );
+		}
+
+		$chunk_file_temp_name = $file_data['file']['tmp_name'];
+		$chunk_file_dest_name = $chunk_file_dest_dir . '/' . (int) $chunk_number;
+
+		if ( file_exists( $chunk_file_dest_name ) ) {
+			// @TODO should this overwrite, or what...?
+			return new WP_Error( 'chunk_file_exists', 'A chunk file with this name already exists', 400 );
+		}
+
+		if ( ! move_uploaded_file( $chunk_file_temp_name, $chunk_file_dest_name ) ) {
+			@unlink( $chunk_file_temp_name );
+			return new WP_Error( 'file_move_error', 'Cannot move the chunk file to the upload directory', 500 );
+		}
+
+		error_log( sprintf( 'Chunk %d/%d OK', $chunk_number + 1, $chunks_total ) );
+
+		$params = $request->get_params();
+		if ( ! isset( $params['ok'] ) ) {
+			// There's more to do
+			return;
+		}
+
+		$final_file_dir = $chunk_file_dest_dir . '-out';
+		if ( ! is_dir( $final_file_dir ) && ! mkdir( $final_file_dir ) ) {
+			return new WP_Error( 'output_dir_error', 'Output dir could not be created', 500 );
+		}
+
+		$final_file_name = "$final_file_dir/$original_file_name";
+
+		if ( file_exists( $final_file_name ) ) {
+			return new WP_Error( 'dest_file_exists_error', 'Desintation file already exists', 500 );
+		}
+
+		$out_fp = fopen( $final_file_name, 'a' );
+		if ( false === $out_fp ) {
+			return new WP_Error( 'dest_file_open_error', 'Destintation file could not be created', 500 );
+		}
+
+		$total_bytes = 0;
+		$chunk_files = glob( $chunk_file_dest_dir . '/*' );
+		natsort( $chunk_files );
+
+		foreach ( $chunk_files as $chunk_file ) {
+			if ( ! ctype_digit( basename( $chunk_file ) ) ) {
+				// @TODO -- do we care about this?
+				return new WP_Error( 'extra_chunk_file_error', 'Invalid file in chunk directory', 500 );
+			}
+			error_log( 'f is: ' . $chunk_file );
+
+			$chunk_bytes = fwrite( $out_fp, file_get_contents( $chunk_file ) );
+			if ( false === $chunk_bytes ) {
+				fclose( $out_fp );
+				@unlink( $out_fp );
+				@unlink( $chunk_file );
+				throw new Exception( 'Invalid chunk file: ' . $chunk_file );
+			}
+			@unlink( $chunk_file );
+			$total_bytes += $chunk_bytes;
+		}
+		@unlink( $chunk_file_dest_dir );
+
+		$report = [
+			'bytes' => $total_bytes,
+			'fileName' => $final_file_name,
+		];
+		error_log( print_r( $report, 1 ) );
+		return $report;
 	}
 
 	/**
