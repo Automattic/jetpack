@@ -3090,7 +3090,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * }
 	 */
 	public static function get_service_api_key( $request ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::get_service_api_key', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( $request );
 	}
 
@@ -3101,11 +3101,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * depreacted in 6.9
 	 * }
 	 */
 	public static function update_service_api_key( $request ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::update_service_api_key', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key( $request ) ;
 	}
 
@@ -3119,7 +3118,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * }
 	 */
 	public static function delete_service_api_key( $request ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::delete_service_api_key', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key( $request );
 	}
 
@@ -3133,7 +3132,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return string Returns the service name if valid, null if invalid.
 	 */
 	public static function validate_service_api_service( $service = null ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::validate_service_api_service', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service( $service );
 	}
 
@@ -3141,7 +3140,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Error response for invalid service API key requests with an invalid service.
 	 */
 	public static function service_api_invalid_service_response() {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::service_api_invalid_service_response', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response();
 	}
 
@@ -3154,7 +3153,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 */
 	public static function validate_service_api_key( $key = null, $service = null ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::validate_service_api_key', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key( $key , $service  );
 	}
 
@@ -3165,7 +3164,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param string $key The API key to be validated.
 	 */
 	public static function validate_service_api_key_mapbox( $key ) {
-		_deprecated_function( 'Jetpack_Core_Json_Api_Endpoints::validate_service_api_key', '6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
+		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
 		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key_mapbox( $key );
 
 	}
