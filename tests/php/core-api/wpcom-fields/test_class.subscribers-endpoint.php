@@ -13,6 +13,15 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 	static $subscriber_user_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {
+
+		Jetpack_Options::update_options( array(
+			'blog_token'  => 1,
+			'id'          => 1001,
+		) );
+		Jetpack::update_user_token( 1, sprintf( '%s.%d', 'token', 1 ), true );
+
+		Jetpack::activate_module( 'subscriptions' );
+
 		self::$editor_user_id = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 

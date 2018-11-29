@@ -30,10 +30,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 			return new WP_Error( 'authorization_required', 'Only users with the permission to edit posts can see the subscriber count.', array( 'status' => 401 ) );
 		}
 
-		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-			return new WP_Error( 'not_implemented', 'Please enable the Jetpack Subscriptions feature to enable this endpoint.', array( 'status' => 501 ) );
-		}
-
 		return true;
 	}
 
@@ -54,4 +50,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers' );
+if ( Jetpack::is_module_active( 'subscriptions ') ) {
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers' );
+}
