@@ -368,11 +368,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Import...
+		// Site Importer
 		register_rest_route( 'jetpack/v4', '/import', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::import',
-			'permission_callback' => function () { return current_user_can( 'import' ); },
+			'permission_callback' => __CLASS__ . '::can_upload_files_and_import',
 		) );
 
 		// Plugins: get list of all plugins.
@@ -695,6 +695,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "notice".', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
+	public static function can_upload_files_and_import() {
+		return current_user_can( 'upload_files' ) && current_user_can( 'import' );
+	}
+
 	/**
 	 * Handles Jetpack-optimized site import...
 	 *
@@ -823,10 +827,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		@unlink( $chunk_file_dest_dir );
 
-		$report = [
+		$report = array(
 			'bytes' => $total_bytes,
 			'fileName' => $final_file_name,
-		];
+		);
 		error_log( print_r( $report, 1 ) );
 		return $report;
 	}
