@@ -4778,7 +4778,7 @@ p {
 					'site_icon'     => $site_icon,
 					'site_lang'     => get_locale(),
 					'_ui'           => $tracks_identity['_ui'],
-					'_ut'           => $tracks_identity['_ut']
+					'_ut'           => $tracks_identity['_ut'],
 				)
 			);
 
@@ -4791,6 +4791,14 @@ p {
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
+		// Ensure that class to get the affiliate code is loaded
+		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
+		}
+		// Get affiliate code and add it to the URL
+		if ( '' !== ( $aff = Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
+			$url = add_query_arg( 'aff', $aff, $url );
+		}
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
