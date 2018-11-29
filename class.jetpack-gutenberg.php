@@ -222,10 +222,11 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type slug of the block.
 	 * @param array $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 * @param array $localize_data An array of view-side Javascript object accessible though the window object
 	 *
 	 * @return void
 	 */
-	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
+	public static function load_assets_as_required( $type, $script_dependencies = array(), $localize_data = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -253,6 +254,14 @@ class Jetpack_Gutenberg {
 			'Jetpack_Block_Assets_Base_Url',
 			plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE )
 		);
+		if ( ! empty( $localize_data ) ) {
+			wp_localize_script(
+				'jetpack-block-' . $type,
+				'Jetpack_Block_' . $type . '_data',
+				$localize_data
+			);
+		}
+
 	}
 
 	/**

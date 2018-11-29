@@ -26,8 +26,11 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		'lodash',
 		'wp-element',
 		'wp-i18n',
-		'wp-api-fetch',
 	);
-	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
+
+	$more_data = array(
+		'api_key' => Jetpack_Options::get_option( 'mapbox_api_key' )
+	);
+	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies, $more_data );
 	return $content;
 }
