@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
@@ -16,6 +15,7 @@
  * @since 6.9
  */
 class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
+
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'service-api-keys';
@@ -138,10 +138,12 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		if ( ! $service ) {
 			return self::service_api_invalid_service_response();
 		}
-		$params     = $request->get_json_params();
+		$json_params = $request->get_json_params();
+		$params     = ! empty( $json_params ) ? $json_params : $request->get_body_params();
 		$service_api_key    = trim( $params['service_api_key'] );
 		$option     = self::key_for_api_service( $service );
-		$validation = self::validate_service_api_key( $service_api_key, $service );
+
+		$validation = self::validate_service_api_key( $service_api_key, $service, $params );
 		if ( ! $validation['status'] ) {
 			return new WP_Error( 'invalid_key', esc_html__( 'Invalid API Key', 'jetpack' ), array( 'status' => 404 ) );
 		}
