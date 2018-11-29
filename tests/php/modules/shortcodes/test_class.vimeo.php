@@ -107,8 +107,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		wp_reset_postdata();
-		$this->assertContains( '<div class="embed-vimeo"', $actual );
-		$this->assertContains( '<iframe src="https://player.vimeo.com/video/'.$video_id.'"', $actual );
+		$this->assertContains( '<iframe src="https://player.vimeo.com/video/'  . $video_id, $actual );
 	}
 
 	/**
