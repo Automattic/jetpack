@@ -3,7 +3,7 @@
 /**
  * Subscribers: Get subscriber count
  *
- * @since 6.8
+ * @since 6.9
  */
 class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	function __construct() {
