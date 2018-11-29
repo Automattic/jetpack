@@ -30,12 +30,12 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( __CLASS__, 'get_service_api_key' ), // todo move the methods to this class..
+					'callback'            => array( __CLASS__, 'get_service_api_key' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( __CLASS__, 'update_service_api_key' ),  // todo move the methods to this class..
-					'permission_callback' => array( __CLASS__, 'edit_others_posts_check' ),  // todo move the methods to this class..
+					'callback'            => array( __CLASS__, 'update_service_api_key' ),
+					'permission_callback' => array( __CLASS__, 'edit_others_posts_check' ),
 					'args'                => array(
 						'service_api_key' => array(
 							'required' => true,
@@ -45,8 +45,8 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => array( __CLASS__, 'delete_service_api_key' ),  // todo move the methods to this class..
-					'permission_callback' => array( __CLASS__, 'edit_others_posts_check' ),  // todo move the methods to this class..
+					'callback'            => array( __CLASS__, 'delete_service_api_key' ),
+					'permission_callback' => array( __CLASS__, 'edit_others_posts_check' ),
 				),
 			)
 		);
