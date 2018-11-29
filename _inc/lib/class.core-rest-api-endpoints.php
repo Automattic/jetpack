@@ -3082,6 +3082,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Deprecated - Get third party plugin API keys.
+	 * @deprecated
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -3096,6 +3097,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Deprecated - Update third party plugin API keys.
+	 * @deprecated
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -3110,6 +3112,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Deprecated - Delete a third party plugin API key.
+	 * @deprecated
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -3127,6 +3130,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * To add a service to these endpoints, add the service name to $valid_services
 	 * and add '{service name}_api_key' to the non-compact return array in get_option_names(),
 	 * in class-jetpack-options.php
+	 * @deprecated
 	 *
 	 * @param string $service The service the API key is for.
 	 * @return string Returns the service name if valid, null if invalid.
@@ -3146,7 +3150,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Deprecated - Validate API Key
-	 *
+	 * @deprecated
 	 *
 	 * @param string $key The API key to be validated.
 	 * @param string $service The service the API key is for.
@@ -3160,6 +3164,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Deprecated - Validate Mapbox API key
 	 * Based loosely on https://github.com/mapbox/geocoding-example/blob/master/php/MapboxTest.php
+	 * @deprecated
 	 *
 	 * @param string $key The API key to be validated.
 	 */
