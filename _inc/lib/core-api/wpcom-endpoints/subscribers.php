@@ -42,7 +42,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	public function get_subscriber_count( $request ) {
 		$subscriptions = new Jetpack_Subscriptions_Widget();
 		$subscriber_info = $subscriptions->fetch_subscriber_count();
-		//echo "SUBSCRIBER COUNT: " . $subscriber_info
 		$subscriber_count = $subscriber_info['value'];
 
 		return array(
