@@ -41,9 +41,7 @@ if ( is_rtl() ) {
 		<h1><a href="<?php echo esc_attr( $login_link ); ?>" tabindex="-1"><?php bloginfo( 'name' ); ?></a></h1>
 		<div class="message" style="overflow: auto;">
 			<p>
-				<?php esc_html_e( 'This site is marked private by its owner. If you would like to view it, you’ll need permission from the site owner.', 'jetpack' ); ?><br>
-				<br>
-				<?php esc_html_e( 'If you already have permission then log in.', 'jetpack' ); ?><br>
+				<?php esc_html_e( 'You need to be logged in to view this site.', 'jetpack' ); ?><br>
 				<br>
 				<a class="button-primary" href="<?php echo esc_attr( $login_link ); ?>"><?php is_user_logged_in() ? esc_html_e( 'Switch user', 'jetpack' ) : esc_html_e( 'Log in', 'jetpack' ); ?></a>
 			</p>

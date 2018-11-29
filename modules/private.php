@@ -20,13 +20,12 @@ class Jetpack_Private {
 		add_filter( 'preprocess_comment', array( __CLASS__, 'privatize_blog_comments' ) );
 		add_action( 'blog_privacy_selector', array( __CLASS__, 'privatize_blog_priv_selector' ) );
 		add_filter( 'robots_txt', array( __CLASS__, 'private_robots_txt' ) );
-		add_filter( 'privacy_on_link_title', array( __CLASS__, 'privatize_privacy_on_link_title' ) );
-		add_filter( 'privacy_on_link_text', array( __CLASS__, 'privatize_privacy_on_link_text' ) );
 		add_action( 'wp_head', array( __CLASS__, 'private_no_pinning' ) );
-		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ) );
+		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ), 9, 2 );
 		add_action( 'rest_api_init', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
+		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
 	}
 
 	/**
@@ -94,7 +93,7 @@ class Jetpack_Private {
 
 		// check if the user has read permissions.
 		$the_user = wp_clone( $user );
-		$the_user->for_blog( $blog_id );
+		$the_user->for_site( $blog_id );
 		return $the_user->has_cap( 'read' );
 	}
 
@@ -161,24 +160,6 @@ class Jetpack_Private {
 	}
 
 	/**
-	 * Filters the link title attribute for the message displayed in the 'At a Glance' dashboard widget.
-	 *
-	 * @param string $text Default attribute text.
-	 */
-	static function privatize_privacy_on_link_title( $text ) {
-		return __( 'Your site is visible only to registered members', 'jetpack' );
-	}
-
-	/**
-	 * Filters the link label for the message displayed in the 'At a Glance' dashboard widget.
-	 *
-	 * @param string $text Default text.
-	 */
-	static function privatize_privacy_on_link_text( $text ) {
-		return __( 'Private', 'jetpack' );
-	}
-
-	/**
 	 * Output the meta tag that tells Pinterest not to allow users to pin
 	 * content from this page.
 	 * https://support.pinterest.com/entries/21063792-what-if-i-don-t-want-images-from-my-site-to-be-pinned
@@ -236,6 +217,13 @@ class Jetpack_Private {
 			'publicize',
 			'sharedaddy',
 			'subscriptions',
+			'json-api',
+			'enhanced-distribution',
+			'google-analytics',
+			'photon',
+			'sitemaps',
+			'verification-tools',
+			'wordads',
 		);
 
 		foreach ( $disabled_modules as $module_slug ) {
@@ -255,6 +243,13 @@ class Jetpack_Private {
 		if ( function_exists( 'add_settings_error') ) {
 			add_settings_error( 'general', 'setting_not_updated', __( "This setting is ignored because you made your site private in Jetpack", 'jetpack' ), 'error' );
 		}
+	}
+
+	/**
+	 * Adds a message to the 'At a Glance' dashboard widget.
+	 */
+	static function add_private_dashboard_glance_items( $content ) {
+		return $content . '<br><br>' . __( 'This site is currently Private' );
 	}
 }
 

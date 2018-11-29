@@ -28,11 +28,10 @@ class Private extends React.Component {
 					hasChild
 					module={ { module: 'private' } }
 					support={ {
-						text: __( 'Jetpack private sites' ),
+						text: __( 'Private sites' ),
 						link: 'https://jetpack.com/support/private',
-					} }
-				>
-					<p>{ __( 'Private sites can only be seen by you and users your approve.' ) } </p>
+					} }>
+					<p>{ __( 'Private sites can only be seen by you and users you approve.' ) } </p>
 
 					<ModuleToggle
 						slug="private"
