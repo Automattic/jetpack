@@ -17,6 +17,30 @@ class Jetpack_Tiled_Gallery {
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 
+		jetpack_register_block(
+			'tiled-gallery',
+			array(
+				'render_callback' => array( $this, 'load_block_assets' ),
+			)
+		);
+	}
+
+	/**
+	 * Tiled gallery block registration/dependency declaration.
+	 *
+	 * @param array  $attr - Array containing the block attributes.
+	 * @param string $content - String containing the block content.
+	 *
+	 * @return string
+	 */
+	public function load_block_assets( $attr, $content ) {
+		$dependencies = array(
+			'lodash',
+			'wp-i18n',
+			'wp-token-list',
+		);
+		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
+		return $content;
 	}
 
 	public function tiles_enabled() {
