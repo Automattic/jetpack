@@ -31,7 +31,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 		}
 
 		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-			wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' );
+			return new WP_Error( 'not_implemented', 'Please enable the Jetpack Subscriptions feature to enable this endpoint.', array( 'status' => 501 ) );
 		}
 
 		return true;
