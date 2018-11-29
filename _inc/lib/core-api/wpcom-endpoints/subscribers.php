@@ -18,7 +18,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 		$this->rest_base = 'subscribers';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
 		$this->wpcom_is_wpcom_only_endpoint = true;
-		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	public function register_routes() {
@@ -34,7 +34,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 
 	public function readable_permission_check() {
 		if ( ! current_user_can_for_blog( get_current_blog_id(), 'edit_posts' ) ) {
-			return new WP_Error( 'authorization_required', 'Only users with the permission to edit posts can see the subscriber count.', [ 'status' => 401 ] );
+			return new WP_Error( 'authorization_required', 'Only users with the permission to edit posts can see the subscriber count.', array( 'status' => 401 ) );
 		}
 
 		return true;
@@ -49,6 +49,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	public function get_subscriber_count( $request ) {
 		$subscriptions = new Jetpack_Subscriptions_Widget();
 		$subscriber_info = $subscriptions->fetch_subscriber_count();
+		//echo "SUBSCRIBER COUNT: " . $subscriber_info
 		$subscriber_count = $subscriber_info['value'];
 
 		return array(
