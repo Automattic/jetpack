@@ -148,7 +148,7 @@ class Jitm extends Component {
 										className="jitm-button"
 										primary={ activate_module === null && ctaPrimary ? true : false }
 										compact={ true }
-										onClick={ this.trackLearnMore( feature_class ) }s
+										onClick={ this.trackLearnMore( feature_class ) }
 									>
 										{ ctaMessage }
 									</Button>
