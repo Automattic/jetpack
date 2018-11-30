@@ -148,13 +148,17 @@ class Jetpack_Private {
 		<style>
 			.jetpack-private__setting-disabled {
 				font-weight: bold;
-				margin-top: 10px;
 				padding: 10px;
 			}
+			.option-site-visibility fieldset {
+				display: none;
+			}
 		</style>
+		</fieldset>
 		<div class="jetpack-private__setting-disabled highlight">
 			<?php printf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/traffic?term=private' ); ?>
 		</div>
+		<fieldset>
 		<?php
 	}
 
