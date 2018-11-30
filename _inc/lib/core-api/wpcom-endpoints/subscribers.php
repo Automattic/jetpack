@@ -50,6 +50,6 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	}
 }
 
-if ( Jetpack::is_module_active( 'subscriptions ') || ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ) {
+if ( Jetpack::is_module_active( 'subscriptions') || ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers' );
 }
