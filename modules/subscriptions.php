@@ -850,7 +850,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$widget_id              = esc_attr( !empty( $args['widget_id'] )      ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
-		$subscribers_total      = $this->fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
+		$subscribers_total      = self::fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
 
 		if ( $instance['show_only_email_and_button'] ) {
 			unset( $instance['title']);
@@ -994,7 +994,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		return $current_subs_array;
 	}
 
-	function fetch_subscriber_count() {
+	static function fetch_subscriber_count() {
 		$subs_count = get_transient( 'wpcom_subscribers_total' );
 
 		if ( FALSE === $subs_count || 'failed' == $subs_count['status'] ) {
@@ -1058,7 +1058,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$success_message		= stripslashes( $instance['success_message']);
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
-		$subs_fetch = $this->fetch_subscriber_count();
+		$subs_fetch = self::fetch_subscriber_count();
 
 		if ( 'failed' == $subs_fetch['status'] ) {
 			printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );

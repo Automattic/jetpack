@@ -334,14 +334,6 @@ class Jetpack_Gutenberg {
 			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
 		);
 
-		$is_subscriptions_active = Jetpack::is_module_active( 'subscriptions' );
-		if ( $is_subscriptions_active ) {
-			// Get number of subscribers
-			$subscriptions = new Jetpack_Subscriptions_Widget();
-			$subscriber_info = $subscriptions->fetch_subscriber_count();
-			$subscriber_count = $subscriber_info['value'];
-		}
-
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
