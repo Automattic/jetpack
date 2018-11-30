@@ -28,7 +28,7 @@ class Private extends React.Component {
 					hasChild
 					module={ { module: 'private' } }
 					support={ {
-						text: __( "Use this option if you're planning to launch your site soon but it isn't quite ready, or you want to keep your site's content private." ),
+						text: __( "This option is great if you're still working on your site and aren't quire ready to show it off to the rest of the internet yet, or if you're publishing things you'd like to keep private or make available only to specific people. You can make your site public whenever you'd like (or vice versa)." ),
 						link: 'https://jetpack.com/support/private',
 					} }>
 					<p>{ __( 'Private sites can only be seen by you and users you approve.' ) } </p>
