@@ -31,5 +31,5 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
-	return preg_replace( '/<div /', '<div data-api-key="'. $api_key .'"', $content, 1 );
+	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
 }
