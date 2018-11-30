@@ -987,7 +987,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	function increment_subscriber_count( $current_subs_array = array() ) {
-		$current_subs_array['value']++;
+		$current_subs_array['value'] = isset( $current_subs_array['value'] ) ? $current_subs_array['value']++ : 1;
 
 		set_transient( 'wpcom_subscribers_total', $current_subs_array, 3600 ); // try to cache the result for at least 1 hour
 
