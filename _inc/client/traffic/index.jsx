@@ -70,6 +70,7 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+
 				<Card
 					title={
 						this.props.searchTerm
@@ -80,12 +81,6 @@ export class Traffic extends React.Component {
 					}
 					className="jp-settings-description"
 				/>
-
-				{ foundPrivateSites && (
-					<Private
-						{ ...commonProps }
-					/>
-				) }
 
 				{ foundAds && (
 					<Ads
@@ -126,6 +121,7 @@ export class Traffic extends React.Component {
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
+				{ foundPrivateSites && ( <Private { ...commonProps } /> ) }
 			</div>
 		);
 	}

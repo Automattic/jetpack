@@ -3,12 +3,12 @@
  * Module Name: Private site
  * Module Description: Make your site only visible to you and users you approve.
  * Sort Order: 9
- * First Introduced: ?
+ * First Introduced: 6.9
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Private
  * Feature: Traffic
- * Additional Search Queries: private, sandbox, launch, unlaunched
+ * Additional Search Queries: private, sandbox, launch, unlaunched, maintenance, coming soon
  *
  * @package Jetpack
  */
@@ -94,7 +94,18 @@ class Jetpack_Private {
 		// check if the user has read permissions.
 		$the_user = wp_clone( $user );
 		$the_user->for_site( $blog_id );
-		return $the_user->has_cap( 'read' );
+
+
+		/**
+		 * Filter the capabilites a user needs to have to see the site
+		 *
+		 * @module sitemaps
+		 * @since 6.9
+		 *
+		 * @param string $cap The lowest capability a user needs to have
+		 */
+		$capability = apply_filters( 'jetpack_private_capability', 'read' );
+		return $the_user->has_cap( $capability );
 	}
 
 	/**
@@ -142,8 +153,8 @@ class Jetpack_Private {
 			}
 		</style>
 		<div class="jetpack-private__setting-disabled highlight">
-        	<?php _e( 'This setting is ignored because you made your site private in Jetpack', 'jetpack' ); ?>
-         </div>
+			<?php printf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/traffic?term=private' ); ?>
+		</div>
 		<?php
 	}
 
@@ -241,7 +252,7 @@ class Jetpack_Private {
 	 */
 	static function private_update_option_blog_public() {
 		if ( function_exists( 'add_settings_error') ) {
-			add_settings_error( 'general', 'setting_not_updated', __( "This setting is ignored because you made your site private in Jetpack", 'jetpack' ), 'error' );
+			add_settings_error( 'general', 'setting_not_updated', sprintf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/traffic?term=private' ), 'error' );
 		}
 	}
 
@@ -249,7 +260,7 @@ class Jetpack_Private {
 	 * Adds a message to the 'At a Glance' dashboard widget.
 	 */
 	static function add_private_dashboard_glance_items( $content ) {
-		return $content . '<br><br>' . __( 'This site is currently Private' );
+		return $content . '<br><br>' . __( 'This site is currently Private', 'jetpack' );
 	}
 }
 
