@@ -44,6 +44,7 @@ import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
+import { getUpgradeUrl } from 'components/upgrade-link';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -101,7 +102,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
+						href={ getUpgradeUrl( 'settings-video-premium' ) }
 					/>
 				);
 

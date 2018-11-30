@@ -248,3 +248,14 @@ export function currentThemeSupports( state, feature ) {
 export function showBackups( state ) {
 	return get( state.jetpack.initialState.siteData, 'showBackups', true );
 }
+
+/**
+ * Returns the affiliate code, if it exists. Otherwise an empty string.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} The affiliate code.
+ */
+export function getAffiliateCode( state ) {
+	return get( state.jetpack.initialState, 'aff', '' );
+}
