@@ -1131,9 +1131,9 @@ function jetpack_do_subscription_form( $instance ) {
 	return $output;
 }
 
-jetpack_register_block( 'subscriptions', array( 'render_callback' => 'show_subscription_block' ) );
+jetpack_register_block( 'subscriptions', array( 'render_callback' => 'jetpack_show_subscription_block' ) );
 
-function show_subscription_block( $attr, $content ) {
+function jetpack_show_subscription_block( $attr, $content ) {
 	$attr['show_only_email_and_button'] = true;
 	return jetpack_do_subscription_form( $attr );
 }
