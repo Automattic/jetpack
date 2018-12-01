@@ -44,7 +44,7 @@ import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
-import { getUpgradeUrl } from 'components/upgrade-link';
+import { getUpgradeUrl } from 'state/initial-state';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -102,7 +102,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ getUpgradeUrl( 'settings-video-premium' ) }
+						href={ props.videoPremiumUpgradeUrl }
 					/>
 				);
 
@@ -368,6 +368,7 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
 			activeFeatures: getActiveFeatures( state ),
+			videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' )
 		};
 	}
 )( SettingsCard );

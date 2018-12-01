@@ -259,3 +259,21 @@ export function showBackups( state ) {
 export function getAffiliateCode( state ) {
 	return get( state.jetpack.initialState, 'aff', '' );
 }
+
+/**
+ * Return an upgrade URL
+ *
+ * @param {object} state Global state tree
+ * @param {string} source Context where this URL is clicked.
+ *
+ * @return {string} Upgrade URL with source, site, and affiliate code added.
+ */
+export const getUpgradeUrl = ( state, source ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+	const affiliateCode = getAffiliateCode( state );
+	const parameters =
+		`source=${ source }` +
+		`&site=${ siteRawUrl }` +
+		( affiliateCode ? `&aff=${ affiliateCode }` : '' );
+	return `https://jetpack.com/redirect/?${ parameters }`;
+};
