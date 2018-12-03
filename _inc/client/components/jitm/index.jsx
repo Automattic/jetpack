@@ -41,8 +41,8 @@ class Jitm extends Component {
 	};
 
 	renderListItem = ( list, id, feature_class ) => {
-		for ( const i of list ) {
-			const { item, url } = i;
+		for ( const listItem of list ) {
+			const { item, url } = listItem;
 			let text = item;
 
 			if ( url ) {
