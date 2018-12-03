@@ -16,7 +16,7 @@
  */
 
 /* jshint onevar: false, sub: true, devel: true, loopfunc: true */
-/* global tinymce, AtDCore, AtD_proofread_click_count */
+/* global tinymce, AtDCore, AtD_proofread_click_count:true */
 
 (function()
 {
