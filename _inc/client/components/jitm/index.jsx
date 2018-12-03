@@ -13,10 +13,11 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import decodeEntities from 'lib/decode-entities';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	isActivatingModule,
+	isActivatingModule
 } from 'state/modules';
 import Button from 'components/button';
 import { getJitm } from 'state/jitm';
@@ -43,7 +44,7 @@ class Jitm extends Component {
 	renderListItem = ( list, id, feature_class ) => {
 		for ( const listItem of list ) {
 			const { item, url } = listItem;
-			let text = item;
+			let text = decodeEntities( item );
 
 			if ( url ) {
 				// to-do: test this. Could not find an active JITM using lists right now. Tracks is going to have to be reimplemented anyway.
@@ -54,7 +55,7 @@ class Jitm extends Component {
 					data-jptracks-name="nudge_item_click"
 					data-jptracks-prop="jitm-${ id }"
 				>
-					${ item }
+					${ decodeEntities( item ) }
 				</a>`;
 			}
 
@@ -71,7 +72,7 @@ class Jitm extends Component {
 							<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
 						</g>
 					</svg>
-					{ text }
+					{text}
 				</li>
 			);
 		}
@@ -113,7 +114,7 @@ class Jitm extends Component {
 
 		return (
 			<div>
-				{ ! isEmpty( jitm ) && (
+				{! isEmpty( jitm ) && (
 					<div className={ mainClasses }>
 						<div
 							className="jitm-banner__icon-plan"
@@ -122,19 +123,21 @@ class Jitm extends Component {
 						/>
 						<div className="jitm-banner__content">
 							<div className="jitm-banner__info">
-								<div className="jitm-banner__title">{ title }</div>
-								{ description && (
+								<div className="jitm-banner__title">
+									{decodeEntities( title )}
+								</div>
+								{description && (
 									<div className="jitm-banner__description">
-										{ description }
-										{ list.length > 0 && (
+										{decodeEntities( description )}
+										{list.length > 0 && (
 											<ul className="banner__list">
-												{ this.renderListItem( list, id, feature_class ) }
+												{this.renderListItem( list, id, feature_class )}
 											</ul>
-										) }
+										)}
 									</div>
-								) }
+								)}
 							</div>
-							{ activate_module && (
+							{activate_module && (
 								<div className="jitm-banner__action" id="jitm-banner__activate">
 									<Button
 										className="jitm-button"
@@ -143,43 +146,44 @@ class Jitm extends Component {
 										onClick={ this.activateModule( activate_module ) }
 										disabled={ this.props.isActivatingModule( activate_module ) }
 									>
-										{ this.props.isActivatingModule( activate_module )
+										{this.props.isActivatingModule( activate_module )
 											? __( 'Activating' )
-											: __( 'Activate' ) }
+											: __( 'Activate' )}
 									</Button>
 								</div>
-							) }
-							{ ctaMessage && (
+							)}
+							{ctaMessage && (
 								<div className="jitm-banner__action">
-									<Button
-										// to-do: missing the option to open in a new window with the ctaNewWindow const.
+									<Button // to-do: missing the option to open in a new window with the ctaNewWindow const.
 										// target={ ctaNewWindow === false ? '_self' : '_blank' }
 										href={ url }
 										className="jitm-button"
-										primary={ activate_module === null && ctaPrimary ? true : false }
+										primary={
+											activate_module === null && ctaPrimary ? true : false
+										}
 										compact={ true }
 										onClick={ this.trackLearnMore( feature_class ) }
 									>
-										{ ctaMessage }
+										{decodeEntities( ctaMessage )}
 									</Button>
 								</div>
-							) }
-							{ /* to-do: replace a by button or svg icon */ }
+							)}
+							{/* to-do: replace a by button or svg icon */}
 							<a data-module={ feature_class } className="jitm-banner__dismiss" />
 						</div>
 					</div>
-				) }
+				)}
 			</div>
 		);
 	}
 }
 
 Jitm.propTypes = {
-	Jitm: PropTypes.object.isRequired,
+	Jitm: PropTypes.object.isRequired
 };
 
 Jitm.defaultProps = {
-	Jitm: {},
+	Jitm: {}
 };
 
 export default connect(
@@ -187,14 +191,14 @@ export default connect(
 		return {
 			isModuleActivated: module_slug => _isModuleActivated( state, module_slug ),
 			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
-			Jitm: getJitm( state ),
+			Jitm: getJitm( state )
 		};
 	},
 	dispatch => {
 		return {
 			activateModule: slug => {
 				return dispatch( activateModule( slug ) );
-			},
+			}
 		};
 	}
 )( Jitm );
