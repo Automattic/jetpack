@@ -32,7 +32,7 @@ class Jitm extends Component {
 		);
 	}
 
-	trackLearnMore = ( feature_class ) => {
+	trackLearnMore = feature_class => {
 		analytics.tracks.recordEvent(
 			// to-do: set the right name and prop for that event.
 			'jetpack_jitm_view',
@@ -60,8 +60,16 @@ class Jitm extends Component {
 
 			return (
 				<li>
-					<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-						<g><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g>
+					<svg
+						class="gridicon gridicons-checkmark"
+						height="16"
+						width="16"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+					>
+						<g>
+							<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
+						</g>
 					</svg>
 					{ text }
 				</li>
@@ -69,7 +77,7 @@ class Jitm extends Component {
 		}
 	};
 
-	activateModule = ( module_slug ) => {
+	activateModule = module_slug => {
 		this.props.activateModule( module_slug );
 		// to-do: Maybe add tracking here if needed, not sure if activateModule triggers those already.
 		// something like
@@ -105,7 +113,7 @@ class Jitm extends Component {
 
 		return (
 			<div>
-				{ ! isEmpty( jitm ) &&
+				{ ! isEmpty( jitm ) && (
 					<div className={ mainClasses }>
 						<div
 							className="jitm-banner__icon-plan"
@@ -115,18 +123,18 @@ class Jitm extends Component {
 						<div className="jitm-banner__content">
 							<div className="jitm-banner__info">
 								<div className="jitm-banner__title">{ title }</div>
-								{ description &&
+								{ description && (
 									<div className="jitm-banner__description">
 										{ description }
-										{ list.length > 0 &&
+										{ list.length > 0 && (
 											<ul className="banner__list">
 												{ this.renderListItem( list, id, feature_class ) }
 											</ul>
-										}
+										) }
 									</div>
-								}
+								) }
 							</div>
-							{ activate_module &&
+							{ activate_module && (
 								<div className="jitm-banner__action" id="jitm-banner__activate">
 									<Button
 										className="jitm-button"
@@ -135,11 +143,13 @@ class Jitm extends Component {
 										onClick={ this.activateModule( activate_module ) }
 										disabled={ this.props.isActivatingModule( activate_module ) }
 									>
-										{ this.props.isActivatingModule( activate_module ) ? __( 'Activating' ) : __( 'Activate' ) }
+										{ this.props.isActivatingModule( activate_module )
+											? __( 'Activating' )
+											: __( 'Activate' ) }
 									</Button>
 								</div>
-							}
-							{ ctaMessage &&
+							) }
+							{ ctaMessage && (
 								<div className="jitm-banner__action">
 									<Button
 										// to-do: missing the option to open in a new window with the ctaNewWindow const.
@@ -153,15 +163,12 @@ class Jitm extends Component {
 										{ ctaMessage }
 									</Button>
 								</div>
-							}
+							) }
 							{ /* to-do: replace a by button or svg icon */ }
-							<a
-								data-module={ feature_class }
-								className="jitm-banner__dismiss">
-							</a>
+							<a data-module={ feature_class } className="jitm-banner__dismiss" />
 						</div>
 					</div>
-				}
+				) }
 			</div>
 		);
 	}
@@ -176,18 +183,18 @@ Jitm.defaultProps = {
 };
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
-			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
-			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
+			isModuleActivated: module_slug => _isModuleActivated( state, module_slug ),
+			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
 			Jitm: getJitm( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			activateModule: ( slug ) => {
+			activateModule: slug => {
 				return dispatch( activateModule( slug ) );
-			}
+			},
 		};
 	}
 )( Jitm );
