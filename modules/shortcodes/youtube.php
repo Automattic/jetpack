@@ -32,7 +32,7 @@ function youtube_embed_to_short_code( $content ) {
 	}
 
 	// older codes
-	$regexp         = '!<object([^>]+?)>.*?<param\s+name=[\'"]movie[\'"]\s+value=[\'"](https?:)?//www.youtube.com/v/([^\'"]+)[\'"][^>]*?>.*?</object>!is';
+	$regexp         = '!<object(.*?)>.*?<param\s+name=[\'"]movie[\'"]\s+value=[\'"](https?:)?//www.youtube.com/v/([^\'"]+)[\'"].*?>.*?</object>!i';
 	$regexp_ent     = htmlspecialchars( $regexp, ENT_NOQUOTES );
 	$old_regexp     = '!<embed(?:\s+\w+="[^"]*")*\s+src="https?(?:\:|&#0*58;)//www\.youtube\.com/v/([^"]+)"(?:\s+\w+="[^"]*")*\s*(?:/>|>\s*</embed>)!';
 	$old_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $old_regexp, ENT_NOQUOTES ) );
