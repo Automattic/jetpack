@@ -114,7 +114,7 @@
     "i18n-calypso": "3.0.0",
     "jsdom": "9.12.0",
     "jsdom-global": "2.1.1",
-    "jshint": "2.9.1",
+    "jshint": "2.9.6",
     "jshint-stylish": "2.1.0",
     "json-loader": "0.5.7",
     "lodash": "4.17.11",

@@ -15,7 +15,7 @@
  */
 
 /* jshint onevar: false, sub: true, smarttabs: true, loopfunc: true */
-/* global AtDCore, AtD_proofread_click_count, CSSHttpRequest, ActiveXObject */
+/* global AtDCore, AtD_proofread_click_count:true, CSSHttpRequest, ActiveXObject */
 
 var AtD =
 {
