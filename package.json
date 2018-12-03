@@ -148,6 +148,7 @@
     "mockery": "1.7.0",
     "nock": "7.7.3",
     "node-wp-i18n": "1.2.1",
+    "prettier": "github:Automattic/wp-prettier",
     "react-test-renderer": "15.6.2",
     "sinon": "1.17.7",
     "sinon-chai": "2.14.0"
