@@ -19,8 +19,7 @@ class UpgradeLink extends PureComponent {
 		source: PropTypes.string.isRequired,
 
 		// Connected
-		siteRawUrl: PropTypes.string.isRequired,
-		affiliateCode: PropTypes.string.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	render() {
@@ -37,7 +36,7 @@ class UpgradeLink extends PureComponent {
 }
 
 export default connect(
-	( state, ownProps ) => ( {
-		upgradeUrl: getUpgradeUrl( state, ownProps.source ),
+	( state, { source } ) => ( {
+		upgradeUrl: getUpgradeUrl( state, source ),
 	} )
 )( UpgradeLink );

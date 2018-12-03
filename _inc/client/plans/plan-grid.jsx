@@ -12,7 +12,7 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import Button from 'components/button';
-import { getSiteRawUrl, getUserId } from 'state/initial-state';
+import { getSiteRawUrl, getUpgradeUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
@@ -216,7 +216,7 @@ class PlanGrid extends React.Component {
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const url = isActivePlan
 				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: `https://jetpack.com/redirect/?source=plans-${ planType }&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
+				: this.props.plansUpgradeUrl( planType );
 			const isPrimary = this.isPrimary( planType, plan );
 			const className = classNames(
 				'plan-features__table-item',
@@ -255,7 +255,7 @@ class PlanGrid extends React.Component {
 	/**
 	 * Check if a plan should be highlighted as primary in the CTAs
 	 * @param {string} planType the plan type to check for primariness
-	 * @param {objcet} plan the plan object to check for primariness
+	 * @param {object} plan the plan object to check for primariness
 	 * @return {boolean} plan is primary
 	 */
 	isPrimary( planType, plan ) {
@@ -277,10 +277,9 @@ class PlanGrid extends React.Component {
 	 */
 	renderBottomButtons() {
 		return map( this.getPlans(), ( plan, planType ) => {
-			const url = `https://jetpack.com/redirect/?source=plans-learn-more&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
 			return (
 				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
-					<Button href={ url }>{ plan.strings.see_all }</Button>
+					<Button href={ this.props.plansLearnMoreUpgradeUrl }>{ plan.strings.see_all }</Button>
 				</td>
 			);
 		} );
@@ -372,12 +371,18 @@ class PlanGrid extends React.Component {
 
 }
 
-export default connect( ( state ) => {
-	return {
-		plans: getAvailablePlans( state ),
-		siteRawUrl: getSiteRawUrl( state ),
-		sitePlan: getSitePlan( state ),
-		userId: getUserId( state ),
-		showBackups: showBackups( state ),
-	};
-}, null, )( PlanGrid );
+export default connect(
+	( state ) => {
+		const userId = getUserId( state );
+		return {
+			plans: getAvailablePlans( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			sitePlan: getSitePlan( state ),
+			userId,
+			showBackups: showBackups( state ),
+			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+		};
+	},
+	null
+)( PlanGrid );

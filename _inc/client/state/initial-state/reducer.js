@@ -265,15 +265,14 @@ export function getAffiliateCode( state ) {
  *
  * @param {object} state Global state tree
  * @param {string} source Context where this URL is clicked.
+ * @param {string} userId Current user id.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
-export const getUpgradeUrl = ( state, source ) => {
-	const siteRawUrl = getSiteRawUrl( state );
+export const getUpgradeUrl = ( state, source, userId = '' ) => {
 	const affiliateCode = getAffiliateCode( state );
-	const parameters =
-		`source=${ source }` +
-		`&site=${ siteRawUrl }` +
-		( affiliateCode ? `&aff=${ affiliateCode }` : '' );
-	return `https://jetpack.com/redirect/?${ parameters }`;
+	return `https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
+		( userId ? `&u=${ userId }` : '' )
+	;
 };

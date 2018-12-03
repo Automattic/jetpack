@@ -28,7 +28,11 @@ import {
 	getPlanClass
 } from 'lib/plans/constants';
 
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import {
+	getSiteAdminUrl,
+	userCanManageModules,
+	getUpgradeUrl
+} from 'state/initial-state';
 import {
 	isAkismetKeyValid,
 	isCheckingAkismetKey,
@@ -44,7 +48,6 @@ import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
-import { getUpgradeUrl } from 'state/initial-state';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -75,8 +78,7 @@ export const SettingsCard = props => {
 	const isSaving = props.saveDisabled,
 		feature = props.feature
 			? props.feature
-			: false,
-		siteRawUrl = props.siteRawUrl;
+			: false;
 	let header = props.header
 			? props.header
 			: '';
@@ -122,7 +124,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
+						href={ props.adsUpgradeUrl }
 					/>
 				);
 
@@ -139,7 +141,7 @@ export const SettingsCard = props => {
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
-							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
+							href={ props.securityProUpgradeUrl }
 						/>
 					);
 				}
@@ -151,7 +153,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
+						href={ props.securityPremiumUpgradeUrl }
 					/>
 				);
 
@@ -167,7 +169,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
+						href={ props.gaUpgradeUrl }
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
@@ -182,7 +184,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
+						href={ props.seoUpgradeUrl }
 					/>
 				);
 
@@ -198,7 +200,7 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
-						href={ 'https://jetpack.com/redirect/?source=settings-search&site=' + siteRawUrl }
+						href={ props.searchUpgradeUrl }
 					/>
 				);
 
@@ -214,7 +216,7 @@ export const SettingsCard = props => {
 						title={ __( 'Protect your site from spam.' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
 						feature={ feature }
-						href={ 'https://jetpack.com/redirect/?source=settings-spam&site=' + siteRawUrl }
+						href={ props.spamUpgradeUrl }
 					/>
 				);
 
@@ -359,7 +361,6 @@ export default connect(
 		return {
 			sitePlan: getSitePlan( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
-			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
@@ -368,7 +369,14 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
 			activeFeatures: getActiveFeatures( state ),
-			videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' )
+			videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' ),
+			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
+			securityProUpgradeUrl: getUpgradeUrl( state, 'settings-security-pro' ),
+			securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
+			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
+			seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
+			searchUpgradeUrl: getUpgradeUrl( state, 'settings-search' ),
+			spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		};
 	}
 )( SettingsCard );
