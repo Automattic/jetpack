@@ -14,6 +14,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import analytics from 'lib/analytics';
 import decodeEntities from 'lib/decode-entities';
+import Gridicon from 'components/gridicon';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -33,30 +34,44 @@ class Jitm extends Component {
 		);
 	}
 
-	trackLearnMore = feature_class => {
-		analytics.tracks.recordEvent(
-			// to-do: set the right name and prop for that event.
-			'jetpack_jitm_view',
-			{ version: feature_class }
-		);
+	activateModule = ( module_slug, id ) => {
+		this.props.activateModule( module_slug );
+
+		// Track module activation.
+		analytics.tracks.recordEvent( 'jetpack_nudge_click', {
+			click: `jitm-${ id }-activate_module`
+		} );
 	};
 
-	renderListItem = ( list, id, feature_class ) => {
+	handleDismissal = id => {
+		// to-do: post to jitm endpoint to push dismissal to dotcom. Update tracking.
+		analytics.tracks.recordEvent( 'jetpack_nudge_click', {
+			click: `jitm-${ id }`
+		} );
+	};
+
+	trackClick = ( id, eventName = 'jetpack_nudge_click' ) => {
+		analytics.tracks.recordEvent( eventName, {
+			click: `jitm-${ id }`
+		} );
+	};
+
+	renderListItem = ( list, id ) => {
 		for ( const listItem of list ) {
 			const { item, url } = listItem;
 			let text = decodeEntities( item );
 
 			if ( url ) {
-				// to-do: test this. Could not find an active JITM using lists right now. Tracks is going to have to be reimplemented anyway.
-				text = `<a
-					href=${ url }
-					target="_blank" rel="noopener noreferrer"
-					data-module=${ feature_class }
-					data-jptracks-name="nudge_item_click"
-					data-jptracks-prop="jitm-${ id }"
-				>
-					${ decodeEntities( item ) }
-				</a>`;
+				text = (
+					<a
+						href={ url }
+						onClick={ this.trackClick( id, 'jetpack_nudge_item_click' ) }
+						rel={ 'noopener noreferrer' }
+						target={ '_blank' }
+					>
+						{ decodeEntities( item ) }
+					</a>
+				);
 			}
 
 			return (
@@ -72,20 +87,10 @@ class Jitm extends Component {
 							<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
 						</g>
 					</svg>
-					{text}
+					{ text }
 				</li>
 			);
 		}
-	};
-
-	activateModule = module_slug => {
-		this.props.activateModule( module_slug );
-		// to-do: Maybe add tracking here if needed, not sure if activateModule triggers those already.
-		// something like
-		// analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
-		// 	module: module_slug,
-		// 	toggled: 'on'
-		// } );
 	};
 
 	render() {
@@ -131,7 +136,7 @@ class Jitm extends Component {
 										{decodeEntities( description )}
 										{list.length > 0 && (
 											<ul className="banner__list">
-												{this.renderListItem( list, id, feature_class )}
+												{ this.renderListItem( list, id ) }
 											</ul>
 										)}
 									</div>
@@ -143,12 +148,12 @@ class Jitm extends Component {
 										className="jitm-button"
 										primary={ true }
 										compact={ true }
-										onClick={ this.activateModule( activate_module ) }
+										onClick={ this.activateModule( activate_module, id ) }
 										disabled={ this.props.isActivatingModule( activate_module ) }
 									>
-										{this.props.isActivatingModule( activate_module )
+										{ this.props.isActivatingModule( activate_module )
 											? __( 'Activating' )
-											: __( 'Activate' )}
+											: __( 'Activate' ) }
 									</Button>
 								</div>
 							)}
@@ -162,14 +167,19 @@ class Jitm extends Component {
 											activate_module === null && ctaPrimary ? true : false
 										}
 										compact={ true }
-										onClick={ this.trackLearnMore( feature_class ) }
+										onClick={ this.trackClick( id, 'jetpack_nudge_click' ) }
 									>
-										{decodeEntities( ctaMessage )}
+										{ decodeEntities( ctaMessage ) }
 									</Button>
 								</div>
 							)}
 							{/* to-do: replace a by button or svg icon */}
-							<a data-module={ feature_class } className="jitm-banner__dismiss" />
+							<Gridicon
+								className="jitm-banner__dismiss"
+								onClick={ this.handleDismissal( feature_class, id ) }
+								icon="cross-small"
+								size={ 16 }
+							/>
 						</div>
 					</div>
 				)}
