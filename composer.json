@@ -8,13 +8,13 @@
         "issues": "https://github.com/Automattic/jetpack/issues"
     },
     "require"    : {
-        "composer/installers": "~1.0"
+        "composer/installers": "~1.6"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-        "wp-coding-standards/wpcs": "^1.1.0",
-        "sirbrillig/phpcs-variable-analysis": "^2.0",
-        "phpcompatibility/phpcompatibility-wp": "^1.0"
+        "dealerdirect/phpcodesniffer-composer-installer": "0.4.4",
+        "wp-coding-standards/wpcs": "1.2.0",
+        "sirbrillig/phpcs-variable-analysis": "2.2.0",
+        "phpcompatibility/phpcompatibility-wp": "1.0.0"
     },
     "scripts": {
       "php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",

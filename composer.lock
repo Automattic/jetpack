@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21bbc4c3174d6d699c8052bb88ff98c2",
+    "content-hash": "18e5d16287c2cba71642eeecf875b856",
     "packages": [
         {
             "name": "composer/installers",
@@ -297,16 +297,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.1.2",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "d7652aff800e43cc54ccdcc0d4e2956a10ba7a07"
+                "reference": "1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/d7652aff800e43cc54ccdcc0d4e2956a10ba7a07",
-                "reference": "d7652aff800e43cc54ccdcc0d4e2956a10ba7a07",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd",
+                "reference": "1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd",
                 "shasum": ""
             },
             "require": {
@@ -339,7 +339,7 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2018-09-08T21:31:17+00:00"
+            "time": "2018-11-24T18:54:19+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -394,16 +394,16 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
-                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4"
+                "reference": "7aa217ab38156c5cb4eae0f04ae376027c407a9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/46d42828ce7355d8b3776e3171f2bda892d179b4",
-                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4",
+                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/7aa217ab38156c5cb4eae0f04ae376027c407a9b",
+                "reference": "7aa217ab38156c5cb4eae0f04ae376027c407a9b",
                 "shasum": ""
             },
             "require": {
@@ -411,7 +411,7 @@
                 "squizlabs/php_codesniffer": "^2.9.0 || ^3.0.2"
             },
             "require-dev": {
-                "phpcompatibility/php-compatibility": "*"
+                "phpcompatibility/php-compatibility": "^9.0"
             },
             "suggest": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
@@ -433,7 +433,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2018-09-10T17:04:05+00:00"
+            "time": "2018-11-12T10:13:12+00:00"
         }
     ],
     "aliases": [],
