@@ -144,7 +144,7 @@
     "babel-register": "6.26.0",
     "chai": "3.5.0",
     "commander": "2.3.0",
-    "danger": "6.1.6",
+    "danger": "6.1.8",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-15": "1.2.0",
     "eslines": "1.1.0",
