@@ -141,8 +141,6 @@
     "danger": "6.1.9",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-15": "1.2.0",
-    "eslines": "1.1.0",
-    "eslint-eslines": "1.0.0",
     "glob": "7.1.3",
     "gulp-delete-lines": "0.0.7",
     "husky": "0.14.3",
