@@ -32,7 +32,7 @@ function youtube_embed_to_short_code( $content ) {
 	}
 
 	// older codes
-	$regexp         = '!<object width="\d+" height="\d+"><param name="movie" value="https?://www\.youtube\.com/v/([^"]+)"></param>(?:<param name="\w+" value="[^"]*"></param>)*<embed src="https?://www\.youtube\.com/v/(.+)" type="application/x-shockwave-flash"(?: \w+="[^"]*")* width="\d+" height="\d+"></embed></object>!i';
+	$regexp         = '!<object(.*?)>.*?<param\s+name=[\'"]movie[\'"]\s+value=[\'"](https?:)?//www\.youtube\.com/v/([^\'"]+)[\'"].*?>.*?</object>!i';
 	$regexp_ent     = htmlspecialchars( $regexp, ENT_NOQUOTES );
 	$old_regexp     = '!<embed(?:\s+\w+="[^"]*")*\s+src="https?(?:\:|&#0*58;)//www\.youtube\.com/v/([^"]+)"(?:\s+\w+="[^"]*")*\s*(?:/>|>\s*</embed>)!';
 	$old_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $old_regexp, ENT_NOQUOTES ) );
@@ -55,10 +55,10 @@ function youtube_embed_to_short_code( $content ) {
 			// <object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
 			// As shown at the start of function, previous YouTube didn't '?'
 			// the 1st field-value pair.
-			if ( in_array( $reg, array( 'ifr_regexp', 'ifr_regexp_ent' ) ) ) {
+			if ( in_array( $reg, array( 'ifr_regexp', 'ifr_regexp_ent', 'regexp', 'regexp_ent' ) ) ) {
 				$params = $match[1];
 
-				if ( 'ifr_regexp_ent' == $reg ) {
+				if ( in_array( $reg, array( 'ifr_regexp_ent', 'regexp_ent' ) ) ) {
 					$params = html_entity_decode( $params );
 				}
 
