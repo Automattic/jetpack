@@ -73,7 +73,7 @@
     "cross-env": "5.2.0",
     "css-loader": "0.23.1",
     "del": "2.2.2",
-    "es6-promise": "3.0.2",
+    "es6-promise": "3.3.1",
     "eslint": "3.19.0",
     "eslint-config-wpcalypso": "0.7.1",
     "eslint-loader": "1.9.0",
