@@ -136,7 +136,7 @@
   },
   "devDependencies": {
     "babel-register": "6.26.0",
-    "chai": "3.5.0",
+    "chai": "4.2.0",
     "commander": "2.19.0",
     "danger": "6.1.9",
     "enzyme": "3.7.0",
