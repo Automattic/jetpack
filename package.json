@@ -152,8 +152,7 @@
     "node-wp-i18n": "1.2.1",
     "react-test-renderer": "15.6.2",
     "sinon": "1.17.7",
-    "sinon-chai": "2.14.0",
-    "webpack-dev-server": "2.9.2"
+    "sinon-chai": "2.14.0"
   },
   "engines": {
     "node": ">=8",
