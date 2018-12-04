@@ -127,7 +127,7 @@
     "react-tap-event-plugin": "2.0.1",
     "redux": "3.7.2",
     "redux-thunk": "2.3.0",
-    "sass-loader": "6.0.6",
+    "sass-loader": "6.0.7",
     "style-loader": "0.13.2",
     "uglify-save-license": "0.4.1",
     "url-loader": "0.5.9",
