@@ -2,7 +2,7 @@
 ( function( $ ) {
 	$( window ).load( function() {
 		// On Plugins.php
-		if ( 'plugins' === pagenow ) { // pagenow === $current_screen->id
+		if ( pagenow && 'plugins' === pagenow ) { // pagenow === $current_screen->id
 			// Remove | and () from the plugins filter bar
 			$.each( $( 'ul.subsubsub li' ), function( i, el ) {
 				var li = $( el );
