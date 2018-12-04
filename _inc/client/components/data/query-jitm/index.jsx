@@ -19,10 +19,24 @@ class QueryJitm extends Component {
 	};
 
 	componentWillMount() {
-		//const message_path = `wp:toplevel_page_jetpack${ this.props.route.path }`;
-		const message_path = 'wp:toplevel_page_jetpack:admin_notices';
+		const path = this.props.route.path;
+		const message_path = `wp:toplevel_page_jetpack${ path.replace( /\//, '_' ) }:admin_notices`;
 
 		if ( ! this.props.isFetchingJitm ) {
+			this.props.fetchJitm( message_path );
+		}
+	}
+
+	// If we move to a different subpage in the Jetpack Dashboard, fetch a new JITM.
+	componentDidUpdate( prevProps ) {
+		const path = this.props.route.path;
+		const message_path = `wp:toplevel_page_jetpack${ path.replace( /\//, '_' ) }:admin_notices`;
+		//const message_path = 'wp:toplevel_page_jetpack:admin_notices';
+
+		if (
+			this.props.route.path !== prevProps.route.path &&
+			! this.props.isFetchingJitm
+		) {
 			this.props.fetchJitm( message_path );
 		}
 	}
@@ -33,12 +47,12 @@ class QueryJitm extends Component {
 }
 
 export default connect(
-	( state ) => {
+	state => {
 		return { isFetchingJitm: isFetchingJitm( state ) };
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			fetchJitm: ( message_path ) => dispatch( fetchJitm( message_path ) )
+			fetchJitm: message_path => dispatch( fetchJitm( message_path ) )
 		};
 	}
 )( QueryJitm );
