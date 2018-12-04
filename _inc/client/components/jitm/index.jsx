@@ -13,6 +13,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import Button from 'components/button';
 import decodeEntities from 'lib/decode-entities';
 import Gridicon from 'components/gridicon';
 import {
@@ -20,7 +21,6 @@ import {
 	activateModule,
 	isActivatingModule
 } from 'state/modules';
-import Button from 'components/button';
 import { dismissJitm, getJitm, isDismissingJitm } from 'state/jitm';
 
 require( './../../../../scss/jetpack-admin-jitm.scss' );
@@ -56,6 +56,8 @@ class Jitm extends Component {
 
 			this.setState( { showJitm: false } );
 		}
+
+		analytics.tracks.recordEvent( 'jetpack_jitm_dismiss_client', { jitm_id: id } );
 	};
 
 	trackClick = () => {
@@ -197,11 +199,7 @@ class Jitm extends Component {
 	};
 
 	render() {
-		return (
-			<div>
-				{ this.state.showJitm ? this.renderContent() : null }
-			</div>
-		);
+		return <div>{this.state.showJitm ? this.renderContent() : null}</div>;
 	}
 }
 
