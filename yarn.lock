@@ -1280,7 +1280,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-beeper@^1.0.0:
+beeper@^1.0.0, beeper@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/beeper/-/beeper-1.1.1.tgz#e6d5ea8c5dad001304a70b22638447f69cb2f809"
 
@@ -4945,10 +4945,11 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "http://registry.npmjs.org/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-jshint-stylish@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/jshint-stylish/-/jshint-stylish-2.1.0.tgz#3aa2f2a14b09afa4099c3aeecd70fc5bbaba7a68"
+jshint-stylish@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/jshint-stylish/-/jshint-stylish-2.2.1.tgz#242082a2c035ae03fd81044e0570cc4208cf6e61"
   dependencies:
+    beeper "^1.1.0"
     chalk "^1.0.0"
     log-symbols "^1.0.0"
     plur "^2.1.0"
