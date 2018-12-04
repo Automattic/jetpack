@@ -94,7 +94,6 @@
     "gulp-if": "2.0.2",
     "gulp-jshint": "2.1.0",
     "gulp-json-transform": "0.4.5",
-    "gulp-live-server": "0.0.28",
     "gulp-modify": "0.1.1",
     "gulp-open": "1.0.0",
     "gulp-po2json": "0.4.0",
