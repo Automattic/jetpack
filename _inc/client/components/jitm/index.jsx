@@ -23,7 +23,7 @@ import {
 import Button from 'components/button';
 import { dismissJitm, getJitm, isDismissingJitm } from 'state/jitm';
 
-// to-do: bring in scss from jetpack-admin-jitm.scss. No need for now, but will be needed once we dequeue JITMs on the JP dashboard.
+require( './../../../../scss/jetpack-admin-jitm.scss' );
 
 class Jitm extends Component {
 	state = { showJitm: true };
