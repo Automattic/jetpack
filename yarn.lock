@@ -2934,9 +2934,9 @@ eslines@1.1.0:
     jest-docblock "20.0.3"
     optionator "0.8.1"
 
-eslint-config-wpcalypso@0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-0.7.1.tgz#24f729ba4257dd2a6472bca15d8a827967cfd487"
+eslint-config-wpcalypso@0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-0.8.0.tgz#e097552997bebef0d8256d9163741267c6ab510b"
 
 eslint-eslines@1.0.0:
   version "1.0.0"

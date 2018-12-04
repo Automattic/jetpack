@@ -75,7 +75,7 @@
     "del": "2.2.2",
     "es6-promise": "3.0.2",
     "eslint": "3.19.0",
-    "eslint-config-wpcalypso": "0.7.1",
+    "eslint-config-wpcalypso": "0.8.0",
     "eslint-loader": "1.9.0",
     "eslint-plugin-jsx-a11y": "4.0.0",
     "eslint-plugin-lodash": "2.7.0",

@@ -1,6 +1,7 @@
 /** External Dependencies **/
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
+	ReactDOM = require( 'react-dom' ),
 	isArray = require( 'lodash/isArray' ),
 	map = require( 'lodash/map' ),
 	Formsy = require( 'formsy-react' );
@@ -71,9 +72,9 @@ module.exports = createReactClass( {
 	},
 
 	unHighlightAllSites: function( event ) {
-		const checked = $( React.findDOMNode( this.refs.allItems ) ).prop( 'checked' );
+		const checked = $( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked' );
 		if ( checked && ! event.target.checked ) {
-			$( React.findDOMNode( this.refs.allItems ) ).prop( 'checked', false );
+			$( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked', false );
 		}
 	},
 
