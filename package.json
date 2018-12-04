@@ -128,7 +128,7 @@
     "redux": "3.7.2",
     "redux-thunk": "2.3.0",
     "sass-loader": "6.0.7",
-    "style-loader": "0.13.2",
+    "style-loader": "0.23.1",
     "uglify-save-license": "0.4.1",
     "url-loader": "0.5.9",
     "webpack": "3.12.0",
