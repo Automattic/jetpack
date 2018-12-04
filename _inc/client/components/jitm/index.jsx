@@ -28,15 +28,6 @@ require( './../../../../scss/jetpack-admin-jitm.scss' );
 class Jitm extends Component {
 	state = { showJitm: true };
 
-	componentDidMount() {
-		const jitm = this.props.Jitm;
-		const id = get( jitm, 'id', '' );
-
-		if ( '' !== id ) {
-			analytics.tracks.recordEvent( 'jetpack_jitm_view_client', { jitm_id: id } );
-		}
-	}
-
 	handleModuleActivation = ( module_slug, id ) => () => {
 		this.props.activateModule( module_slug );
 
@@ -56,8 +47,6 @@ class Jitm extends Component {
 
 			this.setState( { showJitm: false } );
 		}
-
-		analytics.tracks.recordEvent( 'jetpack_jitm_dismiss_client', { jitm_id: id } );
 	};
 
 	trackClick = () => {
