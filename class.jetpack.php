@@ -294,6 +294,7 @@ class Jetpack {
 		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
 		'twitter-cards/twitter-cards.php',           // Twitter Cards
 		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
+		'wp-to-twitter/wp-to-twitter.php',           // WP to Twitter
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 	);
 
