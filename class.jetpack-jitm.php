@@ -69,7 +69,8 @@ class Jetpack_JITM {
 		if ( ! in_array( $screen->id, array(
 			'jetpack_page_stats',
 			'jetpack_page_akismet-key-config',
-			'admin_page_jetpack_modules'
+			'admin_page_jetpack_modules',
+			'toplevel_page_jetpack'
 		) ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
