@@ -11,7 +11,6 @@ import { FEATURE_PRIVATE_JETPACK } from 'lib/plans/constants';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 class Private extends React.Component {
@@ -42,14 +41,6 @@ class Private extends React.Component {
 					>
 						{ __( 'Make your site private' ) }
 					</ModuleToggle>
-
-					{ module_enabled && (
-						<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{ __( 'Your site is only visible to you and users you approve.' ) }
-							</p>
-						</FormFieldset>
-					) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
