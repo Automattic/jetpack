@@ -70,7 +70,7 @@
     "component-uid": "0.0.2",
     "create-react-class": "15.6.3",
     "cross-env": "5.2.0",
-    "css-loader": "0.23.1",
+    "css-loader": "0.28.11",
     "del": "2.2.2",
     "es6-promise": "3.3.1",
     "eslint": "3.19.0",
