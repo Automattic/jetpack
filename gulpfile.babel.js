@@ -1,19 +1,14 @@
 /**
  * External dependencies
  */
-import check from 'gulp-check';
-import colors from 'ansi-colors';
 import del from 'del';
 import deleteLines from 'gulp-delete-lines';
-import eslint from 'gulp-eslint';
 import fs from 'fs';
 import gulp from 'gulp';
 import i18n_calypso from 'i18n-calypso/cli';
 import jshint from 'gulp-jshint';
 import json_transform from 'gulp-json-transform';
 import log from 'fancy-log';
-import phplint from 'gulp-phplint';
-import phpunit from 'gulp-phpunit';
 import po2json from 'gulp-po2json';
 import rename from 'gulp-rename';
 import request from 'request';
@@ -24,9 +19,6 @@ import { spawn } from 'child_process';
  * Internal dependencies
  */
 const meta = require( './package.json' );
-
-import { alwaysIgnoredPaths } from './tools/builder/util';
-
 import frontendcss from './tools/builder/frontend-css';
 import admincss from './tools/builder/admin-css';
 import {
@@ -40,53 +32,6 @@ import {
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
-} );
-
-/*
-	"Check" task
-	Search for strings and fail if found.
- */
-gulp.task( 'check:DIR', function() {
-	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
-		.pipe( check( '__DIR__' ) )
-		.on( 'error', function( err ) {
-			log( colors.red( err ) );
-		} );
-} );
-
-/*
-	PHP Lint
- */
-gulp.task( 'php:lint', function() {
-	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
-		.pipe( phplint( '', { skipPassedFiles: true } ) );
-} );
-
-/*
-	PHP Unit
- */
-gulp.task( 'php:unit', function() {
-	return gulp.src( 'phpunit.xml.dist' )
-		.pipe( phpunit( 'phpunit', { colors: 'disabled' } ) )
-		.on( 'error', function( err ) {
-			log( colors.red( err ) );
-		} );
-} );
-
-/**
- * eslint
- */
-gulp.task( 'eslint', function() {
-	return gulp.src( [
-		'_inc/client/**/*.js',
-		'_inc/client/**/*.jsx',
-		'!_inc/client/**/test/*.js',
-		'modules/**/*.jsx',
-	] )
-		.pipe( eslint() )
-		.pipe( eslint.format() )
-		.pipe( eslint.failAfterError() );
 } );
 
 /*
@@ -286,13 +231,11 @@ gulp.task( 'gutenberg:blocks', function() {
 
 gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
 gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
-gulp.task( 'php', gulp.parallel( 'php:lint', 'php:unit' ) );
-gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
 
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( react_build, sass_build, 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
+	gulp.parallel( react_build, sass_build, 'old-styles', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
 );
 gulp.task(
 	'watch',
