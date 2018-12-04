@@ -52,7 +52,7 @@
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/jetpack-blocks": "10.3.0",
     "ansi-colors": "1.1.0",
-    "babel-core": "6.8.0",
+    "babel-core": "6.26.3",
     "babel-eslint": "6.1.2",
     "babel-loader": "7.1.2",
     "babel-plugin-add-module-exports": "0.2.1",
