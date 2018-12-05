@@ -2689,20 +2689,9 @@ escope@^3.6.0:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
 
-eslines@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/eslines/-/eslines-1.1.0.tgz#780dd8204e5b96e05bdc8f01502cd5275abfc464"
-  dependencies:
-    jest-docblock "20.0.3"
-    optionator "0.8.1"
-
 eslint-config-wpcalypso@0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-0.8.0.tgz#e097552997bebef0d8256d9163741267c6ab510b"
-
-eslint-eslines@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-eslines/-/eslint-eslines-1.0.0.tgz#9ce1a95a33ba13ff2b393c05bbac2598c7453558"
 
 eslint-loader@1.9.0:
   version "1.9.0"
@@ -3004,10 +2993,6 @@ fast-deep-equal@^2.0.1:
 fast-json-stable-stringify@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
-
-fast-levenshtein@^1.1.0:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-1.1.4.tgz#e6a754cc8f15e58987aa9cbd27af66fd6f4e5af9"
 
 fast-levenshtein@~2.0.4:
   version "2.0.6"
@@ -4384,10 +4369,6 @@ jade@0.26.3:
 jed@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
-
-jest-docblock@20.0.3:
-  version "20.0.3"
-  resolved "https://registry.yarnpkg.com/jest-docblock/-/jest-docblock-20.0.3.tgz#17bea984342cc33d83c50fbe1545ea0efaa44712"
 
 js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.9"
