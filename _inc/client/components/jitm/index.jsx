@@ -99,7 +99,7 @@ class Jitm extends Component {
 	renderContent = () => {
 		const jitm = this.props.Jitm;
 
-		const activate_module = get( jitm, 'activate_module', null );
+		const module_slug = get( jitm, 'activate_module', null );
 
 		const cta = get( jitm, 'CTA', null );
 		const ctaMessage = get( cta, 'message', null );
@@ -143,13 +143,13 @@ class Jitm extends Component {
 									</div>
 								) }
 							</div>
-							{ activate_module && ! this.props.isModuleActivated &&
+							{ module_slug && ! this.props.isModuleActivated &&
 								<div className="jitm-banner__action" id="jitm-banner__activate">
 									<Button
 										className="jitm-button"
 										primary={ true }
 										compact={ true }
-										onClick={ this.handleModuleActivation( activate_module, id ) }
+										onClick={ this.handleModuleActivation( module_slug, id ) }
 										disabled={ this.props.isActivatingModule }
 									>
 										{this.props.isActivatingModule
@@ -163,7 +163,7 @@ class Jitm extends Component {
 									<a
 										target={ ctaNewWindow === false ? '_self' : '_blank' }
 										href={ url }
-										className={ `jitm-button dops-button is-compact ${ activate_module === null && ctaPrimary ? 'is-primary' : false }` }
+										className={ `jitm-button dops-button is-compact ${ module_slug === null && ctaPrimary ? 'is-primary' : false }` }
 										onClick={ this.trackClick }
 									>
 										{decodeEntities( ctaMessage )}
