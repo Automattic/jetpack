@@ -29,7 +29,14 @@ class QueryJitm extends Component {
 
 	// If we move to a different subpage in the Jetpack Dashboard, fetch a new JITM.
 	componentDidUpdate( prevProps ) {
-		const path = this.props.route.path;
+		let path = this.props.route.path;
+
+		// If you are navigating to Jetpack > Settings > Writing, the URL will be wp-admin/admin.php?page=jetpack#/writing
+		// Let's map that to the original wp-admin/admin.php?page=jetpack#/settings
+		if ( '/writing' === path ) {
+			path = '/settings';
+		}
+
 		const message_path = `wp:toplevel_page_jetpack${ path.replace( /\//, '_' ) }:admin_notices`;
 
 		if (
