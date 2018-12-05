@@ -258,7 +258,7 @@ class Main extends React.Component {
 				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
 						{ this.props.isSiteConnected && <QueryRewindStatus /> && <QueryJitm route={ this.props.route } /> }
-						<Jitm />
+						<Jitm key={ this.props.route.path } />
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
