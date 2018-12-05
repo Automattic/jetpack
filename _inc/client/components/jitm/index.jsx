@@ -105,7 +105,7 @@ class Jitm extends Component {
 
 		const cta = get( jitm, 'CTA', null );
 		const ctaMessage = get( cta, 'message', null );
-		// const ctaNewWindow = get( cta, 'newWindow', null );
+		const ctaNewWindow = get( cta, 'newWindow', null );
 		const ctaPrimary = get( cta, 'primary', null );
 
 		const description = get( jitm, 'content.description', null );
@@ -160,18 +160,14 @@ class Jitm extends Component {
 							)}
 							{ctaMessage && (
 								<div className="jitm-banner__action">
-									<Button // to-do: missing the option to open in a new window with the ctaNewWindow const.
-										// target={ ctaNewWindow === false ? '_self' : '_blank' }
+									<a
+										target={ ctaNewWindow === false ? '_self' : '_blank' }
 										href={ url }
-										className="jitm-button"
-										primary={
-											activate_module === null && ctaPrimary ? true : false
-										}
-										compact={ true }
+										className={ `jitm-button dops-button is-compact ${ activate_module === null && ctaPrimary ? 'is-primary' : false }` }
 										onClick={ this.trackClick }
 									>
 										{decodeEntities( ctaMessage )}
-									</Button>
+									</a>
 								</div>
 							)}
 							<Gridicon
