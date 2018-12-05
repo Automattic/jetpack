@@ -2171,7 +2171,7 @@ date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
 
-dateformat@^1.0.7-1.2.3:
+dateformat@^1.0.11, dateformat@^1.0.7-1.2.3:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-1.0.12.tgz#9f124b67594c937ff706932e4a642cca8dbbfee9"
   dependencies:
@@ -3580,14 +3580,14 @@ gulp-modify@0.1.1:
     gulp-util "*"
     through2 "*"
 
-gulp-open@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/gulp-open/-/gulp-open-1.0.0.tgz#4e096062f7ef8b3679660ea0cdef46b9b77dde6d"
+gulp-open@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/gulp-open/-/gulp-open-3.0.1.tgz#a2f747b4aa31abec9399b527158b0368c57e2102"
   dependencies:
     colors "^1.1.2"
-    gulp-util "^3.0.2"
-    open "0.0.5"
-    through2 "^0.6.3"
+    opn "5.2.0"
+    plugin-log "^0.1.0"
+    through2 "^2.0.1"
 
 gulp-po2json@1.0.0:
   version "1.0.0"
@@ -4361,6 +4361,10 @@ is-windows@^1.0.0, is-windows@^1.0.1, is-windows@^1.0.2:
 is-word-character@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-word-character/-/is-word-character-1.0.2.tgz#46a5dac3f2a1840898b91e576cd40d493f3ae553"
+
+is-wsl@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/is-wsl/-/is-wsl-1.1.0.tgz#1f16e4aa22b04d1336b66188a66af3c600c3a66d"
 
 isarray@0.0.1:
   version "0.0.1"
@@ -5795,9 +5799,11 @@ onetime@^1.0.0:
   version "1.1.0"
   resolved "http://registry.npmjs.org/onetime/-/onetime-1.1.0.tgz#a1f7838f8314c516f05ecefcbc4ccfe04b4ed789"
 
-open@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/open/-/open-0.0.5.tgz#42c3e18ec95466b6bf0dc42f3a2945c3f0cad8fc"
+opn@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/opn/-/opn-5.2.0.tgz#71fdf934d6827d676cecbea1531f95d354641225"
+  dependencies:
+    is-wsl "^1.1.0"
 
 optimist@^0.6.1:
   version "0.6.1"
@@ -6176,6 +6182,13 @@ plugin-error@^0.1.2:
     arr-diff "^1.0.1"
     arr-union "^2.0.1"
     extend-shallow "^1.1.2"
+
+plugin-log@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/plugin-log/-/plugin-log-0.1.0.tgz#86049cf6ab10833398a931f3689cbaee7b5e1333"
+  dependencies:
+    chalk "^1.1.1"
+    dateformat "^1.0.11"
 
 plur@^2.1.0:
   version "2.1.2"
@@ -6682,15 +6695,6 @@ readable-stream@1.1:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-"readable-stream@>=1.0.33-1 <1.1.0-0", readable-stream@~1.0.0, readable-stream@~1.0.17, readable-stream@~1.0.31:
-  version "1.0.34"
-  resolved "http://registry.npmjs.org/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
-  dependencies:
-    core-util-is "~1.0.0"
-    inherits "~2.0.1"
-    isarray "0.0.1"
-    string_decoder "~0.10.x"
-
 readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.4, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.5, readable-stream@^2.3.6, readable-stream@~2.3.6:
   version "2.3.6"
   resolved "http://registry.npmjs.org/readable-stream/-/readable-stream-2.3.6.tgz#b11c27d88b8ff1fbe070643cf94b0c79ae1b0aaf"
@@ -6702,6 +6706,15 @@ readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable
     safe-buffer "~5.1.1"
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
+
+readable-stream@~1.0.0, readable-stream@~1.0.17, readable-stream@~1.0.31:
+  version "1.0.34"
+  resolved "http://registry.npmjs.org/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
+  dependencies:
+    core-util-is "~1.0.0"
+    inherits "~2.0.1"
+    isarray "0.0.1"
+    string_decoder "~0.10.x"
 
 readable-stream@~1.1.9:
   version "1.1.14"
@@ -7680,13 +7693,6 @@ through2@^0.5.0:
     readable-stream "~1.0.17"
     xtend "~3.0.0"
 
-through2@^0.6.3:
-  version "0.6.5"
-  resolved "http://registry.npmjs.org/through2/-/through2-0.6.5.tgz#41ab9c67b29d57209071410e1d7a7a968cd3ad48"
-  dependencies:
-    readable-stream ">=1.0.33-1 <1.1.0-0"
-    xtend ">=4.0.0 <4.1.0-0"
-
 through@2, through@^2.3.6, through@~2.3, through@~2.3.1:
   version "2.3.8"
   resolved "http://registry.npmjs.org/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
@@ -8390,7 +8396,7 @@ xml-name-validator@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-2.0.1.tgz#4d8b8f1eccd3419aa362061becef515e1e559635"
 
-"xtend@>=4.0.0 <4.1.0-0", xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
+xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
 
