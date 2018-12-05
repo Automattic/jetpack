@@ -17,7 +17,7 @@ import Button from 'components/button';
 import decodeEntities from 'lib/decode-entities';
 import Gridicon from 'components/gridicon';
 import {
-	isModuleActivated as _isModuleActivated,
+	isModuleActivated,
 	activateModule,
 	isActivatingModule
 } from 'state/modules';
@@ -215,7 +215,7 @@ export default connect(
 		return {
 			isDismissingJitm: isDismissingJitm( state ),
 			isFetchingJitm: isFetchingJitm( state ),
-			isModuleActivated: _isModuleActivated( state, module_slug ),
+			isModuleActivated: isModuleActivated( state, module_slug ),
 			isActivatingModule: isActivatingModule( state, module_slug ),
 			Jitm: jitm
 		};
