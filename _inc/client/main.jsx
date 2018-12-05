@@ -31,6 +31,7 @@ import {
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag, showWelcomeForNewPlan } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
+import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
@@ -201,6 +202,12 @@ class Main extends React.Component {
 					siteAdminUrl={ this.props.siteAdminUrl }
 					rewindStatus={ this.props.rewindStatus } />;
 				break;
+			case '/my-plan':
+				pageComponent = <MyPlan
+					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					rewindStatus={ this.props.rewindStatus } />;
+				break;
 			case '/plans':
 				pageComponent = <Plans
 					siteRawUrl={ this.props.siteRawUrl }
@@ -318,7 +325,8 @@ window.wpNavMenuClassChange = function() {
 		dashboardRoutes = [
 			'#/',
 			'#/dashboard',
-			'#/plans'
+			'#/my-plan',
+			'#/plans',
 		];
 
 	// Clear currents
@@ -341,7 +349,7 @@ window.wpNavMenuClassChange = function() {
 
 	const $body = jQuery( 'body' );
 
-	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/plans"]', function() {
+	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/my-plan"], .dops-button[href="#/plans"]', function() {
 		window.scrollTo( 0, 0 );
 	} );
 
