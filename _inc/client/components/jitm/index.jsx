@@ -21,7 +21,7 @@ import {
 	activateModule,
 	isActivatingModule
 } from 'state/modules';
-import { dismissJitm, getJitm, isDismissingJitm } from 'state/jitm';
+import { getJitmDismissalResponse, getJitm, isDismissingJitm } from 'state/jitm';
 
 require( './../../../../scss/jetpack-admin-jitm.scss' );
 
@@ -43,7 +43,7 @@ class Jitm extends Component {
 		const id = get( jitm, 'id', '' );
 
 		if ( ! this.props.isDismissingJitm ) {
-			this.props.dismissJitm( id, feature_class );
+			this.props.getJitmDismissalResponse( id, feature_class );
 
 			this.setState( { showJitm: false } );
 		}
@@ -216,9 +216,9 @@ export default connect(
 			activateModule: slug => {
 				return dispatch( activateModule( slug ) );
 			},
-			dismissJitm: ( id = '', feature_class = '' ) => {
+			getJitmDismissalResponse: ( id = '', feature_class = '' ) => {
 				if ( '' !== id && '' !== feature_class ) {
-					return dispatch( dismissJitm( id, feature_class ) );
+					return dispatch( getJitmDismissalResponse( id, feature_class ) );
 				}
 			}
 		};
