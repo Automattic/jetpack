@@ -416,10 +416,6 @@ array.prototype.flat@^1.2.1:
     es-abstract "^1.10.0"
     function-bind "^1.1.1"
 
-arrify@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/arrify/-/arrify-1.0.1.tgz#898508da2226f380df904728456849c1501a4b0d"
-
 asap@~2.0.3, asap@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
@@ -2721,11 +2717,11 @@ eslint-plugin-jsx-a11y@4.0.0:
     jsx-ast-utils "^1.0.0"
     object-assign "^4.0.1"
 
-eslint-plugin-lodash@2.7.0:
-  version "2.7.0"
-  resolved "http://registry.npmjs.org/eslint-plugin-lodash/-/eslint-plugin-lodash-2.7.0.tgz#66cdc1070b7c9d4b749368b54820886380a14c35"
+eslint-plugin-lodash@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-lodash/-/eslint-plugin-lodash-5.1.0.tgz#f7dc6c14f104cacb169a18d17c27d9c015a53924"
   dependencies:
-    lodash "~4.17.0"
+    lodash "4.17.11"
 
 eslint-plugin-react@6.10.3:
   version "6.10.3"
@@ -5034,7 +5030,7 @@ lodash.values@~2.4.1:
   dependencies:
     lodash.keys "~2.4.1"
 
-lodash@4.17.11, lodash@^4.0.0, lodash@^4.12.0, lodash@^4.13.1, lodash@^4.14.2, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@~4.17.0, lodash@~4.17.10:
+lodash@4.17.11, lodash@^4.0.0, lodash@^4.12.0, lodash@^4.13.1, lodash@^4.14.2, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
 
