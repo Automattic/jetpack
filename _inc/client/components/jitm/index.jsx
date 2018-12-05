@@ -117,7 +117,7 @@ class Jitm extends Component {
 			get( jitm, 'content.classes', '' )
 		);
 		const title = get( jitm, 'content.message', '' );
-		const url = get( jitm, 'url', '' );
+		const url = `${ get( jitm, 'url', '' ) }&redirect=%2Fwp-admin%2Fadmin.php%3Fpage%3Djetpack`;
 
 		return (
 			<div>
