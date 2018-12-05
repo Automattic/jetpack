@@ -147,7 +147,7 @@ class Jitm extends Component {
 									</div>
 								)}
 							</div>
-							{activate_module && (
+							{ activate_module && ! this.props.isModuleActivated( activate_module ) &&
 								<div className="jitm-banner__action" id="jitm-banner__activate">
 									<Button
 										className="jitm-button"
@@ -161,7 +161,7 @@ class Jitm extends Component {
 											: __( 'Activate' )}
 									</Button>
 								</div>
-							)}
+							}
 							{ctaMessage && (
 								<div className="jitm-banner__action">
 									<a
@@ -197,14 +197,18 @@ class Jitm extends Component {
 }
 
 Jitm.propTypes = {
+	isActivatingModule: PropTypes.bool,
 	isDismissingJitm: PropTypes.bool,
 	isFetchingJitm: PropTypes.bool,
+	isModuleActivated: PropTypes.bool,
 	Jitm: PropTypes.object.isRequired
 };
 
 Jitm.defaultProps = {
+	isActivatingModule: false,
 	isDismissingJitm: false,
 	isFetchingJitm: false,
+	isModuleActivated: false,
 	Jitm: {}
 };
 
