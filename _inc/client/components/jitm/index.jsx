@@ -143,16 +143,16 @@ class Jitm extends Component {
 									</div>
 								) }
 							</div>
-							{ activate_module && ! this.props.isModuleActivated( activate_module ) &&
+							{ activate_module && ! this.props.isModuleActivated &&
 								<div className="jitm-banner__action" id="jitm-banner__activate">
 									<Button
 										className="jitm-button"
 										primary={ true }
 										compact={ true }
 										onClick={ this.handleModuleActivation( activate_module, id ) }
-										disabled={ this.props.isActivatingModule( activate_module ) }
+										disabled={ this.props.isActivatingModule }
 									>
-										{this.props.isActivatingModule( activate_module )
+										{this.props.isActivatingModule
 											? __( 'Activating' )
 											: __( 'Activate' )}
 									</Button>
@@ -209,13 +209,15 @@ Jitm.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
+		const jitm = getJitm( state );
+		const module_slug = get( jitm, 'activate_module', null );
 		return {
 			isDismissingJitm: isDismissingJitm( state ),
 			isFetchingJitm: isFetchingJitm( state ),
-			isModuleActivated: module_slug => _isModuleActivated( state, module_slug ),
-			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
-			Jitm: getJitm( state )
+			isModuleActivated: _isModuleActivated( state, module_slug ),
+			isActivatingModule: isActivatingModule( state, module_slug ),
+			Jitm: jitm
 		};
 	},
 	dispatch => {
