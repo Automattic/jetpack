@@ -2575,9 +2575,9 @@ eslint-config-wpcalypso@0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-0.8.0.tgz#e097552997bebef0d8256d9163741267c6ab510b"
 
-eslint-loader@1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/eslint-loader/-/eslint-loader-1.9.0.tgz#7e1be9feddca328d3dcfaef1ad49d5beffe83a13"
+eslint-loader@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/eslint-loader/-/eslint-loader-2.1.1.tgz#2a9251523652430bfdd643efdb0afc1a2a89546a"
   dependencies:
     loader-fs-cache "^1.0.0"
     loader-utils "^1.0.2"
