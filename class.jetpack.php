@@ -4796,9 +4796,7 @@ p {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 		}
 		// Get affiliate code and add it to the URL
-		if ( '' !== ( $aff = Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
-			$url = add_query_arg( 'aff', $aff, $url );
-		}
+		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
