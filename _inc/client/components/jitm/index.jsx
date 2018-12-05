@@ -100,7 +100,6 @@ class Jitm extends Component {
 	renderContent = () => {
 		const jitm = this.props.Jitm;
 
-		// to-do: I am not familiar enough with lodash yet, but there may be a way to combine some of those calls.
 		const activate_module = get( jitm, 'activate_module', null );
 
 		const cta = get( jitm, 'CTA', null );

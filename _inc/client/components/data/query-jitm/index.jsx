@@ -31,7 +31,6 @@ class QueryJitm extends Component {
 	componentDidUpdate( prevProps ) {
 		const path = this.props.route.path;
 		const message_path = `wp:toplevel_page_jetpack${ path.replace( /\//, '_' ) }:admin_notices`;
-		//const message_path = 'wp:toplevel_page_jetpack:admin_notices';
 
 		if (
 			this.props.route.path !== prevProps.route.path &&
