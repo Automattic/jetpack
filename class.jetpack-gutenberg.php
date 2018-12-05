@@ -60,6 +60,21 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		if ( Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
+			// We defer the loading of the blocks until we have a better scope in reset requests.
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'defered_register_blocks' ) );
+			return;
+		}
+
+		self::register_blocks();
+	}
+
+	static function defered_register_blocks( $request ) {
+		self::register_blocks();
+		return $request;
+	}
+
+	static function register_blocks() {
 		/**
 		 * Filter the list of blocks that are available through jetpack.
 		 *
@@ -70,12 +85,15 @@ class Jetpack_Gutenberg {
 		 * @param array
 		 */
 		self::$blocks_index = apply_filters( 'jetpack_set_available_blocks', array() );
-
 		foreach ( self::$jetpack_blocks as $type => $args ) {
 			if ( 'publicize' === $type ) {
 				// publicize is not actually a block, it's a gutenberg plugin.
 				// We will handle it's registration on the client-side.
 				continue;
+			}
+			if ( isset( $args['availability']['callback'] ) ) {
+				$args['availability'] = call_user_func( $args['availability']['callback'] );
+				self::$jetpack_blocks[ $type ] = $args; // update this so that we don't have to call it again
 			}
 			if ( isset( $args['availability']['available'] ) && $args['availability']['available'] && in_array( $type, self::$blocks_index ) ) {
 				register_block_type( 'jetpack/' . $type, $args['args'] );
