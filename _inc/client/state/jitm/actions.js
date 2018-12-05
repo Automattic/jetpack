@@ -33,7 +33,7 @@ export const fetchJitm = ( message_path = '', query_url = 'page=jetpack' ) => {
 	};
 };
 
-export const dismissJitm = ( id, feature_class ) => {
+export const getJitmDismissalResponse = ( id, feature_class ) => {
 	return dispatch => {
 		dispatch( {
 			type: JITM_DISMISS

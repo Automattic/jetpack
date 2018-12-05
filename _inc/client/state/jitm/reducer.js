@@ -97,6 +97,6 @@ export function getJitm( state ) {
  * @param  {Object}  state Global state tree
  * @return {Object}  Response
  */
-export function dismissJitm( state ) {
+export function getJitmDismissalResponse( state ) {
 	return get( state.jetpack.jitm, [ 'data', 'response' ], {} );
 }
