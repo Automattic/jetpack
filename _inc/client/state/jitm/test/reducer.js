@@ -2,12 +2,9 @@ import { expect } from 'chai';
 
 import {
 	data as dataReducer,
-    requests as requestsReducer,
+	requests as requestsReducer,
+	initialRequestsState
 } from '../reducer';
-
-const initialRequestsState = {
-	isFetchingJitm: false
-};
 
 describe( 'data reducer', () => {
 	it( 'data state should default to empty object', () => {
