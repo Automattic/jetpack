@@ -93,7 +93,7 @@
     "gulp-concat": "2.6.1",
     "gulp-if": "2.0.2",
     "gulp-jshint": "2.1.0",
-    "gulp-json-transform": "0.4.5",
+    "gulp-json-transform": "0.4.6",
     "gulp-modify": "0.1.1",
     "gulp-open": "1.0.0",
     "gulp-po2json": "0.4.0",
