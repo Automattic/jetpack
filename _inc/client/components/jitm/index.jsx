@@ -127,12 +127,11 @@ class Jitm extends Component {
 								{ description && (
 									<div className="jitm-banner__description">
 										{ decodeEntities( description ) }
-										{ list &&
-											list.length && (
-												<ul className="banner__list">
-													{ list.map( listItem => this.renderListItem( listItem ) ) }
-												</ul>
-											) }
+										{ list && list.length > 0 && (
+											<ul className="banner__list">
+												{ list.map( listItem => this.renderListItem( listItem ) ) }
+											</ul>
+										) }
 									</div>
 								) }
 							</div>
