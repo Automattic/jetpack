@@ -68,38 +68,32 @@ class Jitm extends Component {
 		const id = get( jitm, 'id', '' );
 
 		analytics.tracks.recordEvent( 'jetpack_nudge_item_click', {
-			click: `jitm-${ id }`
+			click: `jitm-${ id }`,
 		} );
 	};
 
-	renderListItem = () => {
-		const jitm = this.props.Jitm;
-		const list = get( jitm, 'content.list', null );
-
-		for ( const listItem of list ) {
-			const { item, url } = listItem;
-			let text = decodeEntities( item );
-
-			if ( url ) {
-				text = (
-					<a
-						href={ url }
-						onClick={ this.trackListClick }
-						rel={ 'noopener noreferrer' }
-						target={ '_blank' }
-					>
-						{decodeEntities( item )}
-					</a>
-				);
-			}
-
-			return (
-				<li>
-					<Gridicon icon="checkmark" size={ 16 } />
-					{text}
-				</li>
+	renderListItem = ( listItem ) => {
+		const { item, url } = listItem;
+		let text = decodeEntities( item );
+		if ( url ) {
+			text = (
+				<a
+					href={ url }
+					onClick={ this.trackListClick }
+					rel={ 'noopener noreferrer' }
+					target={ '_blank' }
+				>
+					{ decodeEntities( item ) }
+				</a>
 			);
 		}
+
+		return (
+			<li key={ item } >
+				<Gridicon icon="checkmark" size={ 16 } />
+				{ text }
+			</li>
+		);
 	};
 
 	renderContent = () => {
@@ -140,12 +134,14 @@ class Jitm extends Component {
 								</div>
 								{description && (
 									<div className="jitm-banner__description">
-										{decodeEntities( description )}
-										{list.length > 0 && (
-											<ul className="banner__list">{this.renderListItem}</ul>
-										)}
+										{ decodeEntities( description ) }
+										{ list && list.length &&
+											<ul className="banner__list">
+												{ list.map( listItem => this.renderListItem( listItem ) ) }
+											</ul>
+										}
 									</div>
-								)}
+								) }
 							</div>
 							{ activate_module && ! this.props.isModuleActivated( activate_module ) &&
 								<div className="jitm-banner__action" id="jitm-banner__activate">
