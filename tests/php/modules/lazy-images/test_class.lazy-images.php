@@ -208,6 +208,11 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	function test_compat_with_wp_kses_post() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 5.0, '>=' ) ) {
+			$this->markTestSkipped( 'WP 5.0 allow all data attributes' );
+			return;
+		}
 		$instance = Jetpack_Lazy_Images::instance();
 		remove_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
 
