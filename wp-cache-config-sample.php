@@ -76,7 +76,6 @@ $wp_cache_pages[ "author" ] = 0;
 $wp_cache_hide_donation = 0;
 $wp_cache_not_logged_in = 0;
 $wp_cache_clear_on_post_edit = 0;
-$wp_cache_hello_world = 0;
 $wp_cache_mobile_enabled = 0;
 $wp_cache_cron_check = 0;
 $wp_cache_mfunc_enabled = 0;
