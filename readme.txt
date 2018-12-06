@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Contact Form: security changes to improve the display of success messages after submitting a form.
 * Publicize: avoid Fatal errors when trying to create or edit posts from a Custom Post Type that supports Publicize.
 * Sync: improve synchronization of WooCommerce events.
 * WordPress.com REST API: handle WooCommerce Product reviews for a better display in apps that use the API.
