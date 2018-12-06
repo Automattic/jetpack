@@ -100,6 +100,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 6.8.1 =
+
+* Release date: December 6, 2018
+* Release post: https://wp.me/p1moTy-d3t
+
+**Bug fixes**
+
+* Publicize: avoid Fatal errors when trying to create or edit posts from a Custom Post Type that supports Publicize.
+* Sync: improve synchronization of WooCommerce events.
+* WordPress.com REST API: handle WooCommerce Product reviews for a better display in apps that use the API.
+
 = 6.8 =
 
 * Release date: November 26, 2018
