@@ -3589,14 +3589,13 @@ gulp-open@1.0.0:
     open "0.0.5"
     through2 "^0.6.3"
 
-gulp-po2json@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/gulp-po2json/-/gulp-po2json-0.4.0.tgz#b0bb8eca7480cd6e6c1d82d79e1c6ad93bfb0043"
+gulp-po2json@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/gulp-po2json/-/gulp-po2json-1.0.0.tgz#d21e687236b984c0cc33ef928ddc2e02d2f35a30"
   dependencies:
-    gulp-util "~2.2.14"
-    lodash "~2.4.1"
-    po2json "~0.4.1"
-    through2 "~0.4.1"
+    plugin-error "^1.0.1"
+    po2json "^0.4.5"
+    through2 "^2.0.3"
 
 gulp-rename@1.4.0:
   version "1.4.0"
@@ -3693,7 +3692,7 @@ gulp-util@*, gulp-util@>=2.2.0, gulp-util@^3.0.0, gulp-util@^3.0.2, gulp-util@^3
     through2 "^2.0.0"
     vinyl "^0.5.0"
 
-gulp-util@^2.2.14, gulp-util@~2.2.14:
+gulp-util@^2.2.14:
   version "2.2.20"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-2.2.20.tgz#d7146e5728910bd8f047a6b0b1e549bc22dbd64c"
   dependencies:
@@ -5041,10 +5040,6 @@ lodash@^3.10.1:
   version "3.10.1"
   resolved "http://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@~2.4.1:
-  version "2.4.2"
-  resolved "http://registry.npmjs.org/lodash/-/lodash-2.4.2.tgz#fadd834b9683073da179b3eae6d9c0d15053f73e"
-
 log-symbols@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/log-symbols/-/log-symbols-1.0.2.tgz#376ff7b58ea3086a0f09facc74617eca501e1a18"
@@ -6192,7 +6187,7 @@ pluralize@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-1.2.1.tgz#d1a21483fd22bb41e58a12fa3421823140897c45"
 
-po2json@~0.4.1:
+po2json@^0.4.5:
   version "0.4.5"
   resolved "http://registry.npmjs.org/po2json/-/po2json-0.4.5.tgz#47bb2952da32d58a1be2f256a598eebc0b745118"
   dependencies:
@@ -7671,7 +7666,7 @@ through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@~2.0.0
     readable-stream "~2.3.6"
     xtend "~4.0.1"
 
-through2@^0.4.1, through2@~0.4.1, through2@~0.4.2:
+through2@^0.4.1, through2@~0.4.2:
   version "0.4.2"
   resolved "http://registry.npmjs.org/through2/-/through2-0.4.2.tgz#dbf5866031151ec8352bb6c4db64a2292a840b9b"
   dependencies:
