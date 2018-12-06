@@ -56,7 +56,7 @@ function jetpack_widgets_configuration_load() {
  * @return string module settings URL
  */
 function jetpack_widgets_configuration_url() {
-	return admin_url( 'widgets.php' );
+	return admin_url( 'customize.php?autofocus[panel]=widgets' );
 }
 
 jetpack_load_widgets();
