@@ -1,6 +1,9 @@
 /**
  * External dependencies
+ *
+ * @format
  */
+
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
@@ -16,17 +19,8 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import decodeEntities from 'lib/decode-entities';
 import Gridicon from 'components/gridicon';
-import {
-	isModuleActivated,
-	activateModule,
-	isActivatingModule
-} from 'state/modules';
-import {
-	getJitmDismissalResponse,
-	getJitm,
-	isDismissingJitm,
-	isFetchingJitm
-} from 'state/jitm';
+import { isModuleActivated, activateModule, isActivatingModule } from 'state/modules';
+import { getJitmDismissalResponse, getJitm, isDismissingJitm, isFetchingJitm } from 'state/jitm';
 
 require( './../../../../scss/jetpack-admin-jitm.scss' );
 
@@ -38,7 +32,7 @@ class Jitm extends Component {
 
 		// Track module activation.
 		analytics.tracks.recordEvent( 'jetpack_nudge_click', {
-			click: `jitm-${ id }-activate_module`
+			click: `jitm-${ id }-activate_module`,
 		} );
 	};
 
@@ -59,7 +53,7 @@ class Jitm extends Component {
 		const id = get( jitm, 'id', '' );
 
 		analytics.tracks.recordEvent( 'jetpack_nudge_click', {
-			click: `jitm-${ id }`
+			click: `jitm-${ id }`,
 		} );
 	};
 
@@ -72,7 +66,7 @@ class Jitm extends Component {
 		} );
 	};
 
-	renderListItem = ( listItem ) => {
+	renderListItem = listItem => {
 		const { item, url } = listItem;
 		let text = decodeEntities( item );
 		if ( url ) {
@@ -89,7 +83,7 @@ class Jitm extends Component {
 		}
 
 		return (
-			<li key={ item } >
+			<li key={ item }>
 				<Gridicon icon="checkmark" size={ 16 } />
 				{ text }
 			</li>
@@ -120,7 +114,7 @@ class Jitm extends Component {
 
 		return (
 			<div>
-				{! isEmpty( jitm ) && (
+				{ ! isEmpty( jitm ) && (
 					<div className={ mainClasses }>
 						<div
 							className="jitm-banner__icon-plan"
@@ -129,47 +123,47 @@ class Jitm extends Component {
 						/>
 						<div className="jitm-banner__content">
 							<div className="jitm-banner__info">
-								<div className="jitm-banner__title">
-									{decodeEntities( title )}
-								</div>
-								{description && (
+								<div className="jitm-banner__title">{ decodeEntities( title ) }</div>
+								{ description && (
 									<div className="jitm-banner__description">
 										{ decodeEntities( description ) }
-										{ list && list.length &&
-											<ul className="banner__list">
-												{ list.map( listItem => this.renderListItem( listItem ) ) }
-											</ul>
-										}
+										{ list &&
+											list.length && (
+												<ul className="banner__list">
+													{ list.map( listItem => this.renderListItem( listItem ) ) }
+												</ul>
+											) }
 									</div>
 								) }
 							</div>
-							{ module_slug && ! this.props.isModuleActivated &&
-								<div className="jitm-banner__action" id="jitm-banner__activate">
-									<Button
-										className="jitm-button"
-										primary={ true }
-										compact={ true }
-										onClick={ this.handleModuleActivation( module_slug, id ) }
-										disabled={ this.props.isActivatingModule }
-									>
-										{this.props.isActivatingModule
-											? __( 'Activating' )
-											: __( 'Activate' )}
-									</Button>
-								</div>
-							}
-							{ctaMessage && (
+							{ module_slug &&
+								! this.props.isModuleActivated && (
+									<div className="jitm-banner__action" id="jitm-banner__activate">
+										<Button
+											className="jitm-button"
+											primary={ true }
+											compact={ true }
+											onClick={ this.handleModuleActivation( module_slug, id ) }
+											disabled={ this.props.isActivatingModule }
+										>
+											{ this.props.isActivatingModule ? __( 'Activating' ) : __( 'Activate' ) }
+										</Button>
+									</div>
+								) }
+							{ ctaMessage && (
 								<div className="jitm-banner__action">
 									<a
 										target={ ctaNewWindow === false ? '_self' : '_blank' }
 										href={ url }
-										className={ `jitm-button dops-button is-compact ${ module_slug === null && ctaPrimary ? 'is-primary' : false }` }
+										className={ `jitm-button dops-button is-compact ${
+											module_slug === null && ctaPrimary ? 'is-primary' : false
+										}` }
 										onClick={ this.trackClick }
 									>
-										{decodeEntities( ctaMessage )}
+										{ decodeEntities( ctaMessage ) }
 									</a>
 								</div>
-							)}
+							) }
 							<Gridicon
 								className="jitm-banner__dismiss"
 								onClick={ this.handleDismissal }
@@ -178,7 +172,7 @@ class Jitm extends Component {
 							/>
 						</div>
 					</div>
-				)}
+				) }
 			</div>
 		);
 	};
@@ -197,7 +191,7 @@ Jitm.propTypes = {
 	isDismissingJitm: PropTypes.bool,
 	isFetchingJitm: PropTypes.bool,
 	isModuleActivated: PropTypes.bool,
-	Jitm: PropTypes.object.isRequired
+	Jitm: PropTypes.object.isRequired,
 };
 
 Jitm.defaultProps = {
@@ -205,11 +199,11 @@ Jitm.defaultProps = {
 	isDismissingJitm: false,
 	isFetchingJitm: false,
 	isModuleActivated: false,
-	Jitm: {}
+	Jitm: {},
 };
 
 export default connect(
-	( state ) => {
+	state => {
 		const jitm = getJitm( state );
 		const module_slug = get( jitm, 'activate_module', null );
 		return {
@@ -217,7 +211,7 @@ export default connect(
 			isFetchingJitm: isFetchingJitm( state ),
 			isModuleActivated: isModuleActivated( state, module_slug ),
 			isActivatingModule: isActivatingModule( state, module_slug ),
-			Jitm: jitm
+			Jitm: jitm,
 		};
 	},
 	dispatch => {
@@ -229,7 +223,7 @@ export default connect(
 				if ( '' !== id && '' !== feature_class ) {
 					return dispatch( getJitmDismissalResponse( id, feature_class ) );
 				}
-			}
+			},
 		};
 	}
 )( Jitm );
