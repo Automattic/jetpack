@@ -195,9 +195,10 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		}
 
 		$query = array(
-			'order'  => $args['order'],
-			'type'   => 'any' === $args['type'] ? false : $args['type'],
-			'status' => $status,
+			'order'        => $args['order'],
+			'type'         => 'any' === $args['type'] ? false : $args['type'],
+			'status'       => $status,
+			'type__not_in' => array( 'review' ),
 		);
 
 		if ( isset( $args['page'] ) ) {
