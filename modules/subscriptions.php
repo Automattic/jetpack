@@ -850,10 +850,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$widget_id              = esc_attr( !empty( $args['widget_id'] )      ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
-		$subscribers_total      = self::fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
+		$subscribers_total      = self::fetch_subscriber_count();
 
-		if ( $instance['show_only_email_and_button'] ) {
-			unset( $instance['title']);
+		if ( isset( $instance['show_only_email_and_button'] ) && $instance['show_only_email_and_button'] ) {
+			unset( $instance['title'] );
 			$subscribe_text = false;
 		}
 
