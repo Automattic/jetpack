@@ -1618,9 +1618,9 @@ function wp_lock_down() {
 	$new_lockdown_desc =  $wp_lock_down == '1' ? __( 'Disable', 'wp-super-cache' ) : __( 'Enable', 'wp-super-cache' );
 	echo '<form name="wp_lock_down" action="#lockdown" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} " . __( 'Lock Down', 'wp-super-cache' ) . "' /></div>";
-	wp_nonce_field('wp-cache');
-	echo "</form>\n";
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_attr( $new_lockdown_desc . ' ' . __( 'Lock Down', 'wp-super-cache' ) ) . '" /></div>';
+	wp_nonce_field( 'wp-cache' );
+	echo '</form>';
 
 	?></fieldset><?php
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
@@ -1657,20 +1657,27 @@ function wp_lock_down() {
 			echo "$out</table>";
 		}
 	}
-	if( $readonly != 'READONLY' )
-		echo __( "Add direct page:", 'wp-super-cache' ) . "<input type='text' $readonly name='new_direct_page' size='30' value='' />";
 
-	echo "<p>" . sprintf( __( "Directly cached files are files created directly off %s where your blog lives. This feature is only useful if you are expecting a major Digg or Slashdot level of traffic to one post or page.", 'wp-super-cache' ), ABSPATH ) . "</p>";
-	if( $readonly != 'READONLY' ) {
-		echo "<p>" . sprintf( __( 'For example: to cache <em>%1$sabout/</em>, you would enter %1$sabout/ or /about/. The cached file will be generated the next time an anonymous user visits that page.', 'wp-super-cache' ), trailingslashit( get_option( 'siteurl' ) ) ) . "</p>";
-		echo "<p>" . __( 'Make the textbox blank to remove it from the list of direct pages and delete the cached file.', 'wp-super-cache' ) . "</p>";
+	if ( 'READONLY' !== $readonly ) {
+		echo esc_html__( 'Add direct page:', 'wp-super-cache' ) . '<input type="text" name="new_direct_page" size="30" value="" />';
 	}
+	echo '<p>' . sprintf(
+		esc_html__( 'Directly cached files are files created directly off %s where your blog lives. This feature is only useful if you are expecting a major Digg or Slashdot level of traffic to one post or page.', 'wp-super-cache' ),
+		esc_attr( ABSPATH )
+	) . '</p>';
+	if ( 'READONLY' !== $readonly ) {
+		echo '<p>' . sprintf( __( 'For example: to cache <em>%1$sabout/</em>, you would enter %1$sabout/ or /about/. The cached file will be generated the next time an anonymous user visits that page.', 'wp-super-cache' ),
+			esc_attr( trailingslashit( get_option( 'siteurl' ) ) )
+		) . '</p>';
+		echo '<p>' . esc_html__( 'Make the textbox blank to remove it from the list of direct pages and delete the cached file.', 'wp-super-cache' ) . '</p>';
 
-	wp_nonce_field('wp-cache');
-	if( $readonly != 'READONLY' )
-		echo "<div class='submit'><input class='button-primary' type='submit' ' . SUBMITDISABLED . 'value='" . __( 'Update Direct Pages', 'wp-super-cache' ) . "' /></div>";
-	echo "</form>\n";
-	?></fieldset><?php
+		echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_attr__( 'Update Direct Pages', 'wp-super-cache' ) . '" /></div>';
+	}
+	wp_nonce_field( 'wp-cache' );
+	echo '</form>';
+	?>
+	</fieldset>
+	<?php
 	} // if $super_cache_enabled
 }
 
