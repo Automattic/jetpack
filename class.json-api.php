@@ -634,9 +634,10 @@ class WPCOM_JSON_API {
 		);
 
 		/**
-		 * Exclude certain comment types from comment counts.
+		 * Exclude certain comment types from comment counts in the REST API.
 		 *
-		 * @since 6.8.1
+		 * @since 6.9.0
+		 * @module json-api
 		 *
 		 * @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
 		 */
