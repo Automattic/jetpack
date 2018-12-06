@@ -202,29 +202,23 @@ register_activation_hook( __FILE__, 'wpsupercache_activate' );
 function wpsupercache_site_admin() {
 	global $wp_version;
 
-	if ( version_compare( "4.8", $wp_version, "<=" ) ) {
+	if ( version_compare( $wp_version, '4.8', '>=' ) ) {
 		return current_user_can( 'setup_network' );
 	}
 
-	if ( function_exists( 'is_super_admin' ) ) {
-		return is_super_admin();
-	} elseif ( function_exists( 'is_site_admin' ) ) {
-		return is_site_admin();
-	} else {
-		return true;
-	}
+	return is_super_admin();
 }
 
 function wp_cache_add_pages() {
-	global $wpmu_version;
-	if ( wpsupercache_site_admin() ) { // in single or MS mode add this menu item too, but only for superadmins in MS mode.
-		add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
+	if ( wpsupercache_site_admin() ) {
+		// In single or MS mode add this menu item too, but only for superadmins in MS mode.
+		add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 	}
 }
-add_action('admin_menu', 'wp_cache_add_pages');
+add_action( 'admin_menu', 'wp_cache_add_pages' );
 
 function wp_cache_network_pages() {
-	add_submenu_page('settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
+	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
 add_action( 'network_admin_menu', 'wp_cache_network_pages' );
 
