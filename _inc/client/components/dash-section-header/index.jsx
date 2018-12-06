@@ -4,8 +4,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import Gridicon from 'components/gridicon';
-import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 
 export class DashSectionHeader extends React.Component {
@@ -35,7 +33,6 @@ export class DashSectionHeader extends React.Component {
 	};
 
 	render() {
-		let settingsIcon;
 		let externalLink;
 		let children;
 
@@ -43,17 +40,6 @@ export class DashSectionHeader extends React.Component {
 			this.props.className,
 			'jp-dash-section-header'
 		);
-
-		if ( this.props.settingsPath ) {
-			settingsIcon = (
-				<a className="jp-dash-section-header__settings" href={ this.props.settingsPath }>
-					<span className="screen-reader-text">
-						{ __( 'Settings', { context: 'Noun. Displayed to screen readers.' } ) }
-					</span>
-					<Gridicon onClick={ this.trackCogClick } icon="cog" size={ 16 } />
-				</a>
-			);
-		}
 
 		if ( this.props.externalLink ) {
 			externalLink = (
@@ -81,7 +67,6 @@ export class DashSectionHeader extends React.Component {
 					<h2 className="jp-dash-section-header__name">
 						{ this.props.label }
 					</h2>
-					{ settingsIcon }
 				</div>
 				{ externalLink }
 				{ children }
