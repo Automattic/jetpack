@@ -212,8 +212,9 @@ add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
 function wpcomsh_is_managed_plugin( $plugin_file ) {
 	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
-		$plugin_dir = WP_PLUGIN_DIR . '/' . dirname( $plugin_file );
-		return is_dir( $plugin_dir ) && is_link( $plugin_dir ) && fileowner( $plugin_dir ) === 65534;
+		if ( class_exists( 'Pressable_Mu_Plugin' ) ) {
+			return ( new Pressable_Mu_Plugin )->is_managed_plugin( $plugin_file );
+		}
 	}
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
