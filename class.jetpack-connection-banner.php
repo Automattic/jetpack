@@ -849,6 +849,14 @@ class Jetpack_Connection_Banner {
 	 */
 	public static function render_connect_prompt_full_screen() {
 		$current_screen = get_current_screen();
+
+		if ( 'plugins' === $current_screen->base ) {
+			$top_connect_url_from = 'full-screen-prompt';
+			$bottom_connect_url_from = 'full-screen-prompt';
+		} else {
+			$top_connect_url_from = 'landing-page-top';
+			$bottom_connect_url_from = 'landing-page-bottom';
+		}
 		?>
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
@@ -877,7 +885,7 @@ class Jetpack_Connection_Banner {
 			</p>
 
 			<p class="jp-connect-full__button-container">
-				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
+				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $top_connect_url_from ) ); ?>" class="dops-button is-primary">
 					<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 				</a>
 			</p>
@@ -1042,7 +1050,7 @@ class Jetpack_Connection_Banner {
 				<?php jetpack_render_tos_blurb(); ?>
 			</p>
 			<p class="jp-connect-full__button-container">
-				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
+				<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>" class="dops-button is-primary">
 					<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 				</a>
 			</p>
