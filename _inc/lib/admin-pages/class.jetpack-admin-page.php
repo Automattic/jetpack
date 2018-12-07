@@ -62,6 +62,19 @@ abstract class Jetpack_Admin_Page {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
 		}
 
+		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
+		// Only fires immediately after plugin activation
+		if (
+			! Jetpack_Options::get_option( 'dismissed_connection_banner' )
+			&& get_transient( 'activated_jetpack' )
+			&& current_user_can( 'jetpack_connect' )
+		) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
+			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
+			add_action( 'admin_notices', array( 'Jetpack_Connection_Banner', 'render_connect_prompt_full_screen' ) );
+			delete_transient( 'activated_jetpack' );
+		}
+
 		// Check if the site plan changed and deactivate modules accordingly.
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
 
@@ -233,7 +246,7 @@ abstract class Jetpack_Admin_Page {
 			#wpbody-content {
 				background-color: #f3f6f8;
 			}
-			
+
 			#jp-plugin-container .wrap {
 				margin: 0 auto;
 				max-width:45rem;

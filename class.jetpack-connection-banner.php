@@ -139,7 +139,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 */
-	function enqueue_banner_scripts() {
+	public static function enqueue_banner_scripts() {
 		wp_enqueue_script(
 			'jetpack-connection-banner-js',
 			Jetpack::get_file_url_for_environment(
@@ -847,7 +847,8 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Renders the full-screen connection prompt.  Only shown once and on plugin activation.
 	 */
-	function render_connect_prompt_full_screen() {
+	public static function render_connect_prompt_full_screen() {
+		$current_screen = get_current_screen();
 		?>
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
@@ -861,9 +862,11 @@ class Jetpack_Connection_Banner {
 				); ?>"
 			/>
 
+			<?php if ( 'plugins' === $current_screen->base ) : ?>
 			<div class="jp-connect-full__dismiss">
 				<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
 			</div>
+			<?php endif; ?>
 
 			<div class="jp-connect-full__step-header">
 				<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'The ideal way to experience WordPress', 'jetpack' ) ?></h2>
@@ -879,9 +882,11 @@ class Jetpack_Connection_Banner {
 				</a>
 			</p>
 
+			<?php if ( 'plugins' === $current_screen->base ) : ?>
 			<p class="jp-connect-full__dismiss-paragraph">
 				<a><?php echo esc_html_x( 'not now', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack' ); ?></a>
 			</p>
+			<?php endif; ?>
 
 			<div class="jp-connect-full__slide">
 				<div class="jp-connect-full__slide-card">
