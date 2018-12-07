@@ -33,6 +33,13 @@ if ( ! function_exists( 'wp_cache_phase2' ) ) {
 	require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
 }
 
+if ( ! defined( 'PHP_VERSION_ID' ) ) {
+	// For versions of PHP below 5.2.7, this constant doesn't exist.
+	$wpsc_php_version = explode( '.', PHP_VERSION );
+	define( 'PHP_VERSION_ID', intval( $wpsc_php_version[0] * 10000 + $wpsc_php_version[1] * 100 + $wpsc_php_version[2] ) );
+	unset( $wpsc_php_version );
+}
+
 function wpsc_init() {
 	global $wp_cache_config_file, $wp_cache_config_file_sample, $wp_cache_file, $wp_cache_check_wp_config, $wp_cache_link;
 
@@ -227,17 +234,18 @@ function wp_cache_manager_error_checks() {
 	global $dismiss_htaccess_warning, $dismiss_readable_warning, $dismiss_gc_warning, $wp_cache_shutdown_gc, $is_nginx;
 	global $htaccess_path;
 
-	if ( !wpsupercache_site_admin() )
+	if ( ! wpsupercache_site_admin() ) {
 		return false;
+	}
 
-	if ( version_compare( PHP_VERSION, '5.3.0', '<' ) && ( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) ) {
-		echo '<div class="notice notice-error"><h4>' . __( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h4><p>' .
-			__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . '<br />';
+	if ( PHP_VERSION_ID < 50300 && ( ini_get( 'safe_mode' ) === '1' || strtolower( ini_get( 'safe_mode' ) ) === 'on' ) ) { // @codingStandardsIgnoreLine
+		echo '<div class="notice notice-error"><h4>' . esc_html__( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h4>';
+		echo '<p>' . esc_html__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . '<br />';
 
-
-		if( !ini_get( 'safe_mode_gid' ) ) {
-			echo __( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' ) . '<br />';
-			printf( __( 'You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the %s/cache/ directory must also be changed. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details.', 'wp-super-cache' ), WP_CONTENT_DIR );
+		if ( ! ini_get( 'safe_mode_gid' ) ) { // @codingStandardsIgnoreLine
+			esc_html_e( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' );
+			echo '<br />';
+			printf( __( 'You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the %s/cache/ directory must also be changed. See the  <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details.', 'wp-super-cache' ), esc_attr( WP_CONTENT_DIR ) );
 		} else {
 			_e( 'You or an administrator must disable this. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.', 'wp-super-cache' );
 		}
