@@ -63,8 +63,8 @@ msgid "Additional CNAMES"
 msgstr "Ek CNAME'ler"
 
 #: ossdl-cdn.php:171
-msgid "These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
-msgstr "Bu <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAME'ler</a>, yeniden yazım için %1$s yerine kullanılacaktır (yukarıda belirlediğiniz site dışı adrese ek olarak). Virgülle ayırın. Fazlaca statik dosyaya sahip sayfalar için bu seçenek tarayıcı performansını artırabilir. CNAME'lerin bazen CDN hizmetiniz için de ayarlanması gerekebilir.<br />Example: %2$s"
+msgid "These <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
+msgstr "Bu <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAME'ler</a>, yeniden yazım için %1$s yerine kullanılacaktır (yukarıda belirlediğiniz site dışı adrese ek olarak). Virgülle ayırın. Fazlaca statik dosyaya sahip sayfalar için bu seçenek tarayıcı performansını artırabilir. CNAME'lerin bazen CDN hizmetiniz için de ayarlanması gerekebilir.<br />Example: %2$s"
 
 #: ossdl-cdn.php:176
 msgid "Save Changes"

@@ -63,8 +63,8 @@ msgid "Additional CNAMES"
 msgstr "額外的正規名稱(CNAMES)"
 
 #: ossdl-cdn.php:189
-msgid "These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
-msgstr "這些 <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">正規名稱記錄(CNAMES)</a> 會在重寫時用來取代 %1$s (和上面的站外URL一起)。 使用逗號作為分隔符號。 在有大量靜態檔案的網頁中，這可以增進瀏覽器效能。 這些正規名稱可能也需要在你的 CDN 被設定。<br />例： %2$s"
+msgid "These <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
+msgstr "這些 <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">正規名稱記錄(CNAMES)</a> 會在重寫時用來取代 %1$s (和上面的站外URL一起)。 使用逗號作為分隔符號。 在有大量靜態檔案的網頁中，這可以增進瀏覽器效能。 這些正規名稱可能也需要在你的 CDN 被設定。<br />例： %2$s"
 
 #: ossdl-cdn.php:193
 msgid "Skip https URLs to avoid \"mixed content\" errors"

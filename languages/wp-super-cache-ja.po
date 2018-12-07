@@ -172,8 +172,8 @@ msgid "Additional CNAMES"
 msgstr "追加 CNAME"
 
 #: ossdl-cdn.php:184
-msgid "These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
-msgstr "上記 <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAME</a> は %1$s の代わりに (さらに上のオフサイト URL に加えて) rewriteで使用されます。複数の場合はコンマで区切ってください。静的ファイルが多数あるページの場合にブラウザーのパフォーマンスを改善できます。CNAME は CDN で設定する必要があるかもしれません。<br />例: %2$s"
+msgid "These <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
+msgstr "上記 <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAME</a> は %1$s の代わりに (さらに上のオフサイト URL に加えて) rewriteで使用されます。複数の場合はコンマで区切ってください。静的ファイルが多数あるページの場合にブラウザーのパフォーマンスを改善できます。CNAME は CDN で設定する必要があるかもしれません。<br />例: %2$s"
 
 #: ossdl-cdn.php:188
 msgid "Skip https URLs to avoid \"mixed content\" errors"

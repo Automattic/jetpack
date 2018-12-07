@@ -177,7 +177,7 @@ msgid "Additional CNAMES"
 msgstr "Weitere CNAMES"
 
 #: ossdl-cdn.php:184
-msgid "These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
+msgid "These <a href=\"https://www.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
 msgstr "Diese <a href=\"http://de.wikipedia.org/wiki/CNAME\">CNAMES</a> werden anstatt der %1$s für Rewriting genutzt (als Ergänzung zu dem Off-Site URL weiter oben). Benutze ein Komma als Trennzeichen. Für Seiten mit einer großen Anzahl statischer Dateien kann sich dadurch die Leistung des Browsers verbessern. Es kann sein, das CNAMEs auch in deinem CDN konfiguriert werden müssen.<br />Als Beispiel: %2$s"
 
 #: ossdl-cdn.php:188
