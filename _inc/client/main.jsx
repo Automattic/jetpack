@@ -15,7 +15,6 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
@@ -152,14 +151,6 @@ class Main extends React.Component {
 			return (
 				<div aria-live="assertive">
 					<NonAdminView { ...this.props } />
-				</div>
-			);
-		}
-
-		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
-			return (
-				<div aria-live="assertive">
-					<JetpackConnect />
 				</div>
 			);
 		}
