@@ -50,15 +50,6 @@ describe( 'DashSectionHeader', () => {
 
 		const wrapper = shallow( <DashSectionHeader { ...testProps } /> );
 
-		it( 'displays an icon for Security', () => {
-			expect( wrapper.find( 'Gridicon' ) ).to.have.length( 1 );
-		} );
-
-		it( 'the icon is linked to a section', () => {
-			expect( wrapper.find( 'a.jp-dash-section-header__settings' ) ).to.have.length( 1 );
-			expect( wrapper.find( 'a.jp-dash-section-header__settings' ).props().href ).to.be.equal( '#security' );
-		} );
-
 		it( 'there is an external link', () => {
 			expect( wrapper.find( 'a.jp-dash-section-header__external-link' ) ).to.have.length( 1 );
 			expect( wrapper.find( 'a.jp-dash-section-header__external-link' ).props().href ).to.be.equal( externalPath );

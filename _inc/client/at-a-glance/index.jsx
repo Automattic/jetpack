@@ -63,11 +63,11 @@ class AtAGlance extends Component {
 					settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
 						? ''
-						: __( 'Manage security on WordPress.com' )
+						: __( 'Manage security settings' )
 					}
 					externalLinkPath={ this.props.isDevMode
 						? ''
-						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
+						: '#security'
 					}
 					externalLinkClick={ trackSecurityClick }
 				/>;

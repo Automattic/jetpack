@@ -628,4 +628,8 @@ abstract class SAL_Site {
 		$options = get_option( 'options' );
 		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
 	}
+
+	function get_launch_status() {
+		return false;
+	}
 }

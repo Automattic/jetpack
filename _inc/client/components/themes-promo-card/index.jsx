@@ -96,7 +96,7 @@ class ThemesPromoCard extends React.Component {
 					</div>
 				</Card>
 			</div>
-						);
+		);
 	}
 }
 

@@ -165,7 +165,7 @@ class Jetpack_Admin {
 					 */
 					apply_filters( 'jetpack_module_configurable_' . $module, false )
 				) {
-					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
+					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $module_array['configure_url'] ), __( 'Configure', 'jetpack' ) );
 				}
 
 				$modules[ $module ] = $module_array;

@@ -32,7 +32,7 @@ import {
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { showBackups } from 'state/initial-state';
 
-class PlanBody extends React.Component {
+class MyPlanBody extends React.Component {
 	static propTypes = {
 		plan: PropTypes.string
 	};
@@ -490,4 +490,4 @@ export default connect(
 			}
 		};
 	}
-)( PlanBody );
+)( MyPlanBody );

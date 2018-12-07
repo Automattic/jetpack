@@ -3,6 +3,7 @@
  */
 const assert = require( 'assert' ),
 	React = require( 'react' ),
+	ReactDOM = require( 'react-dom' ),
 	TestUtils = React.addons.TestUtils,
 	unique = require( 'lodash/uniq' );
 
@@ -27,7 +28,7 @@ describe( 'CompactFormToggle', function() {
 
 describe( 'FormToggle', function() {
 	afterEach( function() {
-		React.unmountComponentAtNode( document.body );
+		ReactDOM.unmountComponentAtNode( document.body );
 	} );
 
 	describe( 'rendering', function() {

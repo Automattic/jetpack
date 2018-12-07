@@ -231,6 +231,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
+		// Ensure that class to get the affiliate code is loaded
+		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
+		}
+
 		return array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
@@ -267,6 +272,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
+			'aff' => Jetpack_Affiliate::init()->get_affiliate_code(),
 			'settings' => $this->get_flattened_settings( $modules ),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),

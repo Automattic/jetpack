@@ -1,10 +1,11 @@
 /** External Dependencies **/
 const React = require( 'react' ),
+	ReactDOM = require( 'react-dom' ),
 	Formsy = require( 'formsy-react' ),
 	classNames = require( 'classnames' ),
-	Payment = require( 'payment' );
-const createReactClass = require( 'create-react-class' );
-const PropTypes = require( 'prop-types' );
+	Payment = require( 'payment' ),
+	createReactClass = require( 'create-react-class' ),
+	PropTypes = require( 'prop-types' );
 /** Internal Dependencies **/
 const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
@@ -61,7 +62,7 @@ module.exports = createReactClass( {
 	},
 
 	focus: function() {
-		React.findDOMNode( this.refs.input ).focus();
+		ReactDOM.findDOMNode( this.refs.input ).focus();
 	},
 
 	getDefaultProps: function() {

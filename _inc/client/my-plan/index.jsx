@@ -21,9 +21,10 @@ import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
 import ThemesPromoCard from 'components/themes-promo-card';
 
-import PlanGrid from './plan-grid';
+import MyPlanHeader from './my-plan-header';
+import MyPlanBody from './my-plan-body';
 
-export class Plans extends React.Component {
+export class MyPlan extends React.Component {
 	themesPromo = () => {
 		const sitePlan = this.props.sitePlan.product_slug || '';
 		const planClass = 'dev' !== this.props.plan
@@ -41,7 +42,15 @@ export class Plans extends React.Component {
 	};
 
 	renderContent = () => {
-		let themePromo = '';
+		let sitePlan = this.props.sitePlan.product_slug || '',
+			availableFeatures = this.props.availableFeatures,
+			activeFeatures = this.props.activeFeatures,
+			themePromo = '';
+		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
+			sitePlan = 'dev';
+			availableFeatures = {};
+			activeFeatures = {};
+		}
 
 		const premiumThemesAvailable = 'undefined' !== typeof this.props.availableFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ],
 			premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
@@ -53,8 +62,18 @@ export class Plans extends React.Component {
 
 		return (
 			<div>
+				<div className="jp-landing__plans dops-card">
+					<MyPlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
+					<MyPlanBody
+						plan={ sitePlan }
+						availableFeatures={ availableFeatures }
+						activeFeatures={ activeFeatures }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				</div>
 				{ themePromo }
-				<PlanGrid />
 			</div>
 		);
 	};
@@ -78,4 +97,4 @@ export default connect(
 			activeFeatures: getActiveFeatures( state ),
 		};
 	}
-)( Plans );
+)( MyPlan );

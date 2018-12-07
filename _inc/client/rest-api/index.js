@@ -4,6 +4,7 @@
 require( 'es6-promise' ).polyfill();
 import 'whatwg-fetch';
 import assign from 'lodash/assign';
+import head from 'lodash/head';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -266,8 +267,27 @@ function JetpackRestApiClient( root, nonce ) {
 		verifySiteGoogle: ( keyringId ) => postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
 			body: JSON.stringify( { keyring_id: keyringId } ),
 		} )
-		.then( checkStatus )
-		.then( parseJsonResponse )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
+		fetchJitm: ( message_path, query_url ) => {
+			const requestUrl = `${ apiRoot }jetpack/v4/jitm?message_path=${ encodeURIComponent( message_path ) }&query=${ encodeURIComponent( query_url ) }`;
+
+			return getRequest( requestUrl, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( messages => ( head( messages ) ) );
+		},
+
+		dismissJitm: ( id, feature_class ) => postRequest(
+			`${ apiRoot }jetpack/v4/jitm`,
+			postParams,
+			{
+				body: JSON.stringify( { id, feature_class } )
+			}
+		)
+			.then( checkStatus )
+			.then( parseJsonResponse )
 	};
 
 	function addCacheBuster( route ) {

@@ -2085,7 +2085,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
-					nl2br( wp_kses( $value, array() ) )
+					self::escape_and_sanitize_field_value( $value )
 				);
 			}
 		}
@@ -2112,7 +2112,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$compiled_form[ $field_index ] = sprintf(
 						'<b>%1$s:</b> %2$s<br /><br />',
 						wp_kses( $label, array() ),
-						nl2br( wp_kses( $extra_fields[ $extra_field_keys[ $i ] ], array() ) )
+						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
 					$i++;
@@ -2125,6 +2125,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		return $compiled_form;
 	}
+
+	static function escape_and_sanitize_field_value( $value ) {
+        $value = str_replace( array( '[' , ']' ) ,  array( '&#91;' , '&#93;' ) , $value );
+        return nl2br( wp_kses( $value, array() ) );
+    }
 
 	/**
 	 * Only strip out empty string values and keep all the other values as they are.
