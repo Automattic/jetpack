@@ -61,13 +61,11 @@ abstract class Jetpack_Admin_Page {
 		if ( ! self::$block_page_rendering_for_idc ) {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
 		}
-
 		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
-		// Only fires immediately after plugin activation
 		if (
-			! Jetpack_Options::get_option( 'dismissed_connection_banner' )
-			&& get_transient( 'activated_jetpack' )
+			! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
+			&& ! Jetpack::is_development_mode()
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
 			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
