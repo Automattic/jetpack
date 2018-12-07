@@ -44,9 +44,13 @@
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
-    "precommit": "node bin/pre-commit-hook.js",
     "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules",
     "test-dangerci-and-adminpage": "yarn danger ci && yarn test-adminpage"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "node bin/pre-commit-hook.js"
+    }
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -142,7 +146,7 @@
     "enzyme-adapter-react-15": "1.2.0",
     "glob": "7.1.3",
     "gulp-delete-lines": "0.0.7",
-    "husky": "0.14.3",
+    "husky": "1.2.0",
     "mocha": "2.5.3",
     "mockery": "1.7.0",
     "nock": "7.7.3",
