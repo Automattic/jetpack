@@ -144,7 +144,9 @@ function onBuild( done, err, stats ) {
 		.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 		.pipe( uglify( {
-			preserveComments: saveLicense
+			output: {
+				comments: saveLicense
+			}
 		} ) )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
