@@ -216,7 +216,7 @@ class Jetpack_Connection_Banner {
 							<div class="vertical-menu__feature-item-icon">
 								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 4 15 15" version="1.1"><polygon points="6.6 4 6.6 10.6 0 10.6 0 12.4 6.6 12.4 6.6 19 8.4 19 8.4 12.4 15 12.4 15 10.6 8.4 10.6 8.4 4"/></svg>
 							</div>
-							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'More Features', 'jetpack' ); ?></span>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Premium Services', 'jetpack' ); ?></span>
 						</div>
 					</div>
 				</div>
@@ -525,9 +525,9 @@ class Jetpack_Connection_Banner {
 						</p>
 					</div> <!-- end slide 5 -->
 
-					<!-- slide 6: more features -->
+					<!-- slide 6: premium services -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-six">
-						<h2><?php esc_html_e( 'More Jetpack features our users love', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Powerful premium services for your WordPress site', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/customize-theme-2.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
@@ -539,22 +539,49 @@ class Jetpack_Connection_Banner {
 
 						<p>
 							<?php
-							esc_html_e(  'Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and many more.',
+							esc_html_e(  'Whether you are a hobbyist or a large organization, Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
 								'jetpack'
 							);
 							?>
 						</p>
 
-						<p>
+					<ul>
+						<li>
+							<strong><?php esc_html_e(  'Real-time automated backups & malware scanning',
+								'jetpack'); ?></strong> <?php esc_html_e(  '— if your site gets hacked, we’ve got your back',
+								'jetpack'); ?>
+						</li>
+						<li>
+							<strong><?php esc_html_e(  'Ad network',
+								'jetpack'); ?></strong> <?php esc_html_e(  '— Automatic approval for placing and making money from ads on your site',
+								'jetpack'); ?>
+						</li>
+						<li>
+							<strong><?php esc_html_e(  'Simple payment buttons',
+								'jetpack'); ?></strong> <?php esc_html_e(  '— Add products to your site and accept payments via PayPal instantly',
+								'jetpack'); ?>
+						</li>
+						<li>
+							<strong><?php esc_html_e(  'Enhanced search',
+								'jetpack'); ?></strong> <?php esc_html_e(  '— A faster, more relevant search tool for WordPress',
+								'jetpack'); ?>
+						</li>
+						<li>
+							<strong><?php esc_html_e(  'Priority support & concierge setup',
+								'jetpack'); ?></strong> <?php esc_html_e(  '— Expedited support from our WordPress experts & a one-to-one session to max your value with Jetpack',
+								'jetpack'); ?>
+						</li>
+						<li>
 							<?php
-							esc_html_e(  'Connect to WordPress.com to get started',
+							esc_html_e(  'Setup Jetpack to get started',
 								'jetpack'
 							);
 							?>
 							<a href="https://jetpack.com/features" target="_blank">
 								<?php esc_html_e( 'or visit our site for the full feature list.', 'jetpack' ); ?>
 							</a>
-						</p>
+						</li>
+					</ul>
 
 						<p class="jp-banner__button-container">
 							<span class="jp-banner__tos-blurb">
