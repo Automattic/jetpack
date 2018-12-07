@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.3.46
+ * Version: 2.3.47
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.3.46' );
+define( 'WPCOMSH_VERSION', '2.3.47' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -160,6 +160,15 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
+
+function wpcomsh_remove_amp_wpadmin_notices() {
+	remove_action( 'admin_notices', '_amp_incorrect_plugin_slug_admin_notice' );
+}
+add_action(
+	'admin_head',
+	'wpcomsh_remove_amp_wpadmin_notices',
+	9 // Priority 9 to run before default priority
+);
 
 function wpcomsh_remove_vaultpress_wpadmin_notices() {
 	if ( ! class_exists( 'VaultPress' ) ) {
