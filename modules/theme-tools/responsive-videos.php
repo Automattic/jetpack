@@ -10,6 +10,11 @@ function jetpack_responsive_videos_init() {
 		return;
 	}
 
+	/* If the theme bundles support for Gutenberg Responsive Embeds, let's let it take over. */
+	if ( current_theme_supports( 'responsive-embeds' ) ) {
+		return;
+	}
+
 	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html', 'jetpack_responsive_videos_embed_html' );
