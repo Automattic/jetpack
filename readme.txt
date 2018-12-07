@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Shortcodes: update YouTube shortcode to support more video link formats.
 * WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
 * WooCommerce Analytics: improve performance by avoiding unnecessary calls to the feature when it is not needed.
 
