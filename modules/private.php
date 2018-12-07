@@ -147,7 +147,7 @@ class Jetpack_Private {
 		?>
 		<style>
 			.jetpack-private__setting-disabled {
-				font-weight: bold;
+				font-weight: bold;	
 				padding: 10px;
 			}
 			.option-site-visibility fieldset {
@@ -224,7 +224,8 @@ class Jetpack_Private {
 			return;
 		}
 
-		die( __( 'This site is private.', 'jetpack' ) );
+		$error = new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
+		wp_die( $error );
 	}
 
 	static function module_override( $modules ) {
