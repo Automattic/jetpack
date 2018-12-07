@@ -1,41 +1,4 @@
 jQuery( document ).ready( function( $ ) {
-	var reFetch = function() {
-		$( '.jetpack-jitm-message' ).each( function() {
-			var $el = $( this );
-
-			var message_path = $el.data( 'message-path' );
-			var query = $el.data( 'query' );
-			var redirect = $el.data( 'redirect' );
-			var hash = location.hash;
-
-			hash = hash.replace( /#\//, '_' );
-			message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
-
-			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
-				message_path: message_path,
-				query: query,
-				_wpnonce: $el.data( 'nonce' )
-			} ).then( function( response ) {
-				if ( 'object' === typeof response && response['1'] ) {
-					response = [ response['1'] ];
-				}
-
-				// properly handle the case of an empty array or no content set
-				if ( 0 === response.length || ! response[ 0 ].content ) {
-					return;
-				}
-
-				// for now, always take the first response
-				setJITMContent( $el, response[ 0 ], redirect );
-			} );
-		} );
-	};
-
-	$( window ).bind( 'hashchange', function() {
-		document.querySelector( '.jitm-card' ).remove();
-		reFetch();
-	} );
-
 	var templates = {
 		'default': function( envelope ) {
 			var html = '<div class="jitm-card jitm-banner ' + (
@@ -163,5 +126,42 @@ jQuery( document ).ready( function( $ ) {
 		} );
 	};
 
+	var reFetch = function() {
+		$( '.jetpack-jitm-message' ).each( function() {
+			var $el = $( this );
+
+			var message_path = $el.data( 'message-path' );
+			var query = $el.data( 'query' );
+			var redirect = $el.data( 'redirect' );
+			var hash = location.hash;
+
+			hash = hash.replace( /#\//, '_' );
+			message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
+
+			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
+				message_path: message_path,
+				query: query,
+				_wpnonce: $el.data( 'nonce' )
+			} ).then( function( response ) {
+				if ( 'object' === typeof response && response['1'] ) {
+					response = [ response['1'] ];
+				}
+
+				// properly handle the case of an empty array or no content set
+				if ( 0 === response.length || ! response[ 0 ].content ) {
+					return;
+				}
+
+				// for now, always take the first response
+				setJITMContent( $el, response[ 0 ], redirect );
+			} );
+		} );
+	};
+
 	reFetch();
+
+	$( window ).bind( 'hashchange', function() {
+		document.querySelector( '.jitm-card' ).remove();
+		reFetch();
+	} );
 } );
