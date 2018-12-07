@@ -46,6 +46,7 @@ class Jetpack_Likes {
 
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
+			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
 
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
@@ -119,6 +120,16 @@ class Jetpack_Likes {
 	function configuration_redirect() {
 		wp_safe_redirect( admin_url( 'options-general.php?page=sharing#likes' ) );
 		die();
+	}
+
+	/**
+	 * Overrides default configuration url
+	 *
+	 * @uses admin_url
+	 * @return string module settings URL
+	 */
+	function jetpack_likes_configuration_url() {
+		return admin_url( 'options-general.php?page=sharing#likes' );
 	}
 
 	/**

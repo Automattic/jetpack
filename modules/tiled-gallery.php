@@ -22,11 +22,22 @@ add_action( 'jetpack_modules_loaded', 'jetpack_tiled_gallery_loaded' );
 function jetpack_tiled_gallery_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_tiled_gallery_configuration_load' );
+	add_filter( 'jetpack_module_configuration_url_tiled-gallery', 'jetpack_tiled_gallery_configuration_url' );
 }
 
 function jetpack_tiled_gallery_configuration_load() {
 	wp_safe_redirect( admin_url( 'options-media.php' ) );
 	exit;
+}
+
+/**
+ * Overrides default configuration url
+ *
+ * @uses admin_url
+ * @return string module settings URL
+ */
+function jetpack_tiled_gallery_configuration_url() {
+	return admin_url( 'options-media.php' );
 }
 
 jetpack_load_tiled_gallery();
