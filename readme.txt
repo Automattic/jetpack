@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: add new Subcription form block.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
 
 **Improved compatibility**
