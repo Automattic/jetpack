@@ -915,7 +915,7 @@ add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' 
 
 function jetpack_private() {
 	esc_html_e(
-		'Allows private and unlaunched sites, visible only to yourself and those you invite.'
+		'Make your site private. It will only be visible to registered users.'
 	);
 }
 add_action( 'jetpack_module_more_info_private', 'jetpack_private' );
