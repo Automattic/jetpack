@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin: add new "My Plan" page to the Jetpack dashboard.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Blocks: add new Subcription form block.
 * Internationalization: add new locales, ensure existing ones are up to date.
