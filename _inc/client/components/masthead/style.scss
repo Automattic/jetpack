@@ -20,6 +20,10 @@
 	width: 100%;
 	max-width: rem( 1040px );
 	padding-bottom: rem( 6px );
+
+	@media (max-width: 1250px) {
+		max-width: 95%;
+	}
 }
 
 .jp-masthead__logo-container {

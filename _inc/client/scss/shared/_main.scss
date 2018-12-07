@@ -61,6 +61,11 @@
 	text-align: left;
 	max-width: rem( 1040px );
 	padding: rem( 24px );
+
+	@media (max-width: 1250px) {
+		max-width: 95%;
+	}
+
 }
 
 #contextual-help-link-wrap {
