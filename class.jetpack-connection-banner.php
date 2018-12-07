@@ -452,12 +452,12 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Faster performance and site speeds', 'jetpack' ); ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo esc_url( plugins_url( 'images/cloud-based.svg', JETPACK__PLUGIN_FILE ) ); ?>" alt="<?php
+							<img src="<?php echo esc_url( plugins_url( 'images/jetpack-speed.svg', JETPACK__PLUGIN_FILE ) ); ?>" alt="<?php
 								esc_attr_e(
 									'Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.',
 									'jetpack'
 								);
-							?>" height="auto" width="225" />
+							?>" height="auto" width="275" />
 						</div>
 
 						<p>
@@ -530,9 +530,9 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Powerful premium services for your WordPress site', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'images/customize-theme-2.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+							<img src="<?php echo plugins_url( 'images/jetpack-poweringUp.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Jetpack includes other features that help you customize your site',
+										'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income',
 									'jetpack'
 								); ?>" height="auto" width="225" />
 						</div>
