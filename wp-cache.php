@@ -76,17 +76,13 @@ global $wp_cache_preload_email_me, $wp_cache_preload_email_volume;
 global $wp_cache_mobile, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
 global $wp_cache_config_file, $wp_cache_config_file_sample;
 
-// WP-CLI: Hotfix for $blog_cache_dir for single site. It'll be removed after merging #590
-if ( empty( $GLOBALS['blog_cache_dir'] ) && ! is_multisite() ) {
-	$GLOBALS['blog_cache_dir'] = $cache_path;
-}
-
-if( !@include($wp_cache_config_file) ) {
-	get_wpcachehome();
-	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
-	@include($wp_cache_config_file_sample);
-} else {
-	get_wpcachehome();
+// Check is cache config already loaded.
+if ( ! isset( $cache_enabled, $super_cache_enabled, $wp_cache_mod_rewrite, $cache_path ) &&
+	empty( $wp_cache_phase1_loaded ) &&
+	// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+	! @include( $wp_cache_config_file )
+) {
+	@include $wp_cache_config_file_sample; // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 }
 
 include(WPCACHEHOME . 'wp-cache-base.php');
@@ -116,13 +112,17 @@ add_action( 'template_redirect', 'wp_cache_set_home' );
 include_once( WPCACHEHOME . 'ossdl-cdn.php' );
 
 function get_wpcachehome() {
-	if( defined( 'WPCACHEHOME' ) == false ) {
-		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			define( 'WPCACHEHOME', trailingslashit( dirname(__FILE__) ) );
-		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			define( 'WPCACHEHOME', dirname(__FILE__) . '/wp-super-cache/' );
+	if ( function_exists( '_deprecated_function' ) ) {
+		_deprecated_function( __FUNCTION__, 'WP Super Cache 1.6.5' );
+	}
+
+	if ( ! defined( 'WPCACHEHOME' ) ) {
+		if ( is_file( dirname( __FILE__ ) . '/wp-cache-config-sample.php' ) ) {
+			define( 'WPCACHEHOME', trailingslashit( dirname( __FILE__ ) ) );
+		} elseif ( is_file( dirname( __FILE__ ) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
+			define( 'WPCACHEHOME', dirname( __FILE__ ) . '/wp-super-cache/' );
 		} else {
-			die( sprintf( __( 'Please create %s /wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), WP_CONTENT_DIR ) );
+			die( sprintf( esc_html__( 'Please create %s /wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), esc_attr( WP_CONTENT_DIR ) ) );
 		}
 	}
 }
