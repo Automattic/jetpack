@@ -527,7 +527,7 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 6: premium services -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-six">
-						<h2><?php esc_html_e( 'Powerful premium services for your WordPress site', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'All the tools you&#8217;ll ever need for a more powerful WordPress site', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/jetpack-poweringUp.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
@@ -539,7 +539,7 @@ class Jetpack_Connection_Banner {
 
 						<p>
 							<?php
-							esc_html_e(  'Whether you are a hobbyist or a large organization, Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
+							esc_html_e(  'From hobbyists to large organizations — Jetpack Premium Services keep your site safer, faster, and help you earn more.',
 								'jetpack'
 							);
 							?>
@@ -547,41 +547,35 @@ class Jetpack_Connection_Banner {
 
 					<ul>
 						<li>
-							<strong><?php esc_html_e(  'Real-time automated backups & malware scanning',
-								'jetpack'); ?></strong> <?php esc_html_e(  '— if your site gets hacked, we’ve got your back',
+							<strong><?php esc_html_e(  'Real-time automated backups & malware scanning:',
+								'jetpack'); ?></strong> <?php esc_html_e(  ' Stay free of any hacking-related worries.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Ad network',
-								'jetpack'); ?></strong> <?php esc_html_e(  '— Automatic approval for placing and making money from ads on your site',
+							<strong><?php esc_html_e(  'Ad network:',
+								'jetpack'); ?></strong> <?php esc_html_e(  ' Automatic approval to display ads that generate income from your traffic.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Simple payment buttons',
-								'jetpack'); ?></strong> <?php esc_html_e(  '— Add products to your site and accept payments via PayPal instantly',
+							<strong><?php esc_html_e(  'Simple payment buttons:',
+								'jetpack'); ?></strong> <?php esc_html_e(  ' Sell products on your site and accept instant PayPal payments.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Enhanced search',
-								'jetpack'); ?></strong> <?php esc_html_e(  '— A faster, more relevant search tool for WordPress',
+							<strong><?php esc_html_e(  'Enhanced search:',
+								'jetpack'); ?></strong> <?php esc_html_e(  ' A WordPress search tool that gives readers faster and more relevant results.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Priority support & concierge setup',
-								'jetpack'); ?></strong> <?php esc_html_e(  '— Expedited support from our WordPress experts & a one-to-one session to max your value with Jetpack',
+							<strong><?php esc_html_e(  'Priority support & concierge setup:',
+								'jetpack'); ?></strong> <?php esc_html_e(  ' A one-on-one session to get the most out of your Jetpack site, and priority access to our WordPress experts.',
 								'jetpack'); ?>
 						</li>
-						<li>
-							<?php
-							esc_html_e(  'Setup Jetpack to get started',
-								'jetpack'
-							);
-							?>
-							<a href="https://jetpack.com/features" target="_blank">
-								<?php esc_html_e( 'or visit our site for the full feature list.', 'jetpack' ); ?>
-							</a>
-						</li>
-					</ul>
+						</ul>
+						<p>
+							<?php esc_html_e(  'Set up Jetpack to get started or visit our site to learn more about', 'jetpack' ); ?>
+							<a href="https://jetpack.com/features" target="_blank"><?php esc_html_e( 'all of our features.', 'jetpack' ); ?></a>
+						</p>
 
 						<p class="jp-banner__button-container">
 							<span class="jp-banner__tos-blurb">
