@@ -46,7 +46,6 @@ exclude_paths:
   - "**.jshintignore"
   - "**.svnignore"
   - "**.travis.yml"
-  - "**.npmrc"
   - "**.gitignore"
   - "**.eslintrc.js"
   - "**.editorconfig"
