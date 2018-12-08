@@ -149,7 +149,7 @@
     "husky": "1.2.0",
     "mocha": "2.5.3",
     "mockery": "1.7.0",
-    "nock": "7.7.3",
+    "nock": "10.0.4",
     "node-wp-i18n": "1.2.1",
     "prettier": "github:Automattic/wp-prettier",
     "react-test-renderer": "15.6.2",
