@@ -109,7 +109,6 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			$total_bytes += $piece_bytes;
 		}
 
-		l($tmpfile);
 		fclose( $tmpfile );
 		@unlink( $tmpfile );
 
