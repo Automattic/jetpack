@@ -124,24 +124,69 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			$total_bytes += $piece_bytes;
 		}
 
+		$result = $this->_import_from_file( $tmpfile );
+
 		fclose( $tmpfile );
 		@unlink( $tmpfile );
 
-		return $total_bytes;
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return 'Imported';
+	}
+
+	protected function _import_from_file( $file ) {
+		if ( ! class_exists( 'WP_Import' ) ) {
+			return new WP_Error( 'missing_wp_import', 'The WP_Import class does not exist' );
+		}
+
+		if ( ! function_exists( 'wordpress_importer_init' ) ) {
+			return new WP_Error( 'missing_wp_import_init', 'The wordpress_importer_init function does not exist' );
+		}
+
+		// The REST API does not do `admin_init`, so we need to source a bunch of stuff
+		require_once ABSPATH . 'wp-admin/includes/admin.php';
+
+		wordpress_importer_init();
+
+		if ( empty( $GLOBALS['wp_import'] ) ) {
+			return new WP_Error( 'empty_wp_import', 'The wp_import global is empty' );
+		}
+
+		try {
+			$file_info = stream_get_meta_data( $file );
+			if ( empty( $file_info['uri'] ) || ! is_writable( $file_info['uri'] ) ) {
+				return new WP_Error( 'invalid_file', 'Could not access import file' );
+			}
+			return $GLOBALS['wp_import']->import( $file_info['uri'] );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'import_from_file_exception', $e->getMessage() );
+		}
 	}
 }
 
-class Jetpack_Site_Importer {
-	const POST_TYPE = 'jetpack_file_import';
-
-	static function register_post_types() {
-		register_post_type( self::POST_TYPE, array(
-			'public'                => false,
-			'rest_controller_class' => 'WP_REST_Jetpack_Imports_Controller',
-			'rest_base'             => 'jetpack-file-imports',
-			'show_in_rest'          => true,
-		) );
+function jetpack_site_importer_init() {
+	if ( ! defined( 'WP_LOAD_IMPORTERS' ) ) {
+		define( 'WP_LOAD_IMPORTERS', 1 );
+		/**
+		 * The plugin short-circuits if this constant is not set when plugins load:
+		 * https://github.com/WordPress/wordpress-importer/blob/19c7fe19619f06f51d502ea368011f667a419934/src/wordpress-importer.php#L13
+		 *
+		 * ...& core only sets that in a couple of ways:
+		 * https://github.com/WordPress/WordPress/search?q=WP_LOAD_IMPORTERS&unscoped_q=WP_LOAD_IMPORTERS
+		 *
+		 * In order for this to work, we'll need a change to the core plugin, for example:
+		 * https://github.com/WordPress/wordpress-importer/pull/45
+		 */
 	}
+
+	register_post_type( 'jetpack_file_import', array(
+		'public'                => false,
+		'rest_controller_class' => 'WP_REST_Jetpack_Imports_Controller',
+		'rest_base'             => 'jetpack-file-imports',
+		'show_in_rest'          => true,
+	) );
 }
 
-add_action( 'init', array( 'Jetpack_Site_Importer', 'register_post_types' ) );
+add_action( 'init', 'jetpack_site_importer_init' );
