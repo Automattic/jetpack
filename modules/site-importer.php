@@ -83,6 +83,8 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 	}
 
 	static function import_from_file( $request ) {
+		set_time_limit( 0 );
+
 		$post_id = (int) $request->get_param( 'id' );
 		if ( $post_id < 1 ) {
 			return new WP_Error( 'missing_id', 'A valid `id` param is required', 500 );
