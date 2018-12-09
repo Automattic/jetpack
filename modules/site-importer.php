@@ -83,7 +83,20 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 	}
 
 	static function import_from_file( $request ) {
-		$post_id = $request->get_param( 'id' );
+		$post_id = (int) $request->get_param( 'id' );
+		if ( $post_id < 1 ) {
+			return new WP_Error( 'missing_id', 'A valid `id` param is required', 500 );
+		}
+
+		$post_obj = get_post( $post_id );
+
+		if ( empty( $post_obj ) || $post_obj->ID !== $post_id ) {
+			return new WP_Error( 'not_found', 'The specified post does not exist', 500 );
+		}
+
+		if ( 'jetpack_file_import' !== $post_obj->post_type ) {
+			return new WP_Error( 'invalid_post_type', 'The specified post is not the correct type', 500 );
+		}
 
 		$tmpfile = tmpfile();
 
