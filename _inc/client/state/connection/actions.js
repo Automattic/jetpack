@@ -103,7 +103,7 @@ export const fetchUserConnectionData = () => {
 	};
 };
 
-export const disconnectSite = () => {
+export const disconnectSite = ( reloadAfter = false ) => {
 	return ( dispatch ) => {
 		dispatch( {
 			type: DISCONNECT_SITE
@@ -117,6 +117,9 @@ export const disconnectSite = () => {
 			dispatch( removeNotice( 'disconnect-jetpack' ) );
 		} ).then( () => {
 			dispatch( fetchConnectUrl() );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
