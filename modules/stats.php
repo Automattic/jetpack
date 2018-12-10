@@ -958,7 +958,7 @@ function stats_admin_bar_head() {
 }
 #wpadminbar .quicklinks li#wp-admin-bar-stats a img {
 	height: 24px;
-	padding: 4px 0;
+	margin: 4px 0;
 	max-width: none;
 	border: none;
 }
@@ -983,7 +983,15 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 
 	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
-	$menu = array( 'id' => 'stats', 'title' => "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>", 'href' => $url );
+	$menu = array(
+		'id'   => 'stats',
+		'href' => $url,
+	);
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		$menu['title'] = "<amp-img src='$img_src_2x' width=112 height=24 layout=fixed alt='$alt' title='$title'></amp-img>";
+	} else {
+		$menu['title'] = "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>";
+	}
 
 	$wp_admin_bar->add_menu( $menu );
 }
