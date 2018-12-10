@@ -20,24 +20,24 @@ class DashMonitor extends Component {
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
 
+	activateAndTrack() {
+		analytics.tracks.recordEvent(
+			'jetpack_wpa_module_toggle',
+			{
+				module: 'monitor',
+				toggled: 'on'
+			}
+		);
+
+		this.props.updateOptions( { monitor: true } );
+	}
+
 	getContent() {
 		const labelName = __( 'Downtime monitoring' );
 
 		const support = {
 			text: __( 'Jetpack’s downtime monitor will keep tabs on your site, and alert you the moment that downtime is detected.' ),
 			link: 'https://jetpack.com/support/monitor/',
-		};
-
-		const activateAndTrack = () => {
-			analytics.tracks.recordEvent(
-				'jetpack_wpa_module_toggle',
-				{
-					module: 'monitor',
-					toggled: 'on'
-				}
-			);
-
-			this.props.updateOptions( { monitor: true } );
 		};
 
 		if ( this.props.getOptionValue( 'monitor' ) ) {
@@ -65,7 +65,7 @@ class DashMonitor extends Component {
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' )
 							: __( '{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes down.', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ activateAndTrack } />
+									a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />
 								}
 							}
 						)

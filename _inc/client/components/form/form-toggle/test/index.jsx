@@ -50,11 +50,8 @@ describe( 'FormToggle', function() {
 			[ true, false ].forEach( function( bool ) {
 				const toggle = TestUtils.renderIntoDocument(
 						<CompactFormToggle
-						checked={ bool }
-						onChange={ function() {
-							return;
-						}
-					} /> ),
+							checked={ bool }
+						/> ),
 					toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 				assert( 0 < toggleInput.length, 'a form toggle was rendered' );

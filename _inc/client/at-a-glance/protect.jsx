@@ -22,12 +22,15 @@ class DashProtect extends Component {
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
 
+	activateProtect() {
+		this.props.updateOptions( { protect: true } );
+	}
+
 	getContent() {
 		const support = {
 			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
 			link: 'https://jetpack.com/support/protect/',
 		};
-		const activateProtect = () => this.props.updateOptions( { protect: true } );
 
 		if ( this.props.getOptionValue( 'protect' ) ) {
 			const protectCount = this.props.protectCount;
@@ -72,7 +75,7 @@ class DashProtect extends Component {
 					this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
 						: __( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts.', {
 							components: {
-								a: <a href="javascript:void(0)" onClick={ activateProtect } />
+								a: <a href="javascript:void(0)" onClick={ this.activateProtect } />
 							}
 						}
 					)

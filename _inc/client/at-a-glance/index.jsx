@@ -47,6 +47,10 @@ const renderPairs = layout => layout.map( item => (
 ) );
 
 class AtAGlance extends Component {
+	trackSecurityClick() {
+		analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+	}
+
 	render() {
 		const settingsProps = {
 			updateOptions: this.props.updateOptions,
@@ -57,7 +61,6 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl
 		};
-		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
@@ -69,7 +72,7 @@ class AtAGlance extends Component {
 						? ''
 						: '#security'
 					}
-					externalLinkClick={ trackSecurityClick }
+					externalLinkClick={ this.trackSecurityClick }
 				/>;
 		const connections = (
 				<div>

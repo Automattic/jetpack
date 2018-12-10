@@ -55,9 +55,12 @@ class DashSearch extends Component {
 		isDevMode: false,
 	};
 
+	activateSearch() {
+		this.props.updateOptions( { search: true } );
+	}
+
 	render() {
-		const hasPro = ( 'is-business-plan' === this.props.planClass ),
-			activateSearch = () => this.props.updateOptions( { search: true } );
+		const hasPro = ( 'is-business-plan' === this.props.planClass );
 
 		if ( this.props.isDevMode ) {
 			return renderCard( {
@@ -111,7 +114,7 @@ class DashSearch extends Component {
 			pro_inactive: false,
 			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.', {
 				components: {
-					a: <a href="javascript:void(0)" onClick={ activateSearch } />
+					a: <a href="javascript:void(0)" onClick={ this.activateSearch } />
 				}
 			} )
 		} );

@@ -142,11 +142,12 @@ export class DashStats extends Component {
 		);
 	}
 
+	dismissCard() {
+		this.setState( { emptyStatsDismissed: true } );
+		this.props.updateOptions( { dismiss_empty_stats_card: true } );
+	}
+
 	renderEmptyStatsCard() {
-		const dismissCard = () => {
-			this.setState( { emptyStatsDismissed: true } );
-			this.props.updateOptions( { dismiss_empty_stats_card: true } );
-		};
 		return (
 			<Card className="jp-at-a-glance__stats-empty">
 				<img src={ imagePath + 'stats-people.svg' } width="272" height="144" alt={ __( 'Jetpack Stats People' ) } className="jp-at-a-glance__stats-icon" />
@@ -156,7 +157,7 @@ export class DashStats extends Component {
 					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
 				</p>
 				<Button
-					onClick={ dismissCard }
+					onClick={ this.dismissCard }
 					primary
 				>
 					{ __( 'Okay, got it!' ) }
@@ -165,9 +166,11 @@ export class DashStats extends Component {
 		);
 	}
 
-	renderStatsArea() {
-		const activateStats = () => this.props.updateOptions( { stats: true } );
+	activateStats() {
+		this.props.updateOptions( { stats: true } );
+	}
 
+	renderStatsArea() {
 		if ( this.props.getOptionValue( 'stats' ) ) {
 			if ( this.statsErrors() ) {
 				return (
@@ -207,7 +210,7 @@ export class DashStats extends Component {
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
 							: __( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ activateStats } />,
+									a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
 									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
 								}
 							} )
@@ -217,7 +220,7 @@ export class DashStats extends Component {
 					! this.props.isDevMode && (
 						<div className="jp-at-a-glance__stats-inactive-button">
 							<Button
-								onClick={ activateStats }
+								onClick={ this.activateStats }
 								primary
 							>
 								{ __( 'Activate Site Stats' ) }
@@ -229,6 +232,12 @@ export class DashStats extends Component {
 		);
 	}
 
+	switchViewTo( dateRange ) {
+		analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: dateRange } );
+		this.props.switchView( dateRange );
+		this.props.fetchStatsData( dateRange );
+	}
+
 	maybeShowStatsTabs() {
 		const statsChart = this.statsChart( this.props.activeTab );
 
@@ -236,37 +245,21 @@ export class DashStats extends Component {
 			return false;
 		}
 
-		const switchToDay = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
-				this.props.switchView( 'day' );
-				this.props.fetchStatsData( 'day' );
-			},
-			switchToWeek = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'week' } );
-				this.props.switchView( 'week' );
-				this.props.fetchStatsData( 'week' );
-			},
-			switchToMonth = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'month' } );
-				this.props.switchView( 'month' );
-				this.props.fetchStatsData( 'month' );
-			};
-
 		if ( this.props.getOptionValue( 'stats' ) && ! this.statsErrors() ) {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToDay }
+						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'day' ) }
 							className={ this.getClass( 'day' ) }
 						>{ __( 'Days' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToWeek }
+						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'week' ) }
 							className={ this.getClass( 'week' ) }
 						>{ __( 'Weeks' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToMonth }
+						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'month' ) }
 							className={ this.getClass( 'month' ) }
 						>{ __( 'Months' ) }</a>
 					</li>

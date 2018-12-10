@@ -19,10 +19,12 @@ class DashPhoton extends Component {
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
 
-	getContent() {
-		const labelName = __( 'Image Performance' ),
-			activatePhoton = () => this.props.updateOptions( { photon: true } );
+	activatePhoton() {
+		this.props.updateOptions( { photon: true } );
+	}
 
+	getContent() {
+		const labelName = __( 'Image Performance' );
 		const support = {
 			text: __( 'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.' ),
 			link: 'https://jetpack.com/support/photon/',
@@ -51,7 +53,7 @@ class DashPhoton extends Component {
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
 							: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ activatePhoton } />
+									a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />
 								}
 							}
 						)

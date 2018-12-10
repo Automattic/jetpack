@@ -207,6 +207,18 @@ class PlanGrid extends React.Component {
 		return requestedIndex >= currentPlanIndex;
 	}
 
+	topButtonClickHandler( isActivePlan, planType ) {
+		if ( ! isActivePlan ) {
+			return;
+		}
+		analytics.tracks.recordJetpackClick( {
+			target: `upgrade-${ planType }`,
+			type: 'upgrade',
+			plan: this.props.sitePlan.product_slug,
+			page: 'Plans'
+		} );
+	}
+
 	/**
 	 * Renders the buttons we need to buy stuff
 	 * @return {ReactElement} <td>s with buttons
@@ -228,23 +240,12 @@ class PlanGrid extends React.Component {
 					<td key={ 'button-' + planType } className={ className } />
 				);
 			}
-			const clickHandler = () => {
-				if ( ! isActivePlan ) {
-					return;
-				}
-				analytics.tracks.recordJetpackClick( {
-					target: `upgrade-${ planType }`,
-					type: 'upgrade',
-					plan: this.props.sitePlan.product_slug,
-					page: 'Plans'
-				} );
-			};
 			const text = isActivePlan
 				? plan.strings.manage
 				: plan.strings.upgrade;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
-					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
+					<Button href={ url } primary={ isPrimary } onClick={ this.topButtonClickHandler( isActivePlan, planType ) }>
 						{ text }
 					</Button>
 				</td>
@@ -356,17 +357,17 @@ class PlanGrid extends React.Component {
 		);
 	}
 
+	featureLinkclickHandler( featureID ) {
+		analytics.tracks.recordJetpackClick( {
+			target: featureID,
+			type: 'feature-discovery',
+			plan: this.props.sitePlan.product_slug,
+			page: 'Plans'
+		} );
+	}
 	renderFeatureLink( feature ) {
-		const clickHandler = () => {
-			analytics.tracks.recordJetpackClick( {
-				target: feature.id,
-				type: 'feature-discovery',
-				plan: this.props.sitePlan.product_slug,
-				page: 'Plans'
-			} );
-		};
 		return (
-			<a onClick={ clickHandler } href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${ this.props.userId }` }>{ feature.name }</a>
+			<a onClick={ this.featureLinkclickHandler( feature.id ) } href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${ this.props.userId }` }>{ feature.name }</a>
 		);
 	}
 

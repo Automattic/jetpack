@@ -41,10 +41,16 @@ class DashStatsBottom extends Component {
 		];
 	}
 
+	trackViewDetailedStats() {
+		analytics.tracks.recordJetpackClick( 'view_detailed_stats' );
+	}
+
+	trackViewWpcomStats() {
+		analytics.tracks.recordJetpackClick( 'view_wpcom_stats' );
+	}
+
 	render() {
 		const s = this.statsBottom()[ 0 ];
-		const trackViewDetailedStats = () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ),
-			trackViewWpcomStats = () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' );
 
 		return (
 		<div>
@@ -102,7 +108,7 @@ class DashStatsBottom extends Component {
 						components: {
 							button:
 								<Button
-									onClick={ trackViewDetailedStats }
+									onClick={ this.trackViewDetailedStats }
 									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 								/>
 						}
@@ -113,7 +119,7 @@ class DashStatsBottom extends Component {
 								components: {
 									button:
 										<Button
-											onClick={ trackViewWpcomStats }
+											onClick={ this.trackViewWpcomStats }
 											className="is-primary"
 											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
 										/>

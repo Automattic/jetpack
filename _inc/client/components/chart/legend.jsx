@@ -33,7 +33,7 @@ const LegendItem = createReactClass( {
 		return (
 			<li className="dops-chart__legend-option">
 				<label htmlFor="checkbox" className="dops-chart__legend-label is-selectable" onClick={ this.clickHandler } >
-					<input type="checkbox" className="dops-chart__legend-checkbox" checked={ this.props.checked } onChange={ function() {} } />
+					<input type="checkbox" className="dops-chart__legend-checkbox" checked={ this.props.checked } />
 					<span className={ this.props.className }></span>{ this.props.label }
 				</label>
 			</li>

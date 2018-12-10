@@ -48,6 +48,18 @@ export class DashItem extends Component {
 		support: { text: '', link: '' },
 	};
 
+	toggleModule() {
+		this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } );
+	}
+
+	trackPaidBtnClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'paid-button',
+			feature: this.props.module,
+			page: 'aag'
+		} );
+	}
+
 	render() {
 		let module, toggle, proButton = '';
 
@@ -57,22 +69,13 @@ export class DashItem extends Component {
 			this.props.disabled ? 'jp-dash-item__disabled' : ''
 		);
 
-		const toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } ),
-			trackPaidBtnClick = () => {
-				analytics.tracks.recordJetpackClick( {
-					target: 'paid-button',
-					feature: this.props.module,
-					page: 'aag'
-				} );
-			};
-
 		if ( '' !== this.props.module ) {
 			toggle = ( includes( [ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.getOptionValue( this.props.module ) }
 					toggling={ this.props.isUpdating( this.props.module ) }
-					toggleModule={ toggleModule }
+					toggleModule={ this.toggleModule }
 					compact={ true }
 				/>
 			);
@@ -107,7 +110,7 @@ export class DashItem extends Component {
 		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
-					onClick={ trackPaidBtnClick }
+					onClick={ this.trackPaidBtnClick }
 					compact={ true }
 					href="#/plans"
 				>
