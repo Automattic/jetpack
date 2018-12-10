@@ -16,13 +16,6 @@
 class Jetpack_Cxn_Test_Base {
 
 	/**
-	 * The one true instance
-	 *
-	 * @var object $_instance
-	 */
-	private $_instance;
-
-	/**
 	 * Tests to run on the Jetpack connection.
 	 *
 	 * @var array $tests
@@ -48,20 +41,9 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Jetpack_Cxn_Test constructor.
 	 */
-	private function __construct() {
-	}
-
-	/**
-	 * Run this to expose the testing platform
-	 */
-	public function init() {
-		if ( ! isset( $this->_instance ) || ! $this->_instance ) {
-			$this->_instance = new Jetpack_Cxn_Test_Base();
-			$this->tests     = array();
-			$this->results   = array();
-		}
-
-		return $this->_instance;
+	public function __construct() {
+		$this->tests   = array();
+		$this->results = array();
 	}
 
 	/**

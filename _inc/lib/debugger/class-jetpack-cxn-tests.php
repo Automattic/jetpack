@@ -14,7 +14,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Jetpack_Cxn_Tests constructor.
 	 */
 	public function __construct() {
-		parent::init();
+		parent::__construct();
 
 		$methods = get_class_methods( 'Jetpack_Cxn_Tests' );
 
