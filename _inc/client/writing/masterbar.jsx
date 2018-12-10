@@ -59,7 +59,7 @@ export const Masterbar = moduleSettingsForm(
 								href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
 							>
 								{
-									__( 'Connect your user account to WordPress.com to use this feature' )
+									__( 'Create a Jetpack account to use this feature' )
 								}
 							</Card>
 						)

@@ -117,7 +117,7 @@ class PostByEmail extends React.Component {
 							href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
 						>
 							{
-								__( 'Connect your user account to WordPress.com to use this feature' )
+								__( 'Create a Jetpack account to use this feature' )
 							}
 						</Card>
 					)

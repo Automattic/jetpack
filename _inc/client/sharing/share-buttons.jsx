@@ -68,7 +68,7 @@ export const ShareButtons = moduleSettingsForm(
 						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
 					>
 						{__(
-							'Connect your user account to WordPress.com to use this feature'
+							'Create a Jetpack account to use this feature'
 						)}
 					</Card>
 				);
