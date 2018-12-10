@@ -182,6 +182,18 @@ class VaultPress {
 			return '';
 		}
 
+		// allow_forwarded_for can be overrided by config, or stored in or out of the vp option
+		if ( 'allow_forwarded_for' === $key ) {
+			if ( defined( 'ALLOW_FORWARDED_FOR' ) ) {
+				return ALLOW_FORWARDED_FOR;
+			}
+
+			$standalone_option = get_option( 'vaultpress_allow_forwarded_for' );
+			if ( ! empty( $standalone_option ) ) {
+				return $standalone_option;
+			}
+		}
+
 		if ( isset( $this->options[$key] ) )
 			return $this->options[$key];
 
@@ -189,11 +201,25 @@ class VaultPress {
 	}
 
 	function update_option( $key, $value ) {
+		if ( 'allow_forwarded_for' === $key ) {
+			update_option( 'vaultpress_allow_forwarded_for', $value );
+
+			if ( isset( $this->options[ $key ] ) ) {
+				unset( $this->options[ $key ] );
+				$this->update_options();
+			}
+			return;
+		}
+
 		$this->options[$key] = $value;
 		$this->update_options();
 	}
 
 	function delete_option( $key ) {
+		if ( 'allow_forwarded_for' === $key ) {
+			delete_option( 'vaultpress_allow_forwarded_for' );
+		}
+
 		unset( $this->options[$key] );
 		$this->update_options();
 	}
@@ -1088,14 +1114,17 @@ class VaultPress {
 
 		// if we're running a connection test we don't want to run it a second time
 		$connection_test = $this->get_option( 'connection_test' );
-		if ( $connection_test )
+		if ( ! empty( $connection_test ) )
 			return true;
 
 		// force update firewall settings
 		$this->update_firewall();
 
+		// Generate a random string for ping-backs to use for identification
+		$connection_test_key = wp_generate_password( 32, false );
+		$this->update_option( 'connection_test', $connection_test_key );
+
 		// initial connection test to server
-		$this->update_option( 'connection_test', true );
 		$this->delete_option( 'allow_forwarded_for' );
 		$host = ( ! empty( $_SERVER['HTTP_HOST'] ) ) ? $_SERVER['HTTP_HOST'] : parse_url( $this->site_url(), PHP_URL_HOST );
 		$connect = $this->contact_service( 'test', array( 'host' => $host, 'uri' => $_SERVER['REQUEST_URI'], 'ssl' => is_ssl() ) );
@@ -1127,26 +1156,19 @@ class VaultPress {
 		}
 
 		// test connection between the site and the servers
-		$connect = (string)$this->contact_service( 'test', array( 'type' => 'connect' ) );
+		$connect = (string)$this->contact_service( 'test', array( 'type' => 'connect', 'test_key' => $connection_test_key ) );
 		if ( 'ok' != $connect ) {
-
-			// still not working so see if we're behind a load balancer
-			$this->update_option( 'allow_forwarded_for', true );
-			$connect = (string)$this->contact_service( 'test', array( 'type' => 'firewall-off' ) );
-
-			if ( 'ok' != $connect ) {
-				if ( 'error' == $connect ) {
-					$this->update_option( 'connection_error_code', -1 );
-					$this->update_option( 'connection_error_message', sprintf( __( 'The VaultPress servers cannot connect to your site. Please check that your site is visible over the Internet and there are no firewall or load balancer settings on your server that might be blocking the communication. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ) );
-				} elseif ( !empty( $connect['faultCode'] ) ) {
-					$this->update_option( 'connection_error_code', $connect['faultCode'] );
-					$this->update_option( 'connection_error_message', $connect['faultString'] );
-				}
-
-				$this->update_option( 'connection', time() );
-				$this->delete_option( 'connection_test' );
-				return false;
+			if ( 'error' == $connect ) {
+				$this->update_option( 'connection_error_code', -1 );
+				$this->update_option( 'connection_error_message', sprintf( __( 'The VaultPress servers cannot connect to your site. Please check that your site is visible over the Internet and there are no firewall or load balancer settings on your server that might be blocking the communication. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ) );
+			} elseif ( !empty( $connect['faultCode'] ) ) {
+				$this->update_option( 'connection_error_code', $connect['faultCode'] );
+				$this->update_option( 'connection_error_message', $connect['faultString'] );
 			}
+
+			$this->update_option( 'connection', time() );
+			$this->delete_option( 'connection_test' );
+			return false;
 		}
 
 		// successful connection established
@@ -1911,26 +1933,64 @@ JS;
 		}
 		
 		//	Figure out possible remote IPs		
-		if ( $this->get_option( 'allow_forwarded_for') && !empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
-			$remote_ips = explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] );
-
+		$remote_ips = array();
 		if ( !empty( $_SERVER['REMOTE_ADDR'] ) )
-			$remote_ips[] = $_SERVER['REMOTE_ADDR'];
+			$remote_ips['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+
+		// If this is a pingback during a connection test, search for valid-looking ips among headers
+		$connection_test_key = $this->get_option( 'connection_test' );
+		$testing_all_headers = ( ! empty( $_POST['test_key'] ) && $_POST['test_key'] === $connection_test_key );
+		if ( $testing_all_headers ) {
+			$remote_ips = array_filter( $_SERVER, array( $this, 'looks_like_ip_list' ) );
+		}
+
+		// If there is a pre-configured forwarding IP header, check that.
+		$forward_header = $this->get_option( 'allow_forwarded_for' );
+		if ( true === $forward_header || 1 == $forward_header ) {
+			$forward_header = 'HTTP_X_FORWARDED_FOR';
+		}
+		if ( ! empty( $forward_header ) && ! empty( $_SERVER[ $forward_header ] ) ) {
+			$remote_ips[ $forward_header ] = $_SERVER[ $forward_header ];
+		}
 
 		if ( empty( $remote_ips ) ) {
 			$__vp_validate_error = array( 'error' => 'no_remote_addr', 'detail' => (int) $this->get_option( 'allow_forwarded_for' ) ); // shouldn't happen
 			return false;
 		}
-		
-		foreach ( $remote_ips as $ip ) {
-			$ip = preg_replace( '#^::(ffff:)?#', '', $ip );
-			if ( $cidr = $this->ip_in_cidrs( $ip, $cidrs ) ) {
-				return true;
+
+		foreach ( $remote_ips as $header_name => $ip_list ) {
+			$ips = explode( ',', $ip_list );
+			foreach ( $ips as $ip ) {
+				$ip = preg_replace( '#^::(ffff:)?#', '', $ip );
+				if ( $cidr = $this->ip_in_cidrs( $ip, $cidrs ) ) {
+					// Successful match found. If testing all headers, note the successful header.
+					if ( $testing_all_headers && 'REMOTE_ADDR' !== $header_name ) {
+						$this->update_option( 'allow_forwarded_for', $header_name );
+					}
+
+					return true;
+				}
 			}
 		}
 		
 		$__vp_validate_error = array( 'error' => 'remote_addr_fail', 'detail' => $remote_ips );
 		return false;
+	}
+
+	// Returns true if $value looks like a comma-separated list of IPs
+	function looks_like_ip_list( $value ) {
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
+		$items = explode( ',', $value );
+		foreach ( $items as $item ) {
+			if ( ip2long( $item ) === false ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 	
 	function do_c_block_firewall() {
