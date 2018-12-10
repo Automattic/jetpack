@@ -249,17 +249,23 @@ export class DashStats extends Component {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'day' ) }
+						<a
+							href="javascript:void(0)"
+							onClick={ () => this.switchViewTo( 'day' ) } // eslint-disable-line react/jsx-no-bind
 							className={ this.getClass( 'day' ) }
 						>{ __( 'Days' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'week' ) }
+						<a
+							href="javascript:void(0)"
+							onClick={ () => this.switchViewTo( 'week' ) } // eslint-disable-line react/jsx-no-bind
 							className={ this.getClass( 'week' ) }
 						>{ __( 'Weeks' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.switchViewTo( 'month' ) }
+						<a
+							href="javascript:void(0)"
+							onClick={ () => this.switchViewTo( 'month' ) } // eslint-disable-line react/jsx-no-bind
 							className={ this.getClass( 'month' ) }
 						>{ __( 'Months' ) }</a>
 					</li>
