@@ -141,7 +141,7 @@
     "babel-register": "6.26.0",
     "chai": "4.2.0",
     "commander": "2.19.0",
-    "danger": "6.1.10",
+    "danger": "6.1.11",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-15": "1.2.0",
     "glob": "7.1.3",
