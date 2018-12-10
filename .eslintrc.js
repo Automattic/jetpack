@@ -61,7 +61,7 @@ module.exports = {
 		"react/no-did-mount-set-state": 2,
 		"react/no-did-update-set-state": 2,
 		"react/no-is-mounted": 2,
-		"react/prefer-es6-class": 1,
+		"react/prefer-es6-class": 0,
 		"semi": 2,
 		"semi-spacing": 2,
 		"space-before-blocks": [ 2, "always" ],
