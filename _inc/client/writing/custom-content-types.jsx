@@ -9,6 +9,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 /**
  * Internal dependencies
  */
+import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule, getModuleOverride } from 'state/modules';
@@ -99,6 +100,11 @@ export class CustomContentTypes extends React.Component {
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
+				<CompactCard
+					className="jp-settings-card__configure-link"
+					href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }>
+					{ __( 'Add a testimonial' ) }
+				</CompactCard>
 				<SettingsGroup
 					hasChild
 					module={ module }
