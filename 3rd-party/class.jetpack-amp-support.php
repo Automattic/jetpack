@@ -8,9 +8,6 @@
 class Jetpack_AMP_Support {
 
 	static function init() {
-		if ( ! self::is_amp_request() ) {
-			return;
-		}
 
 		// enable stats
 		if ( Jetpack::is_module_active( 'stats' ) ) {
@@ -18,19 +15,19 @@ class Jetpack_AMP_Support {
 		}
 
 		// carousel
-		add_filter( 'jp_carousel_maybe_disable', '__return_true' );
+		add_filter( 'jp_carousel_maybe_disable', array( __CLASS__, 'is_amp_request' ) );
 
 		// sharing
-		add_filter( 'sharing_enqueue_scripts', '__return_false' );
-		add_filter( 'jetpack_sharing_counts', '__return_false' );
-		add_filter( 'sharing_js', '__return_false' );
+		add_filter( 'sharing_enqueue_scripts', array( __CLASS__, 'is_not_amp_request' ) );
+		add_filter( 'jetpack_sharing_counts', array( __CLASS__, 'is_not_amp_request' ) );
+		add_filter( 'sharing_js', array( __CLASS__, 'is_not_amp_request' ) );
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 
 		// disable lazy images
-		add_filter( 'lazyload_is_enabled', '__return_false' );
+		add_filter( 'lazyload_is_enabled', array( __CLASS__, 'is_not_amp_request' ) );
 
 		// disable imploding CSS
-		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+		add_filter( 'jetpack_implode_frontend_css', array( __CLASS__, 'is_not_amp_request' ) );
 
 		// enforce freedom mode for videopress
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -50,37 +47,12 @@ class Jetpack_AMP_Support {
 		add_filter( 'post_flair_disable',  array( 'Jetpack_AMP_Support', 'is_amp_canonical' ), 99 );
 	}
 
-	static function init_filter_jetpack_widgets() {
-		if ( ! self::is_amp_request() ) {
-			return;
-		}
-
-		// widgets
-		add_filter( 'jetpack_widgets_to_include', array( 'Jetpack_AMP_Support', 'filter_available_widgets' ) );
-	}
-
 	static function is_amp_canonical() {
 		return function_exists( 'amp_is_canonical' ) && amp_is_canonical();
 	}
 
 	static function is_amp_request() {
-		// can't use is_amp_endpoint() since it's not ready early enough in init.
-		// is_amp_endpoint() implementation calls is_feed, which bails with a notice if plugins_loaded isn't finished
-		// "Conditional query tags do not work before the query is run"
-		$is_amp_request =
-				defined( 'AMP__VERSION' )
-			&&
-				! is_admin() // this is necessary so that modules can still be enabled/disabled/configured as per normal via Jetpack admin
-			&&
-				function_exists( 'amp_is_canonical' ) // this is really just testing if the plugin exists
-			&&
-				(
-					amp_is_canonical()
-				||
-					isset( $_GET[ amp_get_slug() ] )
-				||
-					( version_compare( AMP__VERSION, '1.0', '<' ) && self::has_amp_suffix() ) // after AMP 1.0, the amp suffix will no longer be supported
-				);
+		$is_amp_request = ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() );
 
 		/**
 		 * Returns true if the current request should return valid AMP content.
@@ -90,11 +62,6 @@ class Jetpack_AMP_Support {
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
-	}
-
-	static function has_amp_suffix() {
-		$request_path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-		return $request_path && preg_match( '#/amp/?$#i', $request_path );
 	}
 
 	static function filter_available_widgets( $widgets ) {
@@ -107,6 +74,16 @@ class Jetpack_AMP_Support {
 
 	static function is_supported_widget( $widget_path ) {
 		return substr( $widget_path, -14 ) !== '/milestone.php';
+	}
+
+	/**
+	 * Returns whether the request is not AMP.
+	 *
+	 * @see Jetpack_AMP_Support::is_amp_request()
+	 * @return bool Whether not AMP.
+	 */
+	static function is_not_amp_request() {
+		return ! self::is_amp_request();
 	}
 
 	static function amp_disable_the_content_filters() {
@@ -299,11 +276,17 @@ class Jetpack_AMP_Support {
 	}
 
 	static function videopress_enable_freedom_mode( $options ) {
-		$options['freedom'] = true;
+		if ( self::is_amp_request() ) {
+			$options['freedom'] = true;
+		}
 		return $options;
 	}
 
 	static function render_sharing_html( $markup, $sharing_enabled ) {
+		if ( ! self::is_amp_request() ) {
+			return $markup;
+		}
+
 		remove_action( 'wp_footer', 'sharing_add_footer' );
 		if ( empty( $sharing_enabled ) ) {
 			return $markup;
