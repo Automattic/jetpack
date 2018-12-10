@@ -35,6 +35,7 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function add_actions() {
+		global $pagenow;
 
 		// If user is not an admin and site is in Dev Mode, don't do anything
 		if ( ! current_user_can( 'manage_options' ) && Jetpack::is_development_mode() ) {
@@ -63,7 +64,8 @@ abstract class Jetpack_Admin_Page {
 		}
 		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
 		if (
-			! Jetpack::is_active()
+			( 'admin.php' === $pagenow && 'jetpack' === $_GET['page'] )
+			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
 			&& ! Jetpack::is_development_mode()
 		) {
