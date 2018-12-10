@@ -44,7 +44,7 @@ class NavTabs extends React.Component {
 		window.addEventListener( 'resize', this.debouncedAfterResize );
 	}
 
-	componentWillReceiveProps() {
+	UNSAFE_componentWillReceiveProps() {
 		this.setDropdown();
 	}
 

@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { getSearchTerm } from 'state/search';
 
 export class Tracker extends Component {
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		const record = this.props.analytics.tracks.recordEvent;
 
 		if ( nextProps.searchTerm !== this.props.searchTerm ) {

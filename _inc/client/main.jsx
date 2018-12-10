@@ -125,7 +125,7 @@ class Main extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
 			this.handleJumpstart( nextProps );
@@ -137,7 +137,7 @@ class Main extends React.Component {
 	 * Takes care of redirection when
 	 * - jumpstarting ( resseting options )
 	 * - the jumpstart is complete
-	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
+	 * @param  {Object} nextProps The next props as received by UNSAFE_componentWillReceiveProps
 	 */
 	handleJumpstart = nextProps => {
 		const history = createHistory();

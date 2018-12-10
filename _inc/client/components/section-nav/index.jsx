@@ -49,7 +49,7 @@ const SectionNav = createReactClass( {
 		this.checkForSiblingControls( this.props.children );
 	},
 
-	componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function( nextProps ) {
 		if ( isEqual( this.props, nextProps ) ) {
 			return;
 		}

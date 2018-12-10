@@ -61,7 +61,7 @@ class SelectDropdown extends Component {
 		} );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.state.isOpen ) {
 			this.closeDropdown();
 		}

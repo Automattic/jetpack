@@ -48,7 +48,7 @@ export default class ModuleChart extends React.Component {
 		window.removeEventListener( 'resize', this.resize );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
