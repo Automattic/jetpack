@@ -28,6 +28,10 @@
 
 	@include banner-color( $blue-wordpress );
 
+	&.is-jetpack-info {
+		@include banner-color( $alert-green );
+	}
+
 	&.is-upgrade-personal {
 		@include banner-color( $alert-yellow );
 	}
