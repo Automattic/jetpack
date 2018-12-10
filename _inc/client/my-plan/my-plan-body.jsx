@@ -441,7 +441,7 @@ class MyPlanBody extends React.Component {
 
 			default:
 				planCard = (
-					<div className="jp-landing__plan-features">
+					<div className="jp-landing__plan-features is-loading">
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title is-placeholder"> </h3>
 							<p className="jp-landing__plan-features-text is-placeholder"> </p>
@@ -461,10 +461,8 @@ class MyPlanBody extends React.Component {
 		}
 		return (
 			<div>
-				<div>
-					<QuerySitePlugins />
-					{ planCard }
-				</div>
+				<QuerySitePlugins />
+				{ planCard }
 			</div>
 		);
 	}

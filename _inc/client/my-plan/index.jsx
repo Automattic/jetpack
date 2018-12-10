@@ -64,15 +64,15 @@ export class MyPlan extends React.Component {
 			<div>
 				<div className="jp-landing__plans dops-card">
 					<MyPlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
-					<MyPlanBody
-						plan={ sitePlan }
-						availableFeatures={ availableFeatures }
-						activeFeatures={ activeFeatures }
-						siteRawUrl={ this.props.siteRawUrl }
-						siteAdminUrl={ this.props.siteAdminUrl }
-						rewindStatus={ this.props.rewindStatus }
-					/>
 				</div>
+				<MyPlanBody
+					plan={ sitePlan }
+					availableFeatures={ availableFeatures }
+					activeFeatures={ activeFeatures }
+					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					rewindStatus={ this.props.rewindStatus }
+				/>
 				{ themePromo }
 			</div>
 		);
