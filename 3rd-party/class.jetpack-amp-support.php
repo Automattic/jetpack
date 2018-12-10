@@ -64,18 +64,6 @@ class Jetpack_AMP_Support {
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 
-	static function filter_available_widgets( $widgets ) {
-		if ( self::is_amp_request() ) {
-			$widgets = array_filter( $widgets, array( 'Jetpack_AMP_Support', 'is_supported_widget' ) );
-		}
-
-		return $widgets;
-	}
-
-	static function is_supported_widget( $widget_path ) {
-		return substr( $widget_path, -14 ) !== '/milestone.php';
-	}
-
 	/**
 	 * Returns whether the request is not AMP.
 	 *
@@ -332,7 +320,3 @@ add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 
 add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
 
-// this is necessary since for better or worse Jetpack modules and widget files are loaded during plugins_loaded, which means we must
-// take the opportunity to intercept initialisation before that point, either by adding explicit detection into the module,
-// or preventing it from loading in the first place (better for performance)
-add_action( 'plugins_loaded', array( 'Jetpack_AMP_Support', 'init_filter_jetpack_widgets' ), 1 );
