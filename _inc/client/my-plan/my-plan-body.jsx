@@ -428,7 +428,7 @@ class MyPlanBody extends React.Component {
 							<p>{ __( 'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible.' ) }</p>
 						</div>
 
-						<p>
+						<p className="jp-landing__plan-features-link">
 							<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'is-free-plan' === planClass
 								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
 								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
