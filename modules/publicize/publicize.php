@@ -40,7 +40,7 @@ abstract class Publicize_Base {
 	 * All users with this cap can un-globalize all other global connections, and globalize any of their own
 	 * Globalized connections cannot be unselected by users without this capability when publishing
 	 */
-	public $GLOBAL_CAP = 'edit_others_posts';
+	public $GLOBAL_CAP = 'publish_posts';
 
 	/**
 	* Sets up the basics of Publicize
