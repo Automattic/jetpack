@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { fetchSiteConnectionStatus } from 'state/connection';
 
 class QueryConnectionStatus extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.props.fetchSiteConnectionStatus();
 	}
 

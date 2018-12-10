@@ -12,7 +12,7 @@ import { isFetchingVaultPressData, fetchVaultPressData } from 'state/at-a-glance
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryVaultPressData extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingVaultPressData && this.props.isModuleActivated( 'vaultpress' ) ) {
 			this.props.fetchVaultPressData();
 		}

@@ -14,7 +14,7 @@ import {
 } from 'state/site/plugins';
 
 export class QuerySitePlugins extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();
 		}

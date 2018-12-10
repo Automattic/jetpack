@@ -14,7 +14,7 @@ import {
 import { isDevMode } from 'state/connection';
 
 export class QueryConnectUrl extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! ( this.props.isFetchingConnectUrl || this.props.isDevMode ) ) {
 			this.props.fetchConnectUrl();
 		}

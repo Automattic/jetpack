@@ -45,7 +45,7 @@ const SectionNav = createReactClass( {
 		};
 	},
 
-	componentWillMount: function() {
+	UNSAFE_componentWillMount: function() {
 		this.checkForSiblingControls( this.props.children );
 	},
 

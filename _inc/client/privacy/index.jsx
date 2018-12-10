@@ -79,7 +79,7 @@ class Privacy extends React.Component {
 		this.props.setTrackingSettings( ! current );
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.props.fetchTrackingSettings();
 	}
 

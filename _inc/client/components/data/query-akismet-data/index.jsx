@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isFetchingAkismetData, fetchAkismetData } from 'state/at-a-glance';
 
 class QueryAkismetData extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingAkismetData ) {
 			this.props.fetchAkismetData();
 		}

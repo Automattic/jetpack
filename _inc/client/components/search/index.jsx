@@ -92,7 +92,7 @@ class Search extends React.Component {
 		hasFocus: false
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++Search.instances
 		} );

@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isFetchingPluginUpdates, fetchPluginUpdates } from 'state/at-a-glance';
 
 class QueryPluginUpdates extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingPluginUpdates ) {
 			this.props.fetchPluginUpdates();
 		}
