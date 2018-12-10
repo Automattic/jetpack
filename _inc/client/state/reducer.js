@@ -23,7 +23,6 @@ import { reducer as search } from 'state/search/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
-import { reducer as jitm } from 'state/jitm/reducer';
 
 const jetpackReducer = combineReducers( {
 	initialState,
@@ -40,8 +39,7 @@ const jetpackReducer = combineReducers( {
 	search,
 	devCard,
 	publicize,
-	siteVerify,
-	jitm,
+	siteVerify
 } );
 
 export default combineReducers( {
