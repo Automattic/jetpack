@@ -3,7 +3,7 @@
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { translate as __ } from 'i18n-calypso';
-import { createBrowserHistory } from 'history';
+import { createHistory } from 'history';
 import analytics from 'lib/analytics';
 
 /**
@@ -57,7 +57,7 @@ export const jumpStartActivate = () => {
 	};
 };
 
-const history = createBrowserHistory();
+const history = createHistory();
 
 export const jumpStartSkip = () => {
 	return ( dispatch ) => {
