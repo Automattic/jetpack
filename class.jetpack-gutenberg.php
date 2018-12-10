@@ -132,6 +132,18 @@ class Jetpack_Gutenberg {
 		self::init();
 	}
 
+	/**
+	 * Add a block to the list of blocks to be registered.
+	 *
+	 * @param string $slug Slug of the block.
+	 * @param array  $args Arguments that are passed into the register_block_type.
+	 * @param array $availability array containing if a block is available and the reason when it is not.
+	 *
+	 * @deprecated
+	 */
+	static function add_block( $type, $args, $availability ) {
+		self::register( $type, $args, $availability );
+	}
 
 	static function load( $request = null ) {
 		/**
