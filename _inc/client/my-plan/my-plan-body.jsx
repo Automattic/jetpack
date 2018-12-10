@@ -338,7 +338,7 @@ class MyPlanBody extends React.Component {
 						( 'inactive' !== this.props.getModuleOverride( 'google-analytics' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
-								<p>{ __( 'Complement WordPress.com's stats with Google's in-depth look at your visitors and traffic patterns.' ) }</p>
+								<p>{ __( 'Complement WordPress.com’s stats with Google’s in-depth look at your visitors and traffic patterns.' ) }</p>
 								{
 									this.props.isModuleActivated( 'google-analytics' ) ? (
 										<Button onClick={ this.handleButtonClickForTracking( 'configure_ga' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
