@@ -100,11 +100,15 @@ export class CustomContentTypes extends React.Component {
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
-				<CompactCard
-					className="jp-settings-card__configure-link"
-					href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }>
-					{ __( 'Add a testimonial' ) }
-				</CompactCard>
+				{
+					this.props.testimonialActive && (
+						<CompactCard
+							className="jp-settings-card__configure-link"
+							href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }>
+							{ __( 'Add a testimonial' ) }
+						</CompactCard>
+					)
+				}
 				<SettingsGroup
 					hasChild
 					module={ module }
@@ -150,12 +154,15 @@ export class CustomContentTypes extends React.Component {
 	}
 }
 
-export default connect(
-	( state ) => {
+export default withModuleSettingsFormHelpers( connect(
+	( state, ownProps ) => {
+		const testimonialActive = ownProps.getSettingCurrentValue( 'jetpack_testimonial', 'custom-content-types' );
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
+			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
+			testimonialActive,
 		};
 	}
-)( withModuleSettingsFormHelpers( CustomContentTypes ) );
+)( CustomContentTypes ) );
+
