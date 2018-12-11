@@ -32,26 +32,26 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 			} );
 		}
 
+		configLink = () => {
+			if ( this.props.isUnavailableInDevMode( 'manage' ) ) {
+				return;
+			}
+
+			return (
+				<Card
+					compact
+					className="jp-settings-card__configure-link"
+					onClick={ this.trackClickConfigure }
+					target="_blank"
+					rel="noopener noreferrer"
+					href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl }
+				>
+					{ __( 'Manage plugins' ) }
+				</Card>
+			);
+		};
+
 		render() {
-			const configLink = () => {
-				if ( this.props.isUnavailableInDevMode( 'manage' ) ) {
-					return;
-				}
-
-				return (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackClickConfigure }
-						target="_blank"
-						rel="noopener noreferrer"
-						href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl }
-					>
-						{ __( 'Manage plugins' ) }
-					</Card>
-				);
-			};
-
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -67,7 +67,7 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 							) }
 						</p>
 					</SettingsGroup>
-					{ configLink() }
+					{ this.configLink() }
 				</SettingsCard>
 			);
 		}
