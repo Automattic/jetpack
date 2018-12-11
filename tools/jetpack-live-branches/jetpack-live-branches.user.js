@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.8
+// @version      1.9
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -18,7 +18,7 @@
 		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
 		const isGutenbergPr = $( ".discussion-sidebar .sidebar-labels .labels a[title='Gutenberg']" ).length;
 		const base = 'https://jurassic.ninja/create?';
-		const query = `jetpack-beta&branch=${ branch }&shortlived&wp-debug-log&gutenberg${ isGutenbergPr ? '&gutenpack' : '' }`;
+		const query = `jetpack-beta&branch=${ branch }&shortlived&wp-debug-log${ isGutenbergPr ? '&gutenpack' : '' }`;
 		let link = base + query;
 		const canLiveTestText =
 			`<div id="jetpack-live-branches">
@@ -27,8 +27,10 @@
 			<ul>
 			<li class="task-list-item enabled"><input type="checkbox" name="shortlived" checked class="task-list-item-checkbox">Launch a shortlived site</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" checked class="task-list-item-checkbox">Launch with Gutenberg installed</li>
+			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" class="task-list-item-checkbox">Launch with Gutenberg installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="gutenpack" ${ isGutenbergPr ? 'checked' : '' } class="task-list-item-checkbox">Launch with built blocks</li>
+			<li class="task-list-item enabled"><input type="checkbox" name="wordpress-4" class="task-list-item-checkbox">Launch with latest WordPress 4.9 instead</li>
+			<li class="task-list-item enabled"><input type="checkbox" name="classic-editor" class="task-list-item-checkbox">Launch with Classic Editor plugin</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="code-snippets" class="task-list-item-checkbox">Launch with Code Snippets installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wp-rollback" class="task-list-item-checkbox">Launch with WP Rollback installed</li>
