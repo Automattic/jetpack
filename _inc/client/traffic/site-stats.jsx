@@ -20,7 +20,7 @@ import {
 	FormFieldset,
 	FormLegend
 } from 'components/forms';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsGroup from 'components/settings-group';
 import SettingsCard from 'components/settings-card';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';

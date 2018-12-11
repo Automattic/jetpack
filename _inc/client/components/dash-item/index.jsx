@@ -14,7 +14,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import SupportInfo from 'components/support-info';

@@ -15,7 +15,7 @@ import {
 	FormFieldset,
 	FormLabel
 } from 'components/forms';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import JetpackBanner from 'components/jetpack-banner';

@@ -12,7 +12,7 @@ import analytics from 'lib/analytics';
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 

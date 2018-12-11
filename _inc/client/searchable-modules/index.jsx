@@ -13,7 +13,7 @@ import Banner from 'components/banner';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';

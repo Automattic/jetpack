@@ -10,7 +10,7 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 

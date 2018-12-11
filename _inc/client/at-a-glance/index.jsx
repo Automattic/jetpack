@@ -11,7 +11,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashStats from './stats/index.jsx';
