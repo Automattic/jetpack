@@ -47,19 +47,19 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-= 1.9.7 - 11 December 2018
+= 1.9.7 - 11 December 2018 =
 * Update firewall IP detection rules to autodetect various reverse proxy setups
 
-= 1.9.6 - 17 August 2018
+= 1.9.6 - 17 August 2018 =
 * Limit _vp_ai_ping_% entries to improve stability when a site gets disconnected from VaultPress.com
 
-= 1.9.5 - 2 February 2018
+= 1.9.5 - 2 February 2018 =
 * Removing activation notice
 
-= 1.9.4 - 15 November 2017
+= 1.9.4 - 15 November 2017 =
 * Error handling improvements in the scanner
 
-= 1.9.3 - 9 November 2017
+= 1.9.3 - 9 November 2017 =
 * Compatibility update
 * Send a better user-agent string to VaultPress servers
 
