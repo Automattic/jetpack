@@ -12,11 +12,11 @@ import { translate as __ } from 'i18n-calypso';
  */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const ManagePlugins = moduleSettingsForm(
+export const ManagePlugins = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackOpenCard = () => {
 			analytics.tracks.recordJetpackClick( {
@@ -59,7 +59,7 @@ export const ManagePlugins = moduleSettingsForm(
 					header={ __( 'Plugin Autoupdates', { context: 'Settings header' } ) }
 					hideButton
 				>
-					<SettingsGroup disableInDevMode module={ this.props.getModule( 'manage' ) } >
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'manage' ) }>
 						<p>
 							{ __(
 								'When a plugin update is released, the best practice is to update that plugin right away. ' +
