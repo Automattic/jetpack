@@ -239,12 +239,11 @@ class Publicize extends Publicize_Base {
 	function globalization() {
 		if ( 'on' == $_REQUEST['global'] ) {
 			$globalize_connection = $_REQUEST['connection'];
-
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) {
 				return;
 			}
 
-			$this->globalize_connection( $connection_id );
+			$this->globalize_connection( $globalize_connection );
 		}
 	}
 
