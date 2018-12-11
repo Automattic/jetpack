@@ -127,11 +127,13 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( $availability['banana']['unavailable_reason'], 'unknown', 'Availability Reason is not unknown' );
 	}
 
+	function get_coconut_availability() {
+		return array( 'available' => false, 'unavailable_reason' => 'roccoconut' );
+	}
+
 	function test_registered_block_supports_callback_availability() {
 		jetpack_register_block( 'coconut', array(), array(
-			'callback' => function() {
-				return array( 'available' => false, 'unavailable_reason' => 'roccoconut' );
-			} ) );
+			'callback' => array( $this, 'get_coconut_availability' ) ) );
 		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_coconut_block' ) );
 
 		Jetpack_Gutenberg::init();
