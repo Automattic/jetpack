@@ -11,12 +11,12 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import {
-	ModuleSettingsForm as moduleSettingsForm,
+	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
 } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const SSO = moduleSettingsForm(
+export const SSO = withModuleSettingsFormHelpers(
 	class extends Component {
 		/**
 		 * Get options for initial state.

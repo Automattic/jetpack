@@ -15,7 +15,7 @@ import analytics from 'lib/analytics';
 import {
 	FormFieldset
 } from 'components/forms';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -136,4 +136,4 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	}
-)( moduleSettingsForm( Sitemaps ) );
+)( withModuleSettingsFormHelpers( Sitemaps ) );

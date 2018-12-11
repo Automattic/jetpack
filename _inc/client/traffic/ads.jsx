@@ -13,12 +13,12 @@ import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
 import Textarea from 'components/textarea';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Ads = moduleSettingsForm( class extends React.Component {
+export const Ads = withModuleSettingsFormHelpers( class extends React.Component {
 	/**
 	 * Update state so preview is updated instantly and toggle options.
 	 *

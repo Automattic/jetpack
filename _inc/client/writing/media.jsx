@@ -21,7 +21,7 @@ import {
 	FormSelect
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getModule } from 'state/modules';
@@ -192,4 +192,4 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
-)( moduleSettingsForm( Media ) );
+)( withModuleSettingsFormHelpers( Media ) );

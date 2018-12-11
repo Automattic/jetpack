@@ -8,7 +8,7 @@ import { Component } from 'react';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
@@ -51,4 +51,4 @@ export default connect(
 			module: ( module_name ) => getModule( state, module_name ),
 		};
 	}
-)( moduleSettingsForm( ModuleSettingsComponent ) );
+)( withModuleSettingsFormHelpers( ModuleSettingsComponent ) );

@@ -9,12 +9,12 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const ShareButtons = moduleSettingsForm(
+export const ShareButtons = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackClickConfigure() {
 			analytics.tracks.recordJetpackClick( {

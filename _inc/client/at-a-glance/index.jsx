@@ -11,7 +11,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashStats from './stats/index.jsx';
@@ -182,4 +182,4 @@ export default connect(
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
-)( moduleSettingsForm( AtAGlance ) );
+)( withModuleSettingsFormHelpers( AtAGlance ) );

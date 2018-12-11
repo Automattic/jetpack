@@ -13,10 +13,10 @@ import ExternalLink from 'components/external-link';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import analytics from 'lib/analytics';
 
-const UpgradeNoticeContent = moduleSettingsForm(
+const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
 		componentDidMount() {
 			analytics.tracks.recordEvent(

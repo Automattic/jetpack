@@ -15,7 +15,7 @@ import Banner from 'components/banner';
  */
 import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import {
-	ModuleSettingsForm as moduleSettingsForm,
+	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
 } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -83,7 +83,7 @@ class BackupsScanRewind extends Component {
 	}
 }
 
-export const BackupsScan = moduleSettingsForm(
+export const BackupsScan = withModuleSettingsFormHelpers(
 	class extends Component {
 		toggleModule = ( name, value ) => {
 			this.props.updateFormStateOptionValue( name, ! value );

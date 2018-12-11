@@ -16,12 +16,12 @@ import analytics from 'lib/analytics';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import {
-	ModuleSettingsForm as moduleSettingsForm,
+	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
 } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Protect = moduleSettingsForm(
+export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
 		state = {
 			whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )

@@ -20,7 +20,7 @@ import {
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -134,4 +134,4 @@ export default connect(
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
 		};
 	}
-)( moduleSettingsForm( PostByEmail ) );
+)( withModuleSettingsFormHelpers( PostByEmail ) );

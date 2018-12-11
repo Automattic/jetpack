@@ -8,12 +8,12 @@ import Card from 'components/card';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Masterbar = moduleSettingsForm(
+export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),

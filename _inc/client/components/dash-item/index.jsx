@@ -14,7 +14,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import SupportInfo from 'components/support-info';
@@ -159,4 +159,4 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	}
-)( moduleSettingsForm( DashItem ) );
+)( withModuleSettingsFormHelpers( DashItem ) );
