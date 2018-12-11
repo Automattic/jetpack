@@ -134,7 +134,7 @@
     "style-loader": "0.23.1",
     "uglify-save-license": "0.4.1",
     "url-loader": "1.1.2",
-    "webpack": "3.12.0",
+    "webpack": "4.27.1",
     "whatwg-fetch": "1.1.1"
   },
   "devDependencies": {
