@@ -42,6 +42,13 @@
     core-js "^2.5.7"
     regenerator-runtime "^0.11.1"
 
+"@babel/runtime@^7.0.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.2.0.tgz#b03e42eeddf5898e00646e4c840fa07ba8dcad7f"
+  integrity sha512-oouEibCbHMVdZSDlJBO6bZmID/zA/G/Qx3H1d3rSNPTD+L8UNKvCat7aKWSJ74zYbm5zWGh0GQN0hKj8zYFTCg==
+  dependencies:
+    regenerator-runtime "^0.12.0"
+
 "@glimmer/interfaces@^0.30.3":
   version "0.30.5"
   resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.30.5.tgz#9fd391ff4b9e4b29cf56495a2c3f5f660e45497a"
@@ -118,6 +125,31 @@
     array-from "^2.1.1"
     lodash.get "^4.4.2"
 
+"@tannin/compile@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@tannin/compile/-/compile-1.0.1.tgz#473f1ce4d8b63affa06f435d3224dd2ff80f741a"
+  integrity sha512-ymd9icvnkQin8UG4eRU3+xBc7gqTn/Kv5+EMY3ALWVwIl6j/7McWbCkxB8MgU40UaHJk8kLCk06wiKszXLdXWQ==
+  dependencies:
+    "@tannin/evaluate" "^1.0.0"
+    "@tannin/postfix" "^1.0.0"
+
+"@tannin/evaluate@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@tannin/evaluate/-/evaluate-1.0.0.tgz#83f79072d4ed64f031d67446aefbecf765a35167"
+  integrity sha512-gO7YbJsD8sj5/nqUbFZv71Meu2++D9n4DZov/cWwp3YJbBwKShPlWwwlXr/0vz4vuxm/gys+3NiGbZkmhlXf0Q==
+
+"@tannin/plural-forms@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@tannin/plural-forms/-/plural-forms-1.0.1.tgz#1115b9fcc657154f23dab955d1440836fe1e96e9"
+  integrity sha512-SXutT+XLbMOECvmWDBSqIOHhS5hzWG9875HCFGKYgp8ghGPrJ4HZ325Xc0hsRThdjgrWMEQixlbpWl4SXOQTig==
+  dependencies:
+    "@tannin/compile" "^1.0.0"
+
+"@tannin/postfix@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@tannin/postfix/-/postfix-1.0.0.tgz#4cf5fa8a60fc683bd36b4da8e66945c7601b475e"
+  integrity sha512-59/mWwU7sXHfoU2kI3RcWRki2Jjbz5nEVJNBN4MUyIhPjXTebAcZqgsQACvlk+sjKVOTMEMHcrFrKQbaxz/1Dw==
+
 "@types/commander@^2.11.0":
   version "2.12.2"
   resolved "https://registry.yarnpkg.com/@types/commander/-/commander-2.12.2.tgz#183041a23842d4281478fa5d23c5ca78e6fd08ae"
@@ -131,6 +163,43 @@
 "@types/semver@^5.4.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-5.5.0.tgz#146c2a29ee7d3bae4bf2fcb274636e264c813c45"
+
+"@wordpress/api-fetch@^2.2.5":
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-2.2.5.tgz#1ff1058bd4a3df93362a34ecdd1a6b481f44586d"
+  integrity sha512-/59udJQAG5ynrA7j/E6mBhl0gv1MXpBDiuMhY7TBOdgNYIdltrcBbI2PF0r42EGPRtm+rOzBKrEM7WDkWTCkvA==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    "@wordpress/hooks" "^2.0.3"
+    "@wordpress/i18n" "^3.1.0"
+    "@wordpress/url" "^2.3.1"
+
+"@wordpress/hooks@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@wordpress/hooks/-/hooks-2.0.3.tgz#287767eaa038d6434ce5a4c384ed29f73c4af58c"
+  integrity sha512-dMXM8VX1MfMN+vrstOdpCXioo4evtvjTESVnSc+AjKVOAWOCbuT/ci3aDLy8DreyDrWYgUR35Gfh7Y8JJix7vA==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+
+"@wordpress/i18n@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/i18n/-/i18n-3.1.0.tgz#c7115aab16a4f2f91fc7fede02681cb4c7f1b69b"
+  integrity sha512-zHqLRuKrDV3FYh8PYDs4ABO/csiEAy1EfTffMtMS/8GAz4BcWrcqDjyH42GJF8iwWdG5+DdsllP5oerAQMHnng==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    gettext-parser "^1.3.1"
+    lodash "^4.17.10"
+    memize "^1.0.5"
+    sprintf-js "^1.1.1"
+    tannin "^1.0.1"
+
+"@wordpress/url@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@wordpress/url/-/url-2.3.1.tgz#b95e066dae02e22cee333e05f67ed63dbfe4fa33"
+  integrity sha512-Z4tCYMsW3DHOLnBXM7MK2kcuX26Pszpxjst8x5hzWmYa6zJRn8MA8Bd5RF++R1NwpWJZGk4m47rj6Q36zkr86g==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    qs "^6.5.2"
 
 abab@^2.0.0:
   version "2.0.0"
@@ -3344,6 +3413,14 @@ gettext-parser@1.1.0:
   dependencies:
     encoding "^0.1.11"
 
+gettext-parser@^1.3.1:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/gettext-parser/-/gettext-parser-1.4.0.tgz#f8baf34a292f03d5e42f02df099d301f167a7ace"
+  integrity sha512-sedZYLHlHeBop/gZ1jdg59hlUEcpcZJofLq2JFwJT1zTqAU3l2wFv6IsuwFHGqbiT9DWzMUW4/em2+hspnmMMA==
+  dependencies:
+    encoding "^0.1.12"
+    safe-buffer "^5.1.1"
+
 gettext-parser@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/gettext-parser/-/gettext-parser-2.1.0.tgz#44dad33a15a74776f4383bb33efa8e0eda2346e4"
@@ -5203,6 +5280,11 @@ memfs-or-file-map-to-github-branch@^1.1.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/memfs-or-file-map-to-github-branch/-/memfs-or-file-map-to-github-branch-1.1.2.tgz#9d46c02481b7eca8e5ee8a94f170b7e0138cad67"
 
+memize@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/memize/-/memize-1.0.5.tgz#51d89e8407643dbc8cab98c6d56b889f9a3954e3"
+  integrity sha512-Dm8Jhb5kiC4+ynYsVR4QDXKt+o2dfqGuY4hE2x+XlXZkdndlT80bJxfcMv5QGp/FCy6MhG7f5ElpmKPFKOSEpg==
+
 memoizee@0.4.X:
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/memoizee/-/memoizee-0.4.14.tgz#07a00f204699f9a95c2d9e77218271c7cd610d57"
@@ -6502,7 +6584,7 @@ punycode@^2.1.0, punycode@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
-qs@^6.5.1:
+qs@^6.5.1, qs@^6.5.2:
   version "6.6.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
 
@@ -6836,6 +6918,11 @@ regenerate@^1.2.1:
 regenerator-runtime@^0.11.0, regenerator-runtime@^0.11.1:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
+
+regenerator-runtime@^0.12.0:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
+  integrity sha512-odxIc1/vDlo4iZcfXqRYFj0vpXFNoGdKMAUieAlFYO6m/nl5e9KR/beGf41z4a1FI+aQgtjhuaSlDxQ0hmkrHg==
 
 regenerator-transform@^0.10.0:
   version "0.10.1"
@@ -7429,6 +7516,11 @@ split@0.2:
   dependencies:
     through "2"
 
+sprintf-js@^1.1.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
+  integrity sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==
+
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "http://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
@@ -7693,6 +7785,13 @@ table@^3.7.8:
     lodash "^4.0.0"
     slice-ansi "0.0.4"
     string-width "^2.0.0"
+
+tannin@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/tannin/-/tannin-1.0.1.tgz#fd0723315a0d9ad1d0ee1949b72c3ba618550e61"
+  integrity sha512-dDtnwHQ63bS/Gz0ZLY+E+JCdRoTZkmoKDoC64y3hzAD2X2qrp8jSuWNUjtiYHA48mtj4Ens9xl4knAOm1t+rfQ==
+  dependencies:
+    "@tannin/plural-forms" "^1.0.0"
 
 tapable@^0.2.7:
   version "0.2.9"
@@ -8357,10 +8456,6 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.5:
   resolved "https://registry.yarnpkg.com/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz#5abacf777c32166a51d085d6b4f3e7d27113ddb0"
   dependencies:
     iconv-lite "0.4.24"
-
-whatwg-fetch@1.1.1:
-  version "1.1.1"
-  resolved "http://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-1.1.1.tgz#ac3c9d39f320c6dce5339969d054ef43dd333319"
 
 whatwg-fetch@>=0.10.0:
   version "3.0.0"
