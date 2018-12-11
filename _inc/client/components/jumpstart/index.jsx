@@ -76,7 +76,7 @@ class JumpStart extends React.Component {
 					) }
 				</p>
 
-				<p>{ this.activateButton() }</p>
+				{ this.activateButton() }
 
 				<div>
 					<h2 className="jp-jumpstart__feature-heading">
