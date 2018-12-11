@@ -148,7 +148,7 @@ export class CustomContentTypes extends React.Component {
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }
 					>
-						{ __( 'Add a portfolio' ) }
+						{ __( 'Add a portfolio item' ) }
 					</CompactCard>
 				) }
 			</SettingsCard>
