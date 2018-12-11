@@ -55,6 +55,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
+const WPCOM_CORE_ATOMIC_PLUGINS = [ 
+	'jetpack/jetpack.php',
+	'akismet/akismet.php',
+];
+
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
 		// "reset" - break/interfere with provided functionality
@@ -193,8 +198,7 @@ add_action(
 );
 
 function wpcomsh_managed_plugins_action_links() {
-	$plugin_files = array_keys( get_plugins() );
-	foreach( $plugin_files as $plugin ) {
+	foreach( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
 		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
 			add_filter(
 				"plugin_action_links_{$plugin}",
@@ -209,6 +213,16 @@ function wpcomsh_managed_plugins_action_links() {
     }
 }
 add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
+
+function wpcomsh_hide_update_notice_for_managed_plugins() {
+	$plugin_files = array_keys( get_plugins() );
+	foreach( $plugin_files as $plugin ) {
+		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
+			remove_action( "after_plugin_row_{$plugin}", "wp_plugin_update_row", 10, 2 );
+		}
+	}
+}
+add_action( 'load-plugins.php', 'wpcomsh_hide_update_notice_for_managed_plugins', 25 );
 
 function wpcomsh_is_managed_plugin( $plugin_file ) {
 	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
