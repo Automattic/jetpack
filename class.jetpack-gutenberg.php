@@ -1,7 +1,7 @@
 <?php
 /**
  * Handles server-side registration and use of all blocks available in Jetpack for the block editor, aka Gutenberg.
- * Works in tandem with client-side block registration via `block-manifest.json`
+ * Works in tandem with client-side block registration via `index.json`
  *
  * @package Jetpack
  */
@@ -284,13 +284,14 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function jetpack_set_available_blocks( $blocks ) {
-		$preset_blocks_manifest =  self::preset_exists( 'block-manifest' ) ? self::get_preset( 'block-manifest' ) : (object) array( 'blocks' => $blocks );
+		$preset_blocks_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $blocks );
 		// manifest shouldn't remove default blocks...
 
-		$preset_blocks = isset( $preset_blocks_manifest->blocks ) ? (array) $preset_blocks_manifest->blocks : array() ;
+		$preset_blocks = isset( $preset_blocks_manifest->production ) ? (array) $preset_blocks_manifest->production : array() ;
 		$preset_blocks = array_unique( array_merge( $preset_blocks, $blocks ) );
+
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			$beta_blocks = isset( $preset_blocks_manifest->betaBlocks ) ? (array) $preset_blocks_manifest->betaBlocks : array();
+			$beta_blocks = isset( $preset_blocks_manifest->beta ) ? (array) $preset_blocks_manifest->beta : array();
 			return array_unique( array_merge( $preset_blocks, $beta_blocks ) );
 		}
 
