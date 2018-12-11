@@ -30,6 +30,7 @@
 			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" checked class="task-list-item-checkbox">Launch with Gutenberg installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="gutenpack" ${ isGutenbergPr ? 'checked' : '' } class="task-list-item-checkbox">Launch with built blocks</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wordpress-4" class="task-list-item-checkbox">Launch with latest WordPress 4.9 instead</li>
+			<li class="task-list-item enabled"><input type="checkbox" name="classic-editor" class="task-list-item-checkbox">Launch with Classic Editor plugin</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="code-snippets" class="task-list-item-checkbox">Launch with Code Snippets installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wp-rollback" class="task-list-item-checkbox">Launch with WP Rollback installed</li>
