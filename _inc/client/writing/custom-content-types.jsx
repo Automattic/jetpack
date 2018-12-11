@@ -40,8 +40,8 @@ export class CustomContentTypes extends React.Component {
 	};
 
 	linkIfActiveCPT = type => {
-		return this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' ) ? (
-			<a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type } />
+		return this.props.getSettingCurrentValue( `jetpack_${ type }`, 'custom-content-types' ) ? (
+			<a href={ `${ this.props.siteAdminUrl }edit.php?post_type=jetpack-${ type }` } />
 		) : (
 			<span />
 		);
