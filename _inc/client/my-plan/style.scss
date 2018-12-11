@@ -135,6 +135,10 @@
 		width: 49.5%;
 	}
 
+	&:nth-child(2n + 1):nth-last-child(1) {
+		min-width: 100%;
+	}
+
 	@include breakpoint( ">660px" ) {
 		margin-bottom: 1%;
 	}
