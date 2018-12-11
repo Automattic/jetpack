@@ -7298,9 +7298,9 @@ simple-html-tokenizer@^0.4.1:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.4.3.tgz#9b00b766e30058b4bb377c0d4f97566a13ab1be1"
 
-sinon-chai@2.14.0:
-  version "2.14.0"
-  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-2.14.0.tgz#da7dd4cc83cd6a260b67cca0f7a9fdae26a1205d"
+sinon-chai@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-3.3.0.tgz#8084ff99451064910fbe2c2cb8ab540c00b740ea"
 
 sinon@7.2.0:
   version "7.2.0"
