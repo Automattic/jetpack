@@ -133,7 +133,7 @@
     "sass-loader": "7.1.0",
     "style-loader": "0.23.1",
     "uglify-save-license": "0.4.1",
-    "url-loader": "0.6.2",
+    "url-loader": "1.1.2",
     "webpack": "3.12.0",
     "whatwg-fetch": "1.1.1"
   },
