@@ -19,7 +19,7 @@ import {
 	ModuleSettingCheckbox
 } from 'components/module-settings/form-components';
 
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 import ExternalLink from 'components/external-link';
 
@@ -38,7 +38,7 @@ export class VideoPressSettings extends React.Component {
 	}
 }
 
-VideoPressSettings = moduleSettingsForm( VideoPressSettings );
+VideoPressSettings = withModuleSettingsFormHelpers( VideoPressSettings );
 
 export class SharedaddySettings extends React.Component {
 	render() {
@@ -56,7 +56,7 @@ export class SharedaddySettings extends React.Component {
 	}
 }
 
-SharedaddySettings = moduleSettingsForm( SharedaddySettings );
+SharedaddySettings = withModuleSettingsFormHelpers( SharedaddySettings );
 
 export class RelatedPostsSettings extends React.Component {
 	renderPreviews = () => {
@@ -133,7 +133,7 @@ export class RelatedPostsSettings extends React.Component {
 	}
 }
 
-RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
+RelatedPostsSettings = withModuleSettingsFormHelpers( RelatedPostsSettings );
 
 export class LikesSettings extends React.Component {
 	render() {
@@ -165,7 +165,7 @@ export class LikesSettings extends React.Component {
 	}
 }
 
-LikesSettings = moduleSettingsForm( LikesSettings );
+LikesSettings = withModuleSettingsFormHelpers( LikesSettings );
 
 export class MonitorSettings extends React.Component {
 	render() {
@@ -184,7 +184,7 @@ export class MonitorSettings extends React.Component {
 	}
 }
 
-MonitorSettings = moduleSettingsForm( MonitorSettings );
+MonitorSettings = withModuleSettingsFormHelpers( MonitorSettings );
 
 export class WordAdsSettings extends React.Component {
 	render() {
@@ -208,4 +208,4 @@ export class WordAdsSettings extends React.Component {
 	}
 }
 
-WordAdsSettings = moduleSettingsForm( WordAdsSettings );
+WordAdsSettings = withModuleSettingsFormHelpers( WordAdsSettings );

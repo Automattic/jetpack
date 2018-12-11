@@ -10,7 +10,7 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { FEATURE_SEO_TOOLS_JETPACK } from 'lib/plans/constants';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -55,4 +55,4 @@ class SeoComponent extends React.Component {
 	}
 }
 
-export const SEO = moduleSettingsForm( SeoComponent );
+export const SEO = withModuleSettingsFormHelpers( SeoComponent );

@@ -10,7 +10,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
@@ -152,4 +152,4 @@ export default connect(
 			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
 		};
 	}
-)( moduleSettingsForm( CustomContentTypes ) );
+)( withModuleSettingsFormHelpers( CustomContentTypes ) );

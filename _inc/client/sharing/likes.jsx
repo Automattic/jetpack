@@ -7,12 +7,12 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Likes = moduleSettingsForm(
+export const Likes = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'likes' );

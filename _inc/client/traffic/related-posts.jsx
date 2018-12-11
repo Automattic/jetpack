@@ -15,7 +15,7 @@ import {
 	FormLabel
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -167,4 +167,4 @@ class RelatedPostsComponent extends React.Component {
 	}
 }
 
-export const RelatedPosts = moduleSettingsForm( RelatedPostsComponent );
+export const RelatedPosts = withModuleSettingsFormHelpers( RelatedPostsComponent );

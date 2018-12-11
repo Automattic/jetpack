@@ -9,12 +9,12 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Publicize = moduleSettingsForm(
+export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackClickConfigure() {
 			analytics.tracks.recordJetpackClick( {

@@ -20,7 +20,7 @@ import {
 	FormFieldset,
 	FormLegend
 } from 'components/forms';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsGroup from 'components/settings-group';
 import SettingsCard from 'components/settings-card';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
@@ -263,4 +263,4 @@ class SiteStatsComponent extends React.Component {
 	}
 }
 
-export const SiteStats = moduleSettingsForm( SiteStatsComponent );
+export const SiteStats = withModuleSettingsFormHelpers( SiteStatsComponent );

@@ -13,7 +13,7 @@ import Banner from 'components/banner';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
@@ -21,7 +21,7 @@ import SettingsGroup from 'components/settings-group';
 import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 
-export const SearchableModules = moduleSettingsForm(
+export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
