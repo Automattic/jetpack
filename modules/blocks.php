@@ -13,6 +13,8 @@ jetpack_register_block(
 	)
 );
 
+jetpack_register_block( 'vr' );
+
 /**
  * Map block registration/dependency declaration.
  *
