@@ -3,10 +3,12 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
@@ -64,6 +66,14 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Traffic Tools' ) }
+					className="jp-settings-description"
+				>
+					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
+				</Card>
+
 				{
 					foundSearch && (
 						<Search
