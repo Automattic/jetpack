@@ -24,18 +24,48 @@ function jetpack_register_block( $type, $args = array(), $availability = array( 
 	Jetpack_Gutenberg::add_block( $type, $args, $availability );
 }
 
+
+
 /**
  * General Gutenberg editor specific functionality
  */
 class Jetpack_Gutenberg {
 
+	private static $default_blocks = array(
+		'map',
+		'markdown',
+		'publicize',
+		'simple-payments',
+		'related-posts',
+		'contact-form',
+		'field-text',
+		'field-name',
+		'field-email',
+		'field-url',
+		'field-date',
+		'field-telephone',
+		'field-textarea',
+		'field-checkbox',
+		'field-checkbox-multiple',
+		'field-radio',
+		'field-select'
+	);
+
 	/**
-	 * Array of blocks we will be registering.
+	 * @var array Array of blocks information.
 	 *
-	 * @var array $blocks Array of blocks we will be registering.
+	 * For each block we have information about the availability for the current user
 	 */
-	private static $jetpack_blocks = array();
-	private static $blocks_index = array();
+	private static $blocks = array();
+
+
+	private static $blocks_availability = array();
+
+	/**
+	 * @var array Array of blocks we will be registering.
+	 */
+	private static $registered_blocks = array();
+
 	/**
 	 * Add a block to the list of blocks to be registered.
 	 *
@@ -43,7 +73,7 @@ class Jetpack_Gutenberg {
 	 * @param array  $args Arguments that are passed into the register_block_type.
 	 */
 	public static function add_block( $type, $args, $availability ) {
-		self::$jetpack_blocks[ $type ] = array( 'args' => $args, 'availability' => $availability );
+		self::$registered_blocks[ $type ] = array( 'args' => $args, 'availability' => $availability );
 	}
 
 	/**
@@ -84,19 +114,73 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$blocks_index = apply_filters( 'jetpack_set_available_blocks', array() );
-		foreach ( self::$jetpack_blocks as $type => $args ) {
-			if ( 'publicize' === $type ) {
+		self::$blocks = apply_filters( 'jetpack_set_available_blocks', self::$default_blocks );
+
+		if ( Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
+			// We defer the loading of the blocks until we have a better scope in reset requests.
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'defered_register_blocks' ) );
+			return;
+		}
+
+		self::set_availability();
+		self::register_blocks();
+	}
+
+
+	static function defered_register_blocks( $request ) {
+		self::set_availability();
+		self::register_blocks();
+		return $request;
+	}
+
+	static function is_registered( $block ) {
+		return isset( self::$registered_blocks[ $block ] );
+	}
+
+	static function get_registered_block_args( $block ) {
+		return self::$registered_blocks[ $block ]['args'];
+	}
+
+	static function is_available( $block ) {
+		if ( ! isset( self::$blocks_availability[ $block ]['available'] ) ) {
+			return false;
+		}
+		return (bool) self::$blocks_availability[ $block ]['available'];
+	}
+
+	static function set_availability() {
+		foreach ( self::$blocks as $block ) {
+			if ( ! self::is_registered( $block ) ) {
+				self::$blocks_availability[ $block ] = array( 'available' => false, 'unavailable_reason' => 'missing_module' );
+				continue;
+			}
+			$registered_block_availability = self::$registered_blocks[ $block ]['availability'];
+
+			if ( isset( $registered_block_availability['callback'] ) ) {
+				$registered_block_availability = call_user_func( $registered_block_availability['callback'] );
+			}
+
+			$registered_block_availability['available'] = isset( $registered_block_availability['available'] ) ? (bool) $registered_block_availability['available'] : true;
+
+			if ( ! $registered_block_availability['available'] ) {
+				$registered_block_availability = array(
+					'unavailable_reason' => ( isset( $registered_block_availability['unavailable_reason'] ) ? $registered_block_availability['unavailable_reason'] : 'unknown' )
+				);
+			}
+
+			self::$blocks_availability[ $block ] = $registered_block_availability;
+		}
+	}
+
+	static function register_blocks() {
+		foreach ( self::$blocks as $block ) {
+			if ( 'publicize' === $block ) {
 				// publicize is not actually a block, it's a gutenberg plugin.
 				// We will handle it's registration on the client-side.
 				continue;
 			}
-			if ( isset( $args['availability']['callback'] ) ) {
-				$args['availability'] = call_user_func( $args['availability']['callback'] );
-				self::$jetpack_blocks[ $type ] = $args; // update this so that we don't have to call it again
-			}
-			if ( isset( $args['availability']['available'] ) && $args['availability']['available'] && in_array( $type, self::$blocks_index ) ) {
-				register_block_type( 'jetpack/' . $type, $args['args'] );
+			if ( self::is_available( $block ) ) {
+				register_block_type( 'jetpack/' . $block, self::get_registered_block_args( $block ) );
 			}
 		}
 	}
@@ -151,7 +235,7 @@ class Jetpack_Gutenberg {
 	public static function jetpack_set_available_blocks( $blocks ) {
 		$preset_blocks_manifest =  self::preset_exists( 'block-manifest' ) ? self::get_preset( 'block-manifest' ) : (object) array( 'blocks' => $blocks );
 		$preset_blocks = isset( $preset_blocks_manifest->blocks ) ? (array) $preset_blocks_manifest->blocks : array() ;
-		$internal_blocks = array_keys( self::$jetpack_blocks );
+		$internal_blocks = array_keys( self::$registered_blocks );
 
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_blocks = isset( $preset_blocks_manifest->betaBlocks ) ? (array) $preset_blocks_manifest->betaBlocks : array();
@@ -170,33 +254,7 @@ class Jetpack_Gutenberg {
 			return array();
 		}
 
-		$blocks_availability = array(); // default
-
-		foreach ( self::$jetpack_blocks as $type => $args ) {
-			if ( ! in_array( $type,  self::$blocks_index ) ) {
-				// Jetpack shouldn't expose blocks that are not in the manifest.
-				continue;
-			}
-			$availability = $args['availability'];
-			$available = array(
-				'available' => ( isset( $availability['available'] ) ? (bool) $availability['available'] : true ),
-			);
-			$unavailability_reason = array();
-			if ( ! $available['available'] ) {
-				$unavailability_reason = array(
-					'unavailable_reason' => ( isset( $availability['unavailable_reason'] ) ? $availability['unavailable_reason'] : 'unknown' )
-				);
-			}
-			$blocks_availability[ $type ] = array_merge( $available, $unavailability_reason );
-		}
-
-		foreach ( self::$blocks_index as $block ) {
-			if ( ! isset( $blocks_availability[ $block ] ) ) {
-				$blocks_availability[ $block ] = array( 'available' => false, 'unavailable_reason' => 'missing_module' );
-			}
-		}
-
-		return $blocks_availability;
+		return self::$blocks_availability;
 	}
 
 	/**
