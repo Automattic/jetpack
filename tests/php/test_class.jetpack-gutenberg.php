@@ -201,11 +201,13 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( $availability['banana-plugin']['unavailable_reason'], 'unknown', 'Availability Reason is not unknown' );
 	}
 
+	function orange_availability() {
+		return array( 'available' => false, 'unavailable_reason' => 'orange_you_glad' );
+	}
+
 	function test_registered_plugin_supports_callback_availability() {
 		jetpack_register_plugin( 'orange-plugin', array(
-			'callback' => function() {
-				return array( 'available' => false, 'unavailable_reason' => 'orange_you_glad' );
-			} ) );
+			'callback' => array( $this, 'orange_availability' ) ) );
 		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_orange_plugin' ) );
 
 		Jetpack_Gutenberg::init();
