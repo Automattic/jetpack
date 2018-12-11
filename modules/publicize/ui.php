@@ -188,14 +188,20 @@ class Publicize_UI {
 
 				<?php
 				foreach ( $services as $service_name => $service ) :
-					$connect_url = $this->publicize->connect_url( $service_name );
+					$connect_url = $this->publicize->can_connect_service( $service_name ) ?
+						$this->publicize->connect_url( $service_name ) :
+						null;
 					if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
 						echo "</div><div class='right'>";
 					$service_num++;
 					?>
 					<div class="publicize-service-entry" <?php if ( $service_num > 0 ): ?>class="connected"<?php endif; ?> >
 						<div id="<?php echo esc_attr( $service_name ); ?>" class="publicize-service-left">
-							<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
+							<?php if ( $connect_url ): ?>
+								<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
+							<?php else: ?>
+								<span><?php echo $this->publicize->get_service_label( $service_name ); ?></span>
+							<?php endif; ?>
 						</div>
 
 
@@ -263,12 +269,18 @@ class Publicize_UI {
 
 
 							<?php
-								$connections = $this->publicize->get_connections( $service_name );
-								if ( empty ( $connections ) ) { ?>
-									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
+								if ( $connect_url ) {
+									$connections = $this->publicize->get_connections( $service_name );
+									if ( empty ( $connections ) ) { ?>
+										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
+									<?php } else { ?>
+										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
+									<?php } ?>
 								<?php } else { ?>
-									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
-			  					<?php } ?>
+									<a class="publicize-add-connection button disabled">Unavailable</a>
+									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="https://jetpack.com/tbd" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
+								<?php }
+							?>
 			  			</div>
 			  		</div>
 				<?php endforeach; ?>

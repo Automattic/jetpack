@@ -85,7 +85,7 @@ div.publicize-service-entry {
 	overflow: hidden;
 }
 
-.right div.publicize-service-entry:last-of-type{
+.right div.publicize-service-entry:last-of-type {
 	border-width: 0px;
 }
 
@@ -96,8 +96,13 @@ div.publicize-service-left {
 	min-height: 35px;
 }
 
-div.publicize-service-left a{
+div.publicize-service-left :first-child {
 	font-size: 18px;
+	text-decoration: none;
+}
+
+div.publicize-service-right .dashicons {
+	font-size: 16px;
 	text-decoration: none;
 }
 
@@ -119,6 +124,10 @@ div.publicize-service-right ul {
 div.publicize-service-right li {
 	list-style-type: none;
 	font-size: 14px;
+}
+
+.publicize-disabled-service-message {
+	margin-top: 10px;
 }
 
 .pub-disconnect-button {
