@@ -36,6 +36,7 @@ class NonAdminView extends React.Component {
 			case '/settings':
 			case '/writing':
 			case '/sharing':
+			case '/performance':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = <SearchableSettings

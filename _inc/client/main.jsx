@@ -184,6 +184,7 @@ class Main extends React.Component {
 			case '/security':
 			case '/traffic':
 			case '/discussion':
+			case '/performance':
 			case '/writing':
 			case '/sharing':
 			case '/privacy':
@@ -281,6 +282,7 @@ window.wpNavMenuClassChange = function() {
 			'#/general',
 			'#/discussion',
 			'#/security',
+			'#/performance',
 			'#/traffic',
 			'#/writing',
 			'#/sharing',

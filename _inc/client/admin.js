@@ -77,6 +77,7 @@ function render() {
 					<Route path="/settings" name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/discussion" name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/security" name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path="/performance" name={ i18n.translate( 'Performance', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/traffic" name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/writing" name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/sharing" name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } component={ Main } />

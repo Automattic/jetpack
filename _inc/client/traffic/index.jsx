@@ -19,7 +19,6 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
-import Search from './search';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
@@ -43,7 +42,6 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundSearch = this.props.isModuleFound( 'search' ),
 			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -57,8 +55,7 @@ export class Traffic extends React.Component {
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
-			! foundAnalytics &&
-			! foundSearch
+			! foundAnalytics
 		) {
 			return null;
 		}
@@ -72,13 +69,6 @@ export class Traffic extends React.Component {
 					className="jp-settings-description"
 				/>
 
-				{
-					foundSearch && (
-						<Search
-							{ ...commonProps }
-						/>
-					)
-				}
 				{
 					foundAds && (
 						<Ads
