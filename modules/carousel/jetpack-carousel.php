@@ -29,7 +29,7 @@ class Jetpack_Carousel {
 	public $single_image_gallery_enabled_media_file = false;
 
 	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'init' ), 99 );
 	}
 
 	function init() {
@@ -44,7 +44,7 @@ class Jetpack_Carousel {
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
-			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+			$this->register_settings();
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
