@@ -77,7 +77,6 @@ Some static HTML is generated from the JSX files and rendered on build time befo
 #### Things we do to maintain compatibility for older browser
 
 * We include a **Babel** plugin in the building toolchain to translate incompatible object methods names which may be parsed as keywords in old javascript engines. (e.g. `.catch()`).
-* **Fetch API polyfill**. We use the [whatwg-fetch](https://github.com/github/fetch) polyfill.
 * **Promises Polyfill**. We use the [es6-promise](https://github.com/stefanpenner/es6-promise) polyfill.
 
 ## Internal API
