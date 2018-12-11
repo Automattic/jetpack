@@ -46,7 +46,7 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 					rel="noopener noreferrer"
 					href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl }
 				>
-					{ __( 'Manage plugins' ) }
+					{ __( 'Manage your plugins' ) }
 				</Card>
 			);
 		};
