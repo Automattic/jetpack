@@ -149,6 +149,15 @@ export class CustomContentTypes extends React.Component {
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
+				{
+					this.props.portfolioActive && (
+						<CompactCard
+							className="jp-settings-card__configure-link"
+							href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }>
+							{ __( 'Add a portfolio' ) }
+						</CompactCard>
+					)
+				}
 			</SettingsCard>
 		);
 	}
@@ -156,13 +165,14 @@ export class CustomContentTypes extends React.Component {
 
 export default withModuleSettingsFormHelpers( connect(
 	( state, ownProps ) => {
+		const portfolioActive = ownProps.getSettingCurrentValue( 'jetpack_portfolio', 'custom-content-types' );
 		const testimonialActive = ownProps.getSettingCurrentValue( 'jetpack_testimonial', 'custom-content-types' );
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
+			portfolioActive,
 			testimonialActive,
 		};
 	}
 )( CustomContentTypes ) );
-
