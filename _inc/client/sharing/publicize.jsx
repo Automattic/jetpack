@@ -9,7 +9,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';

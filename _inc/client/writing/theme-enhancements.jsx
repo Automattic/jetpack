@@ -15,7 +15,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { currentThemeSupports } from 'state/initial-state';
 import { isModuleFound } from 'state/search';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';

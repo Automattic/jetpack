@@ -19,7 +19,7 @@ import {
 	ModuleSettingCheckbox
 } from 'components/module-settings/form-components';
 
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 import ExternalLink from 'components/external-link';
 

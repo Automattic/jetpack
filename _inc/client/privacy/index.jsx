@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';

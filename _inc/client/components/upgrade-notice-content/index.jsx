@@ -13,7 +13,7 @@ import ExternalLink from 'components/external-link';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
 
 const UpgradeNoticeContent = withModuleSettingsFormHelpers(

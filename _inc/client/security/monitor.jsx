@@ -12,7 +12,7 @@ import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
 import {
 	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
-} from 'components/module-settings/module-settings-form';
+} from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 

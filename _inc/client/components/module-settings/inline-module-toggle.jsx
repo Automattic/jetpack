@@ -8,7 +8,7 @@ import { Component } from 'react';
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers as withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
