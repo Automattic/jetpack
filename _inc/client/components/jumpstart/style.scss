@@ -10,14 +10,39 @@
 	margin-bottom: 0;
 
 	.jp-jumpstart-card__img {
-		width: rem( 200px );
+		display: none;
+
+		@include breakpoint( ">480px" ) {
+			display: block;
+			width: rem( 100px );
+		}
+
+		@include breakpoint( ">660px" ) {
+			width: rem( 200px );
+		}
 	}
 
 	.jp-jumpstart-card__description {
-		margin-left: 2rem;
+
+		@include breakpoint( ">660px" ) {
+			margin-left: 2rem;
+		}
 
 		.jp-jumpstart-card__description-title {
 			margin-top: 0;
+		}
+	}
+
+	.dops-notice__dismiss {
+		align-self: flex-start;
+		margin: -11px -11px 0 32px;
+
+		.gridicon {
+			fill: $gray;
+
+			&:hover {
+				fill: $blue-dark-text;
+			}
 		}
 	}
 }
