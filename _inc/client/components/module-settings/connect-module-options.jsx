@@ -3,6 +3,7 @@
  */
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -55,11 +56,17 @@ export function connectModuleOptions( Component ) {
 			};
 		},
 		( dispatch ) => ( {
-			updateOptions: ( newOptions ) => {
-				return dispatch( updateSettings( newOptions ) );
+			updateOptions: ( newOptions, messages = {} ) => {
+				return dispatch( updateSettings( newOptions, messages ) );
 			},
-			regeneratePostByEmailAddress: newOptions => {
-				return dispatch( updateSettings( newOptions, 'regeneratePbE' ) );
+			regeneratePostByEmailAddress: () => {
+				const messages = {
+					progress: __( 'Updating Post by Email address…' ),
+					success: __( 'Regenerated Post by Email address.' ),
+					error: error => __( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } )
+				};
+
+				return dispatch( updateSettings( { post_by_email_address: 'regenerate' }, messages ) );
 			},
 			setUnsavedSettingsFlag: () => {
 				return dispatch( setUnsavedSettingsFlag() );

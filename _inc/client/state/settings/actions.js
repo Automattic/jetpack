@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import get from 'lodash/get';
 import { translate as __ } from 'i18n-calypso';
 import some from 'lodash/some';
 
@@ -82,31 +83,26 @@ export const updateSetting = ( updatedOption ) => {
 	};
 };
 
-export const updateSettings = ( newOptionValues, type = '' ) => {
+export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 	return ( dispatch ) => {
-		let messages = {
-				progress: __( 'Updating settings…' ),
-				success: __( 'Updated settings.' ),
-				// We try to get a message or an error code if this is an unexpected WP_Error coming from the API.
-				// Otherwise we try to show error.name (coming from the custom errors defined in rest-api/index.js and if that's not useful
-				// then we try to let Javascript stringify the error object.
-				error: error => __( 'Error updating settings. %(error)s', { args: { error: error.message || error.code || error.name || error } } )
-			},
-			updatedOptionsSuccess = () => newOptionValues;
+		const messages = {
+			progress: __( 'Updating settings…' ),
+			success: __( 'Updated settings.' ),
+			// We try to get a message or an error code if this is an unexpected WP_Error coming from the API.
+			// Otherwise we try to show error.name (coming from the custom errors defined in rest-api/index.js and if that's not useful
+			// then we try to let Javascript stringify the error object.
+			error: error => __( 'Error updating settings. %(error)s', { args: { error: error.message || error.code || error.name || error } } ),
+			... noticeMessages,
+		};
+		let updatedOptionsSuccess = () => newOptionValues;
 
 		// Adapt messages and data when regenerating Post by Email address
-		if ( 'regeneratePbE' === type ) {
-			messages = {
-				progress: __( 'Updating Post by Email address…' ),
-				success: __( 'Regenerated Post by Email address.' ),
-				error: error => __( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } )
-			};
+		if ( get( newOptionValues, 'post_by_email_address' ) === 'regenerate' ) {
 			updatedOptionsSuccess = success => {
 				return {
 					post_by_email_address: success.post_by_email_address
 				};
 			};
-			newOptionValues = { post_by_email_address: 'regenerate' };
 		}
 
 		// Changes to these options affect WordPress.com Toolbar appearance,
