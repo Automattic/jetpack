@@ -101,11 +101,6 @@ div.publicize-service-left :first-child {
 	text-decoration: none;
 }
 
-div.publicize-service-right .dashicons {
-	font-size: 16px;
-	text-decoration: none;
-}
-
 div.publicize-service-left a:hover{
 	text-decoration: underline;
 }
@@ -126,8 +121,9 @@ div.publicize-service-right li {
 	font-size: 14px;
 }
 
-.publicize-disabled-service-message {
-	margin-top: 10px;
+.publicize-disabled-service-message .dashicons {
+	font-size: 16px;
+	text-decoration: none;
 }
 
 .pub-disconnect-button {

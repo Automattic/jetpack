@@ -133,6 +133,10 @@ class Publicize_UI {
 		</div><?php
 	}
 
+	public static function google_plus_removal_doc_url() {
+		return "https://jetpack.com/support/removed-gdocs";
+	}
+
 	/**
 	 * Lists the current user's publicized accounts for the blog
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
@@ -277,8 +281,7 @@ class Publicize_UI {
 										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
 									<?php } ?>
 								<?php } else { ?>
-									<a class="publicize-add-connection button disabled">Unavailable</a>
-									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="https://jetpack.com/tbd" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
+									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="<?php echo esc_url( self::google_plus_removal_doc_url() ); ?>" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
 								<?php }
 							?>
 			  			</div>
