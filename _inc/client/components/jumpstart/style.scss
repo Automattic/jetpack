@@ -9,7 +9,8 @@
 	display: flex;
 	margin-bottom: 0;
 
-	.jp-jumpstart-card__img {
+	.jp-jumpstart-card__img,
+	.jp-jumpstart-card__img img {
 		display: none;
 
 		@include breakpoint( ">480px" ) {
@@ -24,7 +25,7 @@
 
 	.jp-jumpstart-card__description {
 
-		@include breakpoint( ">660px" ) {
+		@include breakpoint( ">480px" ) {
 			margin-left: 2rem;
 		}
 
@@ -35,7 +36,7 @@
 
 	.dops-notice__dismiss {
 		align-self: flex-start;
-		margin: -11px -11px 0 32px;
+		margin: -11px -11px 0 16px;
 
 		.gridicon {
 			fill: $gray;
