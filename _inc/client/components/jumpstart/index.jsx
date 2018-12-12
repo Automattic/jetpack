@@ -71,14 +71,14 @@ class JumpStart extends Component {
 						</h3>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								"We're now collecting stats, securing your site, and speeding up your images. " +
-									"Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard."
+								'We’re now collecting stats, securing your site, and enhancing your editing experience. ' +
+									'Pretty soon you’ll be able to see everything going on with your site right through Jetpack! Welcome aboard.'
 							) }
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								"Activate Jetpack's recommended features to get the most out of your site. " +
-									" Don't worry, features can be activated and deactivated at any time. " +
+								'Activate Jetpack’s recommended features to get the most out of your site. ' +
+									'Don’t worry, features can be activated and deactivated at any time. ' +
 									'{{a}}Learn more about recommended features{{/a}}.',
 								{
 									components: {
