@@ -149,7 +149,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter the list of block editor blocks that are available through jetpack.
 		 *
-		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks
+		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks in develpment mode
 		 *
 		 * @since 6.8.0
 		 *
@@ -275,18 +275,17 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', self::$default_blocks )`
-	 * using the contents of `index.json`
+	 * Add the blocks as specified in the `_inc/blocks/index.json`
+	 * This filters gets applied if `JETPACK_BETA_BLOCKS` is set or Jetpack::is_development_mode() is set.
 	 *
 	 * @param $blocks The default list.
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function jetpack_set_available_blocks( $blocks ) {
-
 		$preset_blocks_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $blocks );
 		$preset_blocks = isset( $preset_blocks_manifest->production ) ? (array) $preset_blocks_manifest->production : array() ;
-
+		
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_blocks = isset( $preset_blocks_manifest->beta ) ? (array) $preset_blocks_manifest->beta : array();
 			return array_unique( array_merge( $preset_blocks, $beta_blocks ) );
