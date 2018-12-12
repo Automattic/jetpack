@@ -105,6 +105,10 @@ class Publicize_UI {
 		Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style( 'social-logos' );
 
+		// for deprecation tooltip
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+
 		add_thickbox();
 	}
 
@@ -131,10 +135,6 @@ class Publicize_UI {
 		<div class='updated'>
 			<p><?php _e ( "You have chosen not to connect your blog. Please click 'accept' when prompted if you wish to connect your accounts.", 'jetpack' ); ?></p>
 		</div><?php
-	}
-
-	public static function google_plus_removal_doc_url() {
-		return "https://jetpack.com/support/removed-gdocs";
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Publicize_UI {
 										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
 									<?php } ?>
 								<?php } else { ?>
-									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="<?php echo esc_url( self::google_plus_removal_doc_url() ); ?>" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
+									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="#" id="jetpack-gplus-deprecated-notice" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
 								<?php }
 							?>
 			  			</div>
@@ -296,7 +296,23 @@ class Publicize_UI {
 							e.preventDefault();
 							return false;
 						}
-					})
+					});
+
+					// deprecation tooltip
+					var setup = function() {
+						$('#jetpack-gplus-deprecated-notice').first().pointer(
+							{
+								content: "<h3>Google Plus support is being removed<\/h3><p>Google recently <a href=\"https://www.blog.google/technology/safety-security/expediting-changes-google-plus/\">announced</a> that Google Plus is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.<\/p><p>For now, you can still post to Google Plus using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.<\/p>","position":{"edge":"right","align":"bottom"},
+								pointerClass: "wp-pointer arrow-bottom",
+								pointerWidth: 420
+							}
+						).click( function( e ) {
+							e.preventDefault();
+							$( this ).pointer( 'open' );
+						} );
+					};
+
+					$(document).ready( setup );
 				})(jQuery);
 				</script>
 			</div>
