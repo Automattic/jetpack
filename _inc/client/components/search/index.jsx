@@ -349,6 +349,7 @@ class Search extends React.Component {
 				<div className={ fadeDivClass }>
 					<input
 						type="search"
+						readOnly
 						id={ 'dops-search-component-' + this.state.instanceId }
 						className={ inputClass }
 						placeholder={ placeholder }

@@ -197,7 +197,6 @@ class SelectDropdown extends Component {
 				<div
 					ref="dropdownContainer"
 					className="dops-select-dropdown__container"
-					valueLink={ this.props.valueLink }
 					tabIndex={ this.props.tabIndex || 0 }
 					role="listbox"
 					aria-labelledby={ 'select-dropdown-' + this.state.instanceId }

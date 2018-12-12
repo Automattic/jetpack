@@ -30,16 +30,16 @@ import { userCanManageModules, userCanViewStats, userIsSubscriber } from 'state/
 import { isDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
-const renderPairs = layout =>
-	layout.map( item => [
+const renderPairs = layout => layout.map( (item, layoutIndex ) => (
+	[
 		item.header,
-		chunk( item.cards, 2 ).map( ( [ left, right ] ) => (
-			<div className="jp-at-a-glance__item-grid">
+		chunk(item.cards, 2).map( ([left, right], cardIndex ) => (
+			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
 				<div className="jp-at-a-glance__right">{ right }</div>
 			</div>
 		) ),
-	] );
+	] ) );
 
 class AtAGlance extends Component {
 	render() {
@@ -52,14 +52,12 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl,
 		};
-		const trackSecurityClick = () =>
-			analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
-		const securityHeader = (
-			<DashSectionHeader
-				label={ __( 'Security' ) }
-				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
-				externalLink={
-					this.props.isDevMode || ! this.props.userCanManageModules
+		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+		const securityHeader = <DashSectionHeader
+					key="securityHeader"
+					label={ __( 'Security' ) }
+					settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
+					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
 						? ''
 						: __( 'Manage security settings' )
 				}
@@ -120,8 +118,8 @@ class AtAGlance extends Component {
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {
-					header: <DashSectionHeader label={ __( 'Performance' ) } />,
-					cards: performanceCards,
+					header: <DashSectionHeader key="performanceHeader" label={ __( 'Performance' ) } />,
+					cards: performanceCards
 				} );
 			}
 
@@ -130,8 +128,9 @@ class AtAGlance extends Component {
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...settingsProps } { ...urls } />
-					{ renderPairs( pairs ) }
-
+					<div className="test">
+						{ renderPairs( pairs ) }
+					</div>
 					{ connections }
 				</div>
 			);
