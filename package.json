@@ -154,7 +154,7 @@
     "prettier": "github:Automattic/wp-prettier",
     "react-test-renderer": "15.6.2",
     "sinon": "7.2.0",
-    "sinon-chai": "2.14.0"
+    "sinon-chai": "3.3.0"
   },
   "engines": {
     "node": ">=8",
