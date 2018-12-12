@@ -28,14 +28,14 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		/**
 		 * Fires after loading default Jetpack Connection tests.
 		 *
-		 * @since 6.9.0
+		 * @since 7.1.0
 		 */
 		do_action( 'jetpack_connection_tests_loaded' );
 
 		/**
 		 * Determines if the WP.com testing suite should be included.
 		 *
-		 * @since 6.9.0
+		 * @since 7.1.0
 		 *
 		 * @param bool $run_test To run the WP.com testing suite. Default true.
 		 */

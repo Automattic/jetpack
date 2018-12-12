@@ -116,6 +116,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/connection/test-wpcom/', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::jetpack_connection_test_for_external',
+			'permission_callback' => __CLASS__ . '::view_jetpack_connection_test_check',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/rewind', array(
@@ -938,9 +939,49 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Test connection permission check method.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return bool
+	 */
+	public static function view_jetpack_connection_test_check() {
+		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
+			return false;
+		}
+		$signature = base64_decode( $_GET['signature'] );
+
+		$signature_data = wp_json_encode(
+			array(
+				'rest_route' => $_GET['rest_route'],
+				'timestamp' => intval( $_GET['timestamp'] ),
+				'url' => $_GET['url'],
+			)
+		);
+
+		if (
+			! function_exists( 'openssl_verify' )
+			|| ! openssl_verify(
+				$signature_data,
+				$signature,
+				JETPACK__DEBUGGER_PUBLIC_KEY
+			)
+		) {
+			return false;
+		}
+
+		// signature timestamp must be within 5min of current time
+		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Test connection status for this Jetpack site, encrypt the results for decryption by a third-party.
 	 *
-	 * @since 6.8.0
+	 * @since 7.1.0
 	 *
 	 * @return array|mixed|object|WP_Error
 	 */
