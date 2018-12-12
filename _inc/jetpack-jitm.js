@@ -117,6 +117,11 @@ jQuery( document ).ready( function( $ ) {
 			} ).done( function() {
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
+
+				// Hide the JITM after 3 seconds.
+				setTimeout( function() {
+					$template.hide();
+				}, 3000 );
 			} );
 		} );
 	};
