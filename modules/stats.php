@@ -1485,9 +1485,12 @@ function stats_dashboard_widget_content() {
 			<p class="nothing"><?php  esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
 			<?php
 	} else {
-?>
-			<p><?php echo join( ',&nbsp; ', $searches );?></p>
-			<?php
+		foreach ( $searches as $search_term_item ) {
+			printf(
+				'<p>%s</p>',
+				$search_term_item
+			);
+		}
 	}
 ?>
 		</div>
