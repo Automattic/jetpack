@@ -541,7 +541,7 @@ class Jetpack {
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) || self::is_development_mode() ) {
 			add_filter( 'jetpack_set_available_blocks', array( 'Jetpack_Gutenberg', 'jetpack_set_available_blocks' ) );
-        }
+		}
 
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );

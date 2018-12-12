@@ -46,22 +46,22 @@ class Jetpack_Gutenberg {
 
 	// BLOCKS
 	private static $default_blocks = array(
-		"contact-form",
-			"field-text",
-			"field-name",
-			"field-email",
-			"field-url",
-			"field-date",
-			"field-telephone",
-			"field-textarea",
-			"field-checkbox",
-			"field-checkbox-multiple",
-			"field-radio",
-			"field-select",
-	    "map",
-	    "markdown",
-	    "publicize",
-	    "simple-payments"
+		'contact-form',
+			'field-text',
+			'field-name',
+			'field-email',
+			'field-url',
+			'field-date',
+			'field-telephone',
+			'field-textarea',
+			'field-checkbox',
+			'field-checkbox-multiple',
+			'field-radio',
+			'field-select',
+		'map',
+		'markdown',
+		'publicize',
+		'simple-payments'
 	);
 
 	/**
