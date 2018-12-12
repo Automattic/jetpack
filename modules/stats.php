@@ -1448,7 +1448,13 @@ function stats_dashboard_widget_content() {
 
 ?>
 <div class="stats-view-all">
-	<a class="button" href="admin.php?page=stats"><?php  esc_html_e( 'View all stats', 'jetpack' ); ?></a>
+<?php
+	printf(
+		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
+		esc_url( "https://wordpress.com/stats/day/" . Jetpack::build_raw_urls( get_home_url() ) ),
+		esc_html__( 'View all stats', 'jetpack' )
+	);
+?>
 </div>
 <div id="stats-info">
 	<div id="top-posts" class='stats-section'>
