@@ -331,15 +331,23 @@ class Jetpack_JITM {
 				'jitm_id' => $envelope->id,
 			) );
 
-			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
+			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+
+			$url_params = array(
+				'source' => "jitm-$envelope->id",
+				'site' => $normalized_site_url,
+				'u' => $user->ID,
+			);
 
 			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
 				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 			}
-			// Get affiliate code and append it to the URL as aff=abc123
-			$envelope->url = Jetpack_Affiliate::init()->add_code_as_query_arg(
-				"https://jetpack.com/redirect/?source=jitm-{$envelope->id}&site={$normalized_site_url}&u={$user->ID}"
-			);
+			// Get affiliate code and add it to the array of URL parameters
+			if ( '' !== ( $aff = Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
+				$url_params['aff'] = $aff;
+			}
+
+			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
 
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
