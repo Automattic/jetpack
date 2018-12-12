@@ -91,6 +91,7 @@ class Jetpack_Email_Subscribe {
 				'style' => 'jetpack-email-subscribe',
 				'render_callback' => array( $this, 'parse_shortcode' ),
 			) );
+			jetpack_register_block( 'email-subscribe', array(), array( 'available' => true ) );
 		}
 	}
 
@@ -125,7 +126,7 @@ class Jetpack_Email_Subscribe {
 				'classname'         => self::$css_classname_prefix,
 				'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
 			),
-			array_filter( $attrs )
+			is_array( $attrs ) ? array_filter( $attrs ) : array()
 		);
 
 		if ( ! wp_script_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
