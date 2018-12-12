@@ -46,22 +46,22 @@ class Jetpack_Gutenberg {
 
 	// BLOCKS
 	private static $default_blocks = array(
-		'map',
-		'markdown',
-		'simple-payments',
-		'related-posts',
-		'contact-form',
-		'field-text',
-		'field-name',
-		'field-email',
-		'field-url',
-		'field-date',
-		'field-telephone',
-		'field-textarea',
-		'field-checkbox',
-		'field-checkbox-multiple',
-		'field-radio',
-		'field-select'
+		"contact-form",
+			"field-text",
+			"field-name",
+			"field-email",
+			"field-url",
+			"field-date",
+			"field-telephone",
+			"field-textarea",
+			"field-checkbox",
+			"field-checkbox-multiple",
+			"field-radio",
+			"field-select",
+	    "map",
+	    "markdown",
+	    "publicize",
+	    "simple-payments"
 	);
 
 	/**
@@ -275,20 +275,17 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the merged contents of `blocks-manifest.json` ( $preset_blocks )
-	 * and self::$jetpack_blocks ( $internal_blocks )
+	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', self::$default_blocks )`
+	 * using the contents of `index.json`
 	 *
 	 * @param $blocks The default list.
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function jetpack_set_available_blocks( $blocks ) {
-		$preset_blocks_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $blocks );
-		// manifest shouldn't remove default blocks...
 
+		$preset_blocks_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $blocks );
 		$preset_blocks = isset( $preset_blocks_manifest->production ) ? (array) $preset_blocks_manifest->production : array() ;
-		$preset_blocks = array_unique( array_merge( $preset_blocks, $blocks ) );
 
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_blocks = isset( $preset_blocks_manifest->beta ) ? (array) $preset_blocks_manifest->beta : array();
