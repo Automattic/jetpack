@@ -16,7 +16,7 @@ import webpack from 'webpack';
 import { JSDOM } from 'jsdom';
 
 function getWebpackConfig() {
-	return Object.create( require( './../../webpack.config.js' ) );
+	return require( './../../webpack.config.js' );
 }
 
 export const watch = function() {
