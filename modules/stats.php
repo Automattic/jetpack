@@ -1447,7 +1447,9 @@ function stats_dashboard_widget_content() {
 	}
 
 ?>
-<a class="button" href="admin.php?page=stats"><?php  esc_html_e( 'View All', 'jetpack' ); ?></a>
+<div class="stats-view-all">
+	<a class="button" href="admin.php?page=stats"><?php  esc_html_e( 'View all stats', 'jetpack' ); ?></a>
+</div>
 <div id="stats-info">
 	<div id="top-posts" class='stats-section'>
 		<div class="stats-section-inner">
