@@ -33,17 +33,4 @@
 			margin-top: 0;
 		}
 	}
-
-	.dops-notice__dismiss {
-		align-self: flex-start;
-		margin: -11px -11px 0 16px;
-
-		.gridicon {
-			fill: $gray;
-
-			&:hover {
-				fill: $blue-dark-text;
-			}
-		}
-	}
 }

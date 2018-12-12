@@ -7,7 +7,6 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import onKeyDownCallback from 'utils/onkeydown-callback';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -15,7 +14,6 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import Card from 'components/card';
-import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import {
 	jumpStartActivate,
@@ -38,20 +36,15 @@ class JumpStart extends Component {
 		);
 	};
 
-	dismissButton = () => {
+	dismissLink = () => {
 		return (
-			<span
-				role="button"
-				onKeyDown={ onKeyDownCallback( this.props.jumpStartSkip ) }
-				tabIndex="0"
-				className="dops-notice__dismiss"
+			<a
+				href="javascript:void(0)"
 				onClick={ this.props.jumpStartSkip }
+				className="jp-jumpstart__skip-link"
 			>
-				<Gridicon icon="cross" size={ 18 } />
-				<span className="dops-notice__screen-reader-text screen-reader-text">
-					{ __( 'Dismiss' ) }
-				</span>
-			</span>
+				{ __( 'Skip and explore features' ) }
+			</a>
 		);
 	};
 
@@ -94,8 +87,8 @@ class JumpStart extends Component {
 							) }
 						</p>
 						<p>{ this.activateButton() }</p>
+						{ this.dismissLink() }
 					</div>
-					{ this.dismissButton() }
 				</Card>
 			</div>
 		);
