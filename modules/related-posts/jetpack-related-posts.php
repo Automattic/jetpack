@@ -300,6 +300,10 @@ EOT;
 						'jp-relatedposts-post' . $index,
 						! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
 					) );
+					$title_attr = $related_post['title'];
+					if ( $related_post['excerpt'] !== '' ) {
+						$title_attr .= "\n\n" . $related_post['excerpt'];
+					}
 					?>
 					<div
 						class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
@@ -309,7 +313,7 @@ EOT;
 						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ): ?>
 							<a class="jp-relatedposts-post-a"
 								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $related_post['title'] ); ?>"
+								title="<?php echo esc_attr( $title_attr ); ?>"
 								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
@@ -317,7 +321,7 @@ EOT;
 								<img class="jp-relatedposts-post-img"
 									src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
 									width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
-									alt="<?php echo esc_attr( $related_post['title'] ); ?>"
+									alt="<?php echo esc_attr( $title_attr ); ?>"
 								/>
 							</a>
 						<?php endif; ?>
@@ -326,7 +330,7 @@ EOT;
 							<a
 								class="jp-relatedposts-post-a"
 								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $related_post['title'] ); ?>"
+								title="<?php echo esc_attr( $title_attr ); ?>"
 								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
