@@ -8,12 +8,12 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import Discussion from 'discussion';
-import Security from 'security/index.jsx';
+import Security from 'security';
 import Traffic from 'traffic';
-import Writing from 'writing/index.jsx';
-import Sharing from 'sharing/index.jsx';
-import SearchableModules from 'searchable-modules/index.jsx';
-import Privacy from 'privacy/index.jsx';
+import Writing from 'writing';
+import Sharing from 'sharing';
+import SearchableModules from 'searchable-modules';
+import Privacy from 'privacy';
 
 export default class extends React.Component {
 	static displayName = 'SearchableSettings';

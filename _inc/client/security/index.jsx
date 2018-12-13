@@ -7,10 +7,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
@@ -94,6 +96,12 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Keep your site safe with state-of-the-art security and receive notifications of technical problems.' ) }
+					className="jp-settings-description"
+				/>
+
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (

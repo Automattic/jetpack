@@ -3,10 +3,12 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
@@ -44,6 +46,12 @@ export class Discussion extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Open your site to comments and invite subscribers to get alerts about your latest work.' ) }
+					className="jp-settings-description"
+				/>
+
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }
