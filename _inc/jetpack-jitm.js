@@ -119,8 +119,8 @@ jQuery( document ).ready( function( $ ) {
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 
 				// Hide the JITM after 3 seconds.
-				setTimeout( function() {
-					$template.hide();
+				setTimeout( function () {
+					$template.fadeOut( 'slow' );
 				}, 3000 );
 			} );
 		} );
