@@ -94,16 +94,6 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 			error: error => __( 'Error updating settings. %(error)s', { args: { error: error.message || error.code || error.name || error } } ),
 			... noticeMessages,
 		};
-		let updatedOptionsSuccess = () => newOptionValues;
-
-		// Adapt messages and data when regenerating Post by Email address
-		if ( get( newOptionValues, 'post_by_email_address' ) === 'regenerate' ) {
-			updatedOptionsSuccess = success => {
-				return {
-					post_by_email_address: success.post_by_email_address
-				};
-			};
-		}
 
 		// Changes to these options affect WordPress.com Toolbar appearance,
 		// and we need to reload the page for them to take effect.
@@ -134,7 +124,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		return restApi.updateSettings( newOptionValues ).then( success => {
 			dispatch( {
 				type: JETPACK_SETTINGS_UPDATE_SUCCESS,
-				updatedOptions: updatedOptionsSuccess( success ),
+				updatedOptions: mapUpdateSettingsResponseFromApi( success, newOptionValues ),
 				success: success
 			} );
 			maybeHideNavMenuItem( newOptionValues );
@@ -166,3 +156,22 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		} );
 	};
 };
+
+/**
+ * Maps the response from the API for handling special cases
+ * like with regeneration of Post By Email where we need the new address from the response
+ * @param {object} success           The JSON response from the API
+ * @param {object} requestedValues The object holding the requested value changes for settings.
+ * @returns {object}                 The mapped object.
+ */
+function mapUpdateSettingsResponseFromApi( success, requestedValues ) {
+	let values = requestedValues;
+
+	// Adapt messages and data when regenerating Post by Email address
+	if ( get( requestedValues, 'post_by_email_address' ) === 'regenerate' ) {
+		values = {
+			post_by_email_address: success.post_by_email_address
+		};
+	}
+	return values;
+}
