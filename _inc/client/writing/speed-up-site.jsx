@@ -47,6 +47,12 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( true === siteAcceleratorStatus ) {
+				const messages = {
+					progress: __( 'Disabling Site accelerator…' ),
+					success: __( 'Site accelerator is no longer speeding up your site!' ),
+					error: error => __( 'Error disabling Site accelerator. %(error)s', { args: { error: error } } )
+				};
+
 				if ( false === ! newPhotonStatus && 'active' !== photonStatus ) {
 					newPhotonStatus = false;
 
@@ -54,16 +60,21 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						photon: false,
 						'tiled-gallery': false,
 						tiled_galleries: false
-					} );
+					}, messages );
 				}
 				if ( false === ! newAssetCdnStatus && 'active' !== assetCdnStatus ) {
 					newAssetCdnStatus = false;
 
 					this.props.updateOptions( {
 						'photon-cdn': false
-					} );
+					}, messages );
 				}
 			} else {
+				const messages = {
+					progress: __( 'Enabling Site accelerator…' ),
+					success: __( 'Site accelerator is now speeding up your site!' ),
+					error: error => __( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } )
+				};
 				if ( false === newPhotonStatus && 'inactive' !== photonStatus ) {
 					newPhotonStatus = true;
 
@@ -71,14 +82,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						photon: true,
 						'tiled-gallery': true,
 						tiled_galleries: true
-					} );
+					}, messages );
 				}
 				if ( false === newAssetCdnStatus && 'inactive' !== assetCdnStatus ) {
 					newAssetCdnStatus = true;
 
 					this.props.updateOptions( {
 						'photon-cdn': true
-					} );
+					}, messages );
 				}
 			}
 
