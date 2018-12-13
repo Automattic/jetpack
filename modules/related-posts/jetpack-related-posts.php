@@ -290,6 +290,8 @@ EOT;
 			return '';
 		}
 
+		remove_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
+
 		ob_start();
 		?>
 		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
