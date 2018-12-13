@@ -229,7 +229,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/jetpack-welcome.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
+										'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it.',
 									'jetpack'
 								); ?>" height="auto" width="250" />
 						</div>
@@ -291,7 +291,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/stats-people.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 								esc_attr_e(
-									'Get clear and concise stats and analytics about your visitors',
+									'Get clear and concise stats and analytics about your visitors.',
 								 'jetpack'
 								); ?>" height="auto" width="225" />
 						</div>
@@ -343,7 +343,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security',
+										'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security.',
 									'jetpack'
 								); ?>" height="auto" width="250" />
 						</div>
@@ -399,7 +399,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/customize-theme.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience',
+										'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience.',
 									'jetpack'
 								); ?>" height="auto" width="250" />
 						</div>
@@ -489,7 +489,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'images/apps.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Our mobile and desktop apps are free and available to you on Apple or Android devices once Jetpack is connected to WordPress.com',
+										'Our mobile and desktop apps are free and available to you on Apple or Android devices once Jetpack is connected to WordPress.com.',
 									'jetpack'
 								); ?>" height="auto" width="225" />
 						</div>
@@ -527,12 +527,12 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 6: premium services -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-six">
-						<h2><?php esc_html_e( 'All the tools you&#8217;ll ever need for a more powerful WordPress site', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'All the tools you’ll ever need for a more powerful WordPress site', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'images/jetpack-poweringUp.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+							<img src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
 									esc_attr_e(
-										'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income',
+										'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
 									'jetpack'
 								); ?>" height="auto" width="225" />
 						</div>
@@ -547,28 +547,28 @@ class Jetpack_Connection_Banner {
 
 					<ul>
 						<li>
-							<strong><?php esc_html_e(  'Real-time automated backups & malware scanning:',
-								'jetpack'); ?></strong> <?php esc_html_e(  ' Stay free of any hacking-related worries.',
+							<strong><?php esc_html_e( 'Real-time automated backups & malware scanning:',
+								'jetpack'); ?></strong> <?php esc_html_e( 'Stay free of any hacking-related worries.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Ad network:',
-								'jetpack'); ?></strong> <?php esc_html_e(  ' Automatic approval to display ads that generate income from your traffic.',
+							<strong><?php esc_html_e( 'Ad network:',
+								'jetpack'); ?></strong> <?php esc_html_e( 'Automatic approval to display ads that generate income from your traffic.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Simple payment buttons:',
-								'jetpack'); ?></strong> <?php esc_html_e(  ' Sell products on your site and accept instant PayPal payments.',
+							<strong><?php esc_html_e( 'Simple payment buttons:',
+								'jetpack'); ?></strong> <?php esc_html_e( 'Sell products on your site and accept instant PayPal payments.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Enhanced search:',
-								'jetpack'); ?></strong> <?php esc_html_e(  ' A WordPress search tool that gives readers faster and more relevant results.',
+							<strong><?php esc_html_e( 'Enhanced search:',
+								'jetpack'); ?></strong> <?php esc_html_e( 'A WordPress search tool that gives readers faster and more relevant results.',
 								'jetpack'); ?>
 						</li>
 						<li>
-							<strong><?php esc_html_e(  'Priority support & concierge setup:',
-								'jetpack'); ?></strong> <?php esc_html_e(  ' A one-on-one session to get the most out of your Jetpack site, and priority access to our WordPress experts.',
+							<strong><?php esc_html_e( 'Priority support & concierge setup:',
+								'jetpack'); ?></strong> <?php esc_html_e( 'A one-on-one session to get the most out of your Jetpack site, and priority access to our WordPress experts.',
 								'jetpack'); ?>
 						</li>
 						</ul>
