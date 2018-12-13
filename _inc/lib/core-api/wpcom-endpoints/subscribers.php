@@ -41,7 +41,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 */
 	public function get_subscriber_count( $request ) {
 		// Get the most up to date subscriber count when request is not a test
-		if ( ! defined( 'TESTING_IN_JETPACK' ) ) {
+		if ( ! Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_total' );
 		}
 
@@ -54,6 +54,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	}
 }
 
-if ( Jetpack::is_module_active( 'subscriptions' ) || ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ) {
+if (
+	Jetpack::is_module_active( 'subscriptions' ) ||
+	( Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' ) && Jetpack_Constants::get_constant( 'TESTING_IN_JETPACK' ) )
+) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers' );
 }
