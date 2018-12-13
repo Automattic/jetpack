@@ -35,13 +35,11 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 export const NavigationSettings = createReactClass( {
 	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
-	moduleList: [],
 
 	componentWillMount() {
 		// We need to handle the search term not only on route update but also on page load in case of some external redirects
 		this.onRouteChange( this.context.router.getCurrentLocation() );
 		this.context.router.listen( this.onRouteChange );
-		this.moduleList = Object.keys( this.props.moduleList );
 	},
 
 	onRouteChange( newRoute ) {
@@ -108,7 +106,8 @@ export const NavigationSettings = createReactClass( {
 	 * @return {boolean}         True if at least one of the modules is included in the list.
 	 */
 	hasAnyOfThese( modules = [] ) {
-		return 0 < intersection( this.moduleList, modules ).length;
+		const moduleList = Object.keys( this.props.moduleList );
+		return 0 < intersection( moduleList, modules ).length;
 	},
 
 	handleClickForTracking( target ) {
@@ -281,22 +280,18 @@ NavigationSettings.defaultProps = {
 };
 
 export default connect(
-	state => {
-		return {
-			userCanManageModules: _userCanManageModules( state ),
-			isSubscriber: _userIsSubscriber( state ),
-			userCanPublish: userCanPublish( state ),
-			isLinked: isCurrentUserLinked( state ),
-			isSiteConnected: isSiteConnected( state ),
-			isModuleActivated: module => isModuleActivated( state, module ),
-			moduleList: getModules( state ),
-			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-			searchTerm: getSearchTerm( state ),
-		};
-	},
-	dispatch => {
-		return {
-			searchForTerm: term => dispatch( filterSearch( term ) ),
-		};
-	}
+	( state ) => ( {
+		userCanManageModules: _userCanManageModules( state ),
+		isSubscriber: _userIsSubscriber( state ),
+		userCanPublish: userCanPublish( state ),
+		isLinked: isCurrentUserLinked( state ),
+		isSiteConnected: isSiteConnected( state ),
+		isModuleActivated: module => isModuleActivated( state, module ),
+		moduleList: getModules( state ),
+		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
+		searchTerm: getSearchTerm( state )
+	} ),
+	( dispatch ) => ( {
+		searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+	} )
 )( NavigationSettings );
