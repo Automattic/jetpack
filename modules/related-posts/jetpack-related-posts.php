@@ -80,7 +80,9 @@ class Jetpack_RelatedPosts {
 			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
 		}
 
-		jetpack_register_block( 'related-posts' );
+		jetpack_register_block( 'related-posts', array(
+			'render_callback' => array( $this, 'render_block' ),
+		) );
 	}
 
 	/**
@@ -253,22 +255,6 @@ EOT;
 	 * GUTENBERG BLOCK
 	 * ===============
 	 */
-
-	/**
-	 * Register the Related Posts Gutenberg block on server.
-	 *
-	 * @action init
-	 * @uses register_block_type
-	 * @return null
-	 */
-	public function register_block() {
-		register_block_type(
-			'a8c/related-posts',
-			array(
-				'render_callback' => array( $this, 'render_block' ),
-			)
-		);
-	}
 
 	/**
 	 * Render the related posts markup.
