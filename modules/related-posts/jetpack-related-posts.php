@@ -77,12 +77,15 @@ class Jetpack_RelatedPosts {
 
 		// Add Related Posts to the REST API Post response.
 		if ( function_exists( 'register_rest_field' ) ) {
-			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
+			add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 		}
 
-		jetpack_register_block( 'related-posts', array(
-			'render_callback' => array( $this, 'render_block' ),
-		) );
+		jetpack_register_block(
+			'related-posts',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
+		);
 	}
 
 	/**
@@ -259,15 +262,16 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
+	 * @param array $attributes Block attributes.
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
 		$block_attributes = array(
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
-			'show_date' => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
-			'show_context' => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : false,
-			'layout' => isset( $attributes['postLayout'] ) && $attributes['postLayout'] === 'list' ? $attributes['postLayout'] : 'grid',
-			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
+			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
+			'show_context'    => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : false,
+			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
+			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
 		$excludes = array();
@@ -281,10 +285,13 @@ EOT;
 			$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
 		}
 
-		$related_posts = $this->get_for_post_id( get_the_ID(), array(
-			'size' => $block_attributes['size'],
-			'exclude_post_ids' => $excludes,
-		) );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'size'             => $block_attributes['size'],
+				'exclude_post_ids' => $excludes,
+			)
+		);
 
 		if ( ! $related_posts ) {
 			return '';
@@ -296,14 +303,17 @@ EOT;
 		?>
 		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
 			<div class="jp-relatedposts-items <?php echo $block_attributes['show_thumbnails'] ? 'jp-relatedposts-items-visual ' : ''; ?>jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
-				<?php foreach ( $related_posts as $index => $related_post ): 
-					$classes = array_filter( array(
-						'jp-relatedposts-post',
-						'jp-relatedposts-post' . $index,
-						! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
-					) );
+				<?php
+				foreach ( $related_posts as $index => $related_post ) :
+					$classes = array_filter(
+						array(
+							'jp-relatedposts-post',
+							'jp-relatedposts-post' . $index,
+							! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
+						)
+					);
 					$title_attr = $related_post['title'];
-					if ( $related_post['excerpt'] !== '' ) {
+					if ( '' !== $related_post['excerpt'] ) {
 						$title_attr .= "\n\n" . $related_post['excerpt'];
 					}
 					?>
@@ -312,7 +322,7 @@ EOT;
 						data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
 						data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
 					>
-						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ): ?>
+						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
 							<a class="jp-relatedposts-post-a"
 								href="<?php echo esc_url( $related_post['url'] ); ?>"
 								title="<?php echo esc_attr( $title_attr ); ?>"
@@ -343,13 +353,13 @@ EOT;
 
 						<p class="jp-relatedposts-post-excerpt"><?php echo esc_html( $related_post['excerpt'] ); ?></p>
 
-						<?php if ( $block_attributes['show_date'] ): ?>
+						<?php if ( $block_attributes['show_date'] ) : ?>
 							<p class="jp-relatedposts-post-date" style="display: block;">
 								<?php echo esc_html( $related_post['date'] ); ?>
 							</p>
 						<?php endif; ?>
 
-						<?php if ( $block_attributes['show_context'] ): ?>
+						<?php if ( $block_attributes['show_context'] ) : ?>
 							<p class="jp-relatedposts-post-context">
 								<?php echo esc_html( $related_post['context'] ); ?>
 							</p>
