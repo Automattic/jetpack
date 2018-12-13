@@ -48,11 +48,9 @@ export class Discussion extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Discussion Tools' ) }
+					title={ __( 'Open your site to comments and invite subscribers to get alerts about your latest work.' ) }
 					className="jp-settings-description"
-				>
-					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
-				</Card>
+				/>
 
 				<Comments
 					{ ...commonProps }

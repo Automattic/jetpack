@@ -68,11 +68,9 @@ export class Traffic extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Traffic Tools' ) }
+					title={ __( 'Maximize your site’s visibility in search engines and view traffic stats in real time.' ) }
 					className="jp-settings-description"
-				>
-					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
-				</Card>
+				/>
 
 				{
 					foundSearch && (

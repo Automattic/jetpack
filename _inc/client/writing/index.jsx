@@ -73,11 +73,9 @@ export class Writing extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Writing Tools' ) }
+					title={ __( 'Compose content the way you want to and streamline your publishing experience.' ) }
 					className="jp-settings-description"
-				>
-					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
-				</Card>
+				/>
 
 				{
 					this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (

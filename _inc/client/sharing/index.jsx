@@ -55,11 +55,9 @@ class Sharing extends Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Sharing Tools' ) }
+					title={ __( 'Share your content on social media and increase audience engagement.' ) }
 					className="jp-settings-description"
-				>
-					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
-				</Card>
+				/>
 
 				{
 					foundPublicize && (

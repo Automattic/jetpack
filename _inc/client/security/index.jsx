@@ -86,11 +86,9 @@ export class Security extends Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Security Tools' ) }
+					title={ __( 'Keep your site safe with state-of-the-art security and receive notifications of technical problems.' ) }
 					className="jp-settings-description"
-				>
-					<p>{ __( 'This is a placeholder text that will be replaced by a short description of each of the settings pages. The goal is to briefly explain the theme of the settings below.' ) }</p>
-				</Card>
+				/>
 
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
