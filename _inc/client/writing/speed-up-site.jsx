@@ -52,45 +52,49 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is no longer speeding up your site!' ),
 					error: error => __( 'Error disabling Site accelerator. %(error)s', { args: { error: error } } )
 				};
+				let settings = {};
 
 				if ( false === ! newPhotonStatus && 'active' !== photonStatus ) {
 					newPhotonStatus = false;
-
-					this.props.updateOptions( {
+					settings = {
 						photon: false,
 						'tiled-gallery': false,
 						tiled_galleries: false
-					}, messages );
+					};
 				}
 				if ( false === ! newAssetCdnStatus && 'active' !== assetCdnStatus ) {
 					newAssetCdnStatus = false;
-
-					this.props.updateOptions( {
+					settings = {
+						...settings,
 						'photon-cdn': false
-					}, messages );
+					};
 				}
+				this.props.updateOptions( settings, messages );
 			} else {
 				const messages = {
 					progress: __( 'Enabling Site accelerator…' ),
 					success: __( 'Site accelerator is now speeding up your site!' ),
 					error: error => __( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } )
 				};
+				let settings = {};
+
 				if ( false === newPhotonStatus && 'inactive' !== photonStatus ) {
 					newPhotonStatus = true;
 
-					this.props.updateOptions( {
+					settings = {
 						photon: true,
 						'tiled-gallery': true,
 						tiled_galleries: true
-					}, messages );
+					};
 				}
 				if ( false === newAssetCdnStatus && 'inactive' !== assetCdnStatus ) {
 					newAssetCdnStatus = true;
-
-					this.props.updateOptions( {
+					settings = {
+						...settings,
 						'photon-cdn': true
-					}, messages );
+					};
 				}
+				this.props.updateOptions( settings, messages );
 			}
 
 			// If at least one of the modules is now on, let's reflect that with the status of our main toggle.
