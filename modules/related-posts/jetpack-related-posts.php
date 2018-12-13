@@ -292,7 +292,7 @@ EOT;
 
 		ob_start();
 		?>
-		<div id="jp-relatedposts" class="jp-relatedposts" style="display: block;">
+		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
 			<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
 				<?php foreach ( $related_posts as $index => $related_post ): 
 					$classes = array_filter( array(

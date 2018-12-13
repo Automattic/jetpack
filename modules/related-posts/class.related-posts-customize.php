@@ -95,7 +95,7 @@ class Jetpack_Related_Posts_Customize {
 		// If selective refresh is available, implement it.
 		if ( isset( $wp_customize->selective_refresh ) ) {
 			$wp_customize->selective_refresh->add_partial( "$this->prefix", array(
-				'selector'            => '.jp-relatedposts',
+				'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
 				'settings'            => $selective_options,
 				'render_callback'     => __CLASS__ . '::render_callback',
 				'container_inclusive' => false,
