@@ -1196,7 +1196,7 @@ function stats_jetpack_dashboard_widget() {
 		<input type="hidden" name="widget_id" value="dashboard_stats" />
 		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
 	</form>
-	<span id="js-toggle-stats_dashboard_widget_control">
+	<span class="js-toggle-stats_dashboard_widget_control">
 		<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 	</span>
 	<div id="dashboard_stats">
@@ -1206,7 +1206,7 @@ function stats_jetpack_dashboard_widget() {
 	</div>
 	<script>
 		jQuery(document).ready(function($){
-			var $toggle = $('#js-toggle-stats_dashboard_widget_control');
+			var $toggle = $('.js-toggle-stats_dashboard_widget_control');
 
 			$toggle.parent().prev().append( $toggle );
 			$toggle.show().click(function(e){
@@ -1218,7 +1218,7 @@ function stats_jetpack_dashboard_widget() {
 		});
 	</script>
 	<style>
-		#js-toggle-stats_dashboard_widget_control {
+		.js-toggle-stats_dashboard_widget_control {
 			display: none;
 			float: right;
 			margin-top: 0.2em;

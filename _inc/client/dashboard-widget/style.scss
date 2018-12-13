@@ -5,11 +5,13 @@
 
 	h2.hndle {
 		span {
-			&#js-toggle-stats_dashboard_widget_control {
-				float: right;
+			&.js-toggle-stats_dashboard_widget_control {
+				position: absolute;
+				top: 8px;
+				right: 36px;
 			}
 
-			&:not(#js-toggle-stats_dashboard_widget_control) {
+			&:not(.js-toggle-stats_dashboard_widget_control) {
 				display: flex;
 				align-items:center;
 			}
