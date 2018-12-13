@@ -270,8 +270,20 @@ EOT;
 			'size' => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
+		$excludes = array();
+		if ( isset( $_GET['relatedposts_origin'] ) ) {
+			if ( is_string( $_GET['relatedposts_origin'] ) ) {
+				$excludes = explode( ',', $_GET['relatedposts_origin'] );
+			} elseif ( is_array( $_GET['relatedposts_origin'] ) ) {
+				$excludes = array_values( $_GET['relatedposts_origin'] );
+			}
+
+			$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
+		}
+
 		$related_posts = $this->get_for_post_id( get_the_ID(), array(
 			'size' => $block_attributes['size'],
+			'exclude_post_ids' => $excludes,
 		) );
 
 		if ( ! $related_posts ) {
