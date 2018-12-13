@@ -17,7 +17,7 @@ import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
-import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
+import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
 import {
 	setInitialState,
@@ -125,33 +125,20 @@ class Main extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps( nextProps ) {
-		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
-			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
-			this.handleJumpstart( nextProps );
+	renderJumpstart = () => {
+		if ( ! this.props.isSiteConnected ) {
+			return null;
 		}
-	}
 
-	/**
-	 *
-	 * Takes care of redirection when
-	 * - jumpstarting ( resseting options )
-	 * - the jumpstart is complete
-	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
-	 */
-	handleJumpstart = nextProps => {
-		const history = createHistory();
-		const willShowJumpStart = nextProps.jumpStartStatus;
-		const willBeJumpstarting = nextProps.isJumpstarting;
+		if ( ! this.props.jumpStartStatus ) {
+			return null;
+		}
 
-		if ( ! this.props.jumpStartStatus && willShowJumpStart ) {
-			window.location.hash = 'jumpstart';
-			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
-		}
-		if ( this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
-			window.location.hash = 'dashboard';
-			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
-		}
+		return (
+			<div aria-live="assertive">
+				<JumpStart />
+			</div>
+		);
 	};
 
 	renderMainContent = route => {
@@ -175,20 +162,6 @@ class Main extends React.Component {
 					<JetpackConnect />
 				</div>
 			);
-		}
-
-		if ( this.props.isSiteConnected && this.props.jumpStartStatus ) {
-			if ( includes( [ '/', '/dashboard' ], route ) ) {
-				window.location.hash = 'jumpstart';
-				const history = createHistory();
-				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
-			} else if ( '/jumpstart' === route ) {
-				return (
-					<div aria-live="assertive">
-						<JumpStart />
-					</div>
-				);
-			}
 		}
 
 		const settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -247,6 +220,7 @@ class Main extends React.Component {
 		return (
 			<div aria-live="assertive">
 				{ navComponent }
+				{ this.renderJumpstart() }
 				{ pageComponent }
 				<WelcomeNewPlan
 					siteRawUrl={ this.props.siteRawUrl }
@@ -266,8 +240,8 @@ class Main extends React.Component {
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
-						{ ! this.props.jumpStartStatus && <SupportCard path={ this.props.route.path } /> }
-						{ ! this.props.jumpStartStatus && <AppsCard /> }
+						{ <SupportCard path={ this.props.route.path } /> }
+						{ <AppsCard /> }
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
@@ -280,7 +254,6 @@ export default connect(
 	state => {
 		return {
 			jumpStartStatus: getJumpStartStatus( state ),
-			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			siteRawUrl: getSiteRawUrl( state ),
