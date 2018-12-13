@@ -128,9 +128,7 @@ class AtAGlance extends Component {
 					<QuerySitePlugins />
 					<QuerySite />
 					<DashStats { ...settingsProps } { ...urls } />
-					<div className="test">
-						{ renderPairs( pairs ) }
-					</div>
+					{ renderPairs( pairs ) }
 					{ connections }
 				</div>
 			);
