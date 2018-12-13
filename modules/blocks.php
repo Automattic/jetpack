@@ -162,3 +162,31 @@ jetpack_register_block(
  * VR Block.
  */
 jetpack_register_block( 'vr' );
+
+/**
+ * Slideshow Block.
+ */
+jetpack_register_block(
+	'slideshow',
+	array(
+		'render_callback' => 'jetpack_slideshow_block_load_assets',
+	)
+);
+
+/**
+ * Slideshow block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the map block attributes.
+ * @param string $content - String containing the map block content.
+ *
+ * @return string
+ */
+function jetpack_slideshow_block_load_assets( $attr, $content ) {
+	$dependencies = array(
+		'lodash',
+		'wp-element',
+		'wp-i18n',
+	);
+	Jetpack_Gutenberg::load_assets_as_required( 'slideshow', $dependencies );
+	return $content;
+}
