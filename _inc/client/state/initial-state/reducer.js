@@ -248,3 +248,31 @@ export function currentThemeSupports( state, feature ) {
 export function showBackups( state ) {
 	return get( state.jetpack.initialState.siteData, 'showBackups', true );
 }
+
+/**
+ * Returns the affiliate code, if it exists. Otherwise an empty string.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} The affiliate code.
+ */
+export function getAffiliateCode( state ) {
+	return get( state.jetpack.initialState, 'aff', '' );
+}
+
+/**
+ * Return an upgrade URL
+ *
+ * @param {object} state Global state tree
+ * @param {string} source Context where this URL is clicked.
+ * @param {string} userId Current user id.
+ *
+ * @return {string} Upgrade URL with source, site, and affiliate code added.
+ */
+export const getUpgradeUrl = ( state, source, userId = '' ) => {
+	const affiliateCode = getAffiliateCode( state );
+	return `https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
+		( userId ? `&u=${ userId }` : '' )
+	;
+};

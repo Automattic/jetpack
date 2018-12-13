@@ -12,6 +12,7 @@ import { getPlanClass } from 'lib/plans/constants';
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import {
@@ -77,7 +78,6 @@ class DashScan extends Component {
 	getVPContent() {
 		const {
 			sitePlan,
-			siteRawUrl,
 			fetchingSiteData,
 		} = this.props;
 		const hasSitePlan = false !== sitePlan;
@@ -146,7 +146,7 @@ class DashScan extends Component {
 				} )
 				: __( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 					components: {
-						a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + siteRawUrl } target="_blank" rel="noopener noreferrer" />
+						a: <UpgradeLink source="aag-scan" />
 					}
 				} )
 		} );

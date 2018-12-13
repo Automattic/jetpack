@@ -17,8 +17,8 @@ import {
 	PLAN_JETPACK_PERSONAL
 } from 'lib/plans/constants';
 import {
-	getSiteRawUrl,
 	isAtomicSite,
+	getUpgradeUrl,
 } from 'state/initial-state';
 import {
 	getSitePlan,
@@ -118,7 +118,7 @@ class SupportCard extends React.Component {
 							plan={ PLAN_JETPACK_PERSONAL }
 							callToAction={ __( 'Upgrade' ) }
 							onClick={ this.trackBannerClick }
-							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
+							href={ this.props.supportUpgradeUrl }
 						/>
 					)
 				}
@@ -136,10 +136,10 @@ export default connect(
 	state => {
 		return {
 			sitePlan: getSitePlan( state ),
-			siteRawUrl: getSiteRawUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			isAtomicSite: isAtomicSite( state )
+			isAtomicSite: isAtomicSite( state ),
+			supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
 		};
 	}
 )( SupportCard );

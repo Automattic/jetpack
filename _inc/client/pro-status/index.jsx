@@ -13,7 +13,11 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	getUpgradeUrl
+} from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -95,13 +99,13 @@ class ProStatus extends React.Component {
 					message = __( 'No scanning', { context: 'Short warning message about site having no security scan.' } );
 				}
 				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
-				actionUrl = 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl;
+				actionUrl = this.props.paidFeatureUpgradeUrl;
 				break;
 			case 'pro':
 				type = 'upgrade';
 				status = 'is-warning';
 				action = __( 'Upgrade', { context: 'Caption for a button to purchase a pro plan.' } );
-				actionUrl = 'https://jetpack.com/redirect/?source=plans-business&site=' + this.props.siteRawUrl;
+				actionUrl = this.props.planProUpgradeUrl;
 				break;
 			case 'secure':
 				status = 'is-success';
@@ -267,7 +271,9 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
-			fetchingAkismetData: isFetchingAkismetData( state )
+			fetchingAkismetData: isFetchingAkismetData( state ),
+			paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
+			planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		};
 	}
 )( ProStatus );

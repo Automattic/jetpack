@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { imagePath } from 'constants/urls';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 class ThemesPromoCard extends React.Component {
 	static displayName = 'ThemesPromoCard';
@@ -42,11 +42,6 @@ class ThemesPromoCard extends React.Component {
 				this.props.className,
 				'jp-themes-card'
 		);
-
-		// Plan classes come through as `is-whatever-plan`, we need to strip off `is-` and `-plan` from the string to pass to the URL
-		const plan = this.props.plan;
-		const regex = /(?![is-])(.*)(?=-plan)/g;
-		const urlFriendlyPlan = Array.isArray( plan.match( regex ) ) ? plan.match( regex )[ 0 ] : '';
 
 		return (
 			<div className={ classes }>
@@ -83,13 +78,13 @@ class ThemesPromoCard extends React.Component {
 							<Button
 								className="is-primary"
 								onClick={ this.trackGetStarted }
-								href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }>
+								href={ this.props.proUpgradeUrl }>
 								{ __( 'Explore Professional' ) }
 							</Button>
 							&nbsp;
 							<Button
 								onClick={ this.trackComparePlans }
-								href={ 'https://jetpack.com/redirect/?source=plans-compare-free' + '&site=' + this.props.siteRawUrl }>
+								href={ this.props.plansCompareFreeUpgradeUrl }>
 								{ __( 'Compare All Plans' ) }
 							</Button>
 						</p>
@@ -106,9 +101,15 @@ ThemesPromoCard.propTypes = {
 };
 
 export default connect(
-	( state ) => {
+	( state, { plan } ) => {
+		// Plan classes come through as `is-whatever-plan`, we need to strip off `is-` and `-plan` from the string to pass to the URL
+		const regex = /(?![is-])(.*)(?=-plan)/g;
+		const urlFriendlyPlan = Array.isArray( plan.match( regex ) ) ? plan.match( regex )[ 0 ] : '';
+
 		return {
 			showBackups: showBackups( state ),
+			proUpgradeUrl: getUpgradeUrl( state, 'upgrade-pro-' + urlFriendlyPlan ),
+			plansCompareFreeUpgradeUrl: getUpgradeUrl( state, 'plans-compare-free' ),
 		};
 	}
 )( ThemesPromoCard );

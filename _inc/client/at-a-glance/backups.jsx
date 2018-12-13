@@ -15,6 +15,7 @@ import get from 'lodash/get';
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
@@ -114,8 +115,7 @@ class DashBackups extends Component {
 				status: 'no-pro-uninstalled-or-inactive',
 				content: __( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
 					components: {
-						a:
-							<a href={ `https://jetpack.com/redirect/?source=aag-backups&site=${ siteRawUrl }` } target="_blank" rel="noopener noreferrer" />
+						a: <UpgradeLink source="aag-backups" />
 					}
 				} ),
 			} );
