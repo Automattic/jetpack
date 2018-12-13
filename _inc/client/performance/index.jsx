@@ -6,6 +6,7 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -14,6 +15,7 @@ import { getModule } from 'state/modules';
 import { isUnavailableInDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
+import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import Media from './media';
 import Search from './search';
@@ -48,6 +50,12 @@ class Performance extends Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Load pages faster, optimize images, and speed up your visitors’ experience.' ) }
+					className="jp-settings-description"
+				/>
+
 				<SpeedUpSite { ...commonProps } />
 				<Media { ...commonProps } />
 				<Search { ...commonProps } />
