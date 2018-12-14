@@ -850,7 +850,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$widget_id              = esc_attr( !empty( $args['widget_id'] )      ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
-		$subscribers_total      = $this->fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
+		$subscribers_total      = self::fetch_subscriber_count();
+
+		if ( isset( $instance['show_only_email_and_button'] ) && $instance['show_only_email_and_button'] ) {
+			unset( $instance['title'] );
+			$subscribe_text = false;
+		}
 
 		// Give the input element a unique ID
 		/**
@@ -908,7 +913,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		} else { ?>
 			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
-				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) {
+				if ( $subscribe_text && ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
 					?><div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
 				}
 
@@ -989,7 +994,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		return $current_subs_array;
 	}
 
-	function fetch_subscriber_count() {
+	static function fetch_subscriber_count() {
 		$subs_count = get_transient( 'wpcom_subscribers_total' );
 
 		if ( FALSE === $subs_count || 'failed' == $subs_count['status'] ) {
@@ -1053,7 +1058,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$success_message		= stripslashes( $instance['success_message']);
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
-		$subs_fetch = $this->fetch_subscriber_count();
+		$subs_fetch = self::fetch_subscriber_count();
 
 		if ( 'failed' == $subs_fetch['status'] ) {
 			printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
@@ -1108,12 +1113,15 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance = array();
 	}
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
+	$show_only_email_and_button = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 
 	$instance = shortcode_atts(
 		Jetpack_Subscriptions_Widget::defaults(),
 		$instance,
 		'jetpack_subscription_form'
 	);
+	$instance['show_only_email_and_button'] = $show_only_email_and_button;
+
 	$args = array(
 		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
 	);
@@ -1122,3 +1130,5 @@ function jetpack_do_subscription_form( $instance ) {
 	$output = ob_get_clean();
 	return $output;
 }
+
+jetpack_register_block( 'subscriptions' );
