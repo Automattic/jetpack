@@ -208,12 +208,26 @@ class Jetpack_Plugin_Search {
 		$links = array();
 
 		// Jetpack installed, active, feature not enabled; prompt to enable.
-		if ( Jetpack::is_active() && ! Jetpack::is_module_active( $plugin['module'] ) ) {
+		if (
+            (
+                Jetpack::is_active() ||
+                (
+                    Jetpack::is_development_mode() &&
+                    ! $plugin[ 'requires_connection' ]
+                )
+            ) &&
+			current_user_can( 'jetpack_activate_modules' ) &&
+			! Jetpack::is_module_active( $plugin['module'] )
+			) {
 			$links = array(
 				'<a id="plugin-select-activate" class="button activate-now"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</a>',
 			);
 		// Jetpack installed, active, feature enabled; link to settings.
-		} elseif ( Jetpack::is_active() && Jetpack::is_module_active( $plugin['module'] ) ) {
+		} elseif (
+			! empty( $plugin['configure_url'] ) &&
+			current_user_can( 'jetpack_configure_modules' ) &&
+			Jetpack::is_module_active( $plugin['module'] )
+			) {
 			$links = array(
 				'<a id="plugin-select-settings" class="button" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
 			);
