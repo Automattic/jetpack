@@ -218,7 +218,9 @@ class Jetpack_Plugin_Search {
 		}
 
 		// Adds "More Information" link.
-		$links[] = '<a href="' . $plugin['learn_more_button'] . '">' . __( 'More Information', 'jetpack' ) . '</a>';
+		if ( ! empty( $plugin['learn_more_button'] ) ) {
+			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'More Information', 'jetpack' ) . '</a>';
+		}
 
 		// Add some styling.
 		$links[] = '<style>.plugin-card-jetpackplugin-search { border: solid 2px green; }</style>';
