@@ -46,11 +46,6 @@ class WelcomePersonal extends Component {
 						'scanning for security threats.'
 					) }
 				</p>
-				<div className="jp-welcome-new-plan__button">
-					<Button onClick={ this.clickCtaDismissGetStarted }>
-						{ __( 'Get started' ) }
-					</Button>
-				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Personal, you have access to more than 100 free, professionally-designed WordPress ' +
@@ -59,14 +54,11 @@ class WelcomePersonal extends Component {
 					) }
 				</p>
 				<MonitorAkismetBackupsPrompt />
-				<Button
-					className="jp-welcome-new-plan__button"
-					href={ '#/traffic' }
-					onClick={ this.props.dismiss }
-					primary
-				>
-					{ __( 'Got it!' ) }
-				</Button>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}

@@ -50,11 +50,6 @@ class WelcomePremium extends Component {
 						' security threats, and enabling monetization features.'
 					) }
 				</p>
-				<div className="jp-welcome-new-plan__button">
-					<Button onClick={ this.clickCtaDismissGetStarted }>
-						{ __( 'Get started' ) }
-					</Button>
-				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
@@ -76,6 +71,11 @@ class WelcomePremium extends Component {
 				<p>
 					{ __( 'Start exploring Jetpack Premium now to see all the benefits of your new plan.' ) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}

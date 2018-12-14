@@ -53,11 +53,6 @@ class WelcomeProfessional extends Component {
 						' indexing your content for search, scanning for security threats, and granting access to premium themes.'
 					) }
 				</p>
-				<div className="jp-welcome-new-plan__button">
-					<Button onClick={ this.clickCtaDismissGetStarted }>
-						{ __( 'Get started' ) }
-					</Button>
-				</div>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Professional, you can create the perfect site with one of over 300 professionally-designed' +
@@ -85,6 +80,11 @@ class WelcomeProfessional extends Component {
 				<p>
 					{ __( 'Start exploring Jetpack Professional now to see all the benefits of your new plan.' ) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}
