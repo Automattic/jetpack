@@ -171,7 +171,7 @@ export class UserUnlinked extends React.Component {
 						title={ __( 'Jetpack is powering your site, but to access all of its features you’ll need to create an account.' ) }
 						callToAction={ __( 'Create account' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="plans"
+						icon="my-sites"
 						className="is-jetpack-info"
 					/>
 				</div>
