@@ -125,6 +125,7 @@
 }
 
 .jp-landing__plan-features-card {
+	flex-grow: 1;
 	box-sizing: border-box;
 	max-width: 49.5%;
 	background-color: $white;
