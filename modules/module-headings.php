@@ -142,7 +142,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'plugin-search' => array(
 				'name' => _x( 'Plugin Search Hints', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Make suggestions for Jetpack features when searching for plugins', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Make suggestions when people search the plugin directory for things that Jetpack already does for them.', 'Module Description', 'jetpack' ),
 			),
 
 			'post-by-email' => array(
