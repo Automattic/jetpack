@@ -41,7 +41,6 @@
 // Full Page Connection Banner
 // only show when Jetpack is disconnected
 .jetpack-disconnected {
-
 	.jp-connect-full__container {
 		box-sizing: border-box;
 		position: absolute;
@@ -49,7 +48,7 @@
 			right: 0;
 			bottom: rem( 20px );
 			left: 0;
-		z-index: 9999; // to sit over other elements
+		z-index: 999; // to sit over other elements
 		background: rgb( 241, 241, 241 );
 		text-align: center;
 
@@ -79,6 +78,18 @@
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
 
+	}
+
+	&.toplevel_page_jetpack .jp-connect-full__container {
+		bottom: 0;
+
+		@include minbreakpoint(tablet) {
+			left: 0;
+		};
+
+		@include breakpoint(tablet) {
+			top: 46px;
+		};
 	}
 }
 
@@ -134,7 +145,7 @@
 	margin: 0;
 	.dops-button.is-primary {
 		background: $green-primary;
-		border-color: $green-secondary;		
+		border-color: $green-secondary;
 
 		&:hover, &:focus {
 			background: $green-secondary;
@@ -168,15 +179,31 @@
 	flex-direction: row;
 	justify-content: stretch;
 
+	@include breakpoint(tablet) {
+		flex-wrap: wrap;
+	};
+
 	.jp-connect-full__slide-card {
 		flex: 1;
 		text-align: left;
+		order: 2;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
 	}
 
 	.illustration {
+		order: 1;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
+
 		img {
 			margin: 2.5em 1em;
 			display: block;
+			min-width: 200px;
 
 			@include minbreakpoint(phablet) {
 				margin: 2.5em auto;

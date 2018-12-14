@@ -35,6 +35,7 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function add_actions() {
+		global $pagenow;
 
 		// If user is not an admin and site is in Dev Mode, don't do anything
 		if ( ! current_user_can( 'manage_options' ) && Jetpack::is_development_mode() ) {
@@ -60,6 +61,18 @@ abstract class Jetpack_Admin_Page {
 
 		if ( ! self::$block_page_rendering_for_idc ) {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
+		}
+		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
+		if (
+			( 'admin.php' === $pagenow && 'jetpack' === $_GET['page'] )
+			&& ! Jetpack::is_active()
+			&& current_user_can( 'jetpack_connect' )
+			&& ! Jetpack::is_development_mode()
+		) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
+			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
+			add_action( 'admin_notices', array( 'Jetpack_Connection_Banner', 'render_connect_prompt_full_screen' ) );
+			delete_transient( 'activated_jetpack' );
 		}
 
 		// Check if the site plan changed and deactivate modules accordingly.
@@ -233,7 +246,7 @@ abstract class Jetpack_Admin_Page {
 			#wpbody-content {
 				background-color: #f3f6f8;
 			}
-			
+
 			#jp-plugin-container .wrap {
 				margin: 0 auto;
 				max-width:45rem;
