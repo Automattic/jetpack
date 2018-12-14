@@ -267,9 +267,9 @@ EOT;
 	 */
 	public function render_block( $attributes ) {
 		$block_attributes = array(
-			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) ? (bool) $attributes['displayThumbnails'] : false,
+			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
-			'show_context'    => isset( $attributes['displayContext'] ) ? (bool) $attributes['displayContext'] : false,
+			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
