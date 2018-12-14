@@ -228,6 +228,30 @@
  * Widgets
  */
 
+/* Widget List Resets */
+.widget_authors ul,
+.widget_author_grid ul,
+.widget_jp_blogs_i_follow ul,
+.widget_links ul,
+.widget_rss_links ul {
+	list-style: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.widget_links li,
+.widget_jp_blogs_i_follow li,
+.widget_rss_links li {
+	color: #767676;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	font-size: calc(22px * 1.125);
+	font-weight: 700;
+	line-height: 1.2;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+
 /* Authors Widget */
 .widget.widget_authors ul li > ul {
 	list-style-type: disc;
@@ -297,19 +321,40 @@
 	padding: 10px 12px;
 }
 
-/* RSS Links */
-.widget_rss_links ul {
-	list-style: none;
-	padding-left: 0;
-	padding-right: 0;
+/* RSS Feed Widget */
+.widget_rss li a.rsswidget {
+	display: block;
+	margin: 1rem 0 0.5rem;
 }
 
-.widget_rss_links li {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-	font-size: calc(22px * 1.125);
-	font-weight: bold;
-	line-height: 1.2;
-	padding-bottom: 0.75rem;
+.widget_rss .rssSummary {
+	font-family: "NonBreakingSpaceOverride", "Hoefler Text", "Baskerville Old Face", Garamond, "Times New Roman", serif;
+	font-weight: 400;
+	font-size: 22px;
+}
+
+.widget_rss cite,
+.widget_rss .rss-date {
+	color: #9c9c9c;
+	display: block;
+	font-size: 0.71111em;
+	font-weight: 500;
+	margin: 0.5rem 0;
+}
+
+.widget_rss cite {
+	font-style: normal;
+}
+
+.widget_rss cite:before {
+	content: "\2014\00a0";
+}
+
+/* Search widget override */
+@media only screen and (min-width: 600px) {
+	.widget.widget_search .search-field {
+		max-width: calc( 50vw - 20% );
+	}
 }
 
 /**
