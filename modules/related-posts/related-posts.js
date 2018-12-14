@@ -196,9 +196,9 @@
 
 	function afterPostsHaveLoaded() {
 		jprp.setVisualExcerptHeights();
-		$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click(function() {
+		$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click( function() {
 			this.href = jprp.getTrackedUrl( this );
-		});
+		} );
 	}
 
 	/**
