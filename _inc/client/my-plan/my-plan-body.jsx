@@ -286,7 +286,7 @@ class MyPlanBody extends React.Component {
 						( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'High-speed, high-definition video hosting that uses your server space efficiently, and comes with no third-party ads.' ) }</p>
+								<p>{ __( 'High-speed, high-definition video hosting with no third-party ads.' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
 										<Button onClick={ this.handleButtonClickForTracking( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
