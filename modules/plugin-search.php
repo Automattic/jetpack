@@ -64,6 +64,32 @@ class Jetpack_Plugin_Search {
 		);
 	}
 
+	/**
+	 * Get the plugin repo's data for Jetpack to populate the fields with.
+	 *
+	 * @return array|mixed|object|WP_Error
+	 */
+	public static function get_jetpack_plugin_data() {
+		$data = get_transient( 'jetpack_plugin_data' );
+
+		if ( ! $data || is_wp_error( $data ) ) {
+			include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+			$data = plugins_api( 'plugin_information', array(
+				'slug' => 'jetpack',
+				'is_ssl' => is_ssl(),
+				'fields' => array(
+					'banners' => true,
+					'reviews' => true,
+					'active_installs' => true,
+					'versions' => false,
+					'sections' => false,
+				),
+			) );
+			set_transient( 'jetpack_plugin_data', $data, DAY_IN_SECONDS );
+		}
+
+		return $data;
+	}
 
 	/**
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
@@ -97,34 +123,21 @@ class Jetpack_Plugin_Search {
 			}
 
 			if ( isset( $matching_module ) ) {
-				// @todo load the live Jetpack plugin data locally and prefill this array, or else avoiding needing most of this if possible
-				// include_once ABSPATH . '/wp-admin/includes/plugin-install.php';
-				// $plugin_meta = plugins_api( 'plugin_information', array( 'slug' => 'jetpack' ) );
+				$inject = (array) self::get_jetpack_plugin_data();
 
-				$inject = array(
-					'name' => '',
+				$overrides = array(
+					'plugin-search' => true, // Helps to determine if that an injected card.
+					'name' => sprintf(       // Supplement name/description so that they clearly indicate this was added.
+						_x( 'Jetpack: %s', 'Jetpack: Module Name', 'jetpack' ),
+						$jetpack_modules_list[ $matching_module ]['name']
+					),
+					'short_description' => sprintf(
+						_x( 'You already have Jetpack installed, and it provides this functionality. %s', 'You already have Jetpack installed... Module description.', 'jetpack' ),
+						$jetpack_modules_list[ $matching_module ]['short_description']
+					),
+					'requires_connection' => (bool) $jetpack_modules_list[ $matching_module ]['requires_connection'],
 					'slug' => 'jetpack-plugin-search',
-					'version' => '',
-					'author' => '',
-					'author_profile' => '',
-					'requires' => '',
-					'tested' => '',
-					'requires_php' => '',
-					'rating' => 100,
-					'ratings' => array('1'=>1,'2'=>2,'3'=>3,'4'=>4,'5'=>5),
-					'num_ratings' => 100,
-					'support_threads' => 100,
-					'support_threads_resolved' => 100,
-					'active_installs' => 3000000,
-					'downloaded' => 10000000,
-					'last_updated' => '',
-					'added' => '',
-					'homepage' => '',
-					'download_link' => '',
-					'tags' => array(),
-					'donate_link' => '',
-					'short_description' => '',
-					'description' => '',
+					'version' => JETPACK__VERSION,
 					'icons' => array(
 						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
 						'2x'  => 'https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404',
@@ -133,19 +146,7 @@ class Jetpack_Plugin_Search {
 				);
 
 				// Splice in the base module data
-				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ] );
-
-				// Helps to determine if that an injected card.
-				$inject['plugin-search'] = true;
-				// Supplement name/description so that they clearly indicate this was added.
-				$inject['name'] = sprintf(
-					__( 'Jetpack: %s', 'Jetpack: Module Name' ),
-					$jetpack_modules_list[ $matching_module ]['name']
-				);
-				$inject['short_description'] = sprintf(
-					__( 'You already have Jetpack installed, and it provides this functionality. %s', 'You already have Jetpack installed... Module description.' ),
-					$jetpack_modules_list[ $matching_module ]['short_description']
-				);
+				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ], $overrides );
 
 				// Add it to the top of the list
 				array_unshift( $result->plugins, $inject );
