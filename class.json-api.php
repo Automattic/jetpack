@@ -649,18 +649,18 @@ class WPCOM_JSON_API {
 			return wp_count_comments( $post_id );
 		}
 
-		$where = 'WHERE comment_type NOT IN (';
-		foreach( $exclude as $excluded_type ) {
-			$where .= "'" . $excluded_type . "',";
-		}
-		$where = rtrim( $where, ',' );
-		$where .= ')';
+		array_walk( $exclude, 'esc_sql' );
+		$where = sprintf(
+			"WHERE comment_type NOT IN ( '%s' )",
+			implode( "','", $exclude )
+		);
 
-
-		$count = $wpdb->get_results( "SELECT comment_approved, COUNT(*) AS num_comments
-			FROM {$wpdb->comments}
-			{$where}
-			GROUP BY comment_approved"
+		$count = $wpdb->get_results(
+			"SELECT comment_approved, COUNT(*) AS num_comments
+				FROM $wpdb->comments
+				{$where}
+				GROUP BY comment_approved
+			"
 		);
 
 		$approved = array(
