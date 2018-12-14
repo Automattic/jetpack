@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { imagePath } from 'constants/urls';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 class MyPlanHeader extends React.Component {
 	trackLearnMore = () => {
@@ -49,7 +49,7 @@ class MyPlanHeader extends React.Component {
 										{ __( 'Upgrade to a weekly coffee and fully protect your site from malware, infiltrations, and security loopholes with automated malware scanning.' ) }
 									</p>
 									<p className="jp-landing-plans__header-btn-container">
-										<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ this.props.plansMainTopUpgradeUrl } className="is-primary">
 											{ __( 'Learn more' ) }
 										</Button>
 									</p>
@@ -166,6 +166,7 @@ export default connect(
 	( state ) => {
 		return {
 			showBackups: showBackups( state ),
+			plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
 		};
 	}
 )( MyPlanHeader );

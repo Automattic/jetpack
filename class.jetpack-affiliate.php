@@ -57,6 +57,22 @@ class Jetpack_Affiliate {
 		 */
 		return apply_filters( 'jetpack_affiliate_code', get_option( 'jetpack_affiliate_code', '' ) );
 	}
+
+	/**
+	 * Returns the passed URL with the affiliate code added as a URL query arg.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param string $url The URL where the code will be added.
+	 *
+	 * @return string The passed URL with the code added.
+	 */
+	public function add_code_as_query_arg( $url ) {
+		if ( '' !== ( $aff = $this->get_affiliate_code() ) ) {
+			$url = add_query_arg( 'aff', $aff, $url );
+		}
+		return $url;
+	}
 }
 
 add_action( 'init', array( 'Jetpack_Affiliate', 'init' ) );

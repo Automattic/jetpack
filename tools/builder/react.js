@@ -13,9 +13,10 @@ import sourcemaps from 'gulp-sourcemaps';
 import tap from 'gulp-tap';
 import uglify from 'gulp-uglify';
 import webpack from 'webpack';
+import { JSDOM } from 'jsdom';
 
 function getWebpackConfig() {
-	return Object.create( require( './../../webpack.config.js' ) );
+	return require( './../../webpack.config.js' );
 }
 
 export const watch = function() {
@@ -160,53 +161,51 @@ function onBuild( done, err, stats ) {
 export const build = gulp.series( 'react:master' );
 
 function buildStatic( done ) {
-	const jsdom = require( 'jsdom' );
-
 	log( 'Building static HTML from built JS…' );
+	const { window } = new JSDOM();
+	const { document } = ( new JSDOM( '' ) ).window;
 
-	jsdom.env( '', function( err, window ) {
-		global.window = window;
-		global.document = window.document;
-		global.navigator = window.navigator;
+	global.window = window;
+	global.document = document;
+	global.navigator = window.navigator;
 
-		window.Initial_State = {
-			dismissedNotices: [],
-			connectionStatus: {
-				devMode: {
-					isActive: false
-				}
-			},
-			userData: {
-				currentUser: {
-					permissions: {}
-				}
+	window.Initial_State = {
+		dismissedNotices: [],
+		connectionStatus: {
+			devMode: {
+				isActive: false
 			}
-		};
-
-		try {
-			// normalize path
-			const path = require.resolve( __dirname + '/../../_inc/build/static.js' );
-
-			// Making sure NodeJS requires this file every time this is called
-			delete require.cache[ path ];
-
-			// Will throw when `path` does not exist, skipping file generation below that depends on `path`.
-			require( path );
-
-			gulp.src( [ '_inc/build/static*' ] )
-				.pipe( tap( function( file ) {
-					fs.unlinkSync( file.path );
-				} ) )
-				.on( 'end', function() {
-					fs.writeFileSync( __dirname + '/../../_inc/build/static.html', window.staticHtml );
-					fs.writeFileSync( __dirname + '/../../_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFileSync( __dirname + '/../../_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
-
-					done();
-				} );
-		} catch ( error ) {
-			done( error );
+		},
+		userData: {
+			currentUser: {
+				permissions: {}
+			}
 		}
-	} );
+	};
+
+	try {
+		// normalize path
+		const path = require.resolve( __dirname + '/../../_inc/build/static.js' );
+
+		// Making sure NodeJS requires this file every time this is called
+		delete require.cache[ path ];
+
+		// Will throw when `path` does not exist, skipping file generation below that depends on `path`.
+		require( path );
+
+		gulp.src( [ '_inc/build/static*' ] )
+			.pipe( tap( function( file ) {
+				fs.unlinkSync( file.path );
+			} ) )
+			.on( 'end', function() {
+				fs.writeFileSync( __dirname + '/../../_inc/build/static.html', window.staticHtml );
+				fs.writeFileSync( __dirname + '/../../_inc/build/static-noscript-notice.html', window.noscriptNotice );
+				fs.writeFileSync( __dirname + '/../../_inc/build/static-version-notice.html', window.versionNotice );
+				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
+
+				done();
+			} );
+	} catch ( error ) {
+		done( error );
+	}
 }

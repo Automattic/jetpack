@@ -11,12 +11,12 @@ import analytics from 'lib/analytics';
 import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
 import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
+} from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Monitor = moduleSettingsForm(
+export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
 			analytics.tracks.recordJetpackClick( 'configure-monitor' );

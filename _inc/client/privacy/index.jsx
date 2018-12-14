@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -44,7 +44,7 @@ class Privacy extends React.Component {
 		// Connected
 		toggleTracking: PropTypes.func,
 
-		// Provided by moduleSettingsForm
+		// Provided by withModuleSettingsFormHelpers
 		getOptionValue: PropTypes.func,
 		isSavingAnyOption: PropTypes.func,
 	};
@@ -190,4 +190,4 @@ export default connect(
 			fetchTrackingSettings: () => dispatch( fetchTrackingSettings() )
 		};
 	}
-)( moduleSettingsForm( Privacy ) );
+)( withModuleSettingsFormHelpers( Privacy ) );

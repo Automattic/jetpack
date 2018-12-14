@@ -3,10 +3,12 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
@@ -64,6 +66,12 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Maximize your site’s visibility in search engines and view traffic stats in real time.' ) }
+					className="jp-settings-description"
+				/>
+
 				{
 					foundSearch && (
 						<Search

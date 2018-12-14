@@ -40,7 +40,7 @@ abstract class Publicize_Base {
 	 * All users with this cap can un-globalize all other global connections, and globalize any of their own
 	 * Globalized connections cannot be unselected by users without this capability when publishing
 	 */
-	public $GLOBAL_CAP = 'edit_others_posts';
+	public $GLOBAL_CAP = 'publish_posts';
 
 	/**
 	* Sets up the basics of Publicize
@@ -782,7 +782,15 @@ abstract class Publicize_Base {
 	function register_gutenberg_extension() {
 		// TODO: Not really a block. The underlying logic doesn't care, so we should rename to
 		// `jetpack_register_gutenberg_extension()` (to account for both Gutenblocks and Gutenplugins).
-		jetpack_register_block( 'publicize' );
+		$object_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		if ( $this->current_user_can_access_publicize_data( $object_id ) ) {
+			jetpack_register_block( 'publicize' );
+		} else {
+			jetpack_register_block( 'publicize', array(), array(
+				'available'          => false,
+				'unavailable_reason' => 'unauthorized',
+			) );
+		}
 	}
 
 	/**

@@ -4,11 +4,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { userCanManageModules } from 'state/initial-state';
@@ -71,6 +71,12 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __( 'Compose content the way you want to and streamline your publishing experience.' ) }
+					className="jp-settings-description"
+				/>
+
 				{
 					this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
 						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />

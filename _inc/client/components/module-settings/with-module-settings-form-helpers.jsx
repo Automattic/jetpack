@@ -19,7 +19,7 @@ import { connectModuleOptions } from 'components/module-settings/connect-module-
  * @param  {React.Component} InnerComponent The component with a top level form element
  * @return {[React.Component]}	The component with new functionality
  */
-export function ModuleSettingsForm( InnerComponent ) {
+export function withModuleSettingsFormHelpers( InnerComponent ) {
 	class SettingsForm extends React.Component {
 		state = {
 			options: {}

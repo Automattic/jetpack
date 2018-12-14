@@ -126,7 +126,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
@@ -144,7 +144,7 @@ class Jetpack_Sync_Listener {
 			 *
 			 * @since 4.2.0
 			 *
-			 * @module sync 
+			 * @module sync
 			 *
 			 * @param array The action parameters
 			 */
@@ -202,7 +202,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
@@ -304,6 +304,9 @@ class Jetpack_Sync_Listener {
 	}
 
 	function get_request_url() {
-		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
+			return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		}
+		return is_admin() ? get_admin_url( get_current_blog_id() ) : home_url();
 	}
 }

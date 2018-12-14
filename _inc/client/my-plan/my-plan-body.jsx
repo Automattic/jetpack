@@ -30,7 +30,7 @@ import {
 	getModuleOverride
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 class MyPlanBody extends React.Component {
 	static propTypes = {
@@ -51,7 +51,7 @@ class MyPlanBody extends React.Component {
 
 	handleButtonClickForTracking = target => {
 		return () => this.trackPlansClick( target );
-	}
+	};
 
 	activateAds = () => {
 		this.props.activateModule( 'wordads' );
@@ -367,8 +367,12 @@ class MyPlanBody extends React.Component {
 								<p>{ __( 'Always-on security including real-time backups, malware scanning, and automatic threat resolution.' ) }</p>
 								<p>{ __( 'Grow your traffic and revenue with social media scheduling, enhanced site search, SEO tools, PayPal payments, and an ad program.' ) }</p>
 								<p>
-									<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
-										{ __( 'Compare Plans' ) }
+									<Button
+										onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
+										href={ this.props.comparePlansUpgradeUrl }
+										className="is-primary"
+										>
+											{ __( 'Compare plans' ) }
 									</Button>
 								</p>
 							</div>
@@ -382,8 +386,12 @@ class MyPlanBody extends React.Component {
 								<p>{ __( 'Unlimited access to hundreds of premium WordPress themes with dedicated support directly from the theme authors.' ) }</p>
 								<p>{ __( 'A superior search experience powered by Elasticsearch providing your users with faster and more relevant search results. Previously only available to WordPress.com VIP customers and trusted by industry-leading brands.' ) }</p>
 								<p>
-									<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
-										{ __( 'Explore Jetpack Professional' ) }
+									<Button
+										onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
+										href={ this.props.plansComparePremiumUpgradeUrl }
+										className="is-primary"
+										>
+											{ __( 'Explore Jetpack Professional' ) }
 									</Button>
 								</p>
 							</div>
@@ -429,10 +437,14 @@ class MyPlanBody extends React.Component {
 						</div>
 
 						<p className="jp-landing__plan-features-link">
-							<Button onClick={ this.handleButtonClickForTracking( 'compare_plans' ) } href={ 'is-free-plan' === planClass
-								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
-								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
-								{ __( 'Compare Plans' ) }
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
+								href={ 'is-free-plan' === planClass
+									? this.props.plansMainBottomUpgradeUrl
+									: this.props.plansMainBottomDevModeUpgradeUrl }
+								className="is-primary"
+								>
+									{ __( 'Compare plans' ) }
 							</Button>
 						</p>
 					</div>
@@ -478,6 +490,10 @@ export default connect(
 			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
 			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
+			comparePlansUpgradeUrl: getUpgradeUrl( state, 'plans-compare-personal' ),
+			plansMainBottomUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom' ),
+			plansMainBottomDevModeUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom-dev-mode' ),
+			plansComparePremiumUpgradeUrl: getUpgradeUrl( state, 'plans-compare-premium' ),
 		};
 	},
 	( dispatch ) => {

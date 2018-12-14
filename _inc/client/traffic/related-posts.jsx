@@ -15,7 +15,7 @@ import {
 	FormLabel
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -106,57 +106,61 @@ class RelatedPostsComponent extends React.Component {
 										}
 									</span>
 						</CompactFormToggle>
-						<FormLabel className="jp-form-label-wide">
-							{ __( 'Preview', { context: 'A header for a preview area in the configuration screen.' } ) }
-						</FormLabel>
-						<Card className="jp-related-posts-preview">
-							{
-								this.state.show_headline && (
-									<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
-								)
-							}
-							{
-								[
-									{
-										url: '1-wpios-ipad-3-1-viewsite.png',
-										text: __( 'Big iPhone/iPad Update Now Available' ),
-										context: __( 'In "Mobile"', {
-											comment: 'It refers to the category where a post was found. Used in an example preview.'
-										} )
-									},
-									{
-										url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
-										text: __( 'The WordPress for Android App Gets a Big Facelift' ),
-										context: __( 'In "Mobile"', {
-											comment: 'It refers to the category where a post was found. Used in an example preview.'
-										} )
-									},
-									{
-										url: 'videopresswedding.jpg',
-										text: __( 'Upgrade Focus: VideoPress For Weddings' ),
-										context: __( 'In "Upgrade"', {
-											comment: 'It refers to the category where a post was found. Used in an example preview.'
-										} )
-									}
-								].map( ( item, index ) => (
-									<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
+						{ isRelatedPostsActive &&
+							<div>
+								<FormLabel className="jp-form-label-wide">
+									{ __( 'Preview', { context: 'A header for a preview area in the configuration screen.' } ) }
+								</FormLabel>
+								<Card className="jp-related-posts-preview">
+								{
+									this.state.show_headline && (
+										<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
+									)
+								}
+								{
+									[
 										{
-											this.state.show_thumbnails && (
-												<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } alt={ item.text } />
-											)
+											url: '1-wpios-ipad-3-1-viewsite.png',
+											text: __( 'Big iPhone/iPad Update Now Available' ),
+											context: __( 'In "Mobile"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
+										},
+										{
+											url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+											text: __( 'The WordPress for Android App Gets a Big Facelift' ),
+											context: __( 'In "Mobile"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
+										},
+										{
+											url: 'videopresswedding.jpg',
+											text: __( 'Upgrade Focus: VideoPress For Weddings' ),
+											context: __( 'In "Upgrade"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
 										}
-										<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
-										<p className="jp-related-posts-preview__post-context">
-											{ item.context }
-										</p>
-									</div>
-								) )
-							}
-						</Card>
+									].map( ( item, index ) => (
+										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
+											{
+												this.state.show_thumbnails && (
+													<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } alt={ item.text } />
+												)
+											}
+											<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
+											<p className="jp-related-posts-preview__post-context">
+												{ item.context }
+											</p>
+										</div>
+									) )
+								}
+								</Card>
+							</div>
+						}
 					</FormFieldset>
 				</SettingsGroup>
 				{
-					! this.props.isUnavailableInDevMode( 'related-posts' ) && (
+					! this.props.isUnavailableInDevMode( 'related-posts' ) && isRelatedPostsActive && (
 						<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>
 							{ __( 'Configure related posts in the Customizer' ) }
 						</Card>
@@ -167,4 +171,4 @@ class RelatedPostsComponent extends React.Component {
 	}
 }
 
-export const RelatedPosts = moduleSettingsForm( RelatedPostsComponent );
+export const RelatedPosts = withModuleSettingsFormHelpers( RelatedPostsComponent );

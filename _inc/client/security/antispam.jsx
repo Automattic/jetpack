@@ -21,12 +21,12 @@ import analytics from 'lib/analytics';
  */
 import { FormFieldset, FormLabel } from 'components/forms';
 import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
+} from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Antispam = moduleSettingsForm(
+export const Antispam = withModuleSettingsFormHelpers(
 	class extends Component {
 		state = {
 			apiKey: this.props.getOptionValue( 'wordpress_api_key' ),

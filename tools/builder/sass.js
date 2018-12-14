@@ -73,7 +73,7 @@ function doRTL( files, done ) {
 			success = 'DOPS Components RTL CSS finished.';
 			break;
 		case 'calypsoify':
-			path = './modules/calypsoify/style*.min.css';
+			path = [ './modules/calypsoify/style*.min.css', '!./modules/calypsoify/style*rtl.min.css' ];
 			dest = './modules/calypsoify';
 			success = 'Calypsoify RTL CSS finished.';
 			renameArgs = function( pathx ) {

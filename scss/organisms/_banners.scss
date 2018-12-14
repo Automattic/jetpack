@@ -207,7 +207,7 @@
 }
 
 
-// Plugin List Connection Banners
+// Plugin List + wp-admin dashboard Connection Banners (displayed after plugin activation)
 // Written in the style of React to stay consistent with the Jetpack interior
 
 // wp-admin overrides
@@ -270,6 +270,8 @@
 	line-height: 1.6;
 }
 
+
+
 .jp-wpcom-connect__content-icon {
 	float: right;
 	margin: 0 rem( 24px ) 0 rem( 36px );
@@ -291,6 +293,16 @@
 	&.jp__slide-is-active {
 		display: block;
 	}
+}
+
+.jp-wpcom-connect__slide ul {
+	list-style: disc;
+	padding: 0 0 0 rem( 15px );
+}
+
+.jp-wpcom-connect__slide ul li {
+	color: darken( $gray, 20% );
+	font-size: rem( 12px );
 }
 
 .jp-wpcom-connect__content-container .jp-banner__button-container {
