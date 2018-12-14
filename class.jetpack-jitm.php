@@ -317,6 +317,15 @@ class Jetpack_JITM {
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
 		unset( $envelopes['last_response_time'] );
 
+		/**
+		 * Allow adding your own custom JITMs after a set of JITMs has been received.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param array $envelopes array of existing JITMs.
+		 */
+		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes );
+
 		foreach ( $envelopes as $idx => &$envelope ) {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;

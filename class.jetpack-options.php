@@ -92,6 +92,7 @@ class Jetpack_Options {
 			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
+			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
 		);
 	}
 
