@@ -67,7 +67,7 @@ class WelcomePersonal extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'connect-jetpack.svg' } width="160" alt={ __( 'Welcome personal' ) } style={ { paddingLeft: '60px' } } /> }
-				title={ __( 'Your Jetpack Personal plan is powering up!' ) }
+				title={ __( 'Explore your Jetpack Personal plan!' ) }
 				content={ this.renderInnerContent() }
 				dismiss={ this.props.dismiss }
 				className="jp-welcome-new-plan is-personal"

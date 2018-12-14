@@ -99,7 +99,7 @@ class WelcomePremium extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'generating-cash-2.svg' } width="250" alt={ __( 'Welcome Premium' ) } /> }
-				title={ __( 'Your Jetpack Premium plan is powering up!' ) }
+				title={ __( 'Explore your Jetpack Premium plan!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }
