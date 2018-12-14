@@ -205,6 +205,8 @@ class Jetpack_Plugin_Search {
 		// Inject module data into js.
 		wp_localize_script( 'plugin-search', 'jetpackModuleInfo', $plugin );
 
+		$links = array();
+
 		// Jetpack installed, active, feature not enabled; prompt to enable.
 		if ( Jetpack::is_active() && ! Jetpack::is_module_active( $plugin['module'] ) ) {
 			$links = array(
