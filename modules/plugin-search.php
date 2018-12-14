@@ -136,7 +136,7 @@ class Jetpack_Plugin_Search {
 						$jetpack_modules_list[ $matching_module ]['short_description']
 					),
 					'requires_connection' => (bool) $jetpack_modules_list[ $matching_module ]['requires_connection'],
-					'slug' => 'jetpack-plugin-search',
+					'slug' => 'jetpack&plugin-search',
 					'version' => JETPACK__VERSION,
 					'icons' => array(
 						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
@@ -196,7 +196,7 @@ class Jetpack_Plugin_Search {
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
 		if (
-			! 'jetpack-plugin-search' === $plugin['slug'] ||
+			'jetpack&plugin-search' !== $plugin['slug'] ||
 			// Make sure we show injected this card only on first page.
 			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
 			) {
@@ -221,7 +221,7 @@ class Jetpack_Plugin_Search {
 		$links[] = '<a href="' . $plugin['learn_more_button'] . '">' . __( 'More Information', 'jetpack' ) . '</a>';
 
 		// Add some styling.
-		$links[] = '<style>.plugin-card-jetpack-plugin-search { border: solid 2px green; }</style>';
+		$links[] = '<style>.plugin-card-jetpackplugin-search { border: solid 2px green; }</style>';
 		return $links;
 	}
 }
