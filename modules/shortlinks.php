@@ -128,5 +128,5 @@ if ( function_exists( 'register_rest_field' ) ) {
 	add_action( 'rest_api_init', 'wpme_rest_register_shortlinks' );
 }
 
-// Register Gutenberg block
+// Register Gutenberg plugin
 jetpack_register_plugin( 'shortlinks' );
