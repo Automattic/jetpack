@@ -67,7 +67,7 @@ class AtAGlance extends Component {
 					}
 					externalLinkPath={ this.props.isDevMode
 						? ''
-						: '#security'
+						: '#/security'
 					}
 					externalLinkClick={ trackSecurityClick }
 				/>;
