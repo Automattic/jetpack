@@ -5,12 +5,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
+import Card from 'components/card';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
 import VideoPressPrompt from './videopress-prompt';
@@ -24,6 +25,7 @@ class WelcomePremium extends Component {
 		// Preparing event handlers once to avoid calling bind on every render
 		this.clickCtaDismissVideo = this.clickCtaDismiss.bind( this, 'video' );
 		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
 	}
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
@@ -69,6 +71,11 @@ class WelcomePremium extends Component {
 				<p>
 					{ __( 'Start exploring Jetpack Premium now to see all the benefits of your new plan.' ) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}
@@ -92,7 +99,7 @@ class WelcomePremium extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'generating-cash-2.svg' } width="250" alt={ __( 'Welcome Premium' ) } /> }
-				title={ __( 'Your Jetpack Premium plan is powering up!' ) }
+				title={ __( 'Explore your Jetpack Premium plan!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }

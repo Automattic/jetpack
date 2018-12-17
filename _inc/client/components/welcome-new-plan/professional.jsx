@@ -5,12 +5,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
+import Card from 'components/card';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
@@ -26,6 +27,7 @@ class WelcomeProfessional extends Component {
 		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
 		this.clickCtaDismissSearch = this.clickCtaDismiss.bind( this, 'search' );
 		this.clickCtaDismissSeo = this.clickCtaDismiss.bind( this, 'seo' );
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
 	}
 
 	componentDidMount() {
@@ -78,6 +80,11 @@ class WelcomeProfessional extends Component {
 				<p>
 					{ __( 'Start exploring Jetpack Professional now to see all the benefits of your new plan.' ) }
 				</p>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}
@@ -125,7 +132,7 @@ class WelcomeProfessional extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'Welcome Professional' ) } /> }
-				title={ __( 'Your Jetpack Professional plan is taking care of business!' ) }
+				title={ __( 'Explore your Jetpack Professional plan!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }

@@ -16,10 +16,26 @@ import { imagePath } from 'constants/urls';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
 
 class WelcomePersonal extends Component {
+	constructor( props ) {
+		super( props );
+
+		// Preparing event handlers once to avoid calling bind on every render
+		this.clickCtaDismissGetStarted = this.clickCtaDismiss.bind( this, 'get-started' );
+	}
+
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
 			planClass: this.props.planClass,
 		} );
+	}
+
+	clickCtaDismiss( cta ) {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click', {
+			planClass: this.props.planClass,
+			cta: cta,
+		} );
+
+		this.props.dismiss();
 	}
 
 	renderInnerContent() {
@@ -38,14 +54,11 @@ class WelcomePersonal extends Component {
 					) }
 				</p>
 				<MonitorAkismetBackupsPrompt />
-				<Button
-					className="jp-welcome-new-plan__button"
-					href={ '#/traffic' }
-					onClick={ this.props.dismiss }
-					primary
-				>
-					{ __( 'Got it!' ) }
-				</Button>
+				<div className="jp-welcome-new-plan__button">
+					<Button onClick={ this.clickCtaDismissGetStarted }>
+						{ __( 'Got it' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	}
@@ -54,7 +67,7 @@ class WelcomePersonal extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'connect-jetpack.svg' } width="160" alt={ __( 'Welcome personal' ) } style={ { paddingLeft: '60px' } } /> }
-				title={ __( 'Your Jetpack Personal plan is powering up!' ) }
+				title={ __( 'Explore your Jetpack Personal plan!' ) }
 				content={ this.renderInnerContent() }
 				dismiss={ this.props.dismiss }
 				className="jp-welcome-new-plan is-personal"
