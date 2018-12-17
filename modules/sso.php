@@ -1130,7 +1130,7 @@ class Jetpack_SSO {
 				'message'     => esc_html__( "You've successfully signed in with WordPress.com Secure Sign On!", 'jetpack' ),
 				'icon'        => 'jetpack',
 				'list'        => array(),
-				'description' => esc_html__( 'Logging in with the same log-in credentials you use for WordPress.com ensures you always sign in to self-hosted WordPress.org sites quickly and securely.', 'jetpack' ),
+				'description' => esc_html__( 'Interested in learning more about how Secure Sign on keeps your site safer?', 'jetpack' ),
 				'classes'     => '',
 			),
 			'CTA'             => array(
