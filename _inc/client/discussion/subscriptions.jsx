@@ -65,7 +65,7 @@ class SubscriptionsComponent extends React.Component {
 
 			return this.props.isLinked
 				? <Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
-				: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Connect your user account to WordPress.com to view your email followers' ) } </Card>;
+				: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Create a Jetpack account to view your email followers' ) } </Card>;
 		};
 
 		return (

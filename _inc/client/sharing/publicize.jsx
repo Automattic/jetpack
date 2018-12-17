@@ -55,7 +55,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							target="_blank"
 							rel="noopener noreferrer"
 							href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }>
-							{ __( 'Connect your user account to WordPress.com to use this feature' ) }
+							{ __( 'Create a Jetpack account to use this feature' ) }
 						</Card>
 					);
 			};

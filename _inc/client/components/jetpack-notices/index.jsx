@@ -168,10 +168,11 @@ export class UserUnlinked extends React.Component {
 			return (
 				<div className="jp-unlinked-notice">
 					<JetpackBanner
-						title={ __( 'Connect your account to get the most out of Jetpack' ) }
-						callToAction={ __( 'Connect to WordPress.com' ) }
+						title={ __( 'Jetpack is powering your site, but to access all of its features you’ll need to create an account.' ) }
+						callToAction={ __( 'Create account' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
 						icon="my-sites"
+						className="is-jetpack-info"
 					/>
 				</div>
 			);
