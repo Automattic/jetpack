@@ -39,7 +39,7 @@ class JumpStart extends Component {
 	dismissLink = () => {
 		return (
 			<a
-				href="javascript:void(0)"
+				href={ '#/settings' }
 				onClick={ this.props.jumpStartSkip }
 				className="jp-jumpstart__skip-link"
 			>
