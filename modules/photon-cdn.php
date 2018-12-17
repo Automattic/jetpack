@@ -30,7 +30,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		add_action( 'admin_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'admin_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
-		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_script_relative_path' ) );
+		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_script_relative_path' ), 10, 2 );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	}
 
 	/**
-	 * Ensure correct relative path when
+	 * Ensure use of the correct relative path when determining the JavaScript file names.
 	 *
 	 * @param string $relative The relative path of the script. False if it could not be determined.
      * @param string $src      The full source url of the script.
