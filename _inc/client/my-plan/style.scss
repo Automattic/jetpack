@@ -125,16 +125,28 @@
 }
 
 .jp-landing__plan-features-card {
+	flex-grow: 1;
+	box-sizing: border-box;
+	max-width: 49.5%;
+	background-color: $white;
 	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
 		0 1px 2px lighten( $gray, 30% );
-	border-radius: 3px;
+
+	.is-loading & {
+		width: 49.5%;
+	}
+
+	&:nth-child(2n + 1):nth-last-of-type(1) {
+		min-width: 100%;
+	}
 
 	@include breakpoint( ">660px" ) {
-		margin-bottom: rem( 32px );
+		margin-bottom: 1%;
 	}
 
 	@include breakpoint( "<660px" ) {
-		margin-bottom: rem( 16px );
+		max-width: 100%;
+		margin-bottom: rem( 8px );
 	}
 
 	@include breakpoint( ">480px" ) {
@@ -144,10 +156,6 @@
 	@include breakpoint( "<480px" ) {
 		padding: rem( 16px );
 	}
-
-	&:last-of-type {
-		margin-bottom: 0;
-	}
 }
 
 .jp-landing__plan-features-title {
@@ -155,13 +163,14 @@
 }
 
 .jp-landing__plan-features {
-
-	@include breakpoint( ">660px" ) {
-		padding: 0 rem( 32px ) rem( 32px );
-	}
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	justify-content: space-between;
+	margin-bottom: rem( 32px );
 
 	@include breakpoint( "<660px" ) {
-		padding: rem( 16px );
+		display: block;
 	}
 }
 
@@ -228,4 +237,9 @@
 .jp-landing__plan-features-text.is-placeholder {
 	height: rem( 44px );
 	max-width: 75%;
+}
+
+.jp-landing__plan-features-link {
+	width: 100%;
+	text-align: center;
 }
