@@ -76,6 +76,7 @@ class Jetpack_Gutenberg {
 	// PLUGINS
 	private static $default_plugins = array(
 		'publicize',
+		'shortlinks',
 	);
 	/**
 	 * @var array Array of plugins information.
