@@ -48,9 +48,9 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( true === siteAcceleratorStatus ) {
 				const messages = {
-					progress: __( 'Disabling Site accelerator…' ),
+					progress: __( 'Disabling site accelerator…' ),
 					success: __( 'Site accelerator is no longer speeding up your site!' ),
-					error: error => __( 'Error disabling Site accelerator. %(error)s', { args: { error: error } } )
+					error: error => __( 'Error disabling site accelerator. %(error)s', { args: { error: error } } )
 				};
 				let settings = {};
 
