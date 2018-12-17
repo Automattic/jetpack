@@ -21,7 +21,7 @@ class Jetpack_Calypsoify {
 
 	public function setup() {
 		add_action( 'admin_init', array( $this, 'check_param' ) );
-		if ( 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true ) ) {
+		if ( 0 < (int) get_user_meta( get_current_user_id(), 'calypsoify', true ) ) {
 
 			// Masterbar is currently required for this to work properly. Mock the instance of it
 			if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
@@ -175,6 +175,15 @@ class Jetpack_Calypsoify {
 	}
 
 	public function admin_color_override( $color ) {
+		$theme = get_user_meta( get_current_user_id(), 'calypsoify', true );
+		switch( $theme ) {
+			case '1':
+				return "fresh";
+			case '2':
+				return 'classic-bright';
+			case '3':
+				return 'classic-blue';
+		}
 		return 'fresh';
 	}
 
@@ -303,9 +312,14 @@ class Jetpack_Calypsoify {
 
 	public function check_param() {
 		if ( isset( $_GET['calypsoify'] ) ) {
-			if ( 1 == (int) $_GET['calypsoify'] ) {
+			$calypso_theme = $_GET['calypsoify'];
+			if ( '1' == $calypso_theme || 'legacy' == $calypso_theme  ) {
 				update_user_meta( get_current_user_id(), 'calypsoify', 1 );
-			} else {
+			} elseif( 'classic-bright' == $calypso_theme ) {
+				update_user_meta( get_current_user_id(), 'calypsoify', 2 );
+			} elseif( 'classic-blue' == $calypso_theme ) {
+				update_user_meta( get_current_user_id(), 'calypsoify', 3 );
+			}else {
 				update_user_meta( get_current_user_id(), 'calypsoify', 0 );
 			}
 
