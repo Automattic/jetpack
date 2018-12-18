@@ -137,6 +137,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 6.9.0
 	 */
 	public function test_from_blocks_from_post_id_is_array() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
@@ -151,6 +156,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 6.9.0
 	 */
 	public function test_from_blocks_from_post_id_is_correct_array() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
 		$post_info = $this->get_post_with_image_block();
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
@@ -165,6 +175,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 6.9.0
 	 */
 	public function test_from_blocks_from_html_is_empty_array() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
 		$html = '<!-- wp:image --><div class="wp-block-image"><figure class="wp-block-image"><img src="https://example.com/image.jpg" alt=""/></figure></div><!-- /wp:image -->';
 
 		$images = Jetpack_PostImages::from_blocks( $html );
