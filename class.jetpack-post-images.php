@@ -187,23 +187,7 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post_id );
 
 		foreach ( $post_images as $post_image ) {
-			$meta = wp_get_attachment_metadata( $post_image->ID );
-			// Must be larger than 200x200
-			if ( !isset( $meta['width'] ) || $meta['width'] < $width )
-				continue;
-			if ( !isset( $meta['height'] ) || $meta['height'] < $height )
-				continue;
-
-			$url = wp_get_attachment_url( $post_image->ID );
-
-			$images[] = array(
-				'type'       => 'image',
-				'from'       => 'attachment',
-				'src'        => $url,
-				'src_width'  => $meta['width'],
-				'src_height' => $meta['height'],
-				'href'       => $permalink,
-			);
+			$images[] = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
 		}
 
 		/*
