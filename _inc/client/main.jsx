@@ -57,6 +57,9 @@ class Main extends React.Component {
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
 		// Handles transition between routes handled by react-router
 		this.props.router.listenBefore( this.routerWillLeave );
+
+		// Track initial page view
+		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
 	}
 
 	/*
@@ -114,6 +117,9 @@ class Main extends React.Component {
 	}
 
 	componentDidUpdate( prevProps ) {
+		// Track page view on change only
+		prevProps.route.path !== this.props.route.path && this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
+
 		// Not taking into account development mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
 		// in development mode.
@@ -141,9 +147,6 @@ class Main extends React.Component {
 	};
 
 	renderMainContent = route => {
-		// Track page views
-		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
-
 		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
