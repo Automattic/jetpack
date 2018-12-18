@@ -12,13 +12,12 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Discussion from 'discussion';
 import Performance from 'performance';
-import Security from 'security/index.jsx';
-import Sharing from 'sharing/index.jsx';
+import Privacy from 'privacy';
+import SearchableModules from 'searchable-modules';
+import Security from 'security';
+import Sharing from 'sharing';
 import Traffic from 'traffic';
-import Writing from 'writing/index.jsx';
-
-import SearchableModules from 'searchable-modules/index.jsx';
-import Privacy from 'privacy/index.jsx';
+import Writing from 'writing';
 
 export default class extends React.Component {
 	static displayName = 'SearchableSettings';
@@ -46,10 +45,7 @@ export default class extends React.Component {
 					active={ '/discussion' === this.props.route.path }
 					{ ...commonProps }
 				/>
-				<Performance
-					active={ '/performance' === this.props.route.path }
-					{ ...commonProps }
-				/>
+				<Performance active={ '/performance' === this.props.route.path } { ...commonProps } />
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
