@@ -1503,6 +1503,7 @@ function stats_dashboard_widget_content() {
 	);
 ?>
 </div>
+<div class="clear"></div>
 <?php
 	exit;
 }
