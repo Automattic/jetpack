@@ -360,7 +360,7 @@ class Jetpack_PostImages {
 				'core/image' === $block['blockName']
 				&& ! empty( $block['attrs']['id'] )
 			) {
-				$images[] =  self::get_attachment_data( $block['attrs']['id'], $post_url, $width, $height );
+				$images[] = self::get_attachment_data( $block['attrs']['id'], $post_url, $width, $height );
 			}
 		}
 
