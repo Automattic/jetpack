@@ -1,7 +1,8 @@
 module.exports = {
 	"parser": "babel-eslint",
 	"extends": [
-		"wpcalypso/react-a11y",
+		"wpcalypso/react",
+		"plugin:jsx-a11y/recommended",
 		"prettier",
 		"prettier/react"
 	],
@@ -12,12 +13,14 @@ module.exports = {
 		"node": true,
 		"jquery": true
 	},
-	"ecmaFeatures": {
-		"jsx": true,
-		"modules": true
+	"parserOptions": {
+		"ecmaVersion": 2019,
+		"ecmaFeatures": {
+			"jsx": true
+		}
 	},
 	"plugins": [
-		"eslint-plugin-react",
+		"jsx-a11y",
 		"lodash"
 	],
 	"rules": {
