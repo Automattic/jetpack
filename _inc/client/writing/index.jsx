@@ -19,13 +19,11 @@ import { isModuleFound } from 'state/search';
 import { getConnectUrl } from 'state/connection';
 import QuerySite from 'components/data/query-site';
 import Composing from './composing';
-import Media from './media';
 import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
 import { isAtomicSite } from 'state/initial-state';
-import SpeedUpSite from './speed-up-site';
 
 export class Writing extends React.Component {
 	static displayName = 'WritingSettings';
@@ -45,14 +43,9 @@ export class Writing extends React.Component {
 			'markdown',
 			'after-the-deadline',
 			'custom-content-types',
-			'photon',
-			'carousel',
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
-			'videopress',
-			'lazy-images',
-			'photon-cdn'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -87,8 +80,6 @@ export class Writing extends React.Component {
 						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 					)
 				}
-				<Media { ...commonProps } />
-				<SpeedUpSite { ...commonProps } />
 				{
 					this.props.isModuleFound( 'custom-content-types' ) && (
 						<CustomContentTypes { ...commonProps } />
