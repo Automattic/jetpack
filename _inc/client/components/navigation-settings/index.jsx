@@ -121,6 +121,24 @@ export const NavigationSettings = createReactClass( {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					{ this.hasAnyOfThese( [
+						'carousel',
+						'lazy-images',
+						'photon',
+						'photon-cdn',
+						'search',
+						'videopress',
+					] ) && (
+							<NavItem
+								path="#performance"
+								onClick={ this.handleClickForTracking( 'performance' ) }
+								selected={
+									this.props.route.path === '/performance' || this.props.route.path === '/settings'
+								}
+							>
+								{ __( 'Performance', { context: 'Navigation item.' } ) }
+							</NavItem>
+					) }
+					{ this.hasAnyOfThese( [
 						'masterbar',
 						'markdown',
 						'after-the-deadline',
@@ -132,9 +150,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#writing"
 							onClick={ this.handleClickForTracking( 'writing' ) }
-							selected={
-								this.props.route.path === '/writing' || this.props.route.path === '/settings'
-							}
+							selected={ this.props.route.path === '/writing' }
 						>
 							{ __( 'Writing', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -160,24 +176,6 @@ export const NavigationSettings = createReactClass( {
 							selected={ this.props.route.path === '/discussion' }
 						>
 							{ __( 'Discussion', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.hasAnyOfThese( [
-						'carousel',
-						'lazy-images',
-						'photon',
-						'photon-cdn',
-						'search',
-						'videopress'
-					] ) && (
-						<NavItem
-							path="#performance"
-							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={
-								this.props.route.path === '/performance'
-							}
-						>
-							{ __( 'Performance', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
 					{ this.hasAnyOfThese( [

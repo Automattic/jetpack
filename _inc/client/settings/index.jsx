@@ -45,7 +45,10 @@ export default class extends React.Component {
 					active={ '/discussion' === this.props.route.path }
 					{ ...commonProps }
 				/>
-				<Performance active={ '/performance' === this.props.route.path } { ...commonProps } />
+				<Performance
+					active={ '/performance' === this.props.route.path || '/settings' === this.props.route.path }
+					{ ...commonProps }
+				/>
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
@@ -60,7 +63,7 @@ export default class extends React.Component {
 				/>
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/writing' === this.props.route.path || '/settings' === this.props.route.path }
+					active={ '/writing' === this.props.route.path }
 					{ ...commonProps }
 				/>
 				<Sharing
