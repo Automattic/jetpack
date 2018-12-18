@@ -782,15 +782,17 @@ abstract class Publicize_Base {
 	function register_gutenberg_extension() {
 		// TODO: Not really a block. The underlying logic doesn't care, so we should rename to
 		// `jetpack_register_gutenberg_extension()` (to account for both Gutenblocks and Gutenplugins).
+		jetpack_register_block( 'publicize', array(), array( 'callback' => array( $this, 'get_extension_availability' ) ) );
+	}
+
+	function get_extension_availability() {
 		$object_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-		if ( $this->current_user_can_access_publicize_data( $object_id ) ) {
-			jetpack_register_block( 'publicize' );
-		} else {
-			jetpack_register_block( 'publicize', array(), array(
-				'available'          => false,
-				'unavailable_reason' => 'unauthorized',
-			) );
+
+		if ( ! $this->current_user_can_access_publicize_data( $object_id ) ) {
+			return array( 'available' => false, 'unavailable_reason' => 'unauthorized' );
 		}
+
+		return array( 'available' => true );
 	}
 
 	/**
