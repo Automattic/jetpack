@@ -88,8 +88,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * Ensure correct relative path when
 	 *
 	 * @param string $relative The relative path of the script. False if it could not be determined.
-     * @param string $src      The full source url of the script.
-     * @return string The expected relative path for the CDN-ed URL.
+	 * @param string $src      The full source url of the script.
+	 * @return string The expected relative path for the CDN-ed URL.
 	 */
 	public static function fix_script_relative_path( $relative, $src ) {
 		return substr( $src, 1 + strpos( $src, '/wp-includes/' ) );
