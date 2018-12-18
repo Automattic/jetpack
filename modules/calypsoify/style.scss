@@ -3,7 +3,16 @@
 
 body,
 #wp-content-editor-tools {
-  background: $gray-light;
+	background: $gray-light;
+}
+
+body.admin-color-classic-bright,
+body.admin-color-classic-blue {
+	background: $muriel-gray-0;
+
+	#wp-content-editor-tools {
+		background: $muriel-gray-0;
+	}
 }
 
 #wpwrap {
@@ -25,11 +34,22 @@ body,
 #adminmenuwrap,
 #adminmenuback,
 #adminmenu {
-  background: $gray-lighten-30;
+	background: $gray-lighten-30;
+
+	.admin-color-classic-bright &,
+	.admin-color-classic-blue & {
+		background: $muriel-white;
+	}
 }
 
 #adminmenuback {
-  border-right: 1px solid $_d9e3ea;
+	border-right: 1px solid $_d9e3ea;
+
+	.admin-color-classic-bright &,
+	.admin-color-classic-blue & {
+		border-right: 1px solid $muriel-gray-50;
+
+	}
 }
 
 #adminmenu,
@@ -54,7 +74,11 @@ body,
   li>a.menu-top:focus,
   li.wp-menu-open,
   a:hover {
-    background: $gray-light;
+		background: $gray-light;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue {
+			background: $muriel-white;
+		}
   }
 
   .wp-submenu-head,
@@ -68,18 +92,29 @@ body,
   }
 
   .wp-submenu a:hover {
-    background: $white;
+		background: $white;
+
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			background: $muriel-gray-50;
+		}
   }
 
   > li.wp-first-item {
-    border-bottom: 1px solid $rgba-grey;
+		border-bottom: 1px solid $rgba-grey;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			border-bottom: none;
+		}
   }
 
   a.wp-has-current-submenu:after,
   >li.current>a.current:after,
   li.wp-has-submenu.wp-not-current-submenu.opensub:hover:after {
-    border: none;
-  }
+		//border: none;
+		border-right-color: $muriel-grey-0 !important;
+		right: -1px !important;
+	}
 
   .dashicons,
   .dashicons-before:before {
@@ -96,7 +131,12 @@ body,
 
   li.current a.menu-top,
   li.wp-has-current-submenu a.wp-has-current-submenu {
-    background: $gray-text-min;
+		background: $gray-text-min;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			background: $muriel-blue-50;
+			color: $muriel-blue-500 !important;
+		}
   }
 
   div.wp-menu-image.svg {
@@ -109,7 +149,11 @@ body,
 
   li.wp-menu-open div.wp-menu-image:before,
   li.wp-menu-open div.wp-menu-name {
-    color: $white !important;
+		color: $white !important;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			color: $muriel-blue-500 !important;
+		}
   }
 
   div.wp-menu-name {
@@ -316,14 +360,21 @@ body,
   #adminmenu li.opensub>a.menu-top,
   #adminmenu li>a.menu-top:focus,
   #adminmenu li.wp-menu-open {
-    background: $gray-text-min !important;
+		background: $gray-text-min !important;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			background: $muriel-white !important;
+		}
   }
 
   #adminmenu .wp-submenu,
   .auto-fold #adminmenu .selected .wp-submenu,
   .auto-fold #adminmenu .wp-menu-open .wp-submenu,
   #adminmenu a.wp-has-current-submenu:focus+.wp-submenu {
-    background: $gray-light !important;
+		background: $gray-light !important;
+		.admin-color-classic-blue & {
+			background: $muriel-white !important;
+		}
   }
 
   .auto-fold #adminmenu li.selected div.wp-menu-image.svg {
@@ -409,7 +460,11 @@ body,
 /* Admin Bar */
 
 #wpadminbar {
-  background: $blue-wordpress;
+	background: $blue-wordpress;
+	.admin-color-classic-blue &,
+	.admin-color-classic-bright & {
+		background: $muriel-blue-500;
+	}
   -webkit-box-shadow: none;
   -mozilla-box-shadow: none;
   height: 46px;
@@ -421,7 +476,11 @@ body,
     }
 
     &.hover > .ab-item {
-      background: $_0099d8 !important;
+			background: $_0099d8 !important;
+			.admin-color-classic-blue &,
+			.admin-color-classic-bright & {
+				background: $muriel-blue-400 !important;
+			}
       color: $white;
     }
   }
@@ -442,7 +501,11 @@ body,
     }
 
     > ul > li.current > a {
-      background: $_004967;
+			background: $_004967;
+			.admin-color-classic-blue &,
+			.admin-color-classic-bright & {
+				background: $muriel-blue-700;
+			}
     }
   }
 
@@ -453,7 +516,11 @@ body,
   }
 
   &:not(.mobile) .ab-top-menu > li:hover > .ab-item {
-    background: $_0099d8 !important;
+		background: $_0099d8 !important;
+		.admin-color-classic-blue &,
+		.admin-color-classic-bright & {
+			background: $muriel-blue-400 !important;
+		}
     color: #fff;
   }
 
@@ -461,7 +528,11 @@ body,
     > .ab-item,
     &.hover > .ab-item,
     &.ab-hover > .ab-item {
-      background: $_004967 !important;
+			background: $_004967 !important;
+			.admin-color-classic-blue &,
+			.admin-color-classic-bright & {
+				background: $muriel-blue-700 !important;
+			}
     }
   }
 
@@ -475,10 +546,18 @@ body,
 
     a {
       padding: 6px 15px;
-      color: $blue-wordpress !important;
+			color: $blue-wordpress !important;
+			.admin-color-classic-blue &,
+			.admin-color-classic-bright & {
+				color: $muriel-blue-500 !important;
+			}
 
       span {
-        color: $blue-wordpress !important;
+				color: $blue-wordpress !important;
+				.admin-color-classic-blue &,
+				.admin-color-classic-bright & {
+					color: $muriel-blue-500 !important;
+				}
         font-size: 14px !important;
       }
 
@@ -505,7 +584,11 @@ body,
   li#wp-admin-bar-notes {
     &.active,
     &.active > .ab-item {
-      background: $_004967 !important;
+			background: $_004967 !important;
+			.admin-color-classic-blue &,
+			.admin-color-classic-bright & {
+				background: $muriel-blue-700 !important;
+			}
     }
 
     > #wpnt-notes-panel2 {
@@ -617,8 +700,16 @@ body,
   .add-new-h2:active,
   .page-title-action,
   .page-title-action:active {
-    background: $blue-medium;
-    border-color: $_008ab3;
+		background: $blue-medium;
+		border-color: $_008ab3;
+		.admin-color-classic-bright & {
+			background: $muriel-hot-pink-500;
+			border-color: $muriel-hot-pink-700;
+		}
+		.admin-color-classic-blue & {
+			background: $muriel-blue-500;
+			border-color: $muriel-blue-700;
+		}
     color: $white;
     border-style: solid;
     border-width: 1px 1px 2px;
@@ -644,25 +735,54 @@ body,
   }
 
   .wp-heading-inline+.page-title-action:hover {
-    border-color: $blue-dark;
+		border-color: $blue-dark;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			border-color: $muriel-blue-700;
+		}
   }
 }
 
 .wp-core-ui {
-  .button {
-    background: $white;
-  }
+
+	.button {
+		background: $white;
+	}
+	&.admin-color-classic-bright,
+	&.admin-color-classic-blue {
+		.button {
+			color: $muriel-gray-500;
+		}
+	}
+
   .button-primary {
     background: $blue-medium;
-    border-color: $_008ab3;
+		border-color: $_008ab3;
     color: $white;
     text-shadow: none;
-  }
+	}
+	&.admin-color-classic-bright {
+		.button-primary {
+			background: $muriel-hot-pink-500;
+			border-color: $muriel-hot-pink-700;
+		}
+	}
+	&.admin-color-classic-blue {
+		.button-primary {
+			background: $muriel-blue-500;
+			border-color: $muriel-blue-700;
+		}
+	}
 }
 
 .ui-tabs-nav li,
 .wp-switch-editor {
-  background-color: $gray-lighten-30 !important;
+	background-color: $gray-lighten-30 !important;
+	.admin-color-classic-bright &,
+	.admin-color-classic-blue & {
+		background-color: $muriel-gray-0 !important;
+	}
+
 }
 
 .plugin-card-bottom,
@@ -679,7 +799,12 @@ div.mce-toolbar-grp,
 .quicktags-toolbar,
 #major-publishing-actions {
   background-color: $gray-light !important;
-  border-color: $_d9e3ea;
+	border-color:$_d9e3ea;
+	.admin-color-classic-bright &,
+	.admin-color-classic-blue & {
+		background-color: $muriel-gray-0 !important;
+		border-color: $muriel-gray-200;
+	}
 }
 
 .wp-filter .search-form {
@@ -728,7 +853,11 @@ div.mce-toolbar-grp,
     display: none;
   }
   .accessible-focus &:focus{
-    box-shadow: 0 0 0 2px $blue-medium;
+		box-shadow: 0 0 0 2px $blue-medium;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			box-shadow: 0 0 0 2px $muriel-blue-300;
+		}
   }
 }
 
@@ -748,26 +877,46 @@ div.mce-toolbar-grp,
 .form-toggle {
   .accessible-focus &:focus {
     + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $blue-medium;
+			box-shadow: 0 0 0 2px $blue-medium;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				box-shadow: 0 0 0 2px $muriel-blue-500;
+			}
     }
     &:checked + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $blue-light;
+			box-shadow: 0 0 0 2px $blue-light;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				box-shadow: 0 0 0 2px $muriel-blue-300;
+			}
     }
   }
 
   & + .form-toggle__label .form-toggle__switch {
-    background: $gray-lighten-10;
+		background: $gray-lighten-10;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			background: $muriel-gray-200;
+		}
   }
 
   &:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $gray-lighten-20;
+			background: $gray-lighten-20;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				background: $muriel-gray-100;
+			}
     }
   }
 
   &:checked{
     + .form-toggle__label .form-toggle__switch {
-      background: $blue-medium;
+			background: $blue-medium;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				background: $muriel-blue-500;
+			}
 
       &:after {
         left: 16px;
@@ -777,7 +926,11 @@ div.mce-toolbar-grp,
 
   &:checked:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $blue-light;
+			background: $blue-light;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				background: $muriel-blue-300;
+			}
     }
   }
 
@@ -792,11 +945,19 @@ div.mce-toolbar-grp,
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
   + .form-toggle__label .form-toggle__switch {
-    background: $blue-medium;
+		background: $blue-medium;
+		.admin-color-classic-bright &,
+		.admin-color-classic-blue & {
+			background: $muriel-blue-500;
+		}
   }
   &:checked {
     + .form-toggle__label .form-toggle__switch {
-      background: $gray-lighten-20;
+			background: $gray-lighten-20;
+			.admin-color-classic-bright &,
+			.admin-color-classic-blue & {
+				background: $muriel-gray-100;
+			}
     }
   }
 }
