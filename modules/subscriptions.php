@@ -822,6 +822,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		wp_enqueue_style( 'jetpack-subscriptions' );
 	}
 
+	function inline_button_style( $bgcolor=false, $textcolor=false ) {
+		$style_string = '';
+		if ( $bgcolor || $textcolor ) {
+			$style_string .= 'style="';
+			if ( $bgcolor ) {
+				$style_string .= esc_attr( "background-color: {$bgcolor}; " );
+			}
+			if ( $textcolor ) {
+				$style_string .= esc_attr( "color: {$textcolor}; " );
+			}
+			$style_string .= '"';
+		}
+		return $style_string;
+	}
+
 	function widget( $args, $instance ) {
 		if (
 			( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) &&
@@ -851,6 +866,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 		$subscribers_total      = self::fetch_subscriber_count();
+
+		$button_classes          = esc_attr( $instance['button_classes'] );
+		$button_background_color = esc_attr( $instance['button_background_color'] );
+		$button_text_color       = esc_attr( $instance['button_text_color'] );
+		$button_style_tag        = $this->inline_button_style( $button_background_color, $button_text_color );
 
 		if ( isset( $instance['show_only_email_and_button'] ) && $instance['show_only_email_and_button'] ) {
 			unset( $instance['title'] );
@@ -938,7 +958,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 								wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
 							}
 						?>
-						<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
+						<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" class="<?php echo esc_attr($button_classes) ?>" <?php echo $button_style_tag; ?> />
 					</p>
 				<?php }?>
 			</form>
@@ -1044,7 +1064,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
 			'success_message'    	 => esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
-			'show_subscribers_total' => true,
+			'button_classes'	=> '',
+			'button_background_color'	=> '',
+			'button_text_color' => '',
 		);
 	}
 
@@ -1057,6 +1079,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_button    	= stripslashes( $instance['subscribe_button'] );
 		$success_message		= stripslashes( $instance['success_message']);
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
+
+		$button_classes = stripslashes( $instance['button_background_classes']);
+		$button_background_color = stripslashes( $instance['button_background_color']);
+		$button_text_color = stripslashes( $instance['button_text_color']);
 
 		$subs_fetch = self::fetch_subscriber_count();
 
@@ -1128,6 +1154,7 @@ function jetpack_do_subscription_form( $instance ) {
 	ob_start();
 	the_widget( 'Jetpack_Subscriptions_Widget', $instance, $args );
 	$output = ob_get_clean();
+
 	return $output;
 }
 
