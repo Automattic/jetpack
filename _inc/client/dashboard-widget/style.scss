@@ -3,9 +3,34 @@
 		box-sizing: border-box;
 	}
 
+	h2.hndle {
+		span {
+			&.js-toggle-stats_dashboard_widget_control {
+				position: absolute;
+				top: 8px;
+				right: 36px;
+			}
+
+			&:not(.js-toggle-stats_dashboard_widget_control) {
+				display: flex;
+				align-items:center;
+			}
+		}
+
+		svg {
+			height: 20px;
+			margin: .15em 0 0 .5em;
+		}
+	}
+
 	.inside {
 		margin: 0;
 		padding: 0;
+
+		.stats-view-all {
+			text-align: center;
+			margin: 1em 0;
+		}
 	}
 
 	.stats,
