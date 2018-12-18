@@ -8,17 +8,17 @@
 class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 	function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'bussiness-hours';
+		$this->rest_base = 'business-hours';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	public function register_routes() {
 		// GET /sites/<blog_id>/subscribers/count - Return number of subscribers for this site.
-		register_rest_route( $this->namespace, '/' . $this->rest_base  . '/count', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base  . '/localized-week', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_business_hours' ),
+				'callback'            => array( $this, 'get_localized_week' ),
 			)
 		) );
 	}
@@ -28,7 +28,7 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 	 *
 	 * @return array data object containing information about business hours
 	 */
-	public function get_business_hours() {
+	public function get_localized_week() {
 		global $wp_locale;
 		return array(
 			'days' => array(
@@ -40,7 +40,7 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 				'Fri' => $wp_locale->get_weekday( 5 ),
 				'Sat' => $wp_locale->get_weekday( 6 ),
 			),
-			'start_of_week' => (int) get_option( 'start_of_week', 0 ),
+			'startOfWeek' => (int) get_option( 'start_of_week', 0 ),
 		);
 	}
 }
