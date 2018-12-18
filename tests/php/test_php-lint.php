@@ -14,6 +14,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 			. 'grep -v "No syntax errors detected" | '
 			. 'grep -v "./tools/" | '
 			. 'grep -v "./tests/" | '
+			. 'grep -v "./vendor/" | '
 			. 'grep -v "jetpack-cli.php" | '
 			. 'grep -v "./_inc/class.jetpack-provision.php" | '
 			. 'grep -v -e \'^$\'; '
