@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Block Editor: this release introduces new blocks: a Subcription form block and a VR block.
 
 **Enhancements**
 
@@ -117,7 +117,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: hide Related Posts preview when not active.
 * Admin Page: add descriptions to settings sections.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
-* Blocks: add new Subcription form block.
 * Internationalization: add new locales, ensure existing ones are up to date.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
 * WordPress.com REST API: add new option to set sites to private.
