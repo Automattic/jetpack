@@ -66,6 +66,9 @@ class RelatedPostsComponent extends React.Component {
 						link: 'https://jetpack.com/support/related-posts/',
 					} }
 				>
+					<p className="jp-form-setting-explanation">
+						{ __( 'The following settings will impact all related posts on your site, except for those you created via the block editor:' ) }
+					</p>
 					<ModuleToggle
 						slug="related-posts"
 						disabled={ unavailableInDevMode }
