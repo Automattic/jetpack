@@ -321,14 +321,14 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		$html = self::get_post_html( $html_or_id );
+		$html_info = self::get_post_html( $html_or_id );
 
-		if ( ! $html ) {
+		if ( empty( $html_info['html'] ) ) {
 			return $images;
 		}
 
 		// Look for block information in the HTML.
-		$blocks = parse_blocks( $html );
+		$blocks = parse_blocks( $html_info['html'] );
 		if ( empty( $blocks ) ) {
 			return $images;
 		}
@@ -344,7 +344,7 @@ class Jetpack_PostImages {
 				'core/image' === $block['blockName']
 				&& ! empty( $block['attrs']['id'] )
 			) {
-				$images[] = self::get_attachment_data( $block['attrs']['id'], $post_url, $width, $height );
+				$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
 			}
 
 			/**
@@ -356,7 +356,7 @@ class Jetpack_PostImages {
 				&& ! empty( $block['attrs']['ids'] )
 			) {
 				foreach ( $block['attrs']['ids'] as $img_id ) {
-					$images[] = self::get_attachment_data( $img_id, $post_url, $width, $height );
+					$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
 				}
 			}
 		}
@@ -378,9 +378,9 @@ class Jetpack_PostImages {
 	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
 
-		$html = self::get_post_html( $html_or_id );
+		$html_info = self::get_post_html( $html_or_id );
 
-		if ( ! $html ) {
+		if ( empty( $html_info['html'] ) ) {
 			return $images;
 		}
 
@@ -395,7 +395,7 @@ class Jetpack_PostImages {
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html );
+		@$dom_doc->loadHTML( $html_info['html'] );
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
@@ -444,12 +444,12 @@ class Jetpack_PostImages {
 			}
 
 			$images[] = array(
-				'type'  => 'image',
-				'from'  => 'html',
-				'src'   => $img_src,
+				'type'       => 'image',
+				'from'       => 'html',
+				'src'        => $img_src,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
-				'href'  => '', // No link to apply to these. Might potentially parse for that as well, but not for now.
+				'href'       => $html_info['post_url'],
 			);
 		}
 		return $images;
@@ -703,7 +703,10 @@ class Jetpack_PostImages {
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 *
-	 * @return string $html Post content.
+	 * @return array $html_info {
+	 * @type string $html     Post content.
+	 * @type string $post_url Post URL.
+	 * }
 	 */
 	static function get_post_html( $html_or_id ) {
 		if ( is_numeric( $html_or_id ) ) {
@@ -713,13 +716,17 @@ class Jetpack_PostImages {
 				return '';
 			}
 
-			$html     = $post->post_content; // DO NOT apply the_content filters here, it will cause loops.
-			$post_url = $post->post_title;
+			$html_info = array(
+				'html'    => $post->post_content, // DO NOT apply the_content filters here, it will cause loops.
+				'post_url'=> get_permalink( $post->ID ),
+			);
 		} else {
-			$html = $html_or_id;
+			$html_info = array(
+				'html'    => $html_or_id,
+				'post_url'=> '',
+			);
 		}
-
-		return $html;
+		return $html_info;
 	}
 
 	/**
