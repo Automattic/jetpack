@@ -9,6 +9,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 /**
  * Internal dependencies
  */
+import ExternalLink from 'components/external-link';
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import {
@@ -19,7 +20,16 @@ import SettingsGroup from 'components/settings-group';
 
 class SSO extends Component {
 	handleTwoStepToggleChange = () => {
-		this.props.updateOptions( { jetpack_sso_require_two_step: ! this.props.requireTwoStepAuth } );
+		const messages = {
+			error: () => __( 'An unexpected error occured while setting up 2-step authentication. {{a}}Please try again{{/a}}',
+				{
+					components: {
+						a: <ExternalLink target="_blank" rel="noopener noreferrer" href="https://wordpress.com/me/security/two-step" />
+					}
+				}
+			)
+		};
+		this.props.updateOptions( { jetpack_sso_require_two_step: ! this.props.requireTwoStepAuth }, messages );
 	}
 
 	handleMatchByEmailToggleChange = () => {
