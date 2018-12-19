@@ -81,7 +81,7 @@ __( "Manage security on WordPress.com", "jetpack" ), // _inc/client/at-a-glance/
 __( "Connections", "jetpack" ), // _inc/client/at-a-glance/index.jsx:76
 __( "Performance", "jetpack" ), // _inc/client/at-a-glance/index.jsx:124
 __( "Downtime monitoring", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:24
-__( "Jetpack’s downtime monitor will keep tabs on your site, and alert you the moment that downtime is detected.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:27
+__( "Jetpack’s downtime monitor will continously monitor your site, and alert you the moment that downtime is detected.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:27
 __( "Jetpack is monitoring your site. If we think your site is down, you will receive an email.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:51
 __( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:65
 __( "{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes down.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:66
