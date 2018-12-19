@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: only display Gutenberg Publicize UI to users with the correct permissions.
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
 * Shortcodes: update YouTube shortcode to support more video link formats.
+* Shortlinks: add the option to view shortlinks in the Block editor.
 * Simple Payments: only register block when all needed data is available.
 * WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
 * WooCommerce Analytics: improve performance by avoiding unnecessary calls to the feature when it is not needed.

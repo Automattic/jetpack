@@ -32,6 +32,10 @@ This block allows your readers to subscribe to your site, and will be available 
 
 This block allows one to embed a VR viewer in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and see if it is displayed properly on your site!
 
+**Shortlinks**
+
+It is now possible to view a post's shortlink in the Jetpack plugin sidebar. Give it a try when the feature is on, off, and make sure everything works as you would expect.
+
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**
