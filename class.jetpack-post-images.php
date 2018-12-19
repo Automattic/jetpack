@@ -717,13 +717,13 @@ class Jetpack_PostImages {
 			}
 
 			$html_info = array(
-				'html'    => $post->post_content, // DO NOT apply the_content filters here, it will cause loops.
-				'post_url'=> get_permalink( $post->ID ),
+				'html'     => $post->post_content, // DO NOT apply the_content filters here, it will cause loops.
+				'post_url' => get_permalink( $post->ID ),
 			);
 		} else {
 			$html_info = array(
-				'html'    => $html_or_id,
-				'post_url'=> '',
+				'html'     => $html_or_id,
+				'post_url' => '',
 			);
 		}
 		return $html_info;
