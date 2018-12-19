@@ -710,7 +710,7 @@ class Jetpack_PostImages {
 			$post = get_post( $html_or_id );
 
 			if ( empty( $post ) || ! empty( $post->post_password ) ) {
-				return $images;
+				return '';
 			}
 
 			$html     = $post->post_content; // DO NOT apply the_content filters here, it will cause loops.
