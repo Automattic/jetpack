@@ -77,6 +77,8 @@ abstract class SAL_Site {
 
 	abstract public function get_jetpack_modules();
 
+	abstract public function is_module_active( $module );
+
 	abstract public function is_vip();
 
 	abstract public function is_multisite();

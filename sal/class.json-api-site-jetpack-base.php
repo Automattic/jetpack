@@ -96,6 +96,14 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		return null;
 	}
 
+	function is_module_active( $module ) {
+		if ( is_user_member_of_blog() ) {
+			return in_array ( $module, Jetpack_Options::get_option( 'active_modules', array() ), true );
+		}
+
+		return false;
+	}
+
 	function is_vip() {
 		return false; // this may change for VIP Go sites, which sync using Jetpack
 	}

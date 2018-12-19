@@ -34,4 +34,30 @@ class SalSiteTest extends WP_UnitTestCase {
 
 		$this->assertFalse( static::$site->is_post_type_allowed( 'my_new_type' ) );
 	}
+
+	function test_is_module_active() {
+
+		// Picking random 5 modules from an array of existing ones to not slow down the test
+		$modules = array_rand( Jetpack::get_available_modules(), 3 );
+
+		foreach ( $modules as $module ) {
+			Jetpack::deactivate_module( $module );
+
+			$this->assertEquals(
+				Jetpack::is_module_active( $module ),
+				static::$site->is_module_active( $module )
+			);
+
+			Jetpack::activate_module( $module );
+
+			$this->assertEquals(
+				Jetpack::is_module_active( $module ),
+				static::$site->is_module_active( $module )
+			);
+		}
+	}
+
+	function test_interface() {
+		$this->assertTrue( method_exists( 'SAL_Site', 'is_module_active' ) );
+	}
 }
