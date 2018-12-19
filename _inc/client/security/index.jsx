@@ -25,7 +25,7 @@ import Antispam from './antispam';
 import { ManagePlugins } from './manage-plugins';
 import { Monitor } from './monitor';
 import { Protect } from './protect';
-import { SSO } from './sso';
+import SSO from './sso';
 
 export class Security extends Component {
 	static displayName = 'SecuritySettings';
