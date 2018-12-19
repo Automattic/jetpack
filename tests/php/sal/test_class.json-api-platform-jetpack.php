@@ -9,9 +9,6 @@ class SalSiteTest extends WP_UnitTestCase {
 	static function setUpBeforeClass( ) {
 		parent::setUpBeforeClass();
 
-		// temporarily disable https
-		$_SERVER['HTTPS'] = 'off';
-
 		static::$token = (object) array(
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
@@ -24,12 +21,6 @@ class SalSiteTest extends WP_UnitTestCase {
 		static::$site = $platform->get_site( static::$token->blog_id );
 	}
 
-	static function tearDownAfterClass() {
-		// renable https
-		$_SERVER['HTTPS'] = 'on';
-		parent::tearDownAfterClass();
-	}
-
 	function test_uses_synced_api_post_type_whitelist_if_available() {
 
 		$this->assertFalse( static::$site->is_post_type_allowed( 'my_new_type' ) );
@@ -37,7 +28,7 @@ class SalSiteTest extends WP_UnitTestCase {
 
 	function test_is_module_active() {
 
-		// Picking random 5 modules from an array of existing ones to not slow down the test
+		// Picking random 3 modules from an array of existing ones to not slow down the test
 		$modules = array_rand( Jetpack::get_available_modules(), 3 );
 
 		foreach ( $modules as $module ) {
