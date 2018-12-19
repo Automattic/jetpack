@@ -28,6 +28,11 @@ This release introduces new blocks we'd like you to test:
 
 This block allows your readers to subscribe to your site, and will be available in the block editor if the Subscriptions feature is active on your site. To test it, try to activate the feature, and see if you can add the block, and use it to subscribe to your site.
 
+Here are a few other things you can try:
+
+- Toggle the "show number of subscribers" in the editor. Confirm that you see the number of subscribers when the block loses focus.
+- After subscribing with a few different email addresses (and confirming your subscription), confirm that you see the number of subscribed users on the frontend (when the toggle was enabled for the block in the editor) and the editor when the block doesn't have focus.
+
 **VR Block**
 
 This block allows one to embed a VR viewer in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and see if it is displayed properly on your site!
