@@ -314,7 +314,6 @@ class Jetpack_PostImages {
 	 */
 	static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
 		$images   = array();
-		$post_url = '';
 
 		// Bail early if the site does not support the block editor.
 		if ( ! function_exists( 'parse_blocks' ) ) {
