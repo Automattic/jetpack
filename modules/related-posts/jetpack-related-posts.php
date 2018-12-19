@@ -130,17 +130,7 @@ class Jetpack_RelatedPosts {
 			return;
 
 		if ( isset( $_GET['relatedposts'] ) ) {
-			$excludes = array();
-			if ( isset( $_GET['relatedposts_exclude'] ) ) {
-				if ( is_string( $_GET['relatedposts_exclude'] ) ) {
-					$excludes = explode( ',', $_GET['relatedposts_exclude'] );
-				} elseif ( is_array( $_GET['relatedposts_exclude'] ) ) {
-					$excludes = array_values( $_GET['relatedposts_exclude'] );
-				}
-
-				$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
-			}
-
+			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
 			$this->_action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
@@ -279,17 +269,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$excludes = array();
-		if ( isset( $_GET['relatedposts_origin'] ) ) {
-			if ( is_string( $_GET['relatedposts_origin'] ) ) {
-				$excludes = explode( ',', $_GET['relatedposts_origin'] );
-			} elseif ( is_array( $_GET['relatedposts_origin'] ) ) {
-				$excludes = array_values( $_GET['relatedposts_origin'] );
-			}
-
-			$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
-		}
-
+		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
 			array(
@@ -382,6 +362,32 @@ EOT;
 	 * PUBLIC UTILITY FUNCTIONS
 	 * ========================
 	 */
+
+	/**
+	 * Parse a numeric GET variable to an array of values.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @uses absint
+	 *
+	 * @param string $arg Name of the GET variable
+	 * @return array $result Parsed value(s)
+	 */
+	public function parse_numeric_get_arg( $arg ) {
+		$result = array();
+
+		if ( isset( $_GET[ $arg ] ) ) {
+			if ( is_string( $_GET[ $arg ] ) ) {
+				$result = explode( ',', $_GET[ $arg ] );
+			} elseif ( is_array( $_GET[ $arg ] ) ) {
+				$result = array_values( $_GET[ $arg ] );
+			}
+
+			$result = array_unique( array_filter( array_map( 'absint', $result ) ) );
+		}
+
+		return $result;
+	}
 
 	/**
 	 * Gets options set for Jetpack_RelatedPosts and merge with defaults.
