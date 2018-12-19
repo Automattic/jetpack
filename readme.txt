@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: add actionable card below the Jetpack settings card for Porfolio post types.
 * Admin Page: add mentions of our Premium offerings to connection banners.
 * Admin Page: improve the connection flow for new Jetpack users.
+* Admin Page: improve the display of notices after editing settings.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
