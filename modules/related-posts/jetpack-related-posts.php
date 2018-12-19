@@ -177,13 +177,18 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
+	 * Will skip adding the target if the post content contains a Related Posts block.
 	 *
 	 * @filter the_content
 	 * @param string $content
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( !$this->_found_shortcode ) {
+		if ( function_exists( 'has_block' ) && has_block( 'jetpack/related-posts', $content ) ) {
+			return $content;
+		}
+
+		if ( ! $this->_found_shortcode ) {
 			$content .= "\n" . $this->get_target_html();
 		}
 
@@ -296,8 +301,6 @@ EOT;
 		if ( ! $related_posts ) {
 			return '';
 		}
-
-		remove_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
 
 		ob_start();
 		?>
