@@ -24,7 +24,9 @@ class DashMonitor extends Component {
 		const labelName = __( 'Downtime monitoring' );
 
 		const support = {
-			text: __( 'Jetpack’s downtime monitor will continously monitor your site, and alert you the moment that downtime is detected.' ),
+			text: __(
+				'Jetpack’s downtime monitor will continuously monitor your site, and alert you the moment that downtime is detected.'
+			),
 			link: 'https://jetpack.com/support/monitor/',
 		};
 
