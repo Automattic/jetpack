@@ -35,37 +35,37 @@ export const data = ( state = {}, action ) => {
 };
 
 export const initialRequestsState = {
-	isFetchingSiteData: false
+	isFetchingSiteData: false,
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH:
 			return assign( {}, state, {
-				isFetchingSiteData: true
+				isFetchingSiteData: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH:
 			return assign( {}, state, {
-				isFetchingSiteFeatures: true
+				isFetchingSiteFeatures: true,
 			} );
 		case JETPACK_SITE_PLANS_FETCH:
 			return assign( {}, state, {
-				isFetchingSitePlans: true
+				isFetchingSitePlans: true,
 			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSiteData: false
+				isFetchingSiteData: false,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSiteFeatures: false
+				isFetchingSiteFeatures: false,
 			} );
 		case JETPACK_SITE_PLANS_FETCH_FAIL:
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSitePlans: false
+				isFetchingSitePlans: false,
 			} );
 
 		default:
@@ -75,7 +75,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 
 export const reducer = combineReducers( {
 	data,
-	requests
+	requests,
 } );
 
 /**

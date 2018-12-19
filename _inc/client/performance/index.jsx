@@ -52,7 +52,9 @@ class Performance extends Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Load pages faster, optimize images, and speed up your visitors’ experience.' ) }
+					title={ __(
+						'Load pages faster, optimize images, and speed up your visitors’ experience.'
+					) }
 					className="jp-settings-description"
 				/>
 

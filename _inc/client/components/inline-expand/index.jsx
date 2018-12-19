@@ -20,7 +20,7 @@ export class InlineExpand extends React.Component {
 		expanded: PropTypes.bool,
 		onClick: PropTypes.func,
 		onClose: PropTypes.func,
-		onOpen: PropTypes.func
+		onOpen: PropTypes.func,
 	};
 
 	static defaultProps = {
@@ -29,11 +29,11 @@ export class InlineExpand extends React.Component {
 		onClose: () => false,
 		cardKey: '',
 		disabled: false,
-		expanded: false
+		expanded: false,
 	};
 
 	state = {
-		expanded: this.props.expanded
+		expanded: this.props.expanded,
 	};
 
 	onClick = () => {
@@ -56,31 +56,26 @@ export class InlineExpand extends React.Component {
 
 	render() {
 		return (
-			<div className={ classNames( 'jp-inline-expand', this.props.className, { 'is-expanded': this.state.expanded } ) }>
+			<div
+				className={ classNames( 'jp-inline-expand', this.props.className, {
+					'is-expanded': this.state.expanded,
+				} ) }
+			>
 				{
 					<a
 						className="jp-inline-expand-action"
 						role="button"
 						tabIndex="0"
 						onKeyDown={ onKeyDownCallback( this.onClick ) }
-						onClick={ this.onClick }>
-						{
-							this.props.label
-						}
-						{
-							this.props.icon && (
-								<Gridicon icon={ this.props.icon } size={ 16 } />
-							)
-						}
+						onClick={ this.onClick }
+					>
+						{ this.props.label }
+						{ this.props.icon && <Gridicon icon={ this.props.icon } size={ 16 } /> }
 					</a>
 				}
-				{
-					this.state.expanded && (
-						<div className="jp-inline-expand-content">
-							{ this.props.children }
-						</div>
-					)
-				}
+				{ this.state.expanded && (
+					<div className="jp-inline-expand-content">{ this.props.children }</div>
+				) }
 			</div>
 		);
 	}

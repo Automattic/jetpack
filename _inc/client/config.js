@@ -2,7 +2,7 @@ const data = {
 	i18n_default_locale_slug: 'en',
 	mc_analytics_enabled: true,
 	google_analytics_enabled: false,
-	google_analytics_key: null
+	google_analytics_key: null,
 };
 function config( key ) {
 	if ( key in data ) {

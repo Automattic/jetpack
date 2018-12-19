@@ -70,17 +70,57 @@ function render() {
 		<div>
 			<Provider store={ store }>
 				<Router history={ history }>
-					<Route path="/" name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route
+						path="/"
+						name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
 					<Route path="/dashboard" name={ i18n.translate( 'At A Glance' ) } component={ Main } />
-					<Route path="/my-plan" name={ i18n.translate( 'My Plan', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/plans" name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/settings" name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/discussion" name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/security" name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/performance" name={ i18n.translate( 'Performance', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/traffic" name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/writing" name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path="/sharing" name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route
+						path="/my-plan"
+						name={ i18n.translate( 'My Plan', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/plans"
+						name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/settings"
+						name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/discussion"
+						name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/security"
+						name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/performance"
+						name={ i18n.translate( 'Performance', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/traffic"
+						name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/writing"
+						name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
+					<Route
+						path="/sharing"
+						name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) }
+						component={ Main }
+					/>
 					<Route path="/wpbody-content" component={ Main } />
 					<Route path="/wp-toolbar" component={ Main } />
 					<Route path="/privacy" component={ Main } />

@@ -13,32 +13,21 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import {
-	getSiteRawUrl,
-	getSiteAdminUrl,
-	getUpgradeUrl
-} from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { isDevMode } from 'state/connection';
-import {
-	isFetchingPluginsData,
-	isPluginActive,
-	isPluginInstalled
-} from 'state/site/plugins';
+import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
 	isFetchingVaultPressData,
 	getAkismetData,
 	isAkismetKeyValid,
-	isFetchingAkismetData
+	isFetchingAkismetData,
 } from 'state/at-a-glance';
-import {
-	getSitePlan,
-	isFetchingSiteData
-} from 'state/site';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
 
 /**
  * Track click on Pro status badge.
@@ -48,11 +37,12 @@ import {
  *
  * @returns {undefined}
  */
-const trackProStatusClick = ( type, feature ) => analytics.tracks.recordJetpackClick( {
-	target: 'pro-status',
-	type: type,
-	feature: feature
-} );
+const trackProStatusClick = ( type, feature ) =>
+	analytics.tracks.recordJetpackClick( {
+		target: 'pro-status',
+		type: type,
+		feature: feature,
+	} );
 
 /**
  * Build function to pass as onClick property.
@@ -62,17 +52,17 @@ const trackProStatusClick = ( type, feature ) => analytics.tracks.recordJetpackC
  *
  * @returns {function} Function to track a click.
  */
-const handleClickForTracking = ( type, feature ) => ( () => trackProStatusClick( type, feature ) );
+const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
 class ProStatus extends React.Component {
 	static propTypes = {
 		isCompact: PropTypes.bool,
-		proFeature: PropTypes.string
+		proFeature: PropTypes.string,
 	};
 
 	static defaultProps = {
 		isCompact: true,
-		proFeature: ''
+		proFeature: '',
 	};
 
 	getProActions = ( type, feature ) => {
@@ -84,9 +74,13 @@ class ProStatus extends React.Component {
 			case 'threats':
 				status = 'is-error';
 				if ( this.props.isCompact ) {
-					action = __( 'Threats', { context: 'A caption for a small button to fix security issues.' } );
+					action = __( 'Threats', {
+						context: 'A caption for a small button to fix security issues.',
+					} );
 				} else {
-					message = __( 'Threats found!', { context: 'Short warning message about new threats found.' } );
+					message = __( 'Threats found!', {
+						context: 'Short warning message about new threats found.',
+					} );
 					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
 				}
 				actionUrl = 'https://dashboard.vaultpress.com/';
@@ -96,7 +90,9 @@ class ProStatus extends React.Component {
 				type = 'upgrade';
 				status = 'is-warning';
 				if ( ! this.props.isCompact ) {
-					message = __( 'No scanning', { context: 'Short warning message about site having no security scan.' } );
+					message = __( 'No scanning', {
+						context: 'Short warning message about site having no security scan.',
+					} );
 				}
 				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
 				actionUrl = this.props.paidFeatureUpgradeUrl;
@@ -109,11 +105,15 @@ class ProStatus extends React.Component {
 				break;
 			case 'secure':
 				status = 'is-success';
-				message = __( 'Secure', { context: 'Short message informing user that the site is secure.' } );
+				message = __( 'Secure', {
+					context: 'Short message informing user that the site is secure.',
+				} );
 				break;
 			case 'invalid_key':
 				status = 'is-warning';
-				action = __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } );
+				action = __( 'Invalid key', {
+					context: 'Short warning message about an invalid key being used for Akismet.',
+				} );
 				actionUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
 				break;
 			case 'rewind_connected':
@@ -126,17 +126,17 @@ class ProStatus extends React.Component {
 				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
 		}
 		return (
-			<SimpleNotice
-				showDismiss={ false }
-				status={ status }
-				isCompact={ true }
-			>
-				{
-					message
-				}
-				{
-					action && <a className="dops-notice__text-no-underline" onClick={ handleClickForTracking( type, feature ) } href={ actionUrl }>{ action }</a>
-				}
+			<SimpleNotice showDismiss={ false } status={ status } isCompact={ true }>
+				{ message }
+				{ action && (
+					<a
+						className="dops-notice__text-no-underline"
+						onClick={ handleClickForTracking( type, feature ) }
+						href={ actionUrl }
+					>
+						{ action }
+					</a>
+				) }
 			</SimpleNotice>
 		);
 	};
@@ -165,7 +165,11 @@ class ProStatus extends React.Component {
 		const sitePlan = this.props.sitePlan(),
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
-		if ( 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ) {
+		if (
+			'scan' === this.props.proFeature ||
+			'backups' === this.props.proFeature ||
+			'vaultpress' === this.props.proFeature
+		) {
 			pluginSlug = 'vaultpress/vaultpress.php';
 		}
 		if ( 'akismet' === this.props.proFeature ) {
@@ -207,7 +211,10 @@ class ProStatus extends React.Component {
 							return this.getSetUpButton( 'scan' );
 						}
 
-						return this.getProActions( 0 === this.props.getScanThreats() ? 'secure' : 'threats', 'scan' );
+						return this.getProActions(
+							0 === this.props.getScanThreats() ? 'secure' : 'threats',
+							'scan'
+						);
 					}
 					break;
 
@@ -219,12 +226,15 @@ class ProStatus extends React.Component {
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact
-							? this.getProActions( 'free', 'anti-spam' )
-							: '';
+						return this.props.isCompact ? this.getProActions( 'free', 'anti-spam' ) : '';
 					}
 
-					if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingAkismetData && active && installed ) {
+					if (
+						! this.props.isAkismetKeyValid &&
+						! this.props.fetchingAkismetData &&
+						active &&
+						installed
+					) {
 						return this.getProActions( 'invalid_key', 'anti-spam' );
 					}
 					break;
@@ -245,35 +255,34 @@ class ProStatus extends React.Component {
 				<QuerySitePlugins />
 				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
-				{ ! this.props.isDevMode && getStatus(
-					this.props.proFeature,
-					this.props.pluginActive( pluginSlug ),
-					this.props.pluginInstalled( pluginSlug )
-				) }
+				{ ! this.props.isDevMode &&
+					getStatus(
+						this.props.proFeature,
+						this.props.pluginActive( pluginSlug ),
+						this.props.pluginInstalled( pluginSlug )
+					) }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			getScanThreats: () => getVaultPressScanThreatCount( state ),
-			getVaultPressData: () => getVaultPressData( state ),
-			getAkismetData: () => getAkismetData( state ),
-			isFetchingVaultPressData: isFetchingVaultPressData( state ),
-			sitePlan: () => getSitePlan( state ),
-			fetchingPluginsData: isFetchingPluginsData( state ),
-			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
-			isDevMode: isDevMode( state ),
-			fetchingSiteData: isFetchingSiteData( state ),
-			isAkismetKeyValid: isAkismetKeyValid( state ),
-			fetchingAkismetData: isFetchingAkismetData( state ),
-			paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
-			planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
-		};
-	}
-)( ProStatus );
+export default connect( state => {
+	return {
+		siteRawUrl: getSiteRawUrl( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+		getScanThreats: () => getVaultPressScanThreatCount( state ),
+		getVaultPressData: () => getVaultPressData( state ),
+		getAkismetData: () => getAkismetData( state ),
+		isFetchingVaultPressData: isFetchingVaultPressData( state ),
+		sitePlan: () => getSitePlan( state ),
+		fetchingPluginsData: isFetchingPluginsData( state ),
+		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
+		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+		isDevMode: isDevMode( state ),
+		fetchingSiteData: isFetchingSiteData( state ),
+		isAkismetKeyValid: isAkismetKeyValid( state ),
+		fetchingAkismetData: isFetchingAkismetData( state ),
+		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
+		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
+	};
+} )( ProStatus );

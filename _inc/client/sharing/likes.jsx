@@ -23,22 +23,28 @@ export const Likes = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					header={ __( 'Like buttons', { context: 'Settings header' } ) }
 					module="likes"
-					hideButton>
+					hideButton
+				>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'likes' } }
 						support={ {
-							text: __( 'Adds like buttons to your content so that visitors can show their appreciation or enjoyment.' ),
+							text: __(
+								'Adds like buttons to your content so that visitors can show their appreciation or enjoyment.'
+							),
 							link: 'https://jetpack.com/support/likes/',
 						} }
-						>
+					>
 						<ModuleToggle
 							slug="likes"
 							disabled={ unavailableInDevMode }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Allow readers to show their appreciation of your posts by adding a like button to your content' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							{ __(
+								'Allow readers to show their appreciation of your posts by adding a like button to your content'
+							) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>

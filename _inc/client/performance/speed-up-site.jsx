@@ -24,9 +24,17 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			if ( 'photon' === name ) {
 				// Tiled Galleries depends on Photon. Deactivate it if Photon is deactivated.
 				if ( false === ! value ) {
-					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
+					this.props.updateOptions( {
+						photon: false,
+						'tiled-gallery': false,
+						tiled_galleries: false,
+					} );
 				} else {
-					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
+					this.props.updateOptions( {
+						photon: true,
+						'tiled-gallery': true,
+						tiled_galleries: true,
+					} );
 				}
 			} else {
 				this.props.updateOptions( { [ name ]: ! value } );
@@ -50,7 +58,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				const messages = {
 					progress: __( 'Disabling site accelerator…' ),
 					success: __( 'Site accelerator is no longer speeding up your site!' ),
-					error: error => __( 'Error disabling site accelerator. %(error)s', { args: { error: error } } )
+					error: error =>
+						__( 'Error disabling site accelerator. %(error)s', { args: { error: error } } ),
 				};
 				let settings = {};
 
@@ -59,14 +68,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					settings = {
 						photon: false,
 						'tiled-gallery': false,
-						tiled_galleries: false
+						tiled_galleries: false,
 					};
 				}
 				if ( false === ! newAssetCdnStatus && 'active' !== assetCdnStatus ) {
 					newAssetCdnStatus = false;
 					settings = {
 						...settings,
-						'photon-cdn': false
+						'photon-cdn': false,
 					};
 				}
 				this.props.updateOptions( settings, messages );
@@ -74,7 +83,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				const messages = {
 					progress: __( 'Enabling Site accelerator…' ),
 					success: __( 'Site accelerator is now speeding up your site!' ),
-					error: error => __( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } )
+					error: error =>
+						__( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } ),
 				};
 				let settings = {};
 
@@ -84,14 +94,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					settings = {
 						photon: true,
 						'tiled-gallery': true,
-						tiled_galleries: true
+						tiled_galleries: true,
 					};
 				}
 				if ( false === newAssetCdnStatus && 'inactive' !== assetCdnStatus ) {
 					newAssetCdnStatus = true;
 					settings = {
 						...settings,
-						'photon-cdn': true
+						'photon-cdn': true,
 					};
 				}
 				this.props.updateOptions( settings, messages );
@@ -102,12 +112,12 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				// Track the main toggle switch.
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'on'
+					toggled: 'on',
 				} );
 			} else {
 				analytics.tracks.recordJetpackClick( {
 					target: 'jetpack_site_accelerator_toggle',
-					toggled: 'off'
+					toggled: 'off',
 				} );
 			}
 
@@ -115,7 +125,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			if ( this.props.getOptionValue( 'photon' ) !== newPhotonStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon',
-					toggled: ( false === newPhotonStatus ) ? 'off' : 'on'
+					toggled: false === newPhotonStatus ? 'off' : 'on',
 				} );
 			}
 
@@ -123,7 +133,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			if ( this.props.getOptionValue( 'photon-cdn' ) !== newAssetCdnStatus ) {
 				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 					module: 'photon-cdn',
-					toggled: ( false === newAssetCdnStatus ) ? 'off' : 'on'
+					toggled: false === newAssetCdnStatus ? 'off' : 'on',
 				} );
 			}
 		};
@@ -140,15 +150,21 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			const lazyImages = this.props.module( 'lazy-images' );
 
 			// Check if any of the CDN options are on.
-			const siteAcceleratorStatus = this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
+			const siteAcceleratorStatus =
+				this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
 			// Is at least one of the 2 modules available (not hidden via a module override)?
 			const photonStatus = this.props.getModuleOverride( 'photon' );
 			const assetCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
-			const canDisplaySiteAcceleratorSettings = ( foundPhoton && foundAssetCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
+			const canDisplaySiteAcceleratorSettings =
+				foundPhoton &&
+				foundAssetCdn &&
+				( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
 			// Display the main toggle in main search results as long as one of the modules is not hidden.
-			const canAppearInSearch = ( foundPhoton || foundAssetCdn ) && ( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
+			const canAppearInSearch =
+				( foundPhoton || foundAssetCdn ) &&
+				( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
 			// Monitor any changes that should cause our main toggle to appear toggling.
 			let togglingSiteAccelerator;
@@ -159,15 +175,21 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				} else {
 					togglingSiteAccelerator = true;
 				}
-			// Then Asset CDN activating.
-			} else if ( ! this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+				// Then Asset CDN activating.
+			} else if (
+				! this.props.getOptionValue( 'photon-cdn' ) &&
+				this.props.isSavingAnyOption( 'photon-cdn' )
+			) {
 				if ( this.props.getOptionValue( 'photon' ) ) {
 					togglingSiteAccelerator = false;
 				} else {
 					togglingSiteAccelerator = true;
 				}
-			// Then Photon deactivating.
-			} else if ( this.props.getOptionValue( 'photon' ) && this.props.isSavingAnyOption( 'photon' ) ) {
+				// Then Photon deactivating.
+			} else if (
+				this.props.getOptionValue( 'photon' ) &&
+				this.props.isSavingAnyOption( 'photon' )
+			) {
 				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
 					togglingSiteAccelerator = false;
 				} else {
@@ -175,11 +197,17 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				}
 
 				// Is the Asset CDN being disabled as well?
-				if ( this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+				if (
+					this.props.getOptionValue( 'photon-cdn' ) &&
+					this.props.isSavingAnyOption( 'photon-cdn' )
+				) {
 					togglingSiteAccelerator = true;
 				}
-			// Then Asset CDN deactivating.
-			} else if ( this.props.getOptionValue( 'photon-cdn' ) && this.props.isSavingAnyOption( 'photon-cdn' ) ) {
+				// Then Asset CDN deactivating.
+			} else if (
+				this.props.getOptionValue( 'photon-cdn' ) &&
+				this.props.isSavingAnyOption( 'photon-cdn' )
+			) {
 				if ( this.props.getOptionValue( 'photon' ) ) {
 					togglingSiteAccelerator = false;
 				} else {
@@ -190,25 +218,21 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			}
 
 			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Performance & speed' ) }
-					hideButton>
-
-					{ ( foundPhoton || foundAssetCdn ) &&
+				<SettingsCard { ...this.props } header={ __( 'Performance & speed' ) } hideButton>
+					{ ( foundPhoton || foundAssetCdn ) && (
 						<SettingsGroup
 							hasChild
 							support={ {
 								link: 'http://jetpack.com/support/site-accelerator/',
 							} }
-							>
+						>
 							<p>
 								{ __(
 									'Load pages faster by allowing Jetpack to optimize your images and serve your images ' +
 										'and static files (like CSS and JavaScript) from our global network of servers.'
 								) }
 							</p>
-							{ canAppearInSearch &&
+							{ canAppearInSearch && (
 								<CompactFormToggle
 									checked={ siteAcceleratorStatus }
 									toggling={ togglingSiteAccelerator }
@@ -219,9 +243,9 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										{ __( 'Enable site accelerator' ) }
 									</span>
 								</CompactFormToggle>
-							}
+							) }
 							<FormFieldset>
-								{ foundPhoton &&
+								{ foundPhoton && (
 									<ModuleToggle
 										slug="photon"
 										disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -233,8 +257,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 											{ __( 'Speed up image load times' ) }
 										</span>
 									</ModuleToggle>
-								}
-								{ foundAssetCdn &&
+								) }
+								{ foundAssetCdn && (
 									<ModuleToggle
 										slug="photon-cdn"
 										activated={ this.props.getOptionValue( 'photon-cdn' ) }
@@ -245,19 +269,19 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 											{ __( 'Speed up static file load times' ) }
 										</span>
 									</ModuleToggle>
-								}
+								) }
 							</FormFieldset>
 						</SettingsGroup>
-					}
+					) }
 
-					{ foundLazyImages &&
+					{ foundLazyImages && (
 						<SettingsGroup
 							hasChild
 							module={ lazyImages }
 							support={ {
 								link: 'https://jetpack.com/support/lazy-images/',
 							} }
-							>
+						>
 							<p>
 								{ __(
 									'Lazy-loading images will improve your site’s speed and create a ' +
@@ -277,19 +301,17 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								</span>
 							</ModuleToggle>
 						</SettingsGroup>
-					}
+					) }
 				</SettingsCard>
 			);
 		}
 	}
 );
 
-export default connect(
-	( state ) => {
-		return {
-			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name )
-		};
-	}
-)( SpeedUpSite );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	};
+} )( SpeedUpSite );

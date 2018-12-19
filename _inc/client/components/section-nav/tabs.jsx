@@ -26,15 +26,15 @@ class NavTabs extends React.Component {
 		selectedText: PropTypes.string,
 		selectedCount: PropTypes.number,
 		label: PropTypes.string,
-		hasSiblingControls: PropTypes.bool
+		hasSiblingControls: PropTypes.bool,
 	};
 
 	static defaultProps = {
-		hasSiblingControls: false
+		hasSiblingControls: false,
 	};
 
 	state = {
-		isDropdown: false
+		isDropdown: false,
 	};
 
 	componentDidMount() {
@@ -61,7 +61,7 @@ class NavTabs extends React.Component {
 			'dops-section-nav-tabs': true,
 			'is-dropdown': this.state.isDropdown,
 			'is-open': this.state.isDropdownOpen,
-			'has-siblings': this.props.hasSiblingControls
+			'has-siblings': this.props.hasSiblingControls,
 		} );
 
 		const innerWidth = viewport.getWindowInnerWidth();
@@ -69,24 +69,14 @@ class NavTabs extends React.Component {
 		return (
 			<div className="dops-section-nav-group" ref="navGroup">
 				<div className={ tabsClassName }>
-					{ this.props.label &&
-						<h6 className="dops-section-nav-group__label">
-							{ this.props.label }
-						</h6>
-					}
-					<ul
-						className="dops-section-nav-tabs__list"
-						role="menu"
-						onKeyDown={ this.keyHandler }
-					>
+					{ this.props.label && (
+						<h6 className="dops-section-nav-group__label">{ this.props.label }</h6>
+					) }
+					<ul className="dops-section-nav-tabs__list" role="menu" onKeyDown={ this.keyHandler }>
 						{ tabs }
 					</ul>
 
-					{
-						this.state.isDropdown &&
-						innerWidth > MOBILE_PANEL_THRESHOLD &&
-						this.getDropdown()
-					}
+					{ this.state.isDropdown && innerWidth > MOBILE_PANEL_THRESHOLD && this.getDropdown() }
 				</div>
 			</div>
 		);
@@ -95,20 +85,22 @@ class NavTabs extends React.Component {
 	getTabWidths = () => {
 		let totalWidth = 0;
 
-		React.Children.forEach( this.props.children, function( child, index ) {
-			if ( ! child ) {
-				return;
-			}
-			const tabWidth = ReactDom.findDOMNode( this.refs[ 'tab-' + index ] ).offsetWidth;
-			totalWidth += tabWidth;
-		}.bind( this ) );
+		React.Children.forEach(
+			this.props.children,
+			function( child, index ) {
+				if ( ! child ) {
+					return;
+				}
+				const tabWidth = ReactDom.findDOMNode( this.refs[ 'tab-' + index ] ).offsetWidth;
+				totalWidth += tabWidth;
+			}.bind( this )
+		);
 
 		this.tabsWidth = totalWidth;
 	};
 
 	getDropdown = () => {
-		const dropdownOptions = React.Children.map(
-		this.props.children, function( child, index ) {
+		const dropdownOptions = React.Children.map( this.props.children, function( child, index ) {
 			if ( ! child ) {
 				return null;
 			}
@@ -146,21 +138,21 @@ class NavTabs extends React.Component {
 
 			if ( navGroupWidth <= this.tabsWidth && ! this.state.isDropdown ) {
 				this.setState( {
-					isDropdown: true
+					isDropdown: true,
 				} );
 			} else if ( navGroupWidth > this.tabsWidth && this.state.isDropdown ) {
 				this.setState( {
-					isDropdown: false
+					isDropdown: false,
 				} );
 			}
 		} else if ( window.innerWidth <= MOBILE_PANEL_THRESHOLD && this.state.isDropdown ) {
 			this.setState( {
-				isDropdown: false
+				isDropdown: false,
 			} );
 		}
 	};
 
-	keyHandler = ( event ) => {
+	keyHandler = event => {
 		switch ( event.keyCode ) {
 			case 32: // space
 			case 13: // enter

@@ -3,20 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-	getPlanClass,
-	FEATURE_UNLIMITED_PREMIUM_THEMES
-} from 'lib/plans/constants';
+import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
 import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
-import {
-	getSitePlan,
-	getAvailableFeatures,
-	getActiveFeatures,
-} from 'state/site';
+import { getSitePlan, getAvailableFeatures, getActiveFeatures } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
 import ThemesPromoCard from 'components/themes-promo-card';
@@ -27,9 +20,7 @@ import MyPlanBody from './my-plan-body';
 export class MyPlan extends React.Component {
 	themesPromo = () => {
 		const sitePlan = this.props.sitePlan.product_slug || '';
-		const planClass = 'dev' !== this.props.plan
-			? getPlanClass( sitePlan )
-			: 'dev';
+		const planClass = 'dev' !== this.props.plan ? getPlanClass( sitePlan ) : 'dev';
 
 		switch ( planClass ) {
 			case 'is-personal-plan':
@@ -52,7 +43,8 @@ export class MyPlan extends React.Component {
 			activeFeatures = {};
 		}
 
-		const premiumThemesAvailable = 'undefined' !== typeof this.props.availableFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ],
+		const premiumThemesAvailable =
+				'undefined' !== typeof this.props.availableFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ],
 			premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
 			showThemesPromo = premiumThemesAvailable && ! premiumThemesActive;
 
@@ -88,13 +80,11 @@ export class MyPlan extends React.Component {
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-			sitePlan: getSitePlan( state ),
-			availableFeatures: getAvailableFeatures( state ),
-			activeFeatures: getActiveFeatures( state ),
-		};
-	}
-)( MyPlan );
+export default connect( state => {
+	return {
+		getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
+		sitePlan: getSitePlan( state ),
+		availableFeatures: getAvailableFeatures( state ),
+		activeFeatures: getActiveFeatures( state ),
+	};
+} )( MyPlan );

@@ -24,18 +24,23 @@ class QueryVaultPressData extends Component {
 }
 
 QueryVaultPressData.defaultProps = {
-	fetchVaultPressData: () => {}
+	fetchVaultPressData: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchVaultPressData: fetchVaultPressData(),
-		fetchingVaultPressData: isFetchingVaultPressData( state ),
-		isModuleActivated: ( slug ) => _isModuleActivated( state, slug )
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchVaultPressData
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			fetchVaultPressData: fetchVaultPressData(),
+			fetchingVaultPressData: isFetchingVaultPressData( state ),
+			isModuleActivated: slug => _isModuleActivated( state, slug ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchVaultPressData,
+			},
+			dispatch
+		);
+	}
 )( QueryVaultPressData );

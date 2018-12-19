@@ -11,12 +11,10 @@ module.exports = createReactClass( {
 	mixins: [ Formsy.Mixin ],
 
 	propTypes: {
-		name: PropTypes.string.isRequired
+		name: PropTypes.string.isRequired,
 	},
 
 	render: function() {
-		return (
-			<input type="hidden" value={ this.getValue() } />
-		);
-	}
+		return <input type="hidden" value={ this.getValue() } />;
+	},
 } );

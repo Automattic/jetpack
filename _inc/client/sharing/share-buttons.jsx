@@ -19,7 +19,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 		trackClickConfigure() {
 			analytics.tracks.recordJetpackClick( {
 				target: 'configure-sharing',
-				page: 'sharing'
+				page: 'sharing',
 			} );
 		}
 
@@ -39,7 +39,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							className="jp-settings-card__configure-link"
 							href={ siteAdminUrl + 'options-general.php?page=sharing' }
 						>
-							{__( 'Configure your sharing buttons' )}
+							{ __( 'Configure your sharing buttons' ) }
 						</Card>
 					);
 				}
@@ -54,7 +54,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							rel="noopener noreferrer"
 							href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }
 						>
-							{__( 'Configure your sharing buttons' )}
+							{ __( 'Configure your sharing buttons' ) }
 						</Card>
 					);
 				}
@@ -67,9 +67,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						rel="noopener noreferrer"
 						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
 					>
-						{__(
-							'Create a Jetpack account to use this feature'
-						)}
+						{ __( 'Create a Jetpack account to use this feature' ) }
 					</Card>
 				);
 			};
@@ -88,7 +86,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							text: __(
 								'Adds sharing buttons to your content so that visitors can share it on social media sites.'
 							),
-							link: 'https://jetpack.com/support/sharing/'
+							link: 'https://jetpack.com/support/sharing/',
 						} }
 					>
 						<ModuleToggle
@@ -97,10 +95,10 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{__( 'Add sharing buttons to your posts' )}
+							{ __( 'Add sharing buttons to your posts' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{isActive && configCard()}
+					{ isActive && configCard() }
 				</SettingsCard>
 			);
 		}

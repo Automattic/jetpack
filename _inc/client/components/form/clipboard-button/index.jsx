@@ -21,17 +21,17 @@ export default class ClipboardButton extends React.Component {
 		className: PropTypes.string,
 		text: PropTypes.string,
 		prompt: PropTypes.string,
-		onCopy: PropTypes.func
+		onCopy: PropTypes.func,
 	};
 
 	static defaultProps = {
-		onCopy: noop
+		onCopy: noop,
 	};
 
 	componentDidMount() {
 		const button = ReactDom.findDOMNode( this.refs.button );
 		this.clipboard = new Clipboard( button, {
-			text: () => this.props.text
+			text: () => this.props.text,
 		} );
 		this.clipboard.on( 'success', this.props.onCopy );
 		this.clipboard.on( 'error', this.displayPrompt );
@@ -52,7 +52,8 @@ export default class ClipboardButton extends React.Component {
 			<Button
 				ref="button"
 				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
-				className={ classes } />
+				className={ classes }
+			/>
 		);
 	}
 }

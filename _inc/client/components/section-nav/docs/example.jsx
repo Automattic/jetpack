@@ -29,7 +29,7 @@ const SectionNavigation = createReactClass( {
 			basicTabsSelectedIndex: 0,
 			manyTabsSelectedIndex: 0,
 			siblingTabsSelectedIndex: 0,
-			siblingSegmentedSelectedIndex: 0
+			siblingSegmentedSelectedIndex: 0,
 		};
 	},
 
@@ -40,12 +40,12 @@ const SectionNavigation = createReactClass( {
 				'Weeks',
 				{
 					name: 'Months',
-					count: 45
+					count: 45,
 				},
 				{
 					name: 'Years',
-					count: 11
-				}
+					count: 11,
+				},
 			],
 			manyTabs: [
 				'Staff Picks',
@@ -53,32 +53,29 @@ const SectionNavigation = createReactClass( {
 				'Blog',
 				{
 					name: 'Business',
-					count: 8761
+					count: 8761,
 				},
 				'Food',
 				'Music',
 				{
 					name: 'Travel',
-					count: 761
+					count: 761,
 				},
 				'Wedding',
 				'Minimal',
 				'Magazine',
-				'Photography'
+				'Photography',
 			],
 			siblingTabs: [
 				{
 					name: 'Published',
-					count: 8
+					count: 8,
 				},
 				'Scheduled',
 				'Drafts',
-				'Trashed'
+				'Trashed',
 			],
-			siblingSegmented: [
-				'Only Me',
-				'Everyone'
-			]
+			siblingSegmented: [ 'Only Me', 'Everyone' ],
 		};
 	},
 
@@ -89,7 +86,7 @@ const SectionNavigation = createReactClass( {
 			demoSections[ key ] = [];
 
 			prop.forEach( function( item, index ) {
-				demoSections[ key ].push( (
+				demoSections[ key ].push(
 					<NavItem
 						key={ key + '-' + index }
 						count={ item.count }
@@ -98,7 +95,7 @@ const SectionNavigation = createReactClass( {
 					>
 						{ 'object' === typeof item ? item.name : item }
 					</NavItem>
-				) );
+				);
 			}, this );
 		} );
 
@@ -113,9 +110,7 @@ const SectionNavigation = createReactClass( {
 					selectedText={ this.getSelectedText( 'basicTabs' ) }
 					selectedCount={ this.getSelectedCount( 'basicTabs' ) }
 				>
-					<NavTabs>
-						{ demoSections.basicTabs }
-					</NavTabs>
+					<NavTabs>{ demoSections.basicTabs }</NavTabs>
 				</SectionNav>
 
 				<h3>Many Tabs</h3>
@@ -123,9 +118,7 @@ const SectionNavigation = createReactClass( {
 					selectedText={ this.getSelectedText( 'manyTabs' ) }
 					selectedCount={ this.getSelectedCount( 'manyTabs' ) }
 				>
-					<NavTabs>
-						{ demoSections.manyTabs }
-					</NavTabs>
+					<NavTabs>{ demoSections.manyTabs }</NavTabs>
 				</SectionNav>
 
 				<h3>Sibling Control Groups</h3>
@@ -138,9 +131,7 @@ const SectionNavigation = createReactClass( {
 						{ demoSections.siblingTabs }
 					</NavTabs>
 
-					<NavSegmented label="author">
-						{ demoSections.siblingSegmented }
-					</NavSegmented>
+					<NavSegmented label="author">{ demoSections.siblingSegmented }</NavSegmented>
 
 					<Search
 						pinned={ true }
@@ -163,9 +154,7 @@ const SectionNavigation = createReactClass( {
 		const selected = this.state[ section + 'SelectedIndex' ],
 			selectedItem = this.props[ section ][ selected ];
 
-		return 'object' === typeof selectedItem
-			? selectedItem.count || null
-			: null;
+		return 'object' === typeof selectedItem ? selectedItem.count || null : null;
 	},
 
 	getSiblingDemoSelectedText: function() {
@@ -186,7 +175,7 @@ const SectionNavigation = createReactClass( {
 		}.bind( this );
 	},
 
-	demoSearch: function() {}
+	demoSearch: function() {},
 } );
 
 module.exports = SectionNavigation;

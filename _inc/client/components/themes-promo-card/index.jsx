@@ -24,7 +24,7 @@ class ThemesPromoCard extends React.Component {
 			target: 'themes-card',
 			button: 'themes-get-started',
 			plan: this.props.plan,
-			type: 'upgrade'
+			type: 'upgrade',
 		} );
 	};
 
@@ -33,15 +33,12 @@ class ThemesPromoCard extends React.Component {
 			target: 'themes-card',
 			button: 'themes-compare-all',
 			plan: this.props.plan,
-			type: 'upgrade'
+			type: 'upgrade',
 		} );
 	};
 
 	render() {
-		const classes = classNames(
-				this.props.className,
-				'jp-themes-card'
-		);
+		const classes = classNames( this.props.className, 'jp-themes-card' );
 
 		return (
 			<div className={ classes }>
@@ -52,39 +49,39 @@ class ThemesPromoCard extends React.Component {
 
 					<div className="jp-apps-card__description">
 						<h3 className="jp-apps-card__header">{ __( 'Introducing Premium Themes' ) }</h3>
-						{
-							this.props.showBackups
+						{ this.props.showBackups
 							? __(
-								'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
-								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
-								{
-									components: {
-										p: <p className="jp-apps-card__paragraph" />
+									'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
+										"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
+									{
+										components: {
+											p: <p className="jp-apps-card__paragraph" />,
+										},
 									}
-								}
-							)
+							  )
 							: __(
-								'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
-								"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
-								{
-									components: {
-										p: <p className="jp-apps-card__paragraph" />
+									'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
+										"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
+									{
+										components: {
+											p: <p className="jp-apps-card__paragraph" />,
+										},
 									}
-								}
-							)
-						}
+							  ) }
 
 						<p>
 							<Button
 								className="is-primary"
 								onClick={ this.trackGetStarted }
-								href={ this.props.proUpgradeUrl }>
+								href={ this.props.proUpgradeUrl }
+							>
 								{ __( 'Explore Professional' ) }
 							</Button>
 							&nbsp;
 							<Button
 								onClick={ this.trackComparePlans }
-								href={ this.props.plansCompareFreeUpgradeUrl }>
+								href={ this.props.plansCompareFreeUpgradeUrl }
+							>
 								{ __( 'Compare All Plans' ) }
 							</Button>
 						</p>
@@ -97,20 +94,17 @@ class ThemesPromoCard extends React.Component {
 
 ThemesPromoCard.propTypes = {
 	className: PropTypes.string,
-	plan: PropTypes.string
+	plan: PropTypes.string,
 };
 
-export default connect(
-	( state, { plan } ) => {
-		// Plan classes come through as `is-whatever-plan`, we need to strip off `is-` and `-plan` from the string to pass to the URL
-		const regex = /(?![is-])(.*)(?=-plan)/g;
-		const urlFriendlyPlan = Array.isArray( plan.match( regex ) ) ? plan.match( regex )[ 0 ] : '';
+export default connect( ( state, { plan } ) => {
+	// Plan classes come through as `is-whatever-plan`, we need to strip off `is-` and `-plan` from the string to pass to the URL
+	const regex = /(?![is-])(.*)(?=-plan)/g;
+	const urlFriendlyPlan = Array.isArray( plan.match( regex ) ) ? plan.match( regex )[ 0 ] : '';
 
-		return {
-			showBackups: showBackups( state ),
-			proUpgradeUrl: getUpgradeUrl( state, 'upgrade-pro-' + urlFriendlyPlan ),
-			plansCompareFreeUpgradeUrl: getUpgradeUrl( state, 'plans-compare-free' ),
-		};
-	}
-)( ThemesPromoCard );
-
+	return {
+		showBackups: showBackups( state ),
+		proUpgradeUrl: getUpgradeUrl( state, 'upgrade-pro-' + urlFriendlyPlan ),
+		plansCompareFreeUpgradeUrl: getUpgradeUrl( state, 'plans-compare-free' ),
+	};
+} )( ThemesPromoCard );

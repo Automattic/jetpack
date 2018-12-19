@@ -70,15 +70,15 @@ export class JetpackDisconnectDialog extends React.Component {
 					},
 					{
 						text: __( 'Unlimited, high-speed video hosting' ),
-						icon: 'video'
-					}
+						icon: 'video',
+					},
 				];
 
 			case 'is-business-plan':
 				return [
 					{
 						text: __( 'Real-time, automated backups (unlimited storage)' ),
-						icon: 'history'
+						icon: 'history',
 					},
 					{
 						text: __( 'Daily, automated malware scanning with automated resolution' ),
@@ -90,7 +90,7 @@ export class JetpackDisconnectDialog extends React.Component {
 					},
 					{
 						text: __( 'Unlimited, high-speed video hosting' ),
-						icon: 'video'
+						icon: 'video',
 					},
 					{
 						text: __( 'SEO preview tools' ),

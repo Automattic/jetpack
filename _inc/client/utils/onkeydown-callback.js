@@ -8,7 +8,7 @@
  * @returns {Function}        a function ready to be used as event handler
  */
 export default function( callback ) {
-	return ( event ) => {
+	return event => {
 		if ( event.which === 13 || event.which === 32 ) {
 			callback( event );
 		}

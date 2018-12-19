@@ -10,16 +10,8 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import {
-	FEATURE_VIDEO_HOSTING_JETPACK,
-	getPlanClass
-} from 'lib/plans/constants';
-import {
-	FormFieldset,
-	FormLegend,
-	FormLabel,
-	FormSelect
-} from 'components/forms';
+import { FEATURE_VIDEO_HOSTING_JETPACK, getPlanClass } from 'lib/plans/constants';
+import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -31,23 +23,23 @@ import { getModuleOverride } from 'state/modules';
 
 class Media extends React.Component {
 	/**
- 	* Get options for initial state.
- 	*
- 	* @returns {Object} {{carousel_display_exif: Boolean}}
- 	*/
+	 * Get options for initial state.
+	 *
+	 * @returns {Object} {{carousel_display_exif: Boolean}}
+	 */
 	state = {
-		carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
+		carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' ),
 	};
 
 	/**
- 	* Update state so toggles are updated.
- 	*
- 	* @param {string} optionName option slug
- 	*/
-	updateOptions = ( optionName ) => {
+	 * Update state so toggles are updated.
+	 *
+	 * @param {string} optionName option slug
+	 */
+	updateOptions = optionName => {
 		this.setState(
 			{
-				[ optionName ]: ! this.state[ optionName ]
+				[ optionName ]: ! this.state[ optionName ],
 			},
 			this.props.updateFormStateModuleOption( 'carousel', optionName )
 		);
@@ -76,10 +68,8 @@ class Media extends React.Component {
 				support={ {
 					link: 'https://jetpack.com/support/carousel',
 				} }
-				>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Images' ) }
-				</FormLegend>
+			>
+				<FormLegend className="jp-form-label-wide">{ __( 'Images' ) }</FormLegend>
 				<p>
 					{ __(
 						'Create full-screen carousel slideshows for the images in your ' +
@@ -92,31 +82,30 @@ class Media extends React.Component {
 					activated={ isCarouselActive }
 					toggling={ this.props.isSavingAnyOption( 'carousel' ) }
 					toggleModule={ this.props.toggleModuleNow }
-					>
+				>
 					<span className="jp-form-toggle-explanation">
-						{
-							__( 'Display images in a full-screen carousel gallery' )
-						}
+						{ __( 'Display images in a full-screen carousel gallery' ) }
 					</span>
 				</ModuleToggle>
 				<FormFieldset>
 					<CompactFormToggle
 						checked={ this.state.carousel_display_exif }
-						disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] ) }
+						disabled={
+							! isCarouselActive ||
+							this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] )
+						}
 						onChange={ this.handleCarouselDisplayExifChange }
-						>
+					>
 						<span className="jp-form-toggle-explanation">
-							{
-								__( 'Show photo Exif metadata in carousel (when available)' )
-							}
+							{ __( 'Show photo Exif metadata in carousel (when available)' ) }
 						</span>
 					</CompactFormToggle>
 					<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{ __(
-									'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
-								) }
-							</p>
+						<p className="jp-form-setting-explanation">
+							{ __(
+								'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
+							) }
+						</p>
 					</FormFieldset>
 					<FormLabel>
 						<FormLegend className="jp-form-label-wide">
@@ -125,9 +114,13 @@ class Media extends React.Component {
 						<FormSelect
 							name={ 'carousel_background_color' }
 							value={ this.props.getOptionValue( 'carousel_background_color' ) }
-							disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] ) }
+							disabled={
+								! isCarouselActive ||
+								this.props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] )
+							}
 							{ ...this.props }
-							validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) } />
+							validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }
+						/>
 					</FormLabel>
 				</FormFieldset>
 			</SettingsGroup>
@@ -141,26 +134,25 @@ class Media extends React.Component {
 				support={ {
 					link: 'https://jetpack.com/support/videopress/',
 				} }
-				>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Video' ) }
-				</FormLegend>
-				<p> { __(
-					'Make the content you publish more engaging with high-resolution video. ' +
-						'With Jetpack Video you can customize your media player and deliver ' +
-						'high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!'
-				) } </p>
+			>
+				<FormLegend className="jp-form-label-wide">{ __( 'Video' ) }</FormLegend>
+				<p>
+					{' '}
+					{ __(
+						'Make the content you publish more engaging with high-resolution video. ' +
+							'With Jetpack Video you can customize your media player and deliver ' +
+							'high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!'
+					) }{' '}
+				</p>
 				<ModuleToggle
 					slug="videopress"
 					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
 					activated={ this.props.getOptionValue( 'videopress' ) }
 					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 					toggleModule={ this.props.toggleModuleNow }
-					>
+				>
 					<span className="jp-form-toggle-explanation">
-						{
-							__( 'Enable high-speed, ad-free video player' )
-						}
+						{ __( 'Enable high-speed, ad-free video player' ) }
 					</span>
 				</ModuleToggle>
 			</SettingsGroup>
@@ -175,7 +167,7 @@ class Media extends React.Component {
 				hideButton={ ! foundCarousel }
 				feature={ ! videoPressForcedInactive && FEATURE_VIDEO_HOSTING_JETPACK }
 				saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
-				>
+			>
 				{ foundCarousel && carouselSettings }
 				{ foundVideoPress && videoPressSettings }
 			</SettingsCard>
@@ -183,13 +175,11 @@ class Media extends React.Component {
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			sitePlan: getSitePlan( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		};
-	}
-)( withModuleSettingsFormHelpers( Media ) );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		sitePlan: getSitePlan( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	};
+} )( withModuleSettingsFormHelpers( Media ) );

@@ -26,13 +26,11 @@ export class Tracker extends Component {
 
 Tracker.propTypes = {
 	analytics: PropTypes.object,
-	searchTerm: PropTypes.string
+	searchTerm: PropTypes.string,
 };
 
-export default connect(
-	( state ) => {
-		return {
-			searchTerm: getSearchTerm( state )
-		};
-	}
-)( Tracker );
+export default connect( state => {
+	return {
+		searchTerm: getSearchTerm( state ),
+	};
+} )( Tracker );

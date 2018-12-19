@@ -15,7 +15,7 @@ import {
 	userCanViewStats,
 	userIsMaster,
 	userCanDisconnectSite,
-	userCanEditPosts
+	userCanEditPosts,
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import { isCurrentUserLinked } from 'state/connection';
@@ -132,10 +132,7 @@ export class DevCard extends React.Component {
 			return null;
 		}
 
-		const classes = classNames(
-			this.props.className,
-			'jp-dev-card'
-		);
+		const classes = classNames( this.props.className, 'jp-dev-card' );
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
@@ -147,7 +144,10 @@ export class DevCard extends React.Component {
 					role="button"
 					tabIndex="0"
 					onKeyDown={ onKeyDownCallback( this.props.disableDevCard ) }
-					onClick={ this.props.disableDevCard }>x</a>
+					onClick={ this.props.disableDevCard }
+				>
+					x
+				</a>
 				<div className="jp-dev-card__heading">Dev Tools</div>
 				<ul>
 					<li>
@@ -191,7 +191,7 @@ export class DevCard extends React.Component {
 					</li>
 					<li>
 						<label htmlFor="jetpack_business">
-						<input
+							<input
 								type="radio"
 								id="jetpack_business"
 								value="jetpack_business"
@@ -352,12 +352,12 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			switchPlanPreview: ( slug ) => {
+			switchPlanPreview: slug => {
 				return dispatch( switchPlanPreview( slug ) );
 			},
-			switchUserPermissions: ( slug ) => {
+			switchUserPermissions: slug => {
 				return dispatch( switchUserPermission( slug ) );
 			},
 			switchThreats: count => {
@@ -366,9 +366,9 @@ export default connect(
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );
 			},
-			switchRewindState: ( rewindState ) => {
+			switchRewindState: rewindState => {
 				return dispatch( switchRewindState( rewindState ) );
-			}
+			},
 		};
 	}
 )( DevCard );

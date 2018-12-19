@@ -21,13 +21,13 @@ class DashActivity extends Component {
 	static propTypes = {
 		inDevMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
-		sitePlan: PropTypes.object.isRequired
+		sitePlan: PropTypes.object.isRequired,
 	};
 
 	static defaultProps = {
 		inDevMode: false,
 		siteRawUrl: '',
-		sitePlan: ''
+		sitePlan: '',
 	};
 
 	render() {
@@ -51,8 +51,8 @@ class DashActivity extends Component {
 		// @todo: update this to use rewind text/CTA when available
 		const activityLogOnlyText = __( "{{a}}View your site's activity{{/a}} in a single feed.", {
 			components: {
-				a: activityLogLink
-			}
+				a: activityLogLink,
+			},
 		} );
 
 		return (
@@ -61,16 +61,12 @@ class DashActivity extends Component {
 					label={ __( 'Activity' ) }
 					isModule={ false }
 					className={ classNames( {
-						'jp-dash-item__is-inactive': inDevMode
+						'jp-dash-item__is-inactive': inDevMode,
 					} ) }
 					pro={ false }
-					>
+				>
 					<p className="jp-dash-item__description">
-						{
-							inDevMode
-								? __( 'Unavailable in Dev Mode.' )
-								: activityLogOnlyText
-						}
+						{ inDevMode ? __( 'Unavailable in Dev Mode.' ) : activityLogOnlyText }
 					</p>
 				</DashItem>
 			</div>
@@ -78,9 +74,7 @@ class DashActivity extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		sitePlan: getSitePlan( state ),
-		inDevMode: isDevMode( state ),
-	} )
-)( DashActivity );
+export default connect( state => ( {
+	sitePlan: getSitePlan( state ),
+	inDevMode: isDevMode( state ),
+} ) )( DashActivity );

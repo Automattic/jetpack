@@ -23,17 +23,22 @@ class QueryPluginUpdates extends Component {
 }
 
 QueryPluginUpdates.defaultProps = {
-	fetchPluginUpdates: () => {}
+	fetchPluginUpdates: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchPluginUpdates: fetchPluginUpdates(),
-		fetchingPluginUpdates: isFetchingPluginUpdates( state ),
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchPluginUpdates
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			fetchPluginUpdates: fetchPluginUpdates(),
+			fetchingPluginUpdates: isFetchingPluginUpdates( state ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchPluginUpdates,
+			},
+			dispatch
+		);
+	}
 )( QueryPluginUpdates );

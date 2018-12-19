@@ -8,14 +8,15 @@ const debug = require( 'debug' )( 'dops:analytics' ),
  * Internal dependencies
  */
 const config = require( 'config' );
-let _superProps,
-	_user;
+let _superProps, _user;
 
 // Load tracking scripts
 window._tkq = window._tkq || [];
-window.ga = window.ga || function() {
-	( window.ga.q = window.ga.q || [] ).push( arguments );
-};
+window.ga =
+	window.ga ||
+	function() {
+		( window.ga.q = window.ga.q || [] ).push( arguments );
+	};
 window.ga.l = +new Date();
 
 // loadScript( '//stats.wp.com/w.js?48' );
@@ -54,7 +55,6 @@ function buildQuerystringNoPrefix( group, name ) {
 }
 
 const analytics = {
-
 	initialize: function( userId, username, superProps ) {
 		analytics.setUser( userId, username );
 		analytics.setSuperProps( superProps );
@@ -73,7 +73,12 @@ const analytics = {
 		bumpStat: function( group, name ) {
 			const uriComponent = buildQuerystring( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
-				new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + uriComponent + '&t=' + Math.random();
+				new Image().src =
+					document.location.protocol +
+					'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
+					uriComponent +
+					'&t=' +
+					Math.random();
 			}
 		},
 
@@ -81,9 +86,14 @@ const analytics = {
 			// this function is fairly dangerous, as it bumps page views for wpcom and should only be called in very specific cases.
 			const uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
-				new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom' + uriComponent + '&t=' + Math.random();
+				new Image().src =
+					document.location.protocol +
+					'//pixel.wp.com/g.gif?v=wpcom' +
+					uriComponent +
+					'&t=' +
+					Math.random();
 			}
-		}
+		},
 	},
 
 	// pageView is a wrapper for pageview events across Tracks and GA
@@ -91,13 +101,13 @@ const analytics = {
 		record: function( urlPath, pageTitle ) {
 			analytics.tracks.recordPageView( urlPath );
 			analytics.ga.recordPageView( urlPath, pageTitle );
-		}
+		},
 	},
 
 	purchase: {
 		record: function( transactionId, itemName, itemId, revenue, price, qty, currency ) {
 			analytics.ga.recordPurchase( transactionId, itemName, itemId, revenue, price, qty, currency );
-		}
+		},
 	},
 
 	tracks: {
@@ -106,7 +116,11 @@ const analytics = {
 
 			eventProperties = eventProperties || {};
 
-			debug( 'Record event "%s" called with props %s', eventName, JSON.stringify( eventProperties ) );
+			debug(
+				'Record event "%s" called with props %s',
+				eventName,
+				JSON.stringify( eventProperties )
+			);
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
 				debug( '- Event name must be prefixed by "akismet_" or "jetpack_"' );
 				return;
@@ -129,7 +143,7 @@ const analytics = {
 
 		recordPageView: function( urlPath ) {
 			analytics.tracks.recordEvent( 'akismet_page_view', {
-				path: urlPath
+				path: urlPath,
 			} );
 		},
 
@@ -141,7 +155,6 @@ const analytics = {
 
 	// Google Analytics usage and event stat tracking
 	ga: {
-
 		initialized: false,
 
 		initialize: function() {
@@ -149,7 +162,7 @@ const analytics = {
 			if ( ! analytics.ga.initialized ) {
 				if ( _user ) {
 					parameters = {
-						userId: 'u-' + _user.ID
+						userId: 'u-' + _user.ID,
 					};
 				}
 				window.ga( 'create', config( 'google_analytics_key' ), 'auto', parameters );
@@ -169,7 +182,7 @@ const analytics = {
 				window.ga( 'send', {
 					hitType: 'pageview',
 					page: urlPath,
-					title: pageTitle
+					title: pageTitle,
 				} );
 			}
 		},
@@ -201,7 +214,7 @@ const analytics = {
 				// 'affiliation': 'Acme Clothing',   // Affiliation or store name.
 				revenue: revenue, // Grand Total.
 				// 'tax': '1.29',                     // Tax.
-				currency: currency // local currency code.
+				currency: currency, // local currency code.
 			} );
 			window.ga( 'ecommerce:addItem', {
 				id: transactionId, // Transaction ID. Required.
@@ -209,10 +222,10 @@ const analytics = {
 				sku: itemId, // SKU/code.
 				// 'category': 'Party Toys',         // Category or variation.
 				price: price, // Unit price.
-				quantity: qty // Quantity.
+				quantity: qty, // Quantity.
 			} );
 			window.ga( 'ecommerce:send' );
-		}
+		},
 	},
 
 	identifyUser: function() {
@@ -228,7 +241,7 @@ const analytics = {
 
 	clearedIdentity: function() {
 		window._tkq.push( [ 'clearIdentity' ] );
-	}
+	},
 };
 
 module.exports = analytics;

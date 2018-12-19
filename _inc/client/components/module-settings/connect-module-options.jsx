@@ -8,23 +8,17 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import {
-	getModuleOption,
-	getModuleOptionValidValues
-} from 'state/modules';
+import { getModuleOption, getModuleOptionValidValues } from 'state/modules';
 import {
 	fetchSettings,
 	getSetting,
 	updateSettings,
 	isUpdatingSetting,
 	setUnsavedSettingsFlag,
-	clearUnsavedSettingsFlag
+	clearUnsavedSettingsFlag,
 } from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
-import {
-	getSiteRoles,
-	getAdminEmailAddress
-} from 'state/initial-state';
+import { getSiteRoles, getAdminEmailAddress } from 'state/initial-state';
 
 import { isCurrentUserLinked } from 'state/connection';
 
@@ -45,17 +39,19 @@ export function connectModuleOptions( Component ) {
 					}
 					return getModuleOptionValidValues( state, module_slug, option_name );
 				},
-				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
-				getSettingCurrentValue: ( setting_name, moduleName = '' ) => getSetting( state, setting_name, moduleName ),
+				getOptionCurrentValue: ( module_slug, option_name ) =>
+					getModuleOption( state, module_slug, option_name ),
+				getSettingCurrentValue: ( setting_name, moduleName = '' ) =>
+					getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
-				isCurrentUserLinked: isCurrentUserLinked( state )
+				isCurrentUserLinked: isCurrentUserLinked( state ),
 			};
 		},
-		( dispatch ) => ( {
+		dispatch => ( {
 			updateOptions: ( newOptions, messages = {} ) => {
 				return dispatch( updateSettings( newOptions, messages ) );
 			},
@@ -63,7 +59,8 @@ export function connectModuleOptions( Component ) {
 				const messages = {
 					progress: __( 'Updating Post by Email address…' ),
 					success: __( 'Regenerated Post by Email address.' ),
-					error: error => __( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } )
+					error: error =>
+						__( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } ),
 				};
 
 				return dispatch( updateSettings( { post_by_email_address: 'regenerate' }, messages ) );
@@ -76,7 +73,7 @@ export function connectModuleOptions( Component ) {
 			},
 			refreshSettings: () => {
 				return dispatch( fetchSettings() );
-			}
+			},
 		} )
 	)( Component );
 }

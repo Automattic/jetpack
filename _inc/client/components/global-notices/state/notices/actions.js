@@ -6,15 +6,12 @@ import uniqueId from 'lodash/uniqueId';
 /**
  * Internal dependencies
  */
-import {
-	NEW_NOTICE,
-	REMOVE_NOTICE
-} from '../action-types';
+import { NEW_NOTICE, REMOVE_NOTICE } from '../action-types';
 
 export function removeNotice( noticeId ) {
 	return {
 		noticeId: noticeId,
-		type: REMOVE_NOTICE
+		type: REMOVE_NOTICE,
 	};
 }
 
@@ -22,16 +19,16 @@ export function createNotice( status, text, options = {} ) {
 	const notice = {
 		noticeId: options.id || uniqueId(),
 		duration: options.duration,
-		showDismiss: ( typeof options.showDismiss === 'boolean' ? options.showDismiss : true ),
+		showDismiss: typeof options.showDismiss === 'boolean' ? options.showDismiss : true,
 		isPersistent: options.isPersistent || false,
 		displayOnNextPage: options.displayOnNextPage || false,
 		status: status,
-		text: text
+		text: text,
 	};
 
 	return {
 		type: NEW_NOTICE,
-		notice: notice
+		notice: notice,
 	};
 }
 
