@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: module configuration URLs now redirect to the relevant section in Jetpack settings.
 * Admin Page: clarify and unify Security settings links in the Jetpack Dashboard.
 * Admin Page: hide Related Posts preview when not active.
+* Admin Page: add descriptions to settings sections.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Blocks: add new Subcription form block.
 * Internationalization: add new locales, ensure existing ones are up to date.
