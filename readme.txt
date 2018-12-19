@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
 * Internationalization: add new locales, ensure existing ones are up to date.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
+* SSO: offer message introducing the feature to new users.
 * WordPress.com REST API: add new option to set sites to private.
 
 **Improved compatibility**
