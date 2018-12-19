@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: update feature limits mentioned when disconnecting Jetpack from WordPress.com
+* Block Editor: fix loading of translations in the editor when Jetpack's Site Accelerator feature is active.
 * Publicize: improve synchronization of sharing settings with WordPress.com.
 * Publicize: only display Gutenberg Publicize UI to users with the correct permissions.
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
