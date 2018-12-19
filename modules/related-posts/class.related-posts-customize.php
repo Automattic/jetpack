@@ -144,7 +144,7 @@ class Jetpack_Related_Posts_Customize {
 	 * @return bool
 	 */
 	public static function is_single() {
-		if ( self::contains_related_posts_block() ) ) {
+		if ( self::contains_related_posts_block() ) {
 			return false;
 		}
 		return is_single();
