@@ -1,6 +1,10 @@
 module.exports = {
 	"parser": "babel-eslint",
-	"extends": "wpcalypso/react-a11y",
+	"extends": [
+		"wpcalypso/react-a11y",
+		"prettier",
+		"prettier/react"
+	],
 	"env": {
 		"browser": true,
 		"es6": true,
@@ -17,15 +21,12 @@ module.exports = {
 		"lodash"
 	],
 	"rules": {
-		"array-bracket-spacing": [ 2, "always" ],
-		"brace-style": [ 2, "1tbs" ],
 		// REST API objects include underscores
 		"camelcase": 0,
 		"comma-spacing": 2,
 		"curly": 2,
 		"computed-property-spacing": [ 2, "always" ],
 		"func-call-spacing": 2,
-		"indent": [ 2, "tab", { "SwitchCase": 1 } ],
 		"jsx-quotes": [ 2, "prefer-double" ],
 		"key-spacing": 2,
 		"keyword-spacing": 2,
@@ -52,8 +53,6 @@ module.exports = {
 		} } ],
 		"padded-blocks": [ 2, "never" ],
 		"prefer-const": 2,
-		"quote-props": [ 2, "as-needed", { "keywords": true } ],
-		"quotes": [ 2, "single", "avoid-escape" ],
 		"react/jsx-curly-spacing": [ 2, "always" ],
 		"react/jsx-no-bind": 2,
 		"react/jsx-space-before-closing": 2,

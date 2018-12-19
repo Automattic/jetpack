@@ -17,11 +17,11 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
-	maybeDismiss = ( e ) => {
+	maybeDismiss = e => {
 		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode === 27 ) ) {
 			this.props.dismiss( e );
 		}
-	}
+	};
 
 	// capture the ESC key globally
 	componentDidMount() {
@@ -38,37 +38,52 @@ class JetpackDialogue extends Component {
 	}
 
 	render() {
-		const classes = classNames(
-			this.props.className,
-			'jp-dialogue'
-		);
+		const classes = classNames( this.props.className, 'jp-dialogue' );
 		return (
-			<div className="jp-dialogue-full__container" role="dialog" onClick={ this.maybeDismiss } onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }>
-				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-dialogue-full__svg-stars" />
-				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-dialogue-full__svg-jupiter" />
+			<div
+				className="jp-dialogue-full__container"
+				role="dialog"
+				onClick={ this.maybeDismiss }
+				onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }
+			>
+				<img
+					src={ imagePath + 'stars-full.svg' }
+					width="60"
+					height="60"
+					alt={ __( 'Stars' ) }
+					className="jp-dialogue-full__svg-stars"
+				/>
+				<img
+					src={ imagePath + 'jupiter.svg' }
+					width="50"
+					height="100"
+					alt={ __( 'Jupiter' ) }
+					className="jp-dialogue-full__svg-jupiter"
+				/>
 
-				<div className={ classes } role="dialog" onClick={ this.clickForeground } onKeyDown={ onKeyDownCallback( this.clickForeground ) }>
+				<div
+					className={ classes }
+					role="dialog"
+					onClick={ this.clickForeground }
+					onKeyDown={ onKeyDownCallback( this.clickForeground ) }
+				>
 					{ this.props.svg }
 
-					<h1 className="jp-dialogue__title">
-						{ this.props.title }
-					</h1>
+					<h1 className="jp-dialogue__title">{ this.props.title }</h1>
 
 					<Card>
-						{
-							this.props.showDismiss && <Gridicon
+						{ this.props.showDismiss && (
+							<Gridicon
 								icon="cross-small"
 								className="jp-dialogue-full__dismiss"
 								tabIndex="0"
 								onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
 								onClick={ this.props.dismiss }
 							/>
-						}
+						) }
 						{ this.props.content }
 					</Card>
-					<div>
-						{ this.props.belowContent }
-					</div>
+					<div>{ this.props.belowContent }</div>
 				</div>
 			</div>
 		);
@@ -76,21 +91,12 @@ class JetpackDialogue extends Component {
 }
 
 JetpackDialogue.propTypes = {
-	content: PropTypes.oneOfType( [
-		PropTypes.string,
-		PropTypes.object,
-	] ).isRequired,
-	belowContent: PropTypes.oneOfType( [
-		PropTypes.string,
-		PropTypes.object,
-	] ).isRequired,
-	svg: PropTypes.oneOfType( [
-		PropTypes.bool,
-		PropTypes.object,
-	] ),
+	content: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
+	belowContent: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
+	svg: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ),
 	dismissOnClick: PropTypes.func,
 	showDismiss: PropTypes.bool,
-	title: PropTypes.string
+	title: PropTypes.string,
 };
 
 JetpackDialogue.defaultProps = {

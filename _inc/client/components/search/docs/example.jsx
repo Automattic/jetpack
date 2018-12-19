@@ -28,18 +28,12 @@ const SearchDemo = createReactClass( {
 				<h2>
 					<a href="/devdocs/design/search">Search</a>
 				</h2>
-				<Search
-					onSearch={ noop }
-					placeholder="Placeholder text..."
-				/>
+				<Search onSearch={ noop } placeholder="Placeholder text..." />
 				<h2>Search Card</h2>
-				<SearchCard
-					onSearch={ noop }
-					placeholder="Placeholder text..."
-				/>
+				<SearchCard onSearch={ noop } placeholder="Placeholder text..." />
 			</div>
 		);
-	}
+	},
 } );
 
 module.exports = SearchDemo;

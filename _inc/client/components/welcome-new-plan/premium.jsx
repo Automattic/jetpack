@@ -46,22 +46,33 @@ class WelcomePremium extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
-						' security threats, and enabling monetization features.'
+					{ __(
+						'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
+							' security threats, and enabling monetization features.'
 					) }
 				</p>
-				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
+				<img
+					src={ imagePath + 'customize-theme.svg' }
+					className="jp-welcome__svg"
+					alt={ __( 'Themes' ) }
+				/>
 				<p>
-					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
-						' appearance with one of more than 100 free themes, or enhance your content with unlimited HD video ' +
-						'-- all hosted free of ads or watermarks.'
+					{ __(
+						'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
+							' appearance with one of more than 100 free themes, or enhance your content with unlimited HD video ' +
+							'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
+				<img
+					src={ imagePath + 'wordads.svg' }
+					className="jp-welcome__svg"
+					alt={ __( 'Sharing' ) }
+				/>
 				<p>
-					{ __( 'Using Jetpack’s powerful sharing tools, you can automatically share your newest posts on social media,' +
-						' or schedule your content to be re-shared at any date or time you choose. And along with growing your ' +
-						'following, you can grow your business with tools like payment buttons and ads.'
+					{ __(
+						'Using Jetpack’s powerful sharing tools, you can automatically share your newest posts on social media,' +
+							' or schedule your content to be re-shared at any date or time you choose. And along with growing your ' +
+							'following, you can grow your business with tools like payment buttons and ads.'
 					) }
 				</p>
 				<InlineModuleToggle module_slug="publicize" />
@@ -72,9 +83,7 @@ class WelcomePremium extends Component {
 					{ __( 'Start exploring Jetpack Premium now to see all the benefits of your new plan.' ) }
 				</p>
 				<div className="jp-welcome-new-plan__button">
-					<Button onClick={ this.clickCtaDismissGetStarted }>
-						{ __( 'Got it' ) }
-					</Button>
+					<Button onClick={ this.clickCtaDismissGetStarted }>{ __( 'Got it' ) }</Button>
 				</div>
 			</div>
 		);
@@ -98,7 +107,13 @@ class WelcomePremium extends Component {
 	render() {
 		return (
 			<JetpackDialogue
-				svg={ <img src={ imagePath + 'generating-cash-2.svg' } width="250" alt={ __( 'Welcome Premium' ) } /> }
+				svg={
+					<img
+						src={ imagePath + 'generating-cash-2.svg' }
+						width="250"
+						alt={ __( 'Welcome Premium' ) }
+					/>
+				}
 				title={ __( 'Explore your Jetpack Premium plan!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
@@ -110,7 +125,7 @@ class WelcomePremium extends Component {
 }
 
 WelcomePremium.propTypes = {
-	dismiss: PropTypes.func
+	dismiss: PropTypes.func,
 };
 
 export default WelcomePremium;

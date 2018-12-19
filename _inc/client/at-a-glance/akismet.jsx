@@ -17,16 +17,12 @@ import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
 
 class DashAkismet extends Component {
-
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
 
 		// Connected props
-		akismetData: PropTypes.oneOfType( [
-			PropTypes.string,
-			PropTypes.object
-		] ).isRequired,
+		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isDevMode: PropTypes.bool.isRequired,
 	};
 
@@ -42,22 +38,17 @@ class DashAkismet extends Component {
 		const labelName = __( 'Spam Protection' );
 
 		const support = {
-			text: __( 'Akismet checks your comments and contact form submissions against our global database of spam.' ),
+			text: __(
+				'Akismet checks your comments and contact form submissions against our global database of spam.'
+			),
 			link: 'https://akismet.com/',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
 		if ( akismetData === 'N/A' ) {
 			return (
-				<DashItem
-					label={ labelName }
-					module="akismet"
-					support={ support }
-					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __( 'Loading…' ) }
-					</p>
+				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
+					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
 			);
 		}
@@ -75,13 +66,17 @@ class DashAkismet extends Component {
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
-						{
-							__( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
-								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
-								}
-							} )
-						}
+						{ __( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
+							components: {
+								a: (
+									<a
+										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
+						} ) }
 					</p>
 				</DashItem>
 			);
@@ -98,13 +93,17 @@ class DashAkismet extends Component {
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
-						{
-							__( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
-								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
-								}
-							} )
-						}
+						{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
+							components: {
+								a: (
+									<a
+										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
+						} ) }
 					</p>
 				</DashItem>
 			);
@@ -122,13 +121,16 @@ class DashAkismet extends Component {
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
-						{
-							__( 'Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
+						{ __(
+							'Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
+							{
 								components: {
-									akismetSettings: <a href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config` } />
-								}
-							} )
-						}
+									akismetSettings: (
+										<a href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config` } />
+									),
+								},
+							}
+						) }
 					</p>
 				</DashItem>
 			);
@@ -145,11 +147,9 @@ class DashAkismet extends Component {
 			>
 				<h2 className="jp-dash-item__count">{ numberFormat( akismetData.all.spam ) }</h2>
 				<p className="jp-dash-item__description">
-					{
-						__( 'Spam comments blocked.', {
-							context: 'Example: "412 Spam comments blocked"'
-						} )
-					}
+					{ __( 'Spam comments blocked.', {
+						context: 'Example: "412 Spam comments blocked"',
+					} ) }
 				</p>
 			</DashItem>,
 			! this.props.isDevMode && (
@@ -161,7 +161,7 @@ class DashAkismet extends Component {
 				>
 					{ __( 'Moderate comments' ) }
 				</Card>
-			)
+			),
 		];
 	}
 
@@ -175,10 +175,8 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		akismetData: getAkismetData( state ),
-		sitePlan: getSitePlan( state ),
-		isDevMode: isDevMode( state ),
-	} )
-)( DashAkismet );
+export default connect( state => ( {
+	akismetData: getAkismetData( state ),
+	sitePlan: getSitePlan( state ),
+	isDevMode: isDevMode( state ),
+} ) )( DashAkismet );

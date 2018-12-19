@@ -23,17 +23,22 @@ class QueryAkismetKeyCheck extends Component {
 }
 
 QueryAkismetKeyCheck.defaultProps = {
-	checkAkismetKey: () => {}
+	checkAkismetKey: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		checkAkismetKey: checkAkismetKey(),
-		isCheckingAkismetKey: isCheckingAkismetKey( state )
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		checkAkismetKey
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			checkAkismetKey: checkAkismetKey(),
+			isCheckingAkismetKey: isCheckingAkismetKey( state ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				checkAkismetKey,
+			},
+			dispatch
+		);
+	}
 )( QueryAkismetKeyCheck );

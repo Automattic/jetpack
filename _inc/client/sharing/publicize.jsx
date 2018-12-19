@@ -19,7 +19,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		trackClickConfigure() {
 			analytics.tracks.recordJetpackClick( {
 				target: 'configure-publicize',
-				page: 'sharing'
+				page: 'sharing',
 			} );
 		}
 
@@ -36,28 +36,28 @@ export const Publicize = withModuleSettingsFormHelpers(
 					return;
 				}
 
-				return isLinked
-					? (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackClickConfigure }
-							target="_blank"
-							rel="noopener noreferrer"
-							href={ 'https://wordpress.com/sharing/' + siteRawUrl }>
-							{ __( 'Connect your social media accounts' ) }
-						</Card>
-					)
-					: (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							target="_blank"
-							rel="noopener noreferrer"
-							href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }>
-							{ __( 'Create a Jetpack account to use this feature' ) }
-						</Card>
-					);
+				return isLinked ? (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackClickConfigure }
+						target="_blank"
+						rel="noopener noreferrer"
+						href={ 'https://wordpress.com/sharing/' + siteRawUrl }
+					>
+						{ __( 'Connect your social media accounts' ) }
+					</Card>
+				) : (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						target="_blank"
+						rel="noopener noreferrer"
+						href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }
+					>
+						{ __( 'Create a Jetpack account to use this feature' ) }
+					</Card>
+				);
 			};
 
 			if ( ! userCanManageModules && ! isActive ) {
@@ -69,32 +69,32 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					header={ __( 'Publicize connections', { context: 'Settings header' } ) }
 					module="publicize"
-					hideButton>
-					{
-						userCanManageModules && (
-							<SettingsGroup
-								disableInDevMode
-								module={ { module: 'publicize' } }
-								support={ {
-									text: __( 'Allows you to automatically share your newest content on social media sites, ' +
-										'including Facebook and Twitter.' ),
-									link: 'https://jetpack.com/support/publicize/',
-								} }
-								>
-								<ModuleToggle
-									slug="publicize"
-									disabled={ unavailableInDevMode }
-									activated={ isActive }
-									toggling={ this.props.isSavingAnyOption( 'publicize' ) }
-									toggleModule={ this.props.toggleModuleNow }>
-									{ __( 'Automatically share your posts to social networks' ) }
-								</ModuleToggle>
-							</SettingsGroup>
-						)
-					}
-					{
-						isActive && configCard()
-					}
+					hideButton
+				>
+					{ userCanManageModules && (
+						<SettingsGroup
+							disableInDevMode
+							module={ { module: 'publicize' } }
+							support={ {
+								text: __(
+									'Allows you to automatically share your newest content on social media sites, ' +
+										'including Facebook and Twitter.'
+								),
+								link: 'https://jetpack.com/support/publicize/',
+							} }
+						>
+							<ModuleToggle
+								slug="publicize"
+								disabled={ unavailableInDevMode }
+								activated={ isActive }
+								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								{ __( 'Automatically share your posts to social networks' ) }
+							</ModuleToggle>
+						</SettingsGroup>
+					) }
+					{ isActive && configCard() }
 				</SettingsCard>
 			);
 		}

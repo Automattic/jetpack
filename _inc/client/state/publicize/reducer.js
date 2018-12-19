@@ -8,9 +8,7 @@ import assign from 'lodash/assign';
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SET_INITIAL_STATE,
-} from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
 export const connectUrls = ( state = {}, action ) => {
 	switch ( action.type ) {

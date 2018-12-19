@@ -25,7 +25,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
-		}
+		};
 
 		render() {
 			// Only admins plz
@@ -50,19 +50,18 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				'shortcodes',
 				'shortlinks',
 				'widget-visibility',
-				'widgets'
+				'widgets',
 			];
 
 			const allModules = this.props.modules,
 				results = [];
 			forEach( allModules, ( moduleData, slug ) => {
-				if (
-					this.props.isModuleFound( slug ) &&
-					includes( whitelist, slug )
-				) {
+				if ( this.props.isModuleFound( slug ) && includes( whitelist, slug ) ) {
 					// Not available in dev mode
 					if ( this.props.isDevMode && this.props.isUnavailableInDevMode( moduleData.module ) ) {
-						return results.push( <ActiveCard key={ slug } moduleData={ moduleData } devMode={ true } /> );
+						return results.push(
+							<ActiveCard key={ slug } moduleData={ moduleData } devMode={ true } />
+						);
 					}
 
 					if ( this.props.getOptionValue( moduleData.module ) ) {
@@ -84,19 +83,17 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				}
 			} );
 
-			return (
-				<div>{ results }</div>
-			);
+			return <div>{ results }</div>;
 		}
 	}
 );
 
 SearchableModules.propTypes = {
-	searchTerm: PropTypes.string
+	searchTerm: PropTypes.string,
 };
 
 SearchableModules.defaultProps = {
-	searchTerm: ''
+	searchTerm: '',
 };
 
 class ActiveCard extends Component {
@@ -105,10 +102,7 @@ class ActiveCard extends Component {
 			devMode = this.props.devMode;
 
 		return (
-			<SettingsCard
-				header={ m.name }
-				action={ m.module }
-				hideButton>
+			<SettingsCard header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
 					disableInDevMode={ devMode }
 					module={ { module: m.module } }
@@ -121,14 +115,12 @@ class ActiveCard extends Component {
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			modules: getModules( state ),
-			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
-			canManageModules: userCanManageModules( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isDevMode: isDevMode( state )
-		};
-	}
-)( SearchableModules );
+export default connect( state => {
+	return {
+		modules: getModules( state ),
+		isModuleFound: module_name => isModuleFound( state, module_name ),
+		canManageModules: userCanManageModules( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isDevMode: isDevMode( state ),
+	};
+} )( SearchableModules );

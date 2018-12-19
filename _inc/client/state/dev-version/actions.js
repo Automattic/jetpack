@@ -20,50 +20,62 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-export const resetOptions = ( options ) => {
-	return ( dispatch ) => {
+export const resetOptions = options => {
+	return dispatch => {
 		dispatch( {
-			type: RESET_OPTIONS
+			type: RESET_OPTIONS,
 		} );
-		dispatch( createNotice( 'is-info', __( 'Resetting Jetpack options…' ), { id: 'reset-options' } ) );
-		return restApi.resetOptions( options ).then( () => {
-			dispatch( {
-				type: RESET_OPTIONS_SUCCESS
+		dispatch(
+			createNotice( 'is-info', __( 'Resetting Jetpack options…' ), { id: 'reset-options' } )
+		);
+		return restApi
+			.resetOptions( options )
+			.then( () => {
+				dispatch( {
+					type: RESET_OPTIONS_SUCCESS,
+				} );
+				dispatch( removeNotice( 'reset-options' ) );
+				dispatch(
+					createNotice( 'is-success', __( 'Options reset.' ), {
+						id: 'reset-options',
+						duration: 2000,
+					} )
+				);
+			} )
+			.catch( error => {
+				dispatch( {
+					type: RESET_OPTIONS_FAIL,
+					error: error,
+				} );
+				dispatch( removeNotice( 'reset-options' ) );
+				dispatch(
+					createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } )
+				);
 			} );
-			dispatch( removeNotice( 'reset-options' ) );
-			dispatch( createNotice( 'is-success', __( 'Options reset.' ), { id: 'reset-options', duration: 2000 } ) );
-		} ).catch( error => {
-			dispatch( {
-				type: RESET_OPTIONS_FAIL,
-				error: error
-			} );
-			dispatch( removeNotice( 'reset-options' ) );
-			dispatch( createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } ) );
-		} );
 	};
 };
 
 export const enableDevCard = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: DEV_CARD_DISPLAY
+			type: DEV_CARD_DISPLAY,
 		} );
 	};
 };
 
 export const disableDevCard = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: DEV_CARD_HIDE
+			type: DEV_CARD_HIDE,
 		} );
 	};
 };
 
-export const switchPlanPreview = ( slug ) => {
-	return ( dispatch ) => {
+export const switchPlanPreview = slug => {
+	return dispatch => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
-			siteData: { plan: { product_slug: slug } }
+			siteData: { plan: { product_slug: slug } },
 		} );
 	};
 };
@@ -78,9 +90,9 @@ const adminMasterPerms = {
 			edit_posts: true,
 			manage_modules: true,
 			manage_options: true,
-			manage_plugins: true
-		}
-	}
+			manage_plugins: true,
+		},
+	},
 };
 
 const adminSecondaryPerms = {
@@ -93,9 +105,9 @@ const adminSecondaryPerms = {
 			edit_posts: true,
 			manage_modules: true,
 			manage_options: true,
-			manage_plugins: true
-		}
-	}
+			manage_plugins: true,
+		},
+	},
 };
 
 const editorAuthorContributorPerms = {
@@ -108,9 +120,9 @@ const editorAuthorContributorPerms = {
 			edit_posts: true,
 			manage_modules: false,
 			manage_options: false,
-			manage_plugins: false
-		}
-	}
+			manage_plugins: false,
+		},
+	},
 };
 
 const subscriberPerms = {
@@ -123,43 +135,43 @@ const subscriberPerms = {
 			edit_posts: false,
 			manage_modules: false,
 			manage_options: false,
-			manage_plugins: false
-		}
-	}
+			manage_plugins: false,
+		},
+	},
 };
 
 const viewStats = {
 	currentUser: {
 		permissions: {
-			view_stats: true
-		}
-	}
+			view_stats: true,
+		},
+	},
 };
 
 const hideStats = {
 	currentUser: {
 		permissions: {
-			view_stats: false
-		}
-	}
+			view_stats: false,
+		},
+	},
 };
 
 const isLinked = {
 	currentUser: {
-		isConnected: true
-	}
+		isConnected: true,
+	},
 };
 
 const isUnlinked = {
 	currentUser: {
-		isConnected: false
-	}
+		isConnected: false,
+	},
 };
 
-export const switchUserPermission = ( slug ) => {
+export const switchUserPermission = slug => {
 	let userPerms = {};
 
-	return ( dispatch ) => {
+	return dispatch => {
 		switch ( slug ) {
 			case 'admin_master':
 				userPerms = adminMasterPerms;
@@ -191,22 +203,22 @@ export const switchUserPermission = ( slug ) => {
 
 		dispatch( {
 			type: MOCK_SWITCH_USER_PERMISSIONS,
-			initialState: userPerms
+			initialState: userPerms,
 		} );
 	};
 };
 
 export const switchThreats = count => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
 			type: MOCK_SWITCH_THREATS,
-			mockCount: count
+			mockCount: count,
 		} );
 	};
 };
 
 export const switchRewindState = state => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
 			type: MOCK_SWITCH_REWIND_STATE,
 			rewindState: { state: state },

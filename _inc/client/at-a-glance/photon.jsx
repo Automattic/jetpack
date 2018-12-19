@@ -24,18 +24,18 @@ class DashPhoton extends Component {
 			activatePhoton = () => this.props.updateOptions( { photon: true } );
 
 		const support = {
-			text: __( 'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.' ),
+			text: __(
+				'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.'
+			),
 			link: 'https://jetpack.com/support/photon/',
 		};
 
 		if ( this.props.getOptionValue( 'photon' ) ) {
 			return (
-				<DashItem
-					label={ labelName }
-					module="photon"
-					support={ support }
-					status="is-working" >
-					<p className="jp-dash-item__description">{ __( 'Jetpack is improving and optimizing your image speed.' ) }</p>
+				<DashItem label={ labelName } module="photon" support={ support } status="is-working">
+					<p className="jp-dash-item__description">
+						{ __( 'Jetpack is improving and optimizing your image speed.' ) }
+					</p>
 				</DashItem>
 			);
 		}
@@ -45,17 +45,16 @@ class DashPhoton extends Component {
 				label={ labelName }
 				module="photon"
 				support={ support }
-				className="jp-dash-item__is-inactive" >
+				className="jp-dash-item__is-inactive"
+			>
 				<p className="jp-dash-item__description">
-					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
-							: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
+					{ this.props.isDevMode
+						? __( 'Unavailable in Dev Mode' )
+						: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ activatePhoton } />
-								}
-							}
-						)
-					}
+									a: <a href="javascript:void(0)" onClick={ activatePhoton } />,
+								},
+						  } ) }
 				</p>
 			</DashItem>
 		);
@@ -66,9 +65,7 @@ class DashPhoton extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		isDevMode: isDevMode( state ),
-		isModuleAvailable: isModuleAvailable( state, 'photon' ),
-	} )
-)( DashPhoton );
+export default connect( state => ( {
+	isDevMode: isDevMode( state ),
+	isModuleAvailable: isModuleAvailable( state, 'photon' ),
+} ) )( DashPhoton );

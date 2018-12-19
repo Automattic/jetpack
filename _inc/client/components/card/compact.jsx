@@ -14,12 +14,10 @@ export default class CompactCard extends React.Component {
 	static displayName = 'CompactCard';
 
 	render() {
-		const props = assign( {}, this.props, { className: classnames( this.props.className, 'is-compact' ) } );
+		const props = assign( {}, this.props, {
+			className: classnames( this.props.className, 'is-compact' ),
+		} );
 
-		return (
-			<Card { ...props }>
-				{ this.props.children }
-			</Card>
-		);
+		return <Card { ...props }>{ this.props.children }</Card>;
 	}
 }

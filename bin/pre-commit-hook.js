@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console, no-process-exit */
+
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -19,7 +21,7 @@ function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
 		.split( '\n' )
 		.map( name => name.trim() )
-		.filter( name => /\.(jsx?|scss)$/.test( name ) );
+		.filter( name => name.startsWith( '_inc/client/' ) && /\.jsx?$/.test( name ) );
 }
 
 const dirtyFiles = new Set( parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ) );
@@ -27,48 +29,53 @@ const files = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-fil
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 
 dirtyFiles.forEach( file =>
-	// eslint-disable-next-line no-console
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
 	)
 );
 
+const toPrettify = files.filter( file => ! dirtyFiles.has( file ) );
+toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
+
+if ( toPrettify.length ) {
+	execSync(
+		`./node_modules/.bin/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }`
+	);
+	execSync( `git add ${ toPrettify.join( ' ' ) }` );
+}
+
 // linting should happen after formatting
-const toLint = files.filter( file => ! file.endsWith( '.scss' ) );
+const toLint = files;
 if ( toLint.length ) {
 	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 	if ( lintResult.status ) {
-		// eslint-disable-next-line no-console
 		console.log(
 			chalk.red( 'COMMIT ABORTED:' ),
 			'The linter reported some problems. ' +
 				'If you are aware of them and it is OK, ' +
 				'repeat the commit command with --no-verify to avoid this check.'
 		);
-		// eslint-disable-next-line no-process-exit
 		process.exit( 1 );
 	}
 }
 
 let phpLintResult;
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles, ], {
+	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 }
 
-if ( ( phpLintResult && phpLintResult.status ) ) {
-	// eslint-disable-next-line no-console
+if ( phpLintResult && phpLintResult.status ) {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
 		'The linter reported some problems. ' +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.'
 	);
-	// eslint-disable-next-line no-process-exit
 	process.exit( 1 );
 }

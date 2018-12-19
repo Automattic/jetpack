@@ -14,7 +14,6 @@ import { arePromotionsActive } from 'state/initial-state';
 import { userCanManageModules } from 'state/initial-state';
 
 class JetpackBanner extends Banner {
-
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
@@ -27,7 +26,7 @@ class JetpackBanner extends Banner {
 		onClick: PropTypes.func,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired
+		title: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -41,18 +40,13 @@ class JetpackBanner extends Banner {
 			return false;
 		}
 
-		return this.props.arePromotionsActive
-			? <Banner { ...this.props } />
-			: null;
+		return this.props.arePromotionsActive ? <Banner { ...this.props } /> : null;
 	}
-
 }
 
-export default connect(
-	state => {
-		return {
-			arePromotionsActive: arePromotionsActive( state ),
-			userCanPurchasePlan: userCanManageModules( state ),
-		};
-	}
-)( JetpackBanner );
+export default connect( state => {
+	return {
+		arePromotionsActive: arePromotionsActive( state ),
+		userCanPurchasePlan: userCanManageModules( state ),
+	};
+} )( JetpackBanner );

@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -9,9 +8,7 @@ import { combineReducers } from 'redux';
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SEARCH_TERM
-} from 'state/action-types';
+import { JETPACK_SEARCH_TERM } from 'state/action-types';
 
 const searchTerm = ( state = '', action ) => {
 	switch ( action.type ) {
@@ -24,7 +21,7 @@ const searchTerm = ( state = '', action ) => {
 };
 
 export const reducer = combineReducers( {
-	searchTerm
+	searchTerm,
 } );
 
 /**
@@ -57,15 +54,20 @@ export function isModuleFound( state, module ) {
 		return true;
 	}
 
-	return [
-		result.module,
-		result.name,
-		result.description,
-		result.learn_more_button,
-		result.long_description,
-		result.search_terms,
-		result.additional_search_queries,
-		result.short_description,
-		result.feature ? result.feature.toString() : ''
-	].join( ' ' ).toLowerCase().indexOf( currentSearchTerm.toLowerCase() ) > -1;
+	return (
+		[
+			result.module,
+			result.name,
+			result.description,
+			result.learn_more_button,
+			result.long_description,
+			result.search_terms,
+			result.additional_search_queries,
+			result.short_description,
+			result.feature ? result.feature.toString() : '',
+		]
+			.join( ' ' )
+			.toLowerCase()
+			.indexOf( currentSearchTerm.toLowerCase() ) > -1
+	);
 }

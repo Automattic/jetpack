@@ -20,9 +20,7 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { FormFieldset, FormLabel } from 'components/forms';
-import {
-	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
-} from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -123,7 +121,10 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
 					<div className="form-input-validation is-warning">
-						<span><Gridicon size={ 24 } icon="sync" />{ __( 'Checking key…' ) }</span>
+						<span>
+							<Gridicon size={ 24 } icon="sync" />
+							{ __( 'Checking key…' ) }
+						</span>
 					</div>
 				);
 				explanation = false;
@@ -142,14 +143,14 @@ export const Antispam = withModuleSettingsFormHelpers(
 								text: __( 'Removes spam from comments and contact forms.' ),
 								link: 'https://akismet.com/jetpack/',
 							} }
-							>
+						>
 							<FormFieldset>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>
 									<TextInput { ...textProps } />
 									{ akismetStatus }
 								</FormLabel>
-								{ explanation &&
+								{ explanation && (
 									<p className="jp-form-setting-explanation">
 										{ __(
 											"If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.",
@@ -159,7 +160,8 @@ export const Antispam = withModuleSettingsFormHelpers(
 												},
 											}
 										) }
-									</p> }
+									</p>
+								) }
 							</FormFieldset>
 						</SettingsGroup>
 					</FoldableCard>
