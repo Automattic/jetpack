@@ -490,6 +490,7 @@ EOT;
 		$options = $this->get_options();
 
 		$ui_settings_template = <<<EOT
+<p class="description">%s</p>
 <ul id="settings-reading-relatedposts-customize">
 	<li>
 		<label><input name="jetpack_relatedposts[show_headline]" type="checkbox" value="1" %s /> %s</label>
@@ -511,6 +512,7 @@ EOT;
 EOT;
 		$ui_settings = sprintf(
 			$ui_settings_template,
+			esc_html__( 'The following settings will impact all related posts on your site, except for those you created via the block editor:', 'jetpack' ),
 			checked( $options['show_headline'], true, false ),
 			esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
