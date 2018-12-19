@@ -136,7 +136,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
-	public function test_from_blocks_from_post_id_is_array() {
+	public function test_from_image_block_from_post_id_is_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
 			return;
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
-	public function test_from_blocks_from_post_id_is_correct_array() {
+	public function test_from_image_block_from_post_id_is_correct_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
 			return;
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
-	public function test_from_blocks_from_html_is_empty_array() {
+	public function test_from_image_block_from_html_is_empty_array() {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
 			return;
@@ -185,5 +185,83 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$images = Jetpack_PostImages::from_blocks( $html );
 
 		$this->assertEmpty( $images );
+	}
+
+	/**
+	 * Create a post with a gallery block containing a few images attached to another post.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @return array $post_info {
+	 * An array of information about our post.
+	 * 	@type int   $post_id  Post ID.
+	 * 	@type array $img_urls Image URLs we'll look to extract.
+	 * }
+	 */
+	protected function get_post_with_gallery_block() {
+		$img_urls = array(
+			'image.jpg'  => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image.jpg',
+			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
+		);
+		$img_dimensions = array( 'width' => 250, 'height' => 250 );
+
+		// Create post.
+		$post_id = $this->factory->post->create();
+		// Attach images.
+		foreach( $img_urls as $img_name => $img_url ) {
+			$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment'
+			) );
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+
+			// Update our array to store attachment IDs. We'll need them later.
+			$img_urls[ $attachment_id ] = $img_url;
+			unset( $img_urls[ $img_name ] );
+		}
+
+		// Gallery markup.
+		$gallery_html = sprintf(
+			'<!-- wp:gallery {"ids":[%s]} --><ul class="wp-block-gallery columns-3 is-cropped">',
+			implode( ',', array_keys( $img_urls ) )
+		);
+		foreach( $img_urls as $img_id => $img_url ) {
+			$gallery_html .= sprintf(
+				'<li class="blocks-gallery-item"><figure><img src="%1$s" alt="" data-id="%2$d" class="wp-image-%2$d"/></figure></li>',
+				$img_id,
+				$img_url
+			);
+		}
+		$gallery_html .= '</ul><!-- /wp:gallery -->';
+
+		// Create another post with those pictures.
+		$second_post_id = $this->factory->post->create( array(
+			'post_content' => $gallery_html,
+		) );
+
+		return array(
+			'post_id'  => $second_post_id,
+			'img_urls' => array_values( $img_urls ),
+		);
+	}
+
+	/**
+	 * Test if the array extracted from Gallery blocks include the image URL.
+	 *
+	 * @covers Jetpack_PostImages::from_blocks
+	 * @since 6.9.0
+	 */
+	public function test_from_gallery_block_from_post_id_is_correct_array() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
+		$post_info = $this->get_post_with_gallery_block();
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertEquals( $images[0]['src'], $post_info['img_urls'][0] );
+		$this->assertEquals( $images[1]['src'], $post_info['img_urls'][1] );
 	}
 } // end class

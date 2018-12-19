@@ -335,7 +335,7 @@ class Jetpack_PostImages {
 
 		foreach ( $blocks as $block ) {
 			/**
-			 * Only parse content from Core Image blocks.
+			 * Parse content from Core Image blocks.
 			 * If it is an image block for an image hosted on our site, it will have an ID.
 			 * If it does not have an ID, let `from_html` parse that content later,
 			 * and extract an image if it has size parameters.
@@ -345,6 +345,19 @@ class Jetpack_PostImages {
 				&& ! empty( $block['attrs']['id'] )
 			) {
 				$images[] = self::get_attachment_data( $block['attrs']['id'], $post_url, $width, $height );
+			}
+
+			/**
+			 * Parse content from Core Gallery blocks.
+			 * Gallery blocks include the ID of each one of the images in the gallery.
+			 */
+			if (
+				'core/gallery' === $block['blockName']
+				&& ! empty( $block['attrs']['ids'] )
+			) {
+				foreach ( $block['attrs']['ids'] as $img_id ) {
+					$images[] = self::get_attachment_data( $img_id, $post_url, $width, $height );
+				}
 			}
 		}
 
