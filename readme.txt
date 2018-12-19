@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: improve the connection flow for new Jetpack users.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
+* Dashboard notices: fix styling to work better with the Hello Dolly plugin.
 * Internationalization: add new locales, ensure existing ones are up to date.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
 * WordPress.com REST API: add new option to set sites to private.
