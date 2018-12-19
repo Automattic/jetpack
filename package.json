@@ -45,7 +45,8 @@
     "add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
     "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules",
-    "test-dangerci-and-adminpage": "yarn danger ci && yarn test-adminpage"
+    "test-dangerci-and-adminpage": "yarn danger ci && yarn test-adminpage",
+    "reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"_inc/client/**/*.{js,jsx}\""
   },
   "husky": {
     "hooks": {
@@ -151,7 +152,7 @@
     "mockery": "2.1.0",
     "nock": "10.0.4",
     "node-wp-i18n": "1.2.1",
-    "prettier": "github:Automattic/wp-prettier",
+    "prettier": "github:Automattic/wp-prettier#wp-prettier-1.14.0",
     "react-test-renderer": "15.6.2",
     "sinon": "7.2.2",
     "sinon-chai": "3.3.0"
