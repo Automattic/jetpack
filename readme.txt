@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Page: update feature limits mentioned when disconnecting Jetpack from WordPress.com
 * Publicize: improve synchronization of sharing settings with WordPress.com.
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
 * Shortcodes: update YouTube shortcode to support more video link formats.
