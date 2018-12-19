@@ -10,6 +10,7 @@ We've made several changes to the Admin Page in this release. This will have a b
 - You will find a new "My Plan" section in the Jetpack dashboard.
 - The sections and cards under Jetpack > Settings were also reorganized.
 - We've starting working on improving the different notices that are displayed to you when changing settings.
+- We've updated the message displayed to users who have not linked their own WordPress.com account on a site that is already using Jetpack.
 
 To test this, try navigating through all those screens as a new site owner:
 

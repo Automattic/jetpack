@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: add mentions of our Premium offerings to connection banners.
 * Admin Page: improve the connection flow for new Jetpack users.
 * Admin Page: improve the display of notices after editing settings.
+* Admin Page: update notices to indicate a Jetpack account is needed.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
