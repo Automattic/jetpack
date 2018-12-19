@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: add new card for plugins management.
 * Admin Page: add actionable card below the Jetpack settings card for Porfolio post types.
 * Admin Page: add mentions of our Premium offerings to connection banners.
+* Admin Page: improve the connection flow for new Jetpack users.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Internationalization: add new locales, ensure existing ones are up to date.

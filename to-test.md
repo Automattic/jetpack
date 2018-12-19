@@ -1,5 +1,23 @@
 ## 6.9
 
+### Admin Page
+
+We've made several changes to the Admin Page in this release. This will have a big impact on new and existing Jetpack users alike. It impacts multiple screens and flows:
+
+- You will notice changes when heading to Jetpack > Dashboard right after activating the plugin.
+- You will notice a new card when coming back to your dashboard right after connecting the plugin to your WordPress.com account.
+- You will notice some changes in the modals that are displayed in the Jetpack dashboard when coming back to your site after purchasing a plan.
+- You will find a new "My Plan" section in the Jetpack dashboard.
+- The sections and cards under Jetpack > Settings were also reorganized.
+
+To test this, try navigating through all those screens as a new site owner:
+
+- Can you dismiss / use all action buttons?
+- Can you find all sections and features you are looking for?
+- Can you easily upgrade to a new plan?
+- Can you toggle the different settings in the new "Performance" section?
+- Do you spot any typos or mistakes in the texts that were added to the different screens?
+
 ### Block Editor
 
 This release introduces new blocks we'd like you to test:
