@@ -23,19 +23,19 @@ const items = ( state = {}, action ) => {
 };
 
 const initialRequestsState = {
-	isFetchingPluginsData: false
+	isFetchingPluginsData: false,
 };
 
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH:
 			return assign( {}, state, {
-				isFetchingPluginsData: true
+				isFetchingPluginsData: true,
 			} );
 		case JETPACK_PLUGINS_DATA_FETCH_FAIL:
 		case JETPACK_PLUGINS_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingPluginsData: false
+				isFetchingPluginsData: false,
 			} );
 
 		default:
@@ -45,7 +45,7 @@ const requests = ( state = initialRequestsState, action ) => {
 
 export const reducer = combineReducers( {
 	items,
-	requests
+	requests,
 } );
 
 /**
@@ -66,7 +66,9 @@ export function isFetchingPluginsData( state ) {
  * @return {Boolean} True if plugin is active, false otherwise.
  */
 export function isPluginActive( state, plugin ) {
-	return state.jetpack.pluginsData.items[ plugin ] && state.jetpack.pluginsData.items[ plugin ].active;
+	return (
+		state.jetpack.pluginsData.items[ plugin ] && state.jetpack.pluginsData.items[ plugin ].active
+	);
 }
 
 /**

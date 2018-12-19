@@ -128,15 +128,15 @@ export const NavigationSettings = createReactClass( {
 						'search',
 						'videopress',
 					] ) && (
-							<NavItem
-								path="#performance"
-								onClick={ this.handleClickForTracking( 'performance' ) }
-								selected={
-									this.props.route.path === '/performance' || this.props.route.path === '/settings'
-								}
-							>
-								{ __( 'Performance', { context: 'Navigation item.' } ) }
-							</NavItem>
+						<NavItem
+							path="#performance"
+							onClick={ this.handleClickForTracking( 'performance' ) }
+							selected={
+								this.props.route.path === '/performance' || this.props.route.path === '/settings'
+							}
+						>
+							{ __( 'Performance', { context: 'Navigation item.' } ) }
+						</NavItem>
 					) }
 					{ this.hasAnyOfThese( [
 						'masterbar',

@@ -39,11 +39,11 @@ const jetpackReducer = combineReducers( {
 	search,
 	devCard,
 	publicize,
-	siteVerify
+	siteVerify,
 } );
 
 export default combineReducers( {
 	jetpack: jetpackReducer,
 	routing: routerReducer,
-	globalNotices: globalNotices
+	globalNotices: globalNotices,
 } );

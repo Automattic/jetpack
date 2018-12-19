@@ -34,10 +34,10 @@ export default class extends React.Component {
 				<div className="jp-no-results">
 					{ commonProps.searchTerm
 						? __( 'No search results found for %(term)s', {
-							args: {
-								term: commonProps.searchTerm,
-							},
-						} )
+								args: {
+									term: commonProps.searchTerm,
+								},
+						  } )
 						: __( 'Enter a search term to find settings or close search.' ) }
 				</div>
 				<Discussion
@@ -46,7 +46,9 @@ export default class extends React.Component {
 					{ ...commonProps }
 				/>
 				<Performance
-					active={ '/performance' === this.props.route.path || '/settings' === this.props.route.path }
+					active={
+						'/performance' === this.props.route.path || '/settings' === this.props.route.path
+					}
 					{ ...commonProps }
 				/>
 				<Security

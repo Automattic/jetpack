@@ -25,14 +25,15 @@ export const Masterbar = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					header={ __( 'WordPress.com toolbar', { context: 'Settings header' } ) }
 					module="masterbar"
-					hideButton>
+					hideButton
+				>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							link: 'https://jetpack.com/support/masterbar/',
 						} }
-						>
+					>
 						<p>
 							{ __(
 								'The WordPress.com toolbar replaces the default WordPress ' +
@@ -47,23 +48,21 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							disabled={ unavailableInDevMode || ! isLinked }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
-							toggleModule={ this.props.toggleModuleNow }>
+							toggleModule={ this.props.toggleModuleNow }
+						>
 							{ __( 'Enable the WordPress.com toolbar' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{
-						( ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked ) && (
+					{ ! this.props.isUnavailableInDevMode( 'masterbar' ) &&
+						! this.props.isLinked && (
 							<Card
 								compact
 								className="jp-settings-card__configure-link"
 								href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
 							>
-								{
-									__( 'Create a Jetpack account to use this feature' )
-								}
+								{ __( 'Create a Jetpack account to use this feature' ) }
 							</Card>
-						)
-					}
+						) }
 				</SettingsCard>
 			);
 		}

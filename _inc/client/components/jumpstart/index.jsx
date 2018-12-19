@@ -53,10 +53,7 @@ class JumpStart extends Component {
 			<div className="jp-jumpstart">
 				<Card className="jp-jumpstart-card__content">
 					<div className="jp-jumpstart-card__img">
-						<img
-							src={ imagePath + 'man-and-laptop.svg' }
-							alt={ __( 'Person with laptop' ) }
-						/>
+						<img src={ imagePath + 'man-and-laptop.svg' } alt={ __( 'Person with laptop' ) } />
 					</div>
 					<div className="jp-jumpstart-card__description">
 						<h3 className="jp-jumpstart-card__description-title">

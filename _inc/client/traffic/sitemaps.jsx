@@ -12,9 +12,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset
-} from 'components/forms';
+import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -37,15 +35,12 @@ export class Sitemaps extends React.Component {
 
 		const searchEngineVisibilityClasses = classNames( {
 			'jp-form-setting-explanation': true,
-			'is-warning': ! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' )
+			'is-warning':
+				! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' ),
 		} );
 
 		return (
-			<SettingsCard
-				{ ...this.props }
-				module="sitemaps"
-				hideButton
-			>
+			<SettingsCard { ...this.props } module="sitemaps" hideButton>
 				<SettingsGroup
 					hasChild
 					module={ { module: 'sitemaps' } }
@@ -60,7 +55,7 @@ export class Sitemaps extends React.Component {
 								'search results. When you enable this feature, Jetpack will ' +
 								'create sitemaps for you and update them automatically when ' +
 								'the content on your site changes.'
-							) }
+						) }
 					</p>
 					<ModuleToggle
 						slug="sitemaps"
@@ -71,69 +66,63 @@ export class Sitemaps extends React.Component {
 					>
 						{ __( 'Generate XML sitemaps' ) }
 					</ModuleToggle>
-					{
-						this.props.isSiteVisibleToSearchEngines
-							? this.props.getOptionValue( 'sitemaps' ) && (
-								<FormFieldset>
-									<p className="jp-form-setting-explanation">
-										{ __(
-											'Good news: Jetpack is sending your sitemap automatically ' +
-												'to all major search engines for indexing.'
-										) }
-										<br />
-										<ExternalLink
-											onClick={ this.trackSitemapUrl }
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href={ sitemap_url }
-										>
-											{ sitemap_url }
-										</ExternalLink>
-										<br />
-										<ExternalLink
-											onClick={ this.trackSitemapNewsUrl }
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href={ news_sitemap_url }
-										>
-											{ news_sitemap_url }
-										</ExternalLink>
-									</p>
-								</FormFieldset>
-							)
-							: (
-								<FormFieldset>
-										<p className={ searchEngineVisibilityClasses }>
-											{
-												__(
-													"Search engines can't access your site at the moment. " +
-														"If you'd like to make your site accessible, check " +
-														'your {{a}}Reading settings{{/a}} and switch ' +
-														'"Search Engine Visibility" on.',
-													{
-														components: {
-															a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
-														}
-													}
-												)
-											}
-										</p>
-								</FormFieldset>
-							)
-					}
+					{ this.props.isSiteVisibleToSearchEngines ? (
+						this.props.getOptionValue( 'sitemaps' ) && (
+							<FormFieldset>
+								<p className="jp-form-setting-explanation">
+									{ __(
+										'Good news: Jetpack is sending your sitemap automatically ' +
+											'to all major search engines for indexing.'
+									) }
+									<br />
+									<ExternalLink
+										onClick={ this.trackSitemapUrl }
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href={ sitemap_url }
+									>
+										{ sitemap_url }
+									</ExternalLink>
+									<br />
+									<ExternalLink
+										onClick={ this.trackSitemapNewsUrl }
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href={ news_sitemap_url }
+									>
+										{ news_sitemap_url }
+									</ExternalLink>
+								</p>
+							</FormFieldset>
+						)
+					) : (
+						<FormFieldset>
+							<p className={ searchEngineVisibilityClasses }>
+								{ __(
+									"Search engines can't access your site at the moment. " +
+										"If you'd like to make your site accessible, check " +
+										'your {{a}}Reading settings{{/a}} and switch ' +
+										'"Search Engine Visibility" on.',
+									{
+										components: {
+											a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
+										},
+									}
+								) }
+							</p>
+						</FormFieldset>
+					) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
 	}
 }
 
-export default connect(
-	state => {
-		return {
-			isSiteVisibleToSearchEngines: isSiteVisibleToSearchEngines( state ),
-			siteAdminUrl: getSiteAdminUrl( state )
-		};
-	}
-)( withModuleSettingsFormHelpers( Sitemaps ) );
+export default connect( state => {
+	return {
+		isSiteVisibleToSearchEngines: isSiteVisibleToSearchEngines( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+	};
+} )( withModuleSettingsFormHelpers( Sitemaps ) );

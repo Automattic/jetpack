@@ -98,7 +98,9 @@ export class Security extends Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Keep your site safe with state-of-the-art security and receive notifications of technical problems.' ) }
+					title={ __(
+						'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
+					) }
 					className="jp-settings-description"
 				/>
 

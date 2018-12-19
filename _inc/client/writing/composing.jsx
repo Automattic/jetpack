@@ -12,10 +12,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset,
-	FormLegend
-} from 'components/forms';
+import { FormFieldset, FormLegend } from 'components/forms';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -25,23 +22,23 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export class Composing extends React.Component {
-    /**
+	/**
 	 * Get options for initial state.
 	 *
 	 * @return {Object} initialState {{
 	 *		onpublish: *,
-	*		onupdate: *,
-	*		guess_lang: *,
-	*		Bias Language: *,
-	*		Cliches: *,
-	*		Complex Expression: *,
-	*		Diacritical Marks: *,
-	*		Double Negative: *,
-	*		Hidden Verbs: *,
-	*		Jargon Language: *,
-	*		Passive voice: *,
-	*		Phrases to Avoid: *,
-	*		Redundant Expression: *
+	 *		onupdate: *,
+	 *		guess_lang: *,
+	 *		Bias Language: *,
+	 *		Cliches: *,
+	 *		Complex Expression: *,
+	 *		Diacritical Marks: *,
+	 *		Double Negative: *,
+	 *		Hidden Verbs: *,
+	 *		Jargon Language: *,
+	 *		Passive voice: *,
+	 *		Phrases to Avoid: *,
+	 *		Redundant Expression: *
 	 * }}
 	 */
 	state = {
@@ -57,7 +54,10 @@ export class Composing extends React.Component {
 		'Jargon Language': this.props.getOptionValue( 'Jargon Language', 'after-the-deadline' ),
 		'Passive voice': this.props.getOptionValue( 'Passive voice', 'after-the-deadline' ),
 		'Phrases to Avoid': this.props.getOptionValue( 'Phrases to Avoid', 'after-the-deadline' ),
-		'Redundant Expression': this.props.getOptionValue( 'Redundant Expression', 'after-the-deadline' )
+		'Redundant Expression': this.props.getOptionValue(
+			'Redundant Expression',
+			'after-the-deadline'
+		),
 	};
 
 	/**
@@ -68,7 +68,7 @@ export class Composing extends React.Component {
 	updateOptions = optionName => {
 		this.setState(
 			{
-				[ optionName ]: ! this.state[ optionName ]
+				[ optionName ]: ! this.state[ optionName ],
 			},
 			this.props.updateFormStateModuleOption( 'after-the-deadline', optionName )
 		);
@@ -89,11 +89,14 @@ export class Composing extends React.Component {
 		return (
 			<CompactFormToggle
 				checked={ this.state[ setting ] }
-				disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( [ 'after-the-deadline', setting ] ) }
-				onChange={ this.handleToggleChange( setting ) }>
-				<span className="jp-form-toggle-explanation">
-					{ label }
-				</span>
+				disabled={
+					! this.props.getOptionValue( 'after-the-deadline' ) ||
+					this.props.isUnavailableInDevMode( 'after-the-deadline' ) ||
+					this.props.isSavingAnyOption( [ 'after-the-deadline', setting ] )
+				}
+				onChange={ this.handleToggleChange( setting ) }
+			>
+				<span className="jp-form-toggle-explanation">{ label }</span>
 			</CompactFormToggle>
 		);
 	};
@@ -106,11 +109,13 @@ export class Composing extends React.Component {
 				disableInDevMode
 				module={ this.props.getModule( 'after-the-deadline' ) }
 				support={ {
-					text: __( 'Checks your content for correct grammar and spelling, ' +
-						'misused words, and style while you write.' ),
+					text: __(
+						'Checks your content for correct grammar and spelling, ' +
+							'misused words, and style while you write.'
+					),
 					link: 'https://jetpack.com/support/spelling-and-grammar/',
 				} }
-				>
+			>
 				<FormFieldset>
 					<FormLegend> { __( 'Proofreading' ) } </FormLegend>
 					<span className="jp-form-setting-explanation">
@@ -120,17 +125,14 @@ export class Composing extends React.Component {
 					{ this.getToggle( 'onupdate', __( 'A post or page is updated' ) ) }
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend> { __( 'Automatic Language Detection' ) }
-					</FormLegend>
+					<FormLegend> { __( 'Automatic Language Detection' ) }</FormLegend>
 					<span className="jp-form-setting-explanation">
 						{ __( 'The proofreader supports English, French, German, Portuguese and Spanish.' ) }
 					</span>
-					{
-						this.getToggle(
-							'guess_lang',
-							__( 'Use automatically detected language to proofread posts and pages' )
-						)
-					}
+					{ this.getToggle(
+						'guess_lang',
+						__( 'Use automatically detected language to proofread posts and pages' )
+					) }
 				</FormFieldset>
 				<FormFieldset>
 					<FormLegend> { __( 'English Options' ) } </FormLegend>
@@ -149,19 +151,18 @@ export class Composing extends React.Component {
 					{ this.getToggle( 'Redundant Expression', __( 'Redundant Phrases' ) ) }
 				</FormFieldset>
 				<FormFieldset>
-					<FormLegend>
-						{ __( 'Ignored Phrases' ) }
-					</FormLegend>
+					<FormLegend>{ __( 'Ignored Phrases' ) }</FormLegend>
 					<TagsInput
 						name="ignored_phrases"
 						disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) }
 						placeholder={ __( 'Add a phrase' ) }
 						value={
 							'undefined' !== typeof ignoredPhrases && '' !== ignoredPhrases
-							? ignoredPhrases.split( ',' )
-							: []
+								? ignoredPhrases.split( ',' )
+								: []
 						}
-						onChange={ this.props.onOptionChange } />
+						onChange={ this.props.onOptionChange }
+					/>
 					<span className="jp-form-setting-explanation">
 						{ __( 'Confirm each new phrase you add by pressing enter.' ) }
 					</span>
@@ -181,13 +182,17 @@ export class Composing extends React.Component {
 		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
 		}
-		return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown', true );
+		return this.props.updateFormStateModuleOption(
+			module,
+			'wpcom_publish_posts_with_markdown',
+			true
+		);
 	};
 
 	trackOpenCard = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'foldable-settings-open',
-			feature: 'atd'
+			feature: 'atd',
 		} );
 	};
 
@@ -206,20 +211,29 @@ export class Composing extends React.Component {
 				<SettingsGroup
 					module={ markdown }
 					support={ {
-						text: __( 'Allows you to compose content with links, lists, and other styles using the Markdown syntax.' ),
+						text: __(
+							'Allows you to compose content with links, lists, and other styles using the Markdown syntax.'
+						),
 						link: 'https://jetpack.com/support/markdown/',
 					} }
-					>
+				>
 					<FormFieldset>
 						<ModuleToggle
 							slug="markdown"
-							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							toggleModule={ this.updateFormStateByMarkdown }>
-							<span className="jp-form-toggle-explanation">
-								{ markdown.description }
-							</span>
+							activated={
+								!! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' )
+							}
+							toggling={ this.props.isSavingAnyOption( [
+								'markdown',
+								'wpcom_publish_posts_with_markdown',
+							] ) }
+							disabled={ this.props.isSavingAnyOption( [
+								'markdown',
+								'wpcom_publish_posts_with_markdown',
+							] ) }
+							toggleModule={ this.updateFormStateByMarkdown }
+						>
+							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
 						</ModuleToggle>
 					</FormFieldset>
 				</SettingsGroup>
@@ -227,28 +241,25 @@ export class Composing extends React.Component {
 			atdSettings = (
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
-					className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
+					className={ classNames( 'jp-foldable-card__main-settings', {
+						'jp-foldable-settings-disable': unavailableInDevMode,
+					} ) }
 					header={
-				this.props.userCanManageModules
-					? (
-						<ModuleToggle
-							slug="after-the-deadline"
-							compact
-							disabled={ unavailableInDevMode }
-							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ atd.description }
-							</span>
-						</ModuleToggle>
-					)
-					: (
-						<span className="jp-form-toggle-explanation">
-							{ atd.description }
-						</span>
-					)
-				}
+						this.props.userCanManageModules ? (
+							<ModuleToggle
+								slug="after-the-deadline"
+								compact
+								disabled={ unavailableInDevMode }
+								activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+								toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">{ atd.description }</span>
+							</ModuleToggle>
+						) : (
+							<span className="jp-form-toggle-explanation">{ atd.description }</span>
+						)
+					}
 				>
 					{ this.getAtdSettings() }
 				</FoldableCard>
@@ -269,11 +280,9 @@ export class Composing extends React.Component {
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		};
-	}
-)( withModuleSettingsFormHelpers( Composing ) );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+	};
+} )( withModuleSettingsFormHelpers( Composing ) );

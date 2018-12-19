@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -16,7 +15,6 @@ import {
 	RESET_OPTIONS_SUCCESS,
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP,
-
 } from 'state/action-types';
 
 const notice = ( state = false, action ) => {
@@ -53,7 +51,7 @@ const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 
 export const reducer = combineReducers( {
 	notice,
-	dismissed
+	dismissed,
 } );
 
 /**

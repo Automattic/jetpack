@@ -20,17 +20,10 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants/urls';
 import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import {
-	getInitialStateStatsData
-} from 'state/initial-state';
+import { getInitialStateStatsData } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
-import {
-	getStatsData,
-	statsSwitchTab,
-	fetchStatsData,
-	getActiveStatsTab
-} from 'state/at-a-glance';
+import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
@@ -54,10 +47,7 @@ export class DashStats extends Component {
 	barClick( bar ) {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			window.open(
-				bar.data.link,
-				'_blank'
-			);
+			window.open( bar.data.link, '_blank' );
 		}
 	}
 
@@ -86,7 +76,9 @@ export class DashStats extends Component {
 			} else if ( 'week' === unit ) {
 				date = date.replace( /W/g, '-' );
 				chartLabel = moment( date ).format( 'MMM D' );
-				tooltipLabel = __( 'Week of %(date)s', { args: { date: moment( date ).format( 'MMMM Do' ) } } );
+				tooltipLabel = __( 'Week of %(date)s', {
+					args: { date: moment( date ).format( 'MMMM Do' ) },
+				} );
 			} else if ( 'month' ) {
 				chartLabel = moment( date ).format( 'MMM' );
 				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
@@ -98,13 +90,18 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: `https://wordpress.com/stats/${ unit }/${ props.siteRawUrl }?startDate=${ date }`
+					link: `https://wordpress.com/stats/${ unit }/${ props.siteRawUrl }?startDate=${ date }`,
 				},
-				tooltipData: [ {
-					label: tooltipLabel,
-					value: __( 'Views: %(numberOfViews)s', { args: { numberOfViews: numberFormat( views ) } } ),
-					className: 'tooltip class'
-				}, { label: __( 'Click to view detailed stats.' ) } ]
+				tooltipData: [
+					{
+						label: tooltipLabel,
+						value: __( 'Views: %(numberOfViews)s', {
+							args: { numberOfViews: numberFormat( views ) },
+						} ),
+						className: 'tooltip class',
+					},
+					{ label: __( 'Click to view detailed stats.' ) },
+				],
 			} );
 		} );
 
@@ -125,9 +122,7 @@ export class DashStats extends Component {
 			<div>
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
-					{
-						0 === chartData.length && <Spinner />
-					}
+					{ 0 === chartData.length && <Spinner /> }
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 					<DashStatsBottom
@@ -149,16 +144,19 @@ export class DashStats extends Component {
 		};
 		return (
 			<Card className="jp-at-a-glance__stats-empty">
-				<img src={ imagePath + 'stats-people.svg' } width="272" height="144" alt={ __( 'Jetpack Stats People' ) } className="jp-at-a-glance__stats-icon" />
+				<img
+					src={ imagePath + 'stats-people.svg' }
+					width="272"
+					height="144"
+					alt={ __( 'Jetpack Stats People' ) }
+					className="jp-at-a-glance__stats-icon"
+				/>
 				<p>
 					{ __( 'Hello there! Your stats have been activated.' ) }
 					<br />
 					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
 				</p>
-				<Button
-					onClick={ dismissCard }
-					primary
-				>
+				<Button onClick={ dismissCard } primary>
 					{ __( 'Okay, got it!' ) }
 				</Button>
 			</Card>
@@ -173,13 +171,16 @@ export class DashStats extends Component {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
-							{
-								__( 'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}', {
+							{ __(
+								'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}',
+								{
 									components: {
-										a: <a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
-									}
-								} )
-							}
+										a: (
+											<a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
+										),
+									},
+								}
+							) }
 						</span>
 					</div>
 				);
@@ -188,7 +189,11 @@ export class DashStats extends Component {
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = chartData.length && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats =
+					chartData.length &&
+					totalViews <= 0 &&
+					! this.props.isEmptyStatsCardDismissed &&
+					! this.state.emptyStatsDismissed;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
@@ -200,31 +205,40 @@ export class DashStats extends Component {
 		return (
 			<div className="jp-at-a-glance__stats-inactive">
 				<div className="jp-at-a-glance__stats-inactive-icon">
-					<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+					<img
+						src={ imagePath + 'stats.svg' }
+						width="60"
+						height="60"
+						alt={ __( 'Jetpack Stats Icon' ) }
+						className="jp-at-a-glance__stats-icon"
+					/>
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
-					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
-							: __( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
-								components: {
-									a: <a href="javascript:void(0)" onClick={ activateStats } />,
-									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
+					{ this.props.isDevMode
+						? __( 'Unavailable in Dev Mode' )
+						: __(
+								'{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}',
+								{
+									components: {
+										a: <a href="javascript:void(0)" onClick={ activateStats } />,
+										a1: (
+											<a
+												href="https://jetpack.com/support/wordpress-com-stats/"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+									},
 								}
-							} )
-					}
+						  ) }
 				</div>
-				{
-					! this.props.isDevMode && (
-						<div className="jp-at-a-glance__stats-inactive-button">
-							<Button
-								onClick={ activateStats }
-								primary
-							>
-								{ __( 'Activate Site Stats' ) }
-							</Button>
-						</div>
-					)
-				}
+				{ ! this.props.isDevMode && (
+					<div className="jp-at-a-glance__stats-inactive-button">
+						<Button onClick={ activateStats } primary>
+							{ __( 'Activate Site Stats' ) }
+						</Button>
+					</div>
+				) }
 			</div>
 		);
 	}
@@ -232,7 +246,11 @@ export class DashStats extends Component {
 	maybeShowStatsTabs() {
 		const statsChart = this.statsChart( this.props.activeTab );
 
-		if ( false === statsChart.totalViews && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
+		if (
+			false === statsChart.totalViews &&
+			! this.props.isEmptyStatsCardDismissed &&
+			! this.state.emptyStatsDismissed
+		) {
 			return false;
 		}
 
@@ -256,19 +274,31 @@ export class DashStats extends Component {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToDay }
+						<a
+							href="javascript:void(0)"
+							onClick={ switchToDay }
 							className={ this.getClass( 'day' ) }
-						>{ __( 'Days' ) }</a>
+						>
+							{ __( 'Days' ) }
+						</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToWeek }
+						<a
+							href="javascript:void(0)"
+							onClick={ switchToWeek }
 							className={ this.getClass( 'week' ) }
-						>{ __( 'Weeks' ) }</a>
+						>
+							{ __( 'Weeks' ) }
+						</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ switchToMonth }
+						<a
+							href="javascript:void(0)"
+							onClick={ switchToMonth }
 							className={ this.getClass( 'month' ) }
-						>{ __( 'Months' ) }</a>
+						>
+							{ __( 'Months' ) }
+						</a>
 					</li>
 				</ul>
 			);
@@ -289,16 +319,22 @@ export class DashStats extends Component {
 				</div>
 			);
 		}
-		return this.props.isModuleAvailable && (
-			<div>
-				<QueryStatsData range={ this.props.activeTab } />
-				<DashSectionHeader label={ __( 'Site Stats' ) }>
-					{ this.maybeShowStatsTabs() }
-				</DashSectionHeader>
-				<Card className={ 'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' ) }>
-					{ this.renderStatsArea() }
-				</Card>
-			</div>
+		return (
+			this.props.isModuleAvailable && (
+				<div>
+					<QueryStatsData range={ this.props.activeTab } />
+					<DashSectionHeader label={ __( 'Site Stats' ) }>
+						{ this.maybeShowStatsTabs() }
+					</DashSectionHeader>
+					<Card
+						className={
+							'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' )
+						}
+					>
+						{ this.renderStatsArea() }
+					</Card>
+				</div>
+			)
 		);
 	}
 }
@@ -310,7 +346,9 @@ export default connect(
 		isDevMode: isDevMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),
-		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
+		statsData: isEmpty( getStatsData( state ) )
+			? getInitialStateStatsData( state )
+			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	} ),

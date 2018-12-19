@@ -1139,6 +1139,13 @@ babel-plugin-transform-es3-member-expression-literals@6.22.0:
   dependencies:
     babel-runtime "^6.22.0"
 
+babel-plugin-transform-es3-property-literals@6.22.0:
+  version "6.22.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-es3-property-literals/-/babel-plugin-transform-es3-property-literals-6.22.0.tgz#b2078d5842e22abf40f73e8cde9cd3711abd5758"
+  integrity sha1-sgeNWELiKr9A9z6M3pzTcRq9V1g=
+  dependencies:
+    babel-runtime "^6.22.0"
+
 babel-plugin-transform-exponentiation-operator@^6.22.0, babel-plugin-transform-exponentiation-operator@^6.24.1:
   version "6.24.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-exponentiation-operator/-/babel-plugin-transform-exponentiation-operator-6.24.1.tgz#2ab0c9c7f3098fa48907772bb813fe41e8de3a0e"
@@ -2854,6 +2861,13 @@ escope@^3.6.0:
     es6-weak-map "^2.0.1"
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
+
+eslint-config-prettier@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-3.3.0.tgz#41afc8d3b852e757f06274ed6c44ca16f939a57d"
+  integrity sha512-Bc3bh5bAcKNvs3HOpSi6EfGA2IIp7EzWcg2tS4vP7stnXu/J1opihHDM7jI9JCIckyIDTgZLSWn7J3HY0j2JfA==
+  dependencies:
+    get-stdin "^6.0.0"
 
 eslint-config-wpcalypso@0.8.0:
   version "0.8.0"
@@ -6505,7 +6519,7 @@ prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
 
-"prettier@github:Automattic/wp-prettier":
+"prettier@github:Automattic/wp-prettier#wp-prettier-1.14.0":
   version "1.14.0"
   resolved "https://codeload.github.com/Automattic/wp-prettier/tar.gz/d3a1056dd8bc8b3c8194790a044b37fc4e983ae3"
   dependencies:

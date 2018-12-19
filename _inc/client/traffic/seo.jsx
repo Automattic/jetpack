@@ -25,31 +25,39 @@ class SeoComponent extends React.Component {
 				{ ...this.props }
 				header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
 				feature={ FEATURE_SEO_TOOLS_JETPACK }
-				hideButton>
+				hideButton
+			>
 				<SettingsGroup
 					disableInDevMode
 					module={ { module: 'seo-tools' } }
 					support={ {
-						text: __( 'Allows you to optimize your site and its content for better results in search engines.' ),
+						text: __(
+							'Allows you to optimize your site and its content for better results in search engines.'
+						),
 						link: 'https://jetpack.com/support/seo-tools/',
-					} }>
+					} }
+				>
 					<span>
-						{
-							__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
-								{
-									components: {
-										a: <a href="https://jetpack.com/support/seo-tools/" />
-									}
-								}
-							)
-						}
+						{ __(
+							"You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
+							{
+								components: {
+									a: <a href="https://jetpack.com/support/seo-tools/" />,
+								},
+							}
+						) }
 					</span>
 				</SettingsGroup>
-				{
-					! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
-						<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</Card>
-					)
-				}
+				{ ! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackConfigureClick }
+						href={ this.props.configureUrl }
+					>
+						{ __( 'Configure your SEO settings' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}

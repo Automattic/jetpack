@@ -21,14 +21,14 @@ export class DashSectionHeader extends React.Component {
 		label: '',
 		settingsPath: '',
 		externalLinkPath: '',
-		externalLink: ''
+		externalLink: '',
 	};
 
 	trackCogClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'settings-cog',
 			group: 'security',
-			page: 'aag'
+			page: 'aag',
 		} );
 	};
 
@@ -36,10 +36,7 @@ export class DashSectionHeader extends React.Component {
 		let externalLink;
 		let children;
 
-		const classes = classNames(
-			this.props.className,
-			'jp-dash-section-header'
-		);
+		const classes = classNames( this.props.className, 'jp-dash-section-header' );
 
 		if ( this.props.externalLink ) {
 			externalLink = (
@@ -48,25 +45,19 @@ export class DashSectionHeader extends React.Component {
 					href={ this.props.externalLinkPath }
 					onClick={ this.props.externalLinkClick }
 				>
-						{ this.props.externalLink }
+					{ this.props.externalLink }
 				</a>
 			);
 		}
 
 		if ( this.props.children ) {
-			children = (
-				<div className="jp-dash-section-header__children" >
-					{ this.props.children }
-				</div>
-			);
+			children = <div className="jp-dash-section-header__children">{ this.props.children }</div>;
 		}
 
 		return (
 			<div className={ classes }>
 				<div className="jp-dash-section-header__label">
-					<h2 className="jp-dash-section-header__name">
-						{ this.props.label }
-					</h2>
+					<h2 className="jp-dash-section-header__name">{ this.props.label }</h2>
 				</div>
 				{ externalLink }
 				{ children }

@@ -80,14 +80,14 @@ class DashPluginUpdates extends Component {
 				<p className="jp-dash-item__description">
 					{ updatesAvailable
 						? [
-							__( 'Plugin needs updating.', 'Plugins need updating.', {
-								count: pluginUpdates.count,
-							} ) + ' ',
-							! this.props.isDevMode &&
+								__( 'Plugin needs updating.', 'Plugins need updating.', {
+									count: pluginUpdates.count,
+								} ) + ' ',
+								! this.props.isDevMode &&
 									__( '{{a}}Turn on plugin autoupdates{{/a}}', {
 										components: { a: <a href={ managePluginsUrl } /> },
 									} ),
-						]
+						  ]
 						: __( 'All plugins are up-to-date. Awesome work!' ) }
 				</p>
 			</DashItem>,

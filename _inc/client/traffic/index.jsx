@@ -65,81 +65,63 @@ export class Traffic extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Maximize your site’s visibility in search engines and view traffic stats in real time.' ) }
+					title={ __(
+						'Maximize your site’s visibility in search engines and view traffic stats in real time.'
+					) }
 					className="jp-settings-description"
 				/>
 
-				{
-					foundAds && (
-						<Ads
-							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
-						/>
-					)
-				}
-				{
-					foundRelated && (
-						<RelatedPosts
-							{ ...commonProps }
-							configureUrl={ this.props.siteAdminUrl +
-						'customize.php?autofocus[section]=jetpack_relatedposts' +
-						'&return=' + encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
-						'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
-						/>
-					)
-				}
-				{
-					foundSeo && (
-						<SEO
-							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#seo' }
-						/>
-					)
-				}
-				{
-					foundAnalytics && (
-						<GoogleAnalytics
-							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics' }
-						/>
-					)
-				}
-				{
-					foundStats && (
-						<SiteStats
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundSitemaps && (
-						<Sitemaps
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundVerification && (
-						<VerificationServices
-							{ ...commonProps }
-						/>
-					)
-				}
+				{ foundAds && (
+					<Ads
+						{ ...commonProps }
+						configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
+					/>
+				) }
+				{ foundRelated && (
+					<RelatedPosts
+						{ ...commonProps }
+						configureUrl={
+							this.props.siteAdminUrl +
+							'customize.php?autofocus[section]=jetpack_relatedposts' +
+							'&return=' +
+							encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+							'&url=' +
+							encodeURIComponent( this.props.lastPostUrl )
+						}
+					/>
+				) }
+				{ foundSeo && (
+					<SEO
+						{ ...commonProps }
+						configureUrl={
+							'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#seo'
+						}
+					/>
+				) }
+				{ foundAnalytics && (
+					<GoogleAnalytics
+						{ ...commonProps }
+						configureUrl={
+							'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics'
+						}
+					/>
+				) }
+				{ foundStats && <SiteStats { ...commonProps } /> }
+				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
+				{ foundVerification && <VerificationServices { ...commonProps } /> }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: module_name => getModule( state, module_name ),
-			settings: getSettings( state ),
-			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
-			lastPostUrl: getLastPostUrl( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		};
-	}
-)( Traffic );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		settings: getSettings( state ),
+		isDevMode: isDevMode( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: module_name => isModuleFound( state, module_name ),
+		lastPostUrl: getLastPostUrl( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	};
+} )( Traffic );

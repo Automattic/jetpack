@@ -22,7 +22,7 @@ import { connectModuleOptions } from 'components/module-settings/connect-module-
 export function withModuleSettingsFormHelpers( InnerComponent ) {
 	class SettingsForm extends React.Component {
 		state = {
-			options: {}
+			options: {},
 		};
 
 		onOptionChange = event => {
@@ -30,9 +30,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			let optionValue;
 			// Get the option value from the `checked` property if present.
 			if ( event.target.type === 'checkbox' ) {
-				optionValue = typeof event.target.checked !== 'undefined'
-					? event.target.checked
-					: event.target.value;
+				optionValue =
+					typeof event.target.checked !== 'undefined' ? event.target.checked : event.target.value;
 			} else {
 				optionValue = event.target.value;
 			}
@@ -54,13 +53,13 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			}
 			const newOptions = {
 				...this.state.options,
-				...optionMaybeOptions
+				...optionMaybeOptions,
 			};
 			this.setState( { options: newOptions } );
 			return true;
 		};
 
-		resetFormStateOption = ( optionToReset ) => {
+		resetFormStateOption = optionToReset => {
 			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
 			return true;
 		};
@@ -83,19 +82,19 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 					// If after toggling the option the module is no longer needed to be active, deactivate it.
 					this.props.updateOptions( {
 						[ module ]: false,
-						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+						[ moduleOption ]: ! this.getOptionValue( moduleOption ),
 					} );
 				} else {
 					// We pass the value to set.
 					this.props.updateOptions( {
-						[ moduleOption ]: ! this.getOptionValue( moduleOption )
+						[ moduleOption ]: ! this.getOptionValue( moduleOption ),
 					} );
 				}
 			} else {
 				// If the module is inactive, we pass the module to activate and the value to set.
 				this.props.updateOptions( {
 					[ module ]: true,
-					[ moduleOption ]: true
+					[ moduleOption ]: true,
 				} );
 			}
 		};
@@ -117,7 +116,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 
 		onSubmit = event => {
 			event.preventDefault();
-			this.props.updateOptions( this.state.options )
+			this.props
+				.updateOptions( this.state.options )
 				.then( () => {
 					// Track it
 
@@ -146,7 +146,11 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * @returns {*}                 the current value of the settings.
 		 */
 		getOptionValue = ( settingName, module = '' ) => {
-			return get( this.state.options, settingName, this.props.getSettingCurrentValue( settingName, module ) );
+			return get(
+				this.state.options,
+				settingName,
+				this.props.getSettingCurrentValue( settingName, module )
+			);
 		};
 
 		shouldSaveButtonBeDisabled = () => {
@@ -179,10 +183,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * @param {Object } options options passed to recordEvent
 		 */
 		trackFormSubmission = options => {
-			analytics.tracks.recordEvent(
-				'jetpack_wpa_settings_form_submit',
-				options
-			);
+			analytics.tracks.recordEvent( 'jetpack_wpa_settings_form_submit', options );
 		};
 
 		/**
@@ -192,14 +193,11 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * @param {Boolean} activated whether the settings is currently on
 		 */
 		trackSettingsToggle = ( module, setting, activated ) => {
-			analytics.tracks.recordEvent(
-				'jetpack_wpa_settings_toggle',
-				{
-					module: module,
-					setting: setting,
-					toggled: activated ? 'on' : 'off'
-				}
-			);
+			analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+				module: module,
+				setting: setting,
+				toggled: activated ? 'on' : 'off',
+			} );
 		};
 
 		render() {
@@ -215,7 +213,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 					isSavingAnyOption={ this.isSavingAnyOption }
 					isDirty={ this.isDirty }
 					resetFormStateOption={ this.resetFormStateOption }
-					{ ...this.props } />
+					{ ...this.props }
+				/>
 			);
 		}
 	}

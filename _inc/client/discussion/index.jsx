@@ -26,7 +26,7 @@ export class Discussion extends React.Component {
 			settings: this.props.settings,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
 		};
 
 		const foundComments = this.props.isModuleFound( 'comments' ),
@@ -39,7 +39,13 @@ export class Discussion extends React.Component {
 			return null;
 		}
 
-		if ( ! foundComments && ! foundSubscriptions && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
+		if (
+			! foundComments &&
+			! foundSubscriptions &&
+			! foundMarkdown &&
+			! foundGravatar &&
+			! foundCommentLikes
+		) {
 			return null;
 		}
 
@@ -48,7 +54,9 @@ export class Discussion extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Open your site to comments and invite subscribers to get alerts about your latest work.' ) }
+					title={ __(
+						'Open your site to comments and invite subscribers to get alerts about your latest work.'
+					) }
 					className="jp-settings-description"
 				/>
 
@@ -57,32 +65,28 @@ export class Discussion extends React.Component {
 					isModuleFound={ this.props.isModuleFound }
 					getModuleOverride={ this.props.getModuleOverride }
 				/>
-				{
-					foundSubscriptions && (
-						<Subscriptions
-							{ ...commonProps }
-							isLinked={ this.props.isLinked }
-							connectUrl={ this.props.connectUrl }
-							siteRawUrl={ this.props.siteRawUrl }
-						/>
-					)
-				}
+				{ foundSubscriptions && (
+					<Subscriptions
+						{ ...commonProps }
+						isLinked={ this.props.isLinked }
+						connectUrl={ this.props.connectUrl }
+						siteRawUrl={ this.props.siteRawUrl }
+					/>
+				) }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: module_name => getModule( state, module_name ),
-			settings: getSettings( state ),
-			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			connectUrl: getConnectUrl( state ),
-			isLinked: isCurrentUserLinked( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		};
-	}
-)( Discussion );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		settings: getSettings( state ),
+		isDevMode: isDevMode( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		connectUrl: getConnectUrl( state ),
+		isLinked: isCurrentUserLinked( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	};
+} )( Discussion );

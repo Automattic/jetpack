@@ -8,10 +8,7 @@ import without from 'lodash/without';
 /**
  * Internal dependencies
  */
-import {
-	FormLabel,
-	FormRadio
-} from 'components/forms';
+import { FormLabel, FormRadio } from 'components/forms';
 import Checkbox from 'components/checkbox';
 
 export class ModuleSettingCheckbox extends React.Component {
@@ -24,8 +21,9 @@ export class ModuleSettingCheckbox extends React.Component {
 					checked={ !! props.getOptionValue( props.name ) }
 					value={ !! props.getOptionValue( props.name ) }
 					disabled={ props.disabled || props.isUpdating( props.name ) }
-					onChange= { props.onOptionChange } />
-				<span>{ ( props.label ) }</span>
+					onChange={ props.onOptionChange }
+				/>
+				<span>{ props.label }</span>
 			</FormLabel>
 		);
 	}
@@ -37,19 +35,18 @@ export class ModuleSettingRadios extends React.Component {
 		const validValues = this.props.validValues;
 		return (
 			<div>
-				{
-				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
+				{ Object.keys( validValues ).map( key => (
+					<FormLabel key={ `option-${ props.option_name }-${ key }` }>
 						<FormRadio
 							name={ props.name }
 							checked={ key === props.getOptionValue( props.name ) }
 							value={ key }
 							disabled={ props.isUpdating( props.name ) }
-							onChange= { props.onOptionChange } />
-						<span>{ ( validValues[ key ] ) }</span>
+							onChange={ props.onOptionChange }
+						/>
+						<span>{ validValues[ key ] }</span>
 					</FormLabel>
-				) )
-				}
+				) ) }
 			</div>
 		);
 	}
@@ -59,12 +56,18 @@ export class ModuleSettingSelect extends React.Component {
 	render() {
 		const validValues = this.props.validValues;
 		return (
-			<select name={ this.props.name } value={ this.props.value } onBlur={ this.props.onOptionChange }>
-				{
-					Object.keys( validValues ).map( key => {
-						return <option value={ key } key={ `option-${ this.props.option_name }-${ key }` } >{ validValues[ key ] }</option>;
-					} )
-				}
+			<select
+				name={ this.props.name }
+				value={ this.props.value }
+				onBlur={ this.props.onOptionChange }
+			>
+				{ Object.keys( validValues ).map( key => {
+					return (
+						<option value={ key } key={ `option-${ this.props.option_name }-${ key }` }>
+							{ validValues[ key ] }
+						</option>
+					);
+				} ) }
 			</select>
 		);
 	}
@@ -72,15 +75,16 @@ export class ModuleSettingSelect extends React.Component {
 
 export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 	static defaultProps = {
-		always_checked: []
+		always_checked: [],
 	};
 
 	onOptionChange = event => {
 		const justUpdated = event.target.value;
 		const currentValue = this.props.getOptionValue( this.props.name );
-		const newValue = currentValue.indexOf( justUpdated ) === -1
-			? concat( currentValue, justUpdated )
-			: without( currentValue, justUpdated );
+		const newValue =
+			currentValue.indexOf( justUpdated ) === -1
+				? concat( currentValue, justUpdated )
+				: without( currentValue, justUpdated );
 		this.props.updateFormStateOptionValue( this.props.name, newValue );
 	};
 
@@ -89,13 +93,14 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 	};
 
 	shouldBeChecked = key => {
-		return this.isAlwaysChecked( key ) ||
-			this.props.getOptionValue( this.props.name ).indexOf( key ) !== -1;
+		return (
+			this.isAlwaysChecked( key ) ||
+			this.props.getOptionValue( this.props.name ).indexOf( key ) !== -1
+		);
 	};
 
 	shouldBeDisabled = key => {
-		return this.isAlwaysChecked( key ) ||
-			this.props.isUpdating( this.props.name );
+		return this.isAlwaysChecked( key ) || this.props.isUpdating( this.props.name );
 	};
 
 	render() {
@@ -103,19 +108,18 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 		const validValues = this.props.validValues;
 		return (
 			<div>
-				{
-				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
+				{ Object.keys( validValues ).map( key => (
+					<FormLabel key={ `option-${ props.option_name }-${ key }` }>
 						<Checkbox
 							name={ props.name }
-							checked= { this.shouldBeChecked( key ) }
+							checked={ this.shouldBeChecked( key ) }
 							value={ key }
 							disabled={ this.shouldBeDisabled( key ) }
-							onChange= { this.onOptionChange } />
-						<span>{ ( validValues[ key ].name ) }</span>
+							onChange={ this.onOptionChange }
+						/>
+						<span>{ validValues[ key ].name }</span>
 					</FormLabel>
-				) )
-				}
+				) ) }
 			</div>
 		);
 	}

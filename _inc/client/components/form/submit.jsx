@@ -11,7 +11,9 @@ export default class Submit extends React.Component {
 		const { ...other } = this.props;
 
 		return (
-			<Button { ...other } type="submit">{this.props.children}</Button>
+			<Button { ...other } type="submit">
+				{ this.props.children }
+			</Button>
 		);
 	}
 }

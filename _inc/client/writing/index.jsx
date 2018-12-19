@@ -35,7 +35,7 @@ export class Writing extends React.Component {
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
 			isLinked: this.props.isLinked,
-			getModuleOverride: this.props.getModuleOverride
+			getModuleOverride: this.props.getModuleOverride,
 		};
 
 		const found = [
@@ -56,9 +56,11 @@ export class Writing extends React.Component {
 			return null;
 		}
 
-		const showComposing = this.props.userCanManageModules ||
+		const showComposing =
+				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'after-the-deadline' ) ),
-			showPostByEmail = this.props.userCanManageModules ||
+			showPostByEmail =
+				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
 
 		return (
@@ -66,61 +68,58 @@ export class Writing extends React.Component {
 				<QuerySite />
 
 				<Card
-					title={ __( 'Compose content the way you want to and streamline your publishing experience.' ) }
+					title={ __(
+						'Compose content the way you want to and streamline your publishing experience.'
+					) }
 					className="jp-settings-description"
 				/>
 
-				{
-					this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
+				{ this.props.isModuleFound( 'masterbar' ) &&
+					! this.props.masterbarIsAlwaysActive && (
 						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
-					)
-				}
-				{
-					showComposing && (
-						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
-					)
-				}
-				{
-					this.props.isModuleFound( 'custom-content-types' ) && (
-						<CustomContentTypes { ...commonProps } />
-					)
-				}
+					) }
+				{ showComposing && (
+					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
+				) }
+				{ this.props.isModuleFound( 'custom-content-types' ) && (
+					<CustomContentTypes { ...commonProps } />
+				) }
 				<ThemeEnhancements { ...commonProps } />
-				{
-					( this.props.isModuleFound( 'post-by-email' ) && showPostByEmail ) && (
-						<PostByEmail { ...commonProps }
+				{ this.props.isModuleFound( 'post-by-email' ) &&
+					showPostByEmail && (
+						<PostByEmail
+							{ ...commonProps }
 							connectUrl={ this.props.connectUrl }
 							isLinked={ this.props.isLinked }
-							userCanManageModules={ this.props.userCanManageModules } />
-					)
-				}
-				{
-					( ! showComposing && ! showPostByEmail ) && (
+							userCanManageModules={ this.props.userCanManageModules }
+						/>
+					) }
+				{ ! showComposing &&
+					! showPostByEmail && (
 						<Card>
-							{ __( 'Writing tools available to you will be shown here when an administrator enables them.' ) }
+							{ __(
+								'Writing tools available to you will be shown here when an administrator enables them.'
+							) }
 						</Card>
-					)
-				}
+					) }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: module_name => getModule( state, module_name ),
-			settings: getSettings( state ),
-			masterbarIsAlwaysActive: isAtomicSite( state ),
-			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			userCanEditPosts: userCanEditPosts( state ),
-			isModuleActivated: module_name => isModuleActivated( state, module_name ),
-			isLinked: isCurrentUserLinked( state ),
-			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
-			connectUrl: getConnectUrl( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		};
-	}
-)( Writing );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		settings: getSettings( state ),
+		masterbarIsAlwaysActive: isAtomicSite( state ),
+		isDevMode: isDevMode( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		userCanEditPosts: userCanEditPosts( state ),
+		isModuleActivated: module_name => isModuleActivated( state, module_name ),
+		isLinked: isCurrentUserLinked( state ),
+		userCanManageModules: userCanManageModules( state ),
+		isModuleFound: module_name => isModuleFound( state, module_name ),
+		connectUrl: getConnectUrl( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+	};
+} )( Writing );

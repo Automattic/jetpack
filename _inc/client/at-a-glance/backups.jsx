@@ -28,21 +28,21 @@ import { showBackups } from 'state/initial-state';
  * @param   {object} props Settings to render the card.
  * @returns {object}       Backups card
  */
-const renderCard = ( props ) => (
+const renderCard = props => (
 	<DashItem
 		label={ __( 'Backups' ) }
 		module={ props.feature || 'backups' }
 		support={ {
-			text: __( 'Jetpack Backups allow you to easily restore or download a backup from a specific moment.' ),
+			text: __(
+				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.'
+			),
 			link: 'https://jetpack.com/support/backups/',
 		} }
 		className={ props.className }
 		status={ props.status }
 		pro={ true }
 	>
-		<p className="jp-dash-item__description">
-			{ props.content }
-		</p>
+		<p className="jp-dash-item__description">{ props.content }</p>
 	</DashItem>
 );
 
@@ -88,8 +88,14 @@ class DashBackups extends Component {
 						&nbsp;
 						{ __( '{{a}}View backup details{{/a}}.', {
 							components: {
-								a: <a href="https://dashboard.vaultpress.com" target="_blank" rel="noopener noreferrer" />
-							}
+								a: (
+									<a
+										href="https://dashboard.vaultpress.com"
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
 						} ) }
 					</span>
 				),
@@ -102,29 +108,41 @@ class DashBackups extends Component {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
-					content: __( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
-						components: {
-							a: <a href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` } target="_blank" rel="noopener noreferrer" />
+					content: __(
+						'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.',
+						{
+							components: {
+								a: (
+									<a
+										href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
 						}
-					} )
+					),
 				} );
 			}
 
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				content: __( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
-					components: {
-						a: <UpgradeLink source="aag-backups" />
+				content: __(
+					'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.',
+					{
+						components: {
+							a: <UpgradeLink source="aag-backups" />,
+						},
 					}
-				} ),
+				),
 			} );
 		}
 
 		return renderCard( {
 			className: '',
 			status: '',
-			content: __( 'Loading…' )
+			content: __( 'Loading…' ),
 		} );
 	}
 
@@ -136,13 +154,11 @@ class DashBackups extends Component {
 		if ( this.props.isDevMode ) {
 			return (
 				<div className="jp-dash-item__interior">
-					{
-						renderCard( {
-							className: 'jp-dash-item__is-inactive',
-							status: 'no-pro-uninstalled-or-inactive',
-							content: __( 'Unavailable in Dev Mode.' ),
-						} )
-					}
+					{ renderCard( {
+						className: 'jp-dash-item__is-inactive',
+						status: 'no-pro-uninstalled-or-inactive',
+						content: __( 'Unavailable in Dev Mode.' ),
+					} ) }
 				</div>
 			);
 		}
@@ -153,45 +169,39 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
-				{
-					this.props.isRewindActive
-						? (
-							<div className="jp-dash-item">
-								{
-									renderCard( {
-										className: 'jp-dash-item__is-active',
-										status: 'is-working',
-										content: __( 'Your site is being backed up in real-time.' ),
-										feature: 'rewind',
-									} )
-								}
-								{
-									<Card
-										key="manage-backups"
-										className="jp-dash-item__manage-in-wpcom"
-										compact
-										href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
-									>
-										{ __( 'View backup history' ) }
-									</Card>
-								}
-							</div>
-						)
-						: this.getVPContent()
-				}
+				{ this.props.isRewindActive ? (
+					<div className="jp-dash-item">
+						{ renderCard( {
+							className: 'jp-dash-item__is-active',
+							status: 'is-working',
+							content: __( 'Your site is being backed up in real-time.' ),
+							feature: 'rewind',
+						} ) }
+						{
+							<Card
+								key="manage-backups"
+								className="jp-dash-item__manage-in-wpcom"
+								compact
+								href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
+							>
+								{ __( 'View backup history' ) }
+							</Card>
+						}
+					</div>
+				) : (
+					this.getVPContent()
+				) }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			vaultPressData: getVaultPressData( state ),
-			sitePlan: getSitePlan( state ),
-			isDevMode: isDevMode( state ),
-			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-			showBackups: showBackups( state ),
-		};
-	}
-)( DashBackups );
+export default connect( state => {
+	return {
+		vaultPressData: getVaultPressData( state ),
+		sitePlan: getSitePlan( state ),
+		isDevMode: isDevMode( state ),
+		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+		showBackups: showBackups( state ),
+	};
+} )( DashBackups );

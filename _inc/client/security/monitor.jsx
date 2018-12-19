@@ -10,9 +10,7 @@ import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
-import {
-	withModuleSettingsFormHelpers as withModuleSettingsFormHelpers,
-} from 'components/module-settings/with-module-settings-form-helpers';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -38,6 +36,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __( 'We will continuously watch your site and receive alerts the moment downtime is detected.' ),
+							),
 							link: 'https://jetpack.com/support/monitor/',
 						} }
 					>

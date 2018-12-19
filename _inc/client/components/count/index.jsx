@@ -11,7 +11,6 @@ import PureRenderMixin from 'react-pure-render/mixin';
 require( './style.scss' );
 
 export default createReactClass( {
-
 	displayName: 'Count',
 
 	mixins: [ PureRenderMixin ],
@@ -21,8 +20,6 @@ export default createReactClass( {
 	},
 
 	render() {
-		return (
-			<span className="dops-count">{ this.numberFormat( this.props.count ) }</span>
-		);
-	}
+		return <span className="dops-count">{ this.numberFormat( this.props.count ) }</span>;
+	},
 } );

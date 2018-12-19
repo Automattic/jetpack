@@ -8,10 +8,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SET_INITIAL_STATE,
-	MOCK_SWITCH_USER_PERMISSIONS
-} from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -85,11 +82,19 @@ export function userCanPublish( state ) {
 }
 
 export function userCanManageModules( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_modules', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_modules',
+		false
+	);
 }
 
 export function userCanManageOptions( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_options', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_options',
+		false
+	);
 }
 
 /**
@@ -111,7 +116,11 @@ export function userCanEditPosts( state ) {
  * @return {bool} Whether user can manage plugins.
  */
 export function userCanManagePlugins( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_plugins', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_plugins',
+		false
+	);
 }
 
 export function userCanDisconnectSite( state ) {
@@ -271,8 +280,9 @@ export function getAffiliateCode( state ) {
  */
 export const getUpgradeUrl = ( state, source, userId = '' ) => {
 	const affiliateCode = getAffiliateCode( state );
-	return `https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+	return (
+		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
 		( userId ? `&u=${ userId }` : '' )
-	;
+	);
 };

@@ -11,7 +11,12 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
+import {
+	isDevMode,
+	isUnavailableInDevMode,
+	isCurrentUserLinked,
+	getConnectUrl,
+} from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import QuerySite from 'components/data/query-site';
@@ -20,7 +25,6 @@ import { ShareButtons } from './share-buttons';
 import { Likes } from './likes';
 
 class Sharing extends Component {
-
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -42,11 +46,7 @@ class Sharing extends Component {
 			return null;
 		}
 
-		if (
-			! foundPublicize &&
-			! foundSharing &&
-			! foundLikes
-		) {
+		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
 			return null;
 		}
 
@@ -59,45 +59,25 @@ class Sharing extends Component {
 					className="jp-settings-description"
 				/>
 
-				{
-					foundPublicize && (
-						<Publicize
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundSharing && (
-						<ShareButtons
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundLikes && (
-						<Likes
-							{ ...commonProps }
-						/>
-					)
-				}
+				{ foundPublicize && <Publicize { ...commonProps } /> }
+				{ foundSharing && <ShareButtons { ...commonProps } /> }
+				{ foundLikes && <Likes { ...commonProps } /> }
 			</div>
 		);
 	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			module: module_name => getModule( state, module_name ),
-			settings: getSettings( state ),
-			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			isLinked: isCurrentUserLinked( state ),
-			connectUrl: getConnectUrl( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			userCanManageModules: userCanManageModules( state ),
-		};
-	}
-)( Sharing );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		settings: getSettings( state ),
+		isDevMode: isDevMode( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		isLinked: isCurrentUserLinked( state ),
+		connectUrl: getConnectUrl( state ),
+		siteRawUrl: getSiteRawUrl( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+		userCanManageModules: userCanManageModules( state ),
+	};
+} )( Sharing );

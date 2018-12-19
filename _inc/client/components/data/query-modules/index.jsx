@@ -24,16 +24,21 @@ class QueryModules extends Component {
 }
 
 QueryModules.defaultProps = {
-	fetchModules: () => {}
+	fetchModules: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchingModulesList: isFetchingModulesList( state )
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchModules
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			fetchingModulesList: isFetchingModulesList( state ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchModules,
+			},
+			dispatch
+		);
+	}
 )( QueryModules );

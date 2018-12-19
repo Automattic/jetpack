@@ -23,13 +23,13 @@ class ModuleToggleComponent extends Component {
 		className: PropTypes.string,
 		compact: PropTypes.bool,
 		id: PropTypes.string,
-		overrideCondition: PropTypes.string
+		overrideCondition: PropTypes.string,
 	};
 
 	static defaultProps = {
 		activated: false,
 		disabled: false,
-		overrideCondition: ''
+		overrideCondition: '',
 	};
 
 	toggleModule = () => {
@@ -39,13 +39,11 @@ class ModuleToggleComponent extends Component {
 
 	trackModuleToggle = ( slug, activated ) => {
 		// The stats check is a hack around the fact that we're using <ModuleToggle for the settings there...
-		'stats' !== slug && analytics.tracks.recordEvent(
-			'jetpack_wpa_module_toggle',
-			{
+		'stats' !== slug &&
+			analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 				module: slug,
-				toggled: activated ? 'off' : 'on'
-			}
-		);
+				toggled: activated ? 'off' : 'on',
+			} );
 	};
 
 	isDisabledByOverride = () => {
@@ -71,29 +69,40 @@ class ModuleToggleComponent extends Component {
 						rel="noopener noreferrer"
 						style={ { textDecoration: 'underline' } }
 					/>
-				)
-			}
+				),
+			},
 		};
 
 		switch ( override ) {
 			case 'active':
-				return __( 'This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.', args );
+				return __(
+					'This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.',
+					args
+				);
 			case 'inactive':
-				return __( 'This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.', args );
+				return __(
+					'This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.',
+					args
+				);
 			default:
-				return __( 'This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.', args );
+				return __(
+					'This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.',
+					args
+				);
 		}
 	};
 
 	render() {
 		return (
-			<CompactFormToggle checked={ this.props.activated || this.props.isModuleActivated }
+			<CompactFormToggle
+				checked={ this.props.activated || this.props.isModuleActivated }
 				toggling={ this.props.toggling }
-				className = { this.props.className }
-				disabled = { this.props.disabled || this.isDisabledByOverride() }
-				id = { this.props.id }
+				className={ this.props.className }
+				disabled={ this.props.disabled || this.isDisabledByOverride() }
+				id={ this.props.id }
 				onChange={ this.toggleModule }
-				disabledReason={ this.getDisabledReason() }>
+				disabledReason={ this.getDisabledReason() }
+			>
 				{ this.props.children }
 			</CompactFormToggle>
 		);

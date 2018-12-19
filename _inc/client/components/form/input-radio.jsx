@@ -25,7 +25,7 @@ class Radios extends React.Component {
 		choices: [],
 	};
 
-	onChange = ( event ) => {
+	onChange = event => {
 		this.props.changeValue( event );
 	};
 
@@ -36,7 +36,14 @@ class Radios extends React.Component {
 			return (
 				<div className="dops-form-checkbox" key={ i }>
 					<Label inline label={ choice.label } htmlFor={ uniqueId + i }>
-						<input type="radio" id={ uniqueId + i } value={ choice.value } name={ this.props.name } checked={ checked } onChange={ this.onChange } />
+						<input
+							type="radio"
+							id={ uniqueId + i }
+							value={ choice.value }
+							name={ this.props.name }
+							checked={ checked }
+							onChange={ this.onChange }
+						/>
 					</Label>
 				</div>
 			);
@@ -46,11 +53,7 @@ class Radios extends React.Component {
 	render() {
 		const choices = this.mapChoices();
 
-		return (
-			<fieldset>
-				{ choices }
-			</fieldset>
-		);
+		return <fieldset>{ choices }</fieldset>;
 	}
 }
 
@@ -66,7 +69,7 @@ module.exports = createReactClass( {
 		selected: PropTypes.any,
 		required: PropTypes.any,
 		validations: PropTypes.string,
-		validationError: PropTypes.string
+		validationError: PropTypes.string,
 	},
 
 	getInitialState: function() {
@@ -95,23 +98,33 @@ module.exports = createReactClass( {
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
 			if ( ! errorMessage ) {
-				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
+				errorMessage = this.showRequired()
+					? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
+					: null;
 			}
 		}
 
-		const className = classNames( {
-			'dops-field': true,
-			'dops-form-radio': true,
-			'dops-form-error': errorMessage,
-		}, this.props.className );
+		const className = classNames(
+			{
+				'dops-field': true,
+				'dops-form-radio': true,
+				'dops-form-error': errorMessage,
+			},
+			this.props.className
+		);
 
 		return (
 			<div className={ className }>
+				<Radios
+					name={ this.props.name }
+					uniqueId={ this.state.uniqueId }
+					choices={ this.props.choices }
+					changeValue={ this.changeValue }
+					selected={ this.state.selectedItem }
+				/>
 
-				<Radios name={ this.props.name } uniqueId={ this.state.uniqueId } choices={ this.props.choices } changeValue={ this.changeValue } selected={ this.state.selectedItem } />
-
-				{ errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> ) }
+				{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
 			</div>
 		);
-	}
+	},
 } );

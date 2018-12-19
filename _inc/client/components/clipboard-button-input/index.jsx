@@ -23,16 +23,16 @@ export default class ClipboardButtonInput extends React.Component {
 		className: PropTypes.string,
 		copied: PropTypes.string,
 		copy: PropTypes.string,
-		prompt: PropTypes.string
+		prompt: PropTypes.string,
 	};
 
 	static defaultProps = {
-		value: ''
+		value: '',
 	};
 
 	state = {
 		isCopied: false,
-		disabled: false
+		disabled: false,
 	};
 
 	componentWillUnmount() {
@@ -42,43 +42,39 @@ export default class ClipboardButtonInput extends React.Component {
 
 	showConfirmation = () => {
 		this.setState( {
-			isCopied: true
+			isCopied: true,
 		} );
 
 		this.confirmationTimeout = setTimeout( () => {
 			this.setState( {
-				isCopied: false
+				isCopied: false,
 			} );
 		}, 4000 );
 	};
 
 	render() {
-		const forwardedProps = omit( this.props,
+		const forwardedProps = omit(
+			this.props,
 			'className',
 			'copied',
 			'copy',
 			'isError',
 			'isValid',
 			'prompt',
-			'selectOnFocus',
+			'selectOnFocus'
 		);
 
 		return (
 			<span className={ classnames( 'dops-clipboard-button-input', this.props.className ) }>
-				<TextInput
-					{ ...forwardedProps }
-					type="text"
-					selectOnFocus
-					readOnly />
+				<TextInput { ...forwardedProps } type="text" selectOnFocus readOnly />
 				<ClipboardButton
 					text={ this.props.value }
 					onCopy={ this.showConfirmation }
 					disabled={ this.props.disabled }
 					prompt={ this.props.prompt }
-					compact>
-					{ this.state.isCopied
-						? this.props.copied
-						: this.props.copy }
+					compact
+				>
+					{ this.state.isCopied ? this.props.copied : this.props.copy }
 				</ClipboardButton>
 			</span>
 		);
