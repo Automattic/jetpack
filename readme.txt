@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Internationalization: add new locales, ensure existing ones are up to date.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
 * SSO: offer message introducing the feature to new users.
+* Stats: improve the design of the Stats dashboard widget.
 * WordPress.com REST API: add new option to set sites to private.
 
 **Improved compatibility**
