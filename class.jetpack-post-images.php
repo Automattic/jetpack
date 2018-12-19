@@ -348,11 +348,11 @@ class Jetpack_PostImages {
 			}
 
 			/**
-			 * Parse content from Core Gallery blocks.
+			 * Parse content from Core Gallery blocks and Jetpack's Tiled Gallery blocks.
 			 * Gallery blocks include the ID of each one of the images in the gallery.
 			 */
 			if (
-				'core/gallery' === $block['blockName']
+				( 'core/gallery' === $block['blockName'] || 'jetpack/tiled-gallery' === $block['blockName'] )
 				&& ! empty( $block['attrs']['ids'] )
 			) {
 				foreach ( $block['attrs']['ids'] as $img_id ) {
