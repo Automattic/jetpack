@@ -115,23 +115,33 @@ class Jetpack_Related_Posts_Customize {
 
 	/**
 	 * Check that we're in a single post view.
+	 * Will return `false` if the current post contains a Related Posts block,
+	 * because in that case we want to hide the Customizer controls.
 	 *
 	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
 	public static function is_single() {
+		if ( has_block( 'jetpack/related-posts' ) ) {
+			return false;
+		}
 		return is_single();
 	}
 
 	/**
 	 * Check that we're not in a single post view.
+	 * Will return `false` if the current post contains a Related Posts block,
+	 * because in that case we want to hide the Customizer controls.
 	 *
 	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
 	public static function is_not_single() {
+		if ( has_block( 'jetpack/related-posts' ) ) {
+			return false;
+		}
 		return ! is_single();
 	}
 
