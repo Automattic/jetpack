@@ -147,6 +147,15 @@ class Jetpack_Gutenberg {
 	}
 
 	static function load( $request = null ) {
+		// We display beta blocks in available Gutenberg extensions endpoint requests
+		$is_availability_endpoint_beta = ! is_null( $request ) && $request->get_param( 'beta' ) && wp_endswith( $request->get_route(), 'gutenberg/available-extensions' );
+		// We display beta blocks in proxied requests
+		$is_proxied = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
+
+		if ( $is_availability_endpoint_beta || $is_proxied ) {
+			Jetpack_Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+		}
+
 		/**
 		 * Filter the list of block editor blocks that are available through jetpack.
 		 *
