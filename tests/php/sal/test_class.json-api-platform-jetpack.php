@@ -9,21 +9,21 @@ class SalSiteTest extends WP_UnitTestCase {
 	static function setUpBeforeClass( ) {
 		parent::setUpBeforeClass();
 
-		static::$token = (object) array(
+		self::$token = (object) array(
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
 			'external_user_id' => 2,
 			'role'             => 'administrator'
 		);
 
-		$platform = wpcom_get_sal_platform( static::$token );
+		$platform = wpcom_get_sal_platform( self::$token );
 
-		static::$site = $platform->get_site( static::$token->blog_id );
+		self::$site = $platform->get_site( self::$token->blog_id );
 	}
 
 	function test_uses_synced_api_post_type_whitelist_if_available() {
 
-		$this->assertFalse( static::$site->is_post_type_allowed( 'my_new_type' ) );
+		$this->assertFalse( self::$site->is_post_type_allowed( 'my_new_type' ) );
 	}
 
 	function test_is_module_active() {
@@ -36,14 +36,14 @@ class SalSiteTest extends WP_UnitTestCase {
 
 			$this->assertEquals(
 				Jetpack::is_module_active( $module ),
-				static::$site->is_module_active( $module )
+				self::$site->is_module_active( $module )
 			);
 
 			Jetpack::activate_module( $module );
 
 			$this->assertEquals(
 				Jetpack::is_module_active( $module ),
-				static::$site->is_module_active( $module )
+				self::$site->is_module_active( $module )
 			);
 		}
 	}

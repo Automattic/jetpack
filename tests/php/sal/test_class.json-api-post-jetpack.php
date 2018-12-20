@@ -9,16 +9,16 @@ class SalPostsTest extends WP_UnitTestCase {
 	static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		static::$token = (object) array(
+		self::$token = (object) array(
 			'blog_id'          => get_current_blog_id(),
 			'user_id'          => get_current_user_id(),
 			'external_user_id' => 2,
 			'role'             => 'administrator'
 		);
 
-		$platform = wpcom_get_sal_platform( static::$token );
+		$platform = wpcom_get_sal_platform( self::$token );
 
-		static::$site = $platform->get_site( static::$token->blog_id );
+		self::$site = $platform->get_site( self::$token->blog_id );
 	}
 
 	function test_returns_content_wrapped_in_a_post_object() {
@@ -32,7 +32,7 @@ class SalPostsTest extends WP_UnitTestCase {
 
 		$post = get_post( $post_id );
 
-		$wrapped_post = static::$site->wrap_post( $post, 'display' );
+		$wrapped_post = self::$site->wrap_post( $post, 'display' );
 
 		$this->assertEquals( $post->post_type, $wrapped_post->get_type() );
 	}
