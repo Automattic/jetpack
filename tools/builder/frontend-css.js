@@ -63,6 +63,7 @@ const separate_list = [
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
+	'modules/theme-tools/compat/twentynineteen.css',
 ];
 
 const pathModifier = function( file, contents ) {
