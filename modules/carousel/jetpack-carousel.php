@@ -216,7 +216,7 @@ class Jetpack_Carousel {
 					'modules/carousel/jetpack-carousel.js'
 				),
 				array( 'jquery.spin' ),
-				$this->asset_version( '20170209' ),
+				$this->asset_version( '20181220' ),
 				true
 			);
 
