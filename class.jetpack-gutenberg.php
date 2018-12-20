@@ -61,7 +61,8 @@ class Jetpack_Gutenberg {
 		'field-checkbox',
 		'field-checkbox-multiple',
 		'field-radio',
-		'field-select'
+		'field-select',
+		'subscriptions',
 	);
 
 	/**
