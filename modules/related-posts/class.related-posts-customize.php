@@ -95,7 +95,7 @@ class Jetpack_Related_Posts_Customize {
 		// If selective refresh is available, implement it.
 		if ( isset( $wp_customize->selective_refresh ) ) {
 			$wp_customize->selective_refresh->add_partial( "$this->prefix", array(
-				'selector'            => '.jp-relatedposts',
+				'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
 				'settings'            => $selective_options,
 				'render_callback'     => __CLASS__ . '::render_callback',
 				'container_inclusive' => false,
@@ -114,24 +114,55 @@ class Jetpack_Related_Posts_Customize {
 	}
 
 	/**
+	 * Check whether the current post contains a Related Posts block.
+	 * If we're on WP < 5.0, this automatically means it doesn't,
+	 * because block support is intrododuced in WP 5.0.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @return bool
+	 */
+	public static function contains_related_posts_block() {
+		if ( ! function_exists( 'has_block' ) ) {
+			return false;
+		}
+
+		if ( has_block( 'jetpack/related-posts' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check that we're in a single post view.
+	 * Will return `false` if the current post contains a Related Posts block,
+	 * because in that case we want to hide the Customizer controls.
 	 *
 	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
 	public static function is_single() {
+		if ( self::contains_related_posts_block() ) {
+			return false;
+		}
 		return is_single();
 	}
 
 	/**
 	 * Check that we're not in a single post view.
+	 * Will return `false` if the current post contains a Related Posts block,
+	 * because in that case we want to hide the Customizer controls.
 	 *
 	 * @since 4.4.0
 	 *
 	 * @return bool
 	 */
 	public static function is_not_single() {
+		if ( self::contains_related_posts_block() ) {
+			return false;
+		}
 		return ! is_single();
 	}
 

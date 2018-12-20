@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20150408';
+	const VERSION = '20181213';
 	const SHORTCODE = 'jetpack-related-posts';
 	private static $instance = null;
 	private static $instance_raw = null;
@@ -77,10 +77,15 @@ class Jetpack_RelatedPosts {
 
 		// Add Related Posts to the REST API Post response.
 		if ( function_exists( 'register_rest_field' ) ) {
-			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
+			add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 		}
 
-		jetpack_register_block( 'related-posts' );
+		jetpack_register_block(
+			'related-posts',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
+		);
 	}
 
 	/**
@@ -125,17 +130,7 @@ class Jetpack_RelatedPosts {
 			return;
 
 		if ( isset( $_GET['relatedposts'] ) ) {
-			$excludes = array();
-			if ( isset( $_GET['relatedposts_exclude'] ) ) {
-				if ( is_string( $_GET['relatedposts_exclude'] ) ) {
-					$excludes = explode( ',', $_GET['relatedposts_exclude'] );
-				} elseif ( is_array( $_GET['relatedposts_exclude'] ) ) {
-					$excludes = array_values( $_GET['relatedposts_exclude'] );
-				}
-
-				$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
-			}
-
+			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
 			$this->_action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
@@ -172,13 +167,18 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
+	 * Will skip adding the target if the post content contains a Related Posts block.
 	 *
 	 * @filter the_content
 	 * @param string $content
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( !$this->_found_shortcode ) {
+		if ( function_exists( 'has_block' ) && has_block( 'jetpack/related-posts', $content ) ) {
+			return $content;
+		}
+
+		if ( ! $this->_found_shortcode ) {
 			$content .= "\n" . $this->get_target_html();
 		}
 
@@ -249,10 +249,145 @@ EOT;
 	}
 
 	/**
+	 * ===============
+	 * GUTENBERG BLOCK
+	 * ===============
+	 */
+
+	/**
+	 * Render the related posts markup.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string
+	 */
+	public function render_block( $attributes ) {
+		$block_attributes = array(
+			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
+			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
+			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
+			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
+			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
+		);
+
+		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'size'             => $block_attributes['size'],
+				'exclude_post_ids' => $excludes,
+			)
+		);
+
+		if ( ! $related_posts ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
+			<div class="jp-relatedposts-items <?php echo $block_attributes['show_thumbnails'] ? 'jp-relatedposts-items-visual ' : ''; ?>jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
+				<?php
+				foreach ( $related_posts as $index => $related_post ) :
+					$classes = array_filter(
+						array(
+							'jp-relatedposts-post',
+							'jp-relatedposts-post' . $index,
+							! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
+						)
+					);
+					$title_attr = $related_post['title'];
+					if ( '' !== $related_post['excerpt'] ) {
+						$title_attr .= "\n\n" . $related_post['excerpt'];
+					}
+					?>
+					<div
+						class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
+						data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
+						data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
+					>
+						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
+							<a class="jp-relatedposts-post-a"
+								href="<?php echo esc_url( $related_post['url'] ); ?>"
+								title="<?php echo esc_attr( $title_attr ); ?>"
+								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+							>
+								<img class="jp-relatedposts-post-img"
+									src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
+									width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
+									alt="<?php echo esc_attr( $title_attr ); ?>"
+								/>
+							</a>
+						<?php endif; ?>
+
+						<h4 class="jp-relatedposts-post-title">
+							<a
+								class="jp-relatedposts-post-a"
+								href="<?php echo esc_url( $related_post['url'] ); ?>"
+								title="<?php echo esc_attr( $title_attr ); ?>"
+								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+							>
+								<?php echo esc_html( $related_post['title'] ); ?>
+							</a>
+						</h4>
+
+						<p class="jp-relatedposts-post-excerpt"><?php echo esc_html( $related_post['excerpt'] ); ?></p>
+
+						<?php if ( $block_attributes['show_date'] ) : ?>
+							<p class="jp-relatedposts-post-date" style="display: block;">
+								<?php echo esc_html( $related_post['date'] ); ?>
+							</p>
+						<?php endif; ?>
+
+						<?php if ( $block_attributes['show_context'] ) : ?>
+							<p class="jp-relatedposts-post-context">
+								<?php echo esc_html( $related_post['context'] ); ?>
+							</p>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php
+		$html = ob_get_clean();
+
+		return $html;
+	}
+
+	/**
 	 * ========================
 	 * PUBLIC UTILITY FUNCTIONS
 	 * ========================
 	 */
+
+	/**
+	 * Parse a numeric GET variable to an array of values.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @uses absint
+	 *
+	 * @param string $arg Name of the GET variable
+	 * @return array $result Parsed value(s)
+	 */
+	public function parse_numeric_get_arg( $arg ) {
+		$result = array();
+
+		if ( isset( $_GET[ $arg ] ) ) {
+			if ( is_string( $_GET[ $arg ] ) ) {
+				$result = explode( ',', $_GET[ $arg ] );
+			} elseif ( is_array( $_GET[ $arg ] ) ) {
+				$result = array_values( $_GET[ $arg ] );
+			}
+
+			$result = array_unique( array_filter( array_map( 'absint', $result ) ) );
+		}
+
+		return $result;
+	}
 
 	/**
 	 * Gets options set for Jetpack_RelatedPosts and merge with defaults.
@@ -364,6 +499,7 @@ EOT;
 		$options = $this->get_options();
 
 		$ui_settings_template = <<<EOT
+<p class="description">%s</p>
 <ul id="settings-reading-relatedposts-customize">
 	<li>
 		<label><input name="jetpack_relatedposts[show_headline]" type="checkbox" value="1" %s /> %s</label>
@@ -385,6 +521,7 @@ EOT;
 EOT;
 		$ui_settings = sprintf(
 			$ui_settings_template,
+			esc_html__( 'The following settings will impact all related posts on your site, except for those you created via the block editor:', 'jetpack' ),
 			checked( $options['show_headline'], true, false ),
 			esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
