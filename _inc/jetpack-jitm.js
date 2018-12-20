@@ -127,9 +127,10 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	var reFetch = function() {
+		console.log('jp message path');
+		console.log(message_path);
 		$( '.jetpack-jitm-message' ).each( function() {
 			var $el = $( this );
-
 			var message_path = $el.data( 'message-path' );
 			var query = $el.data( 'query' );
 			var redirect = $el.data( 'redirect' );
@@ -137,7 +138,6 @@ jQuery( document ).ready( function( $ ) {
 
 			hash = hash.replace( /#\//, '_' );
 			message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
-
 			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 				message_path: message_path,
 				query: query,
@@ -154,14 +154,19 @@ jQuery( document ).ready( function( $ ) {
 
 				// for now, always take the first response
 				setJITMContent( $el, response[ 0 ], redirect );
+				console.log('jp set content');
 			} );
 		} );
 	};
 
 	reFetch();
-
+		console.log('jp post fetch');
+			console.log(document.querySelector( '.jitm-card' ));
+			console.log('element')
 	$( window ).bind( 'hashchange', function() {
-		document.querySelector( '.jitm-card' ).remove();
+		if (typeof document.querySelector( '.jitm-card' ) != "undefined") {
+			document.querySelector( '.jitm-card' ).remove();
+		}
 		reFetch();
 	} );
 } );
