@@ -88,7 +88,13 @@ const SectionNav = createReactClass( {
 
 		return (
 			<div className={ className }>
-				<div className="dops-section-nav__mobile-header" onTouchTap={ this.toggleMobileOpenState }>
+				<div
+					className="dops-section-nav__mobile-header"
+					role="button"
+					onClick={ this.toggleMobileOpenState }
+					tabIndex={ 0 }
+					onKeyUp={ this.toggleMobileOpenState }
+				>
 					<span className="dops-section-nav__mobile-header-text">{ this.props.selectedText }</span>
 				</div>
 

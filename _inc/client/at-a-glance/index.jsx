@@ -31,10 +31,10 @@ import { isDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
 const renderPairs = layout =>
-	layout.map( item => [
+	layout.map( ( item, layoutIndex ) => [
 		item.header,
-		chunk( item.cards, 2 ).map( ( [ left, right ] ) => (
-			<div className="jp-at-a-glance__item-grid">
+		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
+			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
 				<div className="jp-at-a-glance__right">{ right }</div>
 			</div>
@@ -56,6 +56,7 @@ class AtAGlance extends Component {
 			analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = (
 			<DashSectionHeader
+				key="securityHeader"
 				label={ __( 'Security' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 				externalLink={
@@ -120,7 +121,7 @@ class AtAGlance extends Component {
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {
-					header: <DashSectionHeader label={ __( 'Performance' ) } />,
+					header: <DashSectionHeader key="performanceHeader" label={ __( 'Performance' ) } />,
 					cards: performanceCards,
 				} );
 			}
@@ -131,7 +132,6 @@ class AtAGlance extends Component {
 					<QuerySite />
 					<DashStats { ...settingsProps } { ...urls } />
 					{ renderPairs( pairs ) }
-
 					{ connections }
 				</div>
 			);

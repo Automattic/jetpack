@@ -349,13 +349,13 @@ class Search extends React.Component {
 				<div className={ fadeDivClass }>
 					<input
 						type="search"
+						onChange={ this.onChange }
 						id={ 'dops-search-component-' + this.state.instanceId }
 						className={ inputClass }
 						placeholder={ placeholder }
 						role="search"
 						value={ searchValue }
 						ref="searchInput"
-						onInput={ this.onChange }
 						onKeyUp={ this.keyUp }
 						onKeyDown={ this.keyDown }
 						onMouseUp={ this.props.onClick }
