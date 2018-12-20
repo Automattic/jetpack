@@ -161,7 +161,10 @@ jQuery( document ).ready( function( $ ) {
 	reFetch();
 
 	$( window ).bind( 'hashchange', function() {
-		document.querySelector( '.jitm-card' ).remove();
+		var jitm_card = document.querySelector( '.jitm-card' );
+	 	if ( jitm_card ) {
+			jitm_card.remove();
+	 	}
 		reFetch();
 	} );
 } );
