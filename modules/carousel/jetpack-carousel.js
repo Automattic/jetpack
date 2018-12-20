@@ -1450,9 +1450,17 @@ jQuery(document).ready(function($) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) ) {
 			return;
 		}
+
+		// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
 		if ( $(e.target).parent().hasClass('gallery-caption') ) {
 			return;
 		}
+
+		// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
+		if ( $(e.target).parent().is('figcaption') ) {
+			return;
+		}
+
 		e.preventDefault();
 
 		// Stopping propagation in case there are parent elements
