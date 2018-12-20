@@ -61,7 +61,8 @@ class Jetpack_Gutenberg {
 		'field-checkbox',
 		'field-checkbox-multiple',
 		'field-radio',
-		'field-select'
+		'field-select',
+		'subscriptions',
 	);
 
 	/**
@@ -118,11 +119,9 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
 			// We defer the loading of the blocks until we have a better scope in reset requests.
-
-			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'load' ) );
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'load' ), 10, 3 );
 			return;
 		}
-
 		self::load();
 	}
 
@@ -146,7 +145,20 @@ class Jetpack_Gutenberg {
 		self::register( $type, $args, $availability );
 	}
 
-	static function load( $request = null ) {
+	static function load( $response = null, $handler = null, $request = null ) {
+		$is_availability_endpoint_beta = ! is_null( $request ) && $request->get_param( 'beta' ) && wp_endswith( $request->get_route(), 'gutenberg/available-extensions' );
+
+		/**
+		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param boolean
+		 */
+		if ( apply_filters( 'jetpack_load_beta_blocks', $is_availability_endpoint_beta ) ) {
+			Jetpack_Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+		}
+
 		/**
 		 * Filter the list of block editor blocks that are available through jetpack.
 		 *
@@ -171,7 +183,7 @@ class Jetpack_Gutenberg {
 		self::set_blocks_availability();
 		self::set_plugins_availability();
 		self::register_blocks();
-		return $request;
+		return $response;
 	}
 
 	static function is_registered( $slug ) {

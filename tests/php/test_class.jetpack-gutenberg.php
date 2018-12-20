@@ -29,6 +29,15 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
 			wp_delete_user( $this->master_user_id );
 		}
+
+		if ( class_exists( 'WP_Block_Type_Registry' ) ) {
+			$blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
+			foreach ( $blocks as $block_name => $block ) {
+				if ( strpos( $block_name, 'jetpack/' ) !== false ) {
+					unregister_block_type( $block_name );
+				}
+			}
+		}
 	}
 
 	public function add_test_block( $blocks ) {
