@@ -118,11 +118,9 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
 			// We defer the loading of the blocks until we have a better scope in reset requests.
-
-			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'load' ) );
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'load' ), 10, 3 );
 			return;
 		}
-
 		self::load();
 	}
 
@@ -146,7 +144,7 @@ class Jetpack_Gutenberg {
 		self::register( $type, $args, $availability );
 	}
 
-	static function load( $request = null ) {
+	static function load( $response = null, $handler = null, $request = null ) {
 		// We display beta blocks in available Gutenberg extensions endpoint requests
 		$is_availability_endpoint_beta = ! is_null( $request ) && $request->get_param( 'beta' ) && wp_endswith( $request->get_route(), 'gutenberg/available-extensions' );
 		// We display beta blocks in proxied requests
@@ -180,7 +178,7 @@ class Jetpack_Gutenberg {
 		self::set_blocks_availability();
 		self::set_plugins_availability();
 		self::register_blocks();
-		return $request;
+		return $response;
 	}
 
 	static function is_registered( $slug ) {
