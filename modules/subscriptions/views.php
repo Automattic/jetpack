@@ -97,9 +97,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		Jetpack_Subscriptions_Widget::$instance_count ++;
 
-		self::render_widget_status_messages( $instance );
-
 		self::render_widget_title( $instance, $args );
+
+		self::render_widget_status_messages( $instance );
 
 		if ( self::is_current_user_subscribed() ) {
 			self::render_widget_already_subscribed( $instance );
@@ -130,7 +130,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
-		if ( self::is_jetpack() && isset( $instance['show_only_email_and_button'] ) && $instance['show_only_email_and_button'] ) {
+		if ( self::is_jetpack() && empty( $instance['show_only_email_and_button'] ) ) {
 			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
 		}
 	}
@@ -224,9 +224,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 	static function render_widget_subscription_form( $instance, $args, $subscribe_email ) {
 		$show_only_email_and_button = $instance['show_only_email_and_button'];
-		$subscribe_logged_in        = stripslashes( $instance['subscribe_logged_in'] );
+		$subscribe_logged_in        = isset( $instance['subscribe_logged_in'] ) ? stripslashes( $instance['subscribe_logged_in'] ) : '';
 		$show_subscribers_total     = (bool) $instance['show_subscribers_total'];
-		$subscribe_text             = isset( $instance['show_only_email_and_button'] ) && $instance['show_only_email_and_button'] ?
+		$subscribe_text             = empty( $instance['show_only_email_and_button'] ) ?
 			stripslashes( $instance['subscribe_text'] ) :
 			false;
 		$referer                    = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -478,7 +478,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	function defaults() {
+	static function defaults() {
 		$defaults = array(
 			'show_subscribers_total'     => true,
 			'show_only_email_and_button' => false
@@ -505,6 +505,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
+
 
 		if ( self::is_wpcom() ) {
 			$title                  = esc_attr( stripslashes( $instance['title'] ) );
@@ -512,7 +514,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_text         = esc_attr( stripslashes( $instance['subscribe_text'] ) );
 			$subscribe_logged_in    = esc_attr( stripslashes( $instance['subscribe_logged_in'] ) );
 			$subscribe_button       = esc_attr( stripslashes( $instance['subscribe_button'] ) );
-			$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 			$subscribers_total      = self::fetch_subscriber_count();
 		}
 
@@ -522,7 +523,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_placeholder  = stripslashes( $instance['subscribe_placeholder'] );
 			$subscribe_button       = stripslashes( $instance['subscribe_button'] );
 			$success_message        = stripslashes( $instance['success_message'] );
-			$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
+			$subs_fetch             = self::fetch_subscriber_count();
+			if ( 'failed' == $subs_fetch['status'] ) {
+				printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
+			}
+			$subscribers_total = number_format_i18n( $subs_fetch['value'] );
 		}
 
 		if ( self::is_wpcom() ) : ?>
