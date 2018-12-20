@@ -95,9 +95,7 @@ const SectionNav = createReactClass( {
 					tabIndex={ 0 }
 					onKeyUp={ this.toggleMobileOpenState }
 				>
-					<span className="dops-section-nav__mobile-header-text">
-						{ this.props.selectedText }
-					</span>
+					<span className="dops-section-nav__mobile-header-text">{ this.props.selectedText }</span>
 				</div>
 
 				<div className="dops-section-nav__panel">{ children }</div>

@@ -30,8 +30,8 @@ import { userCanManageModules, userCanViewStats, userIsSubscriber } from 'state/
 import { isDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
-const renderPairs = layout => layout.map( ( item, layoutIndex ) => (
-	[
+const renderPairs = layout =>
+	layout.map( ( item, layoutIndex ) => [
 		item.header,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
@@ -39,7 +39,7 @@ const renderPairs = layout => layout.map( ( item, layoutIndex ) => (
 				<div className="jp-at-a-glance__right">{ right }</div>
 			</div>
 		) ),
-	] ) );
+	] );
 
 class AtAGlance extends Component {
 	render() {
@@ -52,15 +52,17 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl,
 		};
-		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+		const trackSecurityClick = () =>
+			analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = (
 			<DashSectionHeader
 				key="securityHeader"
 				label={ __( 'Security' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
-				externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
-					? ''
-					: __( 'Manage security settings' )
+				externalLink={
+					this.props.isDevMode || ! this.props.userCanManageModules
+						? ''
+						: __( 'Manage security settings' )
 				}
 				externalLinkPath={ this.props.isDevMode ? '' : '#/security' }
 				externalLinkClick={ trackSecurityClick }
@@ -120,7 +122,7 @@ class AtAGlance extends Component {
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: <DashSectionHeader key="performanceHeader" label={ __( 'Performance' ) } />,
-					cards: performanceCards
+					cards: performanceCards,
 				} );
 			}
 

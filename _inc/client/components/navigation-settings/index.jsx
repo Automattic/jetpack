@@ -280,7 +280,7 @@ NavigationSettings.defaultProps = {
 };
 
 export default connect(
-	( state ) => ( {
+	state => ( {
 		userCanManageModules: _userCanManageModules( state ),
 		isSubscriber: _userIsSubscriber( state ),
 		userCanPublish: userCanPublish( state ),
@@ -289,9 +289,9 @@ export default connect(
 		isModuleActivated: module => isModuleActivated( state, module ),
 		moduleList: getModules( state ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-		searchTerm: getSearchTerm( state )
+		searchTerm: getSearchTerm( state ),
 	} ),
-	( dispatch ) => ( {
-		searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+	dispatch => ( {
+		searchForTerm: term => dispatch( filterSearch( term ) ),
 	} )
 )( NavigationSettings );
