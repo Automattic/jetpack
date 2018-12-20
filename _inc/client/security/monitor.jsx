@@ -35,7 +35,9 @@ export const Monitor = withModuleSettingsFormHelpers(
 						disableInDevMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
-							text: __( 'We will continuously watch your site and receive alerts the moment downtime is detected.' ),
+							text: __(
+								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.'
+							),
 							link: 'https://jetpack.com/support/monitor/',
 						} }
 					>
