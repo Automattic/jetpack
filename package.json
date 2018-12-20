@@ -144,7 +144,7 @@
     "commander": "2.19.0",
     "danger": "6.1.12",
     "enzyme": "3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
+    "enzyme-adapter-react-16": "1.7.1",
     "glob": "7.1.3",
     "gulp-delete-lines": "0.0.7",
     "husky": "1.2.1",
