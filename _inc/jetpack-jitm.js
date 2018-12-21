@@ -162,11 +162,15 @@ jQuery( document ).ready( function( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function() {
-		var jitm_card = document.querySelector( '.jitm-card' );
-	 	if ( jitm_card ) {
-			jitm_card.remove();
-	 	}
-		reFetch();
+	$( window ).bind( 'hashchange', function( e ) {
+		var newURL = e.originalEvent.newURL;
+
+		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+			var jitm_card = document.querySelector( '.jitm-card' );
+			if ( jitm_card ) {
+				jitm_card.remove();
+			}
+			reFetch();
+		}
 	} );
 } );
