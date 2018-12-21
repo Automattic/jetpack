@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Block Editor: this release introduces new blocks: a Subcription form block and a VR block.
+* Block Editor: this release introduces new blocks: a Subcription form block, a VR block, and a Related Posts block.
 
 **Enhancements**
 

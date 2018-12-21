@@ -33,6 +33,12 @@ Here are a few other things you can try:
 - Toggle the "show number of subscribers" in the editor. Confirm that you see the number of subscribers when the block loses focus.
 - After subscribing with a few different email addresses (and confirming your subscription), confirm that you see the number of subscribed users on the frontend (when the toggle was enabled for the block in the editor) and the editor when the block doesn't have focus.
 
+**Related Posts Block**
+
+This block allows you to add Related Posts anywhere within your posts and pages. Give it a try by adding it from the editor, and make sure it looks good on your site. The different block options should also work well.
+
+Ideally, test this on a site that has some posts already, in order to be able to use the already indexed posts without the need to create related posts and wait for indexing.
+
 **VR Block**
 
 This block allows one to embed a VR viewer in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and see if it is displayed properly on your site!
