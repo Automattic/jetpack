@@ -241,5 +241,8 @@
 
 .jp-landing__plan-features-link {
 	width: 100%;
-	text-align: center;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+	}
 }
