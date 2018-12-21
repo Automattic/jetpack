@@ -89,10 +89,14 @@ jQuery( document ).ready( function( $ ) {
 		var $template = templates[ template ]( response );
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
-		$el.innerHTML = $template;
-
-		// Add to Jetpack notices within the Jetpack settings app.
-		$template.prependTo( $( '#jp-admin-notices' ) );
+		if ( $( '#jp-admin-notices' ).length > 0 ) {
+			// Add to Jetpack notices within the Jetpack settings app.
+			$el.innerHTML = $template;
+			$template.prependTo( $( '#jp-admin-notices' ) );
+		} else {
+			// Replace placeholder div on other pages.
+			$el.replaceWith($template);
+		}
 
 		// Handle Module activation button if it exists.
 		$template.find( '#jitm-banner__activate a' ).click( function() {
