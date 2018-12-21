@@ -1458,7 +1458,7 @@ jQuery(document).ready(function($) {
 		// Stopping propagation in case there are parent elements
 		// with .gallery or .tiled-gallery class
 		e.stopPropagation();
-		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
+		$(this).jp_carousel('open', { start_index: $(this).find('.gallery-item, .tiled-gallery-item, .blocks-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item, .blocks-gallery-item'))});
 	});
 
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
@@ -1495,7 +1495,7 @@ jQuery(document).ready(function($) {
 		last_known_location_hash = window.location.hash;
 		matches = window.location.hash.match( hashRegExp );
 		attachmentId = parseInt( matches[1], 10 );
-		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery' );
+		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery, ul.wp-block-gallery' );
 
 		// Find the first thumbnail that matches the attachment ID in the location
 		// hash, then open the gallery that contains it.
