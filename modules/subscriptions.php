@@ -822,7 +822,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		wp_enqueue_style( 'jetpack-subscriptions' );
 	}
 
-	function inline_button_style( $bgcolor=false, $textcolor=false ) {
+	function inline_button_style( $bgcolor = false, $textcolor = false ) {
 		$style_string = '';
 		if ( $bgcolor || $textcolor ) {
 			$style_string .= 'style="';
@@ -834,6 +834,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 			$style_string .= '"';
 		}
+
 		return $style_string;
 	}
 
@@ -1059,30 +1060,29 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 	public static function defaults() {
 		return array(
-			'title'               	 => esc_html__( 'Subscribe to Blog via Email', 'jetpack' ),
-			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
-			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
-			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
-			'success_message'    	 => esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
-			'button_classes'	=> '',
-			'button_background_color'	=> '',
-			'button_text_color' => '',
+			'title'                   => esc_html__( 'Subscribe to Blog via Email', 'jetpack' ),
+			'subscribe_text'          => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
+			'subscribe_placeholder'   => esc_html__( 'Email Address', 'jetpack' ),
+			'subscribe_button'        => esc_html__( 'Subscribe', 'jetpack' ),
+			'success_message'         => esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
+			'button_classes'          => '',
+			'button_background_color' => '',
+			'button_text_color'       => '',
 		);
 	}
 
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
-		$title               	= stripslashes( $instance['title'] );
-		$subscribe_text      	= stripslashes( $instance['subscribe_text'] );
-		$subscribe_placeholder 	= stripslashes( $instance['subscribe_placeholder'] );
-		$subscribe_button    	= stripslashes( $instance['subscribe_button'] );
-		$success_message		= stripslashes( $instance['success_message']);
-		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
-
-		$button_classes = stripslashes( $instance['button_background_classes']);
-		$button_background_color = stripslashes( $instance['button_background_color']);
-		$button_text_color = stripslashes( $instance['button_text_color']);
+		$title                   = stripslashes( $instance['title'] );
+		$subscribe_text          = stripslashes( $instance['subscribe_text'] );
+		$subscribe_placeholder   = stripslashes( $instance['subscribe_placeholder'] );
+		$subscribe_button        = stripslashes( $instance['subscribe_button'] );
+		$success_message         = stripslashes( $instance['success_message'] );
+		$show_subscribers_total  = checked( $instance['show_subscribers_total'], true, false );
+		$button_classes          = stripslashes( $instance['button_background_classes'] );
+		$button_background_color = stripslashes( $instance['button_background_color'] );
+		$button_text_color       = stripslashes( $instance['button_text_color'] );
 
 		$subs_fetch = self::fetch_subscriber_count();
 
