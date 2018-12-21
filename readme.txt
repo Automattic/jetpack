@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Sharing: do not add Jetpack's Twitter Meta Tags when the WP To Twitter plugin is active.
+* Twenty Nineteen: additional style adjustments to make sure all Jetpack widgets look good with the theme.
 
 **Bug fixes**
 
