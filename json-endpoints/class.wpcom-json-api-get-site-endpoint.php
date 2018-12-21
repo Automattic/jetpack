@@ -355,9 +355,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
-				$jetpack_modules = $this->site->get_jetpack_modules();
-				if ( ! is_null( $jetpack_modules ) ) {
-					$response[ $key ] = $jetpack_modules;
+				if ( is_user_member_of_blog() ) {
+					$response[ $key ] = $this->site->get_jetpack_modules();
 				}
 				break;
 			case 'plan' :
