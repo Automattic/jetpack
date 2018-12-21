@@ -89,10 +89,14 @@ jQuery( document ).ready( function( $ ) {
 		var $template = templates[ template ]( response );
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
-		$el.replaceWith( $template );
-
-		// Add to Jetpack notices within the Jetpack settings app.
-		$template.prependTo( $( '#jp-admin-notices' ) );
+		if ( $( '#jp-admin-notices' ).length > 0 ) {
+			// Add to Jetpack notices within the Jetpack settings app.
+			$el.innerHTML = $template;
+			$template.prependTo( $( '#jp-admin-notices' ) );
+		} else {
+			// Replace placeholder div on other pages.
+			$el.replaceWith($template);
+		}
 
 		// Handle Module activation button if it exists.
 		$template.find( '#jitm-banner__activate a' ).click( function() {
@@ -126,29 +130,51 @@ jQuery( document ).ready( function( $ ) {
 		} );
 	};
 
-	$( '.jetpack-jitm-message' ).each( function() {
-		var $el = $( this );
+	var reFetch = function() {
+		$( '.jetpack-jitm-message' ).each( function() {
+			var $el = $( this );
 
-		var message_path = $el.data( 'message-path' );
-		var query = $el.data( 'query' );
-		var redirect = $el.data( 'redirect' );
+			var message_path = $el.data( 'message-path' );
+			var query = $el.data( 'query' );
+			var redirect = $el.data( 'redirect' );
+			var hash = location.hash;
 
-		$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
-			message_path: message_path,
-			query: query,
-			_wpnonce: $el.data( 'nonce' )
-		} ).then( function( response ) {
-			if ( 'object' === typeof response && response['1'] ) {
-				response = [ response['1'] ];
+			hash = hash.replace( /#\//, '_' );
+			if ( '_dashboard' !== hash ) {
+				message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
 			}
 
-			// properly handle the case of an empty array or no content set
-			if ( 0 === response.length || ! response[ 0 ].content ) {
-				return;
-			}
+			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
+				message_path: message_path,
+				query: query,
+				_wpnonce: $el.data( 'nonce' )
+			} ).then( function( response ) {
+				if ( 'object' === typeof response && response['1'] ) {
+					response = [ response['1'] ];
+				}
 
-			// for now, always take the first response
-			setJITMContent( $el, response[ 0 ], redirect );
+				// properly handle the case of an empty array or no content set
+				if ( 0 === response.length || ! response[ 0 ].content ) {
+					return;
+				}
+
+				// for now, always take the first response
+				setJITMContent( $el, response[ 0 ], redirect );
+			} );
 		} );
+	};
+
+	reFetch();
+
+	$( window ).bind( 'hashchange', function( e ) {
+		var newURL = e.originalEvent.newURL;
+
+		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+			var jitm_card = document.querySelector( '.jitm-card' );
+			if ( jitm_card ) {
+				jitm_card.remove();
+			}
+			reFetch();
+		}
 	} );
 } );
