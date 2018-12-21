@@ -780,9 +780,7 @@ abstract class Publicize_Base {
 	 * Register the Publicize Gutenberg extension
 	 */
 	function register_gutenberg_extension() {
-		// TODO: Not really a block. The underlying logic doesn't care, so we should rename to
-		// `jetpack_register_gutenberg_extension()` (to account for both Gutenblocks and Gutenplugins).
-		jetpack_register_block( 'publicize', array(), array( 'callback' => array( $this, 'get_extension_availability' ) ) );
+		jetpack_register_plugin( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
 	}
 
 	function get_extension_availability() {
