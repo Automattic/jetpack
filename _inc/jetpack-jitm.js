@@ -136,7 +136,9 @@ jQuery( document ).ready( function( $ ) {
 			var hash = location.hash;
 
 			hash = hash.replace( /#\//, '_' );
-			message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
+			if ( '_dashboard' !== hash ) {
+				message_path = message_path.replace( 'toplevel_page_jetpack', 'toplevel_page_jetpack' + hash );
+			}
 
 			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 				message_path: message_path,
