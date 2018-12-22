@@ -569,6 +569,66 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Pinterest',
 			),
 			array(
+				'url'   => 'pinterest.ca',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.ch',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.co.uk',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.de',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.dk',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.es',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.fr',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.ie',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.jp',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.nz',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.pt',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
+				'url'   => 'pinterest.se',
+				'icon'  => 'pinterest',
+				'label' => 'Pinterest',
+			),
+			array(
 				'url'   => 'getpocket.com',
 				'icon'  => 'pocket',
 				'label' => 'Pocket',
