@@ -136,6 +136,8 @@ class Grunion_Contact_Form_Plugin {
 		) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
+		
+		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blacklist' ), 10, 2 );
 
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
@@ -617,6 +619,29 @@ class Grunion_Contact_Form_Plugin {
 		$GLOBALS['shortcode_tags']                             = $old;
 
 		return $text;
+	}
+	
+	/**
+	 * Check if a submission matches the Comment Blacklist.
+	 * The Comment Blacklist is a means to moderate discussion, and contact
+	 * forms are 1:1 discussion forums, ripe for abuse by users who are being
+	 * removed from the public discussion.
+	 * Attached to `jetpack_contact_form_is_spam`
+	 *
+	 * @param bool  $is_spam
+	 * @param array $form
+	 * @return bool TRUE => spam, FALSE => not spam
+	 */
+	function is_spam_blacklist( $is_spam, $form = array() ) {
+		if ( $is_spam ) {
+			return $is_spam;
+		}
+		
+		if ( wp_blacklist_check( $form['comment_author'], $form['comment_author_email'], $form['comment_author_url'], $form['comment_content'], $form['user_ip'], $form['user_agent'] ) ) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
