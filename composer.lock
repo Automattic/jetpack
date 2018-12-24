@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4aaf4e59b58a94645a1225878676c9d1",
+    "content-hash": "4ba6c22a2ae314440dfd1b6a2dd8cee3",
     "packages": [
         {
             "name": "composer/installers",
@@ -354,16 +354,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.2.0",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd"
+                "reference": "ec1d207082afc5d09958ae21ba920f0e95cd166e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd",
-                "reference": "1d89f26e7f8a1b4e24a10697dd4377ffeb6677bd",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/ec1d207082afc5d09958ae21ba920f0e95cd166e",
+                "reference": "ec1d207082afc5d09958ae21ba920f0e95cd166e",
                 "shasum": ""
             },
             "require": {
@@ -373,6 +373,7 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
                 "limedeck/phpunit-detailed-printer": "^3.1",
                 "phpunit/phpunit": "^6.5",
+                "sirbrillig/phpcs-import-detection": "^1.1",
                 "squizlabs/php_codesniffer": "^3.1"
             },
             "type": "phpcodesniffer-standard",
@@ -396,7 +397,7 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2018-11-24T18:54:19+00:00"
+            "time": "2018-12-21T20:04:21+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
