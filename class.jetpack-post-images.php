@@ -187,7 +187,10 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post_id );
 
 		foreach ( $post_images as $post_image ) {
-			$images[] = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
+			$current_image = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
+			if ( false !== $current_image ) {
+				$images[] = $current_image;
+			}
 		}
 
 		/*
