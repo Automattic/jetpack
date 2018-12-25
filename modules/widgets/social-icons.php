@@ -9,6 +9,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * Widget constructor.
 	 */
 	public function __construct() {
+		global $pagenow;
+
 		$widget_ops = array(
 			'classname'                   => 'jetpack_widget_social_icons',
 			'description'                 => __( 'Add social-media icons to your site.', 'jetpack' ),
@@ -33,10 +35,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_print_footer_scripts', array( $this, 'render_admin_js' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
-		add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
+		// Enqueue admin scrips and styles, only in the customizer or the old widgets page.
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_print_footer_scripts', array( $this, 'render_admin_js' ) );
+		}
+
+		// Enqueue scripts and styles for the display of the widget, on the frontend or in the customizer.
+		if ( is_active_widget( false, $this->id, $this->id_base, true ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
+			add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
+		}
 	}
 
 	/**
@@ -58,12 +67,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * JavaScript for admin widget form.
 	 */
 	public function render_admin_js() {
-		global $wp_customize;
-		global $pagenow;
-
-		if ( ! isset( $wp_customize ) && 'widgets.php' !== $pagenow ) {
-			return;
-		}
 	?>
 		<script type="text/html" id="tmpl-jetpack-widget-social-icons-template">
 			<?php self::render_icons_template(); ?>
@@ -75,10 +78,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * Add SVG definitions to the footer.
 	 */
 	public function include_svg_icons() {
-		if ( ! is_active_widget( false, $this->id, $this->id_base, true ) ) {
-			return;
-		}
-
 		// Define SVG sprite file in Jetpack
 		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
 
