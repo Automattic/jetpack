@@ -312,8 +312,8 @@ class Jetpack_PostImages {
 	 * @param int   $width      Minimum Image width.
 	 * @param int   $height     Minimum Image height.
 	 */
-	static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
-		$images   = array();
+	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
+		$images = array();
 
 		// Bail early if the site does not support the block editor.
 		if ( ! function_exists( 'parse_blocks' ) ) {
@@ -360,7 +360,11 @@ class Jetpack_PostImages {
 			}
 		}
 
-		return $images;
+		/**
+		 * Returning a filtered array because get_attachment_data returns false
+		 * for unsuccessful attempts.
+		 */
+		return array_filter( $images );
 	}
 
 	/**
@@ -737,20 +741,21 @@ class Jetpack_PostImages {
 	 * @param string $post_url      URL of the post, if we have one.
 	 * @param int    $width         Minimum Image width.
 	 * @param int    $height        Minimum Image height.
+	 * @return array|bool           Image data or false if unavailable.
 	 */
-	static function get_attachment_data( $attachment_id, $post_url = '', $width, $height ) {
+	public static function get_attachment_data( $attachment_id, $post_url = '', $width, $height ) {
 		if ( empty( $attachment_id ) ) {
-			return array();
+			return false;
 		}
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
 
-		// The image must be larger than 200x200
+		// The image must be larger than 200x200.
 		if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
-			return array();
+			return false;
 		}
 		if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
-			return array();
+			return false;
 		}
 
 		$url = wp_get_attachment_url( $attachment_id );

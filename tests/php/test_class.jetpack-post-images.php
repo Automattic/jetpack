@@ -264,4 +264,22 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$this->assertEquals( $images[0]['src'], $post_info['img_urls'][0] );
 		$this->assertEquals( $images[1]['src'], $post_info['img_urls'][1] );
 	}
+
+	/**
+	 * Test if the array extracted from Gallery blocks include the image URL.
+	 *
+	 * @covers Jetpack_PostImages::get_attachment_data
+	 * @since 6.9.0
+	 */
+	public function test_get_attachment_data_returns_false_on_unavailable_data() {
+		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
+
+		$post = $this->get_post_with_image_block();
+
+		// Testing the height condition.
+		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', 200, PHP_INT_MAX ) );
+
+		// Testing the width condition.
+		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', PHP_INT_MAX, 200 ) );
+	}
 } // end class
