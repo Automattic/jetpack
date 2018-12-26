@@ -2648,10 +2648,10 @@ damerau-levenshtein@^1.0.0:
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.4.tgz#03191c432cb6eea168bb77f3a55ffdccb8978514"
   integrity sha1-AxkcQyy27qFou3fzpV/9zLiXhRQ=
 
-danger@6.1.12:
-  version "6.1.12"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-6.1.12.tgz#ab61d88eaecbaa531ade451e9da97c643b1bc1b3"
-  integrity sha512-++SD6J1K0fkus4/Fc06/i36Zj3xWju35k14K9NVES6eXKi341q3vuJEJXb2ua+KXj4wy4MsIInStSy6MQaLB3Q==
+danger@6.1.13:
+  version "6.1.13"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-6.1.13.tgz#a078f5451587d2cf3d39abae5998f15dc85e3623"
+  integrity sha512-THpdh5wr28MXV/I6nR0kgR7kSV3JJS2Ub+299ggDZBsuKY5qNME1ppaw3aLLQ3BQxOscHaDEnFYqB6DSlSfnhQ==
   dependencies:
     "@babel/polyfill" "^7.0.0"
     "@octokit/rest" "^15.12.1"
@@ -2684,7 +2684,6 @@ danger@6.1.12:
     rfc6902 "^3.0.1"
     supports-hyperlinks "^1.0.1"
     vm2 "^3.6.3"
-    voca "^1.4.0"
 
 dashdash@^1.12.0:
   version "1.14.1"
@@ -9808,11 +9807,6 @@ vm2@^3.6.3:
   version "3.6.4"
   resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.6.4.tgz#88b27a9f328a0630671841363692a57d24dead33"
   integrity sha512-LFj8YL9DyGn+fwgG2J+10HyuIpdIRHHN8/3NwKoc2e2t2Pr0aXV/2OSODceDR7NP7VNr8RTqmxHRYcwbNvpbwg==
-
-voca@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/voca/-/voca-1.4.0.tgz#e15ac58b38290b72acc0c330366b6cc7984924d7"
-  integrity sha512-8Xz4H3vhYRGbFupLtl6dHwMx0ojUcjt0HYkqZ9oBCfipd/5mD7Md58m2/dq7uPuZU/0T3Gb1m66KS9jn+I+14Q==
 
 w3c-hr-time@^1.0.1:
   version "1.0.1"
