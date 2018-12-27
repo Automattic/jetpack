@@ -99,7 +99,7 @@ class Jetpack_Email_Subscribe {
 				'style' => 'jetpack-email-subscribe',
 				'render_callback' => array( $this, 'parse_shortcode' ),
 			) );
-			jetpack_register_block( 'mailchimp', array(), array( 'available' => wpcom_is_proxied_request() ) );
+			jetpack_register_block( 'mailchimp', array(), array( 'available' => true ) );
 		}
 	}
 
