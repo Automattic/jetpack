@@ -19,6 +19,8 @@ class Jetpack_Email_Subscribe {
 
 	private static $css_classname_prefix = 'jetpack-email-subscribe';
 
+	private static $option_name = 'jetpack_mailchimp';
+
 	private static $instance;
 
 	private static $version = '1.0';
@@ -52,15 +54,59 @@ class Jetpack_Email_Subscribe {
 
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'jetpack_options_whitelist', array( $this, 'filter_whitelisted_options' ), 10, 1 );
+	}
+
+	public function filter_whitelisted_options( $options ) {
+		$options[] = self::$option_name;
+		return $options;
 	}
 
 	private function register_shortcode() {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	private function register_gutenberg_block() {
+		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
+			// If I use `jetpack_register_block`, `ServerSideRender` component does not render this in UI.
+			register_block_type( 'jetpack/mailchimp', array(
+				'attributes' => array(
+					'title' => array(
+						'type' => 'string',
+					),
+					'email_placeholder' => array(
+						'type' => 'string',
+					),
+					'submit_label' => array(
+						'type' => 'string',
+					),
+					'consent_text' => array(
+						'type' => 'string',
+					),
+					'processing_label' => array(
+						'type' => 'string',
+					),
+					'success_label' => array(
+						'type' => 'string',
+					),
+					'error_label' => array(
+						'type' => 'string',
+					),
+					'className' => array(
+						'type' => 'string',
+					),
+				),
+				'style' => 'jetpack-email-subscribe',
+				'render_callback' => array( $this, 'parse_shortcode' ),
+			) );
+			jetpack_register_block( 'mailchimp', array(), array( 'available' => wpcom_is_proxied_request() ) );
+		}
+	}
+
 	public function init_hook_action() {
 		$this->register_scripts_and_styles();
 		$this->register_shortcode();
+		$this->register_gutenberg_block();
 	}
 
 	private function get_blog_id() {
@@ -71,11 +117,50 @@ class Jetpack_Email_Subscribe {
 		return Jetpack_Options::get_option( 'id' );
 	}
 
+	private function is_set_up() {
+		$option = get_option( self::$option_name );
+		if ( ! $option ) {
+			return false;
+		}
+		$data = json_decode( $option, true );
+		if ( isset( $data['follower_list_id'], $data['follower_list_id'] ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	private function get_site_slug() {
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+			return Jetpack::build_raw_urls( home_url() );
+		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
+		return '';
+	}
 
 	public function parse_shortcode( $attrs ) {
+		// Lets check if everything is set up.
+		if (
+			! $this->is_set_up() &&
+			current_user_can( 'edit_posts' )
+		) {
+			return sprintf(
+				'<div class="components-placeholder">
+					<div class="components-placeholder__label">%s</div>
+					<div class="components-placeholder__instructions">%s</div>
+					<a class="components-button is-button" href="https://wordpress.com/sharing/%s" target="_blank">%s</a>
+				</div>',
+				__( 'MailChimp', 'jetpack' ),
+				__( 'You need to connect your MailChimp account and choose a list in order to start collecting Email subscribers.', 'jetpack' ),
+				$this->get_site_slug(),
+				__( 'Set up MailChimp ', 'jetpack' )
+			);
+		}
+
 		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
+				'blog_id'           => $this->get_blog_id(),
 				'title'             => __( 'Join my email list', 'jetpack' ),
 				'email_placeholder' => __( 'Enter your email', 'jetpack' ),
 				'submit_label'      => __( 'Join My Email List', 'jetpack' ),
@@ -83,16 +168,11 @@ class Jetpack_Email_Subscribe {
 				'processing_label'  => __( 'Processing...', 'jetpack' ),
 				'success_label'     => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
 				'error_label'       => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
+				'classname'         => self::$css_classname_prefix,
+				'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
 			),
-			$attrs
+			is_array( $attrs ) ? array_filter( $attrs ) : array()
 		);
-
-		// We don't allow users to change these parameters:
-		$data = array_merge( $data, array(
-			'blog_id'           => $this->get_blog_id(),
-			'classname'         => self::$css_classname_prefix,
-			'dom_id'            => uniqid( self::$css_classname_prefix . '_', false ),
-		) );
 
 		if ( ! wp_script_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
 			wp_enqueue_script( 'jetpack-email-subscribe' );
