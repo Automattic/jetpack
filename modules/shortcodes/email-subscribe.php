@@ -19,6 +19,8 @@ class Jetpack_Email_Subscribe {
 
 	private static $css_classname_prefix = 'jetpack-email-subscribe';
 
+	private static $option_name = 'jetpack_mailchimp';
+
 	private static $instance;
 
 	private static $version = '1.0';
@@ -52,6 +54,12 @@ class Jetpack_Email_Subscribe {
 
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'jetpack_options_whitelist', array( $this, 'filter_whitelisted_options' ), 10, 1 );
+	}
+
+	public function filter_whitelisted_options( $options ) {
+		$options[] = self::$option_name;
+		return $options;
 	}
 
 	private function register_shortcode() {
@@ -61,7 +69,7 @@ class Jetpack_Email_Subscribe {
 	private function register_gutenberg_block() {
 		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
 			// If I use `jetpack_register_block`, `ServerSideRender` component does not render this in UI.
-			register_block_type( 'jetpack/email-subscribe', array(
+			register_block_type( 'jetpack/mailchimp', array(
 				'attributes' => array(
 					'title' => array(
 						'type' => 'string',
@@ -91,7 +99,7 @@ class Jetpack_Email_Subscribe {
 				'style' => 'jetpack-email-subscribe',
 				'render_callback' => array( $this, 'parse_shortcode' ),
 			) );
-			jetpack_register_block( 'email-subscribe', array(), array( 'available' => true ) );
+			jetpack_register_block( 'mailchimp', array(), array( 'available' => wpcom_is_proxied_request() ) );
 		}
 	}
 
@@ -109,10 +117,47 @@ class Jetpack_Email_Subscribe {
 		return Jetpack_Options::get_option( 'id' );
 	}
 
+	private function is_set_up() {
+		$option = get_option( self::$option_name );
+		if ( ! $option ) {
+			return false;
+		}
+		$data = json_decode( $option, true );
+		if ( isset( $data['follower_list_id'], $data['follower_list_id'] ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	private function get_site_slug() {
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+			return Jetpack::build_raw_urls( home_url() );
+		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
+		return '';
+	}
 
 	public function parse_shortcode( $attrs ) {
-		// We allow for overriding the presentation labels.
+		// Lets check if everything is set up.
+		if (
+			! $this->is_set_up() &&
+			current_user_can( 'edit_posts' )
+		) {
+			return sprintf(
+				'<div class="components-placeholder">
+					<div class="components-placeholder__label">%s</div>
+					<div class="components-placeholder__instructions">%s</div>
+					<a class="components-button is-button" href="https://wordpress.com/sharing/%s" target="_blank">%s</a>
+				</div>',
+				__( 'MailChimp', 'jetpack' ),
+				__( 'You need to connect your MailChimp account and choose a list in order to start collecting Email subscribers.', 'jetpack' ),
+				$this->get_site_slug(),
+				__( 'Set up MailChimp ', 'jetpack' )
+			);
+		}
 
+		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
 				'blog_id'           => $this->get_blog_id(),
