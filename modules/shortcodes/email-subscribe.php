@@ -117,6 +117,7 @@ class Jetpack_Email_Subscribe {
 	 */
 	private function register_route_for_ssr_block() {
 		$controller = new WP_REST_Block_Renderer_Controller();
+		$properties = $this->get_block_properties();
 		register_rest_route(
 			'wp/v2',
 			'block-renderer/(?P<name>jetpack/' . self::$block_name . ')',
@@ -138,7 +139,7 @@ class Jetpack_Email_Subscribe {
 							'description'          => sprintf( __( 'Attributes for %s block' ), 'jetpack/' . self::$block_name ),
 							'type'                 => 'object',
 							'additionalProperties' => false,
-							'properties'           => $this->get_block_properties()['attributes'],
+							'properties'           => $properties['attributes'],
 							'default'              => array(),
 						),
 						'post_id'    => array(
