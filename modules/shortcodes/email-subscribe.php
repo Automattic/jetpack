@@ -21,6 +21,8 @@ class Jetpack_Email_Subscribe {
 
 	private static $option_name = 'jetpack_mailchimp';
 
+	private static $block_name = 'mailchimp';
+
 	private static $instance;
 
 	private static $version = '1.0';
@@ -66,41 +68,88 @@ class Jetpack_Email_Subscribe {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	private function get_block_properties() {
+		return array(
+			'attributes' => array(
+				'title' => array(
+					'type' => 'string',
+				),
+				'email_placeholder' => array(
+					'type' => 'string',
+				),
+				'submit_label' => array(
+					'type' => 'string',
+				),
+				'consent_text' => array(
+					'type' => 'string',
+				),
+				'processing_label' => array(
+					'type' => 'string',
+				),
+				'success_label' => array(
+					'type' => 'string',
+				),
+				'error_label' => array(
+					'type' => 'string',
+				),
+				'className' => array(
+					'type' => 'string',
+				),
+			),
+			'style' => 'jetpack-email-subscribe',
+			'render_callback' => array( $this, 'parse_shortcode' ),
+		);
+	}
+
 	private function register_gutenberg_block() {
 		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
-			// If I use `jetpack_register_block`, `ServerSideRender` component does not render this in UI.
-			register_block_type( 'jetpack/mailchimp', array(
-				'attributes' => array(
-					'title' => array(
-						'type' => 'string',
-					),
-					'email_placeholder' => array(
-						'type' => 'string',
-					),
-					'submit_label' => array(
-						'type' => 'string',
-					),
-					'consent_text' => array(
-						'type' => 'string',
-					),
-					'processing_label' => array(
-						'type' => 'string',
-					),
-					'success_label' => array(
-						'type' => 'string',
-					),
-					'error_label' => array(
-						'type' => 'string',
-					),
-					'className' => array(
-						'type' => 'string',
+			jetpack_register_block( self::$block_name, $this->get_block_properties(), array( 'available' => true ) );
+			$this->register_route_for_ssr_block();
+		}
+	}
+
+	/**
+	 * There is a structural problem in Jetpack_Gutenberg class that breaks server-side rendered blocks.
+	 * The problem stems from register_blocks being called very late. Too late in fact to WP_REST_Block_Renderer_Controller be aware of them.
+	 * This is a workaround which copies code from WP_REST_Block_Renderer_Controller.
+	 * I tried registering block twice, both with jetpack_register_block and register_block_type, but that produces a notice.
+	 * Calling only register_block_type does not enable Jetpack blocks which are built from calypso.
+	 */
+	private function register_route_for_ssr_block() {
+		$controller = new WP_REST_Block_Renderer_Controller();
+		register_rest_route(
+			'wp/v2',
+			'block-renderer/(?P<name>jetpack/' . self::$block_name . ')',
+			array(
+				'args'   => array(
+					'name' => array(
+						'description' => __( 'Unique registered name for the block.' ),
+						'type'        => 'string',
 					),
 				),
-				'style' => 'jetpack-email-subscribe',
-				'render_callback' => array( $this, 'parse_shortcode' ),
-			) );
-			jetpack_register_block( 'mailchimp', array(), array( 'available' => true ) );
-		}
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $controller, 'get_item' ),
+					'permission_callback' => array( $controller, 'get_item_permissions_check' ),
+					'args'                => array(
+						'context'    => $controller->get_context_param( array( 'default' => 'view' ) ),
+						'attributes' => array(
+							/* translators: %s is the name of the block */
+							'description'          => sprintf( __( 'Attributes for %s block' ), 'jetpack/' . self::$block_name ),
+							'type'                 => 'object',
+							'additionalProperties' => false,
+							'properties'           => $this->get_block_properties()['attributes'],
+							'default'              => array(),
+						),
+						'post_id'    => array(
+							'description' => __( 'ID of the post context.' ),
+							'type'        => 'integer',
+						),
+					),
+				),
+				'schema' => array( $controller, 'get_public_item_schema' ),
+			)
+		);
 	}
 
 	public function init_hook_action() {
