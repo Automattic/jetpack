@@ -260,6 +260,17 @@
 
 .jp-wpcom-connect__container-top-text {
 	padding: 20px 15px;
+	background-color: #eb0001; 
+	color: #fff;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		
+		path {
+			fill: #fff;
+		}
+	}
 }
 
 .jp-wpcom-connect__container {
