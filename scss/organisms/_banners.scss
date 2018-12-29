@@ -258,10 +258,15 @@
 }
 // end overrides
 
+.jp-wpcom-connect__container-top-text {
+	padding: 20px 15px;
+}
+
 .jp-wpcom-connect__container {
 	display: block;
 	position: relative;
 	box-sizing: border-box;
+	background-color: #eb0001; 
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
@@ -274,6 +279,7 @@
 	flex-wrap: nowrap;
 	justify-content: left;
 	border: 4px #eb0001 solid;
+	background: #fff;
 }
 
 .jp-wpcom-connect__content-container {
