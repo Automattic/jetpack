@@ -168,6 +168,7 @@ class Jetpack_Connection_Banner {
 	 */
 	function render_banner() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
+			<?php esc_html_e( 'You&aposre almost done. Jetpack needs to be set up to give you dozens of customization, marketing, and security tools.', 'jetpack' ); ?>
 			<div class="jp-wpcom-connect__inner-container">
 				<span
 					class="notice-dismiss connection-banner-dismiss"
