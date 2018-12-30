@@ -411,7 +411,7 @@
 		flex-direction: row;
 		align-items: center;
 		border: none;
-		padding: rem( 8px );
+		padding: rem( 12px ) rem( 8px );
 		border-bottom: 1px solid #c8d7e1;
 		border-right: 1px solid #c8d7e1;
 		border-left: 3px solid #F3F6F8;
@@ -428,13 +428,13 @@
 	}
 
 	.vertical-menu__feature-item-is-selected {
-		border-left: 3px solid #0087be;
+		border-left: 3px solid #F3F6F8;
 		border-right: 1px solid #fff;
 		background-color: #fff;
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid $green-primary;
+			border-left: 3px solid #F3F6F8;
 		}
 	}
 
