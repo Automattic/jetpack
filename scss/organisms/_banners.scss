@@ -255,21 +255,32 @@
 .updated .notice-dismiss {
 	z-index: 1;
 	text-decoration: none;
+	&:before {
+		color: $white;
+	}
 }
 // end overrides
 
 .jp-wpcom-connect__container-top-text {
-	padding: 20px 15px;
-	background-color: #eb0001; 
-	color: #fff;
+	padding: 15px 15px 20px 15px;
+	background-color: $alert-hot-red; 
+	color: $white;
+	font-weight: 600;
 
 	svg {
 		width: 24px;
 		height: 24px;
-		
+		margin-right: 10px;
+		position: relative;
+		top: 7px;
+
 		path {
 			fill: #fff;
 		}
+	}
+
+	span {
+		display: inline-block;
 	}
 }
 
@@ -277,7 +288,7 @@
 	display: block;
 	position: relative;
 	box-sizing: border-box;
-	background-color: #eb0001; 
+	background-color: $alert-hot-red; 
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
@@ -289,7 +300,7 @@
 	flex-direction: row;
 	flex-wrap: nowrap;
 	justify-content: left;
-	border: 4px #eb0001 solid;
+	border: 4px $alert-hot-red solid;
 	background: #fff;
 }
 

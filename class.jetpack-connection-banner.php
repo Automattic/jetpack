@@ -170,7 +170,7 @@ class Jetpack_Connection_Banner {
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__container-top-text">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
-				<?php esc_html_e( 'You’re almost done. Jetpack needs to be set up to give you dozens of customization, marketing, and security tools.', 'jetpack' ); ?></div>
+					<span><?php esc_html_e( 'You’re almost done. Set up Jetpack to boost your site performance and get dozens of customization, marketing, and security tools.', 'jetpack' ); ?></span></div>
 			<div class="jp-wpcom-connect__inner-container">
 				<span
 					class="notice-dismiss connection-banner-dismiss"
