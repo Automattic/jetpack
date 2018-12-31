@@ -255,13 +255,40 @@
 .updated .notice-dismiss {
 	z-index: 1;
 	text-decoration: none;
+	&:before {
+		color: $white;
+	}
 }
 // end overrides
+
+.jp-wpcom-connect__container-top-text {
+	padding: 15px 15px 20px 15px;
+	background-color: $alert-hot-red; 
+	color: $white;
+	font-weight: 600;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		margin-right: 10px;
+		position: relative;
+		top: 7px;
+
+		path {
+			fill: #fff;
+		}
+	}
+
+	span {
+		display: inline-block;
+	}
+}
 
 .jp-wpcom-connect__container {
 	display: block;
 	position: relative;
 	box-sizing: border-box;
+	background-color: $alert-hot-red; 
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
@@ -273,6 +300,8 @@
 	flex-direction: row;
 	flex-wrap: nowrap;
 	justify-content: left;
+	border: 4px $alert-hot-red solid;
+	background: #fff;
 }
 
 .jp-wpcom-connect__content-container {
@@ -382,7 +411,7 @@
 		flex-direction: row;
 		align-items: center;
 		border: none;
-		padding: rem( 8px );
+		padding: rem( 12px ) rem( 8px );
 		border-bottom: 1px solid #c8d7e1;
 		border-right: 1px solid #c8d7e1;
 		border-left: 3px solid #F3F6F8;
@@ -399,13 +428,13 @@
 	}
 
 	.vertical-menu__feature-item-is-selected {
-		border-left: 3px solid #0087be;
+		border-left: 3px solid #F3F6F8;
 		border-right: 1px solid #fff;
 		background-color: #fff;
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid $green-primary;
+			border-left: 3px solid #F3F6F8;
 		}
 	}
 

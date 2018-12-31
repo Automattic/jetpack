@@ -168,6 +168,10 @@ class Jetpack_Connection_Banner {
 	 */
 	function render_banner() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
+			<div class="jp-wpcom-connect__container-top-text">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
+				<span><?php esc_html_e( 'You’re almost done. Set up Jetpack to boost your site performance and get dozens of customization, marketing, and security tools.', 'jetpack' ); ?></span>
+			</div>
 			<div class="jp-wpcom-connect__inner-container">
 				<span
 					class="notice-dismiss connection-banner-dismiss"
@@ -224,20 +228,20 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 1: intro -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
-						<h2><?php esc_html_e( 'Jetpack simplifies site security, customization, and management.', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Jetpack simplifies website performance, security, customization, and management.', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'images/jetpack-welcome.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
-									esc_attr_e(
-										'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it.',
+							<img src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+								esc_attr_e(
+									'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
 									'jetpack'
-								); ?>" height="auto" width="250" />
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it.',
+								'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it. With over 5 million active installations, its one of the most popular plugins for WordPress.',
 								'jetpack'
 							);
 							?>
@@ -246,7 +250,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'You get detailed visitor stats, state-of-the-art security services, image performance upgrades, traffic generation tools, and more.',
+								'You get detailed visitor stats, state-of-the-art security services, performance upgrades, traffic generation tools, and more.',
 								'jetpack'
 							);
 							?>
@@ -255,7 +259,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Connect to WordPress.com (free) to get started!',
+								'Connect to WordPress.com (free) to set up Jetpack and get started!',
 								'jetpack'
 							);
 							?>
@@ -530,11 +534,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'All the tools you’ll ever need for a more powerful WordPress site', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
-									esc_attr_e(
-										'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
+							<img src="<?php echo plugins_url( 'images/jetpack-welcome.svg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php
+								esc_attr_e(
+									'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it.',
 									'jetpack'
-								); ?>" height="auto" width="225" />
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
