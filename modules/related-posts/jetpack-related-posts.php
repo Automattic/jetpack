@@ -16,7 +16,6 @@ class Jetpack_RelatedPosts {
 				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
 				self::$instance = new Jetpack_RelatedPosts(
-					get_current_blog_id(),
 					Jetpack_Options::get_option( 'id' )
 				);
 			}
@@ -36,7 +35,6 @@ class Jetpack_RelatedPosts {
 				self::$instance_raw = WPCOM_RelatedPosts::init_raw();
 			} else {
 				self::$instance_raw = new Jetpack_RelatedPosts_Raw(
-					get_current_blog_id(),
 					Jetpack_Options::get_option( 'id' )
 				);
 			}
@@ -45,7 +43,6 @@ class Jetpack_RelatedPosts {
 		return self::$instance_raw;
 	}
 
-	protected $_blog_id_local;
 	protected $_blog_id_wpcom;
 	protected $_options;
 	protected $_allow_feature_toggle;
@@ -57,13 +54,11 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
-	 * @param int $blog_id_local
 	 * @param int $blog_id_wpcom
 	 * @uses get_option, add_action, apply_filters
 	 * @return null
 	 */
-	public function __construct( $blog_id_local, $blog_id_wpcom ) {
-		$this->_blog_id_local = $blog_id_local;
+	public function __construct( $blog_id_wpcom ) {
 		$this->_blog_id_wpcom = $blog_id_wpcom;
 		$this->_blog_charset = get_option( 'blog_charset' );
 		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
