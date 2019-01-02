@@ -78,6 +78,7 @@ class Jetpack_Carousel {
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
+			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
@@ -199,8 +200,20 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
+	/**
+	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
+	 *
+	 * @since 6.8.0
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string $content Post content.
+	 */
 	function check_content_for_blocks( $content ) {
-		if ( function_exists( 'has_block' ) && has_block( 'gallery', $content ) ) {
+		if (
+			function_exists( 'has_block' )
+			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
+		) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
@@ -216,7 +229,7 @@ class Jetpack_Carousel {
 					'modules/carousel/jetpack-carousel.js'
 				),
 				array( 'jquery.spin' ),
-				$this->asset_version( '20181220' ),
+				$this->asset_version( '20190102' ),
 				true
 			);
 
@@ -365,11 +378,10 @@ class Jetpack_Carousel {
 			return $content;
 		}
 		$selected_images = array();
-
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/wp-image-([0-9]+)/i', $image_html, $class_id ) &&
-				( $attachment_id = absint( $class_id[1] ) ) ) {
-				/*
+			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) ) {
+				$attachment_id = absint( $class_id[2] );
+				/**
 				 * If exactly the same image tag is used more than once, overwrite it.
 				 * All identical tags will be replaced later with 'str_replace()'.
 				 */
@@ -423,7 +435,7 @@ class Jetpack_Carousel {
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = intval( comments_open( $attachment_id ) );
 
-		 /*
+		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
 		 * it takes the $content_width global variable themes can set in consideration, therefore returning sizes
 		 * which when used to generate a filename will likely result in a 404 on the image.

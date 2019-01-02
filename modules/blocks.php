@@ -43,7 +43,17 @@ if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) )
 			'wp-token-list',
 		);
 		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
-		return $content;
+
+		/**
+		 * Filter the output of the Tiled Galleries content.
+		 *
+		 * @module tiled-gallery
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param string $content Tiled Gallery block content.
+		 */
+		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
 	}
 }
 
