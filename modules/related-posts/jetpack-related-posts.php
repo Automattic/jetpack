@@ -15,9 +15,7 @@ class Jetpack_RelatedPosts {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
-				self::$instance = new Jetpack_RelatedPosts(
-					Jetpack_Options::get_option( 'id' )
-				);
+				self::$instance = new Jetpack_RelatedPosts();
 			}
 		}
 
@@ -34,16 +32,13 @@ class Jetpack_RelatedPosts {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
 				self::$instance_raw = WPCOM_RelatedPosts::init_raw();
 			} else {
-				self::$instance_raw = new Jetpack_RelatedPosts_Raw(
-					Jetpack_Options::get_option( 'id' )
-				);
+				self::$instance_raw = new Jetpack_RelatedPosts_Raw();
 			}
 		}
 
 		return self::$instance_raw;
 	}
 
-	protected $_blog_id_wpcom;
 	protected $_options;
 	protected $_allow_feature_toggle;
 	protected $_blog_charset;
@@ -54,12 +49,10 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
-	 * @param int $blog_id_wpcom
 	 * @uses get_option, add_action, apply_filters
 	 * @return null
 	 */
-	public function __construct( $blog_id_wpcom ) {
-		$this->_blog_id_wpcom = $blog_id_wpcom;
+	public function __construct() {
 		$this->_blog_charset = get_option( 'blog_charset' );
 		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
 
@@ -81,6 +74,10 @@ class Jetpack_RelatedPosts {
 				'render_callback' => array( $this, 'render_block' ),
 			)
 		);
+	}
+
+	protected function get_blog_id() {
+		return Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
@@ -928,7 +925,7 @@ EOT;
 	 */
 	protected function _get_coalesced_range( array $date_range ) {
 		$now = time();
-		$coalesce_time = $this->_blog_id_wpcom % 86400;
+		$coalesce_time = $this->get_blog_id() % 86400;
 		$current_time = $now - strtotime( 'today', $now );
 
 		if ( $current_time < $coalesce_time && '01' == date( 'd', $now ) ) {
@@ -1381,7 +1378,7 @@ EOT;
 		}
 
 		$response = wp_remote_post(
-			"https://public-api.wordpress.com/rest/v1/sites/{$this->_blog_id_wpcom}/posts/$post_id/related/",
+			"https://public-api.wordpress.com/rest/v1/sites/{$this->get_blog_id()}/posts/$post_id/related/",
 			array(
 				'timeout' => 10,
 				'user-agent' => 'jetpack_related_posts',
