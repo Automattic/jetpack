@@ -820,7 +820,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						 */
 						$value = apply_filters( 'site_settings_endpoint_update_' . $key, $value );
 						$updated[ $key ] = $value;
-						continue 2;
+						break;
 					}
 
 					// no worries, we've already whitelisted and casted arguments above

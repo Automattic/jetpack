@@ -759,7 +759,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					case 'add':
 
 						if ( ! empty( $meta->id ) || ! empty( $meta->previous_value ) ) {
-							continue 2;
+							break;
 						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) {
 							add_post_meta( $post_id, $meta->key, $meta->value );
 						}
@@ -768,7 +768,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					case 'update':
 
 						if ( ! isset( $meta->value ) ) {
-							continue 2;
+							break;
 						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
 						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
