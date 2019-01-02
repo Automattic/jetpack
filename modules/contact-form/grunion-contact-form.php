@@ -2026,9 +2026,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @param string $class Additional CSS classes for button attribute.
 			 */
-			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' );
+			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide jetpack-contact-form-button' );
 
-			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='" . $submit_button_class . "'/>\n";
+			$submit_button_styles = '';
+			if ( isset( $attributes['customBackgroundButtonColor'] ) && $attributes['customBackgroundButtonColor'] ) {
+				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
+			}
+			if ( isset( $attributes['customTextButtonColor'] ) && $attributes['customTextButtonColor'] ) {
+				$submit_button_styles .= 'text-color: ' . $attributes['customTextButtonColor'] . ';';
+			}
+
+			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='" . $submit_button_class . "' style='" . esc_attr( $submit_button_styles ) . "'/>\n";
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
