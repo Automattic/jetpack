@@ -41,6 +41,8 @@ class Jetpack_Likes {
 		// when bootstrapping hooks
 		add_action( 'wp', array( &$this, 'action_init' ), 99 );
 
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+
 		if ( $this->in_jetpack ) {
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
