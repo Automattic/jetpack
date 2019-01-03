@@ -160,10 +160,10 @@ class Jetpack_Email_Subscribe {
 					<div class="components-placeholder__instructions">%s</div>
 					<a class="components-button is-button" href="https://wordpress.com/sharing/%s" target="_blank">%s</a>
 				</div>',
-				__( 'MailChimp', 'jetpack' ),
+				__( 'MailChimp form', 'jetpack' ),
 				__( 'You need to connect your MailChimp account and choose a list in order to start collecting Email subscribers.', 'jetpack' ),
 				$this->get_site_slug(),
-				__( 'Set up MailChimp ', 'jetpack' )
+				__( 'Set up MailChimp form', 'jetpack' )
 			);
 		}
 
