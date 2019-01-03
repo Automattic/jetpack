@@ -39,9 +39,9 @@ This block allows you to add Related Posts anywhere within your posts and pages.
 
 Ideally, test this on a site that has some posts already, in order to be able to use the already indexed posts without the need to create related posts and wait for indexing.
 
-**VR Block**
+**Tiled Gallery Block**
 
-This block allows one to embed a VR viewer in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and see if it is displayed properly on your site!
+This block allows one to embed tiled galleries in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and its different layout options, and let us know what you think!
 
 **Shortlinks**
 
