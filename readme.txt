@@ -137,6 +137,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Carousel: do not open modal when clicking on a link in a caption
 * Publicize: improve synchronization of sharing settings with WordPress.com.
 * Publicize: only display Gutenberg Publicize UI to users with the correct permissions.
+* Responsive videos: don't load if theme supports core responsive embeds.
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
 * Shortcodes: update YouTube shortcode to support more video link formats.
 * Shortlinks: add the option to view shortlinks in the Block editor.
