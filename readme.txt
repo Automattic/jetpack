@@ -111,18 +111,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Admin Page: add new "My Plan" page to the Jetpack dashboard.
-* Admin Page: module configuration URLs now redirect to the relevant section in Jetpack settings.
-* Admin Page: clarify and unify Security settings links in the Jetpack Dashboard.
-* Admin Page: hide Related Posts preview when not active.
-* Admin Page: add descriptions to settings sections.
+* Admin Page: several changes to improve navigation and connection flows for new and existing Jetpack site owners.
 * Admin Page: make the Jetpack dashboard wider on large screens for a better experience.
-* Admin Page: add new card for plugins management.
-* Admin Page: add actionable card below the Jetpack settings card for Porfolio post types.
-* Admin Page: add mentions of our Premium offerings to connection banners.
-* Admin Page: improve the connection flow for new Jetpack users.
-* Admin Page: improve the display of notices after editing settings.
-* Admin Page: update notices to indicate a Jetpack account is needed.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
