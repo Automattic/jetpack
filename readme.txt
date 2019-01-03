@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Images: ensure that images inserted with new block editor can be used in Open Graph Meta tags, Related Posts, and Publicized posts.
 * PHP 7.3: avoid PHP warnings so the plugin can be fully compatible with the latest version of PHP.
 * Sharing: do not add Jetpack's Twitter Meta Tags when the WP To Twitter plugin is active.
 * Twenty Nineteen: additional style adjustments to make sure all Jetpack widgets look good with the theme.
