@@ -11,15 +11,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		);
 
 		$name = self::is_jetpack() ?
-			/**
-			 * Filter the name of a widget included in the Extra Sidebar Widgets module.
-			 *
-			 * @module widgets
-			 *
-			 * @since 2.1.2
-			 *
-			 * @param string $widget_name Widget title.
-			 */
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Blog Subscriptions', 'jetpack' ) ) :
 			__( 'Follow Blog', 'jetpack' );
 
@@ -63,15 +55,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	function widget( $args, $instance ) {
 		if ( self::is_jetpack() &&
-			 /**
-			  * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			  *
-			  * @module contact-form
-			  *
-			  * @since 3.2.0
-			  *
-			  * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			  */
+		     /** This filter is documented in modules/contact-form/grunion-contact-form.php */
 			 false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = '';
@@ -85,18 +69,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		}
 
 		$stats_action = self::is_jetpack() ? 'jetpack_subscriptions' : 'follow_blog';
-		/**
-		 * Fires when an item is displayed on the front end.
-		 *
-		 * Can be used to track stats about the number of displays for a specific item
-		 *
-		 * @module widgets, shortcodes
-		 *
-		 * @since 1.6.0
-		 *
-		 * @param string widget_view Item type (e.g. widget, or embed).
-		 * @param string grofile     Item description (e.g. grofile, goodreads).
-		 */
+		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', $stats_action );
 
 		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
