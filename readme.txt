@@ -100,44 +100,59 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 6.8.1 =
+= 6.9 =
 
-* Release date: December 6, 2018
-* Release post: https://wp.me/p1moTy-d3t
-
-**Bug fixes**
-
-* Contact Form: security changes to improve the display of success messages after submitting a form.
-* Publicize: avoid Fatal errors when trying to create or edit posts from a Custom Post Type that supports Publicize.
-* Sync: improve synchronization of WooCommerce events.
-* WordPress.com REST API: handle WooCommerce Product reviews for a better display in apps that use the API.
-
-= 6.8 =
-
-* Release date: November 26, 2018
-* Release post: https://wp.me/p1moTy-cee
+* Release date: January 10, 2018
+* Release post: https://wp.me/p1moTy-cEZ
 
 **Major Enhancements**
 
-* This release introduces the first wave of Jetpack blocks built for the new block editor, available in WordPress 5.0.
+* Block Editor: this release introduces new blocks: a Subcription form block, a Tiled Gallery block, and a Related Posts block.
 
 **Enhancements**
 
-* General: improve ability to create and troubleshoot Jetpack connections.
-* REST API: new endpoint for testing the Jetpack connection.
+* Admin Page: several changes to improve navigation and connection flows for new and existing Jetpack site owners.
+* Admin Page: make the Jetpack dashboard wider on large screens for a better experience.
+* Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
+* Carousel: add support for the new Tiled Gallery block.
+* Contact Form: use the comment blacklist to filter contact form submissions.
+* Dashboard notices: automatically dismiss notices once a feature has been activated.
+* Dashboard notices: fix styling to work better with the Hello Dolly plugin.
+* Internationalization: add new locales, ensure existing ones are up to date.
+* REST API: new endpoint to expose Gutenberg block and plugin availabilty.
+* Search: add hook to get_filters() to allow the use of custom filters.
+* Shortcodes: add new Mailchimp shortcode to insert Mailchimp subscription forms anywhere in your posts and pages.
+* SSO: offer message introducing the feature to new users.
+* Stats: improve the design of the Stats dashboard widget.
+* Widgets: add filter to set DoNotTrack in Twitter Timeline widget.
+* WordPress.com REST API: add new option to set sites to private.
 
 **Improved compatibility**
 
-* Akismet: improve caching of all queries for Akismet status.
-* Spellcheck / Grammar: we've made sure the Jetpack feature did not create any error when using the block editor.
-* Twenty Nineteen: ensure compatibility with Jetpack's widgets.
+* AMP: ensure that all Jetpack features are compatible with the latest version of the AMP plugin. Solves issues previously encountered with sharing buttons and stats.
+* Images: ensure that images inserted with new block editor can be used in Open Graph Meta tags, Related Posts, and Publicized posts.
+* PHP 7.3: avoid PHP warnings so the plugin can be fully compatible with the latest version of PHP.
+* Sharing: do not add Jetpack's Twitter Meta Tags when the WP To Twitter plugin is active.
+* Twenty Nineteen: additional style adjustments to make sure all Jetpack widgets look good with the theme.
+* WooCommerce: do not include product reviews in comment counts in the WordPress.com REST API.
 
 **Bug fixes**
 
-* Asset CDN: do not try to serve assets from non-public versions.
-* Carousel: handle galleries created via the Gallery block in the new block editor.
-* Photon: make sure our image CDN is fully compatible with the block editor.
-
+* Admin Page: update feature limits mentioned when disconnecting Jetpack from WordPress.com
+* Block Editor: fix loading of translations in the editor when Jetpack's Site Accelerator feature is active.
+* Carousel: ensure that Carousel works well with the Gallery block in the new block editor.
+* Carousel: do not open modal when clicking on a link in a caption
+* Publicize: improve synchronization of sharing settings with WordPress.com.
+* Publicize: only display Gutenberg Publicize UI to users with the correct permissions.
+* Responsive videos: don't load if theme supports core responsive embeds.
+* Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
+* Sharing: update Tumblr official sharing button.
+* Shortcodes: update YouTube shortcode to support more video link formats.
+* Shortlinks: add the option to view shortlinks in the Block editor.
+* Simple Payments: only register block when all needed data is available.
+* Widgets: only load Social Icons widget scripts and styles when necessary.
+* WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
+* WooCommerce Analytics: improve performance by avoiding unnecessary calls to the feature when it is not needed.
 
 --------
 
