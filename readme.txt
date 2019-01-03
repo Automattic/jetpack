@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Search: add hook to get_filters() to allow the use of custom filters.
 * SSO: offer message introducing the feature to new users.
 * Stats: improve the design of the Stats dashboard widget.
+* Widgets: add filter to set DoNotTrack in Twitter Timeline widget.
 * WordPress.com REST API: add new option to set sites to private.
 
 **Improved compatibility**
