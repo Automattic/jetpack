@@ -47,6 +47,15 @@ This block allows one to embed tiled galleries in their posts. It is available a
 
 It is now possible to view a post's shortlink in the Jetpack plugin sidebar. Give it a try when the feature is on, off, and make sure everything works as you would expect.
 
+### Carousel
+
+We have some changes to the Carousel feature to make sure it works with the different types of images now available. To test, try clicking on images inserted via those solutions:
+
+- with a classic block and a classic gallery in it
+- with a core gallery block
+- with a new tiled gallery block
+- with a classic block and a tiled gallery in it.
+
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**
