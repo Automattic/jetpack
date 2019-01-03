@@ -693,8 +693,6 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		}
 	}
 
-	Featured_Content::setup();
-
 	/**
 	 * Adds the featured content plugin to the set of files for which action
 	 * handlers should be copied when the theme context is loaded by the REST API.
@@ -708,4 +706,17 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	}
 	add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
 
+	/**
+	 * Delayed initialization for API Requests.
+	 */
+	function wpcom_rest_request_before_callbacks( $request ) {
+		Featured_Content::init();
+		return $request;
+	}
+
+	if ( Jetpack_Constants::is_true( 'IS_WPCOM' ) && Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
+		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks');
+	}
+
+	Featured_Content::setup();
 } // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {

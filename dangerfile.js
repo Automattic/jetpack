@@ -4,8 +4,8 @@
 import { danger, warn, markdown, results, schedule } from 'danger';
 const moment = require( 'moment' );
 
-const pr = danger.github.pr;
 const github = danger.github;
+const pr = github.pr;
 
 // No PR is too small to include a description of why you made a change
 if ( pr.body.length < 10 ) {
@@ -15,7 +15,7 @@ if ( pr.body.length < 10 ) {
 // Use labels please!
 const ghLabels = github.issue.labels;
 if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
-	warn( 'The PR is missing at least one [Status] label. Suggestions: `[Status] In Progress`, `[Status] Needs Review`' );
+	warn( 'The PR is missing at least one `[Status]` label. Suggestions: `[Status] In Progress`, `[Status] Needs Review`' );
 }
 
 // Test instructions
@@ -34,7 +34,7 @@ if ( results.warnings.length > 0 || results.fails.length > 0 ) {
 	markdown(
 `**Thank you for the great PR description!**
 
-When this PR is ready for review, please apply the \`[Status] Needs Review label\`. If you are an a11n, please have someone from your team review the code if possible. The Jetpack team will also review this PR and merge it to be included in the next Jetpack release.` );
+When this PR is ready for review, please apply the \`[Status] Needs Review\` label. If you are an a11n, please have someone from your team review the code if possible. The Jetpack team will also review this PR and merge it to be included in the next Jetpack release.` );
 	setReleaseDates();
 }
 
@@ -43,7 +43,7 @@ function setReleaseDates() {
 	schedule( async () => {
 		let jetpackReleaseDate;
 		let codeFreezeDate;
-		const milestones = await github.api.issues.getMilestones( { owner: 'Automattic', repo: 'jetpack' } );
+		const milestones = await github.api.issues.listMilestonesForRepo( { owner: 'Automattic', repo: 'jetpack' } );
 
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future

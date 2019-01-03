@@ -134,7 +134,7 @@
     "style-loader": "0.23.1",
     "uglify-save-license": "0.4.1",
     "url-loader": "1.1.2",
-    "webpack": "4.28.2",
+    "webpack": "4.28.3",
     "whatwg-fetch": "1.1.1"
   },
   "devDependencies": {
@@ -150,7 +150,7 @@
     "mini-css-extract-plugin": "0.5.0",
     "mocha": "5.2.0",
     "mockery": "2.1.0",
-    "nock": "10.0.5",
+    "nock": "10.0.6",
     "node-wp-i18n": "1.2.1",
     "prettier": "github:Automattic/wp-prettier#wp-prettier-1.14.0",
     "react-test-renderer": "16.7.0",

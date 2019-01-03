@@ -138,6 +138,22 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo ' data-partner="' . esc_attr( $partner ) . '"';
 		}
 
+		/**
+		 * Allow the activation of Do Not Track for the Twitter Timeline Widget.
+		 *
+		 * @see https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference.html
+		 *
+		 * @module widgets
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param bool false Should the Twitter Timeline use the DNT attribute? Default to false.
+		 */
+		$dnt = apply_filters( 'jetpack_twitter_timeline_default_dnt', false );
+		if ( true === $dnt ) {
+			echo ' data-dnt="true"';
+		}
+
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
 			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
