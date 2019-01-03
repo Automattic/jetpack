@@ -2033,7 +2033,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
 			}
 			if ( isset( $attributes['customTextButtonColor'] ) && $attributes['customTextButtonColor'] ) {
-				$submit_button_styles .= 'text-color: ' . $attributes['customTextButtonColor'] . ';';
+				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
 			}
 
 			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='" . $submit_button_class . "' style='" . esc_attr( $submit_button_styles ) . "'/>\n";
