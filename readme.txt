@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: only display Gutenberg Publicize UI to users with the correct permissions.
 * Responsive videos: don't load if theme supports core responsive embeds.
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
+* Sharing: update Tumblr official sharing button.
 * Shortcodes: update YouTube shortcode to support more video link formats.
 * Shortlinks: add the option to view shortlinks in the Block editor.
 * Simple Payments: only register block when all needed data is available.
