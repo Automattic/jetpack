@@ -56,6 +56,16 @@ We have some changes to the Carousel feature to make sure it works with the diff
 - with a new tiled gallery block
 - with a classic block and a tiled gallery in it.
 
+### AMP
+
+We've made a number of improvements to the way Jetpack works with the latest version of the AMP plugin.
+
+To test this, add the plugin to your site, and switch between the different modes under the AMP plugin options. You will want to check that the following features are working:
+
+- Sharing buttons should be properly displayed.
+- Stats should be recorded when you are visiting your site and not logged in to your admin account (look for call to the stats tracking pixel in your browser's network tab).
+- You should not see any PHP notices.
+
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**
