@@ -150,6 +150,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: update YouTube shortcode to support more video link formats.
 * Shortlinks: add the option to view shortlinks in the Block editor.
 * Simple Payments: only register block when all needed data is available.
+* Widgets: only load Social Icons widget scripts and styles when necessary.
 * WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
 * WooCommerce Analytics: improve performance by avoiding unnecessary calls to the feature when it is not needed.
 
