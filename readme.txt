@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * PHP 7.3: avoid PHP warnings so the plugin can be fully compatible with the latest version of PHP.
 * Sharing: do not add Jetpack's Twitter Meta Tags when the WP To Twitter plugin is active.
 * Twenty Nineteen: additional style adjustments to make sure all Jetpack widgets look good with the theme.
+* WooCommerce: do not include product reviews in comment counts in the WordPress.com REST API.
 
 **Bug fixes**
 
