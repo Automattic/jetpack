@@ -48,7 +48,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function enqueue_style() {
 		wp_register_style(
 			'jetpack-subscriptions',
-			plugins_url( 'subscriptions/subscriptions.css', __FILE__ ),
+			plugins_url( 'subscriptions.css', __FILE__ ),
 			array(),
 			JETPACK__VERSION
 		);
