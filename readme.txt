@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: several changes to improve navigation and connection flows for new and existing Jetpack site owners.
 * Admin Page: make the Jetpack dashboard wider on large screens for a better experience.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
+* Contact Form: use the comment blacklist to filter contact form submissions.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
 * Internationalization: add new locales, ensure existing ones are up to date.
