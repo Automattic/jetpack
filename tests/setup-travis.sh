@@ -22,7 +22,7 @@ mysql -u root -e "CREATE DATABASE wordpress_tests;"
 echo "Preparing WordPress from \"$WP_BRANCH\" branch...";
 case $WP_BRANCH in
 master)
-	git clone --depth=1 --branch 5.0 git://develop.git.wordpress.org/ /tmp/wordpress-master
+	git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
 	;;
 latest)
 	git clone --depth=1 --branch $(php ./tests/get-wp-version.php) git://develop.git.wordpress.org/ /tmp/wordpress-latest
