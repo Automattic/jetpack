@@ -103,7 +103,7 @@ class Jetpack_Lazy_Images {
 		}
 
 		// Don't lazyload for amp-wp content
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return $content;
 		}
 

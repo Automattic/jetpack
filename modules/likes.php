@@ -37,7 +37,10 @@ class Jetpack_Likes {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
 
-		add_action( 'init', array( &$this, 'action_init' ) );
+		// We need to run on wp hook rather than init because we check is_amp_endpoint()
+		// when bootstrapping hooks
+		add_action( 'wp', array( &$this, 'action_init' ), 99 );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {

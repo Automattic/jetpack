@@ -29,7 +29,7 @@ class Jetpack_Carousel {
 	public $single_image_gallery_enabled_media_file = false;
 
 	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'init' ), 99 );
 	}
 
 	function init() {
@@ -44,7 +44,7 @@ class Jetpack_Carousel {
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
-			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+			$this->register_settings();
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
@@ -159,6 +159,10 @@ class Jetpack_Carousel {
 	}
 
 	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $output;
+		}
+
 		if (
 			! empty( $output ) &&
 			/**
@@ -210,6 +214,10 @@ class Jetpack_Carousel {
 	 * @return string $content Post content.
 	 */
 	function check_content_for_blocks( $content ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $content;
+		}
+    
 		if (
 			function_exists( 'has_block' )
 			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
@@ -359,6 +367,9 @@ class Jetpack_Carousel {
 	}
 
 	function set_in_gallery( $output ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $output;
+		}
 		$this->in_gallery = true;
 		return $output;
 	}
@@ -374,6 +385,10 @@ class Jetpack_Carousel {
 	 * @return string Modified HTML content of the post
 	 */
 	function add_data_img_tags_and_enqueue_assets( $content ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $content;
+		}
+
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
 			return $content;
 		}
@@ -423,6 +438,10 @@ class Jetpack_Carousel {
 	}
 
 	function add_data_to_images( $attr, $attachment = null ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $attr;
+		}
+
 		$attachment_id = intval( $attachment->ID );
 		if ( ! wp_attachment_is_image( $attachment_id ) ) {
 			return $attr;
@@ -491,6 +510,9 @@ class Jetpack_Carousel {
 
 	function add_data_to_container( $html ) {
 		global $post;
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $html;
+		}
 
 		if ( isset( $post ) ) {
 			$blog_id = (int) get_current_blog_id();
