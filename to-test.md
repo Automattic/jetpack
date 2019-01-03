@@ -66,6 +66,16 @@ To test this, add the plugin to your site, and switch between the different mode
 - Stats should be recorded when you are visiting your site and not logged in to your admin account (look for call to the stats tracking pixel in your browser's network tab).
 - You should not see any PHP notices.
 
+### Shortcodes
+
+This release also adds a new shortcode, `[jetpack-email-subscribe]`. You can use it to insert Mailchimp subscription forms anywhere in your posts and pages.
+
+To use it, try the following:
+
+1. Go to [https://wordpress.com/sharing/](https://wordpress.com/sharing/) and choose your test site.
+2. Under the new Mailchimp section, connect your site to a Mailchimp account.
+3. That's it! You can now use `[jetpack-email-subscribe]` anywhere on your site!
+
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**

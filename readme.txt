@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Internationalization: add new locales, ensure existing ones are up to date.
 * REST API: new endpoint to expose Gutenberg block and plugin availabilty.
 * Search: add hook to get_filters() to allow the use of custom filters.
+* Shortcodes: add new Mailchimp shortcode to insert Mailchimp subscription forms anywhere in your posts and pages.
 * SSO: offer message introducing the feature to new users.
 * Stats: improve the design of the Stats dashboard widget.
 * Widgets: add filter to set DoNotTrack in Twitter Timeline widget.
