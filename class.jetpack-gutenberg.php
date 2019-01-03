@@ -471,6 +471,7 @@ class Jetpack_Gutenberg {
 			array(
 				'lodash',
 				'wp-api-fetch',
+				'wp-blob',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',

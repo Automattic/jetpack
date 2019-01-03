@@ -39,7 +39,6 @@ if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) )
 	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
 		$dependencies = array(
 			'lodash',
-			'wp-blob',
 			'wp-i18n',
 			'wp-token-list',
 		);
