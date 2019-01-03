@@ -1446,7 +1446,7 @@ jQuery(document).ready(function($) {
 	};
 
 	// register the event listener for starting the gallery
-	$( document.body ).on( 'click.jp-carousel', 'div.gallery, div.tiled-gallery, ul.wp-block-gallery, a.single-image-gallery', function( e ) {
+	$(document.body).on('click.jp-carousel', 'div.gallery, div.tiled-gallery, ul.wp-block-gallery, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery', function( e ) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) ) {
 			return;
 		}
@@ -1466,7 +1466,7 @@ jQuery(document).ready(function($) {
 		// Stopping propagation in case there are parent elements
 		// with .gallery or .tiled-gallery class
 		e.stopPropagation();
-		$(this).jp_carousel('open', { start_index: $(this).find('.gallery-item, .tiled-gallery-item, .blocks-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item, .blocks-gallery-item'))});
+		$(this).jp_carousel('open', { start_index: $(this).find('.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item').index($(e.target).parents('.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'))});
 	});
 
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
@@ -1503,7 +1503,7 @@ jQuery(document).ready(function($) {
 		last_known_location_hash = window.location.hash;
 		matches = window.location.hash.match( hashRegExp );
 		attachmentId = parseInt( matches[1], 10 );
-		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery, ul.wp-block-gallery' );
+		galleries = $( 'div.gallery, div.tiled-gallery, a.single-image-gallery, ul.wp-block-gallery, div.wp-block-jetpack-tiled-gallery' );
 
 		// Find the first thumbnail that matches the attachment ID in the location
 		// hash, then open the gallery that contains it.
