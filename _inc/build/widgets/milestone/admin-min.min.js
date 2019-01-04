@@ -1,0 +1,2 @@
+/* Do not modify this file directly. It is compiled from other files. */
+!function(e){var n=e("#customize-controls");function t(){n.find(".milestone-type").trigger("change")}n.length||(n=e("#wpbody")),n.on("change",".milestone-type",function(){var n=e(this).parent().find(".milestone-message-wrapper");"since"===e(this).find('input[type="radio"]:checked').val()?n.hide():n.show()}),e(document).on("widget-added widget-updated",function(){t()}),t()}(jQuery);
