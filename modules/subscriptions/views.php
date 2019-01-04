@@ -691,6 +691,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 }
 
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'class_alias' ) ) {
+	class_alias( 'Jetpack_Subscriptions_Widget', 'Blog_Subscription_Widget' );
+}
+
+function get_jetpack_blog_subscriptions_widget_classname() {
+	return ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+		'Blog_Subscription_Widget' :
+		'Jetpack_Subscriptions_Widget';
+}
+
 function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
@@ -710,14 +720,14 @@ function jetpack_do_subscription_form( $instance ) {
 		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
 	);
 	ob_start();
-	the_widget( 'Jetpack_Subscriptions_Widget', $instance, $args );
+	the_widget( get_jetpack_blog_subscriptions_widget_classname(), $instance, $args );
 	$output = ob_get_clean();
 
 	return $output;
 }
 
 function jetpack_blog_subscriptions_init() {
-	register_widget( 'Jetpack_Subscriptions_Widget' );
+	register_widget( get_jetpack_blog_subscriptions_widget_classname() );
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
