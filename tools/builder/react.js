@@ -92,7 +92,10 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp
 			.src( '_inc/build/admin.js' )
-			.pipe( minify() )
+			.pipe( minify( {
+				noSource: true,
+				ext: { min: '.js' },
+			} ) )
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
@@ -143,6 +146,8 @@ function onBuild( done, err, stats ) {
 				output: {
 					comments: saveLicense,
 				},
+				noSource: true,
+				ext: { min: '.js' },
 			} )
 		)
 		.pipe( rename( { suffix: '.min' } ) )
