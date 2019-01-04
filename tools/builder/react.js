@@ -96,7 +96,6 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp.src( '_inc/build/admin.js' )
 			.pipe( uglify() )
-			.on('error', function (err) { console.log( err ) })
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
