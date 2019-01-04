@@ -1,3 +1,0 @@
-/* Do not modify this file directly. It is compiled from other files. */
-/* global brightcove, brightcoveData */
-!function(e){var t=document.createElement("script"),c="co.jp"===brightcoveData.tld?"co.jp":"com",o=!1;t.src="https://sadmin.brightcove."+c+"/js/BrightcoveExperiences.js",t.type="text/javascript",t.language="JavaScript",document.head.appendChild(t),function t(){clearTimeout(o);"object"==typeof brightcove?(e(document).ready(brightcove.createExperiences),e("body").on("post-load",brightcove.createExperiences),brightcove.createExperiences()):o=setTimeout(t,100)}()}(jQuery);

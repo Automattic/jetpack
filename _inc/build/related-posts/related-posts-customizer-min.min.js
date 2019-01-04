@@ -1,5 +1,0 @@
-/* Do not modify this file directly. It is compiled from other files. */
-/**
- * Adds functionality for Related Posts controls in Customizer.
- */
-!function(t){"use strict";t("jetpack_relatedposts[show_headline]",function(e){t.control("jetpack_relatedposts[headline]",function(t){var n,i;i=function(){return e.findControls()[0].active.get()&&e.get()},n=function(){t.active.set(i())},t.active.validate=i,n(),e.bind(n)})})}(wp.customize);

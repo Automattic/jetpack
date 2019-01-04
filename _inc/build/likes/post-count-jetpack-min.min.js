@@ -1,2 +1,0 @@
-/* Do not modify this file directly. It is compiled from other files. */
-var wpPostLikeCount=wpPostLikeCount||{};!function(t){wpPostLikeCount=jQuery.extend(wpPostLikeCount,{request:function(e){return t.ajax({type:"GET",url:wpPostLikeCount.jsonAPIbase+e.path,dataType:"jsonp",data:e.data,success:function(t){e.success(t)},error:function(t){e.error(t)}})}})}(jQuery);

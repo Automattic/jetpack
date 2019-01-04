@@ -1,2 +1,0 @@
-/* Do not modify this file directly. It is compiled from other files. */
-var keyboardNavigation=!1,keyboardNavigationKeycodes=[9,32,37,38,39,40];document.addEventListener("keydown",function(e){keyboardNavigation||-1!==keyboardNavigationKeycodes.indexOf(e.keyCode)&&(keyboardNavigation=!0,document.documentElement.classList.add("accessible-focus"))}),document.addEventListener("mouseup",function(){keyboardNavigation&&(keyboardNavigation=!1,document.documentElement.classList.remove("accessible-focus"))});
