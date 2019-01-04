@@ -23,7 +23,7 @@ var JetpackEmailSubscribe = {
 			jQuery.get( 'https://public-api.wordpress.com/rest/v1.1/sites/' + blogId + '/email_follow/subscribe?email=' + email )
 			.done( function( response ) {
 				form.find( '.' + cssPrefix + '-processing' ).hide();
-				if ( response.error ) {
+				if ( response.error && response.error !== 'member_exists' ) {
 					form.find( '.' + cssPrefix + '-error' ).show();
 				} else {
 					form.find( '.' + cssPrefix + '-success' ).show();
