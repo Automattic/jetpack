@@ -175,7 +175,7 @@ class Jetpack_Email_Subscribe {
 		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
-				'title'             => __( 'Join my email list', 'jetpack' ),
+				'title'             => '',
 				'email_placeholder' => __( 'Enter your email', 'jetpack' ),
 				'submit_label'      => __( 'Join My Email List', 'jetpack' ),
 				'consent_text'      => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
@@ -213,7 +213,7 @@ class Jetpack_Email_Subscribe {
 
 		return sprintf(
 			'<div class="%1$s" id="%2$s">
-				<h2>%3$s</h2>
+				%3$s
 				<form>
 					<input type="email" class="%1$s-email" required placeholder="%4$s">
 					<button type="submit" class="%1$s-submit">%6$s</button>
@@ -227,7 +227,7 @@ class Jetpack_Email_Subscribe {
 			</div>',
 			esc_attr( $data['classname'] ),
 			esc_attr( $data['dom_id'] ),
-			esc_html( $data['title'] ),
+			$data['title'] ? '<h2>' . esc_html( $data['title'] ) . '</h2>' : '',
 			esc_html( $data['email_placeholder'] ),
 			esc_html( $data['consent_text'] ),
 			esc_html( $data['submit_label'] ),
