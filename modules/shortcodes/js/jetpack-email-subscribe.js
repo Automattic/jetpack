@@ -7,7 +7,7 @@ var JetpackEmailSubscribe = {
 	},
 	activate: function( blogId, domId, cssPrefix ) {
 		var form = jQuery( '#' + domId );
-		form.submit( function( e ) {
+		form.find( 'form' ).submit( function( e ) {
 			e.preventDefault();
 			var emailField = form.find( '.' + cssPrefix + '-email' );
 			emailField.removeClass( cssPrefix + '-form-error' );
@@ -18,20 +18,20 @@ var JetpackEmailSubscribe = {
 				return false;
 			}
 
-			jQuery( '#' + domId + ' form' ).hide();
-			jQuery( '.' + cssPrefix + '-processing' ).show();
+			form.find( 'form' ).hide();
+			form.find( '.' + cssPrefix + '-processing' ).show();
 			jQuery.get( 'https://public-api.wordpress.com/rest/v1.1/sites/' + blogId + '/email_follow/subscribe?email=' + email )
 			.done( function( response ) {
-				jQuery( '.' + cssPrefix + '-processing' ).hide();
+				form.find( '.' + cssPrefix + '-processing' ).hide();
 				if ( response.error ) {
-					jQuery( '.' + cssPrefix + '-error' ).show();
+					form.find( '.' + cssPrefix + '-error' ).show();
 				} else {
-					jQuery( '.' + cssPrefix + '-success' ).show();
+					form.find( '.' + cssPrefix + '-success' ).show();
 				}
 			} )
 			.fail( function() {
-				jQuery( '.' + cssPrefix + '-processing' ).hide();
-				jQuery( '.' + cssPrefix + '-error' ).show();
+				form.find( '.' + cssPrefix + '-processing' ).hide();
+				form.find( '.' + cssPrefix + '-error' ).show();
 			} );
 
 			return false;
