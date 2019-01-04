@@ -92,6 +92,13 @@ jQuery( document ).ready( function( $ ) {
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
 			$el.innerHTML = $template;
+
+			// If we already have a message, replace it.
+			if ( $('#jp-admin-notices').find( '.jitm-card' ) ) {
+				$( '.jitm-card' ).replaceWith( $template );
+			}
+
+			// No existing JITM? Add ours to the top of the Jetpack admin notices.
 			$template.prependTo( $( '#jp-admin-notices' ) );
 		} else {
 			// Replace placeholder div on other pages.
