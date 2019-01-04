@@ -227,7 +227,7 @@ class Jetpack_Email_Subscribe {
 			</div>',
 			esc_attr( $data['classname'] ),
 			esc_attr( $data['dom_id'] ),
-			$data['title'] ? '<h2>' . esc_html( $data['title'] ) . '</h2>' : '',
+			$data['title'] ? '<h3>' . esc_html( $data['title'] ) . '</h3>' : '',
 			esc_html( $data['email_placeholder'] ),
 			esc_html( $data['consent_text'] ),
 			esc_html( $data['submit_label'] ),
