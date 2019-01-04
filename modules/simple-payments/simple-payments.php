@@ -58,7 +58,8 @@ class Jetpack_Simple_Payments {
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
 
-		jetpack_register_block( 'simple-payments', array(), array( 'callback' => array( $this, 'get_block_availability' ) ) );
+		jetpack_register_block( 'simple-payments' );
+		set_extension_unavailability_reason( 'simple-payments', array( 'callback' => array( $this, 'get_block_availability' ) ) );
 	}
 
 	function get_block_availability() {

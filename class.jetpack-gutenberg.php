@@ -40,6 +40,22 @@ function jetpack_register_plugin( $slug, $availability = array( 'available' => t
 }
 
 /**
+ * Set the reason why an extension (block or plugin) is unavailable
+ *
+ * @param string $slug Slug of the block
+ * @param array  $avalibility Arguments that tells us what kind of avalibility the block has
+ *
+ * @see register_block_type
+ *
+ * @since 7.0.0
+ *
+ * @return void
+ */
+function set_extension_unavailability_reason( $slug, $availability = array( 'available' => true ) ) {
+	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $availability );
+}
+
+/**
  * General Gutenberg editor specific functionality
  */
 class Jetpack_Gutenberg {
@@ -75,6 +91,16 @@ class Jetpack_Gutenberg {
 	public static function register( $slug, $args, $availability ) {
 		$sanitized_slug = sanitize_title_with_dashes( $slug );
 		self::$registered[ $sanitized_slug ] = array( 'args' => $args, 'availability' => $availability );
+	}
+
+	/**
+	 * Set the reason why an extension (block or plugin) is unavailable
+	 *
+	 * @param string $slug Slug of the extension.
+	 * @param array $availability array containing if an extension is available and the reason when it is not.
+	 */
+	public static function set_extension_unavailability_reason( $slug, $availability ) {
+		self::$registered[ $slug ] = array( 'availability' => $availability );
 	}
 
 	/**
