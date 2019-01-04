@@ -1,12 +1,5 @@
 <?php
 /**
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- **/
-
-/**
  * Class Jetpack_Email_Subscribe
  * This class encapsulates a shortcode for subscribing to a MailChimp list.
  * It displays a simple signup form that gets an email address from the user and signs him for a list
