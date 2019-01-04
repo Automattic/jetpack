@@ -6,12 +6,12 @@ import fs from 'fs';
 import log from 'fancy-log';
 import gulp from 'gulp';
 import gulpif from 'gulp-if';
+import minify from 'gulp-minify';
 import PluginError from 'plugin-error';
 import rename from 'gulp-rename';
 import saveLicense from 'uglify-save-license';
 import sourcemaps from 'gulp-sourcemaps';
 import tap from 'gulp-tap';
-import uglify from 'gulp-uglify';
 import webpack from 'webpack';
 import { JSDOM } from 'jsdom';
 
@@ -24,16 +24,13 @@ export const watch = function() {
 
 	return webpack( config ).watch(
 		100,
-		onBuild.bind(
-			this,
-			function( error ) {
-				if ( error ) {
-					log( error );
-					return;
-				}
-				buildStatic( function() {} );
+		onBuild.bind( this, function( error ) {
+			if ( error ) {
+				log( error );
+				return;
 			}
-		)
+			buildStatic( function() {} );
+		} )
 	);
 };
 
@@ -43,23 +40,20 @@ gulp.task( 'react:master', function( done ) {
 	if ( 'production' !== process.env.NODE_ENV ) {
 		config.plugins.push(
 			new webpack.LoaderOptionsPlugin( {
-				debug: true
+				debug: true,
 			} )
 		);
 	}
 
 	return webpack( config ).run(
-		onBuild.bind(
-			this,
-			function( error ) {
-				if ( error ) {
-					done( error );
-					return;
-				}
-
-				buildStatic( done );
+		onBuild.bind( this, function( error ) {
+			if ( error ) {
+				done( error );
+				return;
 			}
-		)
+
+			buildStatic( done );
+		} )
 	);
 } );
 
@@ -73,26 +67,32 @@ function onBuild( done, err, stats ) {
 		}
 	}
 
-	log( 'Building JS…', stats.toString( {
-		colors: true,
-		hash: true,
-		version: false,
-		timings: true,
-		assets: true,
-		chunks: true,
-		chunkModules: false,
-		modules: false,
-		cached: false,
-		reasons: false,
-		source: false,
-		errorDetails: true,
-		children: false
-	} ), '\nJS finished at', Date.now() );
+	log(
+		'Building JS…',
+		stats.toString( {
+			colors: true,
+			hash: true,
+			version: false,
+			timings: true,
+			assets: true,
+			chunks: true,
+			chunkModules: false,
+			modules: false,
+			cached: false,
+			reasons: false,
+			source: false,
+			errorDetails: true,
+			children: false,
+		} ),
+		'\nJS finished at',
+		Date.now()
+	);
 
 	if ( 'production' === process.env.NODE_ENV ) {
 		log( 'Uglifying JS...' );
-		gulp.src( '_inc/build/admin.js' )
-			.pipe( uglify() )
+		gulp
+			.src( '_inc/build/admin.js' )
+			.pipe( minify() )
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
@@ -121,7 +121,7 @@ function onBuild( done, err, stats ) {
 		'masterbar',
 		'videopress',
 		'comment-likes',
-		'lazy-images'
+		'lazy-images',
 	];
 
 	// Source any JS for whitelisted modules, which will minimize us shipping much
@@ -130,25 +130,21 @@ function onBuild( done, err, stats ) {
 	const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 	// Uglify other JS from _inc and supported modules
-	const sources = [
-		'_inc/*.js',
-		supportedModulesSource,
-		'!modules/**/test-*.js',
-	];
+	const sources = [ '_inc/*.js', supportedModulesSource, '!modules/**/test-*.js' ];
 
 	// Don't process minified JS in _inc or modules directories
-	const sourceNegations = [
-		'!_inc/*.min.js',
-		'!modules/**/*.min.js'
-	];
-	gulp.src( Array.concat( sources, sourceNegations ) )
+	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
+	gulp
+		.src( Array.concat( sources, sourceNegations ) )
 		.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
-		.pipe( uglify( {
-			output: {
-				comments: saveLicense
-			}
-		} ) )
+		.pipe(
+			minify( {
+				output: {
+					comments: saveLicense,
+				},
+			} )
+		)
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
 		.pipe( gulp.dest( '_inc/build' ) )
@@ -163,7 +159,7 @@ export const build = gulp.series( 'react:master' );
 function buildStatic( done ) {
 	log( 'Building static HTML from built JS…' );
 	const { window } = new JSDOM();
-	const { document } = ( new JSDOM( '' ) ).window;
+	const { document } = new JSDOM( '' ).window;
 
 	global.window = window;
 	global.document = document;
@@ -173,14 +169,14 @@ function buildStatic( done ) {
 		dismissedNotices: [],
 		connectionStatus: {
 			devMode: {
-				isActive: false
-			}
+				isActive: false,
+			},
 		},
 		userData: {
 			currentUser: {
-				permissions: {}
-			}
-		}
+				permissions: {},
+			},
+		},
 	};
 
 	try {
@@ -193,14 +189,23 @@ function buildStatic( done ) {
 		// Will throw when `path` does not exist, skipping file generation below that depends on `path`.
 		require( path );
 
-		gulp.src( [ '_inc/build/static*' ] )
-			.pipe( tap( function( file ) {
-				fs.unlinkSync( file.path );
-			} ) )
+		gulp
+			.src( [ '_inc/build/static*' ] )
+			.pipe(
+				tap( function( file ) {
+					fs.unlinkSync( file.path );
+				} )
+			)
 			.on( 'end', function() {
 				fs.writeFileSync( __dirname + '/../../_inc/build/static.html', window.staticHtml );
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-noscript-notice.html', window.noscriptNotice );
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-version-notice.html', window.versionNotice );
+				fs.writeFileSync(
+					__dirname + '/../../_inc/build/static-noscript-notice.html',
+					window.noscriptNotice
+				);
+				fs.writeFileSync(
+					__dirname + '/../../_inc/build/static-version-notice.html',
+					window.versionNotice
+				);
 				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 				done();
