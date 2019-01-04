@@ -53,11 +53,6 @@ class Jetpack_Gutenberg {
 
 	private static $availability = array();
 
-	// PLUGINS
-	private static $default_plugins = array(
-		'publicize',
-		'shortlinks',
-	);
 	/**
 	 * @var array Array of plugins information.
 	 *
@@ -158,7 +153,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$plugins = apply_filters( 'jetpack_set_available_plugins', self::$default_plugins );
+		self::$plugins = apply_filters( 'jetpack_set_available_plugins', array() );
 		self::set_blocks_availability();
 		self::set_plugins_availability();
 		self::register_blocks();
