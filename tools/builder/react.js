@@ -11,9 +11,12 @@ import rename from 'gulp-rename';
 import saveLicense from 'uglify-save-license';
 import sourcemaps from 'gulp-sourcemaps';
 import tap from 'gulp-tap';
-import uglify from 'gulp-uglify';
+import uglifyes from 'uglify-es';
+import composer from 'gulp-uglify/composer';
 import webpack from 'webpack';
 import { JSDOM } from 'jsdom';
+
+const uglify = composer( uglifyes );
 
 function getWebpackConfig() {
 	return require( './../../webpack.config.js' );
@@ -93,6 +96,7 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp.src( '_inc/build/admin.js' )
 			.pipe( uglify() )
+			.on('error', function (err) { console.log( err ) })
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
