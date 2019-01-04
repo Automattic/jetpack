@@ -44,27 +44,6 @@ function jetpack_register_plugin( $slug, $availability = array( 'available' => t
  */
 class Jetpack_Gutenberg {
 
-	// BLOCKS
-	private static $default_blocks = array(
-		'map',
-		'markdown',
-		'simple-payments',
-		'related-posts',
-		'contact-form',
-		'field-text',
-		'field-name',
-		'field-email',
-		'field-url',
-		'field-date',
-		'field-telephone',
-		'field-textarea',
-		'field-checkbox',
-		'field-checkbox-multiple',
-		'field-radio',
-		'field-select',
-		'subscriptions',
-	);
-
 	/**
 	 * @var array Array of blocks information.
 	 *
@@ -74,11 +53,6 @@ class Jetpack_Gutenberg {
 
 	private static $availability = array();
 
-	// PLUGINS
-	private static $default_plugins = array(
-		'publicize',
-		'shortlinks',
-	);
 	/**
 	 * @var array Array of plugins information.
 	 *
@@ -168,7 +142,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$blocks = apply_filters( 'jetpack_set_available_blocks', self::$default_blocks );
+		self::$blocks = apply_filters( 'jetpack_set_available_blocks', array() );
 
 		/**
 		 * Filter the list of block editor plugins that are available through jetpack.
@@ -179,7 +153,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$plugins = apply_filters( 'jetpack_set_available_plugins', self::$default_plugins );
+		self::$plugins = apply_filters( 'jetpack_set_available_plugins', array() );
 		self::set_blocks_availability();
 		self::set_plugins_availability();
 		self::register_blocks();
