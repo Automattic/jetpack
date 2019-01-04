@@ -19,19 +19,19 @@ var JetpackEmailSubscribe = {
 			}
 
 			jQuery( '#' + domId + ' form' ).hide();
-			jQuery( '.' + cssPrefix + '-processing' ).css( 'display', 'block' );
+			jQuery( '.' + cssPrefix + '-processing' ).show();
 			jQuery.get( 'https://public-api.wordpress.com/rest/v1.1/sites/' + blogId + '/email_follow/subscribe?email=' + email )
 			.done( function( response ) {
 				jQuery( '.' + cssPrefix + '-processing' ).hide();
 				if ( response.error ) {
-					jQuery( '.' + cssPrefix + '-error' ).css( 'display', 'block' );
+					jQuery( '.' + cssPrefix + '-error' ).show();
 				} else {
-					jQuery( '.' + cssPrefix + '-success' ).css( 'display', 'block' );
+					jQuery( '.' + cssPrefix + '-success' ).show();
 				}
 			} )
 			.fail( function() {
 				jQuery( '.' + cssPrefix + '-processing' ).hide();
-				jQuery( '.' + cssPrefix + '-error' ).css( 'display', 'block' );
+				jQuery( '.' + cssPrefix + '-error' ).show();
 			} );
 
 			return false;
