@@ -55,6 +55,16 @@ class Jetpack_Email_Subscribe {
 		add_action( 'jetpack_blocks_to_register', array( $this, 'prevent_jetpack_register_block' ), 10, 1 );
 	}
 
+	/**
+	 * There is a structural problem in Jetpack_Gutenberg class that breaks server-side rendered blocks on WPCOM.
+	 * The problem stems from register_blocks being called very late. Too late in fact to WP_REST_Block_Renderer_Controller be aware of them.
+	 * Regular 'register_block_type' call does not register blocks as available from Calypso SDK.
+	 * I tried registering block twice, both with jetpack_register_block and register_block_type, but that produces a notice.
+	 * I introduced this callback and 'jetpack_blocks_to_register' filter as a way of dealing with this issue
+	 * @param $blocks - list of blocks that will be passed to 'register_block_type' call of Jetpack_Gutenberg.
+	 *
+	 * @return array
+	 */
 	public function prevent_jetpack_register_block( $blocks ) {
 		return array_filter( $blocks, array( $this, 'filter_out_this_block' ) );
 	}
