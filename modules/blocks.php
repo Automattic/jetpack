@@ -190,3 +190,28 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'slideshow', $dependencies );
 	return $content;
 }
+
+/**
+ * Mailchimp Block.
+ */
+jetpack_register_block(
+	'mailchimp',
+	array(
+		'render_callback' => 'jetpack_mailchimp_block_load_assets',
+	)
+);
+
+/**
+ * Mailchimp block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the map block attributes.
+ * @param string $content - String containing the map block content.
+ *
+ * @return string
+ */
+function jetpack_mailchimp_block_load_assets( $attr, $content ) {
+	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+		get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp' );
+	return preg_replace( '/<div /', '<div data-blog-id="'. esc_attr( $blog_id ) .'" ', $content, 1 );
+}
