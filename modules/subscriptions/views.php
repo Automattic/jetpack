@@ -207,16 +207,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static function render_widget_already_subscribed( $instance ) {
 		if ( self::is_wpcom() ) {
 			$subscribers_total = self::fetch_subscriber_count();
-			/**
-			 * Filter the url for folks to manage their subscriptions.
-			 *
-			 * @module subscriptions
-			 *
-			 * @since 6.9
-			 *
-			 * @param string $url Defaults to https://wordpress.com/following/edit/
-			 */
-			$edit_subs_url          = apply_filters( 'jetpack_subscriptions_management_url', 'https://wordpress.com/following/edit/' );
+			$edit_subs_url     = 'https://wordpress.com/following/edit/';
+			if ( self::is_wpcom() && function_exists( 'localized_wpcom_url' ) ) {
+				$edit_subs_url = localized_wpcom_url( http() . '://wordpress.com/following/edit/', get_user_locale() );
+			}
 			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 			if ( $show_subscribers_total && $subscribers_total > 1 ) :
 				$subscribers_not_me = $subscribers_total - 1;
@@ -395,16 +389,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static function is_current_user_subscribed() {
 		$subscribed = isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'];
 
-		/**
-		 * Filter if the current user is subscribed to the blog.
-		 *
-		 * @module subscriptions
-		 *
-		 * @since 6.9
-		 *
-		 * @param bool $subscribed Is current user subscribed.
-		 */
-		return apply_filters( 'jetpack_subscription_widget_is_subscribed', $subscribed );
+		if ( self::is_wpcom() && class_exists( 'Blog_Subscription' ) && class_exists( 'Blog_Subscriber' ) ) {
+			$subscribed = is_user_logged_in() && Blog_Subscription::is_subscribed( new Blog_Subscriber() );
+		}
+
+		return $subscribed;
 	}
 
 	/**
@@ -481,16 +470,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
-		/**
-		 * Filter the total amount of subscribers
-		 *
-		 * @module subscriptions
-		 *
-		 * @since 6.9
-		 *
-		 * @param int|array $subscribed Information about the total amount of subscribers.
-		 */
-		return apply_filters( 'jetpack_subscription_widget_total_subscribers', $subs_count );
+		if ( self::is_wpcom() && function_exists( 'wpcom_reach_total_for_blog' ) ) {
+			$subs_count = wpcom_reach_total_for_blog();
+		}
+
+		return $subs_count;
 	}
 
 	/**
