@@ -726,12 +726,17 @@ function jetpack_do_subscription_form( $instance ) {
 	return $output;
 }
 
+add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
+add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
+
 function jetpack_blog_subscriptions_init() {
 	register_widget( get_jetpack_blog_subscriptions_widget_classname() );
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
 
-add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
-add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
-jetpack_register_block( 'subscriptions' );
+function jetpack_register_subscriptions_block() {
+	jetpack_register_block( 'subscriptions' );
+}
+
+add_action( 'init', 'jetpack_register_subscriptions_block' );
