@@ -272,7 +272,11 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				$available_blocks[ $block ][ 'unavailable_reason' ] = self::$block_availability[ $block ]['unavailable_reason'];
+				if ( $reason = self::$block_availability[ $block ]['unavailable_reason'] ) {
+					$available_blocks[ $block ][ 'unavailable_reason' ] = $reason;
+				} else {
+					$available_blocks[ $block ][ 'unavailable_reason' ] = 'missing_module';
+				}
 			}
 		}
 		return array_merge( $available_blocks, self::$plugin_availability );
