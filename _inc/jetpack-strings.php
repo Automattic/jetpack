@@ -645,6 +645,9 @@ __( "Add faster, more advanced searching to your site with Jetpack Professional.
 __( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:208
 _x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:324
 _x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:325
+__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
+__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
+__( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
 __( "We're here to help", "jetpack" ), // _inc/client/components/support-card/index.jsx:76
 __( "Jetpack comes with free, basic support for all users.", "jetpack" ), // _inc/client/components/support-card/index.jsx:79
 __( "Your paid plan gives you access to prioritized Jetpack support.", "jetpack" ), // _inc/client/components/support-card/index.jsx:80
@@ -652,9 +655,6 @@ __( "Ask a question", "jetpack" ), // _inc/client/components/support-card/index.
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:101
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:109
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:111
-__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
-__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
-__( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
 __( " Premium Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:47
 __( "Introducing Premium Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:51
 __( "{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:53
