@@ -92,7 +92,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			self::set_plugin_availability( $slug, array( 'available' => true ) );
 		} else {
-			self::set_plugin_availability( $slug, array( 'unavailable_reason' => 'not whitelisted' ) );
+			self::set_plugin_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
 		}
 	}
 
