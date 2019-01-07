@@ -781,7 +781,7 @@ abstract class Publicize_Base {
 	 */
 	function register_gutenberg_extension() {
 		jetpack_register_plugin( 'publicize' );
-		set_plugin_availability( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
+		set_jetpack_extension_availability( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
 	}
 
 	function get_extension_availability() {

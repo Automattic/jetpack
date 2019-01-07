@@ -50,12 +50,8 @@ function jetpack_register_plugin( $slug, $availability = array( 'available' => t
  *
  * @return void
  */
-function set_block_availability( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::set_block_availability( $slug, $availability );
-}
-
-function set_plugin_availability( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::set_plugin_availability( $slug, $availability );
+function set_jetpack_extension_availability( $slug, $availability = array( 'available' => true ) ) {
+	Jetpack_Gutenberg::set_jetpack_extension_availability( $slug, $availability );
 }
 
 /**
@@ -95,7 +91,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			register_block_type( 'jetpack/' . $slug, $args );
 		} else {
-			self::set_block_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
+			self::set_jetpack_extension_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
 		}
 	}
 
@@ -103,7 +99,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			self::$registered_plugins[] = 'jetpack-' . $slug;
 		} else {
-			self::set_plugin_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
+			self::set_jetpack_extension_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
 		}
 	}
 
@@ -113,11 +109,7 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 * @param array $availability array containing if an extension is available and the reason when it is not.
 	 */
-	public static function set_block_availability( $slug, $availability ) {
-		self::$availability[ $slug ] = $availability;
-	}
-
-	public static function set_plugin_availability( $slug, $availability ) {
+	public static function set_jetpack_extension_availability( $slug, $availability ) {
 		self::$availability[ $slug ] = $availability;
 	}
 
