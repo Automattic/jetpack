@@ -142,12 +142,6 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		self::load();
-	}
-
-	static function load( $response = null, $handler = null, $request = null ) {
-		$is_availability_endpoint_beta = ! is_null( $request ) && $request->get_param( 'beta' ) && wp_endswith( $request->get_route(), 'gutenberg/available-extensions' );
-
 		/**
 		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
 		 *
