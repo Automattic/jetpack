@@ -6,7 +6,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_blog_subscription jetpack_subscription_widget',
-			'description'                 => esc_html__( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
+			'description'                 => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
 
@@ -214,6 +214,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 			if ( $show_subscribers_total && $subscribers_total > 1 ) :
 				$subscribers_not_me = $subscribers_total - 1;
+				/* translators: %s: number of folks following the blog */
 				?>
                 <p><?php printf( _n( 'You are following this blog, along with %s other amazing person (<a href="%s">manage</a>).', 'You are following this blog, along with %s other amazing people (<a href="%s">manage</a>).', $subscribers_not_me ), number_format_i18n( $subscribers_not_me ), $edit_subs_url ) ?></p><?php
 			else :
@@ -258,6 +259,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_logged_in );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
+						/* translators: %s: number of folks following the blog */
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
 					?>
@@ -267,6 +269,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_text );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
+						/* translators: %s: number of folks following the blog */
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
 					?>
@@ -311,6 +314,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+					/* translators: %s: number of folks following the blog */
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
@@ -566,7 +570,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$success_message       = stripslashes( $instance['success_message'] );
 			$subs_fetch            = self::fetch_subscriber_count();
 			if ( 'failed' == $subs_fetch['status'] ) {
-				printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
+				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
 			}
 			$subscribers_total = number_format_i18n( $subs_fetch['value'] );
 		}
@@ -701,7 +705,7 @@ function jetpack_do_subscription_form( $instance ) {
 	$instance['show_only_email_and_button'] = $show_only_email_and_button;
 
 	$args = array(
-		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
+		'before_widget' => '<div class="jetpack_subscription_widget">',
 	);
 	ob_start();
 	the_widget( get_jetpack_blog_subscriptions_widget_classname(), $instance, $args );
