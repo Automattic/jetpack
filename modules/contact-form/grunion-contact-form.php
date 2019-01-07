@@ -2017,6 +2017,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 
+			$gutenberg_submit_button_classes = '';
+			if ( isset( $attributes['submitButtonClasses'] ) && $attributes['submitButtonClasses'] ) {
+				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
+			}
+
 			/**
 			 * Filter the contact form submit button class attribute.
 			 *
@@ -2026,7 +2031,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @param string $class Additional CSS classes for button attribute.
 			 */
-			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide jetpack-contact-form-button' );
+			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
 			$submit_button_styles = '';
 			if ( isset( $attributes['customBackgroundButtonColor'] ) && $attributes['customBackgroundButtonColor'] ) {
