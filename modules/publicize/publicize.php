@@ -119,7 +119,7 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'init', array( $this, 'register_gutenberg_extension' ), 30 );
+		add_action( 'rest_api_init', array( $this, 'register_gutenberg_extension' ), 30 );
 	}
 
 /*
@@ -780,18 +780,15 @@ abstract class Publicize_Base {
 	 * Register the Publicize Gutenberg extension
 	 */
 	function register_gutenberg_extension() {
-		jetpack_register_plugin( 'publicize' );
-		set_jetpack_extension_availability( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
-	}
+		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
+		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
-	function get_extension_availability() {
-		$object_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		if ( $this->current_user_can_access_publicize_data() ) {
+			jetpack_register_plugin( 'publicize' );
+		} else {
+			set_jetpack_extension_availability( 'publicize', array( 'unavailable_reason' => 'unauthorized' ) );
 
-		if ( ! $this->current_user_can_access_publicize_data( $object_id ) ) {
-			return array( 'available' => false, 'unavailable_reason' => 'unauthorized' );
 		}
-
-		return array( 'available' => true );
 	}
 
 	/**
