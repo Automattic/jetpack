@@ -126,13 +126,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * @deprecated
-	 */
-	static function load_blocks() {
-		self::init();
-	}
-
-	/**
 	 * Add a block to the list of blocks to be registered.
 	 *
 	 * @param string $slug Slug of the block.
