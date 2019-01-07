@@ -14,7 +14,7 @@
 require dirname( __FILE__ ) . '/masterbar/masterbar.php';
 
 // In order to be able to tell if it's an AMP request or not we have to hook into parse_query at a later priority.
-add_action( 'wp', 'jetpack_initialize_masterbar', 99 );
+add_action( 'admin_bar_init', 'jetpack_initialize_masterbar', 99 );
 
 /**
  * Initializes the Masterbar in case the request is not AMP.
