@@ -208,7 +208,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_wpcom() ) {
 			$subscribers_total = self::fetch_subscriber_count();
 			$edit_subs_url     = 'https://wordpress.com/following/edit/';
-			if ( self::is_wpcom() && function_exists( 'localized_wpcom_url' ) ) {
+			if ( function_exists( 'localized_wpcom_url' ) ) {
 				$edit_subs_url = localized_wpcom_url( http() . '://wordpress.com/following/edit/', get_user_locale() );
 			}
 			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
