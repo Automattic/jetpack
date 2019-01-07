@@ -291,7 +291,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__container-top-text {
-  padding: 15px 15px 20px 15px;
+  padding: 15px 15px 25px 15px;
   background-color: #00BE28;
   color: white;
   font-weight: 600;
@@ -329,7 +329,6 @@ https://github.com/thoughtbot/bourbon
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: left;
-  border: 4px #00BE28 solid;
   background: #fff;
 }
 
