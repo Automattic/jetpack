@@ -26,16 +26,13 @@ function jetpack_register_block( $slug, $args = array() ) {
  * Helper function to register a Jetpack Gutenberg plugin
  *
  * @param string $slug Slug of the plugin.
- * @param array  $avalibility Arguments that tells us what kind of avalibility the plugin has
- *
- * @see register_block_type
  *
  * @since 6.9.0
  *
  * @return void
  */
-function jetpack_register_plugin( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::register_plugin( $slug, $availability );
+function jetpack_register_plugin( $slug ) {
+	Jetpack_Gutenberg::register_plugin( $slug );
 }
 
 /**
