@@ -144,6 +144,13 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 										$found_icon = true;
 										break;
 									}
+
+									if ( preg_match('/https?:\/\/(www\.)?([a-z]{1,})?\.?pinterest\./i', $icon['url'] ) ) {
+										echo '<span class="screen-reader-text">' . esc_attr( 'Pinterest' ) . '</span>';
+										echo $this->get_svg_icon( array( 'icon' => esc_attr( 'pinterest' ) ) );
+										$found_icon = true;
+										break;
+									}
 								}
 
 								if ( ! $found_icon ) {
@@ -562,71 +569,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'medium.com',
 				'icon'  => 'medium',
 				'label' => 'Medium',
-			),
-			array(
-				'url'   => 'pinterest.com',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.ca',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.ch',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.co.uk',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.de',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.dk',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.es',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.fr',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.ie',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.jp',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.nz',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.pt',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => 'pinterest.se',
-				'icon'  => 'pinterest',
-				'label' => 'Pinterest',
 			),
 			array(
 				'url'   => 'getpocket.com',
