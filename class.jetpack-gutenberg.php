@@ -124,11 +124,6 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		if ( Jetpack_Constants::is_true( 'REST_API_REQUEST' ) ) {
-			// We defer the loading of the blocks until we have a better scope in reset requests.
-			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'load' ), 10, 3 );
-			return;
-		}
 		self::load();
 	}
 
