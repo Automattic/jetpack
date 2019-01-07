@@ -70,8 +70,9 @@ class Jetpack_Gutenberg {
 	 */
 	private static $extensions = array();
 
-	private static $block_availability = array();
-	private static $plugin_availability = array();
+	private static $availability = array();
+
+	private static $registered_plugins = array();
 
 	// Classic singleton pattern:
 	private static $instance;
@@ -91,12 +92,16 @@ class Jetpack_Gutenberg {
 	 * @param array  $args Arguments that are passed into the register_block_type.
 	 */
 	public static function register_block( $slug, $args ) {
-		register_block_type( 'jetpack/' . $slug, $args );
+		if ( in_array( $slug, self::$extensions ) ) {
+			register_block_type( 'jetpack/' . $slug, $args );
+		} else {
+			self::set_block_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
+		}
 	}
 
-	public static function register_plugin( $slug, $availability ) {
+	public static function register_plugin( $slug ) {
 		if ( in_array( $slug, self::$extensions ) ) {
-			self::set_plugin_availability( $slug, array( 'available' => true ) );
+			self::$registered_plugins[] = 'jetpack-' . $slug;
 		} else {
 			self::set_plugin_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
 		}
@@ -109,11 +114,11 @@ class Jetpack_Gutenberg {
 	 * @param array $availability array containing if an extension is available and the reason when it is not.
 	 */
 	public static function set_block_availability( $slug, $availability ) {
-		self::$block_availability[ $slug ] = $availability;
+		self::$availability[ $slug ] = $availability;
 	}
 
 	public static function set_plugin_availability( $slug, $availability ) {
-		self::$plugin_availability[ $slug ] = $availability;
+		self::$availability[ $slug ] = $availability;
 	}
 
 	/**
@@ -228,7 +233,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function jetpack_set_available_blocks( $extensions ) {
-		$preset_extensions_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $extensions );
+		$preset_extensions_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'production' => $extensions );
 
 		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array() ;
 		$preset_extensions = array_unique( array_merge( $preset_extensions, $extensions ) );
@@ -245,23 +250,25 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
-		$available_blocks = [];
+		$available_extensions = [];
 
-		foreach( self::$extensions as $block ) {
-			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $block );
-			$available_blocks[ $block ] = array(
+		foreach( self::$extensions as $extension ) {
+			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
+				in_array( 'jetpack-' . $extension, self::$registered_plugins );
+
+			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
 			);
 
 			if ( ! $is_available ) {
-				if ( $reason = self::$block_availability[ $block ]['unavailable_reason'] ) {
-					$available_blocks[ $block ][ 'unavailable_reason' ] = $reason;
+				if ( $reason = self::$availability[ $extension ]['unavailable_reason'] ) {
+					$available_extensions[ $extension ][ 'unavailable_reason' ] = $reason;
 				} else {
-					$available_blocks[ $block ][ 'unavailable_reason' ] = 'missing_module';
+					$available_extensions[ $extension ][ 'unavailable_reason' ] = 'missing_module';
 				}
 			}
 		}
-		return array_merge( $available_blocks, self::$plugin_availability );
+		return $available_extensions;
 	}
 
 	/**
