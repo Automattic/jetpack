@@ -265,14 +265,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * @deprecated
-	 * @return array A list of block-availability information, eg: [ "publicize" => ["available" => true ], "markdown" => [ "available" => false, "unavailable_reason" => 'missing_module' ] ]
-	 */
-	public static function get_block_availability() {
-		return self::get_availability();
-	}
-
-	/**
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
@@ -463,7 +455,7 @@ class Jetpack_Gutenberg {
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
-				'available_blocks' => self::get_block_availability(),
+				'available_blocks' => self::get_availability(),
 				'jetpack' => array( 'is_active' => Jetpack::is_active() ),
 			)
 		);
