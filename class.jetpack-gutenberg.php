@@ -11,7 +11,6 @@
  *
  * @param string $slug Slug of the block
  * @param array  $args Arguments that are passed into the register_block_type.
- * @param array  $avalibility Arguments that tells us what kind of avalibility the block has
  *
  * @see register_block_type
  *
@@ -19,8 +18,8 @@
  *
  * @return void
  */
-function jetpack_register_block( $slug, $args = array(), $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::register( $slug, $args, $availability );
+function jetpack_register_block( $slug, $args = array() ) {
+	Jetpack_Gutenberg::register_block( $slug, $args );
 }
 
 /**
@@ -36,7 +35,7 @@ function jetpack_register_block( $slug, $args = array(), $availability = array( 
  * @return void
  */
 function jetpack_register_plugin( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::register( $slug, array(), $availability );
+	Jetpack_Gutenberg::register_plugin( $slug, $availability );
 }
 
 /**
@@ -51,8 +50,12 @@ function jetpack_register_plugin( $slug, $availability = array( 'available' => t
  *
  * @return void
  */
-function set_extension_unavailability_reason( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $availability );
+function set_block_availability( $slug, $availability = array( 'available' => true ) ) {
+	Jetpack_Gutenberg::set_block_availability( $slug, $availability );
+}
+
+function set_plugin_availability( $slug, $availability = array( 'available' => true ) ) {
+	Jetpack_Gutenberg::set_plugin_availability( $slug, $availability );
 }
 
 /**
@@ -65,16 +68,10 @@ class Jetpack_Gutenberg {
 	 *
 	 * For each block we have information about the availability for the current user
 	 */
-	private static $blocks = array();
+	private static $extensions = array();
 
-	private static $availability = array();
-
-	/**
-	 * @var array Array of plugins information.
-	 *
-	 * For each block we have information about the availability for the current user
-	 */
-	private static $plugins = array();
+	private static $block_availability = array();
+	private static $plugin_availability = array();
 
 	/**
 	 * @var array Array of extensions we will be registering.
@@ -86,11 +83,17 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into the register_block_type.
-	 * @param array $availability array containing if a block is available and the reason when it is not.
 	 */
-	public static function register( $slug, $args, $availability ) {
-		$sanitized_slug = sanitize_title_with_dashes( $slug );
-		self::$registered[ $sanitized_slug ] = array( 'args' => $args, 'availability' => $availability );
+	public static function register_block( $slug, $args ) {
+		register_block_type( 'jetpack/' . $slug, $args );
+	}
+
+	public static function register_plugin( $slug, $availability ) {
+		if ( in_array( $slug, self::$extensions ) ) {
+			self::set_plugin_availability( $slug, array( 'available' => true ) );
+		} else {
+			self::set_plugin_availability( $slug, array( 'unavailable_reason' => 'not whitelisted' ) );
+		}
 	}
 
 	/**
@@ -99,8 +102,12 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 * @param array $availability array containing if an extension is available and the reason when it is not.
 	 */
-	public static function set_extension_unavailability_reason( $slug, $availability ) {
-		self::$registered[ $slug ] = array( 'availability' => $availability );
+	public static function set_block_availability( $slug, $availability ) {
+		self::$block_availability[ $slug ] = $availability;
+	}
+
+	public static function set_plugin_availability( $slug, $availability ) {
+		self::$plugin_availability[ $slug ] = $availability;
 	}
 
 	/**
@@ -123,19 +130,6 @@ class Jetpack_Gutenberg {
 			return;
 		}
 		self::load();
-	}
-
-	/**
-	 * Add a block to the list of blocks to be registered.
-	 *
-	 * @param string $slug Slug of the block.
-	 * @param array  $args Arguments that are passed into the register_block_type.
-	 * @param array $availability array containing if a block is available and the reason when it is not.
-	 *
-	 * @deprecated
-	 */
-	static function add_block( $type, $args, $availability ) {
-		self::register( $type, $args, $availability );
 	}
 
 	static function load( $response = null, $handler = null, $request = null ) {
@@ -161,42 +155,10 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$blocks = apply_filters( 'jetpack_set_available_blocks', array() );
+		self::$extensions = self::jetpack_set_available_blocks( array() ); //apply_filters( 'jetpack_set_available_blocks', array() );
 
-		/**
-		 * Filter the list of block editor plugins that are available through jetpack.
-		 *
-		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param array
-		 */
-		self::$plugins = apply_filters( 'jetpack_set_available_plugins', array() );
-		self::set_blocks_availability();
-		self::set_plugins_availability();
-		self::register_blocks();
 		return $response;
 	}
-
-	static function is_registered( $slug ) {
-		return isset( self::$registered[ $slug ] );
-	}
-
-	static function get_registered_args( $slug ) {
-		return self::$registered[ $slug ]['args'];
-	}
-	static function get_registered_type( $slug ) {
-		return self::$registered[ $slug ]['type'];
-	}
-
-	static function is_available( $slug ) {
-		if ( ! isset( self::$availability[ $slug ]['available'] ) ) {
-			return false;
-		}
-		return (bool) self::$availability[ $slug ]['available'];
-	}
-
 
 	static function get_extension_availability( $slug ) {
 		if ( ! self::is_registered( $slug ) ) {
@@ -220,18 +182,6 @@ class Jetpack_Gutenberg {
 		}
 
 		return $availability;
-	}
-
-	static function set_blocks_availability() {
-		foreach ( self::$blocks as $slug ) {
-			self::$availability[ $slug ] = self::get_extension_availability( $slug );
-		}
-	}
-
-	static function set_plugins_availability() {
-		foreach ( self::$plugins as $slug ) {
-			self::$availability[ $slug ] = self::get_extension_availability( $slug );
-		}
 	}
 
 	static function register_blocks() {
@@ -293,26 +243,25 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the merged contents of `blocks-manifest.json` ( $preset_blocks )
+	 * using the merged contents of `blocks-manifest.json` ( $preset_extensions )
 	 * and self::$jetpack_blocks ( $internal_blocks )
 	 *
-	 * @param $blocks The default list.
+	 * @param $extensions The default list.
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
-	public static function jetpack_set_available_blocks( $blocks ) {
-		$preset_blocks_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $blocks );
-		// manifest shouldn't remove default blocks...
+	public static function jetpack_set_available_blocks( $extensions ) {
+		$preset_extensions_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'blocks' => $extensions );
 
-		$preset_blocks = isset( $preset_blocks_manifest->production ) ? (array) $preset_blocks_manifest->production : array() ;
-		$preset_blocks = array_unique( array_merge( $preset_blocks, $blocks ) );
+		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array() ;
+		$preset_extensions = array_unique( array_merge( $preset_extensions, $extensions ) );
 
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			$beta_blocks = isset( $preset_blocks_manifest->beta ) ? (array) $preset_blocks_manifest->beta : array();
-			return array_unique( array_merge( $preset_blocks, $beta_blocks ) );
+			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
+			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
 		}
 
-		return $preset_blocks;
+		return $preset_extensions;
 	}
 
 	/**
@@ -327,11 +276,19 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
-		if ( ! self::should_load() ) {
-			return array();
-		}
+		$available_blocks = [];
 
-		return self::$availability;
+		foreach( self::$extensions as $block ) {
+			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $block );
+			$available_blocks[ $block ] = array(
+				'available' => $is_available,
+			);
+
+			if ( ! $is_available ) {
+				$available_blocks[ $block ][ 'unavailable_reason' ] = self::$block_availability[ $block ]['unavailable_reason'];
+			}
+		}
+		return array_merge( $available_blocks, self::$plugin_availability );
 	}
 
 	/**
