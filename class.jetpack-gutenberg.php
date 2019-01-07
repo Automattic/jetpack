@@ -73,11 +73,6 @@ class Jetpack_Gutenberg {
 	private static $block_availability = array();
 	private static $plugin_availability = array();
 
-	/**
-	 * @var array Array of extensions we will be registering.
-	 */
-	private static $registered = array();
-
 	// Classic singleton pattern:
 	private static $instance;
 	private function __construct() {}
@@ -164,30 +159,6 @@ class Jetpack_Gutenberg {
 		self::$extensions = self::jetpack_set_available_blocks( array() ); //apply_filters( 'jetpack_set_available_blocks', array() );
 
 		return $response;
-	}
-
-	static function get_extension_availability( $slug ) {
-		if ( ! self::is_registered( $slug ) ) {
-			return array( 'available' => false, 'unavailable_reason' => 'missing_module' );
-		}
-
-		$availability = self::$registered[ $slug ]['availability'];
-
-		if ( isset( $availability['callback'] ) ) {
-			$availability = call_user_func( $availability['callback'] );
-		}
-
-		$availability['available'] = isset( $availability['available'] )
-			? (bool) $availability['available']
-			: true ; // this is the default value
-
-		if ( ! $availability['available'] ) {
-			$availability['unavailable_reason'] = isset( $availability['unavailable_reason'] )
-				? $availability['unavailable_reason']
-				: 'unknown'; //
-		}
-
-		return $availability;
 	}
 
 	static function register_blocks() {
