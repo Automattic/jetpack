@@ -55,14 +55,25 @@ function set_jetpack_extension_availability( $slug, $reason ) {
 class Jetpack_Gutenberg {
 
 	/**
-	 * @var array Array of blocks information.
+	 * @var array Extensions whitelist
 	 *
-	 * For each block we have information about the availability for the current user
+	 * Only these extensions can be registered. Used to control availability of beta blocks.
 	 */
 	private static $extensions = array();
 
+	/**
+	 * @var array Extensions availability information
+	 *
+	 * Keeps track of the reasons why a given extension is unavailable.
+	 */
 	private static $availability = array();
 
+	/**
+	 * @var array Plugin registry
+	 *
+	 * Since there is no `register_plugin()` counterpart to `register_block_type()` in Gutenberg,
+	 * we have to keep track of plugin registration ourselves
+	 */
 	private static $registered_plugins = array();
 
 	// Classic singleton pattern:
@@ -77,10 +88,12 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Add a block to the list of blocks to be registered.
+	 * Register a block
 	 *
+	 * If the block isn't whitelisted, set its unavailability reason instead.
+	 * 
 	 * @param string $slug Slug of the block.
-	 * @param array  $args Arguments that are passed into the register_block_type.
+	 * @param array  $args Arguments that are passed into register_block_type().
 	 */
 	public static function register_block( $slug, $args ) {
 		if ( in_array( $slug, self::$extensions ) ) {
@@ -90,6 +103,13 @@ class Jetpack_Gutenberg {
 		}
 	}
 
+	/**
+	 * Register a plugin
+	 *
+	 * If the plugin isn't whitelisted, set its unavailability reason instead.
+	 * 
+	 * @param string $slug Slug of the plugin.
+	 */
 	public static function register_plugin( $slug ) {
 		if ( in_array( $slug, self::$extensions ) ) {
 			self::$registered_plugins[] = 'jetpack-' . $slug;
