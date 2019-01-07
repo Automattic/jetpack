@@ -39,16 +39,14 @@ function jetpack_register_plugin( $slug ) {
  * Set the reason why an extension (block or plugin) is unavailable
  *
  * @param string $slug Slug of the block
- * @param array  $avalibility Arguments that tells us what kind of avalibility the block has
- *
- * @see register_block_type
+ * @param string $reason A string representation of why the extension is unavailable
  *
  * @since 7.0.0
  *
  * @return void
  */
-function set_jetpack_extension_availability( $slug, $availability = array( 'available' => true ) ) {
-	Jetpack_Gutenberg::set_jetpack_extension_availability( $slug, $availability );
+function set_jetpack_extension_availability( $slug, $reason ) {
+	Jetpack_Gutenberg::set_jetpack_extension_availability( $slug, $reason );
 }
 
 /**
@@ -88,7 +86,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			register_block_type( 'jetpack/' . $slug, $args );
 		} else {
-			self::set_jetpack_extension_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
+			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
 		}
 	}
 
@@ -96,7 +94,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			self::$registered_plugins[] = 'jetpack-' . $slug;
 		} else {
-			self::set_jetpack_extension_availability( $slug, array( 'unavailable_reason' => 'not_whitelisted' ) );
+			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
 		}
 	}
 
@@ -104,10 +102,10 @@ class Jetpack_Gutenberg {
 	 * Set the reason why an extension (block or plugin) is unavailable
 	 *
 	 * @param string $slug Slug of the extension.
-	 * @param array $availability array containing if an extension is available and the reason when it is not.
+	 * @param string $reason A string representation of why the extension is unavailable
 	 */
-	public static function set_jetpack_extension_availability( $slug, $availability ) {
-		self::$availability[ $slug ] = $availability;
+	public static function set_jetpack_extension_availability( $slug, $reason ) {
+		self::$availability[ $slug ] = $reason;
 	}
 
 	/**
@@ -250,7 +248,7 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				if ( $reason = self::$availability[ $extension ]['unavailable_reason'] ) {
+				if ( $reason = self::$availability[ $extension ] ) {
 					$available_extensions[ $extension ][ 'unavailable_reason' ] = $reason;
 				} else {
 					$available_extensions[ $extension ][ 'unavailable_reason' ] = 'missing_module';
