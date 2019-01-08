@@ -167,25 +167,6 @@ class Jetpack_Gutenberg {
 		return $response;
 	}
 
-	static function register_blocks() {
-		/**
-		 * Filter the list of block editor plugins should be passed to register_block_type.
-		 * You can use this to manually register some blocks without Jetpack registering them for you.
-		 *
-		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param array
-		 */
-		$blocks = apply_filters( 'jetpack_blocks_to_register', self::$blocks );
-		foreach ( $blocks as $slug ) {
-			if ( self::is_available( $slug ) ) {
-				register_block_type( 'jetpack/' . $slug, self::get_registered_args( $slug ) );
-			}
-		}
-	}
-
 	/**
 	 * Return the Gutenberg extensions (blocks and plugins) directory
 	 *
