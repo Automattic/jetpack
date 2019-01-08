@@ -182,13 +182,11 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter the list of block editor blocks that are available through jetpack.
 		 *
-		 * This filter is populated by Jetpack_Gutenberg::jetpack_set_available_blocks
-		 *
 		 * @since 6.8.0
 		 *
 		 * @param array
 		 */
-		self::$extensions = self::jetpack_set_available_blocks( array() ); //apply_filters( 'jetpack_set_available_blocks', array() );
+		self::$extensions = self::jetpack_set_available_blocks(); //apply_filters( 'jetpack_set_available_blocks', array() );
 	}
 
 	/**
@@ -230,19 +228,14 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Filters the results of `apply_filter( 'jetpack_set_available_blocks', array() )`
-	 * using the merged contents of `blocks-manifest.json` ( $preset_extensions )
-	 * and self::$jetpack_blocks ( $internal_blocks )
-	 *
-	 * @param $extensions The default list.
+	 * Returns a whitelist of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
-	public static function jetpack_set_available_blocks( $extensions ) {
-		$preset_extensions_manifest =  self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array( 'production' => $extensions );
+	public static function jetpack_set_available_blocks() {
+		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
 
 		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array() ;
-		$preset_extensions = array_unique( array_merge( $preset_extensions, $extensions ) );
 
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
