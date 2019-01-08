@@ -281,7 +281,8 @@ class Jetpack_Lazy_Images {
 	public function add_nojs_fallback() {
 		?>
 			<style type="text/css">
-				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
+				/* If html does not have either class, do not show lazy loaded images. */
+				html:not( .jetpack-lazy-images-js-enabled ):not( .js ) .jetpack-lazy-image {
 					display: none;
 				}
 			</style>
