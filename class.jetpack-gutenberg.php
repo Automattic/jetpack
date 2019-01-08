@@ -175,7 +175,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param boolean
 		 */
-		if ( apply_filters( 'jetpack_load_beta_blocks', $is_availability_endpoint_beta ) ) {
+		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
 			Jetpack_Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
 		}
 
@@ -189,8 +189,6 @@ class Jetpack_Gutenberg {
 		 * @param array
 		 */
 		self::$extensions = self::jetpack_set_available_blocks( array() ); //apply_filters( 'jetpack_set_available_blocks', array() );
-
-		return $response;
 	}
 
 	/**
