@@ -186,7 +186,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$extensions = self::jetpack_set_available_blocks(); //apply_filters( 'jetpack_set_available_blocks', array() );
+		self::$extensions = self::get_jetpack_gutenberg_extensions_whitelist(); //apply_filters( 'jetpack_set_available_blocks', array() );
 	}
 
 	/**
@@ -232,7 +232,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
-	public static function jetpack_set_available_blocks() {
+	public static function get_jetpack_gutenberg_extensions_whitelist() {
 		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
 
 		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array() ;
