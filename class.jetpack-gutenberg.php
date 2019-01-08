@@ -250,7 +250,13 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
-		return $available_extensions;
+
+		$unwhitelisted = array_fill_keys(
+			array_diff( array_keys( self::$availability ), self::$extensions ),
+			array( 'available' => false, 'unavailable_reason' => 'not_whitelisted' )
+		);
+
+		return array_merge( $available_extensions, $unwhitelisted );
 	}
 
 	/**
