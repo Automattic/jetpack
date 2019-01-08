@@ -106,7 +106,6 @@ class Jetpack_Email_Subscribe {
 	public function init_hook_action() {
 		$this->register_scripts_and_styles();
 		$this->register_shortcode();
-		$this->register_gutenberg_block();
 	}
 
 	private function get_blog_id() {
