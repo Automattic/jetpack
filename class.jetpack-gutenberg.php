@@ -98,7 +98,7 @@ class Jetpack_Gutenberg {
 	public static function register_block( $slug, $args ) {
 		if ( in_array( $slug, self::$extensions ) ) {
 			register_block_type( 'jetpack/' . $slug, $args );
-		} else {
+		} else if ( ! isset( $args['parent'] ) ) { // Don't set availability information for child blocks -- we infer it from their parents
 			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
 		}
 	}
