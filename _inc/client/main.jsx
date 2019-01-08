@@ -284,7 +284,7 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
-					{ <SupportCard path={ this.props.route.path } /> }
+					{ this.props.isSiteConnected && <SupportCard path={ this.props.route.path } /> }
 					{ <AppsCard /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
