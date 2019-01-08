@@ -36,6 +36,22 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	 * }
 	 */
 	public function get_mailchimp_status() {
+		//https://public-api.wordpress.com/rest/v1.1/sites/jeffintraining352694663.wordpress.com/mailchimp/lists
+		$path = sprintf( '/sites/%d/mailchimp/lists', Jetpack_Options::get_option('id' ) );
+		$response =  Jetpack_Client::wpcom_json_api_request_as_blog(
+			$path,
+			'1.1',
+			array( 'method' => 'POST' ),
+			array()
+		);
+
+		// if ( 200 !== $response['response']['code'] ) {
+		// 	return null;
+		// }
+		// return json_decode( $response['body'], true );
+
+
+
 		$option      = get_option( $this->option_name );
 		$data        = $option ? json_decode( $option, true ) : null;
 		$code        = ( $option && isset( $data['follower_list_id'] ) && $data['follower_list_id'] ) ? 'connected' : 'not_connected';
@@ -43,6 +59,10 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		return array(
 			'code'        => $code,
 			'connect_url' => $connect_url,
+			'path'        => $path,
+			'response'    => $response
+			// 'code'        => $response['response']['code'],
+			// 'fun'         => $response['body'],
 		);
 	}
 	/**
