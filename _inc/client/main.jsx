@@ -67,6 +67,16 @@ class Main extends React.Component {
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
 	}
 
+	componentDidMount() {
+		// If we have a div that's only found on the Jetpack dashboard when not connected,
+		// let's move the connection banner inside that div, inside the React page.
+		const connectReactContainer = jQuery( '.jp-jetpack-connect__container' );
+		const fullScreenContainer = jQuery( '.jp-connect-full__container' );
+		if ( connectReactContainer && fullScreenContainer.length > 0 ) {
+			fullScreenContainer.prependTo( connectReactContainer );
+		}
+	}
+
 	/*
 	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
 	 * according to the `beforeunload` event handling specification
@@ -170,6 +180,10 @@ class Main extends React.Component {
 					<NonAdminView { ...this.props } />
 				</div>
 			);
+		}
+
+		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
+			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
 		}
 
 		const settingsNav = (
