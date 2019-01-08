@@ -88,15 +88,41 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Prepend the 'jetpack/' prefix to a block name
+	 *
+	 * @param string $block_name The block name
+	 *
+	 * @return string The prefixed block name.
+	 */
+	private static function prepend_block_prefix( $block_name ) {
+		return 'jetpack/' . $block_name;
+	}
+
+	/**
+	 * Whether two arrays share at least one item
+	 *
+	 * @param array $a An array
+	 * @param array $b Another array
+	 *
+	 * @return boolean True if $a and $b share at least one item
+	 */
+	protected static function share_items( $a, $b ) {
+		return count( array_intersect( $a, $b ) ) > 0;
+	}
+
+	/**
 	 * Register a block
 	 *
 	 * If the block isn't whitelisted, set its unavailability reason instead.
-	 * 
+	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type().
 	 */
 	public static function register_block( $slug, $args ) {
-		if ( in_array( $slug, self::$extensions ) ) {
+		$prefixed_extensions = array_map( array( __CLASS__, 'prepend_block_prefix' ), self::$extensions );
+
+		// Register the block if it's whitelisted, or if it's a child block, and one of its parents is whitelisted.
+		if ( in_array( $slug, self::$extensions ) || ( isset( $args['parent'] ) && self::share_items( $args['parent'], $prefixed_extensions ) ) ) {
 			register_block_type( 'jetpack/' . $slug, $args );
 		} else if ( ! isset( $args['parent'] ) ) { // Don't set availability information for child blocks -- we infer it from their parents
 			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
