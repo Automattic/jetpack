@@ -24,11 +24,11 @@ body,
 #adminmenuwrap,
 #adminmenuback,
 #adminmenu {
-  background: $gray-lighten-30;
+  background: $muriel-white;
 }
 
 #adminmenuback {
-  border-right: 1px solid $_d9e3ea;
+  border-right: 1px solid $muriel-gray-50;
 }
 
 #adminmenu,
@@ -420,7 +420,7 @@ body,
     }
 
     &.hover > .ab-item {
-      background: $_0099d8 !important;
+      background: $muriel-blue-300 !important;
       color: $white;
     }
   }
@@ -452,7 +452,7 @@ body,
   }
 
   &:not(.mobile) .ab-top-menu > li:hover > .ab-item {
-    background: $_0099d8 !important;
+    background: $muriel-blue-300 !important;
     color: #fff;
   }
 
@@ -489,7 +489,7 @@ body,
 
     &:hover,
     &:hover > .ab-item {
-      background: $white !important;
+      background: $muriel-gray-0 !important;
       opacity: 1;
       border-radius: 3px !important;
     }
