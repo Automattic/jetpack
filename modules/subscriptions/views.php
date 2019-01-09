@@ -6,7 +6,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget_blog_subscription jetpack_subscription_widget',
-			'description'                 => esc_html__( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
+			'description'                 => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
 
@@ -22,11 +22,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		);
 
 		if ( self::is_jetpack() &&
-			 (
-				 is_active_widget( false, false, $this->id_base ) ||
-				 is_active_widget( false, false, 'monster' ) ||
-				 is_customize_preview()
-			 )
+		     (
+			     is_active_widget( false, false, $this->id_base ) ||
+			     is_active_widget( false, false, 'monster' ) ||
+			     is_customize_preview()
+		     )
 		) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
@@ -56,7 +56,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		if ( self::is_jetpack() &&
 		     /** This filter is documented in modules/contact-form/grunion-contact-form.php */
-			 false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+		     false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = '';
 		} else {
@@ -132,25 +132,25 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribers_total = self::fetch_subscriber_count();
 			switch ( $_GET['subscribe'] ) :
 				case 'invalid_email' : ?>
-					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
+                    <p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
 					<?php break;
 				case 'opted_out' : ?>
-					<p class="error"><?php printf( __( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+                    <p class="error"><?php printf( __( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
 							'https://subscribe.wordpress.com/',
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
 					<?php break;
 				case 'already' : ?>
-					<p class="error"><?php printf( __( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+                    <p class="error"><?php printf( __( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
 							'https://subscribe.wordpress.com/',
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
 					<?php break;
 				case 'success' : ?>
-					<div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
+                    <div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
 				default : ?>
-					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
+                    <p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
 					<?php break;
 			endswitch;
 		}
@@ -207,24 +207,19 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static function render_widget_already_subscribed( $instance ) {
 		if ( self::is_wpcom() ) {
 			$subscribers_total = self::fetch_subscriber_count();
-			/**
-			 * Filter the url for folks to manage their subscriptions.
-			 *
-			 * @module subscriptions
-			 *
-			 * @since 6.9
-			 *
-			 * @param string $url Defaults to https://wordpress.com/following/edit/
-			 */
-			$edit_subs_url          = apply_filters( 'jetpack_subscriptions_management_url', 'https://wordpress.com/following/edit/' );
+			$edit_subs_url     = 'https://wordpress.com/following/edit/';
+			if ( function_exists( 'localized_wpcom_url' ) ) {
+				$edit_subs_url = localized_wpcom_url( http() . '://wordpress.com/following/edit/', get_user_locale() );
+			}
 			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 			if ( $show_subscribers_total && $subscribers_total > 1 ) :
 				$subscribers_not_me = $subscribers_total - 1;
+				/* translators: %s: number of folks following the blog */
 				?>
-				<p><?php printf( _n( 'You are following this blog, along with %s other amazing person (<a href="%s">manage</a>).', 'You are following this blog, along with %s other amazing people (<a href="%s">manage</a>).', $subscribers_not_me ), number_format_i18n( $subscribers_not_me ), $edit_subs_url ) ?></p><?php
+                <p><?php printf( _n( 'You are following this blog, along with %s other amazing person (<a href="%s">manage</a>).', 'You are following this blog, along with %s other amazing people (<a href="%s">manage</a>).', $subscribers_not_me ), number_format_i18n( $subscribers_not_me ), $edit_subs_url ) ?></p><?php
 			else :
 				?>
-				<p><?php printf( __( 'You are following this blog (<a href="%s">manage</a>).' ), $edit_subs_url ) ?></p><?php
+                <p><?php printf( __( 'You are following this blog (<a href="%s">manage</a>).' ), $edit_subs_url ) ?></p><?php
 			endif;
 		}
 	}
@@ -254,16 +249,17 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			global $current_blog;
 			$url = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
 			?>
-			<form action="<?php echo $url; ?>" method="post" accept-charset="utf-8"
-				  id="subscribe-blog<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-					  echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-				  } ?>">
+            <form action="<?php echo $url; ?>" method="post" accept-charset="utf-8"
+                  id="subscribe-blog<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
+				      echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
+			      } ?>">
 				<?php if ( is_user_logged_in() ) : ?>
 					<?php
 					if ( ! $show_only_email_and_button ) {
 						echo wpautop( $subscribe_logged_in );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
+						/* translators: %s: number of folks following the blog */
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
 					?>
@@ -273,26 +269,27 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_text );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
+						/* translators: %s: number of folks following the blog */
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
 					?>
-					<p><input type="text" name="email" style="width: 95%; padding: 1px 2px"
-							  placeholder="<?php esc_attr_e( 'Enter your email address' ); ?>" value=""
-							  id="subscribe-field<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-								  echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-							  } ?>"/></p>
+                    <p><input type="text" name="email" style="width: 95%; padding: 1px 2px"
+                              placeholder="<?php esc_attr_e( 'Enter your email address' ); ?>" value=""
+                              id="subscribe-field<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
+						          echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
+					          } ?>"/></p>
 				<?php endif; ?>
 
-				<p>
-					<input type="hidden" name="action" value="subscribe"/>
-					<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
-					<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
-					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
-					<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>"/>
+                <p>
+                    <input type="hidden" name="action" value="subscribe"/>
+                    <input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
+                    <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
+                    <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
+                    <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-					<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"/>
-				</p>
-			</form>
+                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"/>
+                </p>
+            </form>
 			<?php
 		}
 
@@ -309,52 +306,53 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			 */
 			$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 			?>
-			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
+            <form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
 					?>
-					<div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
+                    <div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
 				}
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+					/* translators: %s: number of folks following the blog */
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
-					<p id="subscribe-email">
-						<label id="jetpack-subscribe-label"
-							   for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
+                    <p id="subscribe-email">
+                        <label id="jetpack-subscribe-label"
+                               for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
-						</label>
-						<input type="email" name="email" required="required" class="required"
-							   value="<?php echo esc_attr( $subscribe_email ); ?>"
-							   id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
-							   placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
-					</p>
+                        </label>
+                        <input type="email" name="email" required="required" class="required"
+                               value="<?php echo esc_attr( $subscribe_email ); ?>"
+                               id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
+                               placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
+                    </p>
 
-					<p id="subscribe-submit">
-						<input type="hidden" name="action" value="subscribe"/>
-						<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
-						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
-						<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>"/>
+                    <p id="subscribe-submit">
+                        <input type="hidden" name="action" value="subscribe"/>
+                        <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
+                        <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
+                        <input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>"/>
 						<?php
 						if ( is_user_logged_in() ) {
 							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
 						}
 						?>
-						<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
-							   name="jetpack_subscriptions_widget"/>
-					</p>
+                        <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
+                               name="jetpack_subscriptions_widget"/>
+                    </p>
 				<?php } ?>
-			</form>
+            </form>
 
-			<script>
+            <script>
 				/*
 				Custom functionality for safari and IE
 				 */
-				( function( d ) {
+				(function (d) {
 					// In case the placeholder functionality is available we remove labels
-					if (( 'placeholder' in d.createElement( 'input' ) )) {
-						var label = d.querySelector( 'label[for=subscribe-field-<?php echo $widget_id; ?>]' );
+					if (('placeholder' in d.createElement('input'))) {
+						var label = d.querySelector('label[for=subscribe-field-<?php echo $widget_id; ?>]');
 						label.style.clip = 'rect(1px, 1px, 1px, 1px)';
 						label.style.position = 'absolute';
 						label.style.height = '1px';
@@ -363,9 +361,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					}
 
 					// Make sure the email value is filled in before allowing submit
-					var form = d.getElementById( 'subscribe-blog-<?php echo $widget_id; ?>' ),
-						input = d.getElementById( '<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>' ),
-						handler = function( event ) {
+					var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'),
+						input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>'),
+						handler = function (event) {
 							if ('' === input.value) {
 								input.focus();
 
@@ -378,12 +376,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						};
 
 					if (window.addEventListener) {
-						form.addEventListener( 'submit', handler, false );
+						form.addEventListener('submit', handler, false);
 					} else {
-						form.attachEvent( 'onsubmit', handler );
+						form.attachEvent('onsubmit', handler);
 					}
-				} )( document );
-			</script>
+				})(document);
+            </script>
 		<?php }
 	}
 
@@ -395,16 +393,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static function is_current_user_subscribed() {
 		$subscribed = isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'];
 
-		/**
-		 * Filter if the current user is subscribed to the blog.
-		 *
-		 * @module subscriptions
-		 *
-		 * @since 6.9
-		 *
-		 * @param bool $subscribed Is current user subscribed.
-		 */
-		return apply_filters( 'jetpack_subscription_widget_is_subscribed', $subscribed );
+		if ( self::is_wpcom() && class_exists( 'Blog_Subscription' ) && class_exists( 'Blog_Subscriber' ) ) {
+			$subscribed = is_user_logged_in() && Blog_Subscription::is_subscribed( new Blog_Subscriber() );
+		}
+
+		return $subscribed;
 	}
 
 	/**
@@ -432,18 +425,18 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	static function wpcom_has_status_message() {
 		return isset( $_GET['blogsub'] ) &&
-			   in_array(
-				   $_GET['blogsub'],
-				   array(
-					   'confirming',
-					   'blocked',
-					   'flooded',
-					   'spammed',
-					   'subscribed',
-					   'pending',
-					   'confirmed',
-				   )
-			   );
+		       in_array(
+			       $_GET['blogsub'],
+			       array(
+				       'confirming',
+				       'blocked',
+				       'flooded',
+				       'spammed',
+				       'subscribed',
+				       'pending',
+				       'confirmed',
+			       )
+		       );
 	}
 
 	/**
@@ -481,16 +474,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
-		/**
-		 * Filter the total amount of subscribers
-		 *
-		 * @module subscriptions
-		 *
-		 * @since 6.9
-		 *
-		 * @param int|array $subscribed Information about the total amount of subscribers.
-		 */
-		return apply_filters( 'jetpack_subscription_widget_total_subscribers', $subs_count );
+		if ( self::is_wpcom() && function_exists( 'wpcom_reach_total_for_blog' ) ) {
+			$subs_count = wpcom_reach_total_for_blog();
+		}
+
+		return $subs_count;
 	}
 
 	/**
@@ -582,113 +570,123 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$success_message       = stripslashes( $instance['success_message'] );
 			$subs_fetch            = self::fetch_subscriber_count();
 			if ( 'failed' == $subs_fetch['status'] ) {
-				printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
+				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
 			}
 			$subscribers_total = number_format_i18n( $subs_fetch['value'] );
 		}
 
 		if ( self::is_wpcom() ) : ?>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+            <p>
+                <label for="<?php echo $this->get_field_id( 'title' ); ?>">
 					<?php _e( 'Widget title for non-followers:' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
-						   name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
-						   value="<?php echo $title; ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'title_following' ); ?>">
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
+                           name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
+                           value="<?php echo $title; ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'title_following' ); ?>">
 					<?php _e( 'Widget title for followers:' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title_following' ); ?>"
-						   name="<?php echo $this->get_field_name( 'title_following' ); ?>" type="text"
-						   value="<?php echo $title_following; ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>">
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'title_following' ); ?>"
+                           name="<?php echo $this->get_field_name( 'title_following' ); ?>" type="text"
+                           value="<?php echo $title_following; ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>">
 					<?php _e( 'Optional text to display to logged in WordPress.com users:' ); ?>
-					<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>"
-							  name="<?php echo $this->get_field_name( 'subscribe_logged_in' ); ?>"
-							  type="text"><?php echo $subscribe_logged_in; ?></textarea>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
+                    <textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_logged_in' ); ?>"
+                              name="<?php echo $this->get_field_name( 'subscribe_logged_in' ); ?>"
+                              type="text"><?php echo $subscribe_logged_in; ?></textarea>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
 					<?php _e( 'Optional text to display to non-WordPress.com users:' ); ?>
-					<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
-							  name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
-							  type="text"><?php echo $subscribe_text; ?></textarea>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
+                    <textarea style="width: 95%" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
+                              name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
+                              type="text"><?php echo $subscribe_text; ?></textarea>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
 					<?php _e( 'Follow Button Text:' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
-						   name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
-						   value="<?php echo $subscribe_button; ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
-					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
-						   name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
-						   value="1"<?php echo $show_subscribers_total; ?> />
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
+                           name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
+                           value="<?php echo $subscribe_button; ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
+                    <input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
+                           name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
+                           value="1"<?php echo $show_subscribers_total; ?> />
 					<?php echo esc_html( sprintf( _n( 'Show total number of followers? (%s follower)', 'Show total number of followers? (%s followers)', $subscribers_total ), number_format_i18n( $subscribers_total ) ) ); ?>
-				</label>
-			</p>
+                </label>
+            </p>
 		<?php endif;
 
 		if ( self::is_jetpack() ) : ?>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+            <p>
+                <label for="<?php echo $this->get_field_id( 'title' ); ?>">
 					<?php _e( 'Widget title:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
-						   name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
-						   value="<?php echo esc_attr( $title ); ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
+                           name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
+                           value="<?php echo esc_attr( $title ); ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_text' ); ?>">
 					<?php _e( 'Optional text to display to your readers:', 'jetpack' ); ?>
-					<textarea class="widefat" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
-							  name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
-							  rows="3"><?php echo esc_html( $subscribe_text ); ?></textarea>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>">
+                    <textarea class="widefat" id="<?php echo $this->get_field_id( 'subscribe_text' ); ?>"
+                              name="<?php echo $this->get_field_name( 'subscribe_text' ); ?>"
+                              rows="3"><?php echo esc_html( $subscribe_text ); ?></textarea>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>">
 					<?php esc_html_e( 'Subscribe Placeholder:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>"
-						   name="<?php echo $this->get_field_name( 'subscribe_placeholder' ); ?>" type="text"
-						   value="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_placeholder' ); ?>"
+                           name="<?php echo $this->get_field_name( 'subscribe_placeholder' ); ?>" type="text"
+                           value="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
 					<?php _e( 'Subscribe Button:', 'jetpack' ); ?>
-					<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
-						   name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
-						   value="<?php echo esc_attr( $subscribe_button ); ?>"/>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'success_message' ); ?>">
+                    <input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>"
+                           name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text"
+                           value="<?php echo esc_attr( $subscribe_button ); ?>"/>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'success_message' ); ?>">
 					<?php _e( 'Success Message Text:', 'jetpack' ); ?>
-					<textarea class="widefat" id="<?php echo $this->get_field_id( 'success_message' ); ?>"
-							  name="<?php echo $this->get_field_name( 'success_message' ); ?>"
-							  rows="5"><?php echo esc_html( $success_message ); ?></textarea>
-				</label>
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
-					<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
-						   name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
-						   value="1"<?php echo $show_subscribers_total; ?> />
+                    <textarea class="widefat" id="<?php echo $this->get_field_id( 'success_message' ); ?>"
+                              name="<?php echo $this->get_field_name( 'success_message' ); ?>"
+                              rows="5"><?php echo esc_html( $success_message ); ?></textarea>
+                </label>
+            </p>
+            <p>
+                <label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
+                    <input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>"
+                           name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>"
+                           value="1"<?php echo $show_subscribers_total; ?> />
 					<?php echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) ); ?>
-				</label>
-			</p>
+                </label>
+            </p>
 		<?php endif;
 	}
+}
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'class_alias' ) ) {
+	class_alias( 'Jetpack_Subscriptions_Widget', 'Blog_Subscription_Widget' );
+}
+
+function get_jetpack_blog_subscriptions_widget_classname() {
+	return ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+		'Blog_Subscription_Widget' :
+		'Jetpack_Subscriptions_Widget';
 }
 
 function jetpack_do_subscription_form( $instance ) {
@@ -707,21 +705,26 @@ function jetpack_do_subscription_form( $instance ) {
 	$instance['show_only_email_and_button'] = $show_only_email_and_button;
 
 	$args = array(
-		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
+		'before_widget' => '<div class="jetpack_subscription_widget">',
 	);
 	ob_start();
-	the_widget( 'Jetpack_Subscriptions_Widget', $instance, $args );
+	the_widget( get_jetpack_blog_subscriptions_widget_classname(), $instance, $args );
 	$output = ob_get_clean();
 
 	return $output;
 }
 
+add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
+add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
+
 function jetpack_blog_subscriptions_init() {
-	register_widget( 'Jetpack_Subscriptions_Widget' );
+	register_widget( get_jetpack_blog_subscriptions_widget_classname() );
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
 
-add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
-add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
-jetpack_register_block( 'subscriptions' );
+function jetpack_register_subscriptions_block() {
+	jetpack_register_block( 'subscriptions' );
+}
+
+add_action( 'init', 'jetpack_register_subscriptions_block' );
