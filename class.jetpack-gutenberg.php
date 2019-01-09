@@ -1,6 +1,6 @@
 <?php
 /**
- * Handles server-side registration and use of all blocks available in Jetpack for the block editor, aka Gutenberg.
+ * Handles server-side registration and use of all blocks and plugins available in Jetpack for the block editor, aka Gutenberg.
  * Works in tandem with client-side block registration via `index.json`
  *
  * @package Jetpack
@@ -10,7 +10,7 @@
  * Helper function to register a Jetpack Gutenberg block
  *
  * @param string $slug Slug of the block
- * @param array  $args Arguments that are passed into the register_block_type.
+ * @param array  $args Arguments that are passed into register_block_type.
  *
  * @see register_block_type
  *
