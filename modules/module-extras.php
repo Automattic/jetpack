@@ -39,7 +39,7 @@ if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 }
 
 /* If Gutenberg blocks are enabled, register blocks that aren't associated with modules */
-if ( Jetpack_Gutenberg::should_load_blocks() ) {
+if ( Jetpack_Gutenberg::should_load() ) {
 	$tools[] = 'blocks.php';
 }
 

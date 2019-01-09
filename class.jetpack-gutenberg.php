@@ -290,20 +290,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Check whether conditions indicate Gutenberg blocks should be loaded
-	 *
-	 * Loading blocks is enabled by default and may be disabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
-	 *
-	 * @since 6.7.0
-	 * @deprecated
-	 * @return bool
-	 */
-	public static function should_load_blocks() {
-		return self::should_load();
-	}
-
-	/**
 	 * Check whether conditions indicate Gutenberg Extensions (blocks and plugins) should be loaded
 	 *
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
@@ -398,7 +384,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function enqueue_block_editor_assets() {
-		if ( ! self::should_load_blocks() ) {
+		if ( ! self::should_load() ) {
 			return;
 		}
 
