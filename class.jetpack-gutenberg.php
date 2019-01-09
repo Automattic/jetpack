@@ -76,17 +76,6 @@ class Jetpack_Gutenberg {
 	 */
 	private static $registered_plugins = array();
 
-	// Classic singleton pattern:
-	private static $instance;
-	private function __construct() {}
-	static function get_instance() {
-		if ( ! self::$instance ) {
-			self::$instance = new self();
-			self::$instance::init();
-		}
-		return self::$instance;
-	}
-
 	/**
 	 * Prepend the 'jetpack/' prefix to a block name
 	 *
@@ -467,5 +456,3 @@ class Jetpack_Gutenberg {
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
 }
-
-Jetpack_Gutenberg::get_instance();
