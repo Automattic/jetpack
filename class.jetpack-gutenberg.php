@@ -179,12 +179,16 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Clear the whitelist of allowed block editor extensions
+	 * Resets the class to its original state
+	 *
+	 * Used in unit tests
 	 *
 	 * @return void
 	 */
-	public static function uninit() {
+	public static function reset() {
 		self::$extensions = array();
+		self::$availability = array();
+		self::$registered_plugins = array();
 	}
 
 	/**
