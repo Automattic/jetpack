@@ -182,7 +182,7 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
+		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
 			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
 		}
 
