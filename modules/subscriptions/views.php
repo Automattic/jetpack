@@ -695,7 +695,7 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
+	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ? false : true;
 	$show_only_email_and_button         = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 
 	$instance = shortcode_atts(
