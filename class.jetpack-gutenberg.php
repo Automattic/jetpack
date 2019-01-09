@@ -155,7 +155,7 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Register all Jetpack blocks available.
+	 * Set up a whitelist of allowed block editor extensions
 	 *
 	 * @return void
 	 */
@@ -187,6 +187,15 @@ class Jetpack_Gutenberg {
 		 * @param array
 		 */
 		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::get_jetpack_gutenberg_extensions_whitelist() );
+	}
+
+	/**
+	 * Clear the whitelist of allowed block editor extensions
+	 *
+	 * @return void
+	 */
+	public static function uninit() {
+		self::$extensions = array();
 	}
 
 	/**
