@@ -1,21 +1,20 @@
 <?php
+
 /**
- * Manage Mailchimp connection
+ * Mailchimp: Get Mailchimp Status.
+ * API to determine if current site has linked Mailchimp account and mailing list selected.
+ * This API is meant to be used in Jetpack and on WPCOM.
  *
- * @since 6.9
+ * @since 7.0
  */
 class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
-	/**
-	 * TK __construct() docblock
-	 */
 	public function __construct() {
-		$this->namespace   = 'wpcom/v2';
-		$this->rest_base   = 'mailchimp';
-		$this->option_name = 'jetpack_mailchimp';
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'mailchimp';
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 	/**
-	 * TK egister_routes docblock
+	 * Called automatically on `rest_api_init()`.
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -29,35 +28,37 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 			)
 		);
 	}
+
 	/**
-	 * Get Mailchimp connection status.
+	 * Get the status of current blog's Mailchimp connection
 	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
+	 * @return mixed
+	 * code:string (connected|unconnected),
+	 * connect_url:string
+	 * site_id:int
 	 */
 	public function get_mailchimp_status() {
-		$option      = get_option( $this->option_name );
-		$data        = $option ? json_decode( $option, true ) : null;
-		$code        = ( $option && isset( $data['follower_list_id'] ) && $data['follower_list_id'] ) ? 'connected' : 'not_connected';
-		$connect_url = sprintf( 'https://wordpress.com/sharing/%s', $this->get_site_slug() );
+		$is_wpcom    = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$site_id     = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		$connect_url = sprintf( 'https://wordpress.com/sharing/%s', $site_id );
+		$path        = sprintf( '/sites/%d/mailchimp/settings', $site_id );
+		if ( ! $is_wpcom ) {
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				$path,
+				'1.1'
+			);
+			$data     = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+		} else {
+			require_lib( 'mailchimp' );
+			$data = MailchimpApi::get_settings( $site_id );
+		}
+		$follower_list_id = isset( $data['follower_list_id'] ) ? $data['follower_list_id'] : null;
+		$code             = $follower_list_id ? 'connected' : 'not_connected';
 		return array(
 			'code'        => $code,
 			'connect_url' => $connect_url,
+			'site_id'     => $site_id,
 		);
-	}
-	/**
-	 * Get the slug for the current site
-	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
-	 */
-	public function get_site_slug() {
-		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-			return Jetpack::build_raw_urls( home_url() );
-		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-		}
-		return '';
 	}
 }
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Mailchimp' );
