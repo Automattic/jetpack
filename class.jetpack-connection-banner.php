@@ -864,17 +864,20 @@ class Jetpack_Connection_Banner {
 		?>
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
-			<img
-				class="jetpack-logo"
-				src="<?php echo plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ); ?>"
-				alt="<?php
-					esc_attr_e(
-						'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
-						'jetpack'
-				); ?>"
-			/>
-
 			<?php if ( 'plugins' === $current_screen->base ) : ?>
+				<img
+					class="jetpack-logo"
+					src="<?php echo plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ); ?>"
+					alt="
+					<?php
+						esc_attr_e(
+							'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
+							'jetpack'
+						);
+					?>
+					"
+				/>
+
 				<div class="jp-connect-full__dismiss">
 					<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
 				</div>

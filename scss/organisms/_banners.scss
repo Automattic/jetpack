@@ -80,8 +80,16 @@
 
 	}
 
+	// Full page connection banner in the Jetpack dashboard.
 	&.toplevel_page_jetpack .jp-connect-full__container {
+		position: relative;
 		bottom: 0;
+		box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
+			0 1px 2px lighten( $gray, 30% );
+
+		.jp-connect-full__container-card {
+			margin: 0;
+		}
 
 		@include minbreakpoint(tablet) {
 			left: 0;
@@ -90,6 +98,16 @@
 		@include breakpoint(tablet) {
 			top: 46px;
 		};
+
+		// hide the notice by default. Only display it when it is injected in the middle of the page.
+		display: none;
+	}
+
+	// Only display the banner when it is injected in the middle of the page.
+	&.toplevel_page_jetpack .jp-jetpack-connect__container {
+		.jp-connect-full__container {
+			display: block;
+		}
 	}
 }
 
@@ -263,7 +281,7 @@
 
 .jp-wpcom-connect__container-top-text {
 	padding: 15px 15px 25px 15px;
-	background-color: $green-primary; 
+	background-color: $green-primary;
 	color: $white;
 	font-weight: 600;
 
@@ -288,7 +306,7 @@
 	display: block;
 	position: relative;
 	box-sizing: border-box;
-	background-color: $green-primary; 
+	background-color: $green-primary;
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
