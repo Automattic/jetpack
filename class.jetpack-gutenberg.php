@@ -45,8 +45,8 @@ function jetpack_register_plugin( $slug ) {
  *
  * @return void
  */
-function set_jetpack_extension_availability( $slug, $reason ) {
-	Jetpack_Gutenberg::set_jetpack_extension_availability( $slug, $reason );
+function set_extension_unavailability_reason( $slug, $reason ) {
+	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $reason );
 }
 
 /**
@@ -114,7 +114,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) || ( isset( $args['parent'] ) && self::share_items( $args['parent'], $prefixed_extensions ) ) ) {
 			register_block_type( 'jetpack/' . $slug, $args );
 		} else if ( ! isset( $args['parent'] ) ) { // Don't set availability information for child blocks -- we infer it from their parents
-			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
+			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
 		}
 	}
 
@@ -129,7 +129,7 @@ class Jetpack_Gutenberg {
 		if ( in_array( $slug, self::$extensions ) ) {
 			self::$registered_plugins[] = 'jetpack-' . $slug;
 		} else {
-			self::set_jetpack_extension_availability( $slug, 'not_whitelisted' );
+			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
 		}
 	}
 
@@ -139,7 +139,7 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 * @param string $reason A string representation of why the extension is unavailable
 	 */
-	public static function set_jetpack_extension_availability( $slug, $reason ) {
+	public static function set_extension_unavailability_reason( $slug, $reason ) {
 		self::$availability[ $slug ] = $reason;
 	}
 
