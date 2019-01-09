@@ -1038,6 +1038,12 @@ abstract class Publicize_Base {
 		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 			return $messages;
 		}
+
+		// Bail early if the post is private.
+		if ( 'private' === $post->post_status ) {
+			return $messages;
+		}
+
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
 		if ( $viewable ) {
