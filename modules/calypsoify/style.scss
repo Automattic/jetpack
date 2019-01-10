@@ -566,8 +566,16 @@ body,
   font-size: 14px;
   margin: 0;
   color: $highlight-color;
-  border-bottom: none;
+  border-bottom: 2px solid $muriel-white;
   outline: none;
+
+	&:hover {
+		background-color: $muriel-blue-0;
+	}
+
+	&:hover:not(.current) {
+		border-color: $muriel-blue-0;
+	}
 }
 
 .filter-links li>a {
@@ -576,7 +584,7 @@ body,
 
 .subsubsub a.current,
 .filter-links .current {
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid $muriel-gray-700;
 }
 
 .count {
