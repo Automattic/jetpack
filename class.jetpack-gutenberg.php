@@ -134,6 +134,23 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Register a block
+	 *
+	 * @deprecated 7.0.0 Use register_block() instead
+	 *
+	 * @param string $slug Slug of the block.
+	 * @param array  $args Arguments that are passed into the register_block_type.
+	 * @param array $availability array containing if a block is available and the reason when it is not.
+	 */
+	public static function register( $slug, $args, $availability ) {
+		if ( isset( $availability['available'] ) && ! $availability['available'] ) {
+			self::set_extension_unavailability_reason( $slug, $availability['unavailable_reason'] );
+		} else {
+			self::register_block( $slug, $args );
+		}
+	}
+
+	/**
 	 * Set the reason why an extension (block or plugin) is unavailable
 	 *
 	 * @param string $slug Slug of the extension.
