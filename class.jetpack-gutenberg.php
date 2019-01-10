@@ -273,7 +273,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
-		$available_extensions = [];
+		$available_extensions = array();
 
 		foreach( self::$extensions as $extension ) {
 			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
