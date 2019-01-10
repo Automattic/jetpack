@@ -1,10 +1,5 @@
 <?php
-
-// guarantee use of https
-wp_oembed_remove_provider( '#https?://(www\.)?slideshare\.net/.*#i' );
-wp_oembed_add_provider( '#https?://(www\.)?slideshare\.net/.*#i', 'https://www.slideshare.net/api/oembed/2', true );
-
-/*
+/**
  * Slideshare shortcode format:
  * Old style (still compatible): [slideshare id=5342235&doc=camprock-101002163655-phpapp01&w=300&h=200]
  * New style: [slideshare id=5342235&w=300&h=200&fb=0&mw=0&mh=0&sc=no]
