@@ -269,7 +269,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter to select Gutenberg blocks directory
 		 *
-		 * @since 6.9
+		 * @since 6.9.0
 		 *
 		 * @param string default: '_inc/blocks/'
 		 */
