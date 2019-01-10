@@ -336,7 +336,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() && ! defined( 'TESTING_IN_JETPACK' ) ) {
 			return false;
 		}
 
