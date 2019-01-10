@@ -98,7 +98,14 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+  position: relative;
   bottom: 0;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+  display: none;
+}
+
+.jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container .jp-connect-full__container-card {
+  margin: 0;
 }
 
 @media (min-width: 782px) {
@@ -111,6 +118,10 @@ https://github.com/thoughtbot/bourbon
   .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
     top: 46px;
   }
+}
+
+.jetpack-disconnected.toplevel_page_jetpack .jp-jetpack-connect__container .jp-connect-full__container {
+  display: block;
 }
 
 .jp-connect-full__svg-dismiss {
