@@ -262,11 +262,8 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				if ( isset( self::$availability[ $extension ] ) ) {
-					$available_extensions[ $extension ][ 'unavailable_reason' ] = self::$availability[ $extension ];
-				} else {
-					$available_extensions[ $extension ][ 'unavailable_reason' ] = 'missing_module';
-				}
+				$reason = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ] : 'missing_module';
+				$available_extensions[ $extension ][ 'unavailable_reason' ] = $reason;
 			}
 		}
 
