@@ -119,7 +119,7 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'rest_api_init', array( $this, 'register_gutenberg_extension' ), 30 );
+		add_action( 'init', array( $this, 'register_gutenberg_extension' ), 30 );
 	}
 
 /*
