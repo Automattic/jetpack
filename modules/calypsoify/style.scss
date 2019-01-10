@@ -565,15 +565,16 @@ body,
   display: inline-block;
   font-size: 14px;
   margin: 0;
-  color: $highlight-color;
+	color: $color-link;
   border-bottom: 2px solid $muriel-white;
   outline: none;
 
 	&:focus {
-		box shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
+		box-shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
 	}
 
 	&:hover {
+		color: $color-link-dark;
 		background-color: $muriel-blue-0;
 	}
 
@@ -608,16 +609,24 @@ body,
 	.plugins a {
 		color: $color-link;
 
-		&:hover {
+		&:hover, &:focus {
 			color: $color-link-dark;
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
 		}
 	}
 
 	.plugins a.delete {
 		color: $color-error;
 
-		&:hover {
+		&:hover, &:focus {
 			color: $color-error-dark;
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 1px $color-error, 0 0 2px 1px $color-error-light;
 		}
 	}
 
@@ -708,7 +717,7 @@ body,
 .plugin-card a, .popular-tags a, .filter-links>li>a {
 	color: $color-link;
 
-	&:hover {
+	&:hover, &:focus {
 		color: $color-link-dark;
 	}
 }
