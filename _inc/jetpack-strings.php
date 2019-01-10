@@ -45,8 +45,8 @@ __( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js
 __( "Updating privacy settings…", "jetpack" ), // _inc/client/state/tracking/actions.js:46
 __( "Updated privacy settings.", "jetpack" ), // _inc/client/state/tracking/actions.js:47
 __( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/state/tracking/actions.js:52
-__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:78
-__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:97
+__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:88
+__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:107
 __( "{{a}}View your site's activity{{/a}} in a single feed.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:52
 __( "Activity", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:61
 __( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:69
@@ -227,7 +227,6 @@ __( "Welcome to Jetpack Professional", "jetpack" ), // _inc/client/my-plan/my-pl
 __( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header.jsx:389
 __( "Your site is on Development Mode", "jetpack" ), // _inc/client/my-plan/my-plan-header.jsx:410
 __( "Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header.jsx:413
-_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:20
 __( "Load pages faster, optimize images, and speed up your visitors’ experience.", "jetpack" ), // _inc/client/performance/index.jsx:55
 __( "Images", "jetpack" ), // _inc/client/performance/media.jsx:72
 __( "Create full-screen carousel slideshows for the images in your posts and pages. Carousel galleries are mobile-friendly and encourage site visitors to interact with your photos.", "jetpack" ), // _inc/client/performance/media.jsx:74
@@ -258,6 +257,7 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
+_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:20
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:59
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
@@ -645,9 +645,6 @@ __( "Add faster, more advanced searching to your site with Jetpack Professional.
 __( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:208
 _x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:324
 _x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:325
-__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
-__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
-__( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
 __( "We're here to help", "jetpack" ), // _inc/client/components/support-card/index.jsx:76
 __( "Jetpack comes with free, basic support for all users.", "jetpack" ), // _inc/client/components/support-card/index.jsx:79
 __( "Your paid plan gives you access to prioritized Jetpack support.", "jetpack" ), // _inc/client/components/support-card/index.jsx:80
@@ -655,6 +652,9 @@ __( "Ask a question", "jetpack" ), // _inc/client/components/support-card/index.
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:101
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:109
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:111
+__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
+__( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
+__( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
 __( " Premium Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:47
 __( "Introducing Premium Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:51
 __( "{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:53
