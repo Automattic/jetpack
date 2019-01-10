@@ -669,6 +669,14 @@ body,
   background-color: $gray-lighten-30 !important;
 }
 
+.plugin-card a, .popular-tags a, .filter-links>li>a {
+	color: $color-link;
+
+	&:hover {
+		color: $color-link-dark;
+	}
+}
+
 .plugin-card-bottom,
 .alternate,
 .striped>tbody>:nth-child(odd),
@@ -682,7 +690,7 @@ div.mce-toolbar-grp,
 #post-status-info,
 .quicktags-toolbar,
 #major-publishing-actions {
-  background-color: $gray-light !important;
+  background-color: $muriel-white;
   border-color: $_d9e3ea;
 }
 
