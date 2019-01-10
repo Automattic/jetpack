@@ -1040,7 +1040,7 @@ abstract class Publicize_Base {
 		}
 
 		// Bail early if the post is private.
-		if ( 'private' === $post->post_status ) {
+		if ( 'publish' !== $post->post_status ) {
 			return $messages;
 		}
 
