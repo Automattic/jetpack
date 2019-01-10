@@ -569,6 +569,10 @@ body,
   border-bottom: 2px solid $muriel-white;
   outline: none;
 
+	&:focus {
+		box shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
+	}
+
 	&:hover {
 		background-color: $muriel-blue-0;
 	}
@@ -601,6 +605,22 @@ body,
 }
 
 .plugins-php {
+	.plugins a {
+		color: $color-link;
+
+		&:hover {
+			color: $color-link-dark;
+		}
+	}
+
+	.plugins a.delete {
+		color: $color-error;
+
+		&:hover {
+			color: $color-error-dark;
+		}
+	}
+
   .tablenav {
     clear: none;
     float: left;
@@ -615,8 +635,16 @@ body,
     margin-top: 5px;
   }
 
+	.plugins .active th {
+		border-left: 4px solid $color-primary;
+	}
+
+	.plugins .active th, .plugins .active td {
+		background-color: $muriel-blue-0;
+	}
 
 }
+
 
 .wrap {
   .wp-heading-inline + .page-title-action,
