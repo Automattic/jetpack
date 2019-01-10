@@ -64,7 +64,7 @@ class Jetpack_Simple_Payments {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
 			jetpack_register_block( 'simple-payments' );
 		} else {
-			set_extension_unavailability_reason( 'simple-payments', 'missing_plan' );
+			jetpack_set_extension_unavailability_reason( 'simple-payments', 'missing_plan' );
 		}
 	}
 

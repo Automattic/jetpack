@@ -45,7 +45,7 @@ function jetpack_register_plugin( $slug ) {
  *
  * @return void
  */
-function set_extension_unavailability_reason( $slug, $reason ) {
+function jetpack_set_extension_unavailability_reason( $slug, $reason ) {
 	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $reason );
 }
 
