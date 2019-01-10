@@ -176,6 +176,28 @@ class Jetpack_Gutenberg {
 		 * @param array
 		 */
 		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_jetpack_gutenberg_extensions_whitelist() );
+
+		/**
+		 * Filter the whitelist of block editor plugins that are available through Jetpack.
+		 *
+		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
+		 *
+		 * @since 6.8.0
+		 *
+		 * @param array
+		 */
+		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::$extensions );
+
+		/**
+		 * Filter the whitelist of block editor plugins that are available through Jetpack.
+		 *
+		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param array
+		 */
+		self::$extensions = apply_filters( 'jetpack_set_available_plugins', self::$extensions );
 	}
 
 	/**
