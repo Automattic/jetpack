@@ -694,11 +694,9 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ? false : true;
-	$show_only_email_and_button         = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
-	$submit_button_text                 = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
-	$instance['show_only_email_and_button'] = $show_only_email_and_button;
-	$instance['submit_button_text']         = $submit_button_text;
+	$instance['show_subscribers_total']     = empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ? false : true;
+	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
+	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes_and_styles   = isset( $instance['submit_button_classes'] ) ? "class = \"{$instance['submit_button_classes']}\" " : '';
@@ -707,10 +705,10 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( $custom_background_button_color || $custom_text_button_color ) {
 		$submit_button_classes_and_styles .= ' style="';
 		if ( $custom_background_button_color ) {
-			$submit_button_classes_and_styles .= 'background-color: ' . $custom_background_button_color . '; ';
+			$submit_button_classes_and_styles .= 'background-color: ' . esc_attr( $custom_background_button_color ) . '; ';
 		}
 		if ( $custom_text_button_color ) {
-			$submit_button_classes_and_styles .= 'color: ' . $custom_text_button_color . ';';
+			$submit_button_classes_and_styles .= 'color: ' . esc_attr( $custom_text_button_color ) . ';';
 		}
 		$submit_button_classes_and_styles .= '"';
 	}
@@ -721,7 +719,10 @@ function jetpack_do_subscription_form( $instance ) {
 		'jetpack_subscription_form'
 	);
 
-	error_log("CLASSES AND STYLES: " . $submit_button_classes_and_styles);
+	// These must come after the call to shortcode_atts()
+	$instance['submit_button_text']         = $submit_button_text;
+	$instance['show_only_email_and_button'] = $show_only_email_and_button;
+
 	if ( $submit_button_classes_and_styles ) {
 		$instance['submit_button_classes_and_styles'] = $submit_button_classes_and_styles;
 	}
