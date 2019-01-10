@@ -616,8 +616,8 @@ body,
   .add-new-h2:active,
   .page-title-action,
   .page-title-action:active {
-    background: $blue-medium;
-    border-color: $_008ab3;
+    background: $color-accent;
+    border-color: $color-accent-dark;
     color: $white;
     border-style: solid;
     border-width: 1px 1px 2px;
@@ -640,10 +640,15 @@ body,
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-  }
 
-  .wp-heading-inline+.page-title-action:hover {
-    border-color: $blue-dark;
+		&:hover {
+			background-color: $muriel-hot-pink-400;
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 2px $color-accent-light;
+			background-color: $muriel-hot-pink-400;
+		}
   }
 }
 
