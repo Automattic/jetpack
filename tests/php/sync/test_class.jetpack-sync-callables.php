@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_callable_whitelist() {
 		// $this->setSyncClientDefaults();
 
-		add_filter( 'jetpack_set_available_blocks',  array( $this, 'add_test_block' ) );
+		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		jetpack_register_block( 'test' );
 		Jetpack_Gutenberg::init();
 

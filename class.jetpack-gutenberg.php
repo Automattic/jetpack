@@ -171,11 +171,11 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter the whitelist of block editor extensions that are available through Jetpack.
 		 *
-		 * @since 6.8.0
+		 * @since 7.0.0
 		 *
 		 * @param array
 		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::get_jetpack_gutenberg_extensions_whitelist() );
+		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_jetpack_gutenberg_extensions_whitelist() );
 	}
 
 	/**

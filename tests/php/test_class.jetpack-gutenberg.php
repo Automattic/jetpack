@@ -5,11 +5,11 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	public $master_user_id = false;
 
 	public static function setUpBeforeClass() {
-		add_filter( 'jetpack_set_available_blocks', array( __CLASS__, 'get_extensions_whitelist' ) );
+		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 	}
 
 	public static function tearDownAfterClass() {
-		remove_filter( 'jetpack_set_available_blocks', array( __CLASS__, 'get_extensions_whitelist' ) );
+		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 	}
 
 	public function setUp() {
