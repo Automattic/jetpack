@@ -62,12 +62,12 @@ body,
   }
 
   .wp-has-current-submenu ul>li>a {
-    padding: 7px 12px 7px 46px;
+		padding: 11px 16px 11px 20px;
     font-size: 14px;
   }
 
   .wp-submenu a:hover {
-    background: $white;
+    background-color: $muriel-gray-50;
   }
 
   > li.wp-first-item {
