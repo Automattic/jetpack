@@ -14,10 +14,11 @@ import includes from 'lodash/includes';
 import Button from 'components/button';
 import { getSiteRawUrl, getUpgradeUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
-import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
 import { showBackups } from 'state/initial-state';
+import TopButton from './top-button';
+import FeatureItem from './feture-item';
 
 class PlanGrid extends React.Component {
 	/**
@@ -213,37 +214,22 @@ class PlanGrid extends React.Component {
 	 */
 	renderTopButtons() {
 		return map( this.getPlans(), ( plan, planType ) => {
+			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );
-			const url = isActivePlan
-				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: this.props.plansUpgradeUrl( planType );
-			const isPrimary = this.isPrimary( planType, plan );
-			const className = classNames(
-				'plan-features__table-item',
-				'has-border-bottom',
-				'is-top-buttons'
-			);
-			if ( ! this.shouldRenderButton( planType ) ) {
-				return <td key={ 'button-' + planType } className={ className } />;
-			}
-			const clickHandler = () => {
-				if ( ! isActivePlan ) {
-					return;
-				}
-				analytics.tracks.recordJetpackClick( {
-					target: `upgrade-${ planType }`,
-					type: 'upgrade',
-					plan: this.props.sitePlan.product_slug,
-					page: 'Plans',
-				} );
-			};
-			const text = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
+			const buttonText = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
+
 			return (
-				<td key={ 'button-' + planType } className={ className }>
-					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
-						{ text }
-					</Button>
-				</td>
+				<TopButton
+					key={ planType }
+					buttonText={ buttonText }
+					planType={ planType }
+					isActivePlan={ isActivePlan }
+					isPrimary={ this.isPrimary( planType, plan ) }
+					shouldRenderButton={ this.shouldRenderButton( planType ) }
+					siteRawUrl={ siteRawUrl }
+					plansUpgradeUrl={ plansUpgradeUrl( planType ) }
+					productSlug={ sitePlan.product_slug }
+				/>
 			);
 		} );
 	}
@@ -320,56 +306,24 @@ class PlanGrid extends React.Component {
 	 */
 	renderPlanFeatureColumns( rowIndex ) {
 		return map( this.getPlans(), ( properties, planType ) => {
-			return this.renderFeatureItem( planType, rowIndex );
+			const key = planType + '-row-' + rowIndex;
+			const feature = properties.features[ rowIndex ];
+			const backupFeatureIds = [ 'backups', 'malware-scan', 'real-time-backups' ];
+			const hideBackupFeature =
+				! this.props.showBackups && feature && includes( backupFeatureIds, feature.id );
+
+			return (
+				<FeatureItem
+					key={ planType }
+					itemKey={ key }
+					feature={ feature }
+					hideBackupFeature={ hideBackupFeature }
+					siteRawUrl={ this.props.siteRawUrl }
+					userId={ this.props.userId }
+					productSlug={ this.props.sitePlan.product_slug }
+				/>
+			);
 		} );
-	}
-
-	/**
-	 * Render one feature item for a plan and row index
-	 * @param {string} planType The plan type column
-	 * @param {number} rowIndex The feature row index
-	 * @return {ReactElement} a <td>
-	 */
-	renderFeatureItem( planType, rowIndex ) {
-		const plan = this.getPlans()[ planType ];
-		const item = plan.features[ rowIndex ];
-		const key = planType + '-row-' + rowIndex;
-		const backupFeatureIds = [ 'backups', 'malware-scan', 'real-time-backups' ];
-		const hideBackupFeature =
-			! this.props.showBackups && item && includes( backupFeatureIds, item.id );
-
-		// empty?
-		if ( typeof item === 'undefined' || hideBackupFeature ) {
-			return <td key={ key } className="plan-features__table-item" />;
-		}
-		return (
-			<td key={ key } className="plan-features__table-item has-partial-border">
-				<div className="plan-features__item">
-					{ item.info ? this.renderFeatureLink( item ) : item.name }
-				</div>
-			</td>
-		);
-	}
-
-	renderFeatureLink( feature ) {
-		const clickHandler = () => {
-			analytics.tracks.recordJetpackClick( {
-				target: feature.id,
-				type: 'feature-discovery',
-				plan: this.props.sitePlan.product_slug,
-				page: 'Plans',
-			} );
-		};
-		return (
-			<a
-				onClick={ clickHandler }
-				href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${
-					this.props.userId
-				}` }
-			>
-				{ feature.name }
-			</a>
-		);
 	}
 }
 
