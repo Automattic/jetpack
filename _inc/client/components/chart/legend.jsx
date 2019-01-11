@@ -41,7 +41,6 @@ const LegendItem = createReactClass( {
 						type="checkbox"
 						className="dops-chart__legend-checkbox"
 						checked={ this.props.checked }
-						onChange={ function() {} }
 					/>
 					<span className={ this.props.className } />
 					{ this.props.label }
