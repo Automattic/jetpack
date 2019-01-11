@@ -640,8 +640,20 @@ body,
     }
   }
 
+	.bulkactions {
+		select:focus {
+			border-color: $color-primary;
+			box-shadow: 0 0 2px $color-primary-light;
+		}
+	}
+
   p.search-box {
     margin-top: 5px;
+
+		.wp-filter-search:focus {
+			border-color: $color-primary;
+			box-shadow: 0 0 2px $color-primary-light;
+		}
   }
 
 	.plugins .active th {
@@ -719,6 +731,17 @@ body,
 
 	&:hover, &:focus {
 		color: $color-link-dark;
+	}
+
+	&:focus {
+		box-shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
+	}
+}
+
+.plugin-card .button {
+	&:focus {
+		border-color: $color-primary;
+		box-shadow: 0 0 3px $color-primary-light;
 	}
 }
 
