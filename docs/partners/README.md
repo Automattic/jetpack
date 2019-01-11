@@ -18,7 +18,7 @@ If you have any technical questions or concerns, don’t hesitate to get in touc
   - [Provisioning status](determining-provisioning-status.md)
 - [Managing modules](managing-modules.md)
 - [Upgrade redirection](upgrade-redirection.md)
-- [Woo Commerce Provisioning](plan-provisioning-woocommerce.md)
+- [WooCommerce Provisioning](plan-provisioning-woocommerce.md)
 
 ## Become a Jetpack Hosting Partner
 
