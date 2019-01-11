@@ -4,14 +4,6 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	public $master_user_id = false;
 
-	public static function setUpBeforeClass() {
-		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
-	}
-
-	public static function tearDownAfterClass() {
-		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
-	}
-
 	public function setUp() {
 		parent::setUp();
 		if ( ! function_exists( 'register_block_type' ) ) {
@@ -29,6 +21,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->master_user_id => "honey.badger.$this->master_user_id" ) );
 
+		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		Jetpack_Gutenberg::init();
 	}
 
@@ -36,6 +29,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		parent::tearDown();
 
 		Jetpack_Gutenberg::reset();
+		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 
 		if ( $this->master_user_id ) {
 			Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
