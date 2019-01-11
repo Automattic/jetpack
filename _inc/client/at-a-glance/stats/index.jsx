@@ -137,11 +137,12 @@ export class DashStats extends Component {
 		);
 	}
 
+	dismissCard = () => {
+		this.setState( { emptyStatsDismissed: true } );
+		this.props.updateOptions( { dismiss_empty_stats_card: true } );
+	};
+
 	renderEmptyStatsCard() {
-		const dismissCard = () => {
-			this.setState( { emptyStatsDismissed: true } );
-			this.props.updateOptions( { dismiss_empty_stats_card: true } );
-		};
 		return (
 			<Card className="jp-at-a-glance__stats-empty">
 				<img
@@ -156,16 +157,16 @@ export class DashStats extends Component {
 					<br />
 					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
 				</p>
-				<Button onClick={ dismissCard } primary>
+				<Button onClick={ this.dismissCard } primary>
 					{ __( 'Okay, got it!' ) }
 				</Button>
 			</Card>
 		);
 	}
 
-	renderStatsArea() {
-		const activateStats = () => this.props.updateOptions( { stats: true } );
+	activateStats = () => this.props.updateOptions( { stats: true } );
 
+	renderStatsArea() {
 		if ( this.props.getOptionValue( 'stats' ) ) {
 			if ( this.statsErrors() ) {
 				return (
@@ -220,7 +221,7 @@ export class DashStats extends Component {
 								'{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}',
 								{
 									components: {
-										a: <a href="javascript:void(0)" onClick={ activateStats } />,
+										a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
 										a1: (
 											<a
 												href="https://jetpack.com/support/wordpress-com-stats/"
@@ -234,7 +235,7 @@ export class DashStats extends Component {
 				</div>
 				{ ! this.props.isDevMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
-						<Button onClick={ activateStats } primary>
+						<Button onClick={ this.activateStats } primary>
 							{ __( 'Activate Site Stats' ) }
 						</Button>
 					</div>
@@ -242,6 +243,16 @@ export class DashStats extends Component {
 			</div>
 		);
 	}
+
+	switchTo( timeFrame ) {
+		analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: timeFrame } );
+		this.props.switchView( timeFrame );
+		this.props.fetchStatsData( timeFrame );
+	}
+
+	switchToDay = () => this.switchTo( 'day' );
+	switchToWeek = () => this.switchTo( 'week' );
+	switchToMonth = () => this.switchTo( 'month' );
 
 	maybeShowStatsTabs() {
 		const statsChart = this.statsChart( this.props.activeTab );
@@ -254,29 +265,13 @@ export class DashStats extends Component {
 			return false;
 		}
 
-		const switchToDay = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
-				this.props.switchView( 'day' );
-				this.props.fetchStatsData( 'day' );
-			},
-			switchToWeek = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'week' } );
-				this.props.switchView( 'week' );
-				this.props.fetchStatsData( 'week' );
-			},
-			switchToMonth = () => {
-				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'month' } );
-				this.props.switchView( 'month' );
-				this.props.fetchStatsData( 'month' );
-			};
-
 		if ( this.props.getOptionValue( 'stats' ) && ! this.statsErrors() ) {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a
 							href="javascript:void(0)"
-							onClick={ switchToDay }
+							onClick={ this.switchToDay }
 							className={ this.getClass( 'day' ) }
 						>
 							{ __( 'Days' ) }
@@ -285,7 +280,7 @@ export class DashStats extends Component {
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a
 							href="javascript:void(0)"
-							onClick={ switchToWeek }
+							onClick={ this.switchToWeek }
 							className={ this.getClass( 'week' ) }
 						>
 							{ __( 'Weeks' ) }
@@ -294,7 +289,7 @@ export class DashStats extends Component {
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a
 							href="javascript:void(0)"
-							onClick={ switchToMonth }
+							onClick={ this.switchToMonth }
 							className={ this.getClass( 'month' ) }
 						>
 							{ __( 'Months' ) }
