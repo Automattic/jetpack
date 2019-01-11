@@ -95,7 +95,7 @@ body,
 
   li.current a.menu-top,
   li.wp-has-current-submenu a.wp-has-current-submenu {
-    background: $gray-text-min;
+    background: $muriel-blue-50;
   }
 
   div.wp-menu-image.svg {
@@ -108,7 +108,7 @@ body,
 
   li.wp-menu-open div.wp-menu-image:before,
   li.wp-menu-open div.wp-menu-name {
-    color: $white !important;
+    color: $color-primary !important;
   }
 
   div.wp-menu-name {
@@ -233,7 +233,7 @@ body,
     li.current.menu-top,
     li.wp-has-current-submenu,
     li.wp-has-current-submenu .wp-submenu .wp-submenu-head {
-      background: $gray-text-min;
+      background: $muriel-blue-0;
     }
 
     .wp-submenu .wp-submenu-head {
@@ -315,14 +315,14 @@ body,
   #adminmenu li.opensub>a.menu-top,
   #adminmenu li>a.menu-top:focus,
   #adminmenu li.wp-menu-open {
-    background: $gray-text-min !important;
+    background: $muriel-blue-50 !important;
   }
 
   #adminmenu .wp-submenu,
   .auto-fold #adminmenu .selected .wp-submenu,
   .auto-fold #adminmenu .wp-menu-open .wp-submenu,
   #adminmenu a.wp-has-current-submenu:focus+.wp-submenu {
-    background: $gray-light !important;
+    background: $muriel-white !important;
   }
 
   .auto-fold #adminmenu li.selected div.wp-menu-image.svg {
@@ -331,7 +331,7 @@ body,
 
   .auto-fold #adminmenu li.selected div.wp-menu-image:before,
   .auto-fold #adminmenu li.selected div.wp-menu-name {
-    color: $white !important;
+    color: $color-primary !important;
   }
 
   #wpadminbar .quicklinks > ul > li > a,
