@@ -15,10 +15,9 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSitePlan } from 'state/site';
-import { getModuleOverride } from 'state/modules';
 
 class Media extends React.Component {
 	render() {

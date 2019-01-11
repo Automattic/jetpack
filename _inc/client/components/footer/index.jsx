@@ -14,11 +14,10 @@ import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
 	userCanManageOptions,
+	getSiteAdminUrl,
 } from 'state/initial-state';
-import { resetOptions } from 'state/dev-version';
 import { isInIdentityCrisis } from 'state/connection';
-import { getSiteAdminUrl } from 'state/initial-state';
-import { canDisplayDevCard, enableDevCard } from 'state/dev-version';
+import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 

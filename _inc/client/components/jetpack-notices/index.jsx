@@ -19,10 +19,10 @@ import {
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
+	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
 import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
-import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 

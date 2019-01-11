@@ -7,8 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchUserConnectionData, isFetchingUserData } from 'state/connection';
-import { isDevMode } from 'state/connection';
+import { fetchUserConnectionData, isFetchingUserData, isDevMode } from 'state/connection';
 
 export class QueryUserConnectionData extends React.Component {
 	componentWillMount() {

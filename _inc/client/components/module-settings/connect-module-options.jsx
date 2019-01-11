@@ -17,9 +17,12 @@ import {
 	setUnsavedSettingsFlag,
 	clearUnsavedSettingsFlag,
 } from 'state/settings';
-import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
-import { getSiteRoles, getAdminEmailAddress } from 'state/initial-state';
-
+import {
+	getCurrentIp,
+	getSiteAdminUrl,
+	getSiteRoles,
+	getAdminEmailAddress,
+} from 'state/initial-state';
 import { isCurrentUserLinked } from 'state/connection';
 
 /**

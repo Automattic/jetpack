@@ -12,9 +12,12 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { getSiteConnectionStatus, getSandboxDomain } from 'state/connection';
+import {
+	getSiteConnectionStatus,
+	getSandboxDomain,
+	fetchSiteConnectionTest,
+} from 'state/connection';
 import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
-import { fetchSiteConnectionTest } from 'state/connection';
 
 export class Masthead extends React.Component {
 	static defaultProps = {

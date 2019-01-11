@@ -11,12 +11,16 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
+import {
+	isDevMode,
+	isUnavailableInDevMode,
+	isCurrentUserLinked,
+	getConnectUrl,
+} from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { Comments } from './comments';
 import { Subscriptions } from './subscriptions';
-import { getConnectUrl } from 'state/connection';
 
 export class Discussion extends React.Component {
 	static displayName = 'DiscussionSettings';

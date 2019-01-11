@@ -12,11 +12,10 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import Button from 'components/button';
-import { getSiteRawUrl, getUpgradeUrl, getUserId } from 'state/initial-state';
+import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
-import { showBackups } from 'state/initial-state';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
 
