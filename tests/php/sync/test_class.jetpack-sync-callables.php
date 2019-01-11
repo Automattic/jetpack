@@ -53,8 +53,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// $this->setSyncClientDefaults();
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
-		jetpack_register_block( 'test' );
 		Jetpack_Gutenberg::init();
+		jetpack_register_block( 'test' );
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -126,10 +126,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist_keys );
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
 
+		remove_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
+		Jetpack_Gutenberg::reset();
+		unregister_block_type( 'jetpack/test' );
 	}
 
-	public function add_test_block( $blocks ) {
-		return array_merge( $blocks, array( 'test' ) );
+	public function add_test_block() {
+		return array( 'test' );
 	}
 
 	function assertCallableIsSynced( $name, $value ) {
