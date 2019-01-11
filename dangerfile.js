@@ -40,7 +40,7 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 
 // Adds release and code freeze dates according to x.x milestone due date
 function setReleaseDates() {
-	schedule( async () => {
+	schedule( async() => {
 		let jetpackReleaseDate;
 		let codeFreezeDate;
 		const milestones = await github.api.issues.listMilestonesForRepo( { owner: 'Automattic', repo: 'jetpack' } );
