@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
-    "@automattic/jetpack-blocks": "11.1.0",
+    "@automattic/jetpack-blocks": "11.2.0",
     "babel-core": "6.26.3",
     "babel-eslint": "6.1.2",
     "babel-loader": "7.1.5",
