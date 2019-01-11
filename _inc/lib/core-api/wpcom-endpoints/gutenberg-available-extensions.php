@@ -28,12 +28,6 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( 'Jetpack_Gutenberg', 'get_availability' ),
 				'permission_callback' => array( $this, 'get_items_permission_check' ),
-				'args'                => array(
-					'beta' => array(
-						'required' => false,
-						'type'     => 'boolean',
-					),
-				),
 			),
 			'schema' => array( $this, 'get_item_schema' ),
 		 ) );

@@ -52,25 +52,6 @@ class Jetpack_Email_Subscribe {
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_options_whitelist', array( $this, 'filter_whitelisted_options' ), 10, 1 );
-		add_action( 'jetpack_blocks_to_register', array( $this, 'prevent_jetpack_register_block' ), 10, 1 );
-	}
-
-	/**
-	 * There is a structural problem in Jetpack_Gutenberg class that breaks server-side rendered blocks on WPCOM.
-	 * The problem stems from register_blocks being called very late. Too late in fact to WP_REST_Block_Renderer_Controller be aware of them.
-	 * Regular 'register_block_type' call does not register blocks as available from Calypso SDK.
-	 * I tried registering block twice, both with jetpack_register_block and register_block_type, but that produces a notice.
-	 * I introduced this callback and 'jetpack_blocks_to_register' filter as a way of dealing with this issue
-	 * @param $blocks - list of blocks that will be passed to 'register_block_type' call of Jetpack_Gutenberg.
-	 *
-	 * @return array
-	 */
-	public function prevent_jetpack_register_block( $blocks ) {
-		return array_filter( $blocks, array( $this, 'filter_out_this_block' ) );
-	}
-
-	public function filter_out_this_block( $block_name ) {
-		return ( $block_name !== self::$block_name );
 	}
 
 	public function filter_whitelisted_options( $options ) {
@@ -83,39 +64,36 @@ class Jetpack_Email_Subscribe {
 	}
 
 	private function register_gutenberg_block() {
-		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
-			register_block_type( 'jetpack/' . self::$block_name, array(
-				'attributes' => array(
-					'title' => array(
-						'type' => 'string',
-					),
-					'email_placeholder' => array(
-						'type' => 'string',
-					),
-					'submit_label' => array(
-						'type' => 'string',
-					),
-					'consent_text' => array(
-						'type' => 'string',
-					),
-					'processing_label' => array(
-						'type' => 'string',
-					),
-					'success_label' => array(
-						'type' => 'string',
-					),
-					'error_label' => array(
-						'type' => 'string',
-					),
-					'className' => array(
-						'type' => 'string',
-					),
+		jetpack_register_block( self::$block_name, array(
+			'attributes' => array(
+				'title' => array(
+					'type' => 'string',
 				),
-				'style' => 'jetpack-email-subscribe',
-				'render_callback' => array( $this, 'parse_shortcode' ),
-			) );
-			jetpack_register_block( self::$block_name, array(), array( 'available' => true ) );
-		}
+				'email_placeholder' => array(
+					'type' => 'string',
+				),
+				'submit_label' => array(
+					'type' => 'string',
+				),
+				'consent_text' => array(
+					'type' => 'string',
+				),
+				'processing_label' => array(
+					'type' => 'string',
+				),
+				'success_label' => array(
+					'type' => 'string',
+				),
+				'error_label' => array(
+					'type' => 'string',
+				),
+				'className' => array(
+					'type' => 'string',
+				),
+			),
+			'style' => 'jetpack-email-subscribe',
+			'render_callback' => array( $this, 'parse_shortcode' ),
+		) );
 	}
 
 	public function init_hook_action() {

@@ -52,9 +52,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_callable_whitelist() {
 		// $this->setSyncClientDefaults();
 
-		add_filter( 'jetpack_set_available_blocks',  array( $this, 'add_test_block' ) );
+		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
+		Jetpack_Gutenberg::init();
 		jetpack_register_block( 'test' );
-		Jetpack_Gutenberg::load_blocks();
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 			'roles'                            => Jetpack_Sync_Functions::roles(),
 			'timezone'                         => Jetpack_Sync_Functions::get_timezone(),
-			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_block_availability(),
+			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -126,10 +126,12 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist_keys );
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
 
+		remove_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
+		Jetpack_Gutenberg::reset();
 	}
 
-	public function add_test_block( $blocks ) {
-		return array_merge( $blocks, array( 'test' ) );
+	public function add_test_block() {
+		return array( 'test' );
 	}
 
 	function assertCallableIsSynced( $name, $value ) {

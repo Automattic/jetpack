@@ -20,10 +20,16 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->master_user_id => "honey.badger.$this->master_user_id" ) );
+
+		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
+		Jetpack_Gutenberg::init();
 	}
 
 	public function tearDown() {
 		parent::tearDown();
+
+		Jetpack_Gutenberg::reset();
+		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 
 		if ( $this->master_user_id ) {
 			Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
@@ -40,194 +46,75 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		}
 	}
 
-	public function add_test_block( $blocks ) {
-		return array_merge( $blocks, array( 'test' ) );
-	}
-
-	public function add_missing_module_block( $blocks ) {
-		return array_merge( $blocks, array( 'missing' ) );
-	}
-
-	public function add_banana_block( $blocks ) {
-		return array_merge( $blocks, array( 'banana' ) );
-	}
-
-	public function add_coconut_block( $blocks ) {
-		return array_merge( $blocks, array( 'coconut' ) );
-	}
-
-	public function add_foo_plugin( $plugins ) {
-		return array_merge( $plugins, array( 'foo' ) );
-	}
-
-	public function add_unavailable_plugin( $plugins ) {
-		return array_merge( $plugins, array( 'unavailable' ) );
-	}
-
-	public function add_coconut_plugin( $plugins ) {
-		return array_merge( $plugins, array( 'coconut-plugin' ) );
-	}
-
-	public function add_banana_plugin( $plugins ) {
-		return array_merge( $plugins, array( 'banana-plugin' ) );
-	}
-
-	public function add_orange_plugin( $plugins ) {
-		return array_merge( $plugins, array( 'orange-plugin' ) );
+	public static function get_extensions_whitelist() {
+		return array(
+			// Our "Blocks" :)
+			'apple',
+			'banana',
+			'coconut',
+			'grape',
+			// Our "Plugins" :)
+			'onion',
+			'potato',
+			'tomato'
+		);
 	}
 
 	function test_registered_block_is_available() {
-		jetpack_register_block( 'test' );
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		Jetpack_Gutenberg::init();
+		jetpack_register_block( 'apple' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		$this->assertTrue( $availability['test']['available'] );
+		$this->assertTrue( $availability['apple']['available'] );
 	}
 
 	function test_registered_block_is_not_available() {
-		jetpack_register_block( 'test', array(), array( 'available' => false, 'unavailable_reason' => 'bar' ) );
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		Jetpack_Gutenberg::init();
+		jetpack_set_extension_unavailability_reason( 'banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		$this->assertFalse( $availability['test']['available'], 'Test is available!' );
-		$this->assertEquals( $availability['test']['unavailable_reason'], 'bar', 'unavailable_reason is not bar' );
+		$this->assertFalse( $availability['banana']['available'], 'banana is available!' );
+		$this->assertEquals( $availability['banana']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
 	}
 
-	function test_registered_block_is_not_available_when_not_defined_in_avaialable_blocks() {
-		jetpack_register_block( 'rocks' );
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		Jetpack_Gutenberg::init();
+	function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
+		jetpack_register_block( 'durian' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_test_block') );
-
-		// Should not exits in the $availability...
-		$this->assertTrue( ! isset( $availability['rocks']['available'] ), 'Availability info exists' );
+		$this->assertFalse( $availability['durian']['available'], 'durian is available!' );
+		$this->assertEquals( $availability['durian']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );
 	}
 
-	function test_registered_block_is_not_available_when_not_registed_returns_missing_module() {
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_missing_module_block') );
-
-		Jetpack_Gutenberg::init();
+	function test_block_is_not_available_when_not_registered_returns_missing_module() {
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_missing_module_block') );
 
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['missing']['available'], 'Avaiability is not false exists' );
-		$this->assertEquals( $availability['missing']['unavailable_reason'], 'missing_module',  'Availability is not missing_module'  );
-	}
-
-	function test_registered_block_is_not_available_unknown_reason_is_missing_reason() {
-		jetpack_register_block( 'banana', array(), array('available' => false ) );
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_banana_block' ) );
-
-		Jetpack_Gutenberg::init();
-		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_banana_block' ) );
-
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['banana']['available'],  'Avaiability is not false' );
-		$this->assertEquals( $availability['banana']['unavailable_reason'], 'unknown', 'Availability Reason is not unknown' );
-	}
-
-	function get_coconut_availability() {
-		return array( 'available' => false, 'unavailable_reason' => 'roccoconut' );
-	}
-
-	function test_registered_block_supports_callback_availability() {
-		jetpack_register_block( 'coconut', array(), array(
-			'callback' => array( $this, 'get_coconut_availability' ) ) );
-		add_filter( 'jetpack_set_available_blocks', array( $this, 'add_coconut_block' ) );
-
-		Jetpack_Gutenberg::init();
-		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_blocks', array( $this, 'add_coconut_block' ) );
-
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['coconut']['available'],  'Avaiability is not false' );
-		$this->assertEquals( $availability['coconut']['unavailable_reason'], 'roccoconut', 'Availability Reason is not roccoconut' );
+		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
+		$this->assertFalse( $availability['grape']['available'], 'Availability is not false exists' );
+		$this->assertEquals( $availability['grape']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
 	}
 
 	// Plugins
 	function test_registered_plugin_is_available() {
-		jetpack_register_plugin( 'foo' );
-		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_foo_plugin' ) );
-
-		Jetpack_Gutenberg::init();
+		jetpack_register_plugin( 'onion' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_plugins', array( $this, 'add_foo_plugin' ) );
-
-		$this->assertTrue( $availability['foo']['available'] );
+		$this->assertTrue( $availability['onion']['available'] );
 	}
 
 	function test_registered_plugin_is_not_available() {
-		jetpack_register_plugin( 'unavailable', array( 'available' => false, 'unavailable_reason' => 'bar' ) );
-		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_unavailable_plugin' ) );
-
-		Jetpack_Gutenberg::init();
+		jetpack_set_extension_unavailability_reason( 'potato', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_plugins', array( $this, 'add_unavailable_plugin' ) );
-
-		$this->assertFalse( $availability['unavailable']['available'], 'Foo is available!' );
-		$this->assertEquals( $availability['unavailable']['unavailable_reason'], 'bar', 'unavailable_reason is not bar' );
+		$this->assertFalse( $availability['potato']['available'], 'potato is available!' );
+		$this->assertEquals( $availability['potato']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
 	}
 
-	function test_registered_plugin_is_not_available_when_not_defined_in_avaialable_plugins() {
-		jetpack_register_plugin( 'rocks-plugin' );
+	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
+		jetpack_register_plugin( 'parsnip' );
+		$availability = Jetpack_Gutenberg::get_availability();
+		$this->assertFalse( $availability['parsnip']['available'], 'durian is available!' );
+		$this->assertEquals( $availability['parsnip']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );
 
-		Jetpack_Gutenberg::init();
+	}
+
+	function test_plugin_is_not_available_when_not_registered_returns_missing_module() {
 		$availability = Jetpack_Gutenberg::get_availability();
 
-		// Should not exits in the $availability...
-		$this->assertTrue( ! isset( $availability['rocks-plugin']['available'] ), 'Availability info exists' );
+		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
+		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
+		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
 	}
-
-	function test_registered_plugin_is_not_available_when_not_registed_returns_missing_module() {
-		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_coconut_plugin' ) );
-
-		Jetpack_Gutenberg::init();
-		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_plugins', array( $this, 'add_coconut_plugin' ) );
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['coconut-plugin']['available'], 'Avaiability is not false exists' );
-		$this->assertEquals( $availability['coconut-plugin']['unavailable_reason'], 'missing_module',  'Availability is not missing_module'  );
-	}
-
-	function test_registered_plugin_is_not_available_unknown_reason_is_missing_reason() {
-		jetpack_register_plugin( 'banana-plugin', array( 'available' => false ) );
-		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_banana_plugin' ) );
-
-		Jetpack_Gutenberg::init();
-		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_plugins', array( $this, 'add_banana_plugin' ) );
-
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['banana-plugin']['available'],  'Avaiability is not false' );
-		$this->assertEquals( $availability['banana-plugin']['unavailable_reason'], 'unknown', 'Availability Reason is not unknown' );
-	}
-
-	function orange_availability() {
-		return array( 'available' => false, 'unavailable_reason' => 'orange_you_glad' );
-	}
-
-	function test_registered_plugin_supports_callback_availability() {
-		jetpack_register_plugin( 'orange-plugin', array(
-			'callback' => array( $this, 'orange_availability' ) ) );
-		add_filter( 'jetpack_set_available_plugins', array( $this, 'add_orange_plugin' ) );
-
-		Jetpack_Gutenberg::init();
-		$availability = Jetpack_Gutenberg::get_availability();
-		remove_filter( 'jetpack_set_available_plugins', array( $this, 'add_orange_plugin' ) );
-
-		// Should not exits in the Module is not active
-		$this->assertFalse( $availability['orange-plugin']['available'],  'Avaiability is not false' );
-		$this->assertEquals( $availability['orange-plugin']['unavailable_reason'], 'orange_you_glad', 'Availability Reason is not orange_you_glad' );
-	}
-
 }

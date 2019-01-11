@@ -40,6 +40,7 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'init', array( $this, 'register_gutenberg_block' ), 40 );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -57,14 +58,14 @@ class Jetpack_Simple_Payments {
 		$this->setup_cpts();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
-
-		jetpack_register_block( 'simple-payments', array(), array( 'callback' => array( $this, 'get_block_availability' ) ) );
 	}
 
-	function get_block_availability() {
-		return $this->is_enabled_jetpack_simple_payments()
-		       ? array( 'available' => true )
-		       : array( 'available' => false, 'unavailable_reason' => 'missing_plan' );
+	function register_gutenberg_block() {
+		if ( $this->is_enabled_jetpack_simple_payments() ) {
+			jetpack_register_block( 'simple-payments' );
+		} else {
+			jetpack_set_extension_unavailability_reason( 'simple-payments', 'missing_plan' );
+		}
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {

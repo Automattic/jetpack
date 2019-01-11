@@ -538,9 +538,8 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'init', array( 'Jetpack_Gutenberg', 'load_blocks' ), 99 ); // Registers all the Jetpack blocks .
+		Jetpack_Gutenberg::init();
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		add_filter( 'jetpack_set_available_blocks', array( 'Jetpack_Gutenberg', 'jetpack_set_available_blocks' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 

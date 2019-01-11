@@ -240,7 +240,7 @@ class Jetpack_Sync_Defaults {
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
 		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
-		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_block_availability' ),
+		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
 	);
 
 

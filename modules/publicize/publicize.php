@@ -780,17 +780,15 @@ abstract class Publicize_Base {
 	 * Register the Publicize Gutenberg extension
 	 */
 	function register_gutenberg_extension() {
-		jetpack_register_plugin( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
-	}
+		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
+		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
-	function get_extension_availability() {
-		$object_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		if ( $this->current_user_can_access_publicize_data() ) {
+			jetpack_register_plugin( 'publicize' );
+		} else {
+			jetpack_set_extension_unavailability_reason( 'publicize', 'unauthorized' );
 
-		if ( ! $this->current_user_can_access_publicize_data( $object_id ) ) {
-			return array( 'available' => false, 'unavailable_reason' => 'unauthorized' );
 		}
-
-		return array( 'available' => true );
 	}
 
 	/**
