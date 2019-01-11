@@ -30,6 +30,7 @@ module.exports = {
 		"curly": 2,
 		"computed-property-spacing": [ 2, "always" ],
 		"func-call-spacing": 2,
+		"jsx-a11y/anchor-has-content": 0,
 		"jsx-quotes": [ 2, "prefer-double" ],
 		"key-spacing": 2,
 		"keyword-spacing": 2,
