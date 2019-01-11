@@ -63,37 +63,44 @@ class Jetpack_Email_Subscribe {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
+	/**
+	 * Register our Mailchimp subscription block for the block editor.
+	 *
+	 * @since 6.9.0
+	 */
 	private function register_gutenberg_block() {
-		jetpack_register_block( self::$block_name, array(
-			'attributes' => array(
-				'title' => array(
-					'type' => 'string',
+		jetpack_register_block(
+			self::$block_name,
+			array(
+				'attributes' => array(
+					'title'             => array(
+						'type' => 'string',
+					),
+					'email_placeholder' => array(
+						'type' => 'string',
+					),
+					'submit_label'      => array(
+						'type' => 'string',
+					),
+					'consent_text'      => array(
+						'type' => 'string',
+					),
+					'processing_label'  => array(
+						'type' => 'string',
+					),
+					'success_label'     => array(
+						'type' => 'string',
+					),
+					'error_label'       => array(
+						'type' => 'string',
+					),
+					'className'         => array(
+						'type' => 'string',
+					),
 				),
-				'email_placeholder' => array(
-					'type' => 'string',
-				),
-				'submit_label' => array(
-					'type' => 'string',
-				),
-				'consent_text' => array(
-					'type' => 'string',
-				),
-				'processing_label' => array(
-					'type' => 'string',
-				),
-				'success_label' => array(
-					'type' => 'string',
-				),
-				'error_label' => array(
-					'type' => 'string',
-				),
-				'className' => array(
-					'type' => 'string',
-				),
-			),
-			'style' => 'jetpack-email-subscribe',
-			'render_callback' => array( $this, 'parse_shortcode' ),
-		) );
+				'render_callback' => array( $this, 'parse_shortcode' ),
+			)
+		);
 	}
 
 	public function init_hook_action() {
@@ -175,7 +182,7 @@ class Jetpack_Email_Subscribe {
 			wp_enqueue_script( 'jetpack-email-subscribe' );
 		}
 
-		if ( ! wp_style_is( 'jetpack-email-subscribe', 'enqueue' ) ) {
+		if ( ! wp_style_is( 'jetpack-email-subscribe', 'enqueued' ) ) {
 			wp_enqueue_style( 'jetpack-email-subscribe' );
 		}
 
