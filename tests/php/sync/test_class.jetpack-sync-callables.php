@@ -128,7 +128,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::reset();
-		unregister_block_type( 'jetpack/test' );
 	}
 
 	public function add_test_block() {
