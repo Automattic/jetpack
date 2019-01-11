@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$availability = Jetpack_Gutenberg::get_availability();
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
-		$this->assertFalse( $availability['grape']['available'], 'Avaiability is not false exists' );
+		$this->assertFalse( $availability['grape']['available'], 'Availability is not false exists' );
 		$this->assertEquals( $availability['grape']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
 	}
 
@@ -120,7 +120,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$availability = Jetpack_Gutenberg::get_availability();
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
-		$this->assertFalse( $availability['tomato']['available'], 'Avaiability is not false exists' );
+		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
 		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
 	}
 }
