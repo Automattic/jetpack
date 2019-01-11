@@ -721,9 +721,13 @@ body,
 
   .button-primary {
     background: $color-primary;
-    border-color: $_008ab3;
+    border-color: $color-primary-dark;
     color: $white;
     text-shadow: none;
+
+		&:hover, &:focus {
+			background-color: $muriel-blue-400;
+		}
   }
 }
 
