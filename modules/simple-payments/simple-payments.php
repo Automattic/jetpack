@@ -40,8 +40,8 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'init', array( $this, 'register_gutenberg_block' ), 40 );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
-		add_action( 'rest_api_init', array( $this, 'register_gutenberg_block' ) );
 	}
 
 	private function register_shortcode() {
