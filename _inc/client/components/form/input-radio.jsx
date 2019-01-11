@@ -79,7 +79,7 @@ module.exports = createReactClass( {
 		};
 	},
 
-	componentWillMount: function() {
+	UNSAFE_componentWillMount: function() {
 		this.setValue( this.props.selected );
 	},
 

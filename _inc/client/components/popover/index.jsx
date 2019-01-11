@@ -84,7 +84,7 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
 		if ( ! isDOMElement( nextProps.context ) ) {
 			this.domContext = ReactDom.findDOMNode( nextProps.context );

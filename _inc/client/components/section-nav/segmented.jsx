@@ -26,7 +26,7 @@ class NavSegmented extends React.Component {
 		hasSiblingControls: false,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.id = _instance;
 		_instance++;
 	}

@@ -53,13 +53,13 @@ class SelectDropdown extends Component {
 		this.state = initialState;
 	}
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++SelectDropdown.instances,
 		} );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.state.isOpen ) {
 			this.closeDropdown();
 		}

@@ -25,7 +25,7 @@ class PlanGrid extends React.Component {
 	 */
 	featuredPlans = false;
 
-	componentWillUpdate() {
+	UNSAFE_componentWillUpdate() {
 		this.featuredPlans = false;
 	}
 

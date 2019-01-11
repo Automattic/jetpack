@@ -4,7 +4,7 @@
 const assert = require( 'assert' ),
 	React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
-	TestUtils = React.addons.TestUtils,
+	TestUtils = ReactDOM.TestUtils,
 	unique = require( 'lodash/uniq' );
 
 /**

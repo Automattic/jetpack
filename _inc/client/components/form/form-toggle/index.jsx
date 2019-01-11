@@ -61,7 +61,7 @@ export default class FormToggle extends Component {
 		this.setState( { showPopover: false } );
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.id = this.constructor.idNum++;
 	}
 

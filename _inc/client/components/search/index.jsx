@@ -92,7 +92,7 @@ class Search extends React.Component {
 		hasFocus: false,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++Search.instances,
 		} );
@@ -101,7 +101,7 @@ class Search extends React.Component {
 		this.openListener = keyListener.bind( this, 'openSearch' );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if (
 			nextProps.onSearch !== this.props.onSearch ||
 			nextProps.delaySearch !== this.props.delaySearch

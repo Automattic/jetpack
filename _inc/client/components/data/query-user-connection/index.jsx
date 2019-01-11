@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { fetchUserConnectionData, isFetchingUserData, isDevMode } from 'state/connection';
 
 export class QueryUserConnectionData extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! ( this.props.isFetchingUserData || this.props.isDevMode ) ) {
 			this.props.fetchUserConnectionData();
 		}
