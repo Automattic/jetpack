@@ -10,8 +10,6 @@ $_004967: hsl(197, 100%, 20%); // Prussian Blue
 $_d9e3ea: hsl(205, 29%, 88%); // Pattens Blue
 $rgba-grey: rgba(200,215,225,0.5);
 
-// swiped from https://github.com/Automattic/wp-calypso/blob/master/assets/stylesheets/shared/_colors.scss
-
 $color-primary: $muriel-blue-500;
 $color-primary-light: $muriel-blue-300;
 $color-primary-dark: $muriel-blue-700;
@@ -26,12 +24,6 @@ $color-link-dark: $muriel-blue-700;
 $color-error: $muriel-hot-red-500;
 $color-error-light: $muriel-hot-red-300;
 $color-error-dark: $muriel-hot-red-700;
-
-// Primary Accent (Blues)
-$blue-wordpress: $muriel-blue-500;
-$blue-light: $muriel-blue-300;
-$blue-medium: $muriel-blue-500;
-$blue-dark: $muriel-blue-700;
 
 // Jetpack Green
 $green-jetpack:          #00be28;
@@ -62,9 +54,6 @@ $alert-red:              $muriel-hot-red-400;
 $alert-green:            $muriel-hot-green-400;
 $alert-purple:           $muriel-hot-purple-400;
 
-// Link hovers
-$link-highlight:         tint($blue-medium, 20%);
-
 // Essentials
 $white: $muriel-white;
 $transparent:            rgba(255,255,255,0);
@@ -75,7 +64,6 @@ $border-ultra-light-gray: $muriel-gray-0;
 $green-text-min:          darken( $alert-green, 14% ); // #358649
 
 // Layout
-$masterbar-color:          $blue-wordpress;
 $sidebar-bg-color:         $gray-lighten-30;
 $sidebar-text-color:       $gray-dark;
 $sidebar-selected-color:   $gray-text-min;

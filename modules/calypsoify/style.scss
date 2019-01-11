@@ -123,7 +123,7 @@ body,
 
   .awaiting-mod,
   .update-plugins {
-    background-color: $blue-medium;
+    background-color: $color-primary;
   }
 }
 
@@ -383,7 +383,7 @@ body,
   background: none;
   font-weight: 400;
   padding: 3px 13px 12px;
-  color: $blue-wordpress;
+  color: $color-primary;
 }
 
 .nav-tab-active,
@@ -408,7 +408,7 @@ body,
 /* Admin Bar */
 
 #wpadminbar {
-  background: $blue-wordpress;
+  background: $color-primary;
   -webkit-box-shadow: none;
   -mozilla-box-shadow: none;
   height: 46px;
@@ -474,10 +474,10 @@ body,
 
     a {
       padding: 6px 15px;
-      color: $blue-wordpress !important;
+      color: $color-primary !important;
 
       span {
-        color: $blue-wordpress !important;
+        color: $color-primary !important;
         font-size: 14px !important;
       }
 
@@ -712,9 +712,15 @@ body,
 .wp-core-ui {
   .button {
     background: $white;
+
+		&:focus {
+			border-color: $color-primary;
+			box-shadow: 0 0 3px $color-primary-light;
+		}
   }
+
   .button-primary {
-    background: $blue-medium;
+    background: $color-primary;
     border-color: $_008ab3;
     color: $white;
     text-shadow: none;
@@ -735,13 +741,6 @@ body,
 
 	&:focus {
 		box-shadow: 0 0 0 1px $color-primary, 0 0 2px 1px $color-primary-light;
-	}
-}
-
-.plugin-card .button {
-	&:focus {
-		border-color: $color-primary;
-		box-shadow: 0 0 3px $color-primary-light;
 	}
 }
 
@@ -808,7 +807,7 @@ div.mce-toolbar-grp,
     display: none;
   }
   .accessible-focus &:focus{
-    box-shadow: 0 0 0 2px $blue-medium;
+    box-shadow: 0 0 0 2px $color-primary;
   }
 }
 
@@ -828,10 +827,10 @@ div.mce-toolbar-grp,
 .form-toggle {
   .accessible-focus &:focus {
     + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $blue-medium;
+      box-shadow: 0 0 0 2px $color-primary;
     }
     &:checked + .form-toggle__label .form-toggle__switch {
-      box-shadow: 0 0 0 2px $blue-light;
+      box-shadow: 0 0 0 2px $color-primary-light;
     }
   }
 
@@ -847,7 +846,7 @@ div.mce-toolbar-grp,
 
   &:checked{
     + .form-toggle__label .form-toggle__switch {
-      background: $blue-medium;
+      background: $color-primary;
 
       &:after {
         left: 16px;
@@ -857,7 +856,7 @@ div.mce-toolbar-grp,
 
   &:checked:not( :disabled ) {
     + .form-toggle__label:hover .form-toggle__switch {
-      background: $blue-light;
+      background: $color-primary-light;
     }
   }
 
@@ -872,7 +871,7 @@ div.mce-toolbar-grp,
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
   + .form-toggle__label .form-toggle__switch {
-    background: $blue-medium;
+    background: $color-primary;
   }
   &:checked {
     + .form-toggle__label .form-toggle__switch {
