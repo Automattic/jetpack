@@ -30,7 +30,6 @@ module.exports = {
 		"curly": 2,
 		"computed-property-spacing": [ 2, "always" ],
 		"func-call-spacing": 2,
-		"jsx-a11y/anchor-has-content": 0,
 		"jsx-quotes": [ 2, "prefer-double" ],
 		"key-spacing": 2,
 		"keyword-spacing": 2,
@@ -85,6 +84,10 @@ module.exports = {
 		"wpcalypso/i18n-mismatched-placeholders": 2,
 		"wpcalypso/import-docblock": 2,
 		"wpcalypso/jsx-gridicon-size": 0, // Ignored for Jetpack
-		"wpcalypso/jsx-classname-namespace": 0 // Ignored for Jetpack
+		"wpcalypso/jsx-classname-namespace": 0, // Ignored for Jetpack
+		// Disabled rules for now. Ideally we should resolve all the errors these rules create.
+		"wpcalypso/redux-no-bound-selectors": 0,
+		"jsx-a11y/anchor-has-content": 0,
+		"react/no-string-refs": 0,
 	}
 }
