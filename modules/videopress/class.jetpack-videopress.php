@@ -349,8 +349,8 @@ class Jetpack_VideoPress {
 	/**
 	 * Render the Core video block replacing the src attribute with the VideoPress URL
 	 *
-	 * @param array  $attributes Array containing the map block attributes.
-	 * @param string $content    String containing the map block content.
+	 * @param array  $attributes Array containing the video block attributes.
+	 * @param string $content    String containing the video block content.
 	 *
 	 * @return string
 	 */
