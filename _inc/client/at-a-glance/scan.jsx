@@ -140,30 +140,33 @@ class DashScan extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
-			content:
-				hasPremium || hasBusiness || scanEnabled
-					? __(
-							'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
-							{
-								components: {
-									a: (
-										<a
-											href="https://wordpress.com/plugins/vaultpress"
-											target="_blank"
-											rel="noopener noreferrer"
-										/>
-									),
-								},
-							}
-					  )
-					: __(
-							'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.',
-							{
-								components: {
-									a: <UpgradeLink source="aag-scan" />,
-								},
-							}
-					  ),
+			content: [
+				<p className="jp-dash-item__description" key="inactive-scanning">
+					{ hasPremium || hasBusiness || scanEnabled
+						? __(
+								'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
+								{
+									components: {
+										a: (
+											<a
+												href="https://wordpress.com/plugins/vaultpress"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+									},
+								}
+						  )
+						: __(
+								'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.',
+								{
+									components: {
+										a: <UpgradeLink source="aag-scan" />,
+									},
+								}
+						  ) }
+				</p>,
+			],
 		} );
 	}
 
