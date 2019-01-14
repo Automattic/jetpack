@@ -78,21 +78,20 @@ class Jetpack_Sync_Actions {
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
 		) ) {
-			if ( isset( $_GET['jetpack_sync_async_sender'] ) ) {
-				if ( ! defined( 'JETPACK_SYNC_DOING_ASYNC_SENDER' ) ) {
-					define( 'JETPACK_SYNC_DOING_ASYNC_SENDER', true );
+			if ( Jetpack_Sync_Settings::get_setting( 'async_sender' ) ) {
+				if ( ! isset( $_GET['jetpack_sync_async_sender'] ) ) {
+					self::async_sender();
+					return;
 				}
+			}
+
+			if ( isset( $_GET['jetpack_sync_async_sender'] ) ) {
 				ignore_user_abort(true );
 			}
 
-			if ( ! defined( 'JETPACK_SYNC_DOING_ASYNC_SENDER' )
-			     && apply_filters( 'jetpack_sync_async_sender', defined( 'REST_REQUEST' ) && REST_REQUEST && ! headers_sent() ) ) {
-				self::async_sender();
-			} else {
-				self::initialize_sender();
-				add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
-				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
-			}
+			self::initialize_sender();
+			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
 	}
 
