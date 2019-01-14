@@ -60,7 +60,12 @@ const SelectDropdownDemo = createReactClass( {
 			<div className="design-assets__group">
 				<h2>
 					<a href="/devdocs/design/select-dropdown">Select Dropdown</a>
-					<a className="design-assets__toggle button" onClick={ this.toggleButtons }>
+					<a
+						className="design-assets__toggle button"
+						role="button"
+						tabIndex={ 0 }
+						onClick={ this.toggleButtons }
+					>
 						{ toggleButtonsText }
 					</a>
 				</h2>

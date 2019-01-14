@@ -161,6 +161,8 @@ export default class ModuleChartBar extends React.Component {
 
 		return (
 			<div
+				role="button"
+				tabIndex={ 0 }
 				onClick={ this.clickHandler }
 				onMouseEnter={ this.mouseEnter }
 				onMouseLeave={ this.mouseLeave }
