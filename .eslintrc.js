@@ -89,5 +89,6 @@ module.exports = {
 		"wpcalypso/redux-no-bound-selectors": 0,
 		"jsx-a11y/anchor-has-content": 0,
 		"react/no-string-refs": 0,
+		"jsx-a11y/anchor-is-valid": 0,
 	}
 }
