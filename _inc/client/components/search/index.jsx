@@ -353,7 +353,7 @@ class Search extends React.Component {
 						id={ 'dops-search-component-' + this.state.instanceId }
 						className={ inputClass }
 						placeholder={ placeholder }
-						role="search"
+						role="searchbox"
 						value={ searchValue }
 						ref="searchInput"
 						onKeyUp={ this.keyUp }
