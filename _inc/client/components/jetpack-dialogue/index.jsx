@@ -41,7 +41,7 @@ class JetpackDialogue extends Component {
 		return (
 			<div
 				className="jp-dialogue-full__container"
-				role="dialog"
+				role="presentation"
 				onClick={ this.maybeDismiss }
 				onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }
 			>
@@ -62,7 +62,7 @@ class JetpackDialogue extends Component {
 
 				<div
 					className={ classes }
-					role="dialog"
+					role="presentation"
 					onClick={ this.clickForeground }
 					onKeyDown={ onKeyDownCallback( this.clickForeground ) }
 				>
