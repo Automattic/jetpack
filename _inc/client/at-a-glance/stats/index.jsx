@@ -268,8 +268,9 @@ export class DashStats extends Component {
 		if ( this.props.getOptionValue( 'stats' ) && ! this.statsErrors() ) {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
-					<li tabIndex="0" className="jp-at-a-glance__stats-view">
+					<li className="jp-at-a-glance__stats-view">
 						<a
+							tabIndex="0"
 							href="javascript:void(0)"
 							onClick={ this.switchToDay }
 							className={ this.getClass( 'day' ) }
@@ -277,8 +278,9 @@ export class DashStats extends Component {
 							{ __( 'Days' ) }
 						</a>
 					</li>
-					<li tabIndex="0" className="jp-at-a-glance__stats-view">
+					<li className="jp-at-a-glance__stats-view">
 						<a
+							tabIndex="0"
 							href="javascript:void(0)"
 							onClick={ this.switchToWeek }
 							className={ this.getClass( 'week' ) }
@@ -286,8 +288,9 @@ export class DashStats extends Component {
 							{ __( 'Weeks' ) }
 						</a>
 					</li>
-					<li tabIndex="0" className="jp-at-a-glance__stats-view">
+					<li className="jp-at-a-glance__stats-view">
 						<a
+							tabIndex="0"
 							href="javascript:void(0)"
 							onClick={ this.switchToMonth }
 							className={ this.getClass( 'month' ) }
