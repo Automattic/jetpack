@@ -35,6 +35,21 @@ function jetpack_register_plugin( $slug ) {
 	Jetpack_Gutenberg::register_plugin( $slug );
 }
 
+
+/**
+ * Helper function to register a Jetpack Gutenberg extension
+ *
+ * @param string   $slug              Slug of the extension.
+ * @param callable $register_callback Callback used to register the extension.
+ *
+ * @since 7.0.0
+ *
+ * @return void
+ */
+function jetpack_register_extension( $slug, $register_callback ) {
+	Jetpack_Gutenberg::register_extension( $slug, $register_callback );
+}
+
 /**
  * Set the reason why an extension (block or plugin) is unavailable
  *
@@ -129,6 +144,22 @@ class Jetpack_Gutenberg {
 	public static function register_plugin( $slug ) {
 		if ( in_array( $slug, self::$extensions, true ) ) {
 			self::$registered_plugins[] = 'jetpack-' . $slug;
+		} else {
+			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
+		}
+	}
+
+	/**
+	 * Register a generic extension
+	 *
+	 * If the extension isn't whitelisted, set its unavailability reason instead.
+	 *
+	 * @param string   $slug              Slug of the extension.
+	 * @param callable $register_callback Callback used to register the extension.
+	 */
+	public static function register_extension( $slug, $register_callback ) {
+		if ( in_array( $slug, self::$extensions, true ) ) {
+			call_user_func( $register_callback );
 		} else {
 			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
 		}
