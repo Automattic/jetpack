@@ -85,6 +85,11 @@ module.exports = {
 		"wpcalypso/import-docblock": 2,
 		"wpcalypso/jsx-gridicon-size": 0, // Ignored for Jetpack
 		"wpcalypso/jsx-classname-namespace": 0, // Ignored for Jetpack
+		"jsx-a11y/label-has-for": [ 2, {
+			"required": {
+					"some": [ "nesting", "id" ]
+			},
+	}],
 		// Disabled rules for now. Ideally we should resolve all the errors these rules create.
 		"wpcalypso/redux-no-bound-selectors": 0,
 		"jsx-a11y/anchor-has-content": 0,
