@@ -64,7 +64,7 @@ abstract class Jetpack_Admin_Page {
 		}
 		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
 		if (
-			( 'admin.php' === $pagenow && 'jetpack' === $_GET['page'] )
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
 			&& ! Jetpack::is_development_mode()
