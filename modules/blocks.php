@@ -20,7 +20,10 @@ jetpack_register_block( 'vr' );
  *
  * @since 6.9.0
 */
-if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
+if (
+	( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
+	class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
+) {
 	jetpack_register_block(
 		'tiled-gallery',
 		array(
