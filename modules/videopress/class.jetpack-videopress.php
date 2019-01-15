@@ -55,8 +55,6 @@ class Jetpack_VideoPress {
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
-
-		jetpack_register_extension( 'videopress', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 	/**
@@ -335,45 +333,6 @@ class Jetpack_VideoPress {
 		$extensions[] = 'videopress';
 
 		return $extensions;
-	}
-
-	/**
-	 * Register the Jetpack Gutenberg extension that adds VideoPress support to the Core video block.
-	 */
-	public function register_gutenberg_extension() {
-		register_block_type( 'core/video', array(
-			'render_callback' => array( $this, 'render_block_core_video_with_videopress' ),
-		) );
-	}
-
-	/**
-	 * Render the Core video block replacing the src attribute with the VideoPress URL
-	 *
-	 * @param array  $attributes Array containing the video block attributes.
-	 * @param string $content    String containing the video block content.
-	 *
-	 * @return string
-	 */
-	public function render_block_core_video_with_videopress( $attributes, $content ) {
-		if ( ! isset( $attributes['id'] ) ) {
-			return $content;
-		}
-
-		$videopress_url = videopress_get_attachment_url( $attributes['id'] );
-
-		if ( ! $videopress_url ) {
-			return $content;
-		}
-
-		return preg_replace(
-			'/src="([^"]+)/',
-			sprintf(
-				'src="%1$s',
-				esc_attr( $videopress_url )
-			),
-			$content,
-			1
-		);
 	}
 }
 
