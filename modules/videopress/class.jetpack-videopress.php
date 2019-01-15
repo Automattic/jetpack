@@ -359,15 +359,17 @@ class Jetpack_VideoPress {
 			return $content;
 		}
 
-		preg_match('/src="([^"]+)/', $content, $matches);
-		$original_src = $matches[ 1 ];
-		$src = $this->update_attachment_url_for_videopress( $original_src, $attributes['id'] );
+		$videopress_url = videopress_get_attachment_url( $attributes['id'] );
+
+		if ( ! $videopress_url ) {
+			return $content;
+		}
 
 		return preg_replace(
 			'/src="([^"]+)/',
 			sprintf(
 				'src="%1$s',
-				esc_attr( $src )
+				esc_attr( $videopress_url )
 			),
 			$content,
 			1
