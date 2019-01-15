@@ -201,6 +201,11 @@ class Jetpack_Sync_Sender {
 			ignore_user_abort( true );
 		}
 
+		/* Don't make the request block till we finish, if possible. */
+		if ( function_exists( 'fastcgi_finish_request' ) && version_compare( phpversion(), '7.0.16', '>=' ) ) {
+			fastcgi_finish_request();
+		}
+
 		$checkout_start_time = microtime( true );
 
 		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
