@@ -14,12 +14,17 @@
 
 class Jetpack_Copy_Post_By_Param {
     function __construct() {
-        if ( ! empty( $_GET[ 'copy' ] ) ) {
-            add_filter( 'wp_insert_post_data', array( $this, 'filter_post_data' ) );
+        // Add row actions to post/page/CPT listing screens.
+        if ( 'edit.php' === $GLOBALS[ 'pagenow' ] ) {
+            add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
+            add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
+            return;
         }
 
-        add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
-        add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
+        // Process any `?copy` param if on a create new post/page/CPT screen.
+        if ( ! empty( $_GET[ 'copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
+            add_filter( 'wp_insert_post_data', array( $this, 'filter_post_data' ) );
+        }
     }
 
     protected function user_can_edit_post( $post ) {
