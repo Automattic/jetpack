@@ -42,6 +42,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			// Only should be features that don't already have a UI, and we want to reveal in search.
 			const whitelist = [
 				'contact-form',
+				'copy-post',
 				'custom-css',
 				'enhanced-distribution',
 				'json-api',

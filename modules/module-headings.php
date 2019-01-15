@@ -39,6 +39,12 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'copy-post' => array(
+				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Copy an existing post\'s content into a new post.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Copy an existing post\'s content into a new post.', 'Jumpstart Description', 'jetpack' ),
+			),
+
 			'custom-content-types' => array(
 				'name' => _x( 'Custom content types', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
@@ -265,6 +271,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Writing` tag:
 			//  - modules/after-the-deadline.php
+			//  - modules/copy-post.php
 			//  - modules/custom-content-types.php
 			//  - modules/enhanced-distribution.php
 			//  - modules/json-api.php
