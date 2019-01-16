@@ -12,26 +12,37 @@
  * Additional Search Queries: copy, duplicate
  */
 
-class Jetpack_Copy_Post_By_Param {
+class Jetpack_Copy_Post {
+
+    /**
+     * Jetpack_Copy_Post_By_Param constructor.
+     * Add row actions to post/page/CPT listing screens.
+     * Process any `?copy` param if on a create new post/page/CPT screen.
+     *
+     * @return void
+     */
     function __construct() {
-        // Add row actions to post/page/CPT listing screens.
         if ( 'edit.php' === $GLOBALS[ 'pagenow' ] ) {
             add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
             add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
             return;
         }
 
-        // Process any `?copy` param if on a create new post/page/CPT screen.
         if ( ! empty( $_GET[ 'copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
             add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
         }
     }
 
-    protected function user_can_edit_post( $post ) {
-        return get_current_user_id() === (int) $post->post_author || current_user_can( 'edit_others_posts' );
-    }
-
+    /**
+     * Update the new (target) post data with the source post data.
+     *
+     * @param int     $target_post_id Target post ID.
+	 * @param WP_Post $post           Target post object (not used).
+	 * @param bool    $update         Whether this is an existing post being updated or not.
+     * @return void
+     */
     function update_post_data( $target_post_id, $post, $update ) {
+        // This avoids infinite loops of trying to update our updated post.
         if ( $update ) {
             return;
         }
@@ -53,6 +64,23 @@ class Jetpack_Copy_Post_By_Param {
         do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_content, $update_featured_image, $update_post_format );
     }
 
+    /**
+     * Determine if the current user has access to the source post.
+     *
+	 * @param WP_Post $post Source post object (the post being copied).
+     * @return bool         True if current user is the post author, or has permissions for `edit_others_posts`; false otherwise.
+     */
+    protected function user_can_edit_post( $post ) {
+        return get_current_user_id() === (int) $post->post_author || current_user_can( 'edit_others_posts' );
+    }
+
+    /**
+     * Update the target post's title, content, excerpt, categories, and tags.
+     *
+	 * @param WP_Post $source_post Post object to be copied.
+     * @param int     $target_post_id Target post ID.
+     * @return int    0 on failure, or the updated post ID on success.
+     */
     protected function update_content_and_taxonomies( $source_post, $target_post_id ) {
         $data = apply_filters( 'jetpack_copy_post_data', array(
             'ID' => $target_post_id,
@@ -65,28 +93,70 @@ class Jetpack_Copy_Post_By_Param {
         return wp_update_post( $data );
     }
 
+    /**
+     * Update the target post's featured image.
+     *
+	 * @param WP_Post   $source_post Post object to be copied.
+     * @param int       $target_post_id Target post ID.
+     * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure.
+     */
     protected function update_featured_image( $source_post, $target_post_id ) {
         $featured_image_id = get_post_thumbnail_id( $source_post );
         return update_post_meta( $target_post_id, '_thumbnail_id', $featured_image_id );
     }
 
+    /**
+     * Update the target post's post format.
+     *
+     * @param WP_Post               $source_post Post object to be copied.
+     * @param int                   $target_post_id Target post ID.
+     * @return array|WP_Error|false WP_Error on error, array of affected term IDs on success.
+     */
     protected function update_post_format( $source_post, $target_post_id ) {
         $post_format = get_post_format( $source_post );
         return set_post_format( $target_post_id, $post_format );
     }
 
+    /**
+     * Update the target post's title.
+     *
+     * @param string  $post_title Post title determined by `get_default_post_to_edit()`.
+     * @param WP_Post $post       Post object of newly-inserted post.
+     * @return string             Updated post title from source post.
+     */
     function filter_title( $post_title, $post ) {
         return $post->post_title;
     }
 
+    /**
+     * Update the target post's content (`post_content`).
+     *
+     * @param string  $post_content Post content determined by `get_default_post_to_edit()`.
+     * @param WP_Post $post         Post object of newly-inserted post.
+     * @return string               Updated post content from source post.
+     */
     function filter_content( $post_content, $post ) {
         return $post->post_content;
     }
 
+    /**
+     * Update the target post's excerpt.
+     *
+     * @param string  $post_excerpt Post excerpt determined by `get_default_post_to_edit()`.
+     * @param WP_Post $post         Post object of newly-inserted post.
+     * @return string               Updated post excerpt from source post.
+     */
     function filter_excerpt( $post_excerpt, $post ) {
         return $post->post_excerpt;
     }
 
+    /**
+     * Add a "Copy" row action to posts/pages/CPTs on list views.
+     *
+     * @param array   $actions Existing actions.
+     * @param WP_Post $post    Post object of current post in list.
+     * @return array           Array of updated row actions.
+     */
     function add_row_action( $actions, $post ) {
         $edit_url = add_query_arg( array(
             'post_type' => $post->post_type,
@@ -114,7 +184,7 @@ class Jetpack_Copy_Post_By_Param {
     }
 }
 
-function jetpack_copy_post_by_param_init() {
-    new Jetpack_Copy_Post_By_Param();
+function jetpack_copy_post_init() {
+    new Jetpack_Copy_Post();
 }
-add_action( 'admin_init', 'jetpack_copy_post_by_param_init' );
+add_action( 'admin_init', 'jetpack_copy_post_init' );
