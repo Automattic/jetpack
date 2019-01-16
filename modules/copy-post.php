@@ -41,11 +41,6 @@ class Jetpack_Copy_Post_By_Param {
             return;
         }
 
-        // Required to satify get_default_post_to_edit(), which has these filters after post creation.
-        add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
-        add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
-        add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
-
         $data = apply_filters( 'jetpack_copy_post_data', array(
             'ID' => $post_ID,
             'post_title' => $source_post->post_title,
@@ -57,6 +52,11 @@ class Jetpack_Copy_Post_By_Param {
 
         do_action( 'jetpack_copy_post' );
         wp_update_post( $data );
+
+        // Required to satify get_default_post_to_edit(), which has these filters after post creation.
+        add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
+        add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
+        add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
     }
 
     function filter_title( $post_title, $post ) {
