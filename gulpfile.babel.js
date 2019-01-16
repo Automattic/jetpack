@@ -107,40 +107,51 @@ gulp.task( 'languages:build', function( done ) {
 			// Requiring the file that will call __, _x and _n
 			require( './_inc/jetpack-strings.js' );
 
-			return gulp
-				.src( [ 'languages/*.po' ] )
-				.pipe(
-					po2json( {
-						format: 'jed1.x',
-						domain: 'jetpack',
-					} )
-				)
-				.pipe(
-					json_transform( function( data ) {
-						const localeData = data.locale_data.jetpack;
-						const filtered = {
-							'': localeData[ '' ],
-						};
+			return (
+				gulp
+					.src( [ 'languages/*.po' ] )
+					.pipe(
+						po2json( {
+							format: 'jed1.x',
+							domain: 'jetpack',
+						} )
+					)
+					.pipe(
+						json_transform( function( data ) {
+							const localeData = data.locale_data.jetpack;
+							const filtered = {
+								'': localeData[ '' ],
+							};
 
-						Object.keys( localeData ).forEach( function( term ) {
-							if ( terms.hasOwnProperty( term ) ) {
-								filtered[ term ] = localeData[ term ];
+							Object.keys( localeData ).forEach( function( term ) {
+								if ( terms.hasOwnProperty( term ) ) {
+									filtered[ term ] = localeData[ term ];
 
-								// Having a &quot; in the JSON might cause errors with the JSON later
-								if ( typeof filtered[ term ] === 'string' ) {
-									filtered[ term ] = filtered[ term ].replace( '&quot;', '"' );
+									// Having a &quot; in the JSON might cause errors with the JSON later
+									if ( typeof filtered[ term ] === 'string' ) {
+										filtered[ term ] = filtered[ term ].replace( '&quot;', '"' );
+									}
 								}
-							}
-						} );
+							} );
 
-						return filtered;
+							return {
+								locale_data: {
+									jetpack: filtered,
+								},
+							};
+						} )
+					)
+
+					// WordPress 5.0 uses md5 hashes of file paths to associate translation
+					// JSON files with the file they should be included for. This is an md5
+					// of '_inc/build/admin.js'.
+					.pipe( rename( { suffix: '-1bac79e646a8bf4081a5011ab72d5807' } ) )
+					.pipe( gulp.dest( 'languages/json/' ) )
+					.on( 'end', function() {
+						fs.unlinkSync( './_inc/jetpack-strings.js' );
+						done();
 					} )
-				)
-				.pipe( gulp.dest( 'languages/json/' ) )
-				.on( 'end', function() {
-					fs.unlinkSync( './_inc/jetpack-strings.js' );
-					done();
-				} );
+			);
 		} );
 } );
 

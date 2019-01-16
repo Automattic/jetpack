@@ -8,6 +8,7 @@ import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history';
 import assign from 'lodash/assign';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -24,6 +25,7 @@ accessibleFocus();
 const Initial_State = window.Initial_State;
 
 Initial_State.locale = JSON.parse( Initial_State.locale );
+Initial_State.locale = get( Initial_State.locale, [ 'locale_data', 'jetpack' ], {} );
 
 if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 	Initial_State.locale[ '' ].localeSlug = Initial_State.localeSlug;
