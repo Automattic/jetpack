@@ -28,7 +28,7 @@ class Jetpack_Copy_Post_By_Param {
     }
 
     protected function user_can_edit_post( $post ) {
-        return get_current_user_id() === (int) $post[ 'post_author' ] || current_user_can( 'edit_others_posts' );
+        return get_current_user_id() === (int) $post->post_author || current_user_can( 'edit_others_posts' );
     }
 
     function update_post_data( $post_ID, $post, $update ) {
@@ -36,7 +36,7 @@ class Jetpack_Copy_Post_By_Param {
             return;
         }
 
-        $source_post = get_post( $_GET['copy'], ARRAY_A );
+        $source_post = get_post( $_GET['copy'] );
         if ( ! $source_post || ! $this->user_can_edit_post( $source_post ) ) {
             return;
         }
@@ -48,11 +48,11 @@ class Jetpack_Copy_Post_By_Param {
 
         $data = apply_filters( 'jetpack_copy_post_data', array(
             'ID' => $post_ID,
-            'post_title' => $source_post[ 'post_title' ],
-            'post_content' => $source_post[ 'post_content' ],
-            'post_excerpt' => $source_post[ 'post_excerpt' ],
-            'post_category' => $source_post[ 'post_category' ],
-            'tags_input' => $source_post[ 'tags_input' ],
+            'post_title' => $source_post->post_title,
+            'post_content' => $source_post->post_content,
+            'post_excerpt' => $source_post->post_excerpt,
+            'post_category' => $source_post->post_category,
+            'tags_input' => $source_post->tags_input,
         ) );
 
         do_action( 'jetpack_copy_post' );
