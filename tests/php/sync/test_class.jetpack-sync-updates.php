@@ -13,12 +13,18 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
+	function check_for_updates_to_sync() {
+		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module->sync_last_event();
+	}
+
 	public function test_update_plugins_is_synced() {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
 		wp_update_plugins();
+		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 
@@ -32,6 +38,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
+		$this->server_event_storage->reset();
 		$current = get_site_transient( 'update_plugins' );
 
 		$response = $this->new_plugin_response( '1' );
@@ -46,9 +53,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		//
 		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
-
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
-
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_plugins_change' );
@@ -80,6 +85,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		wp_update_themes();
+		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$theme = reset( $updates->response );
@@ -92,6 +98,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
+		$this->server_event_storage->reset();
 		$current = get_site_transient( 'update_themes' );
 
 		$response = $this->new_theme_response( '1' );

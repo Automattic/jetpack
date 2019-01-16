@@ -7,6 +7,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	private $old_wp_version = null;
 	private $updates = array();
 
+	public function set_defaults() {
+		$this->updates = array();
+	}
+
 	function name() {
 		return 'updates';
 	}
