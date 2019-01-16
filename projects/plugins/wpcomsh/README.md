@@ -50,7 +50,11 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 ## Deployment
 
-At the moment, deployment is a manual step. To deploy wpcomsh on both the staging server (ie `web12`) and the prod server, ping @seanosh in the Automated Transfer Slack channel. When wpcomsh is being deployed, its [Makefile](Makefile) is run first. Review the Makefile after merging your Pull Request to make sure it doesn't need changes (it happened to us once that some things were not working on Pressable while working locally as the added files were unintentionally excluded from the Makefile and so not deployed on Pressable).
+- Update the version number [here](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L5) and [here](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L11)
+- Add a new tag with the new version e.g. `git tag v1.0.0 && git push origin v1.0.0`
+- Build a new release locally with `make build`. The build will be `./build/wpcomsh-{vesion}.zip`
+- Create a new release and add the build as an asset. Note the build asset in this [example](https://github.com/Automattic/wpcomsh/releases/tag/v2.3.50)
+- Make a systems request to have the lastest version deployed pMz3w-9lN-p2
 
 ## Troubleshooting
 
