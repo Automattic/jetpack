@@ -23,7 +23,7 @@ class Jetpack_Copy_Post_By_Param {
 
         // Process any `?copy` param if on a create new post/page/CPT screen.
         if ( ! empty( $_GET[ 'copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
-            add_filter( 'wp_insert_post_data', array( $this, 'filter_post_data' ) );
+            add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
         }
     }
 
@@ -31,10 +31,14 @@ class Jetpack_Copy_Post_By_Param {
         return get_current_user_id() === (int) $post[ 'post_author' ] || current_user_can( 'edit_others_posts' );
     }
 
-    function filter_post_data( $data ) {
+    function update_post_data( $post_ID, $post, $update ) {
+        if ( $update ) {
+            return;
+        }
+
         $source_post = get_post( $_GET['copy'], ARRAY_A );
         if ( ! $source_post || ! $this->user_can_edit_post( $source_post ) ) {
-            return $data;
+            return;
         }
 
         // Required to satify get_default_post_to_edit(), which has these filters after post creation.
@@ -42,19 +46,17 @@ class Jetpack_Copy_Post_By_Param {
         add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
         add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
 
-        $data = array_merge(
-            $data,
-            array(
-                'post_title' => $source_post[ 'post_title' ],
-                'post_content' => $source_post[ 'post_content' ],
-                'post_excerpt' => $source_post[ 'post_excerpt' ],
-            )
-        );
-
-        $data = apply_filters( 'jetpack_copy_post_data', $data );
+        $data = apply_filters( 'jetpack_copy_post_data', array(
+            'ID' => $post_ID,
+            'post_title' => $source_post[ 'post_title' ],
+            'post_content' => $source_post[ 'post_content' ],
+            'post_excerpt' => $source_post[ 'post_excerpt' ],
+            'post_category' => $source_post[ 'post_category' ],
+            'tags_input' => $source_post[ 'tags_input' ],
+        ) );
 
         do_action( 'jetpack_copy_post' );
-        return $data;
+        wp_update_post( $data );
     }
 
     function filter_title( $post_title, $post ) {
