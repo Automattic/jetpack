@@ -77,6 +77,7 @@ class Jetpack_Copy_Post_By_Param {
 
     function add_row_action( $actions, $post ) {
         $edit_url = add_query_arg( array(
+            'post_type' => $post->post_type,
             'copy' => $post->ID,
             '_wpnonce' => wp_create_nonce( 'jetpack-copy-post' ),
         ), admin_url( 'post-new.php' ) );
