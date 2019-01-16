@@ -53,7 +53,15 @@ class Jetpack_Copy_Post_By_Param {
 
         // Featured Image
         $featured_image_id = get_post_thumbnail_id( $source_post );
-        update_post_meta( $post_ID, '_thumbnail_id', $featured_image_id );
+        if ( $featured_image_id ) {
+            update_post_meta( $post_ID, '_thumbnail_id', $featured_image_id );
+        }
+
+        // Post Formats
+        $post_format = get_post_format( $source_post );
+        if ( $post_format ) {
+            set_post_format( $post_ID, $post_format );
+        }
 
         do_action( 'jetpack_copy_post' );
 
