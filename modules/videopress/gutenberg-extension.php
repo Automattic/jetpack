@@ -24,11 +24,16 @@ function jetpack_render_block_core_video_with_videopress( $attributes, $content 
 		return $content;
 	}
 
-	$videopress_url = videopress_get_attachment_url( $attributes['id'] );
+	$blog_id = get_current_blog_id();
+	$post_id = absint( $attributes['id'] );
+	$videopress_id = video_get_info_by_blogpostid( $blog_id, $post_id )->guid;
+	$videopress_data = videopress_get_video_details( $videopress_id );
 
-	if ( ! $videopress_url ) {
+	if ( empty( $videopress_data->files->hd->mp4 ) ) {
 		return $content;
 	}
+
+	$videopress_url = $videopress_data->file_url_base->https . $videopress_data->files->hd->mp4;
 
 	return preg_replace(
 		'/src="([^"]+)/',
