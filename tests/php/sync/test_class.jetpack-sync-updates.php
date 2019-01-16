@@ -150,6 +150,10 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 
 		_maybe_update_core();
+		$core_transiant = get_site_transient( 'update_core' );
+		if( sizeof( $core_transiant->updates )  === 1 && $core_transiant->updates[0]->response === 'latest' ) {
+			$this->markTestSkipped( 'No new updates!' );
+		}
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertTrue( is_int( $updates->last_checked ) );

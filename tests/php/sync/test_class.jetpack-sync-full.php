@@ -572,6 +572,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->server_replica_storage->current_theme_supports( 'post-thumbnails' ) );
 	}
 
+	function check_for_updates_to_sync() {
+		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module->sync_last_event();
+	}
+
 	function test_full_sync_sends_plugin_updates() {
 
 		if ( is_multisite() ) {
@@ -579,7 +584,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		wp_update_plugins();
-
+		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 
 		// check that an update just finished
@@ -606,7 +611,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		wp_update_themes();
-
+		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 
 		// check that an update just finished

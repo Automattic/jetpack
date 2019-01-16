@@ -120,7 +120,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	}
 
-
 	public function get_update_checksum( $update, $transient ) {
 		$updates = array();
 		$no_updated = array();
@@ -185,8 +184,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
-
 		$new_checksum = $this->get_update_checksum( $value, $transient );
+
 		if ( false === $new_checksum  ) {
 			return;
 		}
@@ -200,7 +199,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-		if ( $transient === 'update_core' ) {
+		if ( 'update_core' === $transient ) {
 			/**
 			 * jetpack_update_core_change
 			 *
@@ -209,7 +208,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			 * @param array containing info that tells us what needs updating
 			 *
 			 */
-			do_action( "jetpack_{$transient}_change", $value );
+			do_action( "jetpack_update_core_change", $value );
 			return;
 		}
 		if ( empty( $this->updates ) ) {
