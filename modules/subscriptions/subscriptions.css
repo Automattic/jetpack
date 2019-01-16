@@ -2,6 +2,10 @@
 	width: 95%;
 }
 
+.comment-subscription-form {
+	margin-bottom: 1em;
+}
+
 .comment-subscription-form .subscribe-label {
 	display: inline !important;
 }
