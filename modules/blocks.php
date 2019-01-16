@@ -88,7 +88,7 @@ function jetpack_giphy_block_load_assets( $attr ) {
 		<?php if ( $caption ) : ?>
 			<figcaption class="caption"><?php echo( esc_html( $caption ) ); ?></figcaption>
 		<?php endif; ?>
-		</div>
+	</div>
 	<?php
 	$html = ob_get_clean();
 	Jetpack_Gutenberg::load_assets_as_required( 'giphy' );
