@@ -49,9 +49,13 @@ class Jetpack_Copy_Post_By_Param {
             'post_category' => $source_post->post_category,
             'tags_input' => $source_post->tags_input,
         ) );
+        wp_update_post( $data );
+
+        // Featured Image
+        $featured_image_id = get_post_thumbnail_id( $source_post );
+        update_post_meta( $post_ID, '_thumbnail_id', $featured_image_id );
 
         do_action( 'jetpack_copy_post' );
-        wp_update_post( $data );
 
         // Required to satify get_default_post_to_edit(), which has these filters after post creation.
         add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
