@@ -31,7 +31,7 @@ class Jetpack_Copy_Post_By_Param {
         return get_current_user_id() === (int) $post->post_author || current_user_can( 'edit_others_posts' );
     }
 
-    function update_post_data( $post_ID, $post, $update ) {
+    function update_post_data( $target_post_id, $post, $update ) {
         if ( $update ) {
             return;
         }
@@ -41,34 +41,38 @@ class Jetpack_Copy_Post_By_Param {
             return;
         }
 
+        $update_content = $this->update_content_and_taxonomies( $source_post, $target_post_id );
+        $update_featured_image = $this->update_featured_image( $source_post, $target_post_id );
+        $update_post_format = $this->update_post_format( $source_post, $target_post_id );
+
+        // Required to satify get_default_post_to_edit(), which has these filters after post creation.
+        add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
+        add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
+        add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
+
+        do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_content, $update_featured_image, $update_post_format );
+    }
+
+    protected function update_content_and_taxonomies( $source_post, $target_post_id ) {
         $data = apply_filters( 'jetpack_copy_post_data', array(
-            'ID' => $post_ID,
+            'ID' => $target_post_id,
             'post_title' => $source_post->post_title,
             'post_content' => $source_post->post_content,
             'post_excerpt' => $source_post->post_excerpt,
             'post_category' => $source_post->post_category,
             'tags_input' => $source_post->tags_input,
         ) );
-        wp_update_post( $data );
+        return wp_update_post( $data );
+    }
 
-        // Featured Image
+    protected function update_featured_image( $source_post, $target_post_id ) {
         $featured_image_id = get_post_thumbnail_id( $source_post );
-        if ( $featured_image_id ) {
-            update_post_meta( $post_ID, '_thumbnail_id', $featured_image_id );
-        }
+        return update_post_meta( $target_post_id, '_thumbnail_id', $featured_image_id );
+    }
 
-        // Post Formats
+    protected function update_post_format( $source_post, $target_post_id ) {
         $post_format = get_post_format( $source_post );
-        if ( $post_format ) {
-            set_post_format( $post_ID, $post_format );
-        }
-
-        do_action( 'jetpack_copy_post' );
-
-        // Required to satify get_default_post_to_edit(), which has these filters after post creation.
-        add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
-        add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
-        add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
+        return set_post_format( $target_post_id, $post_format );
     }
 
     function filter_title( $post_title, $post ) {
