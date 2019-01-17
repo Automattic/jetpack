@@ -4,7 +4,7 @@
  * Module Description: Copy an existing post's content into a new post.
  * Jumpstart Description: Copy an existing post's content into a new post.
  * Sort Order: 15
- * First Introduced: 6.9
+ * First Introduced: 7.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Writing
