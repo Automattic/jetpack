@@ -211,13 +211,13 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			do_action( "jetpack_update_core_change", $value );
 			return;
 		}
-		if ( empty( $this->updates ) ) {
+		if ( ! empty( $this->updates ) ) {
 			add_action( 'shutdown', array( $this, 'sync_last_event' ), 9 );
 		}
 		if ( ! isset( $this->updates[ $transient ] ) ) {
-			$this->updates[$transient] = array();
+			$this->updates[ $transient ] = array();
 		}
-		$this->updates[$transient][] = $value;
+		$this->updates[ $transient ][] = $value;
 	}
 
 	public function sync_last_event() {
