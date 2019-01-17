@@ -749,7 +749,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
+		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links )  );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
 		$this->resetCallableAndConstantTimeouts();
@@ -777,7 +777,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
-		if ( isset( $only_plugins_we_care_about['hello.php'] ) ) {
+		if ( isset( $plugins_action_links['hello.php'] ) ) {
 			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
 		} else {
 			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello-dolly/hello.php'] ) ? $plugins_action_links['hello-dolly/hello.php'] : '';
