@@ -52,7 +52,7 @@ class Jetpack_Copy_Post {
 		}
 
 		$source_post = get_post( $_GET['jetpack-copy'] );
-		if ( ! $source_post || ! $this->user_can_edit_post( $source_post ) ) {
+		if ( ! $source_post || ! $this->user_can_access_post( $source_post->ID ) ) {
 			return;
 		}
 
@@ -74,11 +74,11 @@ class Jetpack_Copy_Post {
 	/**
 	 * Determine if the current user has access to the source post.
 	 *
-	 * @param WP_Post $post Source post object (the post being copied).
-	 * @return bool         True if current user is the post author, or has permissions for `edit_others_posts`; false otherwise.
+	 * @param int $post_id Source post ID (the post being copied).
+	 * @return bool True if user has the meta cap of `read_post` for the given post ID, false otherwise.
 	 */
-	protected function user_can_edit_post( $post ) {
-		return get_current_user_id() === (int) $post->post_author || current_user_can( 'edit_others_posts' );
+	protected function user_can_access_post( $post_id ) {
+		return current_user_can( 'read_post', $post_id );
 	}
 
 	/**
@@ -186,6 +186,10 @@ class Jetpack_Copy_Post {
 	 * @return array           Array of updated row actions.
 	 */
 	public function add_row_action( $actions, $post ) {
+		if ( ! $this->user_can_access_post( $post->ID ) ) {
+			return $actions;
+		}
+
 		$edit_url    = add_query_arg(
 			array(
 				'post_type'    => $post->post_type,
