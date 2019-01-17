@@ -56,7 +56,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$update_content        = $this->update_content_and_taxonomies( $source_post, $target_post_id );
+		$update_content        = $this->update_content( $source_post, $target_post_id );
 		$update_featured_image = $this->update_featured_image( $source_post, $target_post_id );
 		$update_post_format    = $this->update_post_format( $source_post, $target_post_id );
 
@@ -85,14 +85,16 @@ class Jetpack_Copy_Post {
 	 * @param int     $target_post_id Target post ID.
 	 * @return int    0 on failure, or the updated post ID on success.
 	 */
-	protected function update_content_and_taxonomies( $source_post, $target_post_id ) {
+	protected function update_content( $source_post, $target_post_id ) {
 		$data = array(
-			'ID'            => $target_post_id,
-			'post_title'    => $source_post->post_title,
-			'post_content'  => $source_post->post_content,
-			'post_excerpt'  => $source_post->post_excerpt,
-			'post_category' => $source_post->post_category,
-			'tags_input'    => $source_post->tags_input,
+			'ID'             => $target_post_id,
+			'post_title'     => $source_post->post_title,
+			'post_content'   => $source_post->post_content,
+			'post_excerpt'   => $source_post->post_excerpt,
+			'comment_status' => $source_post->comment_status,
+			'ping_status'    => $source_post->ping_status,
+			'post_category'  => $source_post->post_category,
+			'tags_input'     => $source_post->tags_input,
 		);
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
 		return wp_update_post( $data );
