@@ -30,7 +30,9 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-copy-post' ) &&
+			'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 		}
 	}
