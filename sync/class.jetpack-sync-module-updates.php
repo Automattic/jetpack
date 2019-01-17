@@ -215,9 +215,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			add_action( 'shutdown', array( $this, 'sync_last_event' ), 9 );
 		}
 		if ( ! isset( $this->updates[ $transient ] ) ) {
-			$this->updates[$transient] = array();
+			$this->updates[ $transient ] = array();
 		}
-		$this->updates[$transient][] = $value;
+		$this->updates[ $transient ][] = $value;
 	}
 
 	public function sync_last_event() {
