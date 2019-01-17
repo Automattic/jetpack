@@ -12,6 +12,9 @@
  * Additional Search Queries: copy, duplicate
  */
 
+/**
+ * Copy Post class.
+ */
 class Jetpack_Copy_Post {
 	/**
 	 * Jetpack_Copy_Post_By_Param constructor.
@@ -21,13 +24,13 @@ class Jetpack_Copy_Post {
 	 * @return void
 	 */
 	protected function __construct() {
-		if ( 'edit.php' === $GLOBALS[ 'pagenow' ] ) {
+		if ( 'edit.php' === $GLOBALS['pagenow'] ) {
 			add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			return;
 		}
 
-		if ( ! empty( $_GET[ 'jetpack-copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 		}
 	}
@@ -51,9 +54,9 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$update_content = $this->update_content_and_taxonomies( $source_post, $target_post_id );
+		$update_content        = $this->update_content_and_taxonomies( $source_post, $target_post_id );
 		$update_featured_image = $this->update_featured_image( $source_post, $target_post_id );
-		$update_post_format = $this->update_post_format( $source_post, $target_post_id );
+		$update_post_format    = $this->update_post_format( $source_post, $target_post_id );
 
 		// Required to satify get_default_post_to_edit(), which has these filters after post creation.
 		add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
@@ -81,22 +84,23 @@ class Jetpack_Copy_Post {
 	 * @return int    0 on failure, or the updated post ID on success.
 	 */
 	protected function update_content_and_taxonomies( $source_post, $target_post_id ) {
-		$data = apply_filters( 'jetpack_copy_post_data', array(
-			'ID' => $target_post_id,
-			'post_title' => $source_post->post_title,
-			'post_content' => $source_post->post_content,
-			'post_excerpt' => $source_post->post_excerpt,
+		$data = array(
+			'ID'            => $target_post_id,
+			'post_title'    => $source_post->post_title,
+			'post_content'  => $source_post->post_content,
+			'post_excerpt'  => $source_post->post_excerpt,
 			'post_category' => $source_post->post_category,
-			'tags_input' => $source_post->tags_input,
-		) );
+			'tags_input'    => $source_post->tags_input,
+		);
+		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
 		return wp_update_post( $data );
 	}
 
 	/**
 	 * Update the target post's featured image.
 	 *
-	 * @param WP_Post   $source_post Post object to be copied.
-	 * @param int       $target_post_id Target post ID.
+	 * @param WP_Post $source_post Post object to be copied.
+	 * @param int     $target_post_id Target post ID.
 	 * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure.
 	 */
 	protected function update_featured_image( $source_post, $target_post_id ) {
@@ -107,8 +111,8 @@ class Jetpack_Copy_Post {
 	/**
 	 * Update the target post's post format.
 	 *
-	 * @param WP_Post               $source_post Post object to be copied.
-	 * @param int                   $target_post_id Target post ID.
+	 * @param WP_Post $source_post Post object to be copied.
+	 * @param int     $target_post_id Target post ID.
 	 * @return array|WP_Error|false WP_Error on error, array of affected term IDs on success.
 	 */
 	protected function update_post_format( $source_post, $target_post_id ) {
@@ -157,11 +161,14 @@ class Jetpack_Copy_Post {
 	 * @return array           Array of updated row actions.
 	 */
 	public function add_row_action( $actions, $post ) {
-		$edit_url = add_query_arg( array(
-			'post_type' => $post->post_type,
-			'jetpack-copy' => $post->ID,
-			'_wpnonce' => wp_create_nonce( 'jetpack-copy-post' ),
-		), admin_url( 'post-new.php' ) );
+		$edit_url    = add_query_arg(
+			array(
+				'post_type'    => $post->post_type,
+				'jetpack-copy' => $post->ID,
+				'_wpnonce'     => wp_create_nonce( 'jetpack-copy-post' ),
+			),
+			admin_url( 'post-new.php' )
+		);
 		$edit_action = array(
 			'jetpack-copy' => sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
@@ -173,7 +180,7 @@ class Jetpack_Copy_Post {
 
 		// Insert the Copy action before the Trash action.
 		$edit_offset = array_search( 'trash', array_keys( $actions ), true );
-		$actions = array_merge(
+		$actions     = array_merge(
 			array_slice( $actions, 0, $edit_offset ),
 			$edit_action,
 			array_slice( $actions, $edit_offset )
@@ -183,6 +190,9 @@ class Jetpack_Copy_Post {
 	}
 }
 
+/**
+ * Instantiate an instance of Jetpack_Copy_Post on the `admin_init` hook.
+ */
 function jetpack_copy_post_init() {
 	new Jetpack_Copy_Post();
 }
