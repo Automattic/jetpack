@@ -23,7 +23,7 @@ class Jetpack_Copy_Post {
 	 *
 	 * @return void
 	 */
-	protected function __construct() {
+	public function __construct() {
 		if ( 'edit.php' === $GLOBALS['pagenow'] ) {
 			add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
