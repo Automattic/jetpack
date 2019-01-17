@@ -212,6 +212,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			return;
 		}
 		if ( empty( $this->updates ) ) {
+			// lets add the shutdown method once and only when the updates move from empty to filled with something
 			add_action( 'shutdown', array( $this, 'sync_last_event' ), 9 );
 		}
 		if ( ! isset( $this->updates[ $transient ] ) ) {
