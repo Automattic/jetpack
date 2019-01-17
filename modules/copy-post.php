@@ -56,16 +56,19 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$update_content        = $this->update_content( $source_post, $target_post_id );
-		$update_featured_image = $this->update_featured_image( $source_post, $target_post_id );
-		$update_post_format    = $this->update_post_format( $source_post, $target_post_id );
+		$update_results = array(
+			'update_content'        => $this->update_content( $source_post, $target_post_id ),
+			'update_featured_image' => $this->update_featured_image( $source_post, $target_post_id ),
+			'update_post_format'    => $this->update_post_format( $source_post, $target_post_id ),
+			'update_likes_sharing'  => $this->update_likes_sharing( $source_post, $target_post_id ),
+		);
 
 		// Required to satify get_default_post_to_edit(), which has these filters after post creation.
 		add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
 
-		do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_content, $update_featured_image, $update_post_format );
+		do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_results );
 	}
 
 	/**
@@ -122,6 +125,24 @@ class Jetpack_Copy_Post {
 	protected function update_post_format( $source_post, $target_post_id ) {
 		$post_format = get_post_format( $source_post );
 		return set_post_format( $target_post_id, $post_format );
+	}
+
+	/**
+	 * Update the target post's Likes and Sharing statuses.
+	 *
+	 * @param WP_Post $source_post Post object to be copied.
+	 * @param int     $target_post_id Target post ID.
+	 * @return array Array with the results of each update action.
+	 */
+	protected function update_likes_sharing( $source_post, $target_post_id ) {
+		$likes          = get_post_meta( $source_post->ID, 'switch_like_status', true );
+		$sharing        = get_post_meta( $source_post->ID, 'sharing_disabled', false );
+		$likes_result   = update_post_meta( $target_post_id, 'switch_like_status', $likes );
+		$sharing_result = update_post_meta( $target_post_id, 'sharing_disabled', $sharing );
+		return array(
+			'likes'   => $likes_result,
+			'sharing' => $sharing_result,
+		);
 	}
 
 	/**
