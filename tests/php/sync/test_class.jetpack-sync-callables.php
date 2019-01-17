@@ -762,8 +762,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// Nothing should have changed since we cache the results.
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
-		activate_plugin('hello.php', '', false, true );
-		activate_plugin('hello-dolly/hello.php', '', false, true );
+		if ( file_exists( WP_CONTENT_DIR . 'plugins/hello.php' )  ) {
+			activate_plugin('hello.php', '', false, true );
+		}
+		if ( file_exists( WP_CONTENT_DIR . 'plugins/hello-dolly/hello.php' ) ) {
+			activate_plugin('hello-dolly/hello.php', '', false, true );
+		}
+
 		$this->resetCallableAndConstantTimeouts();
 		set_current_screen( 'banana' );
 		$this->sender->do_sync();
