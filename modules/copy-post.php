@@ -45,7 +45,7 @@ class Jetpack_Copy_Post {
 	 */
 	public function update_post_data( $target_post_id, $post, $update ) {
 		// This avoids infinite loops of trying to update our updated post.
-		if ( $update ) {
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-copy-post' ) || $update ) {
 			return;
 		}
 
