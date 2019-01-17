@@ -28,7 +28,7 @@ class Jetpack_Copy_Post {
             return;
         }
 
-        if ( ! empty( $_GET[ 'copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
+        if ( ! empty( $_GET[ 'jetpack-copy' ] ) && 'post-new.php' === $GLOBALS[ 'pagenow' ] ) {
             add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
         }
     }
@@ -47,7 +47,7 @@ class Jetpack_Copy_Post {
             return;
         }
 
-        $source_post = get_post( $_GET['copy'] );
+        $source_post = get_post( $_GET['jetpack-copy'] );
         if ( ! $source_post || ! $this->user_can_edit_post( $source_post ) ) {
             return;
         }
@@ -160,11 +160,11 @@ class Jetpack_Copy_Post {
     function add_row_action( $actions, $post ) {
         $edit_url = add_query_arg( array(
             'post_type' => $post->post_type,
-            'copy' => $post->ID,
+            'jetpack-copy' => $post->ID,
             '_wpnonce' => wp_create_nonce( 'jetpack-copy-post' ),
         ), admin_url( 'post-new.php' ) );
         $edit_action = array(
-            'copy' => sprintf(
+            'jetpack-copy' => sprintf(
                 '<a href="%s" aria-label="%s">%s</a>',
                 esc_url( $edit_url ),
                 esc_attr( __( 'Copy this post.' ) ),
