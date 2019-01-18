@@ -59,10 +59,11 @@ class Jetpack_Copy_Post {
 		}
 
 		$update_results = array(
-			'update_content'        => $this->update_content( $source_post, $target_post_id ),
-			'update_featured_image' => $this->update_featured_image( $source_post, $target_post_id ),
-			'update_post_format'    => $this->update_post_format( $source_post, $target_post_id ),
-			'update_likes_sharing'  => $this->update_likes_sharing( $source_post, $target_post_id ),
+			'update_content'                => $this->update_content( $source_post, $target_post_id ),
+			'update_featured_image'         => $this->update_featured_image( $source_post, $target_post_id ),
+			'update_post_format'            => $this->update_post_format( $source_post, $target_post_id ),
+			'update_likes_sharing'          => $this->update_likes_sharing( $source_post, $target_post_id ),
+			'update_custom_post_type_terms' => $this->update_custom_post_type_terms( $source_post, $target_post_id ),
 		);
 
 		// Required to satify get_default_post_to_edit(), which has these filters after post creation.
@@ -80,7 +81,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @param WP_Post $source_post Post object that was copied.
 		 * @param int     $target_post_id Target post ID.
-		 * @param array   $update_results Results of the four update operations, allowing action to be taken.
+		 * @param array   $update_results Results of all update operations, allowing action to be taken.
 		 */
 		do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_results );
 	}
@@ -128,6 +129,28 @@ class Jetpack_Copy_Post {
 		 */
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
 		return wp_update_post( $data );
+	}
+
+	/**
+	 * Update terms for custom post types.
+	 *
+	 * @param WP_Post $source_post Post object to be copied.
+	 * @param int     $target_post_id Target post ID.
+	 * @return array Results of attempts to set each term to the target (new) post.
+	 */
+	protected function update_custom_post_type_terms( $source_post, $target_post_id ) {
+		$results = array();
+		if ( in_array( $source_post->post_type, array( 'post', 'page' ), true ) ) {
+			return $results;
+		}
+
+		$taxonomies = get_object_taxonomies( $source_post, 'objects' );
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms     = wp_get_post_terms( $source_post->ID, $taxonomy->name, array( 'fields' => 'ids' ) );
+			$results[] = wp_set_post_terms( $target_post_id, $terms, $taxonomy->name );
+		}
+
+		return $results;
 	}
 
 	/**
