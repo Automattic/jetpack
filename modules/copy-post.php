@@ -68,6 +68,18 @@ class Jetpack_Copy_Post {
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
 
+		/**
+		 * Fires after all updates have been performed, and default content filters have been added.
+		 * Allows for any cleanup or post operations, and default content filters can be removed or modified.
+		 *
+		 * @module copy-post
+		 *
+		 * @since 7.0
+		 *
+		 * @param WP_Post $source_post Post object that was copied.
+		 * @param int     $target_post_id Target post ID.
+		 * @param array   $update_results Results of the four update operations, allowing action to be taken.
+		 */
 		do_action( 'jetpack_copy_post', $source_post, $target_post_id, $update_results );
 	}
 
@@ -99,6 +111,19 @@ class Jetpack_Copy_Post {
 			'post_category'  => $source_post->post_category,
 			'tags_input'     => $source_post->tags_input,
 		);
+
+		/**
+		 * Fires just before the target post is updated with its new data.
+		 * Allows for final data adjustments before updating the target post.
+		 *
+		 * @module copy-post
+		 *
+		 * @since 7.0
+		 *
+		 * @param array $data Post data with which to update the target (new) post.
+		 * @param WP_Post $source_post Post object being copied.
+		 * @param int     $target_post_id Target post ID.
+		 */
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
 		return wp_update_post( $data );
 	}
