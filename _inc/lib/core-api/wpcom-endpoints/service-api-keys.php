@@ -4,7 +4,7 @@
  *
  * [
  *   { # Availabilty Object. See schema for more detail.
- *      code:            (string) Displays success if the oppration was successfully executed and an error code if it was not
+ *      code:            (string) Displays success if the operation was successfully executed and an error code if it was not
  *      service:         (string) The name of the service in question
  *      service_api_key: (string) The API key used by the service empty if one is not set yet
  *      message:         (string) User friendly message
@@ -78,7 +78,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'code'          => array(
-					'description' => __( 'Displays success if the oppration was successfully executed and an error code if it was not', 'jetpack' ),
+					'description' => __( 'Displays success if the operation was successfully executed and an error code if it was not', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'service' => array(
@@ -86,7 +86,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 					'type'        => 'string',
 				),
 				'service_api_key'          => array(
-					'description' => __( 'The API key used by the service empty if one is not set yet', 'jetpack' ),
+					'description' => __( 'The API key used by the service. Empty if none has been set yet', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'message'          => array(
