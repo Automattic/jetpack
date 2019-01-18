@@ -35,11 +35,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							link: 'https://jetpack.com/support/likes/',
 						} }
 					>
-                                        <p> 
-						{ __(
-							'When visitors enjoy your content, let them show it with a Like.'
-						) }
-                                        </p>							
+						<p>{ __( 'When visitors enjoy your content, let them show it with a Like.' ) }</p>
 						<ModuleToggle
 							slug="likes"
 							disabled={ unavailableInDevMode }
@@ -47,9 +43,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __(
-								'Add Like buttons to your posts and pages'
-							) }
+							{ __( 'Add Like buttons to your posts and pages' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>
