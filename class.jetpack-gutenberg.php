@@ -92,6 +92,13 @@ class Jetpack_Gutenberg {
 	private static $registered_plugins = array();
 
 	/**
+	 * Keeps track of the generic extensions registered
+	 *
+	 * @var array Plugin registry
+	 */
+	private static $registered_extensions = array();
+
+	/**
 	 * Prepend the 'jetpack/' prefix to a block name
 	 *
 	 * @param string $block_name The block name.
@@ -160,6 +167,7 @@ class Jetpack_Gutenberg {
 	public static function register_extension( $slug, $register_callback ) {
 		if ( in_array( $slug, self::$extensions, true ) ) {
 			call_user_func( $register_callback );
+			self::$registered_extensions[] = 'jetpack/' . $slug;
 		} else {
 			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
 		}
@@ -260,6 +268,7 @@ class Jetpack_Gutenberg {
 		self::$extensions         = array();
 		self::$availability       = array();
 		self::$registered_plugins = array();
+		self::$registered_extensions = array();
 	}
 
 	/**
@@ -328,7 +337,8 @@ class Jetpack_Gutenberg {
 
 		foreach ( self::$extensions as $extension ) {
 			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
-				in_array( 'jetpack-' . $extension, self::$registered_plugins, true );
+				in_array( 'jetpack-' . $extension, self::$registered_plugins, true ) ||
+				in_array( 'jetpack/' . $extension, self::$registered_extensions, true );
 
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
