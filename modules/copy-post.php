@@ -52,7 +52,9 @@ class Jetpack_Copy_Post {
 		}
 
 		$source_post = get_post( $_GET['jetpack-copy'] );
-		if ( ! $source_post || ! $this->user_can_access_post( $source_post->ID ) ) {
+		if ( ! $source_post instanceof WP_Post ||
+			! $this->user_can_access_post( $source_post->ID ) ||
+			! $this->validate_post_type( $source_post ) ) {
 			return;
 		}
 
@@ -204,14 +206,46 @@ class Jetpack_Copy_Post {
 	}
 
 	/**
-	 * Add a "Copy" row action to posts/pages/CPTs on list views.
+	 * Validate the post type to be used for the target post.
+	 *
+	 * @param WP_Post $post Post object of current post in listing.
+	 * @return bool True if the post type is in a list of supported psot types; false otherwise.
+	 */
+	protected function validate_post_type( $post ) {
+		$valid_post_types    = array(
+			'post',
+			'page',
+			'jetpack-testimonial',
+			'jetpack-portfolio',
+		);
+		$post_type_supported = in_array( $post->post_type, $valid_post_types, true );
+
+		/**
+		 * Fires when determining if the "Copy" row action should be made available.
+		 * Allows overriding supported post types.
+		 *
+		 * @module copy-post
+		 *
+		 * @since 7.0
+		 *
+		 * @param bool  $post_type_supported If the given post type is a valid supported psot type.
+		 * @param array $valid_post_types Supported post types.
+		 * @param WP_Post $post Post object of current post in listing.
+		 */
+		return apply_filters( 'jetpack_copy_post_post_types', $post_type_supported, $valid_post_types, $post );
+	}
+
+	/**
+	 * Add a "Copy" row action to supported posts/pages/CPTs on list views.
 	 *
 	 * @param array   $actions Existing actions.
 	 * @param WP_Post $post    Post object of current post in list.
 	 * @return array           Array of updated row actions.
 	 */
 	public function add_row_action( $actions, $post ) {
-		if ( ! $this->user_can_access_post( $post->ID ) ) {
+		if ( ! $this->user_can_access_post( $post->ID ) ||
+			! $post instanceof WP_Post ||
+			! $this->validate_post_type( $post ) ) {
 			return $actions;
 		}
 
