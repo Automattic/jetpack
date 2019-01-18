@@ -320,6 +320,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
                     <p id="subscribe-email">
                         <label id="jetpack-subscribe-label"
+                               class="screen-reader-text"
                                for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
                         </label>
@@ -344,44 +345,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     </p>
 				<?php } ?>
             </form>
-
-            <script>
-				/*
-				Custom functionality for safari and IE
-				 */
-				(function (d) {
-					// In case the placeholder functionality is available we remove labels
-					if (('placeholder' in d.createElement('input'))) {
-						var label = d.querySelector('label[for=subscribe-field-<?php echo $widget_id; ?>]');
-						label.style.clip = 'rect(1px, 1px, 1px, 1px)';
-						label.style.position = 'absolute';
-						label.style.height = '1px';
-						label.style.width = '1px';
-						label.style.overflow = 'hidden';
-					}
-
-					// Make sure the email value is filled in before allowing submit
-					var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'),
-						input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>'),
-						handler = function (event) {
-							if ('' === input.value) {
-								input.focus();
-
-								if (event.preventDefault) {
-									event.preventDefault();
-								}
-
-								return false;
-							}
-						};
-
-					if (window.addEventListener) {
-						form.addEventListener('submit', handler, false);
-					} else {
-						form.attachEvent('onsubmit', handler);
-					}
-				})(document);
-            </script>
 		<?php }
 	}
 
