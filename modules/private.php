@@ -3,7 +3,7 @@
  * Module Name: Private site
  * Module Description: Make your site only visible to you and users you approve.
  * Sort Order: 9
- * First Introduced: 6.9
+ * First Introduced: 7.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Private
