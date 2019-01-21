@@ -63,6 +63,10 @@ class Jetpack_Plugin_Search {
 				'activatingString'     => __( 'Activating', 'jetpack' ),
 			)
 		);
+
+        wp_register_style( 'jetpack-plugin-search', null );
+        wp_enqueue_style( 'jetpack-plugin-search' );
+        wp_add_inline_style( 'jetpack-plugin-search', '.plugin-card-jetpackplugin-search { border: solid 2px green; } .plugin-card-jetpackplugin-search .plugin-action-buttons { white-space: nowrap; }' );
 	}
 
 	/**
@@ -240,8 +244,6 @@ class Jetpack_Plugin_Search {
 			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'More Information', 'jetpack' ) . '</a>';
 		}
 
-		// Add some styling.
-		$links[] = '<style>.plugin-card-jetpackplugin-search { border: solid 2px green; }</style>';
 		return $links;
 	}
 }
