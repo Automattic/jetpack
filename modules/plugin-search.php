@@ -64,9 +64,9 @@ class Jetpack_Plugin_Search {
 			)
 		);
 
-        wp_register_style( 'jetpack-plugin-search', null );
-        wp_enqueue_style( 'jetpack-plugin-search' );
-        wp_add_inline_style( 'jetpack-plugin-search', '.plugin-card-jetpackplugin-search { border: solid 2px green; } .plugin-card-jetpackplugin-search .plugin-action-buttons { white-space: nowrap; }' );
+		wp_register_style( 'jetpack-plugin-search', null );
+		wp_enqueue_style( 'jetpack-plugin-search' );
+		wp_add_inline_style( 'jetpack-plugin-search', '.plugin-card-jetpackplugin-search { border: solid 2px green; } .plugin-card-jetpackplugin-search .plugin-action-buttons { white-space: nowrap; }' );
 	}
 
 	/**
@@ -211,13 +211,13 @@ class Jetpack_Plugin_Search {
 
 		// Jetpack installed, active, feature not enabled; prompt to enable.
 		if (
-            (
-                Jetpack::is_active() ||
-                (
-                    Jetpack::is_development_mode() &&
-                    ! $plugin[ 'requires_connection' ]
-                )
-            ) &&
+			(
+				Jetpack::is_active() ||
+				(
+					Jetpack::is_development_mode() &&
+					! $plugin[ 'requires_connection' ]
+				)
+			) &&
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 			) {
@@ -229,8 +229,8 @@ class Jetpack_Plugin_Search {
 			! empty( $plugin['configure_url'] ) &&
 			current_user_can( 'jetpack_configure_modules' ) &&
 			Jetpack::is_module_active( $plugin['module'] ) &&
-            /** This filter is documented in class.jetpack-admin.php */
-            apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
+			/** This filter is documented in class.jetpack-admin.php */
+			apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
 			) {
 			$links = array(
 				'<a id="plugin-select-settings" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
