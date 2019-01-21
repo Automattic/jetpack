@@ -30,9 +30,9 @@
 
 <?php
 	global $wp;
-	$current_url =  trailingslashit( home_url( add_query_arg( array(), $wp->request ) ) );
+	$current_url =  home_url( add_query_arg( array( 'ak_action' => 'reject_mobile' ), add_query_arg( $_GET, $wp->request ) ) );
 ?>
-		<a href="<?php echo $current_url . '?ak_action=reject_mobile'; ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
+		<a href="<?php echo $current_url; ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
 
 		<?php
 			/**
