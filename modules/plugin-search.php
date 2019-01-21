@@ -56,6 +56,7 @@ class Jetpack_Plugin_Search {
 			'pluginSearchState',
 			array(
 				'jetpackWPNonce'       => wp_create_nonce( 'wp_rest' ),
+				'rest_url'             => rest_url( '/jetpack/v4/settings/' ),
 				'manageSettingsString' => __( 'Module Settings', 'jetpack' ),
 				'activateModuleString' => __( 'Activate Module', 'jetpack' ),
 				'activatedString'      => __( 'Activated', 'jetpack' ),

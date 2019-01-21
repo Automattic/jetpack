@@ -14,7 +14,7 @@
 		$moduleBox.toggleClass( 'install-now updating-message' );
 		$moduleBox.text( pSS.activatingString );
 		$.ajax( {
-			url: '/wp-json/jetpack/v4/settings/',
+			url: pSS.rest_url,
 			method: 'post',
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', pSS.jetpackWPNonce );
