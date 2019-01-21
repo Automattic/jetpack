@@ -214,7 +214,7 @@ class Jetpack_Private {
 	 * Disables WordPress Rest API for external requests
 	 */
 	static function disable_rest_api() {
-		global $pagenow, $current_user, $wpdb;
+		global $current_user, $wpdb;
 
 		if ( $current_user && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $current_user ) ) ) {
 			return;
