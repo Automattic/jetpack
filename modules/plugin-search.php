@@ -225,7 +225,9 @@ class Jetpack_Plugin_Search {
 		} elseif (
 			! empty( $plugin['configure_url'] ) &&
 			current_user_can( 'jetpack_configure_modules' ) &&
-			Jetpack::is_module_active( $plugin['module'] )
+			Jetpack::is_module_active( $plugin['module'] ) &&
+            /** This filter is documented in class.jetpack-admin.php */
+            apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
 			) {
 			$links = array(
 				'<a id="plugin-select-settings" class="button" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
