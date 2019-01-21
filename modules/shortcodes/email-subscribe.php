@@ -63,46 +63,6 @@ class Jetpack_Email_Subscribe {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
-	/**
-	 * Register our Mailchimp subscription block for the block editor.
-	 *
-	 * @since 6.9.0
-	 */
-	private function register_gutenberg_block() {
-		jetpack_register_block(
-			self::$block_name,
-			array(
-				'attributes' => array(
-					'title'             => array(
-						'type' => 'string',
-					),
-					'email_placeholder' => array(
-						'type' => 'string',
-					),
-					'submit_label'      => array(
-						'type' => 'string',
-					),
-					'consent_text'      => array(
-						'type' => 'string',
-					),
-					'processing_label'  => array(
-						'type' => 'string',
-					),
-					'success_label'     => array(
-						'type' => 'string',
-					),
-					'error_label'       => array(
-						'type' => 'string',
-					),
-					'className'         => array(
-						'type' => 'string',
-					),
-				),
-				'render_callback' => array( $this, 'parse_shortcode' ),
-			)
-		);
-	}
-
 	public function init_hook_action() {
 		$this->register_scripts_and_styles();
 		$this->register_shortcode();
