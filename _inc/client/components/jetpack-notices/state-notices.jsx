@@ -84,6 +84,9 @@ class JetpackStateNotices extends React.Component {
 					}
 				);
 				break;
+			case 'site_blacklisted':
+				message = __( "This site can't be connected to WordPress.com." );
+				break;
 			case 'not_public':
 				message = __(
 					'{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. ' +
