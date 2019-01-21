@@ -294,13 +294,25 @@ class Jetpack_Copy_Post {
 
 		// Insert the Copy action before the Trash action.
 		$edit_offset = array_search( 'trash', array_keys( $actions ), true );
-		$actions     = array_merge(
+		$updated_actions     = array_merge(
 			array_slice( $actions, 0, $edit_offset ),
 			$edit_action,
 			array_slice( $actions, $edit_offset )
 		);
 
-		return $actions;
+		/**
+		 * Fires after the new Copy action has been added to the row actions.
+		 * Allows changes to the action presentation, or other final checks.
+		 *
+		 * @module copy-post
+		 *
+		 * @since 7.0.0
+		 *
+		 * @param array   $updated_actions Updated row actions with the Copy Post action.
+		 * @param array   $actions Original row actions passed to this filter.
+		 * @param WP_Post $post Post object of current post in listing.
+		 */
+		return apply_filters( 'jetpack_copy_post_row_actions', $updated_actions, $actions, $post );
 	}
 }
 
