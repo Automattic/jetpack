@@ -206,8 +206,6 @@ class Jetpack_Plugin_Search {
 			) {
 			return $links;
 		}
-		// Inject module data into js.
-		wp_localize_script( 'plugin-search', 'jetpackModuleInfo', $plugin );
 
 		$links = array();
 
@@ -224,7 +222,7 @@ class Jetpack_Plugin_Search {
 			! Jetpack::is_module_active( $plugin['module'] )
 			) {
 			$links = array(
-				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</button>',
+				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . esc_url( Jetpack::module_configuration_url( $plugin['module'] ) ) . '"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</button>',
 			);
 		// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (

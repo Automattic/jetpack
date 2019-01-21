@@ -9,10 +9,11 @@
 
 	function ajaxActivateModule( moduleName ) {
 		const body = {};
-		const $moduleBox = $pluginFilter.find( '#plugin-select-activate' );
+		const $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );
 		body[ moduleName ] = true;
-		$moduleBox.toggleClass( 'install-now updating-message' );
-		$moduleBox.text( pSS.activatingString );
+		$moduleBtn.toggleClass( 'install-now updating-message' );
+		$moduleBtn.prop( 'disabled', true );
+		$moduleBtn.text( pSS.activatingString );
 		$.ajax( {
 			url: pSS.rest_url,
 			method: 'post',
@@ -25,18 +26,19 @@
 		} ).done( function() {
 			updateButton();
 		} ).error( function() {
-			$( '#plugin-select-activate' ).toggleClass( 'install-now updating-message' );
+			$moduleBtn.toggleClass( 'install-now updating-message' );
 		} );
 	}
 
 	// Remove onclick handler, disable loading spinner, update button to redirect to module settings.
 	function updateButton() {
-		const $moduleBox = $pluginFilter.find( '#plugin-select-activate' );
-		$moduleBox.prop( 'onclick', null ).off( 'click' );
-		$moduleBox.toggleClass( 'install-now updating-message' );
-		$moduleBox.text( pSS.activatedString );
+		const $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );
+		const configure_url = $moduleBtn.data( 'configure-url' );
+		$moduleBtn.prop( 'onclick', null ).off( 'click' );
+		$moduleBtn.toggleClass( 'install-now updating-message' );
+		$moduleBtn.text( pSS.activatedString );
 		setTimeout( function() {
-			$moduleBox.replaceWith( '<a id="plugin-select-settings" class="button" href="' + window.jetpackModuleInfo.configure_url + '">' + pSS.manageSettingsString + '</a>' );
+			$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="button" href="' + configure_url + '">' + pSS.manageSettingsString + '</a>' );
 		}, 1000 );
 	}
 } )( jQuery, window.pluginSearchState );
