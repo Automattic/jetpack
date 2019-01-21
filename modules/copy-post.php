@@ -77,7 +77,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0
+		 * @since 7.0.0
 		 *
 		 * @param WP_Post $source_post Post object that was copied.
 		 * @param int     $target_post_id Target post ID.
@@ -121,7 +121,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0
+		 * @since 7.0.0
 		 *
 		 * @param array $data Post data with which to update the target (new) post.
 		 * @param WP_Post $source_post Post object being copied.
@@ -249,7 +249,7 @@ class Jetpack_Copy_Post {
 		 *
 		 * @module copy-post
 		 *
-		 * @since 7.0
+		 * @since 7.0.0
 		 *
 		 * @param bool  $post_type_supported If the given post type is a valid supported psot type.
 		 * @param array $valid_post_types Supported post types.
