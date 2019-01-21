@@ -219,7 +219,7 @@ class Jetpack_Plugin_Search {
 			! Jetpack::is_module_active( $plugin['module'] )
 			) {
 			$links = array(
-				'<a id="plugin-select-activate" class="button activate-now"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</a>',
+				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</button>',
 			);
 		// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
