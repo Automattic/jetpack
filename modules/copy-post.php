@@ -237,14 +237,6 @@ class Jetpack_Copy_Post {
 	 * @return bool True if the post type is in a list of supported psot types; false otherwise.
 	 */
 	protected function validate_post_type( $post ) {
-		$valid_post_types    = array(
-			'post',
-			'page',
-			'jetpack-testimonial',
-			'jetpack-portfolio',
-		);
-		$post_type_supported = in_array( $post->post_type, $valid_post_types, true );
-
 		/**
 		 * Fires when determining if the "Copy" row action should be made available.
 		 * Allows overriding supported post types.
@@ -253,11 +245,20 @@ class Jetpack_Copy_Post {
 		 *
 		 * @since 7.0.0
 		 *
-		 * @param bool  $post_type_supported If the given post type is a valid supported psot type.
-		 * @param array $valid_post_types Supported post types.
+		 * @param array   Post types supported by default.
 		 * @param WP_Post $post Post object of current post in listing.
 		 */
-		return apply_filters( 'jetpack_copy_post_post_types', $post_type_supported, $valid_post_types, $post );
+		$valid_post_types = apply_filters(
+			'jetpack_copy_post_post_types',
+			array(
+				'post',
+				'page',
+				'jetpack-testimonial',
+				'jetpack-portfolio',
+			),
+			$post
+		);
+		return in_array( $post->post_type, $valid_post_types, true );
 	}
 
 	/**
