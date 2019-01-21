@@ -13,6 +13,19 @@ a.components-menu-item__button[href*="post_type=wp_block"] {
 
 /* CORE UI */
 .components-button {
+	&.is-link {
+		color: $color-link;
+
+		&:hover, &:active {
+			color: $color-link-dark;
+		}
+
+		&:focus:enabled {
+			color: $color-link-dark;
+			box-shadow: 0 0 0 2px $color-primary-light;
+		}
+	}
+
 	&.is-primary {
 		background: $color-accent;
 		border-color: $color-accent-dark;
@@ -60,6 +73,29 @@ a.components-menu-item__button[href*="post_type=wp_block"] {
 				$color-accent 72%
 			);
 		}
+	}
+
+	&.is-tertiary {
+		color: $color-link;
+
+		&:focus:enabled {
+			border-color: $color-primary-dark;
+			box-shadow: 0 0 0 2px $color-primary-light;
+		}
+	}
+}
+
+a {
+	color: $color-link;
+
+	&:active, &:hover {
+		color: $color-link-dark;
+	}
+
+	&:focus {
+		color: $color-link-dark;
+		box-shadow: none;
+		outline: thin dotted;
 	}
 }
 
