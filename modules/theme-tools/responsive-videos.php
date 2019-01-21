@@ -10,18 +10,13 @@ function jetpack_responsive_videos_init() {
 		return;
 	}
 
-	/* If the theme bundles support for Gutenberg Responsive Embeds, let's let it take over. */
-	if ( current_theme_supports( 'responsive-embeds' ) ) {
-		return;
-	}
-
 	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html', 'jetpack_responsive_videos_embed_html' );
 
 	/* Only wrap oEmbeds if video */
-	add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
-	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+	add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 4 );
+	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 3 );
 
 	/* Wrap videos in Buddypress */
 	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
@@ -68,9 +63,14 @@ function jetpack_responsive_videos_embed_html( $html ) {
 /**
  * Check if oEmbed is a `$video_patterns` provider video before wrapping.
  *
+ * @param mixed  $html    The cached HTML result, stored in post meta.
+ * @param string $url     The attempted embed URL.
+ * @param array  $attr    An array of shortcode attributes.
+ * @param int    $post_ID Post ID.
+ *
  * @return string
  */
-function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
+function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null, $attr, $post_ID = null ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 		return $html;
 	}
@@ -117,6 +117,26 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	$video_patterns = '(' . implode( '|', $video_patterns ) . ')';
 
 	$is_video = preg_match( $video_patterns, $url );
+
+	/**
+	 * Do we have info about the post? Let's check if it has a video block.
+	 * This is only possible in the block editor.
+	 */
+	if (
+		! empty( $post_ID )
+		&& function_exists( 'parse_blocks' )
+	) {
+		$post_content = get_post_field( 'post_content', $post_ID );
+		$post_blocks  = parse_blocks( $post_content );
+		if ( ! empty( $post_blocks ) ) {
+			foreach ( $post_blocks as $block ) {
+				// If we have embed blocks, do not apply responsive videos.
+				if ( false !== strpos( $block['blockName'], 'core-embed' ) ) {
+					return $html;
+				}
+			}
+		}
+	}
 
 	// If the oEmbed is a video, wrap it in the responsive wrapper.
 	if ( false === $already_wrapped && 1 === $is_video ) {
