@@ -3543,12 +3543,12 @@ gettext-parser@1.1.0:
   dependencies:
     encoding "^0.1.11"
 
-gettext-parser@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/gettext-parser/-/gettext-parser-2.1.0.tgz#44dad33a15a74776f4383bb33efa8e0eda2346e4"
+gettext-parser@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/gettext-parser/-/gettext-parser-3.1.0.tgz#a92f4aa09cdaa944ce71832677749d84ac683649"
   dependencies:
     encoding "^0.1.12"
-    readable-stream "^2.0.0"
+    readable-stream "^3.0.6"
     safe-buffer "^5.1.2"
 
 git-config-path@^1.0.1:
@@ -5812,12 +5812,12 @@ node-sass@4.11.0, node-sass@^4.8.3:
     stdout-stream "^1.4.0"
     "true-case-path" "^1.0.2"
 
-node-wp-i18n@1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/node-wp-i18n/-/node-wp-i18n-1.2.1.tgz#b2b455d5ef38014a3bb5f86744a1a2bf3b8ec84b"
+node-wp-i18n@1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/node-wp-i18n/-/node-wp-i18n-1.2.2.tgz#1e94dfbc9befb518436c111bd84af3824ee58055"
   dependencies:
     bluebird "^3.4.1"
-    gettext-parser "^2.0.0"
+    gettext-parser "^3.1.0"
     glob "^7.0.5"
     lodash "^4.14.2"
     minimist "^1.2.0"

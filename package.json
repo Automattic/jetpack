@@ -151,7 +151,7 @@
     "mocha": "5.2.0",
     "mockery": "2.1.0",
     "nock": "10.0.6",
-    "node-wp-i18n": "1.2.1",
+    "node-wp-i18n": "1.2.2",
     "prettier": "github:Automattic/wp-prettier#wp-prettier-1.14.0",
     "react-test-renderer": "16.7.0",
     "sinon": "7.2.2",
