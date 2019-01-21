@@ -102,8 +102,8 @@ a.components-menu-item__button[href*="post_type=wp_block"] {
 				box-shadow: none;
 			}
 		}
-		
-		&.is-busy {
+
+		&.is-busy, &.is-busy[aria-disabled="true"] {
 			border-color: $color-accent-dark;
 			background-image: linear-gradient(
 				-45deg,
