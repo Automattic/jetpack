@@ -230,7 +230,7 @@ class Jetpack_Plugin_Search {
             apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
 			) {
 			$links = array(
-				'<a id="plugin-select-settings" class="button" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
+				'<a id="plugin-select-settings" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
 			);
 		}
 
