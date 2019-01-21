@@ -83,11 +83,13 @@ export const Publicize = withModuleSettingsFormHelpers(
 								link: 'https://jetpack.com/support/publicize/',
 							} }
 						>
-                                                <p>
-							{ __( 'Connect your website to the social media networks you use and share your content ' + 
-							'across all your social accounts with a single click. When you publish a post, it ' + 
-							'will appear on all connected accounts.' ) }
-                                                </p>						
+							<p>
+								{ __(
+									'Connect your website to the social media networks you use and share your content ' +
+										'across all your social accounts with a single click. ' +
+										'When you publish a post, it will appear on all connected accounts.'
+								) }
+							</p>
 							<ModuleToggle
 								slug="publicize"
 								disabled={ unavailableInDevMode }
