@@ -53,11 +53,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( file_exists( JETPACK__PLUGIN_DIR . '/modules/private/private.php' ) ) {
-			include JETPACK__PLUGIN_DIR . '/modules/private/private.php';
-		} else {
-			esc_html_e( 'This site is private.', 'jetpack' );
-		}
+		include JETPACK__PLUGIN_DIR . '/modules/private/private.php';
 
 		exit;
 	}
