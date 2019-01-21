@@ -47,7 +47,10 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				$path,
 				'1.1'
 			);
-			$data     = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+			if ( is_wp_error( $response ) ) {
+				return new WP_Error( 'wpcom_connection_error', 'Could not connect to WP.com', 404 );
+			}
+			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 		} else {
 			require_lib( 'mailchimp' );
 			$data = MailchimpApi::get_settings( $site_id );
