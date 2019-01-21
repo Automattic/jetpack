@@ -176,10 +176,7 @@ function jetpack_mobile_request_handler() {
 		if ($redirect) {
 			if ( isset( $_GET['redirect_to'] ) && $_GET['redirect_to'] ) {
 				$go = urldecode( $_GET['redirect_to'] );
-			} else if (!empty($_SERVER['HTTP_REFERER'])) {
-				$go = $_SERVER['HTTP_REFERER'];
-			}
-			else {
+			} else {
 				$go = remove_query_arg( array( 'ak_action' ) );
 			}
 			wp_safe_redirect( $go );
