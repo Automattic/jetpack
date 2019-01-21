@@ -192,9 +192,11 @@ class Publicize_UI {
 
 				<?php
 				foreach ( $services as $service_name => $service ) :
+					// do not display any service that cannot be connected anymore (deprecated).
 					$connect_url = $this->publicize->can_connect_service( $service_name ) ?
 						$this->publicize->connect_url( $service_name ) :
 						null;
+
 					if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
 						echo "</div><div class='right'>";
 					$service_num++;
@@ -270,24 +272,57 @@ class Publicize_UI {
 								</ul>
 							<?php endif; ?>
 
-
-
 							<?php
-								if ( $connect_url ) {
-									$connections = $this->publicize->get_connections( $service_name );
-									if ( empty ( $connections ) ) { ?>
-										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
-									<?php } else { ?>
-										<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
-									<?php } ?>
-								<?php } else { ?>
-									<div class="publicize-disabled-service-message">Google Plus support is being removed. <a href="#" id="jetpack-gplus-deprecated-notice" target="_blank">Why?<span class="dashicons dashicons-external"></span></a></div>
-								<?php }
+							if ( $connect_url ) {
+								$connections = $this->publicize->get_connections( $service_name );
+								if ( empty( $connections ) ) {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Connect', 'jetpack' )
+									);
+								} else {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button add-new" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Add New', 'jetpack' )
+									);
+								}
+							} else {
+								echo '<div class="publicize-disabled-service-message">';
+								esc_html_e( 'Google+ support is being removed.', 'jetpack' );
+								printf(
+									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice" target="_blank">%1$s<span class="dashicons dashicons-external"></span></a>',
+									esc_html__( 'Why?', 'jetpack' )
+								);
+								echo '</div>';
+							}
 							?>
-			  			</div>
-			  		</div>
+						</div>
+					</div>
 				<?php endforeach; ?>
 				</div>
+				<?php
+				$google_plus_exp_msg = wp_kses(
+					sprintf(
+						/* Translators: placeholder is a link to an announcement post on Google's blog. */
+						__(
+							'<h3>Google+ Support is being removed</h3><p>Google recently <a href="%1$s">announced</a> that Google+ is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.</p><p>For now, you can still post to Google+ using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.</p>',
+							'jetpack'
+						),
+						esc_url( 'https://www.blog.google/technology/safety-security/expediting-changes-google-plus/' )
+					),
+					array(
+						'a'  => array(
+							'href' => array(),
+						),
+						'h3' => true,
+						'p'  => true,
+					)
+				);
+				?>
 				<script>
 				(function($){
 					$('.pub-disconnect-button').on('click', function(e){ if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
@@ -302,7 +337,7 @@ class Publicize_UI {
 					var setup = function() {
 						$('#jetpack-gplus-deprecated-notice').first().pointer(
 							{
-								content: "<h3>Google Plus support is being removed<\/h3><p>Google recently <a href=\"https://www.blog.google/technology/safety-security/expediting-changes-google-plus/\">announced</a> that Google Plus is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.<\/p><p>For now, you can still post to Google Plus using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.<\/p>","position":{"edge":"right","align":"bottom"},
+								content: "<?php echo wp_slash( $google_plus_exp_msg ); ?>","position":{"edge":"right","align":"bottom"},
 								pointerClass: "wp-pointer arrow-bottom",
 								pointerWidth: 420
 							}
