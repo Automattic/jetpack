@@ -115,7 +115,6 @@ class Jetpack_Plugin_Search {
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
 				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] );
 				$terms_array  = explode( ', ', $search_terms );
-				$terms_array  = array_map( 'strtolower', $terms_array );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
 					break;
