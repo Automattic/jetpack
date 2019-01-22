@@ -75,7 +75,7 @@ if (
  */
 function jetpack_giphy_block_load_assets( $attr ) {
 	$align       = isset( $attr['align'] ) ? $attr['align'] : 'center';
-	$style       = 'padding-top:' . $attr['topPadding'] . '%';
+	$style       = 'padding-top:' . $attr['paddingTop'];
 	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : '//giphy.com/embed/ZgTR3UQ9XAWDvqy9jv';
 	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
 	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
