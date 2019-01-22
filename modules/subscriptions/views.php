@@ -724,7 +724,7 @@ function jetpack_blog_subscriptions_init() {
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
 
 function jetpack_register_subscriptions_block() {
-	jetpack_register_block( 'subscriptions' );
+	jetpack_register_gutenberg_extension( 'subscriptions' );
 }
 
 add_action( 'init', 'jetpack_register_subscriptions_block' );

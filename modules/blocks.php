@@ -6,14 +6,38 @@
  *
  */
 
-jetpack_register_block(
-	'map',
-	array(
-		'render_callback' => 'jetpack_map_block_load_assets',
-	)
-);
 
-jetpack_register_block( 'vr' );
+if ( jetpack_register_gutenberg_extension( 'map' ) ) {
+	register_block_type(
+		'jetpack/map',
+		array(
+			'render_callback' => 'jetpack_map_block_load_assets',
+		)
+	);
+
+	/**
+	 * Map block registration/dependency declaration.
+	 *
+	 * @param array  $attr - Array containing the map block attributes.
+	 * @param string $content - String containing the map block content.
+	 *
+	 * @return string
+	 */
+	function jetpack_map_block_load_assets( $attr, $content ) {
+		$dependencies = array(
+			'lodash',
+			'wp-element',
+			'wp-i18n',
+		);
+
+		$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+
+		Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
+		return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
+	}
+}
+
+jetpack_register_gutenberg_extension( 'vr' );
 
 /**
  * Tiled Gallery block. Depends on the Photon module.
@@ -24,59 +48,40 @@ if (
 	( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
 	class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
 ) {
-	jetpack_register_block(
-		'tiled-gallery',
-		array(
-			'render_callback' => 'jetpack_tiled_gallery_load_block_assets',
-		)
-	);
-
-	/**
-	 * Tiled gallery block registration/dependency declaration.
-	 *
-	 * @param array  $attr - Array containing the block attributes.
-	 * @param string $content - String containing the block content.
-	 *
-	 * @return string
-	 */
-	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
-		$dependencies = array(
-			'lodash',
-			'wp-i18n',
-			'wp-token-list',
+	if ( jetpack_register_gutenberg_extension( 'tiled-gallery' ) ) {
+		register_block_type(
+			'jetpack/tiled-gallery',
+			array(
+				'render_callback' => 'jetpack_tiled_gallery_load_block_assets',
+			)
 		);
-		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
 
 		/**
-		 * Filter the output of the Tiled Galleries content.
+		 * Tiled gallery block registration/dependency declaration.
 		 *
-		 * @module tiled-gallery
+		 * @param array  $attr - Array containing the block attributes.
+		 * @param string $content - String containing the block content.
 		 *
-		 * @since 6.9.0
-		 *
-		 * @param string $content Tiled Gallery block content.
+		 * @return string
 		 */
-		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
+		function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
+			$dependencies = array(
+				'lodash',
+				'wp-i18n',
+				'wp-token-list',
+			);
+			Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
+
+			/**
+			 * Filter the output of the Tiled Galleries content.
+			 *
+			 * @module tiled-gallery
+			 *
+			 * @since 6.9.0
+			 *
+			 * @param string $content Tiled Gallery block content.
+			 */
+			return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
+		}
 	}
-}
-
-/**
- * Map block registration/dependency declaration.
- *
- * @param array  $attr - Array containing the map block attributes.
- * @param string $content - String containing the map block content.
- *
- * @return string
- */
-function jetpack_map_block_load_assets( $attr, $content ) {
-	$dependencies = array(
-		'lodash',
-		'wp-element',
-		'wp-i18n',
-	);
-
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
-
-	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
-	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
 }

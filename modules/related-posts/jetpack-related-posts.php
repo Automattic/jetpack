@@ -68,12 +68,14 @@ class Jetpack_RelatedPosts {
 			add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 		}
 
-		jetpack_register_block(
-			'related-posts',
-			array(
-				'render_callback' => array( $this, 'render_block' ),
-			)
-		);
+		if ( jetpack_register_gutenberg_extension( 'related-posts' ) ) {
+			register_block_type(
+				'jetpack/related-posts',
+				array(
+					'render_callback' => array( $this, 'render_block' ),
+				)
+			);
+		}
 	}
 
 	protected function get_blog_id() {

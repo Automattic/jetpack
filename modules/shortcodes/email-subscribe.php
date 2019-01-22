@@ -64,36 +64,38 @@ class Jetpack_Email_Subscribe {
 	}
 
 	private function register_gutenberg_block() {
-		jetpack_register_block( self::$block_name, array(
-			'attributes' => array(
-				'title' => array(
-					'type' => 'string',
+		if ( jetpack_register_gutenberg_extension( self::$block_name ) ) {
+			register_block_type( 'jetpack/' . self::$block_name, array(
+				'attributes'      => array(
+					'title'             => array(
+						'type' => 'string',
+					),
+					'email_placeholder' => array(
+						'type' => 'string',
+					),
+					'submit_label'      => array(
+						'type' => 'string',
+					),
+					'consent_text'      => array(
+						'type' => 'string',
+					),
+					'processing_label'  => array(
+						'type' => 'string',
+					),
+					'success_label'     => array(
+						'type' => 'string',
+					),
+					'error_label'       => array(
+						'type' => 'string',
+					),
+					'className'         => array(
+						'type' => 'string',
+					),
 				),
-				'email_placeholder' => array(
-					'type' => 'string',
-				),
-				'submit_label' => array(
-					'type' => 'string',
-				),
-				'consent_text' => array(
-					'type' => 'string',
-				),
-				'processing_label' => array(
-					'type' => 'string',
-				),
-				'success_label' => array(
-					'type' => 'string',
-				),
-				'error_label' => array(
-					'type' => 'string',
-				),
-				'className' => array(
-					'type' => 'string',
-				),
-			),
-			'style' => 'jetpack-email-subscribe',
-			'render_callback' => array( $this, 'parse_shortcode' ),
-		) );
+				'style'           => 'jetpack-email-subscribe',
+				'render_callback' => array( $this, 'parse_shortcode' ),
+			) );
+		}
 	}
 
 	public function init_hook_action() {

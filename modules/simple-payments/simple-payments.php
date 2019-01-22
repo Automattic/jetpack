@@ -62,7 +62,7 @@ class Jetpack_Simple_Payments {
 
 	function register_gutenberg_block() {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block( 'simple-payments' );
+			jetpack_register_gutenberg_extension( 'simple-payments' );
 		} else {
 			jetpack_set_extension_unavailability_reason( 'simple-payments', 'missing_plan' );
 		}
