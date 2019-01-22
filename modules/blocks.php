@@ -13,6 +13,13 @@ jetpack_register_block(
 	)
 );
 
+jetpack_register_block(
+	'isopoc',
+	array(
+		'render_callback' => 'jetpack_isopoc_block_load_assets',
+	)
+);
+
 jetpack_register_block( 'vr' );
 
 /**
@@ -79,4 +86,23 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
 	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
+}
+
+/**
+ * Isomorphic Proof of Concept block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the map block attributes.
+ * @param string $content - String containing the map block content.
+ *
+ * @return string
+ */
+function jetpack_isopoc_block_load_assets( $attr, $content ) {
+	$dependencies = array(
+		'lodash',
+		'wp-element',
+		'wp-i18n',
+	);
+
+	Jetpack_Gutenberg::load_assets_as_required( 'isopoc', $dependencies );
+	return $content;
 }
