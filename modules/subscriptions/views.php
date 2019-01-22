@@ -241,7 +241,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$referer                    = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$source                     = 'widget';
 		$widget_id                  = esc_attr( ! empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
-		$subscribe_button           = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
+		$subscribe_button           = isset( $instance['submit_button_text'] ) && ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
 		$subscribers_total          = self::fetch_subscriber_count();
 		$subscribe_placeholder      = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes_and_styles = isset( $instance['submit_button_classes_and_styles'] ) ? $instance['submit_button_classes_and_styles'] : '';
