@@ -30,4 +30,11 @@ class WPCOM_REST_API_V2_Sites_Media_VideoPress {
 		return $videopress_data;
 	}
 }
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Sites_Media_VideoPress' );
+
+if (
+	( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'videopress' ) ) ||
+	( method_exists( 'Jetpack_Constants', 'is_defined' ) && Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' ) && Jetpack_Constants::get_constant( 'TESTING_IN_JETPACK' ) ) ||
+	( defined( 'IS_WPCOM' ) && IS_WPCOM )
+) {
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Sites_Media_VideoPress' );
+}
