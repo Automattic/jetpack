@@ -15,16 +15,22 @@ function jetpack_responsive_videos_init() {
 	add_filter( 'video_embed_html', 'jetpack_responsive_videos_embed_html' );
 
 	/* Only wrap oEmbeds if video */
-	add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 4 );
-	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 3 );
+	add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
 
 	/* Wrap videos in Buddypress */
 	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
 
 	/* Wrap Slideshare shortcodes */
 	add_filter( 'jetpack_slideshare_shortcode', 'jetpack_responsive_videos_embed_html' );
+
+	// Remove the Jetpack Responsive video wrapper in embed blocks on sites that support core Responsive embeds.
+	if ( current_theme_supports( 'responsive-embeds' ) ) {
+		add_filter( 'render_block', 'jetpack_responsive_videos_remove_wrap_oembed', 10, 2 );
+	}
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
+
 
 /**
  * Adds a wrapper to videos and enqueue script
@@ -63,14 +69,12 @@ function jetpack_responsive_videos_embed_html( $html ) {
 /**
  * Check if oEmbed is a `$video_patterns` provider video before wrapping.
  *
- * @param mixed  $html    The cached HTML result, stored in post meta.
- * @param string $url     The attempted embed URL.
- * @param array  $attr    An array of shortcode attributes.
- * @param int    $post_ID Post ID.
+ * @param mixed  $html The cached HTML result, stored in post meta.
+ * @param string $url  he attempted embed URL.
  *
  * @return string
  */
-function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null, $attr, $post_ID = null ) {
+function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 		return $html;
 	}
@@ -118,30 +122,31 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null, $attr,
 
 	$is_video = preg_match( $video_patterns, $url );
 
-	/**
-	 * Do we have info about the post? Let's check if it has a video block.
-	 * This is only possible in the block editor.
-	 */
-	if (
-		! empty( $post_ID )
-		&& function_exists( 'parse_blocks' )
-	) {
-		$post_content = get_post_field( 'post_content', $post_ID );
-		$post_blocks  = parse_blocks( $post_content );
-		if ( ! empty( $post_blocks ) ) {
-			foreach ( $post_blocks as $block ) {
-				// If we have embed blocks, do not apply responsive videos.
-				if ( false !== strpos( $block['blockName'], 'core-embed' ) ) {
-					return $html;
-				}
-			}
-		}
-	}
-
 	// If the oEmbed is a video, wrap it in the responsive wrapper.
 	if ( false === $already_wrapped && 1 === $is_video ) {
 		return jetpack_responsive_videos_embed_html( $html );
 	}
 
 	return $html;
+}
+
+/**
+ * Remove the Jetpack Responsive video wrapper in embed blocks.
+ *
+ * @since 7.0.0
+ *
+ * @param string $block_content The block content about to be appended.
+ * @param array  $block         The full block, including name and attributes.
+ *
+ * @return string $block_content String of rendered HTML.
+ */
+function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
+	if (
+		isset( $block['blockName'] )
+		&& false !== strpos( $block['blockName'], 'core-embed' )
+	) {
+		$block_content = preg_replace( '#<div class="jetpack-video-wrapper">(.*?)</div>#', '${1}', $block_content );
+	}
+
+	return $block_content;
 }
