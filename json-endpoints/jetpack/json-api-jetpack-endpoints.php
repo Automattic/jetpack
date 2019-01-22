@@ -1193,3 +1193,40 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create'
 
 ) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-jps-woocommerce-connect-endpoint.php' );
+
+// POST /sites/%s/jps/woo-connect
+new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
+	'description'    => 'Attempts to connect the WooCommerce plugin for this site to WooCommerce.com.',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/jps/woo-connect',
+	'stat'           => 'jps:woo-connect',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format'  => array(
+		'access_token'        => '(string) The access token for WooCommerce to connect to WooCommerce.com',
+		'access_token_secret' => '(string) The access token secret for WooCommerce to connect to WooCommerce.com',
+		'user_id'             => '(int) The user\'s ID after registering for a host plan',
+		'site_id'             => '(int) The site\'s ID after registering for a host plan',
+	),
+	'response_format' => array(
+		'success' => '(bool) Setting access token and access token secret successful?',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+		'body' => array(
+			'access_token'        => '123456789',
+			'access_token_secret' => 'abcdefghiklmnop',
+			'user_id'             => 1,
+			'site_id'             => 2,
+		),
+	),
+	'example_response' => '{ "success": true }',
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jps/woo-connect'
+) );
