@@ -1,7 +1,6 @@
 <?php
 /*
  * Load code specific to importing content
- * Auto-included by ./module-extras.php
  */
 
 class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
@@ -10,7 +9,7 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 		parent::register_routes();
 
 		// Routes that are specific to our custom post type:
-		register_rest_route( '/wp/v2', '/' . $this->rest_base . '/(?P<id>[\d]+)/pieces/(?P<piece_id>[\d]+)', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)/pieces/(?P<piece_id>[\d]+)', array(
 			array(
 //				'show_in_index' => false,
 				'methods' => WP_REST_Server::CREATABLE,
@@ -25,29 +24,26 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 						'description' => __( 'Unique identifier for the piece.' ),
 						'type' => 'integer',
 					),
-					'piece' => array(
-						'description' => __( 'Base64-encoded piece of the file.' ),
-						'type' => 'string',
-					),
 				),
+				// body: { piece: 'The Base64-encoded piece of the file.' }
 			),
 		) );
 
-		register_rest_route( '/wp/v2', '/' . $this->rest_base . '/(?P<id>[\d]+)/import-from-file', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)/import-from-pieces', array(
 			array(
 //				'show_in_index' => false,
 				'methods' => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'import_from_file' ),
+				'callback' => array( $this, 'import_from_pieces' ),
 				'permission_callback' => array( $this, 'upload_and_import_permissions_check' ),
 				'args' => array(
 					'id' => array(
 						'description' => __( 'The id of the post storing the export data.' ),
 						'type' => 'integer',
 					),
-					//'checksum'...
+					//'checksum'...?
 				),
 			),
-		 ) );
+		) );
 	}
 
 	/**
@@ -74,17 +70,37 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 		return true;
 	}
 
+	static function meta_key_matches( $key ) {
+		return preg_match( '/^jetpack_file_import_piece_(\d+)$/', $key );
+	}
+
+	static protected function get_pieces_for_cpt_id( $id ) {
+		$all_meta = get_post_meta( $id );
+
+		// We can't use array_filter w/ ARRAY_FILTER_USE_KEY until 5.6.0, so this is a workaround
+		$pieces = array_intersect_key(
+			$all_meta,
+			array_flip( array_filter( array_keys( $all_meta ), array( 'WP_REST_Jetpack_Imports_Controller', 'meta_key_matches' ) ) )
+		);
+
+		ksort( $pieces );
+		return $pieces;
+	}
+
 	function add_piece( $request ) {
 		$piece = $request->get_param( 'piece' );
 		$piece_id = $request->get_param( 'piece_id' );
 		$post_id = $request->get_param( 'id' );
-		update_post_meta( $post_id, 'jetpack_file_import_piece_' . $piece_id, $piece );
+		if ( ! update_post_meta( $post_id, 'jetpack_file_import_piece_' . $piece_id, $piece ) ) {
+			return new WP_Error( 'Error adding piece ' . $piece_id );
+		}
+
+		error_log( 'Added piece ' . $piece_id . ' to post_id ' . $post_id );
+
 		return 'OK';
 	}
 
-	static function import_from_file( $request ) {
-		set_time_limit( 0 );
-
+	function import_from_pieces( $request ) {
 		$post_id = (int) $request->get_param( 'id' );
 		if ( $post_id < 1 ) {
 			return new WP_Error( 'missing_id', 'A valid `id` param is required', 500 );
@@ -108,11 +124,9 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 
 		$total_bytes = 0;
 
-		foreach ( get_post_meta( $post_id ) as $key => $value ) {
-			if ( ! preg_match( '/^jetpack_file_import_piece_(\d+)$/', $key ) ) {
-				continue;
-			}
+		$pieces = self::get_pieces_for_cpt_id( $post_id );
 
+		foreach ( $pieces as $key => $value ) {
 			$piece = base64_decode( $value[0] );
 
 			$piece_bytes = fwrite( $tmpfile, $piece );
@@ -124,19 +138,32 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			$total_bytes += $piece_bytes;
 		}
 
+		set_time_limit( 0 );
+		// @TODO fastcgi_finish_request..?
+
 		$result = $this->_import_from_file( $tmpfile );
 
 		fclose( $tmpfile );
 		@unlink( $tmpfile );
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return 'Imported';
+		return $result;
 	}
 
 	protected function _import_from_file( $file ) {
+		if ( ! defined( 'WP_LOAD_IMPORTERS' ) ) {
+			define( 'WP_LOAD_IMPORTERS', 1 );
+			/**
+			 * The plugin short-circuits if this constant is not set when plugins load:
+			 * https://github.com/WordPress/wordpress-importer/blob/19c7fe19619f06f51d502ea368011f667a419934/src/wordpress-importer.php#L13
+			 *
+			 * ...& core only sets that in a couple of ways:
+			 * https://github.com/WordPress/WordPress/search?q=WP_LOAD_IMPORTERS&unscoped_q=WP_LOAD_IMPORTERS
+			 *
+			 * In order for this to work, we'll need a change to the core plugin, for example:
+			 * https://github.com/WordPress/wordpress-importer/pull/45
+			 */
+		}
+
 		if ( ! class_exists( 'WP_Import' ) ) {
 			return new WP_Error( 'missing_wp_import', 'The WP_Import class does not exist' );
 		}
@@ -159,7 +186,11 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			if ( empty( $file_info['uri'] ) || ! is_writable( $file_info['uri'] ) ) {
 				return new WP_Error( 'invalid_file', 'Could not access import file' );
 			}
-			return $GLOBALS['wp_import']->import( $file_info['uri'] );
+			// @TODO promote to "proper" attachment, enqueue cron for import, etc...?
+			error_log( 'Starting import from file:' );
+			error_log( print_r( $file_info, 1 ) );
+			$GLOBALS['wp_import']->import( $file_info['uri'] );
+			return 'Imported';
 		} catch ( Exception $e ) {
 			return new WP_Error( 'import_from_file_exception', $e->getMessage() );
 		}
@@ -167,20 +198,6 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 }
 
 function jetpack_site_importer_init() {
-	if ( ! defined( 'WP_LOAD_IMPORTERS' ) ) {
-		define( 'WP_LOAD_IMPORTERS', 1 );
-		/**
-		 * The plugin short-circuits if this constant is not set when plugins load:
-		 * https://github.com/WordPress/wordpress-importer/blob/19c7fe19619f06f51d502ea368011f667a419934/src/wordpress-importer.php#L13
-		 *
-		 * ...& core only sets that in a couple of ways:
-		 * https://github.com/WordPress/WordPress/search?q=WP_LOAD_IMPORTERS&unscoped_q=WP_LOAD_IMPORTERS
-		 *
-		 * In order for this to work, we'll need a change to the core plugin, for example:
-		 * https://github.com/WordPress/wordpress-importer/pull/45
-		 */
-	}
-
 	register_post_type( 'jetpack_file_import', array(
 		'public'                => false,
 		'rest_controller_class' => 'WP_REST_Jetpack_Imports_Controller',
