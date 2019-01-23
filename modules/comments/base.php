@@ -190,7 +190,7 @@ class Highlander_Comments_Base {
 	 * @return If no
 	 */
 	function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter' ) ) {
 			return;
 		}
 
@@ -218,7 +218,7 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if this is not a guest or external service credentialed request
-		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter' ) ) {
 			return $comment_data;
 		}
 
