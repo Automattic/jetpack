@@ -151,7 +151,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		_maybe_update_core();
 		$core_transiant = get_site_transient( 'update_core' );
-		if( sizeof( $core_transiant->updates )  === 1 && $core_transiant->updates[0]->response === 'latest' ) {
+		if ( sizeof( $core_transiant->updates ) === 1 && $core_transiant->updates[0]->response === 'latest' ) {
 			$this->markTestSkipped( 'No new updates!' );
 		}
 		$this->sender->do_sync();
