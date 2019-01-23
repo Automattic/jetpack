@@ -20,7 +20,7 @@ function jetpack_register_gutenberg_extension( $slug ) {
 /**
  * Helper function to register a Jetpack Gutenberg block
  *
- * @deprecated 7.0.0 Use jetpack_activate_gutenberg_extension() + register_block_type() instead
+ * @deprecated 7.0.0 Use jetpack_register_gutenberg_extension() + register_block_type() instead
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -36,7 +36,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 /**
  * Helper function to register a Jetpack Gutenberg plugin
  *
- * @deprecated 7.0.0 Use jetpack_activate_gutenberg_extension() instead
+ * @deprecated 7.0.0 Use jetpack_register_gutenberg_extension() instead
  *
  * @param string $slug Slug of the plugin.
  *
