@@ -87,7 +87,7 @@ function jetpack_giphy_block_load_assets( $attr ) {
 			<iframe src="<?php echo esc_attr( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
 		</figure>
 		<?php if ( $caption ) : ?>
-			<p class="wp-block-jetpack-giphy-caption"><?php echo esc_html( $caption ); ?></p>
+			<p class="wp-block-jetpack-giphy-caption"><?php echo wp_kses_post( $caption ); ?></p>
 		<?php endif; ?>
 	</div>
 	<?php
