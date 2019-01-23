@@ -65,6 +65,7 @@
 
 .contact-form-submission p {
 	margin: 0 auto;
+	word-wrap: break-word;
 }
 
 .form-errors .form-error-message {
