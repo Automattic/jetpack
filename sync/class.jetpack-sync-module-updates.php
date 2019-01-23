@@ -208,7 +208,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			 * @param array containing info that tells us what needs updating
 			 *
 			 */
-			do_action( "jetpack_update_core_change", $value );
+			do_action( 'jetpack_update_core_change', $value );
 			return;
 		}
 		if ( empty( $this->updates ) ) {
