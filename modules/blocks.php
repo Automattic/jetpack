@@ -79,18 +79,20 @@ function jetpack_giphy_block_load_assets( $attr ) {
 	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : '//giphy.com/embed/ZgTR3UQ9XAWDvqy9jv';
 	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
 	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
+
 	ob_start();
 	?>
-	<div class="wp-block-jetpack-giphy align<?php echo( esc_attr( $align ) ); ?>">
-		<figure style=<?php echo( esc_attr( $style ) ); ?>>
-			<iframe src='<?php echo( esc_attr( $giphy_url ) ); ?>' title='<?php echo( esc_attr( $search_text ) ); ?>'></iframe>
+	<div class="wp-block-jetpack-giphy align<?php echo esc_attr( $align ); ?>">
+		<figure style="<?php echo esc_attr( $style ); ?>">
+			<iframe src="<?php echo esc_attr( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
 		</figure>
 		<?php if ( $caption ) : ?>
-			<figcaption class="caption"><?php echo( esc_html( $caption ) ); ?></figcaption>
+			<figcaption class="caption"><?php echo esc_html( $caption ); ?></figcaption>
 		<?php endif; ?>
 	</div>
 	<?php
 	$html = ob_get_clean();
+
 	Jetpack_Gutenberg::load_assets_as_required( 'giphy' );
 	return $html;
 }
