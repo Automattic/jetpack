@@ -288,7 +288,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
                     <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?> <?php echo $submit_button_classes_and_styles ?>"/>
+                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" <?php echo $submit_button_classes_and_styles ?>/>
                 </p>
             </form>
 			<?php
