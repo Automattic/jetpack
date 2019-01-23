@@ -85,7 +85,9 @@ class JetpackStateNotices extends React.Component {
 				);
 				break;
 			case 'site_blacklisted':
-				message = __( "This site can't be connected to WordPress.com." );
+				message = __(
+					"This site can't be connected to WordPress.com because it violates our Terms of Service."
+				);
 				break;
 			case 'not_public':
 				message = __(
