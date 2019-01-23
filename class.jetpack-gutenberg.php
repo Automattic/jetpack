@@ -126,6 +126,11 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+
+		if ( in_array( $slug, self::$registered_extensions, true ) ) {
+			return false;
+		}
+
 		self::$registered_extensions[] = $slug;
 		return true;
 	}
