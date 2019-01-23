@@ -22,7 +22,7 @@ class Jetpack_Private {
 		add_filter( 'robots_txt', array( __CLASS__, 'private_robots_txt' ) );
 		add_action( 'wp_head', array( __CLASS__, 'private_no_pinning' ) );
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ), 9, 2 );
-		add_action( 'rest_api_init', array( __CLASS__, 'disable_rest_api' ) );
+		add_action( 'rest_pre_dispatch', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
@@ -220,8 +220,9 @@ class Jetpack_Private {
 			return;
 		}
 
-		$error = new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
-		wp_die( $error );
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
+		}
 	}
 
 	static function module_override( $modules ) {

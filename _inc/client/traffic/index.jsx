@@ -45,7 +45,6 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundSearch = this.props.isModuleFound( 'search' ),
 			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
