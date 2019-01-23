@@ -45,43 +45,46 @@ jetpack_register_gutenberg_extension( 'vr' );
  * @since 6.9.0
 */
 if (
-	( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-	class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
+	(
+		( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		||
+		( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) )
+	)
+	&&
+	( jetpack_register_gutenberg_extension( 'tiled-gallery' ) )
 ) {
-	if ( jetpack_register_gutenberg_extension( 'tiled-gallery' ) ) {
-		register_block_type(
-			'jetpack/tiled-gallery',
-			array(
-				'render_callback' => 'jetpack_tiled_gallery_load_block_assets',
-			)
+	register_block_type(
+		'jetpack/tiled-gallery',
+		array(
+			'render_callback' => 'jetpack_tiled_gallery_load_block_assets',
+		)
+	);
+
+	/**
+	 * Tiled gallery block registration/dependency declaration.
+	 *
+	 * @param array  $attr - Array containing the block attributes.
+	 * @param string $content - String containing the block content.
+	 *
+	 * @return string
+	 */
+	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
+		$dependencies = array(
+			'lodash',
+			'wp-i18n',
+			'wp-token-list',
 		);
+		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
 
 		/**
-		 * Tiled gallery block registration/dependency declaration.
+		 * Filter the output of the Tiled Galleries content.
 		 *
-		 * @param array  $attr - Array containing the block attributes.
-		 * @param string $content - String containing the block content.
+		 * @module tiled-gallery
 		 *
-		 * @return string
+		 * @since 6.9.0
+		 *
+		 * @param string $content Tiled Gallery block content.
 		 */
-		function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
-			$dependencies = array(
-				'lodash',
-				'wp-i18n',
-				'wp-token-list',
-			);
-			Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
-
-			/**
-			 * Filter the output of the Tiled Galleries content.
-			 *
-			 * @module tiled-gallery
-			 *
-			 * @since 6.9.0
-			 *
-			 * @param string $content Tiled Gallery block content.
-			 */
-			return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
-		}
+		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
 	}
 }
