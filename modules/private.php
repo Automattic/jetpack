@@ -26,6 +26,8 @@ class Jetpack_Private {
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
+		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 	}
 
 	/**
@@ -124,6 +126,13 @@ class Jetpack_Private {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Remove the privatize_blog_mask_blog_name filter
+	 */
+	static function remove_privatize_blog_mask_blog_name_filter() {
+		remove_filter( 'bloginfo', array( __CLASS__, 'privatize_blog_mask_blog_name' ) );
 	}
 
 	/**
