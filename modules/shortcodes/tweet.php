@@ -32,6 +32,7 @@ class Jetpack_Tweet {
 	 * @return string
 	 */
 	public static function jetpack_tweet_shortcode( $atts ) {
+		global $wp_embed;
 		$default_atts = array(
 			'tweet'       => '',
 			'align'       => 'none',
@@ -68,7 +69,7 @@ class Jetpack_Tweet {
 		add_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10, 3 );
 
 		// Fetch tweet
-		$output = wp_oembed_get( $id, $atts );
+		$output = $wp_embed->shortcode( $atts, $id );
 
 		// Clean up filter
 		remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
