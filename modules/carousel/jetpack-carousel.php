@@ -29,7 +29,7 @@ class Jetpack_Carousel {
 	public $single_image_gallery_enabled_media_file = false;
 
 	function __construct() {
-		add_action( 'wp', array( $this, 'init' ), 99 );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	function init() {
@@ -44,7 +44,7 @@ class Jetpack_Carousel {
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
-			$this->register_settings();
+			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
@@ -217,7 +217,7 @@ class Jetpack_Carousel {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return $content;
 		}
-    
+
 		if (
 			function_exists( 'has_block' )
 			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
