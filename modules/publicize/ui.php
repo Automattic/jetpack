@@ -294,7 +294,7 @@ class Publicize_UI {
 								echo '<div class="publicize-disabled-service-message">';
 								esc_html_e( 'Google+ support is being removed.', 'jetpack' );
 								printf(
-									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice" target="_blank">%1$s<span class="dashicons dashicons-external"></span></a>',
+									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice" target="_blank">%1$s<span class="dashicons dashicons-info"></span></a>',
 									esc_html__( 'Why?', 'jetpack' )
 								);
 								echo '</div>';
