@@ -11,8 +11,10 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'mailchimp';
+		$this->wpcom_is_wpcom_only_endpoint = true;
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
+
 	/**
 	 * Called automatically on `rest_api_init()`.
 	 */
