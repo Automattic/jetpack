@@ -6,9 +6,9 @@
  */
 
 jetpack_register_block(
-	'giphy',
+	'gif',
 	array(
-		'render_callback' => 'jetpack_giphy_block_load_assets',
+		'render_callback' => 'jetpack_gif_block_load_assets',
 	)
 );
 
@@ -67,13 +67,13 @@ if (
 }
 
 /**
- * Giphy block registration/dependency declaration.
+ * Gif block registration/dependency declaration.
  *
  * @param array $attr - Array containing the map block attributes.
  *
  * @return string
  */
-function jetpack_giphy_block_load_assets( $attr ) {
+function jetpack_gif_block_load_assets( $attr ) {
 	$align       = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$style       = 'padding-top:' . $attr['paddingTop'];
 	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : '//giphy.com/embed/ZgTR3UQ9XAWDvqy9jv';
@@ -82,18 +82,18 @@ function jetpack_giphy_block_load_assets( $attr ) {
 
 	ob_start();
 	?>
-	<div class="wp-block-jetpack-giphy align<?php echo esc_attr( $align ); ?>">
+	<div class="wp-block-jetpack-gif align<?php echo esc_attr( $align ); ?>">
 		<figure style="<?php echo esc_attr( $style ); ?>">
 			<iframe src="<?php echo esc_attr( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
 		</figure>
 		<?php if ( $caption ) : ?>
-			<p class="wp-block-jetpack-giphy-caption"><?php echo wp_kses_post( $caption ); ?></p>
+			<p class="wp-block-jetpack-gif-caption"><?php echo wp_kses_post( $caption ); ?></p>
 		<?php endif; ?>
 	</div>
 	<?php
 	$html = ob_get_clean();
 
-	Jetpack_Gutenberg::load_assets_as_required( 'giphy' );
+	Jetpack_Gutenberg::load_assets_as_required( 'gif' );
 	return $html;
 }
 
