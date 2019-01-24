@@ -305,23 +305,7 @@ class Publicize_UI {
 				<?php endforeach; ?>
 				</div>
 				<?php
-				$google_plus_exp_msg = wp_kses(
-					sprintf(
-						/* Translators: placeholder is a link to an announcement post on Google's blog. */
-						__(
-							'<h3>Google+ Support is being removed</h3><p>Google recently <a href="%1$s">announced</a> that Google+ is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.</p><p>For now, you can still post to Google+ using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.</p>',
-							'jetpack'
-						),
-						esc_url( 'https://www.blog.google/technology/safety-security/expediting-changes-google-plus/' )
-					),
-					array(
-						'a'  => array(
-							'href' => array(),
-						),
-						'h3' => true,
-						'p'  => true,
-					)
-				);
+				$google_plus_exp_msg = $this->google_plus_shut_down_notice();
 				?>
 				<script>
 				(function($){
@@ -878,5 +862,26 @@ jQuery( function($) {
 			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 		</div><?php // #publicize-form
 		return ob_get_clean();
+	}
+
+	private function google_plus_shut_down_notice() {
+		return wp_kses(
+			sprintf(
+				/* Translators: placeholder is a link to an announcement post on Google's blog. */
+				__(
+					'<h3>Google+ Support is being removed</h3><p>Google recently <a href="%1$s" target="_blank">announced</a> that Google+ is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.</p><p>For now, you can still post to Google+ using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.</p>',
+					'jetpack'
+				),
+				esc_url( 'https://www.blog.google/technology/safety-security/expediting-changes-google-plus/' )
+			),
+			array(
+				'a'  => array(
+					'href' => true,
+					'target' => true,
+				),
+				'h3' => true,
+				'p'  => true,
+			)
+		);
 	}
 }
