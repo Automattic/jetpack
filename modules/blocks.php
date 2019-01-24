@@ -218,7 +218,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
 		'submitLabel'      => esc_html__( 'Join My Email List', 'jetpack' ),
 		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
-		'processingLabel'  => esc_html__( 'Processing...', 'jetpack' ),
+		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'ve been added to the list.', 'jetpack' ),
 		'errorLabel'       => esc_html__( 'Oh no! Unfortunately there was an error. Please try reloading this page and adding your email once more.', 'jetpack' ),
 	);
