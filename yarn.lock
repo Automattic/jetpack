@@ -4674,9 +4674,9 @@ jsdom-global@3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/jsdom-global/-/jsdom-global-3.0.2.tgz#6bd299c13b0c4626b2da2c0393cd4385d606acb9"
 
-jsdom@13.1.0:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-13.1.0.tgz#fa7356f0cc8111d0f1077cb7800d06f22f1d66c7"
+jsdom@13.2.0:
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-13.2.0.tgz#b1a0dbdadc255435262be8ea3723d2dba0d7eb3a"
   dependencies:
     abab "^2.0.0"
     acorn "^6.0.4"
@@ -4693,7 +4693,7 @@ jsdom@13.1.0:
     pn "^1.1.0"
     request "^2.88.0"
     request-promise-native "^1.0.5"
-    saxes "^3.1.4"
+    saxes "^3.1.5"
     symbol-tree "^3.2.2"
     tough-cookie "^2.5.0"
     w3c-hr-time "^1.0.1"
@@ -7354,9 +7354,9 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
 
-saxes@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/saxes/-/saxes-3.1.4.tgz#4ad5c53eb085ac0570ea1071a07aaf22ad29cebd"
+saxes@^3.1.5:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/saxes/-/saxes-3.1.6.tgz#2d948a47b54918516c5a64096f08865deb5bd8cd"
   dependencies:
     xmlchars "^1.3.1"
 
