@@ -80,9 +80,17 @@ function jetpack_gif_block_load_assets( $attr ) {
 	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
 	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
 
+	$classes = array(
+		'wp-block-jetpack-gif',
+		'align' . $align,
+	);
+	if ( isset( $attr['className'] ) ) {
+		array_push( $classes, $attr['className'] );
+	}
+
 	ob_start();
 	?>
-	<div class="wp-block-jetpack-gif align<?php echo esc_attr( $align ); ?>">
+	<div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
 		<figure style="<?php echo esc_attr( $style ); ?>">
 			<iframe src="<?php echo esc_attr( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
 		</figure>
