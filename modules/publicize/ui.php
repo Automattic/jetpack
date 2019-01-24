@@ -321,7 +321,11 @@ class Publicize_UI {
 					var setup = function() {
 						$('#jetpack-gplus-deprecated-notice').first().pointer(
 							{
-								content: "<?php echo wp_slash( $google_plus_exp_msg ); ?>","position":{"edge":"right","align":"bottom"},
+								content: decodeURIComponent( "<?php echo rawurlencode( $google_plus_exp_msg ); ?>" ),
+								position: {
+									edge: "right",
+									align: "bottom"
+								},
 								pointerClass: "wp-pointer arrow-bottom",
 								pointerWidth: 420
 							}
