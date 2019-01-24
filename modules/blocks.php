@@ -227,31 +227,31 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	}
 	ob_start();
 	?>
-	<div class="wp-block-jetpack-mailchimp" data-blog-id="<?php echo( esc_attr( $blog_id ) ); ?>">
+	<div class="wp-block-jetpack-mailchimp" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
-			<h3><?php echo( esc_html( $values['title'] ) ); ?></h3>
+			<h3><?php echo esc_html( $values['title'] ); ?></h3>
 			<form>
 				<input
 					type="text"
 					class="components-text-control__input wp-block-jetpack-mailchimp-email"
 					required
-					placeholder="<?php echo( esc_attr( $values['emailPlaceholder'] ) ); ?>"
+					placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
 				/>
 				<button type="submit" class="components-button is-button is-primary">
-					<?php echo( esc_html( $values['submitLabel'] ) ); ?>
+					<?php echo esc_html( $values['submitLabel'] ); ?>
 				</button>
 				<figcaption>
-					<?php echo( esc_html( $values['consentText'] ) ); ?>
+					<?php echo esc_html( $values['consentText'] ); ?>
 				</figcaption>
 			</form>
 			<div class="wp-block-jetpack-mailchimp-notification wp-block-jetpack-mailchimp-processing">
-				<?php echo( esc_html( $values['processingLabel'] ) ); ?>
+				<?php echo esc_html( $values['processingLabel'] ); ?>
 			</div>
 			<div class="wp-block-jetpack-mailchimp-notification wp-block-jetpack-mailchimp-success">
-				<?php echo( esc_html( $values['successLabel'] ) ); ?>
+				<?php echo esc_html( $values['successLabel'] ); ?>
 			</div>
 			<div class="wp-block-jetpack-mailchimp-notification wp-block-jetpack-mailchimp-error">
-				<?php echo( esc_html( $values['errorLabel'] ) ); ?>
+				<?php echo esc_html( $values['errorLabel'] ); ?>
 			</div>
 		</div>
 	</div>
