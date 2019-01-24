@@ -30,9 +30,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		if ( ! empty( $_GET['jetpack-copy'] ) &&
-			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-copy-post' ) &&
-			'post-new.php' === $GLOBALS['pagenow'] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 		}
 	}
@@ -47,7 +45,7 @@ class Jetpack_Copy_Post {
 	 */
 	public function update_post_data( $target_post_id, $post, $update ) {
 		// This `$update` check avoids infinite loops of trying to update our updated post.
-		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-copy-post' ) || $update ) {
+		if ( $update ) {
 			return;
 		}
 
@@ -279,7 +277,6 @@ class Jetpack_Copy_Post {
 			array(
 				'post_type'    => $post->post_type,
 				'jetpack-copy' => $post->ID,
-				'_wpnonce'     => wp_create_nonce( 'jetpack-copy-post' ),
 			),
 			admin_url( 'post-new.php' )
 		);
