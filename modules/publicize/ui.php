@@ -294,7 +294,7 @@ class Publicize_UI {
 								echo '<div class="publicize-disabled-service-message">';
 								esc_html_e( 'Google+ support is being removed.', 'jetpack' );
 								printf(
-									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice" target="_blank">%1$s<span class="dashicons dashicons-info"></span></a>',
+									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice">%1$s<span class="dashicons dashicons-info"></span></a>',
 									esc_html__( 'Why?', 'jetpack' )
 								);
 								echo '</div>';
@@ -304,9 +304,6 @@ class Publicize_UI {
 					</div>
 				<?php endforeach; ?>
 				</div>
-				<?php
-				$google_plus_exp_msg = $this->google_plus_shut_down_notice();
-				?>
 				<script>
 				(function($){
 					$('.pub-disconnect-button').on('click', function(e){ if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
@@ -316,28 +313,9 @@ class Publicize_UI {
 							return false;
 						}
 					});
-
-					// deprecation tooltip
-					var setup = function() {
-						$('#jetpack-gplus-deprecated-notice').first().pointer(
-							{
-								content: decodeURIComponent( "<?php echo rawurlencode( $google_plus_exp_msg ); ?>" ),
-								position: {
-									edge: "right",
-									align: "bottom"
-								},
-								pointerClass: "wp-pointer arrow-bottom",
-								pointerWidth: 420
-							}
-						).click( function( e ) {
-							e.preventDefault();
-							$( this ).pointer( 'open' );
-						} );
-					};
-
-					$(document).ready( setup );
 				})(jQuery);
 				</script>
+				<?php $this->google_plus_shut_down_tooltip_script(); ?>
 			</div>
 
 			<?php wp_nonce_field( "wpas_posts_{$_blog_id}", "_wpas_posts_{$_blog_id}_nonce" ); ?>
@@ -409,6 +387,12 @@ class Publicize_UI {
 
 		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
 		$max_length = $max_length - 24; // t.co link, space
+
+		// for deprecation tooltip
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+
+		$this->google_plus_shut_down_tooltip_script();
 
 		?>
 
@@ -666,6 +650,10 @@ jQuery( function($) {
 .wpas-twitter-length-limit {
 	color: red;
 }
+.publicize-disabled-service-message .dashicons {
+	font-size: 16px;
+	text-decoration: none;
+}
 </style><?php
 	}
 
@@ -714,9 +702,14 @@ jQuery( function($) {
 					$publicize_form = $this->get_metabox_form_connected( $connections_data );
 
 					$labels = array();
+					$has_google_plus = false;
 					foreach ( $connections_data as $connection_data ) {
 						if ( ! $connection_data['enabled'] ) {
 							continue;
+						}
+
+						if ( 'google_plus' === $connection_data['service_name'] ) {
+							$has_google_plus = true;
 						}
 
 						$labels[] = sprintf(
@@ -727,6 +720,17 @@ jQuery( function($) {
 
 				?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
+				<?php if ( $has_google_plus ) : ?>
+					<div class="notice inline notice-warning publicize-disabled-service-message">
+						<p>
+							<strong><?php esc_html_e( 'Google+ support is being removed', 'jetpack' ); ?></strong>
+							<a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice">
+								<?php esc_html_e( 'Why?', 'jetpack' ); ?>
+								<span class="dashicons dashicons-info"></span>
+							</a>
+						</p>
+					</div>
+				<?php endif; ?>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php
 
@@ -887,5 +891,33 @@ jQuery( function($) {
 				'p'  => true,
 			)
 		);
+	}
+
+	private function google_plus_shut_down_tooltip_script() {
+		$google_plus_exp_msg = $this->google_plus_shut_down_notice();
+	?>
+		<script>
+		// deprecation tooltip
+		(function($){
+			var setup = function() {
+				$('#jetpack-gplus-deprecated-notice').first().pointer(
+					{
+						content: decodeURIComponent( "<?php echo rawurlencode( $google_plus_exp_msg ); ?>" ),
+						position: {
+							edge: "right",
+							align: "bottom"
+						},
+						pointerClass: "wp-pointer arrow-bottom",
+						pointerWidth: 420
+					}
+				).click( function( e ) {
+					e.preventDefault();
+					$( this ).pointer( 'open' );
+				} );
+			};
+			$(document).ready( setup );
+		})(jQuery);
+		</script>
+	<?php
 	}
 }
