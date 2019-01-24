@@ -80,7 +80,7 @@
     "del": "3.0.0",
     "es6-promise": "4.2.5",
     "eslint": "3.19.0",
-    "eslint-config-prettier": "3.3.0",
+    "eslint-config-prettier": "3.6.0",
     "eslint-config-wpcalypso": "0.8.0",
     "eslint-loader": "2.1.1",
     "eslint-plugin-jsx-a11y": "4.0.0",
