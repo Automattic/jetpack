@@ -457,7 +457,8 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static function is_whitelisted_option( $option ) {
-		foreach ( self::$default_options_whitelist as $whitelisted_option ) {
+		$whitelisted_options = self::get_options_whitelist();
+		foreach ( $whitelisted_options as $whitelisted_option ) {
 			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
 				return true;
 			} elseif ( $whitelisted_option === $option ) {
