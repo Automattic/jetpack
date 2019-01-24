@@ -5,6 +5,11 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 
 	private $old_wp_version = null;
+	private $updates = array();
+
+	public function set_defaults() {
+		$this->updates = array();
+	}
 
 	function name() {
 		return 'updates';
@@ -115,7 +120,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	}
 
-
 	public function get_update_checksum( $update, $transient ) {
 		$updates = array();
 		$no_updated = array();
@@ -180,8 +184,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
-
 		$new_checksum = $this->get_update_checksum( $value, $transient );
+
 		if ( false === $new_checksum  ) {
 			return;
 		}
@@ -195,18 +199,44 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-		/**
-		 * jetpack_{$transient}_change
-		 * jetpack_update_plugins_change
-		 * jetpack_update_themes_change
-		 * jetpack_update_core_change
-		 *
-		 * @since 5.1.0
-		 *
-		 * @param array containing info that tells us what needs updating
-		 *
-		 */
-		do_action( "jetpack_{$transient}_change", $value );
+		if ( 'update_core' === $transient ) {
+			/**
+			 * jetpack_update_core_change
+			 *
+			 * @since 5.1.0
+			 *
+			 * @param array containing info that tells us what needs updating
+			 *
+			 */
+			do_action( 'jetpack_update_core_change', $value );
+			return;
+		}
+		if ( empty( $this->updates ) ) {
+			// lets add the shutdown method once and only when the updates move from empty to filled with something
+			add_action( 'shutdown', array( $this, 'sync_last_event' ), 9 );
+		}
+		if ( ! isset( $this->updates[ $transient ] ) ) {
+			$this->updates[ $transient ] = array();
+		}
+		$this->updates[ $transient ][] = $value;
+	}
+
+	public function sync_last_event() {
+		foreach( $this->updates as $transient => $values ) {
+			$value = end( $values ); // only send over the last value
+			/**
+			 * jetpack_{$transient}_change
+			 * jetpack_update_plugins_change
+			 * jetpack_update_themes_change
+			 *
+			 * @since 5.1.0
+			 *
+			 * @param array containing info that tells us what needs updating
+			 *
+			 */
+			do_action( "jetpack_{$transient}_change", $value );
+		}
+
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
