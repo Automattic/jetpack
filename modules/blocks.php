@@ -8,7 +8,7 @@
 jetpack_register_block(
 	'gif',
 	array(
-		'render_callback' => 'jetpack_gif_block_load_assets',
+		'render_callback' => 'jetpack_gif_block_render',
 	)
 );
 
@@ -73,7 +73,7 @@ if (
  *
  * @return string
  */
-function jetpack_gif_block_load_assets( $attr ) {
+function jetpack_gif_block_render( $attr ) {
 	$align       = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
 	$style       = 'padding-top:' . $padding_top;
