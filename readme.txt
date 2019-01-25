@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Connection flow: display a notice upon connection when the site is suspended.
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 
