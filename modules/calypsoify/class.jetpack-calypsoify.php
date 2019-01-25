@@ -19,9 +19,13 @@ class Jetpack_Calypsoify {
 		return self::$instance;
 	}
 
+	static function is_active() {
+		return 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+	}
+
 	public function setup() {
 		add_action( 'admin_init', array( $this, 'check_param' ) );
-		if ( 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true ) ) {
+		if ( self::is_active() ) {
 
 			// Masterbar is currently required for this to work properly. Mock the instance of it
 			if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
