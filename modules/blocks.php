@@ -81,7 +81,7 @@ function jetpack_gif_block_render( $attr ) {
 	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
 	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
 
-	if ( ! $giphy_url ) {
+	if ( ! $giphy_url || ! $padding_top ) {
 		return null;
 	}
 
