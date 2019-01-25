@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
 * Carousel: fix display issue when viewing images with long captions.
+* WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
 
 --------
 
