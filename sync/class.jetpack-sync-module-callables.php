@@ -131,10 +131,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
+		$current_screeen = get_current_screen();
+
 		$plugins_action_links = array();
 		// Is the transient lock in place?
 		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
-		if ( ! empty( $plugins_lock ) ) {
+		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
 		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
