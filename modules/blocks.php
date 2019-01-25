@@ -3,8 +3,14 @@
  * Load code specific to Gutenberg blocks which are not tied to a module.
  * This file is unusual, and is not an actual `module` as such.
  * It is included in ./module-extras.php
- *
  */
+
+jetpack_register_block(
+	'gif',
+	array(
+		'render_callback' => 'jetpack_gif_block_render',
+	)
+);
 
 jetpack_register_block(
 	'map',
@@ -58,6 +64,50 @@ if (
 		 */
 		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
 	}
+}
+
+/**
+ * Gif block registration/dependency declaration.
+ *
+ * @param array $attr - Array containing the map block attributes.
+ *
+ * @return string
+ */
+function jetpack_gif_block_render( $attr ) {
+	$align       = isset( $attr['align'] ) ? $attr['align'] : 'center';
+	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
+	$style       = 'padding-top:' . $padding_top;
+	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : null;
+	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
+	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
+
+	if ( ! $giphy_url ) {
+		return null;
+	}
+
+	$classes = array(
+		'wp-block-jetpack-gif',
+		'align' . $align,
+	);
+	if ( isset( $attr['className'] ) ) {
+		array_push( $classes, $attr['className'] );
+	}
+
+	ob_start();
+	?>
+	<div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
+		<figure style="<?php echo esc_attr( $style ); ?>">
+			<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+		</figure>
+		<?php if ( $caption ) : ?>
+			<p class="wp-block-jetpack-gif-caption"><?php echo wp_kses_post( $caption ); ?></p>
+		<?php endif; ?>
+	</div>
+	<?php
+	$html = ob_get_clean();
+
+	Jetpack_Gutenberg::load_assets_as_required( 'gif' );
+	return $html;
 }
 
 /**
