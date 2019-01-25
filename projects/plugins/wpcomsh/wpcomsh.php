@@ -316,6 +316,28 @@ function wpcomsh_map_caps( $required_caps, $cap ) {
 }
 add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
 
+/**
+ * Don't allow site owners to be removed.
+ *
+ * @param array $allcaps An array of all the user's capabilities.
+ * @param array $caps    Actual capabilities for meta capability.
+ * @param array $args    Optional parameters passed to has_cap(), typically object ID.
+ * @return array
+ */
+function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
+	// Trying to edit or delete a user other than yourself?
+	if ( in_array( $args[0], [ 'edit_user', 'delete_user', 'remove_user', 'promote_user' ], true ) ) {
+		$jetpack = get_option( 'jetpack_options' );
+
+		if ( ! empty( $jetpack['master_user'] ) && $args[2] == $jetpack['master_user'] ) {
+			return [];
+		}
+	}
+
+	return $allcaps;
+}
+add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
+
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
