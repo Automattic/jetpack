@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
-		add_action( 'admin_init', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
+		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
 
 		// For some options, we should always send the change right away!
 		$always_send_updates_to_these_options = array(
@@ -131,10 +131,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
+		$current_screeen = get_current_screen();
+
 		$plugins_action_links = array();
 		// Is the transient lock in place?
 		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
-		if ( ! empty( $plugins_lock ) ) {
+		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
 		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
