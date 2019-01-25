@@ -352,6 +352,16 @@ body .sd-content ul li.share-custom.no-icon a span {
 	color: #fff !important;
 }
 
+
+.sd-social-icon .sd-content ul li.share-deprecated a:before,
+.sd-social-icon-text .sd-content li.share-deprecated a:before,
+.sd-social-official .sd-content li.share-deprecated a:before,
+.sd-content ul li.share-deprecated div.option.option-smart-off a:before {
+	width: 1em;
+	height: 1em;
+	content: "\1F6AB";
+}
+
 /* Share count */
 .sd-social .sd-button .share-count {
 	background: #2ea2cc;

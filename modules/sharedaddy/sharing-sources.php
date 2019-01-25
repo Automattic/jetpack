@@ -381,6 +381,10 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 
 	final public function __construct( $id, array $settings ) {
 		$this->id = $id;
+
+		if ( isset( $settings['button_style'] ) ) {
+			$this->button_style = $settings['button_style'];
+		}
 	}
 
 	final public function is_deprecated() {
