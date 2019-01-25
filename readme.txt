@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * Block Editor: introduce a new Gif block to help you quickly search and add Gif images to your posts.
+* Copy Post: this new feature allows you to quickly create a new draft based on a post that's already published.
 
 **Enhancements**
 
