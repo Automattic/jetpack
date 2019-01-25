@@ -86,7 +86,7 @@ class Jetpack_Subscriptions {
 			add_action( 'template_redirect', array( $this, 'widget_submit' ) );
 
 		// Set up the comment subscription checkboxes
-		add_action( 'comment_form_after_fields', array( $this, 'comment_subscribe_init' ) );
+		add_filter( 'comment_form_submit_button', array( $this, 'comment_subscribe_init' ), 10, 2 );
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
@@ -597,8 +597,11 @@ class Jetpack_Subscriptions {
 	 * Jetpack_Subscriptions::comment_subscribe_init()
 	 *
 	 * Set up and add the comment subscription checkbox to the comment form.
+	 *
+	 * @param string $submit_button HTML markup for the submit button.
+	 * @param array  $args          Arguments passed to `comment_form()`.
 	 */
-	function comment_subscribe_init() {
+	function comment_subscribe_init( $submit_button, $args ) {
 		global $post;
 
 		$comments_checked = '';
@@ -667,7 +670,9 @@ class Jetpack_Subscriptions {
 		 *
 		 * @param string $str Comment Subscription form HTML output.
 		 */
-		echo apply_filters( 'jetpack_comment_subscription_form', $str );
+		$str = apply_filters( 'jetpack_comment_subscription_form', $str );
+
+		return $str . $submit_button;
 	}
 
 	/**
