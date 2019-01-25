@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 * Shortcodes: cache the output of the Twitter shortcode.
+* Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
 * Sync: improvements to the synchronization of plugin and theme updates.
 * Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
 
@@ -130,7 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
 * Carousel: fix display issue when viewing images with long captions.
-* Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
+* Subscriptions: display subscription options below the comment form, even when you are logged in to your WordPress account.
 * WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
 
 --------
