@@ -542,7 +542,7 @@ class Sharing_Admin {
  * @action rest_api_init
  * @uses register_meta
  */
-function post_sharing_register_meta() {
+function jetpack_post_sharing_register_meta() {
 	register_meta(
 		'post', 'sharing_disabled',
 		array(
@@ -554,9 +554,7 @@ function post_sharing_register_meta() {
 }
 
 // Add Sharing post_meta to the REST API Post response.
-if ( function_exists( 'register_meta' ) ) {
-	add_action( 'rest_api_init', 'post_sharing_register_meta' );
-}
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_meta' );
 
 function sharing_admin_init() {
 	global $sharing_admin;

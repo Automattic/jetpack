@@ -563,7 +563,7 @@ class Jetpack_Likes {
  * @action rest_api_init
  * @uses register_meta
  */
-function post_likes_register_meta() {
+function jetpack_post_likes_register_meta() {
 	register_meta(
 		'post', 'switch_like_status',
 		array(
@@ -575,8 +575,6 @@ function post_likes_register_meta() {
 }
 
 // Add Likes post_meta to the REST API Post response.
-if ( function_exists( 'register_meta' ) ) {
-	add_action( 'rest_api_init', 'post_likes_register_meta' );
-}
+add_action( 'rest_api_init', 'jetpack_post_likes_register_meta' );
 
 Jetpack_Likes::init();
