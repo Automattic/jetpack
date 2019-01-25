@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
+* Carousel: fix display issue when viewing images with long captions.
 
 --------
 
