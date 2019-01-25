@@ -5,13 +5,11 @@
  * It is included in ./module-extras.php
  */
 
-jetpack_register_block(
-	'gif',
-	array(
-		'render_callback' => 'jetpack_gif_block_render',
-	)
-);
-
+/**
+ * Map block.
+ *
+ * @since 6.8.0
+ */
 jetpack_register_block(
 	'map',
 	array(
@@ -19,7 +17,26 @@ jetpack_register_block(
 	)
 );
 
-jetpack_register_block( 'vr' );
+/**
+ * Map block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the map block attributes.
+ * @param string $content - String containing the map block content.
+ *
+ * @return string
+ */
+function jetpack_map_block_load_assets( $attr, $content ) {
+	$dependencies = array(
+		'lodash',
+		'wp-element',
+		'wp-i18n',
+	);
+
+	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+
+	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
+	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
+}
 
 /**
  * Tiled Gallery block. Depends on the Photon module.
@@ -40,7 +57,7 @@ if (
 	/**
 	 * Tiled gallery block registration/dependency declaration.
 	 *
-	 * @param array  $attr - Array containing the block attributes.
+	 * @param array $attr - Array containing the block attributes.
 	 * @param string $content - String containing the block content.
 	 *
 	 * @return string
@@ -65,6 +82,18 @@ if (
 		return apply_filters( 'jetpack_tiled_galleries_block_content', $content );
 	}
 }
+
+/**
+ * GIF Block.
+ *
+ * @since 7.0.0
+ */
+jetpack_register_block(
+	'gif',
+	array(
+		'render_callback' => 'jetpack_gif_block_render',
+	)
+);
 
 /**
  * Gif block registration/dependency declaration.
@@ -113,28 +142,7 @@ function jetpack_gif_block_render( $attr ) {
 }
 
 /**
- * Map block registration/dependency declaration.
- *
- * @param array  $attr - Array containing the map block attributes.
- * @param string $content - String containing the map block content.
- *
- * @return string
- */
-function jetpack_map_block_load_assets( $attr, $content ) {
-	$dependencies = array(
-		'lodash',
-		'wp-element',
-		'wp-i18n',
-	);
-
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
-
-	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
-	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
-}
-
-/**
- * Register the Contact Info block and its child blocks.
+ * Contact Info block and its child blocks.
  */
 jetpack_register_block( 'contact-info' );
 jetpack_register_block(
@@ -149,3 +157,8 @@ jetpack_register_block(
 	'phone',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
 );
+
+/**
+ * VR Block.
+ */
+jetpack_register_block( 'vr' );
