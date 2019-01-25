@@ -51,13 +51,15 @@ class Sharing_Service {
 			'linkedin'         => 'Share_LinkedIn',
 			'reddit'           => 'Share_Reddit',
 			'twitter'          => 'Share_Twitter',
-			'google-plus-1'    => 'Share_GooglePlus1',
 			'tumblr'           => 'Share_Tumblr',
 			'pinterest'        => 'Share_Pinterest',
 			'pocket'           => 'Share_Pocket',
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+
+			// Deprecated
+			'google-plus-1'    => 'Share_GooglePlus1',
 		);
 
 		/**
@@ -792,8 +794,15 @@ function sharing_display( $text = '', $echo = false ) {
 			// Visible items
 			$visible = '';
 			foreach ( $enabled['visible'] as $id => $service ) {
+				$klasses = array( 'share-' . $service->get_class() );
+				if ( $service->is_deprecated() ) {
+					if ( ! current_user_can( 'manage_options' ) ) {
+						continue;
+					}
+					$klasses[] = 'share-deprecated';
+				}
 				// Individual HTML for sharing service
-				$visible .= '<li class="share-' . $service->get_class() . '">' . $service->get_display( $post ) . '</li>';
+				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
 			}
 
 			$parts   = array();
@@ -832,7 +841,14 @@ function sharing_display( $text = '', $echo = false ) {
 				$count = 1;
 				foreach ( $enabled['hidden'] as $id => $service ) {
 					// Individual HTML for sharing service
-					$sharing_content .= '<li class="share-' . $service->get_class() . '">';
+					$klasses = array( 'share-' . $service->get_class() );
+					if ( $service->is_deprecated() ) {
+						if ( ! current_user_can( 'manage_options' ) ) {
+							continue;
+						}
+						$klasses[] = 'share-deprecated';
+					}
+					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
 
