@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Block Editor: introduce a new Gif block to help you quickly search and add Gif images to your posts.
 
 **Enhancements**
 
