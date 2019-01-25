@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
+* Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 
 **Improved compatibility**
 
