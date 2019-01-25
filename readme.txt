@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Shortcodes: cache the output of the Twitter shortcode.
 
 **Enhancements**
 
