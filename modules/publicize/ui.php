@@ -105,6 +105,10 @@ class Publicize_UI {
 		Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style( 'social-logos' );
 
+		// for deprecation tooltip
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+
 		add_thickbox();
 	}
 
@@ -188,14 +192,22 @@ class Publicize_UI {
 
 				<?php
 				foreach ( $services as $service_name => $service ) :
-					$connect_url = $this->publicize->connect_url( $service_name );
+					// do not display any service that cannot be connected anymore (deprecated).
+					$connect_url = $this->publicize->can_connect_service( $service_name ) ?
+						$this->publicize->connect_url( $service_name ) :
+						null;
+
 					if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
 						echo "</div><div class='right'>";
 					$service_num++;
 					?>
 					<div class="publicize-service-entry" <?php if ( $service_num > 0 ): ?>class="connected"<?php endif; ?> >
 						<div id="<?php echo esc_attr( $service_name ); ?>" class="publicize-service-left">
-							<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
+							<?php if ( $connect_url ): ?>
+								<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
+							<?php else: ?>
+								<span><?php echo $this->publicize->get_service_label( $service_name ); ?></span>
+							<?php endif; ?>
 						</div>
 
 
@@ -260,17 +272,36 @@ class Publicize_UI {
 								</ul>
 							<?php endif; ?>
 
-
-
 							<?php
+							if ( $connect_url ) {
 								$connections = $this->publicize->get_connections( $service_name );
-								if ( empty ( $connections ) ) { ?>
-									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
-								<?php } else { ?>
-									<a id="<?php echo esc_attr( $service_name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
-			  					<?php } ?>
-			  			</div>
-			  		</div>
+								if ( empty( $connections ) ) {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Connect', 'jetpack' )
+									);
+								} else {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button add-new" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Add New', 'jetpack' )
+									);
+								}
+							} else {
+								echo '<div class="publicize-disabled-service-message">';
+								esc_html_e( 'Google+ support is being removed.', 'jetpack' );
+								printf(
+									' <a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice">%1$s<span class="dashicons dashicons-info"></span></a>',
+									esc_html__( 'Why?', 'jetpack' )
+								);
+								echo '</div>';
+							}
+							?>
+						</div>
+					</div>
 				<?php endforeach; ?>
 				</div>
 				<script>
@@ -281,9 +312,10 @@ class Publicize_UI {
 							e.preventDefault();
 							return false;
 						}
-					})
+					});
 				})(jQuery);
 				</script>
+				<?php $this->google_plus_shut_down_tooltip_script(); ?>
 			</div>
 
 			<?php wp_nonce_field( "wpas_posts_{$_blog_id}", "_wpas_posts_{$_blog_id}_nonce" ); ?>
@@ -355,6 +387,12 @@ class Publicize_UI {
 
 		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
 		$max_length = $max_length - 24; // t.co link, space
+
+		// for deprecation tooltip
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+
+		$this->google_plus_shut_down_tooltip_script();
 
 		?>
 
@@ -612,6 +650,10 @@ jQuery( function($) {
 .wpas-twitter-length-limit {
 	color: red;
 }
+.publicize-disabled-service-message .dashicons {
+	font-size: 16px;
+	text-decoration: none;
+}
 </style><?php
 	}
 
@@ -660,9 +702,14 @@ jQuery( function($) {
 					$publicize_form = $this->get_metabox_form_connected( $connections_data );
 
 					$labels = array();
+					$has_google_plus = false;
 					foreach ( $connections_data as $connection_data ) {
 						if ( ! $connection_data['enabled'] ) {
 							continue;
+						}
+
+						if ( 'google_plus' === $connection_data['service_name'] ) {
+							$has_google_plus = true;
 						}
 
 						$labels[] = sprintf(
@@ -673,6 +720,17 @@ jQuery( function($) {
 
 				?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
+				<?php if ( $has_google_plus ) : ?>
+					<div class="notice inline notice-warning publicize-disabled-service-message">
+						<p>
+							<strong><?php esc_html_e( 'Google+ support is being removed', 'jetpack' ); ?></strong>
+							<a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice">
+								<?php esc_html_e( 'Why?', 'jetpack' ); ?>
+								<span class="dashicons dashicons-info"></span>
+							</a>
+						</p>
+					</div>
+				<?php endif; ?>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php
 
@@ -812,5 +870,54 @@ jQuery( function($) {
 			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 		</div><?php // #publicize-form
 		return ob_get_clean();
+	}
+
+	private function google_plus_shut_down_notice() {
+		return wp_kses(
+			sprintf(
+				/* Translators: placeholder is a link to an announcement post on Google's blog. */
+				__(
+					'<h3>Google+ Support is being removed</h3><p>Google recently <a href="%1$s" target="_blank">announced</a> that Google+ is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.</p><p>For now, you can still post to Google+ using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.</p>',
+					'jetpack'
+				),
+				esc_url( 'https://www.blog.google/technology/safety-security/expediting-changes-google-plus/' )
+			),
+			array(
+				'a'  => array(
+					'href' => true,
+					'target' => true,
+				),
+				'h3' => true,
+				'p'  => true,
+			)
+		);
+	}
+
+	private function google_plus_shut_down_tooltip_script() {
+		$google_plus_exp_msg = $this->google_plus_shut_down_notice();
+	?>
+		<script>
+		// deprecation tooltip
+		(function($){
+			var setup = function() {
+				$('#jetpack-gplus-deprecated-notice').first().pointer(
+					{
+						content: decodeURIComponent( "<?php echo rawurlencode( $google_plus_exp_msg ); ?>" ),
+						position: {
+							edge: "right",
+							align: "bottom"
+						},
+						pointerClass: "wp-pointer arrow-bottom",
+						pointerWidth: 420
+					}
+				).click( function( e ) {
+					e.preventDefault();
+					$( this ).pointer( 'open' );
+				} );
+			};
+			$(document).ready( setup );
+		})(jQuery);
+		</script>
+	<?php
 	}
 }
