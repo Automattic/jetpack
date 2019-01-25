@@ -1182,6 +1182,8 @@ class Share_PressThis extends Sharing_Source {
 }
 
 class Share_GooglePlus1 extends Deprecated_Sharing_Source {
+	public $shortname = 'googleplus1';
+
 	public function get_name() {
 		return __( 'Google+', 'jetpack' );
 	}
