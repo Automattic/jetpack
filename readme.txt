@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 * Shortcodes: cache the output of the Twitter shortcode.
 * Sync: improvements to the synchronization of plugin and theme updates.
+* Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
 
 **Improved compatibility**
 
