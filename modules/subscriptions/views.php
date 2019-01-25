@@ -709,9 +709,14 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total']     = empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ? false : true;
+	$instance['show_subscribers_total']     = false;
+	if ( ! empty( $instance['show_subscribers_total'] ) && 'false' !== $instance['show_subscribers_total'] ) {
+		$instance['show_subscribers_total'] = true;
+	}
 	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
+
+
 
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
