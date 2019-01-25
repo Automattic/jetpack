@@ -14,6 +14,10 @@ This release introduces a brand new feature, "Copy Post". The feature is not act
 - Publish, and verify all information was saved without errors.
 - Repeat the same with pages and a custom post type.
 
+### Publicize
+
+With Google+ being sunset in a month, it's time for us to mention this in the interface. If you go to Settings > Sharing in your dashboard, or try to publish a new post on a site you had previously connected to Google+, you will now see a notice in the Publicize settings, to let you know about the upcoming change. In Settings > Sharing, you should not be able to create a new connection anymore.
+
 ### Others
 
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**

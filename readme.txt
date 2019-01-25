@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Lazy Images: fix a compatibility issue with themes that overwrite classes on html.
 * Contact Form: ensure contact form submissions with long words do not break the site layout, regardless of the theme.
+* Publicize: remove the option to connect your site to a Google+ account, in anticipation of the service's shutdown.
 
 **Bug fixes**
 
