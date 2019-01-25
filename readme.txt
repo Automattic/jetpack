@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
 * Sync: improvements to the synchronization of plugin and theme updates.
 * Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
+* WordPress.com: allow the display of plugin action links in the WordPress.com plugins' interface.
 
 **Improved compatibility**
 
