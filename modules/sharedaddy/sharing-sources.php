@@ -395,7 +395,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 		return parent::display_preview( $echo, false, $button_style );
 	}
 
-	final public function get_total() {
+	final public function get_total( $post = false ) {
 		return 0;
 	}
 
