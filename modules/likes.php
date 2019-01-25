@@ -558,7 +558,7 @@ class Jetpack_Likes {
 }
 
 /**
- * Add likes and sharing settings to the REST API Post response.
+ * Add Likes post_meta to the REST API Post response.
  *
  * @action rest_api_init
  * @uses register_meta
@@ -572,17 +572,9 @@ function post_likes_register_meta() {
 			'show_in_rest'	=> true,
 		)
 	);
-	register_meta(
-		'post', 'sharing_disabled',
-		array(
-			'type'			=> 'boolean',
-			'single'		=> true,
-			'show_in_rest'	=> true,
-		)
-	);
 }
 
-// Add likes and sharing settings to the REST API Post response.
+// Add Likes post_meta to the REST API Post response.
 if ( function_exists( 'register_meta' ) ) {
 	add_action( 'rest_api_init', 'post_likes_register_meta' );
 }
