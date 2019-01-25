@@ -80,3 +80,54 @@ function jetpack_widgets_customizer_assets_controls() {
 	wp_enqueue_style( 'jetpack-customizer-widget-controls', plugins_url( '/widgets/customizer-controls.css', __FILE__ ), array( 'customize-widgets' ) );
 }
 add_action( 'customize_controls_enqueue_scripts', 'jetpack_widgets_customizer_assets_controls' );
+
+function jetpack_widgets_remove_old_widgets() {
+	$old_widgets = array(
+		'googleplus-badge',
+	);
+
+	foreach ( $old_widgets as $old_widget ) {
+		jetpack_widgets_remove_widget( $old_widget );
+		jetpack_widgets_purge_widget_option( $old_widget );
+	}
+}
+
+function jetpack_widgets_remove_widget( $widget_base ) {
+	$post_global = $_POST;
+
+	$i = 0;
+	while ( $sidebar_id = is_active_widget( false, false, $widget_base, false ) ) {
+		$i++;
+		if ( 100 < $i ) {
+			break;
+		}
+
+		$sidebars_widgets = wp_get_sidebars_widgets();
+		$sidebar = $sidebars_widgets[$sidebar_id];
+
+		foreach ( $sidebar as $i => $widget_id ) {
+			if ( _get_widget_id_base( $widget_id ) !== $widget_base ) {
+				continue;
+			}
+
+			unset( $sidebar[$i] );
+
+			// Is this important?
+			$_POST = array( 'sidebar' => $sidebar_id, 'widget-' . $widget_base => array(), 'the-widget-id' => $widget_id, 'delete_widget' => '1' );
+
+			do_action( 'delete_widget', $widget_id, $sidebar_id, $widget_base );
+		}
+
+		$sidebars_widgets[$sidebar_id] = array_values( $sidebar );
+
+		wp_set_sidebars_widgets( $sidebars_widgets );
+	}
+
+	$_POST = $post_global;
+}
+
+function jetpack_widgets_purge_widget_option( $widget_base ) {
+	delete_option( "widget_{$widget_base}" );
+}
+
+add_action( 'updating_jetpack_version', 'jetpack_widgets_remove_old_widgets' );
