@@ -193,4 +193,12 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 	return $attrs;
 }
 
+/**
+ * When an embed service goes away, we can use this handler
+ * to output a link for history's sake.
+ */
+function jetpack_deprecated_embed_handler( $matches, $attr, $url ) {
+	return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( esc_url( $url ) ) );
+}
+
 jetpack_load_shortcodes();
