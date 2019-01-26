@@ -9,6 +9,8 @@
 /**
  * Helper function to register a Jetpack Gutenberg block
  *
+ * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
+ *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
  *
@@ -24,6 +26,8 @@ function jetpack_register_block( $slug, $args = array() ) {
 
 /**
  * Helper function to register a Jetpack Gutenberg plugin
+ *
+ * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
  *
  * @param string $slug Slug of the plugin.
  *
@@ -102,36 +106,24 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * If the block isn't whitelisted, set its unavailability reason instead.
+	 * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type().
 	 */
 	public static function register_block( $slug, $args ) {
-		$prefixed_extensions = array_map( array( __CLASS__, 'prepend_block_prefix' ), self::$extensions );
-
-		// Register the block if it's whitelisted, or if it's a child block, and one of its parents is whitelisted.
-		if ( in_array( $slug, self::$extensions, true ) || ( isset( $args['parent'] ) && self::share_items( $args['parent'], $prefixed_extensions ) ) ) {
-			register_block_type( 'jetpack/' . $slug, $args );
-		} elseif ( ! isset( $args['parent'] ) ) {
-			// Don't set availability information for child blocks -- we infer it from their parents.
-			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
-		}
+		register_block_type( 'jetpack/' . $slug, $args );
 	}
 
 	/**
 	 * Register a plugin
 	 *
-	 * If the plugin isn't whitelisted, set its unavailability reason instead.
+	 * @deprecated 7.0.0
 	 *
 	 * @param string $slug Slug of the plugin.
 	 */
 	public static function register_plugin( $slug ) {
-		if ( in_array( $slug, self::$extensions, true ) ) {
-			self::$registered_plugins[] = 'jetpack-' . $slug;
-		} else {
-			self::set_extension_unavailability_reason( $slug, 'not_whitelisted' );
-		}
+		self::$registered_plugins[] = 'jetpack-' . $slug;
 	}
 
 	/**
@@ -321,13 +313,24 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		$unwhitelisted = array_fill_keys(
-			array_diff( array_keys( self::$availability ), self::$extensions ),
-			array(
+		$unwhitelisted = array();
+		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
+		foreach ( $all_registered_blocks as $block_name => $block_type ) {
+			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
+				continue;
+			}
+
+			$unprefixed_block_name = substr( $block_name, strlen( 'jetpack/' ) );
+
+			if( in_array( $unprefixed_block_name, self::$extensions ) ) {
+				continue;
+			}
+
+			$unwhitelisted[ $unprefixed_block_name ] = array(
 				'available'          => false,
 				'unavailable_reason' => 'not_whitelisted',
-			)
-		);
+			);
+		}
 
 		return array_merge( $available_extensions, $unwhitelisted );
 	}
