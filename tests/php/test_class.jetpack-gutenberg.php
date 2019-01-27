@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_registered_block_is_not_available() {
-		jetpack_set_extension_unavailability_reason( 'banana', 'bar' );
+		jetpack_set_extension_unavailable( 'banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['banana']['available'], 'banana is available!' );
 		$this->assertEquals( $availability['banana']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
@@ -96,7 +96,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_registered_plugin_is_not_available() {
-		jetpack_set_extension_unavailability_reason( 'potato', 'bar' );
+		jetpack_set_extension_unavailable( 'potato', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['potato']['available'], 'potato is available!' );
 		$this->assertEquals( $availability['potato']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );

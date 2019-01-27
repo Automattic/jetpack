@@ -790,7 +790,7 @@ abstract class Publicize_Base {
 		if ( $this->current_user_can_access_publicize_data() ) {
 			jetpack_register_plugin( 'publicize' );
 		} else {
-			jetpack_set_extension_unavailability_reason( 'publicize', 'unauthorized' );
+			jetpack_set_extension_unavailable( 'publicize', 'unauthorized' );
 
 		}
 	}
