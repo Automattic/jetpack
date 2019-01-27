@@ -58,7 +58,7 @@ class VideoPress_Gutenberg {
 			return $content;
 		}
 
-		$blog_id = get_current_blog_id();
+		$blog_id = Jetpack_Options::get_option( 'id' );
 		$post_id = absint( $attributes['id'] );
 		$videopress_id = video_get_info_by_blogpostid( $blog_id, $post_id )->guid;
 		$videopress_data = videopress_get_video_details( $videopress_id );
