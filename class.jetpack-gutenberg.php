@@ -9,7 +9,7 @@
 /**
  * Helper function to register a Jetpack Gutenberg block
  *
- * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
+ * @deprecated 7.1.0 Use (Gutenberg's) register_block_type() instead
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -106,7 +106,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
+	 * @deprecated 7.1.0 Use (Gutenberg's) register_block_type() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type().
