@@ -498,7 +498,7 @@ abstract class Publicize_Base {
 					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
 						$connection_test_passed = false;
 						$user_can_refresh = false;
-						$connection_test_message = __( 'Please select a Facebook page to publish updates.' );
+						$connection_test_message = __( 'Please select a Facebook Page to publish updates.' );
 					}
 				}
 
