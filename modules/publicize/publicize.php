@@ -788,9 +788,9 @@ abstract class Publicize_Base {
 		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
 		if ( $this->current_user_can_access_publicize_data() ) {
-			jetpack_set_extension_available( 'publicize' );
+			jetpack_set_extension_available( 'jetpack/publicize' );
 		} else {
-			jetpack_set_extension_unavailable( 'publicize', 'unauthorized' );
+			jetpack_set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 
 		}
 	}

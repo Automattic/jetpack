@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_registered_block_is_not_available() {
-		jetpack_set_extension_unavailable( 'banana', 'bar' );
+		jetpack_set_extension_unavailable( 'jetpack/banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['banana']['available'], 'banana is available!' );
 		$this->assertEquals( $availability['banana']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
@@ -90,20 +90,20 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	// Plugins
 	function test_registered_plugin_is_available() {
-		jetpack_set_extension_available( 'onion' );
+		jetpack_set_extension_available( 'jetpack/onion' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertTrue( $availability['onion']['available'] );
 	}
 
 	function test_registered_plugin_is_not_available() {
-		jetpack_set_extension_unavailable( 'potato', 'bar' );
+		jetpack_set_extension_unavailable( 'jetpack/potato', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['potato']['available'], 'potato is available!' );
 		$this->assertEquals( $availability['potato']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
 	}
 
 	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
-		jetpack_set_extension_available( 'parsnip' );
+		jetpack_set_extension_available( 'jetpack/parsnip' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['parsnip']['available'], 'parsnip is available!' );
 		$this->assertEquals( $availability['parsnip']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );

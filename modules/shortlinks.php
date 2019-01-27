@@ -129,4 +129,4 @@ if ( function_exists( 'register_rest_field' ) ) {
 }
 
 // Register Gutenberg plugin
-jetpack_set_extension_available( 'shortlinks' );
+jetpack_set_extension_available( 'jetpack/shortlinks' );

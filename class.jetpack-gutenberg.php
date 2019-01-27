@@ -113,6 +113,20 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Remove the 'jetpack-' prefix from an extension name
+	 *
+	 * @param string $extension_name The extension name.
+	 *
+	 * @return string The prefixed block name.
+	 */
+	private static function remove_extension_prefix( $extension_name ) {
+		if ( wp_startswith( $extension_name, 'jetpack/' ) ) {
+			return substr( $extension_name, strlen( 'jetpack/' ) );
+		}
+		return $extension_name;
+	}
+
+	/**
 	 * Whether two arrays share at least one item
 	 *
 	 * @param array $a An array.
@@ -170,7 +184,7 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the extension.
 	 */
 	public static function set_extension_available( $slug ) {
-		self::$availability[ $slug ] = true;
+		self::$availability[ self::remove_extension_prefix( $slug ) ] = true;
 	}
 
 	/**
@@ -180,7 +194,7 @@ class Jetpack_Gutenberg {
 	 * @param string $reason A string representation of why the extension is unavailable.
 	 */
 	public static function set_extension_unavailable( $slug, $reason ) {
-		self::$availability[ $slug ] = $reason;
+		self::$availability[ self::remove_extension_prefix( $slug ) ] = $reason;
 	}
 
 	/**
@@ -362,7 +376,7 @@ class Jetpack_Gutenberg {
 				continue;
 			}
 
-			$unprefixed_block_name = substr( $block_name, strlen( 'jetpack/' ) );
+			$unprefixed_block_name = self::remove_extension_prefix( $block_name );
 
 			if( in_array( $unprefixed_block_name, self::$extensions ) ) {
 				continue;
