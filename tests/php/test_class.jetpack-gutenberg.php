@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
 		jetpack_register_plugin( 'parsnip' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		$this->assertFalse( $availability['parsnip']['available'], 'durian is available!' );
+		$this->assertFalse( $availability['parsnip']['available'], 'parsnip is available!' );
 		$this->assertEquals( $availability['parsnip']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );
 
 	}
