@@ -27,7 +27,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 /**
  * Helper function to register a Jetpack Gutenberg plugin
  *
- * @deprecated 7.0.0 Use (Gutenberg's) register_block_type() instead
+ * @deprecated 7.1.0 Use jetpack_set_extension_available() instead
  *
  * @param string $slug Slug of the plugin.
  *
@@ -40,7 +40,36 @@ function jetpack_register_plugin( $slug ) {
 }
 
 /**
+ * Set an (non-block) extension as available
+ *
+ * @param string $slug Slug of the block.
+ *
+ * @since 7.1.0
+ *
+ * @return void
+ */
+function jetpack_set_extension_available( $slug ) {
+	Jetpack_Gutenberg::set_extension_available( $slug );
+}
+
+/**
  * Set the reason why an extension (block or plugin) is unavailable
+ *
+ * @param string $slug Slug of the block.
+ * @param string $reason A string representation of why the extension is unavailable.
+ *
+ * @since 7.0.0
+ *
+ * @return void
+ */
+function jetpack_set_extension_unavailable( $slug, $reason ) {
+	Jetpack_Gutenberg::set_extension_unavailable( $slug, $reason );
+}
+
+/**
+ * Set the reason why an extension (block or plugin) is unavailable
+ *
+ * @deprecated 7.1.0 Use jetpack_set_extension_unavailable() instead
  *
  * @param string $slug Slug of the block.
  * @param string $reason A string representation of why the extension is unavailable.
@@ -71,14 +100,6 @@ class Jetpack_Gutenberg {
 	 * @var array Extensions availability information
 	 */
 	private static $availability = array();
-
-	/**
-	 * Since there is no `register_plugin()` counterpart to `register_block_type()` in Gutenberg,
-	 * we have to keep track of plugin registration ourselves
-	 *
-	 * @var array Plugin registry
-	 */
-	private static $registered_plugins = array();
 
 	/**
 	 * Prepend the 'jetpack/' prefix to a block name
@@ -118,12 +139,12 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a plugin
 	 *
-	 * @deprecated 7.0.0
+	 * @deprecated 7.1.0 Use set_extension_available() instead
 	 *
 	 * @param string $slug Slug of the plugin.
 	 */
 	public static function register_plugin( $slug ) {
-		self::$registered_plugins[] = 'jetpack-' . $slug;
+		self::set_extension_available( $slug );
 	}
 
 	/**
@@ -144,17 +165,38 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Set a (non-block) extension as available
+	 *
+	 * @param string $slug Slug of the extension.
+	 */
+	public static function set_extension_available( $slug ) {
+		self::$availability[ $slug ] = true;
+	}
+
+	/**
 	 * Set the reason why an extension (block or plugin) is unavailable
 	 *
 	 * @param string $slug Slug of the extension.
 	 * @param string $reason A string representation of why the extension is unavailable.
 	 */
-	public static function set_extension_unavailability_reason( $slug, $reason ) {
+	public static function set_extension_unavailable( $slug, $reason ) {
 		self::$availability[ $slug ] = $reason;
 	}
 
 	/**
-	 * Set up a whitelist of allowed block editor extensions
+	 * Set the reason why an extension (block or plugin) is unavailable
+	 *
+	 * @deprecated 7.1.0 Use set_extension_unavailable() instead
+	 *
+	 * @param string $slug Slug of the extension.
+	 * @param string $reason A string representation of why the extension is unavailable.
+	 */
+	public static function set_extension_unavailability_reason( $slug, $reason ) {
+		self::set_extension_unavailable( $slug, $reason );
+	}
+
+	/**
+	 * Set up a whitelist of allowed block editor extension cm[r[ryps
 	 *
 	 * @return void
 	 */
@@ -220,7 +262,6 @@ class Jetpack_Gutenberg {
 	public static function reset() {
 		self::$extensions         = array();
 		self::$availability       = array();
-		self::$registered_plugins = array();
 	}
 
 	/**
@@ -289,9 +330,10 @@ class Jetpack_Gutenberg {
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
-		 * In the function call you supply, use `jetpack_register_block()` and `jetpack_register_plugin()`, respectively.
-		 * Alternatively, use `jetpack_set_extension_unavailability_reason()` if the block or plugin should not be registered but
-		 * marked as unavailable.
+		 * In the function call you supply, use `register_block_type()` to set a block as available.
+		 * Alternatively, use `jetpack_set_extension_available()` (for a non-block plugin), and
+		 * `jetpack_set_extension_unavailable()` (if the block or plugin should not be registered
+		 * but marked as unavailable.
 		 *
 		 * @since 7.0.0
 		 */
@@ -301,7 +343,7 @@ class Jetpack_Gutenberg {
 
 		foreach ( self::$extensions as $extension ) {
 			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
-				in_array( 'jetpack-' . $extension, self::$registered_plugins, true );
+			( isset( self::$availability[ $extension ] ) && self::$availability[ $extension ] === true );
 
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
@@ -313,7 +355,7 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		$unwhitelisted = array();
+		$unwhitelisted_blocks = array();
 		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		foreach ( $all_registered_blocks as $block_name => $block_type ) {
 			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
@@ -326,13 +368,21 @@ class Jetpack_Gutenberg {
 				continue;
 			}
 
-			$unwhitelisted[ $unprefixed_block_name ] = array(
+			$unwhitelisted_blocks[ $unprefixed_block_name ] = array(
 				'available'          => false,
 				'unavailable_reason' => 'not_whitelisted',
 			);
 		}
 
-		return array_merge( $available_extensions, $unwhitelisted );
+		// Finally: Unwhitelisted non-block extensions. These are in $availability.
+		$unwhitelisted_extensions = array_fill_keys(
+			array_diff( array_keys( self::$availability ), self::$extensions ),
+			array(
+				'available'          => false,
+				'unavailable_reason' => 'not_whitelisted',
+			)
+		);
+		return array_merge( $available_extensions, $unwhitelisted_blocks, $unwhitelisted_extensions );
 	}
 
 	/**
