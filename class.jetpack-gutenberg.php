@@ -293,6 +293,18 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
+
+		/**
+		 * Fires before Gutenberg extensions availability is computed.
+		 *
+		 * In the function call you supply, use `jetpack_register_block()` and `jetpack_register_plugin()`, respectively.
+		 * Alternatively, use `jetpack_set_extension_unavailability_reason()` if the block or plugin should not be registered but
+		 * marked as unavailable.
+		 *
+		 * @since 7.0.0
+		 */
+		do_action( 'jetpack_register_gutenberg_extensions' );
+
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {

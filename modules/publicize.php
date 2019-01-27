@@ -9,7 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Engagement
- * Additional Search Queries: facebook, twitter, google+, googleplus, google, tumblr, linkedin, social, tweet, connections, sharing
+ * Additional Search Queries: facebook, twitter, tumblr, linkedin, social, tweet, connections, sharing
  */
 
 class Jetpack_Publicize {

@@ -1548,7 +1548,7 @@ class Jetpack {
 		}
 
 		// Store the option and return true if updated
-		return update_option( 'jetpack_active_plan', $results['plan'] );
+		return update_option( 'jetpack_active_plan', $results['plan'], true );
 	}
 
 	/**

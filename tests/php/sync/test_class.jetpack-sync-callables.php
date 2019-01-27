@@ -722,7 +722,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_plugin_action_links_get_synced() {
+		// Makes sure that we start fresh
+		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
+
 		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
 		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
 
@@ -730,10 +733,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$helper_jetpack->array_override = array( '<a href="settings.php">settings</a>', '<a href="https://jetpack.com/support">support</a>' );
 		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
 
-		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
-		$callables_module->set_plugin_action_links();
+		set_current_screen( 'banana' );
 		// Let's see if the original values get synced
 		$this->sender->do_sync();
+
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
 		$expected_array = array(
@@ -746,11 +749,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
+		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links )  );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
+
 		$this->resetCallableAndConstantTimeouts();
-		$callables_module->set_plugin_action_links();
+
+		set_current_screen( 'banana' );
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
@@ -758,21 +763,32 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// Nothing should have changed since we cache the results.
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
-		activate_plugin('hello.php', '', false, true );
+		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello.php' )  ) {
+			activate_plugin('hello.php', '', false, true );
+		}
+		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello-dolly/hello.php' ) ) {
+			activate_plugin('hello-dolly/hello.php', '', false, true );
+		}
+
 		$this->resetCallableAndConstantTimeouts();
-		$callables_module->set_plugin_action_links();
+		set_current_screen( 'banana' );
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
 		// Links should have changes now since we activated the plugin.
 		$expected_array['hello.php'] = array( 'not fun' => admin_url( 'not-fun.php' ) );
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array, 'Array was not updated to the new value as expected' );
 	}
 
 	function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
-		$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
+		if ( isset( $plugins_action_links['hello.php'] ) ) {
+			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
+		} else {
+			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello-dolly/hello.php'] ) ? $plugins_action_links['hello-dolly/hello.php'] : '';
+		}
+
 		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
 		return $only_plugins_we_care_about;
 	}
@@ -787,14 +803,15 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		add_filter( 'plugin_action_links', array( $this, 'cause_fatal_error' ) );
-		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
-		$callables_module->set_plugin_action_links();
+
+		set_current_screen( 'plugins' );
 
 		$this->resetCallableAndConstantTimeouts();
-		$callables_module->set_plugin_action_links();
+		set_current_screen( 'plugins' );
 		$this->sender->do_sync();
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
-		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ) );
+		$plugins_action_links = $this->extract_plugins_we_are_testing( $plugins_action_links );
+		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ), 'World is not set' );
 	}
 
 	function __return_filtered_url() {

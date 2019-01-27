@@ -1256,7 +1256,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				update_option( 'show_welcome_for_new_plan', true ) ;
 			}
 
-			update_option( 'jetpack_active_plan', $results['plan'] );
+			update_option( 'jetpack_active_plan', $results['plan'], true );
 		}
 		$body = wp_remote_retrieve_body( $response );
 

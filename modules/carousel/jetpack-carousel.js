@@ -70,7 +70,7 @@ jQuery(document).ready(function($) {
 			overlay = $('<div></div>')
 				.addClass('jp-carousel-overlay')
 				.css({
-					'position' : 'absolute',
+					'position' : 'fixed',
 					'top'      : 0,
 					'right'    : 0,
 					'bottom'   : 0,

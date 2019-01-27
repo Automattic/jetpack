@@ -119,7 +119,7 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'init', array( $this, 'register_gutenberg_extension' ), 30 );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 /*
@@ -139,6 +139,10 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
+
+	function can_connect_service( $service_name ) {
+		return 'google_plus' !== $service_name;
+	}
 
 	/**
 	 * Does the given user have a connection to the service on the given blog?
