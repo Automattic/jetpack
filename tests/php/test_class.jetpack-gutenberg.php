@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		if ( class_exists( 'WP_Block_Type_Registry' ) ) {
 			$blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
 			foreach ( $blocks as $block_name => $block ) {
-				if ( strpos( $block_name, 'jetpack/' ) !== false ) {
+				if ( wp_startswith( $block_name, 'jetpack/' ) ) {
 					unregister_block_type( $block_name );
 				}
 			}
