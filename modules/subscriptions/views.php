@@ -241,9 +241,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$referer                    = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$source                     = 'widget';
 		$widget_id                  = esc_attr( ! empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
-		$subscribe_button           = stripslashes( $instance['subscribe_button'] );
+		$subscribe_button           = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
 		$subscribers_total          = self::fetch_subscriber_count();
 		$subscribe_placeholder      = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
+		$submit_button_classes      = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
+		$submit_button_styles       = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -287,7 +289,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
                     <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"/>
+                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
+	                    <?php if ( ! empty( $submit_button_classes ) ) { ?>
+	                        class="<?php echo esc_attr( $submit_button_classes ); ?>"
+	                    <?php }; ?>
+		                <?php if ( ! empty( $submit_button_styles ) ) { ?>
+			                style="<?php echo esc_attr( $submit_button_styles ); ?>"
+		                <?php }; ?>
+	                />
                 </p>
             </form>
 			<?php
@@ -341,7 +350,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						}
 						?>
                         <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
-                               name="jetpack_subscriptions_widget"/>
+	                        <?php if ( ! empty( $submit_button_classes ) ) { ?>
+	                            class="<?php echo esc_attr( $submit_button_classes ); ?>"
+                            <?php }; ?>
+		                    <?php if ( ! empty( $submit_button_styles ) ) { ?>
+			                    style="<?php echo esc_attr( $submit_button_styles ); ?>"
+		                    <?php }; ?>
+	                        name="jetpack_subscriptions_widget"
+	                    />
                     </p>
 				<?php } ?>
             </form>
@@ -656,8 +672,24 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ? false : true;
-	$show_only_email_and_button         = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
+	$instance['show_subscribers_total']     = false;
+	if ( ! empty( $instance['show_subscribers_total'] ) && 'false' !== $instance['show_subscribers_total'] ) {
+		$instance['show_subscribers_total'] = true;
+	}
+	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
+	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
+
+
+
+	// Build up a string with the submit button's classes and styles and set it on the instance
+	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
+	$submit_button_styles = '';
+	if ( isset( $instance['custom_background_button_color'] ) ) {
+		$submit_button_styles .= 'background-color: ' . $instance['custom_background_button_color'] . '; ';
+	}
+	if ( isset( $instance['custom_text_button_color'] ) ) {
+		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . ';';
+	}
 
 	$instance = shortcode_atts(
 		Jetpack_Subscriptions_Widget::defaults(),
@@ -665,7 +697,15 @@ function jetpack_do_subscription_form( $instance ) {
 		'jetpack_subscription_form'
 	);
 
+	// These must come after the call to shortcode_atts()
+	$instance['submit_button_text']         = $submit_button_text;
 	$instance['show_only_email_and_button'] = $show_only_email_and_button;
+	if ( ! empty( $submit_button_classes ) ) {
+		$instance['submit_button_classes'] = $submit_button_classes;
+	}
+	if ( ! empty ( $submit_button_styles ) ) {
+		$instance['submit_button_styles'] = $submit_button_styles;
+	}
 
 	$args = array(
 		'before_widget' => '<div class="jetpack_subscription_widget">',
