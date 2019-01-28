@@ -2018,7 +2018,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t<p class='contact-submit'>\n";
 
 			$gutenberg_submit_button_classes = '';
-			if ( isset( $attributes['submitButtonClasses'] ) && $attributes['submitButtonClasses'] ) {
+			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
 				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
 			}
 
@@ -2034,13 +2034,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
 			$submit_button_styles = '';
-			if ( isset( $attributes['customBackgroundButtonColor'] ) && $attributes['customBackgroundButtonColor'] ) {
+			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
 				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
 			}
-			if ( isset( $attributes['customTextButtonColor'] ) && $attributes['customTextButtonColor'] ) {
+			if ( ! empty( $attributes['customTextButtonColor'] ) ) {
 				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
 			}
-			if ( isset( $attributes['submitButtonText'] ) && $attributes['submitButtonText'] ) {
+			if ( ! empty( $attributes['submitButtonText'] ) ) {
 				$submit_button_text = $attributes['submitButtonText'];
 			} else {
 				$submit_button_text = $form->get_attribute( 'submit_button_text' );
