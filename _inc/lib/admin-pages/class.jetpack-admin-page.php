@@ -255,6 +255,9 @@ abstract class Jetpack_Admin_Page {
 			#jp-plugin-container.is-wide .wrap {
 				max-width: 1040px;
 			}
+			#jp-plugin-container .wrap .jetpack-wrap-container {
+				margin-top: 1em;
+			}
 			.wp-admin #dolly {
 			    float: none;
 			    position: relative;
