@@ -2034,7 +2034,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
 			$submit_button_styles = '';
-			if ( isset( $attributes['customBackgroundButtonColor'] ) && $attributes['customBackgroundButtonColor'] ) {
+			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
 				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
 			}
 			if ( isset( $attributes['customTextButtonColor'] ) && $attributes['customTextButtonColor'] ) {
