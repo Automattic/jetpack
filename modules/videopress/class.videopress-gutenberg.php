@@ -73,11 +73,13 @@ class VideoPress_Gutenberg {
 
 		$videopress_url = $videopress_data->file_url_base->https . $videopress_data->files->hd->mp4;
 
+		$pattern = '/(\s)src=([\'"])(?:(?!\2).)+?\2/';
+
 		return preg_replace(
-			'/src="([^"]+)/',
+			$pattern,
 			sprintf(
-				'src="%1$s',
-				esc_attr( $videopress_url )
+				'\1src="%1$s"',
+				esc_url_raw( $videopress_url )
 			),
 			$content,
 			1
