@@ -148,11 +148,15 @@ class Sharing_Admin {
 	}
 
 	public function output_preview( $service ) {
+
 		$klasses = array( 'advanced', 'preview-item' );
 
 		if ( $service->button_style != 'text' || $service->has_custom_button_style() ) {
 			$klasses[] = 'preview-' . $service->get_class();
 			$klasses[] = 'share-' . $service->get_class();
+			if ( $service->is_deprecated() ) {
+				$klasses[] = 'share-deprecated';
+			}
 
 			if ( $service->get_class() != $service->get_id() ) {
 				$klasses[] = 'preview-' . $service->get_id();
@@ -165,8 +169,15 @@ class Sharing_Admin {
 	}
 
 	public function output_service( $id, $service, $show_dropdown = false ) {
+		$title = '';
+		$klasses = array( 'service', 'advanced', 'share-' . $service->get_class() );
+		if ( $service->is_deprecated() ) {
+			$title = sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $service->get_name() );
+			$klasses[] = 'share-deprecated';
+		}
+
 ?>
-	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0">
+	<li class="<?php echo implode( ' ', $klasses ); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0" title="<?php echo esc_attr( $title ); ?>">
 		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
 		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
 		<span class="close"><a href="#" class="remove">&times;</a></span>

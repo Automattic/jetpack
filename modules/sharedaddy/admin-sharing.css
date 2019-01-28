@@ -96,6 +96,17 @@ body.settings_page_sharing ul.services-hidden {
 	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+#available-services .service.share-deprecated,
+#enabled-services .service.share-deprecated {
+	opacity: 0.5;
+	padding: 5px;
+	text-decoration: line-through;
+}
+
+#available-services .service.share-deprecated {
+	display: none;
+}
+
 /* Generic style icons */
 li.service span:before {
 	color: #555;
@@ -136,9 +147,6 @@ li.service.share-pocket span:before {
 }
 li.service.share-pinterest span:before {
 	content: '\f209';
-}
-li.service.share-google-plus-1 span:before {
-	content: '\f218';
 }
 li.service.share-facebook span:before {
 	content: '\f203';
@@ -319,13 +327,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height:20px;
 }
 
-.preview-google-plus-1 .option-smart-on {
-	background: url(images/smart-googleplus1.png) no-repeat top left;
-	background-size: 96px 20px;
-	width: 96px;
-	height: 20px;
-}
-
 .preview-tumblr .option-smart-on {
 	background: url(images/smart-tumblr.png) no-repeat top left;
 	background-size: 62px 20px;
@@ -353,6 +354,15 @@ body.settings_page_sharing .advanced input[type=submit] {
 	width: 60px;
 	height: 20px;
 }
+
+.preview-item.share-deprecated {
+	opacity: 0.5;
+}
+
+.preview-item.share-deprecated a span {
+	text-decoration: line-through;
+}
+
 @media
 (-webkit-min-device-pixel-ratio: 1.25),
 (min-resolution: 120dpi) {
@@ -374,10 +384,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 	.preview-linkedin .option-smart-on {
 		background-image: url(images/linkedin-smart@2x.png);
-	}
-
-	.preview-google-plus-1 .option-smart-on {
-		background-image: url(images/smart-googleplus1@2x.png);
 	}
 
 	.preview-tumblr .option-smart-on {

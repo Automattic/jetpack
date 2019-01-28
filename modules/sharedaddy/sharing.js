@@ -192,11 +192,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								$more_sharing_pane.data( 'justSlid', false );
 							}, 300 );
 
-							if ( $more_sharing_pane.find( '.share-google-plus-1' ).length ) {
-								// The pane needs to stay open for the Google+ Button
-								return;
-							}
-
 							$more_sharing_pane.mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
 							$more_sharing_button.mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
 						} );
