@@ -63,7 +63,7 @@ class VideoPress_Gutenberg {
 		$videopress_id = video_get_info_by_blogpostid( $blog_id, $post_id )->guid;
 		$videopress_data = videopress_get_video_details( $videopress_id );
 
-		if ( empty( $videopress_data->files->hd->mp4 ) ) {
+		if ( empty( $videopress_data->file_url_base->https ) || empty( $videopress_data->files->hd->mp4 ) ) {
 			return $content;
 		}
 
