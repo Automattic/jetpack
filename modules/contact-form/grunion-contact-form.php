@@ -2028,6 +2028,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 
+			$gutenberg_submit_button_classes = '';
+			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
+				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
+			}
+
 			/**
 			 * Filter the contact form submit button class attribute.
 			 *
@@ -2037,9 +2042,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @param string $class Additional CSS classes for button attribute.
 			 */
-			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' );
+			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
-			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='" . $submit_button_class . "'/>\n";
+			$submit_button_styles = '';
+			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
+				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
+			}
+			if ( ! empty( $attributes['customTextButtonColor'] ) ) {
+				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
+			}
+			if ( ! empty( $attributes['submitButtonText'] ) ) {
+				$submit_button_text = $attributes['submitButtonText'];
+			} else {
+				$submit_button_text = $form->get_attribute( 'submit_button_text' );
+			}
+
+			$r .= "\t\t<input type='submit' value='" . esc_attr( $submit_button_text ) . "' class='" . esc_attr( $submit_button_class ) . "'";
+			if ( ! empty( $submit_button_styles ) ) {
+				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
+			}
+			$r .= "/>\n";
+			
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
