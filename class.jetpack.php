@@ -6873,6 +6873,11 @@ p {
 			$do_implode = false;
 		}
 
+		// Do not implode CSS when the page loads via the AMP plugin.
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			$do_implode = false;
+		}
+
 		/**
 		 * Allow CSS to be concatenated into a single jetpack.css file.
 		 *

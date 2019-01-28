@@ -579,6 +579,10 @@ function sharing_maybe_enqueue_scripts() {
 }
 
 function sharing_add_footer() {
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		return;
+	}
+
 	global $jetpack_sharing_counts;
 
 	/**

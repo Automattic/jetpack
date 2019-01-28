@@ -14,20 +14,8 @@ class Jetpack_AMP_Support {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
 		}
 
-		// carousel
-		add_filter( 'jp_carousel_maybe_disable', array( __CLASS__, 'is_amp_request' ) );
-
-		// sharing
-		add_filter( 'sharing_enqueue_scripts', array( __CLASS__, 'is_not_amp_request' ) );
-		add_filter( 'jetpack_sharing_counts', array( __CLASS__, 'is_not_amp_request' ) );
-		add_filter( 'sharing_js', array( __CLASS__, 'is_not_amp_request' ) );
+		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
-
-		// disable lazy images
-		add_filter( 'lazyload_is_enabled', array( __CLASS__, 'is_not_amp_request' ) );
-
-		// disable imploding CSS
-		add_filter( 'jetpack_implode_frontend_css', array( __CLASS__, 'is_not_amp_request' ) );
 
 		// enforce freedom mode for videopress
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -62,16 +50,6 @@ class Jetpack_AMP_Support {
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
-	}
-
-	/**
-	 * Returns whether the request is not AMP.
-	 *
-	 * @see Jetpack_AMP_Support::is_amp_request()
-	 * @return bool Whether not AMP.
-	 */
-	static function is_not_amp_request() {
-		return ! self::is_amp_request();
 	}
 
 	static function amp_disable_the_content_filters() {
