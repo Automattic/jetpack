@@ -96,12 +96,14 @@ function jetpack_gif_block_render( $attr ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
-		<figure style="<?php echo esc_attr( $style ); ?>">
-			<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+		<figure>
+			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+				<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+			</div>
+			<?php if ( $caption ) : ?>
+				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
+			<?php endif; ?>
 		</figure>
-		<?php if ( $caption ) : ?>
-			<p class="wp-block-jetpack-gif-caption"><?php echo wp_kses_post( $caption ); ?></p>
-		<?php endif; ?>
 	</div>
 	<?php
 	$html = ob_get_clean();
