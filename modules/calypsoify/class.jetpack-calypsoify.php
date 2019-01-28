@@ -1,7 +1,7 @@
 <?php
 /*
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
- * Portted from an internal Automattic plugin.
+ * Ported from an internal Automattic plugin.
 */
 
 class Jetpack_Calypsoify {
