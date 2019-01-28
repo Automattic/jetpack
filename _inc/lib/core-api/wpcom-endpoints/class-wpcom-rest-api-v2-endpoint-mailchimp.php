@@ -32,6 +32,22 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	}
 
 	/**
+	 * Check if MailChimp is set up properly.
+	 *
+	 * @return bool
+	 */
+	private function is_connected() {
+		$option = get_option( 'jetpack_mailchimp' );
+		if ( ! $option ) {
+			return false;
+		}
+		$data = json_decode( $option, true );
+		if( ! $data ) {
+			return false;
+		}
+		return isset( $data['follower_list_id'], $data['keyring_id'] );
+	}
+	/**
 	 * Get the status of current blog's Mailchimp connection
 	 *
 	 * @return mixed
@@ -43,24 +59,8 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		$is_wpcom    = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 		$site_id     = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 		$connect_url = sprintf( 'https://wordpress.com/sharing/%s', $site_id );
-		$path        = sprintf( '/sites/%d/mailchimp/settings', $site_id );
-		if ( ! $is_wpcom ) {
-			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
-				$path,
-				'1.1'
-			);
-			if ( is_wp_error( $response ) ) {
-				return new WP_Error( 'wpcom_connection_error', 'Could not connect to WP.com', 404 );
-			}
-			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-		} else {
-			require_lib( 'mailchimp' );
-			$data = MailchimpApi::get_settings( $site_id );
-		}
-		$follower_list_id = isset( $data['follower_list_id'] ) ? $data['follower_list_id'] : null;
-		$code             = $follower_list_id ? 'connected' : 'not_connected';
 		return array(
-			'code'        => $code,
+			'code'        => $this->is_connected() ? 'connected' : 'not_connected',
 			'connect_url' => $connect_url,
 			'site_id'     => $site_id,
 		);
