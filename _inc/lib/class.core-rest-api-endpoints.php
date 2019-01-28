@@ -1503,7 +1503,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$visible = array(
 				'twitter',
 				'facebook',
-				'google-plus-1',
 			);
 			$hidden = array();
 
