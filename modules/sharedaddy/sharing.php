@@ -536,6 +536,26 @@ class Sharing_Admin {
 	}
 }
 
+/**
+ * Add Sharing post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_meta
+ */
+function jetpack_post_sharing_register_meta() {
+	register_meta(
+		'post', 'sharing_disabled',
+		array(
+			'type'			=> 'boolean',
+			'single'		=> true,
+			'show_in_rest'	=> true,
+		)
+	);
+}
+
+// Add Sharing post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_meta' );
+
 function sharing_admin_init() {
 	global $sharing_admin;
 
