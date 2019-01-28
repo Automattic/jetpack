@@ -60,6 +60,12 @@ class Jetpack_Protect_Module {
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
 
+		// Load math fallback after math page form submission
+		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+		}
+
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
