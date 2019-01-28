@@ -2046,7 +2046,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$submit_button_text = $form->get_attribute( 'submit_button_text' );
 			}
 
-			$r .= "\t\t<input type='submit' value='" . esc_attr( $submit_button_text ) . "' class='" . esc_attr( $submit_button_class ) . "' style='" . esc_attr( $submit_button_styles ) . "'/>\n";
+			$r .= "\t\t<input type='submit' value='" . esc_attr( $submit_button_text ) . "' class='" . esc_attr( $submit_button_class ) . "'";
+			if ( ! empty( $submit_button_styles ) ) {
+				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
+			}
+			$r .= "/>\n";
+			
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
