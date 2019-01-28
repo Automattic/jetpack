@@ -2018,7 +2018,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t<p class='contact-submit'>\n";
 
 			$gutenberg_submit_button_classes = '';
-			if ( isset( $attributes['submitButtonClasses'] ) && $attributes['submitButtonClasses'] ) {
+			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
 				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
 			}
 
