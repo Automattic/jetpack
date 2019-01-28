@@ -90,7 +90,7 @@ function jetpack_widgets_remove_old_widgets() {
 	// That will get cleaned up the next time a widget is
 	// added, removed, moved, etc.
 	foreach ( $old_widgets as $old_widget ) {
-		delete_option( "widget_{$widget_base}" );
+		delete_option( "widget_{$old_widget}" );
 	}
 }
 
