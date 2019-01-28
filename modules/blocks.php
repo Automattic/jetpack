@@ -133,7 +133,19 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	return preg_replace( '/<div /', '<div data-api-key="'. esc_attr( $api_key ) .'" ', $content, 1 );
 }
 
+/**
+ * Register the Contact Info block and its child blocks.
+ */
 jetpack_register_block( 'contact-info' );
-jetpack_register_block( 'email' );
-jetpack_register_block( 'address' );
-jetpack_register_block( 'phone' );
+jetpack_register_block(
+	'email',
+	array( 'parent' => array( 'jetpack/contact-info' ) )
+);
+jetpack_register_block(
+	'address',
+	array( 'parent' => array( 'jetpack/contact-info' ) )
+);
+jetpack_register_block(
+	'phone',
+	array( 'parent' => array( 'jetpack/contact-info' ) )
+);
