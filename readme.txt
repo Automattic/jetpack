@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 * Shortcodes: cache the output of the Twitter shortcode.
 * Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
+* Subscriptions: allow more customization of the subscription form's submit button.
 * Sync: improvements to the synchronization of plugin and theme updates.
 * Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
 * WordPress.com: allow the display of plugin action links in the WordPress.com plugins' interface.
