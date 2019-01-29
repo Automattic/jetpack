@@ -241,6 +241,8 @@ class Jetpack_Sync_Defaults {
 		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
 		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
 		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
+		'paused_themes'                    => array( 'Jetpack_Sync_Functions', 'get_paused_themes' ),
+		'paused_plugins'                   => array( 'Jetpack_Sync_Functions', 'get_paused_plugins' ),
 	);
 
 
