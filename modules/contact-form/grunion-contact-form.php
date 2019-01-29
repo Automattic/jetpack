@@ -136,7 +136,7 @@ class Grunion_Contact_Form_Plugin {
 		) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
-		
+
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blacklist' ), 10, 2 );
 
 		// Akismet to the rescue
@@ -631,7 +631,7 @@ class Grunion_Contact_Form_Plugin {
 
 		return $text;
 	}
-	
+
 	/**
 	 * Check if a submission matches the Comment Blacklist.
 	 * The Comment Blacklist is a means to moderate discussion, and contact
@@ -647,11 +647,11 @@ class Grunion_Contact_Form_Plugin {
 		if ( $is_spam ) {
 			return $is_spam;
 		}
-		
+
 		if ( wp_blacklist_check( $form['comment_author'], $form['comment_author_email'], $form['comment_author_url'], $form['comment_content'], $form['user_ip'], $form['user_agent'] ) ) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -2057,12 +2057,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$submit_button_text = $form->get_attribute( 'submit_button_text' );
 			}
 
-			$r .= "\t\t<input type='submit' value='" . esc_attr( $submit_button_text ) . "' class='" . esc_attr( $submit_button_class ) . "'";
+			$allowed_html_tags_for_submit_button = array( 'br' => array() );
+
+			$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 			if ( ! empty( $submit_button_styles ) ) {
 				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
 			}
-			$r .= "/>\n";
-			
+			$r .= ">";
+			$r .= wp_kses( $submit_button_text, $allowed_html_tags_for_submit_button ) . "</button>";
+
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
