@@ -24,12 +24,12 @@
 }
 
 .jp-related-posts-i2__row[data-post-count="3"] .jp-related-posts-i2__post {
-	max-width: calc( 33% - 20px );
+	max-width: calc(33% - 20px);
 }
 
 .jp-related-posts-i2__row[data-post-count="2"] .jp-related-posts-i2__post,
 .jp-related-posts-i2__row[data-post-count="1"] .jp-related-posts-i2__post {
-	max-width: calc( 50% - 20px );
+	max-width: calc(50% - 20px);
 }
 
 .jp-related-posts-i2__post-heading, .jp-related-posts-i2__post-img-link,

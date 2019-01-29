@@ -254,48 +254,48 @@ EOT;
 	 */
 	public function render_block_item( $related_post, $block_attributes ) {
 		?>
-        <div
-                data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
-                data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
-                class="jp-related-posts-i2__post"
-        >
-            <h3 class="jp-related-posts-i2__post-heading">
-                <a
-                        href="<?php echo esc_url( $related_post['url'] ); ?>"
-                        title="<?php echo esc_html( $related_post['title'] ); ?>"
-                        rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-                        data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-                        data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-                        class="jp-related-posts-i2__post-link"
-                >
+		<div
+				data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
+				data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
+				class="jp-related-posts-i2__post"
+		>
+			<h3 class="jp-related-posts-i2__post-heading">
+				<a
+						href="<?php echo esc_url( $related_post['url'] ); ?>"
+						title="<?php echo esc_html( $related_post['title'] ); ?>"
+						rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+						data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+						data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+						class="jp-related-posts-i2__post-link"
+				>
 					<?php echo esc_html( $related_post['title'] ); ?>
-                </a>
-            </h3>
+				</a>
+			</h3>
 			<?php
 			if (
 				! empty( $block_attributes['show_thumbnails'] ) &&
 				! empty( $related_post['img']['src'] )
 			) :
 				?>
-                <a
-                        href="<?php echo esc_url( $related_post['url'] ); ?>"
-                        title="<?php echo esc_html( $related_post['title'] ); ?>"
-                        rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-                        data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-                        data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-                        class="jp-related-posts-i2__post-img-link"
-                >
-                    <img class="jp-related-posts-i2__post-img"
-                         src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
-                         width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
-                         alt="<?php echo esc_html( $related_post['title'] ); ?>"
-                    />
-                </a>
+				<a
+						href="<?php echo esc_url( $related_post['url'] ); ?>"
+						title="<?php echo esc_html( $related_post['title'] ); ?>"
+						rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+						data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+						data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+						class="jp-related-posts-i2__post-img-link"
+				>
+					<img class="jp-related-posts-i2__post-img"
+						 src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
+						 width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
+						 alt="<?php echo esc_html( $related_post['title'] ); ?>"
+					/>
+				</a>
 			<?php endif; ?>
 			<?php if ( $block_attributes['show_date'] ) : ?>
-                <div class="jp-related-posts-i2__post-date has-small-font-size">
+				<div class="jp-related-posts-i2__post-date has-small-font-size">
 					<?php esc_html_e( $related_post['date'] ); ?>
-                </div>
+				</div>
 			<?php endif; ?>
 			<?php
 			if (
@@ -303,11 +303,11 @@ EOT;
 				! empty( $related_post['context'] )
 			) :
 				?>
-                <div class="jp-related-posts-i2__post-context has-small-font-size">
+				<div class="jp-related-posts-i2__post-context has-small-font-size">
 					<?php esc_html_e( $related_post['context'] ); ?>
-                </div>
+				</div>
 			<?php endif; ?>
-        </div>
+		</div>
 		<?php
 	}
 
@@ -377,17 +377,17 @@ EOT;
 
 		ob_start();
 		?>
-        <nav
-                class="jp-relatedposts-i2"
-                data-layout="<?php echo $block_attributes['layout']; ?>"
-        >
+		<nav
+				class="jp-relatedposts-i2"
+				data-layout="<?php echo $block_attributes['layout']; ?>"
+		>
 			<?php
 			echo $this->render_block_row( $upper_row_posts, $block_attributes );
 			if ( $display_lower_row ) {
 				echo $this->render_block_row( $lower_row_posts, $block_attributes );
 			}
 			?>
-        </nav>
+		</nav>
 		<?php
 		$html = ob_get_clean();
 
