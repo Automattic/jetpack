@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Block editor: update the way we check for available blocks and extensions.
 * Connection flow: display a notice upon connection when the site is suspended.
+* Contact Form: add more options to customize the look of the submit button.
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
 * REST API: add likes and sharing settings to the REST API Post response.
 * Sharing: deprecate the Google+ sharing Button.
