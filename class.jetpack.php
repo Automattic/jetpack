@@ -65,6 +65,7 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
+		'jetpack-email-subscribe',
 	);
 
 	/**
