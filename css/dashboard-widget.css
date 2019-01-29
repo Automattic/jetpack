@@ -1,0 +1,177 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+#jetpack_summary_widget * {
+  box-sizing: border-box;
+}
+
+#jetpack_summary_widget h2.hndle span.js-toggle-stats_dashboard_widget_control {
+  position: absolute;
+  top: 8px;
+  right: 36px;
+}
+
+#jetpack_summary_widget h2.hndle span:not(.js-toggle-stats_dashboard_widget_control) {
+  display: flex;
+  align-items: center;
+}
+
+#jetpack_summary_widget h2.hndle svg {
+  height: 20px;
+  margin: .15em 0 0 .5em;
+}
+
+#jetpack_summary_widget .inside {
+  margin: 0;
+  padding: 0;
+}
+
+#jetpack_summary_widget .inside .stats-view-all {
+  text-align: center;
+  margin: 1em 0;
+}
+
+#jetpack_summary_widget .stats,
+#jetpack_summary_widget .widgets,
+#jetpack_summary_widget .wpcom-connect {
+  padding: .75em;
+}
+
+#jetpack_summary_widget .wpcom-connect {
+  background: #fafafa;
+  text-align: center;
+}
+
+#jetpack_summary_widget .wpcom-connect .jp-emblem {
+  padding: 5px 0 0 0;
+}
+
+#jetpack_summary_widget .wpcom-connect svg {
+  width: 40px;
+  height: 40px;
+}
+
+#jetpack_summary_widget .wpcom-connect svg path {
+  fill: #00BE28;
+}
+
+#jetpack_summary_widget .wpcom-connect .jp-emblem,
+#jetpack_summary_widget .wpcom-connect h3,
+#jetpack_summary_widget .wpcom-connect p {
+  width: 100%;
+}
+
+#jetpack_summary_widget .wpcom-connect h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+
+#jetpack_summary_widget .wpcom-connect p {
+  color: #555d66;
+  margin-top: 0;
+  padding: 0 15px;
+}
+
+#jetpack_summary_widget .wpcom-connect .actions {
+  text-align: center;
+  padding: 15px 0 10px 0;
+}
+
+#jetpack_summary_widget .wpcom-connect .actions small {
+  display: block;
+}
+
+#jetpack_summary_widget .wpcom-connect .actions small a {
+  color: #999;
+}
+
+#jetpack_summary_widget .button-jetpack {
+  background: #00BE28;
+  border-color: #008b1d;
+  color: white;
+  box-shadow: inset 0 1px 0 #0cff3f, 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+#jetpack_summary_widget .button-jetpack:hover, #jetpack_summary_widget .button-jetpack:focus {
+  background: #00a523;
+  border-color: #007218;
+  color: white;
+  box-shadow: inset 0 1px 0 #00f133;
+}
+
+#jetpack_summary_widget .button-jetpack:focus {
+  box-shadow: inset 0 1px 0 #00f133, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+}
+
+#jetpack_summary_widget .button-jetpack:active {
+  background: #008b1d;
+  border-color: #007218;
+  color: white;
+  box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+}
+
+#jetpack_summary_widget .button-jetpack[disabled], #jetpack_summary_widget .button-jetpack:disabled, #jetpack_summary_widget .button-jetpack.button-primary-disabled, #jetpack_summary_widget .button-jetpack.disabled {
+  color: #c7d1c9 !important;
+  background: #00951f !important;
+  border-color: #007218 !important;
+  text-shadow: none !important;
+}
+
+#jetpack_summary_widget footer {
+  background: #fafafa;
+  padding: .75em;
+  overflow: hidden;
+  border-top: 1px solid #ccc;
+}
+
+#jetpack_summary_widget footer .protect,
+#jetpack_summary_widget footer .akismet {
+  width: 50%;
+  float: left;
+  text-align: left;
+}
+
+#jetpack_summary_widget footer .protect {
+  padding-right: 3%;
+}
+
+#jetpack_summary_widget footer h3 {
+  font-size: 1.5em;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+
+#jetpack_summary_widget footer p {
+  margin: 0;
+  padding: 0;
+}
+
+#jetpack_summary_widget footer section {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+/*# sourceMappingURL=dashboard-widget.css.map */
