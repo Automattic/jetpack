@@ -385,7 +385,7 @@ class Jetpack_Sync_Functions {
 		return sprintf( __( 'UTC%s', 'jetpack' ), $formatted_gmt_offset );
 	}
 	// New in WP 5.1
-	public function get_paused_themes() {
+	public static function get_paused_themes() {
 		if ( function_exists( 'wp_paused_themes' ) ) {
 			$paused_themes = wp_paused_themes();
 			return $paused_themes->get_all();
@@ -393,7 +393,7 @@ class Jetpack_Sync_Functions {
 		return false;
 	}
 	// New in WP 5.1
-	public function get_paused_plugins() {
+	public static function get_paused_plugins() {
 		if ( function_exists( 'wp_paused_plugins' ) ) {
 			$paused_plugins = wp_paused_plugins();
 			return $paused_plugins->get_all();

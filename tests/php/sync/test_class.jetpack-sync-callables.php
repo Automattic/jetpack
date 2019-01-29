@@ -88,6 +88,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'roles'                            => Jetpack_Sync_Functions::roles(),
 			'timezone'                         => Jetpack_Sync_Functions::get_timezone(),
 			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
+			'paused_themes'                    => Jetpack_Sync_Functions::get_paused_themes(),
+			'paused_plugins'                   => Jetpack_Sync_Functions::get_paused_plugins(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -759,7 +761,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
-		
+
 		// Nothing should have changed since we cache the results.
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
