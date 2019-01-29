@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * CSS: fix the behaviour of the CSS concatenation filter.
 * Multisite: fix the display of the main connection banner.
 * Protect: ensure the Math fallback is displayed when necessary.
+* Publicize: avoid Fatal Errors on sites using Development Mode.
 * Shortcodes: only load Mailchimp CSS when needed.
 * Subscriptions: display subscription options below the comment form, even when you are logged in to your WordPress account.
 * WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
