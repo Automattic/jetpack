@@ -210,7 +210,7 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Set up a whitelist of allowed block editor extension cm[r[ryps
+	 * Set up a whitelist of allowed block editor extensions
 	 *
 	 * @return void
 	 */
