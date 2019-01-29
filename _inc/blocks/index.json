@@ -1,0 +1,18 @@
+{
+  "production": [
+    "contact-form",
+    "gif",
+    "map",
+    "markdown",
+    "publicize",
+    "related-posts",
+    "shortlinks",
+    "simple-payments",
+    "subscriptions",
+    "tiled-gallery"
+  ],
+  "beta": [
+    "mailchimp",
+    "vr"
+  ]
+}
