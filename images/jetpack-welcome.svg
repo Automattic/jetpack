@@ -4,17 +4,17 @@
 <svg version="1.1" id="jetpack-header" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 1472.8 817.9" style="enable-background:new 0 0 1472.8 817.9;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#E9EFF4;}
-	.st1{display:none;fill:#E9EFF4;}
-	.st2{fill:#004F82;}
-	.st3{fill:#D5E5EB;}
+	.st0{fill:#F6F6F6;}
+	.st1{display:none;fill:#F6F6F6;}
+	.st2{fill:#204A69;}
+	.st3{fill:#E1E2E2;}
 	.st4{display:none;}
-	.st5{display:inline;fill:#D5E5EB;}
-	.st6{fill:#0084C0;}
-	.st7{fill:#004F81;}
-	.st8{fill:#004F84;}
-	.st9{fill:#00A9DE;}
-	.st10{fill:#74DCFC;}
+	.st5{display:inline;fill:#E1E2E2;}
+	.st6{fill:#46799A;}
+	.st7{fill:#204A69;}
+	.st8{fill:#204A69;}
+	.st9{fill:#6F93AD;}
+	.st10{fill:#BBC9D5;}
 	.st11{fill:none;}
 </style>
 <title>jetpack-header</title>
