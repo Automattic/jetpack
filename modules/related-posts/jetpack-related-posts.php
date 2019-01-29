@@ -247,6 +247,90 @@ EOT;
 	 */
 
 	/**
+	 * Echoes out items for the Gutenberg block
+	 *
+	 * @param array $related_post The post oject
+	 * @param array $block attributes The block attributes
+	 */
+	public function render_block_item( $related_post, $block_attributes ) {
+		?>
+        <div
+                data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
+                data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
+                class="jp-related-posts-i2__post"
+        >
+            <h3 class="jp-related-posts-i2__post-heading">
+                <a
+                        href="<?php echo esc_url( $related_post['url'] ); ?>"
+                        title="<?php echo esc_html( $related_post['title'] ); ?>"
+                        rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+                        data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+                        data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+                        class="jp-related-posts-i2__post-link"
+                >
+					<?php echo esc_html( $related_post['title'] ); ?>
+                </a>
+            </h3>
+			<?php
+			if (
+				! empty( $block_attributes['show_thumbnails'] ) &&
+				! empty( $related_post['img']['src'] )
+			) :
+				?>
+                <a
+                        href="<?php echo esc_url( $related_post['url'] ); ?>"
+                        title="<?php echo esc_html( $related_post['title'] ); ?>"
+                        rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+                        data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+                        data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+                        class="jp-related-posts-i2__post-img-link"
+                >
+                    <img class="jp-related-posts-i2__post-img"
+                         src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
+                         width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
+                         alt="<?php echo esc_html( $related_post['title'] ); ?>"
+                    />
+                </a>
+			<?php endif; ?>
+			<?php if ( $block_attributes['show_date'] ) : ?>
+                <div class="jp-related-posts-i2__post-date has-small-font-size">
+					<?php esc_html_e( $related_post['date'] ); ?>
+                </div>
+			<?php endif; ?>
+			<?php
+			if (
+				( $block_attributes['show_context'] ) &&
+				! empty( $related_post['context'] )
+			) :
+				?>
+                <div class="jp-related-posts-i2__post-context has-small-font-size">
+					<?php esc_html_e( $related_post['context'] ); ?>
+                </div>
+			<?php endif; ?>
+        </div>
+		<?php
+	}
+
+	/**
+	 * Render a related posts row.
+	 *
+	 * @param array $posts The posts to render into the row
+	 * @param array $block_attributes Block attributes.
+	 */
+	public function render_block_row( $posts, $block_attributes ) {
+		?>
+        <div
+                class="jp-related-posts-i2__row"
+                data-post-count="<?php echo count( $posts ); ?>"
+        >
+			<?php foreach ( $posts as $index => $post ) : ?>
+				<?php echo $this->render_block_item( $post, $block_attributes ); ?>
+			<?php endforeach; ?>
+        </div>
+		<?
+	}
+
+	/**
 	 * Render the related posts markup.
 	 *
 	 * @param array $attributes Block attributes.
@@ -270,79 +354,40 @@ EOT;
 			)
 		);
 
-		if ( ! $related_posts ) {
+		$display_lower_row = $block_attributes['size'] > 3;
+
+		if ( empty( $related_posts ) ) {
 			return '';
 		}
 
+		switch ( count( $related_posts ) ) {
+			case 2:
+			case 4:
+			case 5:
+				$top_row_end = 2;
+				break;
+
+			default:
+				$top_row_end = 3;
+				break;
+		}
+
+		$upper_row_posts = array_slice( $related_posts, 0, $top_row_end );
+		$lower_row_posts = array_slice( $related_posts, $top_row_end );
+
 		ob_start();
 		?>
-		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
-			<div class="jp-relatedposts-items <?php echo $block_attributes['show_thumbnails'] ? 'jp-relatedposts-items-visual ' : ''; ?>jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
-				<?php
-				foreach ( $related_posts as $index => $related_post ) :
-					$classes = array_filter(
-						array(
-							'jp-relatedposts-post',
-							'jp-relatedposts-post' . $index,
-							! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
-						)
-					);
-					$title_attr = $related_post['title'];
-					if ( '' !== $related_post['excerpt'] ) {
-						$title_attr .= "\n\n" . $related_post['excerpt'];
-					}
-					?>
-					<div
-						class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
-						data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
-						data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
-					>
-						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
-							<a class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $title_attr ); ?>"
-								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-							>
-								<img class="jp-relatedposts-post-img"
-									src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
-									width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
-									alt="<?php echo esc_attr( $title_attr ); ?>"
-								/>
-							</a>
-						<?php endif; ?>
-
-						<h4 class="jp-relatedposts-post-title">
-							<a
-								class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $title_attr ); ?>"
-								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-							>
-								<?php echo esc_html( $related_post['title'] ); ?>
-							</a>
-						</h4>
-
-						<p class="jp-relatedposts-post-excerpt"><?php echo esc_html( $related_post['excerpt'] ); ?></p>
-
-						<?php if ( $block_attributes['show_date'] ) : ?>
-							<p class="jp-relatedposts-post-date" style="display: block;">
-								<?php echo esc_html( $related_post['date'] ); ?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( $block_attributes['show_context'] ) : ?>
-							<p class="jp-relatedposts-post-context">
-								<?php echo esc_html( $related_post['context'] ); ?>
-							</p>
-						<?php endif; ?>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		</div>
+        <nav
+                class="jp-relatedposts-i2"
+                data-layout="<?php echo $block_attributes['layout']; ?>"
+        >
+			<?php
+			echo $this->render_block_row( $upper_row_posts, $block_attributes );
+			if ( $display_lower_row ) {
+				echo $this->render_block_row( $lower_row_posts, $block_attributes );
+			}
+			?>
+        </nav>
 		<?php
 		$html = ob_get_clean();
 
@@ -1221,10 +1266,6 @@ EOT;
 			'height' => 0,
 		);
 
-		if ( ! $options['show_thumbnails'] ) {
-			return $image_params;
-		}
-
 		/**
 		 * Filter the size of the Related Posts images.
 		 *
@@ -1474,7 +1515,7 @@ EOT;
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
-						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
+						esc_html_x( 'In “%s”', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
 					/**
@@ -1680,7 +1721,7 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object, $field_name, $request ) {
-		return $this->get_for_post_id( $object['id'], array() );
+		return $this->get_for_post_id( $object['id'], array( 'size' => 6 ) );
 	}
 }
 
