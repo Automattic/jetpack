@@ -30,6 +30,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			'home',
 			'siteurl',
 			'jetpack_sync_error_idc',
+			'paused_plugins',
+			'paused_themes',
 		);
 		foreach( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
