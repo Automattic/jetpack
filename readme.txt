@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection flow: display a notice upon connection when the site is suspended.
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
 * REST API: add likes and sharing settings to the REST API Post response.
+* Sharing: deprecate the Google+ sharing Button.
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 * Shortcodes: cache the output of the Twitter shortcode.
 * Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
