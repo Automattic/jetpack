@@ -6,34 +6,10 @@ class VideoPress_Gutenberg {
 	 * Initialize the VideoPress Gutenberg extension
 	 */
 	public static function init() {
-		if ( self::should_initialize() ) {
+		// Should not initialize if Gutenberg is not available
+		if ( function_exists( 'register_block_type' ) ) {
 			add_action( 'init', array( __CLASS__, 'register_video_block_with_videopress' ) );
 		}
-	}
-
-	/**
-	 * Check whether conditions indicate the VideoPress Gutenberg extension should be initialized
-	 *
-	 * @return bool
-	 */
-	public static function should_initialize() {
-		// Should not initialize if Gutenberg is not available
-		if ( ! function_exists( 'register_block_type' ) ) {
-			return false;
-		}
-
-		// Should initialize if this is a WP.com site
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return true;
-		}
-
-		// Should not initialize if this is a Jetpack site but Jetpack is not active (unless the dev mode is enabled)
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-			return false;
-		}
-
-		// Should initialize by default
-		return true;
 	}
 
 	/**
