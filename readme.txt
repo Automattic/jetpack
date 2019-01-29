@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Subscriptions: allow more customization of the subscription form's submit button.
 * Sync: improvements to the synchronization of plugin and theme updates.
 * Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
+* Sync: synchronize plugin and theme fatal errors reported by WordPress 5.1.
 * Widgets: deprecate the Google+ widgets.
 * WordPress.com: allow the display of plugin action links in the WordPress.com plugins' interface.
 
