@@ -1,80 +1,80 @@
-## 6.9
-
-### Admin Page
-
-We've made several changes to the Admin Page in this release. This will have a big impact on new and existing Jetpack users alike. It impacts multiple screens and flows:
-
-- You will notice changes when heading to Jetpack > Dashboard right after activating the plugin.
-- You will notice a new card when coming back to your dashboard right after connecting the plugin to your WordPress.com account.
-- You will notice some changes in the modals that are displayed in the Jetpack dashboard when coming back to your site after purchasing a plan.
-- You will find a new "My Plan" section in the Jetpack dashboard.
-- The sections and cards under Jetpack > Settings were also reorganized.
-- We've starting working on improving the different notices that are displayed to you when changing settings.
-- We've updated the message displayed to users who have not linked their own WordPress.com account on a site that is already using Jetpack.
-
-To test this, try navigating through all those screens as a new site owner:
-
-- Can you dismiss / use all action buttons?
-- Can you find all sections and features you are looking for?
-- Can you easily upgrade to a new plan?
-- Can you toggle the different settings in the new "Performance" section?
-- Do you spot any typos or mistakes in the texts that were added to the different screens?
-
-### Block Editor
-
-This release introduces new blocks we'd like you to test:
-
-**Subscription block**
-
-This block allows your readers to subscribe to your site, and will be available in the block editor if the Subscriptions feature is active on your site. To test it, try to activate the feature, and see if you can add the block, and use it to subscribe to your site.
-
-Here are a few other things you can try:
-
-- Toggle the "show number of subscribers" in the editor. Confirm that you see the number of subscribers when the block loses focus.
-- After subscribing with a few different email addresses (and confirming your subscription), confirm that you see the number of subscribed users on the frontend (when the toggle was enabled for the block in the editor) and the editor when the block doesn't have focus.
-
-**Related Posts Block**
-
-This block allows you to add Related Posts anywhere within your posts and pages. Give it a try by adding it from the editor, and make sure it looks good on your site. The different block options should also work well.
-
-Ideally, test this on a site that has some posts already, in order to be able to use the already indexed posts without the need to create related posts and wait for indexing.
-
-**Tiled Gallery Block**
-
-This block allows one to embed tiled galleries in their posts. It is available as soon as you connect Jetpack to WordPress.com. Try to use the block and its different layout options, and let us know what you think!
-
-**Shortlinks**
-
-It is now possible to view a post's shortlink in the Jetpack plugin sidebar. Give it a try when the feature is on, off, and make sure everything works as you would expect.
-
-### Carousel
-
-We have some changes to the Carousel feature to make sure it works with the different types of images now available. To test, try clicking on images inserted via those solutions:
-
-- with a classic block and a classic gallery in it
-- with a core gallery block
-- with a new tiled gallery block
-- with a classic block and a tiled gallery in it.
+## 7.0
 
 ### AMP
 
-We've made a number of improvements to the way Jetpack works with the latest version of the AMP plugin.
+Once again we've made some changes to ensure that Jetpack plays well with the AMP plugin. To test, try the following:
 
-To test this, add the plugin to your site, and switch between the different modes under the AMP plugin options. You will want to check that the following features are working:
+* Install the AMP plugin.
+* Switch AMP mode (AMP > General) to `Paired` or `Classic`.
+* Activate the Carousel module, the sharing module, and ensure that `SCRIPT_DEBUG` is set to `false` on your install.
+* Create a post with a gallery
+* Add a Facebook sharing button to that post.
+* Share that post on Facebook once.
+* Comment on one of the images in the gallery.
+* Load the post in a non-AMP view, and in the 3 modes available in the AMP options screen: Native, Paired, Classic. (`Native` mode -  all views are AMP views; `Paired` mode - add `?amp` to get to the AMP view; `Classic` mode - add `/amp` to get to the AMP view)
+	-  **In non-AMP views:** Does the Carousel modal work? Do you see the comment in the Carousel modal? Do you see the sharing buttons? Do you see the counter next to the sharing button? Do you see the `jetpack.css` file when viewing source?
+	- **In AMP views:** you should not see the Carousel. You should see a special styling of the sharing buttons. If you check the network tab in your browser tools, you should see a request to pixel.wp.com when logged out. You should not see a `jetpack.css` file in the source.
 
-- Sharing buttons should be properly displayed.
-- Stats should be recorded when you are visiting your site and not logged in to your admin account (look for call to the stats tracking pixel in your browser's network tab).
-- You should not see any PHP notices.
+In all cases:
+- You should not see any js errors in the browser console.
+- You should not get any PHP notices in your debug log.
 
-### Shortcodes
+Now try adding the following to a functionality plugin on your site:
 
-This release also adds a new shortcode, `[jetpack-email-subscribe]`. You can use it to insert Mailchimp subscription forms anywhere in your posts and pages.
+```php
+add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+add_filter( 'jetpack_sharing_counts', '__return_false' );
+```
 
-To use it, try the following:
+Once you've done so, check the non-AMP view again:
+- you should not see the sharing counter on the Facebook button.
+- you should not see the `jetpack.css` file in your source.
 
-1. Go to [https://wordpress.com/sharing/](https://wordpress.com/sharing/) and choose your test site.
-2. Under the new Mailchimp section, connect your site to a Mailchimp account.
-3. That's it! You can now use `[jetpack-email-subscribe]` anywhere on your site!
+### Block Editor
+
+This release adds one more block to the list of blocks available in Jetpack. The Gif block will allow you to quickly search and add images to your posts. To test it, load the block editor and search for the new Gif block. You should then be able to search for images using any keyword, choose an image, and add a caption if you want to. The image should be displayed nicely on the front end of your site.
+
+### Copy A Post
+
+This release introduces a brand new feature, "Copy Post". The feature is not activated by default, so you'll need to go Jetpack > Settings, search for the feature, and activate it. Once you've done so, here is how you can test the feature:
+
+- Create a test post that has the following: title, content, except, featured image, post format, categories, and tags (be sure the theme supports Post Formats, like Twenty Seventeen; Twenty Nineteen does not).
+- From `/wp-admin/edit.php`, hover over the test post and then click Copy.
+- Verify the draft post that loads contains all of the data from the existing post.
+- Publish, and verify all information was saved without errors.
+- Repeat the same with pages and a custom post type.
+
+### Google+
+
+As you may know, Google+ will be shut down in April 2019. Google reported that intermittent service failures may begin as soon as January 28. We've consequently opted to deprecate the Google+ features of Jetpack in this release. 4 different features are impacted by the changes:
+
+#### Publicize
+
+If you go to Settings > Sharing in your dashboard, or try to publish a new post on a site you had previously connected to Google+, you will now see a notice in the Publicize settings, to let you know about the upcoming change. In Settings > Sharing, you should not be able to create a new connection anymore.
+
+#### Sharing
+
+The Google+ sharing button will not be displayed on Jetpack sites anymore.
+
+- If you had not added a Google+ button to your site before, you won't see the option to add one to your site anymore. Under Settings > Sharing, you will not see any Google+ option.
+- If you had added a Google+ button to your site in the past, you will see a new button instead, when you are logged in to your admin account. That button will invite you to remove that deprecated service from your site. Your readers, however, won't see anything.
+
+#### Shortcodes
+
+Jetpack used to offer a Google+ embed solution. We now only display a link to the Google+ post instead, for posterity. To test this, you can try adding the following to a post on your site:
+
+- Add `https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7` on its own line.
+- Add a `[googleplus url=https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7]` shortcode on its own line.
+- Preview the post. You should see two clickable URLs each in their own paragraph tag.
+
+#### Widgets
+
+Jetpack also offered a Google+ Badge widget. If you used such a widget on your site, we will remove it from your sidebar for you. To test this, try the following:
+
+- On the stable version of Jetpack, add a Google+ Widget to your sidebar. You can use `https://plus.google.com/+JeremyHerve` as a "Person" URL, or `https://plus.google.com/communities/101504763068635549461` as a "Community" URL. The widgets should work just fine.
+- Update to the Beta version; the widgets should be gone.
+
+### Others
 
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
