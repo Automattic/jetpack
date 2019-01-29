@@ -35,6 +35,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		);
 		foreach( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
+			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
 		// Provide a hook so that hosts can send changes to certain callables right away.
