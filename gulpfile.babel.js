@@ -219,14 +219,46 @@ gulp.task( 'languages:extract', function( done ) {
 			i18n_calypso( {
 				projectName: 'Jetpack',
 				inputPaths: paths,
-				output: '_inc/jetpack-strings.php',
+				output: '_inc/jetpack-strings.pot',
 				phpArrayName: 'jetpack_strings',
-				format: 'PHP',
+				format: 'POT',
 				textdomain: 'jetpack',
 				keywords: [ 'translate', '__', '_n', '_x', '_nx' ],
 			} );
 
 			done();
+		} );
+} );
+
+gulp.task( 'languages:merge', function( done ) {
+	const paths = [];
+
+	gulp.src( [
+		'_inc/build/blocks/*.pot',
+		'_inc/jetpack-strings.pot'
+	] )
+		.pipe( tap( function( file ) {
+			paths.push( file.path );
+		} ) )
+		.on( 'end', function() {
+			const msgcat = spawn(
+				'msgcat',
+				[
+					'-o',
+					'_inc/build/merged-strings.pot',
+					...paths,
+				]
+			);
+
+			msgcat.stderr.on( 'data', function( data ) {
+				log( data.toString() );
+			} );
+			msgcat.on( 'exit', function( code ) {
+				if ( 0 !== code ) {
+					log( 'msgcat exited with code ', code );
+				}
+				done();
+			} );
 		} );
 } );
 
@@ -267,7 +299,8 @@ gulp.task( 'react:watch', react_watch );
 gulp.task(
 	'languages',
 	gulp.parallel(
-		gulp.series( 'languages:get', 'languages:build', 'languages:cleanup' ),
-		'languages:extract'
+		// gulp.series( 'languages:get', 'languages:build', 'languages:cleanup' ),
+		gulp.series( 'languages:extract', 'languages:merge' ),
 	)
 );
+

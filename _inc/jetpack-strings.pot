@@ -1,0 +1,3053 @@
+# THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: _s Jetpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-29T12:51:25.569Z\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: _inc/client/admin.js:75
+msgctxt "Navigation item."
+msgid "At A Glance"
+msgstr ""
+
+#: _inc/client/admin.js:78
+msgid "At A Glance"
+msgstr ""
+
+#: _inc/client/admin.js:81
+#: _inc/client/components/navigation/index.jsx:57
+msgctxt "Navigation item."
+msgid "My Plan"
+msgstr ""
+
+#: _inc/client/admin.js:86
+#: _inc/client/components/navigation/index.jsx:64
+msgctxt "Navigation item."
+msgid "Plans"
+msgstr ""
+
+#: _inc/client/admin.js:91
+msgctxt "Navigation item."
+msgid "Settings"
+msgstr ""
+
+#: _inc/client/admin.js:96
+#: _inc/client/components/navigation-settings/index.jsx:177
+msgctxt "Navigation item."
+msgid "Discussion"
+msgstr ""
+
+#: _inc/client/admin.js:101
+#: _inc/client/components/navigation-settings/index.jsx:204
+msgctxt "Navigation item."
+msgid "Security"
+msgstr ""
+
+#: _inc/client/admin.js:106
+#: _inc/client/components/navigation-settings/index.jsx:137
+msgctxt "Navigation item."
+msgid "Performance"
+msgstr ""
+
+#: _inc/client/admin.js:111
+#: _inc/client/components/navigation-settings/index.jsx:194
+msgctxt "Navigation item."
+msgid "Traffic"
+msgstr ""
+
+#: _inc/client/admin.js:116
+#: _inc/client/components/navigation-settings/index.jsx:154
+#: _inc/client/components/navigation-settings/index.jsx:235
+msgctxt "Navigation item."
+msgid "Writing"
+msgstr ""
+
+#: _inc/client/admin.js:121
+#: _inc/client/components/navigation-settings/index.jsx:163
+#: _inc/client/components/navigation-settings/index.jsx:221
+msgctxt "Navigation item."
+msgid "Sharing"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:42
+msgid "Testing Jetpack Connection"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:67
+msgid "There was an error testing Jetpack. Error: %(error)s"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:129
+msgid "Disconnecting Jetpack"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:155
+msgid "There was an error disconnecting Jetpack. Error: %(error)s"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:173
+msgid "Unlinking from WordPress.com"
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:184
+msgid "Unlinked from WordPress.com."
+msgstr ""
+
+#: _inc/client/state/connection/actions.js:199
+msgid "Error unlinking from WordPress.com. %(error)s"
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:29
+msgid "Resetting Jetpack options…"
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:39
+msgid "Options reset."
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:52
+msgid "Options failed to reset."
+msgstr ""
+
+#: _inc/client/state/jumpstart/actions.js:30
+#: _inc/client/components/jumpstart/index.jsx:33
+msgid "Activating recommended features…"
+msgstr ""
+
+#: _inc/client/state/jumpstart/actions.js:44
+msgid "Recommended features active."
+msgstr ""
+
+#: _inc/client/state/jumpstart/actions.js:61
+msgid "Recommended features failed to activate. %(error)s"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:88
+msgid "Activating %(slug)s…"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:108
+msgid "%(slug)s has been activated."
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:131
+msgid "%(slug)s failed to activate. %(error)s"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:154
+msgid "Deactivating %(slug)s…"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:174
+msgid "%(slug)s has been deactivated."
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:197
+msgid "%(slug)s failed to deactivate. %(error)s"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:223
+msgid "Updating %(slug)s settings…"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:245
+msgid "Updated %(slug)s settings."
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:266
+msgid "Error updating %(slug)s settings. %(error)s"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:295
+msgid "Updating %(slug)s address…"
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:319
+msgid "Regenerated %(slug)s address ."
+msgstr ""
+
+#: _inc/client/state/modules/actions.js:340
+msgid "Error regenerating %(slug)s address. %(error)s"
+msgstr ""
+
+#: _inc/client/state/settings/actions.js:92
+msgid "Updating settings…"
+msgstr ""
+
+#: _inc/client/state/settings/actions.js:93
+msgid "Updated settings."
+msgstr ""
+
+#: _inc/client/state/settings/actions.js:98
+msgid "Error updating settings. %(error)s"
+msgstr ""
+
+#: _inc/client/state/settings/actions.js:113
+msgid "Updated settings. Refreshing page…"
+msgstr ""
+
+#: _inc/client/state/site-verify/actions.js:89
+msgid "Site is verified"
+msgstr ""
+
+#: _inc/client/state/tracking/actions.js:46
+msgid "Updating privacy settings…"
+msgstr ""
+
+#: _inc/client/state/tracking/actions.js:47
+msgid "Updated privacy settings."
+msgstr ""
+
+#: _inc/client/state/tracking/actions.js:52
+msgid "Error updating privacy settings. %(error)s"
+msgstr ""
+
+#: _inc/client/main.jsx:88
+#: _inc/client/main.jsx:107
+msgid ""
+"There are unsaved settings in this tab that will be lost if you leave it. "
+"Proceed?"
+msgstr ""
+
+#: _inc/client/at-a-glance/activity.jsx:52
+msgid "{{a}}View your site's activity{{/a}} in a single feed."
+msgstr ""
+
+#: _inc/client/at-a-glance/activity.jsx:61
+#: _inc/client/my-plan/my-plan-body.jsx:225
+#: _inc/client/my-plan/my-plan-body.jsx:519
+msgid "Activity"
+msgstr ""
+
+#: _inc/client/at-a-glance/activity.jsx:69
+#: _inc/client/at-a-glance/backups.jsx:160
+#: _inc/client/at-a-glance/monitor.jsx:63
+#: _inc/client/at-a-glance/scan.jsx:181
+#: _inc/client/security/backups-scan.jsx:55
+#: _inc/client/security/backups-scan.jsx:108
+msgid "Unavailable in Dev Mode."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:38
+msgid "Spam Protection"
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:41
+msgid ""
+"Akismet checks your comments and contact form submissions against our global "
+"database of spam."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:51
+#: _inc/client/at-a-glance/backups.jsx:145
+#: _inc/client/at-a-glance/plugins.jsx:55
+#: _inc/client/at-a-glance/scan.jsx:87
+#: _inc/client/at-a-glance/scan.jsx:129
+msgid "Loading…"
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:69
+msgid "For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:96
+msgid "For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:120
+msgid "Invalid key"
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:124
+msgid ""
+"Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to "
+"Akismet settings to fix{{/akismetSettings}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:150
+msgctxt "Example: \"412 Spam comments blocked\""
+msgid "Spam comments blocked."
+msgstr ""
+
+#: _inc/client/at-a-glance/akismet.jsx:162
+msgid "Moderate comments"
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:33
+#: _inc/client/my-plan/my-plan-body.jsx:125
+msgid "Backups"
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:36
+msgid ""
+"Jetpack Backups allow you to easily restore or download a backup from a "
+"specific moment."
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:89
+msgid "{{a}}View backup details{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:111
+msgid ""
+"To automatically back up your entire site, please {{a}}install and "
+"activate{{/a}} VaultPress."
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:131
+msgid ""
+"To automatically back up your entire site, please {{a}}upgrade your "
+"account{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:177
+msgid "Your site is being backed up in real-time."
+msgstr ""
+
+#: _inc/client/at-a-glance/backups.jsx:187
+msgid "View backup history"
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:52
+msgid ""
+"Your site is in Development Mode, so it can not be connected to "
+"WordPress.com."
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:74
+msgid "Your site is connected to WordPress.com."
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:78
+msgid "You are the Jetpack owner."
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:120
+msgid ""
+"The site is in Development Mode, so you can not connect to WordPress.com."
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:136
+#. %(username) is the WordPress user login name.
+msgid "Connected as {{span}}%(username)s{{/span}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:153
+msgid "Link your account to WordPress.com to get the most out of Jetpack."
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:172
+msgctxt "Dashboard widget header"
+msgid "Site connection"
+msgstr ""
+
+#: _inc/client/at-a-glance/connections.jsx:182
+msgctxt "Dashboard widget header"
+msgid "Account connection"
+msgstr ""
+
+#: _inc/client/at-a-glance/index.jsx:60
+#: _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:20
+msgid "Security"
+msgstr ""
+
+#: _inc/client/at-a-glance/index.jsx:65
+msgid "Manage security settings"
+msgstr ""
+
+#: _inc/client/at-a-glance/index.jsx:73
+msgid "Connections"
+msgstr ""
+
+#: _inc/client/at-a-glance/index.jsx:124
+msgid "Performance"
+msgstr ""
+
+#: _inc/client/at-a-glance/monitor.jsx:24
+msgid "Downtime monitoring"
+msgstr ""
+
+#: _inc/client/at-a-glance/monitor.jsx:27
+msgid ""
+"Jetpack’s downtime monitor will continuously monitor your site, and alert "
+"you the moment that downtime is detected."
+msgstr ""
+
+#: _inc/client/at-a-glance/monitor.jsx:46
+msgid ""
+"Jetpack is monitoring your site. If we think your site is down, you will "
+"receive an email."
+msgstr ""
+
+#: _inc/client/at-a-glance/monitor.jsx:64
+msgid ""
+"{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes "
+"down."
+msgstr ""
+
+#: _inc/client/at-a-glance/photon.jsx:23
+msgid "Image Performance"
+msgstr ""
+
+#: _inc/client/at-a-glance/photon.jsx:27
+msgid ""
+"Jetpack will optimize your images and serve them from the server location "
+"nearest to your visitors. Using our global content delivery network will "
+"boost the loading speed of your site."
+msgstr ""
+
+#: _inc/client/at-a-glance/photon.jsx:37
+msgid "Jetpack is improving and optimizing your image speed."
+msgstr ""
+
+#: _inc/client/at-a-glance/photon.jsx:52
+#: _inc/client/at-a-glance/protect.jsx:74
+#: _inc/client/at-a-glance/search.jsx:67
+#: _inc/client/traffic/site-stats.jsx:141
+#: _inc/client/at-a-glance/stats/index.jsx:218
+msgid "Unavailable in Dev Mode"
+msgstr ""
+
+#: _inc/client/at-a-glance/photon.jsx:53
+msgid ""
+"{{a}}Activate{{/a}} to enhance the performance and speed of your images."
+msgstr ""
+
+#: _inc/client/at-a-glance/plugins.jsx:41
+msgid "Plugin Updates"
+msgstr ""
+
+#: _inc/client/at-a-glance/plugins.jsx:45
+msgid ""
+"Jetpack’s Plugin Updates allows you to choose which plugins update "
+"automatically."
+msgstr ""
+
+#: _inc/client/at-a-glance/plugins.jsx:74
+msgid "%(number)s"
+msgid_plural "%(number)s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/client/at-a-glance/plugins.jsx:83
+msgid "Plugin needs updating."
+msgid_plural "Plugins need updating."
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/client/at-a-glance/plugins.jsx:87
+msgid "{{a}}Turn on plugin autoupdates{{/a}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/plugins.jsx:91
+msgid "All plugins are up-to-date. Awesome work!"
+msgstr ""
+
+#: _inc/client/at-a-glance/plugins.jsx:102
+#: _inc/client/security/manage-plugins.jsx:49
+msgid "Manage your plugins"
+msgstr ""
+
+#: _inc/client/at-a-glance/protect.jsx:27
+#: _inc/client/security/protect.jsx:109
+msgid ""
+"Protects your site from traditional and distributed brute force login "
+"attacks."
+msgstr ""
+
+#: _inc/client/at-a-glance/protect.jsx:47
+msgid ""
+"Jetpack is actively blocking malicious login attempts. Data will display "
+"here soon!"
+msgstr ""
+
+#: _inc/client/at-a-glance/protect.jsx:59
+msgid "Total malicious attacks blocked on your site."
+msgstr ""
+
+#: _inc/client/at-a-glance/protect.jsx:75
+msgid ""
+"{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign "
+"in attempts."
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:34
+msgid "Security Scanning"
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:37
+msgid ""
+"Your site’s files are regularly scanned for unauthorized or suspicious "
+"modifications that could compromise your security and data."
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:98
+#: _inc/client/security/backups-scan.jsx:119
+msgid "Uh oh, %(number)s threat found."
+msgid_plural "Uh oh, %(number)s threats found."
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/client/at-a-glance/scan.jsx:104
+msgid "{{a}}View details at VaultPress.com{{/a}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:108
+#: _inc/client/security/backups-scan.jsx:132
+msgid "{{a}}Contact Support{{/a}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:120
+msgid "No threats found, you're good to go!"
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:146
+msgid ""
+"For automated, comprehensive scanning of security threats, please "
+"{{a}}install and activate{{/a}} VaultPress."
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:160
+msgid ""
+"For automated, comprehensive scanning of security threats, please "
+"{{a}}upgrade your account{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:196
+msgid ""
+"We are making sure your site stays free of security threats. You will be "
+"notified if we find one."
+msgstr ""
+
+#: _inc/client/at-a-glance/scan.jsx:210
+msgid "View security scan details"
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:28
+#: _inc/client/my-plan/my-plan-body.jsx:275
+msgid "Jetpack Search"
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:31
+#: _inc/client/at-a-glance/search.jsx:100
+msgid ""
+"Jetpack Search is a powerful replacement for the search capability built "
+"into WordPress."
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:76
+msgid ""
+"Replace the built-in search with a fast, scalable, customizable, and "
+"highly-relevant search {{a}}hosted in the WordPress.com cloud{{/a}}."
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:97
+msgid "Search"
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:110
+msgid "Jetpack Search is powering search on your site."
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:118
+msgid "Add Search (Jetpack) Widget"
+msgstr ""
+
+#: _inc/client/at-a-glance/search.jsx:127
+msgid ""
+"{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack "
+"Search, an advanced search experience."
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:67
+msgid "Comments"
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:80
+msgid ""
+"Replaces the standard WordPress comment form with a new comment system that "
+"includes social media login options."
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:99
+msgid "Comments headline"
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:112
+msgid "A few catchy words to motivate your readers to comment."
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:115
+msgid "Color scheme"
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:153
+#: _inc/client/discussion/comments.jsx:196
+#: _inc/client/discussion/comments.jsx:228
+#: _inc/client/my-plan/my-plan-header.jsx:60
+#: _inc/client/writing/theme-enhancements.jsx:196
+#: _inc/client/components/support-info/index.jsx:79
+#: _inc/client/components/support-info/index.jsx:89
+msgid "Learn more"
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:161
+#: _inc/client/discussion/comments.jsx:204
+#: _inc/client/discussion/comments.jsx:236
+msgid "Privacy Information"
+msgstr ""
+
+#: _inc/client/discussion/comments.jsx:190
+msgid "Enable Markdown use for comments."
+msgstr ""
+
+#: _inc/client/discussion/index.jsx:57
+msgid ""
+"Open your site to comments and invite subscribers to get alerts about your "
+"latest work."
+msgstr ""
+
+#: _inc/client/discussion/subscriptions.jsx:73
+msgid "View your Email Followers"
+msgstr ""
+
+#: _inc/client/discussion/subscriptions.jsx:81
+msgid "Create a Jetpack account to view your email followers"
+msgstr ""
+
+#: _inc/client/discussion/subscriptions.jsx:93
+msgid ""
+"Allows readers to subscribe to your posts or comments, and receive "
+"notifications of new content by email."
+msgstr ""
+
+#: _inc/client/discussion/subscriptions.jsx:121
+msgid "Show a \"follow blog\" option in the comment form"
+msgstr ""
+
+#: _inc/client/discussion/subscriptions.jsx:134
+msgid "Show a \"follow comments\" option in the comment form"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:104
+msgid ""
+"Daily backup of all your site data with unlimited space and one-click "
+"restores"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:109
+msgid ""
+"Daily backup of all your site data with unlimited space, one-click restores, "
+"automated security scanning, and priority support"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:114
+msgid ""
+"Real-time backup of all your site data with unlimited space, one-click "
+"restores, automated security scanning, and priority support"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:127
+msgid ""
+"Real-time backup of all your site data with unlimited space, one-click "
+"restores, and automated security scanning."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:136
+msgid "View your security activity"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:144
+msgid "Site Security"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:145
+msgid " (powered by VaultPress)."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:153
+msgid "View your security dashboard"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:163
+#: _inc/client/my-plan/my-plan-body.jsx:213
+msgid "View settings"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:178
+msgid "Try a premium theme"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:180
+msgid ""
+"Access hundreds of beautifully designed premium themes at no extra cost."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:189
+msgid "Browse premium themes"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:194
+msgid "Spam Filtering"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:195
+msgid "Spam is automatically blocked from your comments."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:203
+msgid "View your spam stats"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:227
+#: _inc/client/my-plan/my-plan-body.jsx:521
+msgid ""
+"View a chronological list of all the changes and updates to your site in an "
+"organized, readable way."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:236
+#: _inc/client/my-plan/my-plan-body.jsx:530
+msgid "View your site activity"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:244
+#: _inc/client/components/welcome-new-plan/premium.jsx:101
+#: _inc/client/components/welcome-new-plan/professional.jsx:122
+msgid "Monetize your site with ads"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:247
+msgid ""
+"WordAds lets you earn money by displaying promotional content. Start earning "
+"today."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:257
+#: _inc/client/traffic/ads.jsx:244
+msgid "View your earnings"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:265
+msgid "Start earning"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:277
+msgid ""
+"Replace the default WordPress search with better results and filtering "
+"powered by Elasticsearch."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:287
+msgid "Customize Search Widget"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:295
+msgid "Activate Jetpack Search"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:305
+msgid "Marketing Automation"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:308
+msgid ""
+"Schedule unlimited tweets, Facebook posts, and other social posts in advance."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:318
+msgid "Schedule posts"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:326
+msgid "Activate Publicize"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:335
+msgid "Video Hosting"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:337
+msgid "High-speed, high-definition video hosting with no third-party ads."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:345
+msgid "Upload videos"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:353
+msgid "Activate video hosting"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:362
+msgid "SEO Tools"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:364
+msgid ""
+"Advanced SEO tools to help your site get found when people search for "
+"relevant content."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:374
+msgid "Configure site SEO"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:382
+msgid "Activate SEO tools"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:391
+msgid "Google Analytics"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:393
+msgid ""
+"Complement WordPress.com’s stats with Google’s in-depth look at your "
+"visitors and traffic patterns."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:403
+msgid "Configure Google Analytics"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:411
+msgid "Activate Google Analytics"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:421
+msgid "Three great reasons to go Pro"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:424
+msgid ""
+"Design the perfect site with unlimited access to hundreds of themes and "
+"unlimited, high-speed, and ad-free video hosting."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:429
+msgid ""
+"Always-on security including real-time backups, malware scanning, and "
+"automatic threat resolution."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:434
+msgid ""
+"Grow your traffic and revenue with social media scheduling, enhanced site "
+"search, SEO tools, PayPal payments, and an ad program."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:444
+#: _inc/client/my-plan/my-plan-body.jsx:555
+msgid "Compare plans"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:454
+msgid "Two great reasons to go Pro"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:457
+msgid ""
+"Unlimited access to hundreds of premium WordPress themes with dedicated "
+"support directly from the theme authors."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:462
+msgid ""
+"A superior search experience powered by Elasticsearch providing your users "
+"with faster and more relevant search results. Previously only available to "
+"WordPress.com VIP customers and trusted by industry-leading brands."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:472
+msgid "Explore Jetpack Professional"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:487
+msgid "Design the perfect website"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:490
+msgid ""
+"Get unlimited access to hundreds of professional themes, a superior search "
+"experience for your users, and unlimited high-speed, and ad-free video "
+"hosting."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:498
+msgid "Increase traffic and revenue"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:501
+msgid ""
+"Reach more people and earn money with automated social media scheduling, "
+"better search results, SEO preview tools, PayPal payments, and an ad program."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:509
+msgid "Always-on Security"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:511
+msgid ""
+"Automatic defense against hacks, malware, spam, data loss, and downtime with "
+"automated backups, unlimited storage, and malware scanning."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:536
+msgid "Enjoy priority support"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-body.jsx:539
+msgid ""
+"We support all Jetpack users, regardless of plan. But customers on a paid "
+"subscription enjoy priority support so that security issues are identified "
+"and fixed for you as soon as possible."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:36
+msgid "Jetpack Premium now includes our full security suite"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:39
+msgid ""
+"Automated backups, one-click restores, spam filtering, and malware scanning."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:46
+msgid "How much is your website worth?"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:49
+msgid ""
+"For less than the price of a coffee a month you can rest easy knowing your "
+"hard work (or livelihood) is backed up."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:54
+msgid ""
+"Upgrade to a weekly coffee and fully protect your site from malware, "
+"infiltrations, and security loopholes with automated malware scanning."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:76
+msgid "Image of WordPress login screen protected by Jetpack"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:310
+msgid "Powerful services for your site"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:313
+msgid ""
+"Always-on security, a better search experience, unlimited CDN use, advanced "
+"marketing tools, and monetization services."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:334
+msgid "Welcome to Jetpack Personal"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:338
+msgid "Daily backups, spam filtering, and priority support."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:342
+msgid "Spam filtering and priority support."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:362
+msgid "Welcome to Jetpack Premium"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:365
+msgid ""
+"Full security suite, marketing and revenue automation tools, unlimited video "
+"hosting, and priority support."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:386
+msgid "Welcome to Jetpack Professional"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:389
+msgid ""
+"Full security suite, marketing and revenue automation tools, unlimited video "
+"hosting, unlimited themes, enhanced search, and priority support."
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:410
+msgid "Your site is on Development Mode"
+msgstr ""
+
+#: _inc/client/my-plan/my-plan-header.jsx:413
+msgid ""
+"Once you connect, you can upgrade to a paid plan in order to unlock "
+"world-class security, spam protection tools, and priority support."
+msgstr ""
+
+#: _inc/client/notices/validation-error-list.jsx:20
+msgid "Please correct the issue below and try again."
+msgid_plural "Please correct the issues listed below and try again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/client/performance/index.jsx:55
+msgid ""
+"Load pages faster, optimize images, and speed up your visitors’ experience."
+msgstr ""
+
+#: _inc/client/performance/media.jsx:72
+msgid "Images"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:74
+msgid ""
+"Create full-screen carousel slideshows for the images in your posts and "
+"pages. Carousel galleries are mobile-friendly and encourage site visitors to "
+"interact with your photos."
+msgstr ""
+
+#: _inc/client/performance/media.jsx:87
+msgid "Display images in a full-screen carousel gallery"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:100
+msgid "Show photo Exif metadata in carousel (when available)"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:105
+msgid ""
+"Exif data shows viewers additional technical details of a photo, like its "
+"focal length, aperture, and ISO."
+msgstr ""
+
+#: _inc/client/performance/media.jsx:112
+msgid "Carousel color scheme"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:138
+msgid "Video"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:141
+msgid ""
+"Make the content you publish more engaging with high-resolution video. With "
+"Jetpack Video you can customize your media player and deliver high-speed, "
+"ad-free, and unbranded videos to your visitors. Videos are hosted on our "
+"WordPress.com servers and do not subtract space from your hosting plan!"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:155
+msgid "Enable high-speed, ad-free video player"
+msgstr ""
+
+#: _inc/client/performance/media.jsx:166
+msgid "Media"
+msgstr ""
+
+#: _inc/client/performance/search.jsx:34
+msgid "Jetpack Search supports many customizations."
+msgstr ""
+
+#: _inc/client/performance/search.jsx:39
+msgid ""
+"The built-in WordPress search is great for sites without much content. But "
+"as your site grows, searches slow down and return less relevant results."
+msgstr ""
+
+#: _inc/client/performance/search.jsx:44
+msgid ""
+"Jetpack Search replaces the built-in search with a fast, scalable, "
+"customizable, and highly-relevant search hosted in the WordPress.com cloud. "
+"The result: Your users find the content they want, faster."
+msgstr ""
+
+#: _inc/client/performance/search.jsx:56
+msgid ""
+"Replace WordPress built-in search with Jetpack Search, an advanced search "
+"experience"
+msgstr ""
+
+#: _inc/client/performance/search.jsx:65
+msgid ""
+"Add the Jetpack Search widget to your sidebar to configure sorting and "
+"filters."
+msgstr ""
+
+#: _inc/client/performance/search.jsx:79
+msgid "Add Jetpack Search Widget"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:59
+msgid "Disabling site accelerator…"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:60
+msgid "Site accelerator is no longer speeding up your site!"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:62
+msgid "Error disabling site accelerator. %(error)s"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:84
+msgid "Enabling Site accelerator…"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:85
+msgid "Site accelerator is now speeding up your site!"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:87
+msgid "Error enabling Site accelerator. %(error)s"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:221
+msgid "Performance & speed"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:230
+msgid ""
+"Load pages faster by allowing Jetpack to optimize your images and serve your "
+"images and static files (like CSS and JavaScript) from our global network of "
+"servers."
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:243
+msgid "Enable site accelerator"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:257
+msgid "Speed up image load times"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:269
+msgid "Speed up static file load times"
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:286
+msgid ""
+"Lazy-loading images will improve your site’s speed and create a smoother "
+"viewing experience. Images will load as visitors scroll down the screen, "
+"instead of all at once."
+msgstr ""
+
+#: _inc/client/performance/speed-up-site.jsx:300
+msgid "Enable Lazy Loading for images"
+msgstr ""
+
+#: _inc/client/plans/plan-grid.jsx:59
+msgid "You’re currently on Jetpack %(plan)s."
+msgstr ""
+
+#: _inc/client/plans/plan-grid.jsx:67
+msgid "Your Plan"
+msgstr ""
+
+#: _inc/client/plans/plan-grid.jsx:69
+msgid "Manage your plan"
+msgstr ""
+
+#: _inc/client/plans/plan-grid.jsx:71
+msgid "View all Jetpack plans"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:68
+msgctxt "Search term."
+msgid "privacy"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:69
+msgctxt "Search term."
+msgid "tracks"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:70
+msgctxt "Search term."
+msgid "data"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:71
+msgctxt "Search term."
+msgid "gdpr"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:72
+msgctxt "Search term."
+msgid "tos"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:73
+msgctxt "Search term."
+msgid "terms of service"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:105
+msgctxt "Settings header"
+msgid "Privacy Settings"
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:109
+msgid "We are committed to your privacy and security. "
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:120
+msgid ""
+"Share information with our analytics tool about your use of services while "
+"logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/"
+"cookiePolicyLink}}."
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:139
+msgid ""
+"This information helps us improve our products, make marketing to you more "
+"relevant, personalize your WordPress.com experience, and more as detailed in "
+"our {{pp}}privacy policy{{/pp}}."
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:156
+msgid ""
+"We use other tracking tools, including some from third parties. "
+"{{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control "
+"them."
+msgstr ""
+
+#: _inc/client/privacy/index.jsx:174
+msgid ""
+"For more information on how specific Jetpack features use data and track "
+"activity, please refer to our {{privacyCenterLink}}Privacy Center{{/"
+"privacyCenterLink}}."
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:77
+msgctxt "A caption for a small button to fix security issues."
+msgid "Threats"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:81
+msgctxt "Short warning message about new threats found."
+msgid "Threats found!"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:84
+msgctxt "A caption for a small button to fix security issues."
+msgid "FIX"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:93
+msgctxt "Short warning message about site having no security scan."
+msgid "No scanning"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:97
+msgctxt "Caption for a button to purchase a paid feature."
+msgid "Upgrade"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:103
+msgctxt "Caption for a button to purchase a pro plan."
+msgid "Upgrade"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:108
+msgctxt "Short message informing user that the site is secure."
+msgid "Secure"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:114
+msgctxt "Short warning message about an invalid key being used for Akismet."
+msgid "Invalid key"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:122
+#: _inc/client/security/backups-scan.jsx:60
+msgid "Connected"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:126
+msgid "ACTIVE"
+msgstr ""
+
+#: _inc/client/pro-status/index.jsx:159
+msgctxt "Caption for a button to set up a feature."
+msgid "Set up"
+msgstr ""
+
+#: _inc/client/searchable-modules/index.jsx:74
+#: _inc/client/traffic/verification-services.jsx:86
+msgid "Activate"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:91
+msgid "Checking your spam protection…"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:95
+msgid "Fetching key…"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:100
+msgid "Your site needs an Antispam key."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:106
+msgid "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:114
+msgid "Your site is not protected from spam."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:116
+msgid "Your Antispam key is valid."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:118
+msgid "Your site is protected from spam."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:126
+msgid "Checking key…"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:136
+msgctxt "Settings header"
+msgid "Spam filtering"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:143
+msgid "Removes spam from comments and contact forms."
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:149
+msgid "Your API key"
+msgstr ""
+
+#: _inc/client/security/antispam.jsx:155
+msgid ""
+"If you don't already have an API key, then {{a}}get your API key here{{/a}}, "
+"and you'll be guided through the process of getting one."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:30
+#: _inc/client/security/backups-scan.jsx:77
+#: _inc/client/security/backups-scan.jsx:193
+msgctxt "Settings header"
+msgid "Backups and security scanning"
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:38
+#: _inc/client/security/backups-scan.jsx:201
+msgid ""
+"Backs up your site to the global WordPress.com servers, allowing you to "
+"restore your content in the event of an emergency or error."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:45
+msgid "Checking site status…"
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:63
+msgid ""
+"Your site is being backed up in real time and regularly scanned for security "
+"threats."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:128
+msgid "{{a}}View details{{/a}}"
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:138
+msgid "Your site is backed up and threat-free."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:144
+msgid "Your site is backed up."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:150
+msgid "You have paid for backups but they're not yet active."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:151
+#: _inc/client/security/backups-scan.jsx:158
+msgid "Click \"Set Up\" to finish installation."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:155
+msgid ""
+"You have paid for backups and security scanning but they’re not yet active."
+msgstr ""
+
+#: _inc/client/security/backups-scan.jsx:218
+msgid "Configure your Security Scans"
+msgstr ""
+
+#: _inc/client/security/index.jsx:101
+msgid ""
+"Keep your site safe with state-of-the-art security and receive notifications "
+"of technical problems."
+msgstr ""
+
+#: _inc/client/security/manage-plugins.jsx:59
+msgctxt "Settings header"
+msgid "Plugin Autoupdates"
+msgstr ""
+
+#: _inc/client/security/manage-plugins.jsx:64
+msgid ""
+"When a plugin update is released, the best practice is to update that plugin "
+"right away. Choose which plugins you'd like to autoupdate so that your site "
+"stays secure."
+msgstr ""
+
+#: _inc/client/security/monitor.jsx:31
+msgctxt "Settings header"
+msgid "Downtime monitoring"
+msgstr ""
+
+#: _inc/client/security/monitor.jsx:38
+msgid ""
+"Jetpack will continuously monitor your site, and alert you the moment "
+"downtime is detected."
+msgstr ""
+
+#: _inc/client/security/monitor.jsx:52
+msgid "Monitor your site's downtime"
+msgstr ""
+
+#: _inc/client/security/monitor.jsx:63
+msgid "Configure your notification settings"
+msgstr ""
+
+#: _inc/client/security/protect.jsx:96
+msgctxt "Settings header"
+msgid "Brute force attack protection"
+msgstr ""
+
+#: _inc/client/security/protect.jsx:119
+msgid "Your current IP: %(ip)s"
+msgstr ""
+
+#: _inc/client/security/protect.jsx:134
+msgid "Add to whitelist"
+msgstr ""
+
+#: _inc/client/security/protect.jsx:140
+msgid "Whitelisted IP addresses"
+msgstr ""
+
+#: _inc/client/security/protect.jsx:157
+msgid ""
+"You may whitelist an IP address or series of addresses preventing them from "
+"ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a "
+"range, enter the low value and high value separated by a dash. Example: "
+"12.12.12.1-12.12.12.100"
+msgstr ""
+
+#: _inc/client/security/sso.jsx:62
+msgctxt "Settings header"
+msgid "WordPress.com log in"
+msgstr ""
+
+#: _inc/client/security/sso.jsx:69
+msgid ""
+"Allows registered users to log in to your site with their WordPress.com "
+"accounts."
+msgstr ""
+
+#: _inc/client/security/sso.jsx:76
+msgid ""
+"Add an extra layer of security to your website by enabling WordPress.com log "
+"in and secure authentication. If you have multiple sites with this option "
+"enabled, you will be able to log into every one of them with the same "
+"credentials."
+msgstr ""
+
+#: _inc/client/security/sso.jsx:104
+msgid "Match accounts using email addresses"
+msgstr ""
+
+#: _inc/client/security/sso.jsx:117
+msgid "Require accounts to use WordPress.com Two-Step Authentication"
+msgstr ""
+
+#: _inc/client/settings/index.jsx:36
+msgid "No search results found for %(term)s"
+msgstr ""
+
+#: _inc/client/settings/index.jsx:41
+msgid "Enter a search term to find settings or close search."
+msgstr ""
+
+#: _inc/client/sharing/index.jsx:58
+msgid "Share your content on social media and increase audience engagement."
+msgstr ""
+
+#: _inc/client/sharing/likes.jsx:24
+msgctxt "Settings header"
+msgid "Like buttons"
+msgstr ""
+
+#: _inc/client/sharing/likes.jsx:32
+msgid ""
+"Adds like buttons to your content so that visitors can show their "
+"appreciation or enjoyment."
+msgstr ""
+
+#: _inc/client/sharing/likes.jsx:45
+msgid ""
+"Allow readers to show their appreciation of your posts by adding a like "
+"button to your content"
+msgstr ""
+
+#: _inc/client/sharing/publicize.jsx:48
+msgid "Connect your social media accounts"
+msgstr ""
+
+#: _inc/client/sharing/publicize.jsx:58
+#: _inc/client/sharing/share-buttons.jsx:70
+#: _inc/client/writing/masterbar.jsx:63
+#: _inc/client/writing/post-by-email.jsx:107
+msgid "Create a Jetpack account to use this feature"
+msgstr ""
+
+#: _inc/client/sharing/publicize.jsx:70
+msgctxt "Settings header"
+msgid "Publicize connections"
+msgstr ""
+
+#: _inc/client/sharing/publicize.jsx:79
+msgid ""
+"Allows you to automatically share your newest content on social media sites, "
+"including Facebook and Twitter."
+msgstr ""
+
+#: _inc/client/sharing/publicize.jsx:93
+msgid "Automatically share your posts to social networks"
+msgstr ""
+
+#: _inc/client/sharing/share-buttons.jsx:42
+#: _inc/client/sharing/share-buttons.jsx:57
+msgid "Configure your sharing buttons"
+msgstr ""
+
+#: _inc/client/sharing/share-buttons.jsx:78
+msgctxt "Settings header"
+msgid "Sharing buttons"
+msgstr ""
+
+#: _inc/client/sharing/share-buttons.jsx:86
+msgid ""
+"Adds sharing buttons to your content so that visitors can share it on social "
+"media sites."
+msgstr ""
+
+#: _inc/client/sharing/share-buttons.jsx:98
+msgid "Add sharing buttons to your posts"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:67
+msgctxt "Ads header"
+msgid "Ads"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:76
+msgid "Displays high-quality ads on your site that allow you to earn income."
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:81
+msgid ""
+"Show ads on the first article on your home page or at the end of every page "
+"and post. Place additional ads at the top of your site and to any widget "
+"area to increase your earnings."
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:86
+msgid ""
+"By activating ads, you agree to the Automattic Ads {{link}}Terms of "
+"Service{{/link}}."
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:112
+msgid "Enable ads and display an ad below each post"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:116
+msgid "Display ads below posts on"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:126
+msgid "Front page"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:137
+msgid "Posts"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:148
+msgid "Pages"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:159
+msgid "Archives"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:163
+msgid "Additional ad placements"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:173
+msgid "Top of each page"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:184
+msgid "Second ad below post"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:188
+msgid ""
+"You can place additional ads using the Ad widget. {{link}}Try it out!{{/"
+"link}}"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:205
+msgid "Custom ads.txt entries"
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:208
+msgid ""
+"Jetpack automatically generates a custom {{link}}ads.txt{{/link}} tailored "
+"for your site. If you need to add additional entries for other networks "
+"please add them in the space below, one per line."
+msgstr ""
+
+#: _inc/client/traffic/ads.jsx:219
+msgid ""
+"When ads are enabled, Jetpack automatically generates a custom ads.txt "
+"tailored for your site."
+msgstr ""
+
+#: _inc/client/traffic/google-analytics.jsx:27
+msgctxt "Settings header"
+msgid "Google Analytics"
+msgstr ""
+
+#: _inc/client/traffic/google-analytics.jsx:35
+msgid ""
+"Integrates your WordPress site with Google Analytics, a platform that offers "
+"insights into your traffic, visitors, and conversions."
+msgstr ""
+
+#: _inc/client/traffic/google-analytics.jsx:43
+msgid ""
+"Google Analytics is a free service that complements our {{a}}built-in "
+"stats{{/a}} with different insights into your traffic. WordPress.com stats "
+"and Google Analytics use different methods to identify and track activity on "
+"your site, so they will normally show slightly different totals for your "
+"visits, views, etc."
+msgstr ""
+
+#: _inc/client/traffic/google-analytics.jsx:62
+msgid "Configure your Google Analytics settings"
+msgstr ""
+
+#: _inc/client/traffic/index.jsx:68
+msgid ""
+"Maximize your site’s visibility in search engines and view traffic stats in "
+"real time."
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:70
+msgid ""
+"The following settings will impact all related posts on your site, except "
+"for those you created via the block editor:"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:82
+msgid "Show related content after posts"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:96
+#: _inc/client/components/module-settings/index.jsx:138
+msgid "Highlight related content with a heading"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:109
+#: _inc/client/components/module-settings/index.jsx:143
+msgid "Show a thumbnail image where available"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:115
+msgctxt "A header for a preview area in the configuration screen."
+msgid "Preview"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:121
+msgid "Related"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:126
+#: _inc/client/components/module-settings/index.jsx:74
+msgid "Big iPhone/iPad Update Now Available"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:127
+#: _inc/client/traffic/related-posts.jsx:135
+#. It refers to the category where a post was found. Used in an example preview.
+msgid "In \"Mobile\""
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:134
+#: _inc/client/components/module-settings/index.jsx:79
+msgid "The WordPress for Android App Gets a Big Facelift"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:142
+#: _inc/client/components/module-settings/index.jsx:84
+msgid "Upgrade Focus: VideoPress For Weddings"
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:143
+#. It refers to the category where a post was found. Used in an example preview.
+msgid "In \"Upgrade\""
+msgstr ""
+
+#: _inc/client/traffic/related-posts.jsx:177
+msgid "Configure related posts in the Customizer"
+msgstr ""
+
+#: _inc/client/traffic/seo.jsx:26
+msgctxt "Settings header"
+msgid "Search engine optimization"
+msgstr ""
+
+#: _inc/client/traffic/seo.jsx:34
+msgid ""
+"Allows you to optimize your site and its content for better results in "
+"search engines."
+msgstr ""
+
+#: _inc/client/traffic/seo.jsx:41
+msgid ""
+"You can tweak these settings if you'd like more advanced control. Read more "
+"about what you can do to {{a}}optimize your site's SEO{{/a}}."
+msgstr ""
+
+#: _inc/client/traffic/seo.jsx:58
+msgid "Configure your SEO settings"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:135
+#: _inc/client/at-a-glance/stats/index.jsx:212
+msgid "Jetpack Stats Icon"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:142
+#: _inc/client/at-a-glance/stats/index.jsx:219
+msgid ""
+"{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, "
+"subscribers, and more! {{a1}}Learn More{{/a1}}"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:161
+#: _inc/client/at-a-glance/stats/index.jsx:238
+msgid "Activate Site Stats"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:173
+msgctxt "Settings header"
+msgid "Site stats"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:178
+msgid "Collecting valuable traffic stats and insights"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:188
+msgid ""
+"Displays information on your site activity, including visitors and popular "
+"posts or pages."
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:202
+msgid "Put a chart showing 48 hours of views in the admin bar"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:212
+msgid "Hide the stats smiley face image"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:215
+msgid "The image helps collect stats, but should work when hidden."
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:220
+msgid "Count logged in page views from"
+msgstr ""
+
+#: _inc/client/traffic/site-stats.jsx:237
+msgid "Allow stats reports to be viewed by"
+msgstr ""
+
+#: _inc/client/traffic/sitemaps.jsx:52
+msgid ""
+"Sitemaps are files that search engines like Google or Bing use to index your "
+"website. They can help improve your ranking in search results. When you "
+"enable this feature, Jetpack will create sitemaps for you and update them "
+"automatically when the content on your site changes."
+msgstr ""
+
+#: _inc/client/traffic/sitemaps.jsx:67
+msgid "Generate XML sitemaps"
+msgstr ""
+
+#: _inc/client/traffic/sitemaps.jsx:73
+msgid ""
+"Good news: Jetpack is sending your sitemap automatically to all major search "
+"engines for indexing."
+msgstr ""
+
+#: _inc/client/traffic/sitemaps.jsx:103
+msgid ""
+"Search engines can't access your site at the moment. If you'd like to make "
+"your site accessible, check your {{a}}Reading settings{{/a}} and switch "
+"\"Search Engine Visibility\" on."
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:73
+msgid "%(moduleName)s has been disabled by a site administrator."
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:104
+msgid ""
+"Provides the necessary hidden tags needed to verify your WordPress site with "
+"various services."
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:111
+msgid ""
+"Note that {{b}}verifying your site with these services is not necessary{{/"
+"b}} in order for your site to be indexed by search engines. To use these "
+"advanced search engine tools and verify your site with a service, paste the "
+"HTML Tag code below. Read the {{support}}full instructions{{/support}} if "
+"you are having trouble. Supported verification services: {{google}}Google "
+"Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, "
+"{{pinterest}}Pinterest Site Verification{{/pinterest}}, and "
+"{{yandex}}Yandex.Webmaster{{/yandex}}."
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:160
+msgid "Bing"
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:171
+msgid "Pinterest"
+msgstr ""
+
+#: _inc/client/traffic/verification-services.jsx:182
+msgid "Yandex"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:112
+msgid ""
+"Checks your content for correct grammar and spelling, misused words, and "
+"style while you write."
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:120
+msgid "Proofreading"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:122
+msgid "Automatically proofread content when: "
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:124
+msgid "A post or page is first published"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:125
+msgid "A post or page is updated"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:128
+msgid "Automatic Language Detection"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:130
+msgid ""
+"The proofreader supports English, French, German, Portuguese and Spanish."
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:134
+msgid "Use automatically detected language to proofread posts and pages"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:138
+msgid "English Options"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:140
+msgid "Enable proofreading for the following grammar and style rules: "
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:142
+msgid "Bias Language"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:143
+msgid "Clichés"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:144
+msgid "Complex Phrases"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:145
+msgid "Diacritical Marks"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:146
+msgid "Double Negatives"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:147
+msgid "Hidden Verbs"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:148
+msgid "Jargon"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:149
+msgid "Passive Voice"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:150
+msgid "Phrases to Avoid"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:151
+msgid "Redundant Phrases"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:154
+msgid "Ignored Phrases"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:158
+msgid "Add a phrase"
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:167
+msgid "Confirm each new phrase you add by pressing enter."
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:214
+msgid ""
+"Allows you to compose content with links, lists, and other styles using the "
+"Markdown syntax."
+msgstr ""
+
+#: _inc/client/writing/composing.jsx:271
+msgctxt "Settings header"
+msgid "Composing"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:67
+msgid "This feature has been disabled by a site administrator."
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:78
+msgid ""
+"Add {{testimonialLink}}testimonials{{/testimonialLink}} to your website to "
+"attract new customers. If your theme doesn’t support Jetpack Testimonials, "
+"you can still use a simple shortcode to display them on your site."
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:96
+msgid "Testimonials"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:100
+msgid "Testimonials shortcode: [testimonials]"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:109
+msgid "Add a testimonial"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:120
+msgid ""
+"Use {{portfolioLink}}portfolios{{/portfolioLink}} on your site to showcase "
+"your best work. If your theme doesn’t support Jetpack Portfolios, you can "
+"still use a simple shortcode to display them on your site."
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:138
+msgid "Portfolios"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:142
+msgid "Portfolios shortcode: [portfolio]"
+msgstr ""
+
+#: _inc/client/writing/custom-content-types.jsx:151
+msgid "Add a portfolio item"
+msgstr ""
+
+#: _inc/client/writing/index.jsx:71
+msgid ""
+"Compose content the way you want to and streamline your publishing "
+"experience."
+msgstr ""
+
+#: _inc/client/writing/index.jsx:100
+msgid ""
+"Writing tools available to you will be shown here when an administrator "
+"enables them."
+msgstr ""
+
+#: _inc/client/writing/masterbar.jsx:26
+msgctxt "Settings header"
+msgid "WordPress.com toolbar"
+msgstr ""
+
+#: _inc/client/writing/masterbar.jsx:38
+msgid ""
+"The WordPress.com toolbar replaces the default WordPress admin toolbar and "
+"streamlines your WordPress experience. It offers one-click access to manage "
+"all your sites, update your WordPress.com profile, view notifications, and "
+"catch up on the sites you follow in the Reader."
+msgstr ""
+
+#: _inc/client/writing/masterbar.jsx:53
+msgid "Enable the WordPress.com toolbar"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:59
+msgid ""
+"Allows you to publish new posts by sending an email to a special address."
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:83
+msgid "Email Address"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:87
+msgctxt "verb"
+msgid "Copy"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:88
+msgid "Copied!"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:89
+msgid "Highlight and copy the following text to your clipboard:"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:96
+msgid "Regenerate address"
+msgstr ""
+
+#: _inc/client/writing/post-by-email.jsx:96
+msgid "Create address"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:139
+msgid "Theme enhancements"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:152
+msgid ""
+"Loads the next posts automatically when the reader approaches the bottom of "
+"the page."
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:163
+msgid "Load more posts using the default theme behavior"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:167
+msgid "Load more posts in page with a button"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:171
+msgid "Load more posts as the reader scrolls down"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:188
+msgid "Theme support required."
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:192
+msgid "Learn more about adding support for Infinite Scroll to your theme."
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:208
+msgid ""
+"Enables a lightweight, mobile-friendly theme that will be displayed to "
+"visitors on mobile devices."
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:227
+msgid "Use excerpts instead of full posts on front page and archive pages"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:231
+msgid "Show featured images"
+msgstr ""
+
+#: _inc/client/writing/theme-enhancements.jsx:235
+msgid ""
+"Show an ad for the WordPress mobile apps in the footer of the mobile theme"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:55
+#. Referring to a number of page views
+msgid "Views today"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:61
+#. Referring to a number of page views
+msgid "Best overall day"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:66
+msgid "%(number)s View"
+msgid_plural "%(number)s Views"
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:80
+#. Referring to a number of page views
+msgid "All-time views"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:88
+#. Referring to a number of comments
+msgid "All-time comments"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:99
+msgid "{{button}}View detailed stats{{/button}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:110
+msgid "{{button}}View more stats on WordPress.com {{/button}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:129
+msgid "Connect your account to WordPress.com to view more stats"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:79
+msgid "Week of %(date)s"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:98
+msgid "Views: %(numberOfViews)s"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:103
+msgid "Click to view detailed stats."
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:151
+msgid "Jetpack Stats People"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:155
+msgid "Hello there! Your stats have been activated."
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:157
+msgid ""
+"Just give us a little time to collect data so we can display it for you here."
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:160
+#: _inc/client/components/upgrade-notice-content/index.jsx:80
+msgid "Okay, got it!"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:174
+msgid ""
+"Something happened while loading stats. Please try again later or {{a}}view "
+"your stats now on WordPress.com{{/a}}"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:282
+msgid "Days"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:291
+msgid "Weeks"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:300
+msgid "Months"
+msgstr ""
+
+#: _inc/client/at-a-glance/stats/index.jsx:318
+#: _inc/client/at-a-glance/stats/index.jsx:326
+msgid "Site Stats"
+msgstr ""
+
+#: _inc/client/components/apps-card/index.jsx:56
+msgid "Get WordPress Apps for every device"
+msgstr ""
+
+#: _inc/client/components/apps-card/index.jsx:60
+msgid ""
+"Manage all your sites from a single dashboard: publish content, track stats, "
+"moderate comments, and so much more from anywhere in the world."
+msgstr ""
+
+#: _inc/client/components/apps-card/index.jsx:70
+msgid "Download the free apps"
+msgstr ""
+
+#: _inc/client/components/apps-card/index.jsx:75
+msgid "I already use this app."
+msgstr ""
+
+#: _inc/client/components/connect-button/index.jsx:77
+msgid "Unlink me from WordPress.com"
+msgstr ""
+
+#: _inc/client/components/connect-button/index.jsx:94
+msgid "Link to WordPress.com"
+msgstr ""
+
+#: _inc/client/components/connect-button/index.jsx:117
+msgid "Manage site connection"
+msgstr ""
+
+#: _inc/client/components/connect-button/index.jsx:132
+msgid "Set up Jetpack"
+msgstr ""
+
+#: _inc/client/components/connect-button/index.jsx:146
+msgid ""
+"By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/"
+"tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with "
+"WordPress.com."
+msgstr ""
+
+#: _inc/client/components/dash-item/index.jsx:98
+msgctxt "Short warning message"
+msgid "Updates needed"
+msgstr ""
+
+#: _inc/client/components/dash-item/index.jsx:104
+msgid "Active"
+msgstr ""
+
+#: _inc/client/components/dash-item/index.jsx:116
+msgctxt "Short label appearing near a paid feature configuration block."
+msgid "Paid"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:37
+msgid "This will reset all Jetpack options, are you sure?"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:86
+msgctxt "Navigation item."
+msgid "Reset Options (dev only)"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:101
+msgid "Test your site’s compatibility with Jetpack."
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:104
+msgctxt "Navigation item. Noun. Links to a debugger tool for Jetpack."
+msgid "Debug"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:124
+msgctxt "Navigation item."
+msgid "Dev Tools"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:151
+msgid "An Automattic Airline"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:166
+msgid "Jetpack version"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:168
+msgid "Jetpack version %(version)s"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:177
+msgid "WordPress.com Terms of Service"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:180
+msgctxt "Shorthand for Terms of Service."
+msgid "Terms"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:188
+msgid "Automattic's Privacy Policy"
+msgstr ""
+
+#: _inc/client/components/footer/index.jsx:191
+msgctxt "Shorthand for Privacy Policy."
+msgid "Privacy"
+msgstr ""
+
+#: _inc/client/components/forms/index.jsx:150
+msgid "Saving…"
+msgstr ""
+
+#: _inc/client/components/forms/index.jsx:150
+msgid "Save Settings"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:44
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:60
+msgid "Daily, automated backups (unlimited storage)"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:48
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:68
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:88
+msgid "Priority support"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:52
+msgid "Spam filtering"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:64
+msgid "Daily, automated malware scanning"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:72
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:92
+msgid "Unlimited, high-speed video hosting"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:80
+msgid "Real-time, automated backups (unlimited storage)"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:84
+msgid "Daily, automated malware scanning with automated resolution"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:96
+msgid "SEO preview tools"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:103
+msgid "Site stats, related content, and sharing tools"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:107
+msgid "Brute force attack protection and downtime monitoring"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:111
+msgid "Unlimited, high-speed image hosting"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:141
+msgid "Disconnect Jetpack"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:143
+msgid ""
+"By disconnecting %(siteName)s from WordPress.com you will no longer have "
+"access to the following:"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:162
+msgctxt "A caption for a button to cancel disconnection."
+msgid "Stay connected"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:167
+msgctxt "A caption for a button to disconnect."
+msgid "Disconnect"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:172
+msgid "Read more about Jetpack benefits"
+msgstr ""
+
+#: _inc/client/components/jetpack-dialogue/index.jsx:53
+msgid "Stars"
+msgstr ""
+
+#: _inc/client/components/jetpack-dialogue/index.jsx:60
+msgid "Jupiter"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/dismissable.jsx:37
+msgid "You have successfully disconnected Jetpack"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/dismissable.jsx:39
+msgid ""
+"Would you tell us why? Just {{a}}answering two simple questions{{/a}} would "
+"help us improve Jetpack."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/feedback-dash-request.jsx:33
+msgid "What would you like to see on your Jetpack Dashboard?"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/feedback-dash-request.jsx:35
+msgid "Let us know!"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:37
+msgid "You are currently running a development version of Jetpack."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:40
+msgid "Submit Beta feedback"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:62
+msgid "You are running Jetpack on a staging server."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:69
+msgid "More Info"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:93
+msgid "{{li}}The jetpack_development_mode filter is active{{/li}}"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:102
+msgid "{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:111
+msgid "{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:119
+msgid ""
+"Currently in {{a}}Development Mode{{/a}} (some features are disabled) "
+"because: {{reasons/}}"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:138
+#: _inc/client/components/jetpack-notices/state-notices.jsx:214
+msgid "Learn More"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:161
+msgid ""
+"Jetpack is powering your site, but to access all of its features you’ll need "
+"to create an account."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:164
+msgid "Create account"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/index.jsx:213
+msgid ""
+"This site is not connected to WordPress.com. Please ask the site "
+"administrator to connect."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:41
+msgid "Cheatin' uh?"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:44
+msgid ""
+"{{p}}Would you mind telling us why you did not complete the Jetpack "
+"connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack "
+"connection is required for our free security and traffic features to work.{{/"
+"p}}"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:62
+msgid ""
+"You need to stay logged in to your WordPress blog while you authorize "
+"Jetpack."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:67
+msgid ""
+"We had an issue connecting Jetpack; deactivate then reactivate the Jetpack "
+"plugin, then connect again."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:72
+msgid ""
+"There was an issue connecting your Jetpack. Please click \"Connect to "
+"WordPress.com\" again."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:78
+msgid ""
+"Your website needs to be publicly accessible to use Jetpack: %(error_key)s"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:88
+msgid ""
+"{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with "
+"WordPress.com is not possible. This usually means your site is not publicly "
+"accessible (localhost)."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:102
+msgid ""
+"WordPress.com is currently having problems and is unable to fuel up your "
+"Jetpack.  Please try again later."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:108
+msgid ""
+"Jetpack could not contact WordPress.com: %(error_key)s.  This usually means "
+"something is incorrectly configured on your web host."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:148
+msgid ""
+"{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. "
+"Please try again later, if the issue continues please contact support with "
+"this message: %(error_key)s"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:186
+msgid "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!"
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:196
+msgid "Your Jetpack is already connected."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:200
+msgid "You're fueled up and ready to go, Jetpack is now active."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:204
+msgid "You're fueled up and ready to go."
+msgstr ""
+
+#: _inc/client/components/jetpack-notices/state-notices.jsx:208
+msgid ""
+"Your server is misconfigured, which means that Jetpack Protect is unable to "
+"effectively protect your site."
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:34
+msgid "Activate recommended features"
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:46
+msgid "Skip and explore features"
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:56
+msgid "Person with laptop"
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:60
+msgid "Your Jetpack site is ready to go!"
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:63
+msgid ""
+"We’re now collecting stats, securing your site, and enhancing your editing "
+"experience. Pretty soon you’ll be able to see everything going on with your "
+"site right through Jetpack! Welcome aboard."
+msgstr ""
+
+#: _inc/client/components/jumpstart/index.jsx:69
+msgid ""
+"Activate Jetpack’s recommended features to get the most out of your site. "
+"Don’t worry, features can be activated and deactivated at any time. "
+"{{a}}Learn more about recommended features{{/a}}."
+msgstr ""
+
+#: _inc/client/components/masthead/index.jsx:111
+msgid "Dashboard"
+msgstr ""
+
+#: _inc/client/components/masthead/index.jsx:119
+msgid "Settings"
+msgstr ""
+
+#: _inc/client/components/module-overridden-banner/index.jsx:52
+msgid ""
+"%(moduleName)s has been disabled by a site administrator. {{link}}Learn "
+"more{{/link}}."
+msgstr ""
+
+#: _inc/client/components/module-settings/connect-module-options.jsx:60
+msgid "Updating Post by Email address…"
+msgstr ""
+
+#: _inc/client/components/module-settings/connect-module-options.jsx:61
+msgid "Regenerated Post by Email address."
+msgstr ""
+
+#: _inc/client/components/module-settings/connect-module-options.jsx:63
+msgid "Error regenerating Post by Email address. %(error)s"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:27
+msgid ""
+"The easiest way to upload ad-free and unbranded videos to your site. You get "
+"stats on video playback and shares and the player is lightweight and "
+"responsive."
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:32
+msgid ""
+"To get started, click on Add Media in your post editor and upload a video; "
+"we’ll take care of the rest!"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:51
+msgid "Subscriber"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:92
+msgctxt "A heading for a block of related posts."
+msgid "Related"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:113
+msgid ""
+"{{span}}You can now also configure related posts in the Customizer. "
+"{{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:147
+msgctxt "Noun, a header for a preview block in a configuration screen."
+msgid "Preview"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:171
+msgid "WordPress.com Likes are:"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:184
+msgid "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:202
+msgid ""
+"{{link}}Configure your Monitor notification settings on WordPress.com{{/"
+"link}}"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:227
+msgid ""
+"By default ads are shown at the end of every page, post, or the first "
+"article on your front page. You can also add them to the top of your site "
+"and to any widget area to increase your earnings!"
+msgstr ""
+
+#: _inc/client/components/module-settings/index.jsx:236
+msgid "Display an ad unit at the top of your site."
+msgstr ""
+
+#: _inc/client/components/module-toggle/index.jsx:78
+msgid ""
+"This feature has been enabled by a site administrator. {{link}}Learn more{{/"
+"link}}."
+msgstr ""
+
+#: _inc/client/components/module-toggle/index.jsx:83
+msgid ""
+"This feature has been disabled by a site administrator. {{link}}Learn more{{/"
+"link}}."
+msgstr ""
+
+#: _inc/client/components/module-toggle/index.jsx:88
+msgid ""
+"This feature is being managed by a site administrator. {{link}}Learn more{{/"
+"link}}."
+msgstr ""
+
+#: _inc/client/components/navigation/index.jsx:50
+#: _inc/client/components/navigation/index.jsx:75
+msgctxt "Navigation item."
+msgid "At a Glance"
+msgstr ""
+
+#: _inc/client/components/navigation-settings/index.jsx:68
+msgid "Search for a Jetpack feature."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:77
+msgctxt ""
+"A caption for a button to upgrade an existing paid feature to a higher tier."
+msgid "Upgrade"
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:89
+msgid "Host fast, high-quality, ad-free video."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:109
+msgid "Generate income with high-quality ads."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:126
+msgid "Real-time site backups and automatic threat resolution."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:139
+msgid "Protect against data loss, malware, and malicious attacks."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:155
+msgid "Integrate easily with Google Analytics."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:170
+msgid "Help your content get found and shared with SEO tools."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:186
+msgid ""
+"Add faster, more advanced searching to your site with Jetpack Professional."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:208
+msgid "Protect your site from spam."
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:324
+msgctxt "Button caption"
+msgid "Saving…"
+msgstr ""
+
+#: _inc/client/components/settings-card/index.jsx:325
+msgctxt "Button caption"
+msgid "Save settings"
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:76
+msgid "We're here to help"
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:79
+msgid "Jetpack comes with free, basic support for all users."
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:80
+msgid "Your paid plan gives you access to prioritized Jetpack support."
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:91
+msgid "Ask a question"
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:101
+msgid "Search our support site"
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:109
+msgid "Get a faster resolution to your support questions."
+msgstr ""
+
+#: _inc/client/components/support-card/index.jsx:111
+msgid "Upgrade"
+msgstr ""
+
+#: _inc/client/components/support-info/index.jsx:99
+msgid "Privacy information"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:47
+msgid " Premium Themes"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:51
+msgid "Introducing Premium Themes"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:53
+msgid ""
+"{{p}}To create a beautiful site that looks and works exactly how you want it "
+"to, Jetpack Professional gives you unlimited access to over 200 premium "
+"WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just "
+"finding the perfect design. It's also about total peace of mind: real-time "
+"backups, automatic malware scanning, and priority support from our global "
+"team of experts guarantee that your site will always be safe and secure.{{/"
+"p}}"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:62
+msgid ""
+"{{p}}To create a beautiful site that looks and works exactly how you want it "
+"to, Jetpack Professional gives you unlimited access to over 200 premium "
+"WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just "
+"finding the perfect design. It's also about total peace of mind knowing that "
+"you'll have priority support from our global team of experts should the need "
+"arise.{{/p}}"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:78
+msgid "Explore Professional"
+msgstr ""
+
+#: _inc/client/components/themes-promo-card/index.jsx:85
+msgid "Compare All Plans"
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:46
+msgid "The features you rely on, adapted for the new WordPress editor."
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:48
+msgid "A new editor? Yes! {{a}}Learn more{{/a}}."
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:61
+msgid "Build your Jetpack site with blocks"
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:64
+msgid ""
+"Today, we are introducing the first wave of Jetpack-specific blocks built "
+"specifically for the new editor experience: Simple Payment button, Form, Map,"
+" and Markdown."
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:73
+#: _inc/client/components/upgrade-notice-content/index.jsx:94
+msgid "Jetpack is ready for the new WordPress editor"
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:78
+msgid "Take me to the new editor"
+msgstr ""
+
+#: _inc/client/components/upgrade-notice-content/index.jsx:97
+msgid "New in Jetpack!"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:23
+msgid ""
+"Your Jetpack plan gives you everything you need to keep your hard work safe, "
+"including on-demand backups and malware scans with one-click restores and "
+"issue resolution. Your site will be fully protected against spam, malicious "
+"code, and brute force login attempts."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:45
+msgid ""
+"Thanks for choosing Jetpack Personal. Jetpack is now backing up your site "
+"and scanning for security threats."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:53
+#: _inc/client/components/welcome-new-plan/premium.jsx:57
+#: _inc/client/components/welcome-new-plan/professional.jsx:60
+msgid "Themes"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:56
+msgid ""
+"With Jetpack Personal, you have access to more than 100 free, "
+"professionally-designed WordPress themes. Choose the theme that best fits "
+"your site and customize colors, images, or add a variety of new widgets."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:64
+#: _inc/client/components/welcome-new-plan/premium.jsx:86
+#: _inc/client/components/welcome-new-plan/professional.jsx:99
+msgid "Got it"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:77
+msgid "Welcome personal"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/personal.jsx:81
+msgid "Explore your Jetpack Personal plan!"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:49
+msgid ""
+"Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, "
+"scanning for  security threats, and enabling monetization features."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:60
+msgid ""
+"With Jetpack Premium, you can create the perfect site, no matter its "
+"purpose. Customize your site’s appearance with one of more than 100 free "
+"themes, or enhance your content with unlimited HD video -- all hosted free "
+"of ads or watermarks."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:69
+#: _inc/client/components/welcome-new-plan/professional.jsx:78
+#: _inc/client/components/welcome-new-plan/social-seo-ads-prompt.jsx:20
+msgid "Sharing"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:72
+msgid ""
+"Using Jetpack’s powerful sharing tools, you can automatically share your "
+"newest posts on social media, or schedule your content to be re-shared at "
+"any date or time you choose. And along with growing your following, you can "
+"grow your business with tools like payment buttons and ads."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:83
+msgid ""
+"Start exploring Jetpack Premium now to see all the benefits of your new plan."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:114
+msgid "Welcome Premium"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/premium.jsx:117
+msgid "Explore your Jetpack Premium plan!"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:52
+msgid ""
+"Thanks for choosing Jetpack Professional. Jetpack is now backing up your "
+"content in real-time, indexing your content for search, scanning for "
+"security threats, and granting access to premium themes."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:63
+msgid ""
+"With Jetpack Professional, you can create the perfect site with one of over "
+"300 professionally-designed WordPress themes, including more than 200 "
+"premium themes. Customize your content with a variety of widgets, or add "
+"unlimited videos to your posts and pages -- displayed free of ads or "
+"watermarks."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:70
+msgid ""
+"Give your visitor's a great search experience by letting them filter and "
+"sort fast, relevant search results."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:81
+#: _inc/client/components/welcome-new-plan/social-seo-ads-prompt.jsx:23
+msgid ""
+"Growing your following is easy with your Professional plan, thanks to "
+"content sharing and scheduling, SEO tools, and built-in subscription "
+"options. You can monetize your site with a Simple Payments button and "
+"in-line ads, and monitor the success of your efforts by integrating with "
+"Google Analytics."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:94
+msgid ""
+"Start exploring Jetpack Professional now to see all the benefits of your new "
+"plan."
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:114
+msgid "Install premium themes"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:130
+msgid "Add the Search (Jetpack) widget to your sidebar"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:138
+msgid "Review SEO features"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:151
+msgid "Welcome Professional"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/professional.jsx:154
+msgid "Explore your Jetpack Professional plan!"
+msgstr ""
+
+#: _inc/client/components/welcome-new-plan/videopress-prompt.jsx:17
+msgid ""
+"VideoPress allows you to upload videos from your computer to be hosted on "
+"WordPress.com, rather than on your host’s servers. You can then insert these "
+"on your self-hosted Jetpack site. "
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:70
+msgid "Verifying..."
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:92
+msgid "Site failed to verify: %(error)s"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:178
+#: _inc/client/traffic/verification-services/google.jsx:218
+#: _inc/client/traffic/verification-services/google.jsx:302
+msgid "Google"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:197
+msgid "Save"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:205
+msgid "Cancel"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:221
+msgid "Your site is verified with Google"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:228
+msgid "Edit"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:236
+msgid ""
+"Monitor your site's traffic and performance from the {{a}}Google Search "
+"Console{{/a}}."
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:252
+msgid ""
+"Google will email about certain events that occur with your site, including "
+"indications that your website has been {{a1}}hacked{{/a1}}, or problems "
+"{{a2}}crawling or indexing{{/a2}} your site."
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:310
+msgid "Verify with Google"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:312
+msgid "or"
+msgstr ""
+
+#: _inc/client/traffic/verification-services/google.jsx:314
+msgid "Manually Verify "
+msgstr ""
+
+# THIS IS THE END OF THE GENERATED FILE.
