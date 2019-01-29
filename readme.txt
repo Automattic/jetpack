@@ -134,6 +134,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
 * Carousel: fix display issue when viewing images with long captions.
+* Carousel: avoid errors when fetching comments in the Carousel modal.
+* CSS: fix the behaviour of the CSS concatenation filter.
 * Subscriptions: display subscription options below the comment form, even when you are logged in to your WordPress account.
 * WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
 
