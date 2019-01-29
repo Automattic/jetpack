@@ -115,6 +115,14 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	function permission_check( $post_id ) {
 		global $publicize;
 
+		if ( ! $publicize ) {
+			return new WP_Error(
+				'publicize_not_available',
+				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		if ( $publicize->current_user_can_access_publicize_data( $post_id ) ) {
 			return true;
 		}
@@ -159,6 +167,10 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 */
 	public function get( $post_array, $request ) {
 		global $publicize;
+
+		if ( ! $publicize ) {
+			return array();
+		}
 
 		$schema     = $this->post_connection_schema();
 		$properties = array_keys( $schema['properties'] );
@@ -237,6 +249,10 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 	protected function get_meta_to_update( $requested_connections, $post_id = 0 ) {
 		global $publicize;
+
+		if ( ! $publicize ) {
+			return array();
+		}
 
 		if ( isset( $this->memoized_updates[$post_id] ) ) {
 			return $this->memoized_updates[$post_id];
