@@ -117,12 +117,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
 * REST API: add likes and sharing settings to the REST API Post response.
 * Sharing: deprecate the Google+ sharing Button.
+* Sharing: deprecate the Google+ embed shortcode.
 * Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
 * Shortcodes: cache the output of the Twitter shortcode.
 * Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
 * Subscriptions: allow more customization of the subscription form's submit button.
 * Sync: improvements to the synchronization of plugin and theme updates.
 * Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
+* Widgets: deprecate the Google+ widgets.
 * WordPress.com: allow the display of plugin action links in the WordPress.com plugins' interface.
 
 **Improved compatibility**

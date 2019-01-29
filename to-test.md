@@ -44,9 +44,35 @@ This release introduces a brand new feature, "Copy Post". The feature is not act
 - Publish, and verify all information was saved without errors.
 - Repeat the same with pages and a custom post type.
 
-### Publicize
+### Google+
 
-With Google+ being sunset in a month, it's time for us to mention this in the interface. If you go to Settings > Sharing in your dashboard, or try to publish a new post on a site you had previously connected to Google+, you will now see a notice in the Publicize settings, to let you know about the upcoming change. In Settings > Sharing, you should not be able to create a new connection anymore.
+As you may know, Google+ will be shut down in April 2019. Google reported that intermittent service failures may begin as soon as January 28. We've consequently opted to deprecate the Google+ features of Jetpack in this release. 4 different features are impacted by the changes:
+
+#### Publicize
+
+If you go to Settings > Sharing in your dashboard, or try to publish a new post on a site you had previously connected to Google+, you will now see a notice in the Publicize settings, to let you know about the upcoming change. In Settings > Sharing, you should not be able to create a new connection anymore.
+
+#### Sharing
+
+The Google+ sharing button will not be displayed on Jetpack sites anymore.
+
+- If you had not added a Google+ button to your site before, you won't see the option to add one to your site anymore. Under Settings > Sharing, you will not see any Google+ option.
+- If you had added a Google+ button to your site in the past, you will see a new button instead, when you are logged in to your admin account. That button will invite you to remove that deprecated service from your site. Your readers, however, won't see anything.
+
+#### Shortcodes
+
+Jetpack used to offer a Google+ embed solution. We now only display a link to the Google+ post instead, for posterity. To test this, you can try adding the following to a post on your site:
+
+- Add `https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7` on its own line.
+- Add a `[googleplus url=https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7]` shortcode on its own line.
+- Preview the post. You should see two clickable URLs each in their own paragraph tag.
+
+#### Widgets
+
+Jetpack also offered a Google+ Badge widget. If you used such a widget on your site, we will remove it from your sidebar for you. To test this, try the following:
+
+- On the stable version of Jetpack, add a Google+ Widget to your sidebar. You can use `https://plus.google.com/+JeremyHerve` as a "Person" URL, or `https://plus.google.com/communities/101504763068635549461` as a "Community" URL. The widgets should work just fine.
+- Update to the Beta version; the widgets should be gone.
 
 ### Others
 
