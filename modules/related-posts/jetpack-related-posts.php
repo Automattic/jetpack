@@ -249,8 +249,8 @@ EOT;
 	/**
 	 * Echoes out items for the Gutenberg block
 	 *
-	 * @param array $related_post The post oject
-	 * @param array $block attributes The block attributes
+	 * @param array $related_post The post oject.
+	 * @param array $block_attributes The block attributes.
 	 */
 	public function render_block_item( $related_post, $block_attributes ) {
 		?>
@@ -262,7 +262,7 @@ EOT;
 			<h3 class="jp-related-posts-i2__post-heading">
 				<a
 					href="<?php echo esc_url( $related_post['url'] ); ?>"
-					title="<?php echo esc_html( $related_post['title'] ); ?>"
+					title="<?php echo esc_attr( $related_post['title'] ); ?>"
 					rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 					data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 					data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
@@ -271,15 +271,10 @@ EOT;
 					<?php echo esc_html( $related_post['title'] ); ?>
 				</a>
 			</h3>
-			<?php
-			if (
-				! empty( $block_attributes['show_thumbnails'] ) &&
-				! empty( $related_post['img']['src'] )
-			) :
-			?>
+			<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
 			<a
 				href="<?php echo esc_url( $related_post['url'] ); ?>"
-				title="<?php echo esc_html( $related_post['title'] ); ?>"
+				title="<?php echo esc_attr( $related_post['title'] ); ?>"
 				rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
 				data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
 				data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
@@ -289,7 +284,7 @@ EOT;
 					class="jp-related-posts-i2__post-img"
 					src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
 					width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
-					alt="<?php echo esc_html( $related_post['title'] ); ?>"
+					alt="<?php echo esc_attr( $related_post['title'] ); ?>"
 				/>
 			</a>
 			<?php endif; ?>
@@ -315,7 +310,7 @@ EOT;
 	/**
 	 * Render a related posts row.
 	 *
-	 * @param array $posts The posts to render into the row
+	 * @param array $posts The posts to render into the row.
 	 * @param array $block_attributes Block attributes.
 	 */
 	public function render_block_row( $posts, $block_attributes ) {
@@ -325,8 +320,8 @@ EOT;
 			data-post-count="<?php echo count( $posts ); ?>"
 		>
 		<?php
-		foreach ( $posts as $index => $post ) {
-			echo $this->render_block_item( $post, $block_attributes );
+		foreach ( $posts as $post ) {
+			$this->render_block_item( $post, $block_attributes );
 		}
 		?>
 		</div>
@@ -348,7 +343,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
+		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
 			array(
@@ -382,12 +377,12 @@ EOT;
 		?>
 		<nav
 				class="jp-relatedposts-i2"
-				data-layout="<?php echo $block_attributes['layout']; ?>"
+				data-layout="<?php echo esc_attr( $block_attributes['layout'] ); ?>"
 		>
 			<?php
-			echo $this->render_block_row( $upper_row_posts, $block_attributes );
+			$this->render_block_row( $upper_row_posts, $block_attributes );
 			if ( $display_lower_row ) {
-				echo $this->render_block_row( $lower_row_posts, $block_attributes );
+				$this->render_block_row( $lower_row_posts, $block_attributes );
 			}
 			?>
 		</nav>
