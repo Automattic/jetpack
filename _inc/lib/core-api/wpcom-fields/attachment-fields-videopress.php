@@ -9,7 +9,7 @@
  *   ...
  * }
  *
- * @since 7.0.0
+ * @since 7.1.0
  */
 class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type = 'attachment';
@@ -35,15 +35,37 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 * @param WP_REST_Request $request
 	 * @return object
 	 */
-	function get( $object, $request ) {
-		$videopress_data = null;
-		$blog_id = get_current_blog_id();
-		$post_id = absint( $object['id'] );
-		$videopress_id = video_get_info_by_blogpostid( $blog_id, $post_id )->guid;
-		if ( $videopress_id ) {
-			$videopress_data = videopress_get_video_details( $videopress_id );
+	public function get( $object, $request ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id = get_current_blog_id();
+		} else {
+			$blog_id = Jetpack_Options::get_option( 'id' );
 		}
+
+		$post_id = absint( $object['id'] );
+
+		$videopress_data = $this->get_videopress_data( $post_id, $blog_id );
+
+		if ( ! $videopress_data || is_wp_error( $videopress_data ) ) {
+			return null;
+		}
+
 		return $videopress_data;
+	}
+
+	/**
+	 * Get VideoPress data for a given attachment.
+	 *
+	 * This is pulled out into a separate method to support unit test mocking.
+	 *
+	 * @param int $attachment_id Attachment ID
+	 * @param int $blog_id       Blog ID
+	 *
+	 * @return object
+	 */
+	function get_videopress_data( $attachment_id, $blog_id ) {
+		$videopress_id = video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid;
+		return videopress_get_video_details( $videopress_id );
 	}
 
 	/**
