@@ -63,7 +63,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 *
 	 * @return object
 	 */
-	function get_videopress_data( $attachment_id, $blog_id ) {
+	public function get_videopress_data( $attachment_id, $blog_id ) {
 		$videopress_id = video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid;
 		return videopress_get_video_details( $videopress_id );
 	}
