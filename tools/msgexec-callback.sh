@@ -17,24 +17,31 @@ IFS=$'\n\t'
 
 MSGEXEC_MSGID=$( echo "$MSGEXEC_MSGID" | sed "s/'/\\\'/g" )
 
-if [[ ! -v MSGEXEC_PLURAL_FORM ]]
+# We are skipping empty messages, it seems to be a glitch of a POT generator, the first message is empty
+if [[ "$MSGEXEC_MSGID" == "" ]]
 then
+    exit 0
+fi
 
-    # This is not a plural message form
+# This was initially made to use -v, but it turns out a lot of MacOS users have an old version of Bash
+# that doesn't support this, hence we're using a subshell test and defining ubound variables to something
+# that will not trigger an error.
+# if [[ ! -v MSGEXEC_PLURAL_FORM ]]
+if ! ( set -u; echo "$MSGEXEC_PLURAL_FORM" ) &> /dev/null;
+then
+    MSGEXEC_PLURAL_FORM="-1"
+fi
+if ! ( set -u; echo "$MSGEXEC_MSGCTXT" ) &> /dev/null;
+then
+    MSGEXEC_MSGCTXT=""
+fi
 
-    if [[ -v MSGEXEC_MSGCTXT ]]
-    then
-        echo "_x('$MSGEXEC_MSGID','$MSGEXEC_MSGCTXT','jetpack'),";
-    else
-        echo "__('$MSGEXEC_MSGID','jetpack'),";
-    fi
-
-elif [[ "$MSGEXEC_PLURAL_FORM" -eq "0" ]]
+if [[ "$MSGEXEC_PLURAL_FORM" -eq "0" ]]
 then
 
     # This is the first in the series of two plural messages, here we begin output
 
-    if [[ -v MSGEXEC_MSGCTXT ]]
+    if ! [[ $MSGEXEC_MSGCTXT == "" ]]
     then
         echo "_nx('$MSGEXEC_MSGID',";
     else
@@ -47,10 +54,20 @@ then
 
     MSGEXEC_MSGID_PLURAL=$( echo "$MSGEXEC_MSGID_PLURAL" | sed "s/'/\\\'/g" )
 
-    if [[ -v MSGEXEC_MSGCTXT ]]
+    if ! [[ $MSGEXEC_MSGCTXT == "" ]]
     then
         echo "'$MSGEXEC_MSGID_PLURAL','$MSGEXEC_MSGCTXT','jetpack'),";
     else
         echo "'$MSGEXEC_MSGID_PLURAL','jetpack'),";
+    fi
+else
+
+    # This is not a plural message form
+
+    if ! [[ $MSGEXEC_MSGCTXT == "" ]]
+    then
+        echo "_x('$MSGEXEC_MSGID','$MSGEXEC_MSGCTXT','jetpack'),";
+    else
+        echo "__('$MSGEXEC_MSGID','jetpack'),";
     fi
 fi
