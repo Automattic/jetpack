@@ -179,7 +179,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( version_compare( $GLOBALS['wp_version'], '5.0', '>' ) ) {
 			$dependencies = array( 'wp-i18n' );
 		}
-		$handle = wp_enqueue_script(
+		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
 			$dependencies,
