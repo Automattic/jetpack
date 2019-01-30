@@ -235,12 +235,14 @@ gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 gulp.task(
 	'default',
 	gulp.series(
-		react_build,
-		sass_build,
-		'old-styles',
-		'js:hint',
-		'php:module-headings',
-		'gutenberg:blocks'
+		gulp.parallel(
+			react_build,
+			'old-styles',
+			'js:hint',
+			'php:module-headings',
+			'gutenberg:blocks'
+		),
+		sass_build
 	)
 );
 gulp.task( 'watch', gulp.parallel( react_watch, sass_watch, 'old-styles:watch' ) );
