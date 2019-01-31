@@ -192,12 +192,10 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	return $content;
 }
 
-function jetpack_business_hours_init() {
-	jetpack_register_block(
-		'business-hours',
-		array( 'render_callback' => 'jetpack_business_hours_render' )
-	);
-}
+jetpack_register_block(
+	'business-hours',
+	array( 'render_callback' => 'jetpack_business_hours_render' )
+);
 
 function jetpack_business_hours_render( $attributes, $content ) {
 	global $wp_locale;
@@ -250,4 +248,3 @@ function jetpack_business_hours_render( $attributes, $content ) {
 
 	return $content;
 }
-add_action( 'init', 'jetpack_business_hours_init' );
