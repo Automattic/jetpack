@@ -15,12 +15,6 @@ a.components-menu-item__button[href*="post_type=wp_block"] {
   display: none;
 }
 
-#wp-admin-bar-notes #wpnt-notes-unread-count.wpn-unread {
-	background-image: none !important;
-	background-color: $color-accent-light !important;
-	border: none !important;
-}
-
 .edit-post-sidebar__panel-tab {
 	&.is-active {
 		border-color: $color-primary;
