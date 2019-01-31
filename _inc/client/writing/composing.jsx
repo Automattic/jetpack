@@ -197,16 +197,41 @@ export class Composing extends React.Component {
 	};
 
 	render() {
-		const foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
+		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
+			foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' );
 
-		if ( ! foundMarkdown && ! foundAtD ) {
+		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD ) {
 			return null;
 		}
 
 		const markdown = this.props.module( 'markdown' ),
 			atd = this.props.module( 'after-the-deadline' ),
+			copyPost = this.props.module( 'copy-post' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
+			copyPostSettings = (
+				<SettingsGroup
+					module={ copyPost }
+					support={ {
+						text: __(
+							'Copy data (such as content, featured images, Sharing settings, and more) from existing posts, pages, Testimonials, and Portfolios.'
+						),
+						link: 'https://jetpack.com/support/copy-post-2/',
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="copy-post"
+							activated={ !! this.props.getOptionValue( 'copy-post' ) }
+							toggling={ this.props.isSavingAnyOption( 'copy-post' ) }
+							disabled={ this.props.isSavingAnyOption( 'copy-post' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">{ copyPost.description }</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
 			markdownSettings = (
 				<SettingsGroup
 					module={ markdown }
@@ -273,6 +298,7 @@ export class Composing extends React.Component {
 				module="composing"
 				saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
 			>
+				{ foundCopyPost && copyPostSettings }
 				{ foundMarkdown && markdownSettings }
 				{ foundAtD && atdSettings }
 			</SettingsCard>
