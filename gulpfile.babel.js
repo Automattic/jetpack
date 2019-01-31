@@ -21,14 +21,8 @@ import { spawn } from 'child_process';
 const meta = require( './package.json' );
 import frontendcss from './tools/builder/frontend-css';
 import admincss from './tools/builder/admin-css';
-import {
-    watch as react_watch,
-    build as react_build
-} from './tools/builder/react';
-import {
-    watch as sass_watch,
-    build as sass_build
-} from './tools/builder/sass';
+import { watch as react_watch, build as react_build } from './tools/builder/react';
+import { watch as sass_watch, build as sass_build } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
@@ -38,15 +32,16 @@ gulp.task( 'old-styles:watch', function() {
 	JS Hint
  */
 gulp.task( 'js:hint', function() {
-	return gulp.src( [
-		'_inc/*.js',
-		'modules/*.js',
-		'modules/**/*.js',
-		'!_inc/*.min.js',
-		'!modules/*.min.',
-		'!modules/**/*.min.js',
-		'!**/*/*block.js',
-	] )
+	return gulp
+		.src( [
+			'_inc/*.js',
+			'modules/*.js',
+			'modules/**/*.js',
+			'!_inc/*.min.js',
+			'!modules/*.min.',
+			'!modules/**/*.min.js',
+			'!**/*/*block.js',
+		] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
 		.pipe( jshint.reporter( 'fail' ) );
@@ -58,14 +53,11 @@ gulp.task( 'js:hint', function() {
 
 // Should not be run independently, run gulp languages instead
 gulp.task( 'languages:get', function( callback ) {
-	const process = spawn(
-		'php',
-		[
-			'tools/export-translations.php',
-			'.',
-			'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev'
-		]
-	);
+	const process = spawn( 'php', [
+		'tools/export-translations.php',
+		'.',
+		'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev',
+	] );
 
 	process.stderr.on( 'data', function( data ) {
 		log( data.toString() );
@@ -102,40 +94,48 @@ gulp.task( 'languages:build', function( done ) {
 		terms[ context + '\u0004' + term ] = '';
 	};
 
-	gulp.src( [ '_inc/jetpack-strings.php' ] )
-		.pipe( deleteLines( {
-			filters: [ /<\?php/ ]
-		} ) )
+	gulp
+		.src( [ '_inc/jetpack-strings.php' ] )
+		.pipe(
+			deleteLines( {
+				filters: [ /<\?php/ ],
+			} )
+		)
 		.pipe( rename( 'jetpack-strings.js' ) )
 		.pipe( gulp.dest( '_inc' ) )
 		.on( 'end', function() {
 			// Requiring the file that will call __, _x and _n
 			require( './_inc/jetpack-strings.js' );
 
-			return gulp.src( [ 'languages/*.po' ] )
-				.pipe( po2json( {
-					format: 'jed1.x',
-					domain: 'jetpack',
-				} ) )
-				.pipe( json_transform( function( data ) {
-					const localeData = data.locale_data.jetpack;
-					const filtered = {
-						'': localeData[ '' ]
-					};
+			return gulp
+				.src( [ 'languages/*.po' ] )
+				.pipe(
+					po2json( {
+						format: 'jed1.x',
+						domain: 'jetpack',
+					} )
+				)
+				.pipe(
+					json_transform( function( data ) {
+						const localeData = data.locale_data.jetpack;
+						const filtered = {
+							'': localeData[ '' ],
+						};
 
-					Object.keys( localeData ).forEach( function( term ) {
-						if ( terms.hasOwnProperty( term ) ) {
-							filtered[ term ] = localeData[ term ];
+						Object.keys( localeData ).forEach( function( term ) {
+							if ( terms.hasOwnProperty( term ) ) {
+								filtered[ term ] = localeData[ term ];
 
-							// Having a &quot; in the JSON might cause errors with the JSON later
-							if ( typeof filtered[ term ] === 'string' ) {
-								filtered[ term ] = filtered[ term ].replace( '&quot;', '\"' );
+								// Having a &quot; in the JSON might cause errors with the JSON later
+								if ( typeof filtered[ term ] === 'string' ) {
+									filtered[ term ] = filtered[ term ].replace( '&quot;', '"' );
+								}
 							}
-						}
-					} );
+						} );
 
-					return filtered;
-				} ) )
+						return filtered;
+					} )
+				)
 				.pipe( gulp.dest( 'languages/json/' ) )
 				.on( 'end', function() {
 					fs.unlinkSync( './_inc/jetpack-strings.js' );
@@ -145,12 +145,7 @@ gulp.task( 'languages:build', function( done ) {
 } );
 
 gulp.task( 'php:module-headings', function( callback ) {
-	const process = spawn(
-		'php',
-		[
-			'tools/build-module-headings-translations.php'
-		]
-	);
+	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
 
 	process.stderr.on( 'data', function( data ) {
 		log( data.toString() );
@@ -197,15 +192,18 @@ gulp.task( 'languages:cleanup', function( done ) {
 gulp.task( 'languages:extract', function( done ) {
 	const paths = [];
 
-	gulp.src( [
-		'_inc/client/**/*.js',
-		'_inc/client/**/*.jsx',
-		'_inc/blocks/*.js',
-		'_inc/blocks/**/*.js'
-	] )
-		.pipe( tap( function( file ) {
-			paths.push( file.path );
-		} ) )
+	gulp
+		.src( [
+			'_inc/client/**/*.js',
+			'_inc/client/**/*.jsx',
+			'_inc/blocks/*.js',
+			'_inc/blocks/**/*.js',
+		] )
+		.pipe(
+			tap( function( file ) {
+				paths.push( file.path );
+			} )
+		)
 		.on( 'end', function() {
 			i18n_calypso( {
 				projectName: 'Jetpack',
@@ -214,7 +212,7 @@ gulp.task( 'languages:extract', function( done ) {
 				phpArrayName: 'jetpack_strings',
 				format: 'PHP',
 				textdomain: 'jetpack',
-				keywords: [ 'translate', '__', '_n', '_x', '_nx' ]
+				keywords: [ 'translate', '__', '_n', '_x', '_nx' ],
 			} );
 
 			done();
@@ -225,7 +223,8 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenberg Blocks for Jetpack
  */
 gulp.task( 'gutenberg:blocks', function() {
-	return gulp.src( [ 'node_modules/@automattic/jetpack-blocks/build/**/*' ] )
+	return gulp
+		.src( [ 'node_modules/@automattic/jetpack-blocks/build/**/*' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
 
@@ -235,12 +234,18 @@ gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.parallel( react_build, sass_build, 'old-styles', 'js:hint', 'php:module-headings', 'gutenberg:blocks' )
+	gulp.series(
+		gulp.parallel(
+			react_build,
+			'old-styles',
+			'js:hint',
+			'php:module-headings',
+			'gutenberg:blocks'
+		),
+		sass_build
+	)
 );
-gulp.task(
-	'watch',
-	gulp.parallel( react_watch, sass_watch, 'old-styles:watch' )
-);
+gulp.task( 'watch', gulp.parallel( react_watch, sass_watch, 'old-styles:watch' ) );
 
 // Keeping explicit task names to allow for individual runs
 gulp.task( 'sass:build', sass_build );
