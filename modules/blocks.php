@@ -232,14 +232,14 @@ function jetpack_business_hours_render( $attributes, $content ) {
 				$now = strtotime( current_time( 'H:i' ) );
 				if ( $now < $opening ) {
 					$content .= '<br />';
-					$content .= esc_html( sprintf( __( 'Opening in %s', 'random-blocks' ), human_time_diff( $now, $opening ) ) );
+					$content .= esc_html( sprintf( __( 'Opening in %s', 'jetpack' ), human_time_diff( $now, $opening ) ) );
 				} elseif ( $now >= $opening && $now < $closing ) {
 					$content .= '<br />';
-					$content .= esc_html( sprintf( __( 'Closing in %s', 'random-blocks' ), human_time_diff( $now, $closing ) ) );
+					$content .= esc_html( sprintf( __( 'Closing in %s', 'jetpack' ), human_time_diff( $now, $closing ) ) );
 				}
 			}
 		} else {
-			$content .= esc_html__( 'CLOSED', 'random-blocks' );
+			$content .= esc_html__( 'CLOSED', 'jetpack' );
 		}
 		$content .= '</dd>';
 	}
