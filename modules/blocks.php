@@ -407,5 +407,17 @@ jetpack_register_block(
  */
 function jetpack_visited_block_render( $attributes, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'visited' );
-	return $content;
+
+	$count = intval( $_COOKIE[ 'wp-visit-tracking' ] );
+	$criteria = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
+	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
+
+	if (
+		( $criteria === 'after-visits' && $count >= $threshold ) ||
+		( $criteria === 'before-visits' && $count <= $threshold )
+	) {
+		return $content;
+	}
+	// return an empty div so that view script increments the visit counter in the cookie
+	return '<div class="wp-block-jetpack-visited"></div>';
 }
