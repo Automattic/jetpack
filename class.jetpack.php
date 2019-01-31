@@ -6888,7 +6888,7 @@ p {
 		 */
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
 
-		// Do not use the imploded file when default behaviour was altered through the filter
+		// Do not use the imploded file when default behavior was altered through the filter
 		if ( ! $do_implode ) {
 			return;
 		}

@@ -112,7 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Block editor: update the way we check for available blocks and extensions.
+* Block Editor: update the way we check for available blocks and extensions.
 * Connection flow: display a notice upon connection when the site is suspended.
 * Contact Form: add more options to customize the look of the submit button.
 * Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
@@ -140,7 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
 * Carousel: fix display issue when viewing images with long captions.
 * Carousel: avoid errors when fetching comments in the Carousel modal.
-* CSS: fix the behaviour of the CSS concatenation filter.
+* CSS: fix the behavior of the CSS concatenation filter.
 * Multisite: fix the display of the main connection banner.
 * Protect: ensure the Math fallback is displayed when necessary.
 * Publicize: avoid Fatal Errors on sites using Development Mode.

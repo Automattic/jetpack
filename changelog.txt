@@ -50,7 +50,7 @@
 * Search: fix fatal error when the Search Widget is enabled while the site is in Development Mode.
 * Sharing: update Tumblr official sharing button.
 * Shortcodes: update YouTube shortcode to support more video link formats.
-* Shortlinks: add the option to view shortlinks in the Block editor.
+* Shortlinks: add the option to view shortlinks in the block editor.
 * Simple Payments: only register block when all needed data is available.
 * Widgets: only load Social Icons widget scripts and styles when necessary.
 * WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
@@ -346,7 +346,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 * Comments: Implemented Core WordPress' Comment Cookie Consent Checkbox in Jetpack Comments.
 * General: We solved an issue that arised when using the Front End Editor feature plugin. A fatal error wass thrown due to us assuming the `enter_title_here` filter would only run within wp-admin.
 * General: Fixed a compatibility problem between WordPress TinyMCE and Jetpack Markdown when visiting the WordPress Dashboard.
-* Lazy Images: Fixed behaviour for when JavaScript is disabled.
+* Lazy Images: Fixed behavior for when JavaScript is disabled.
 * Markdown: We fixed the naming of the class used for code blocks that specify a language.
 * Simple Payments: Fixed an error when the user had published Simple Payment Products but their Professional Subscription had expired.
 * Sitemap: We fixed the format of the date shown for videos on the video sitemap.
@@ -411,7 +411,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 
 **Bug fixes**
 
-* Ads: We updated Ads behaviour to not show unless the visitor is on the main query within the loop.
+* Ads: We updated Ads behavior to not show unless the visitor is on the main query within the loop.
 * General: We fixed a bug that resulted in an alert box showing for sites set to languages deriving from main ones.
 * Lazy Images: Fixed a bug where images would disappear when scrolling.
 * Sharing: make sure JS files can be loaded on development sites.
@@ -581,7 +581,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 * JSON API: Updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
 * Lazy Images: Updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
 * Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any given class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
-* Masterbar: Updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
+* Masterbar: Updated the sign out button behavior of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
 * REST API: Updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
 * Sync: Added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
 
