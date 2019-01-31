@@ -14,7 +14,7 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 	}
 
 	public function register_routes() {
-		// GET /sites/<blog_id>/subscribers/count - Return number of subscribers for this site.
+		// GET /sites/<blog_id>/business-hours/localize-week - Return the localized
 		register_rest_route( $this->namespace, '/' . $this->rest_base  . '/localized-week', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
