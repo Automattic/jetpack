@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.9
+// @version      1.9.1
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -13,7 +13,7 @@
 
 	function doit() {
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
-		const branch = jQuery( '.head-ref' ).text();
+		const branch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = branch.includes( ':' );
 		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
 		const isGutenbergPr = $( ".discussion-sidebar .sidebar-labels .labels a[title='Gutenberg']" ).length;
