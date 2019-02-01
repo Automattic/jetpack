@@ -138,8 +138,12 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			$total_bytes += $piece_bytes;
 		}
 
+		error_log( 'Wrote pieces to temp file. Total bytes: ' . $total_bytes );
+
 		set_time_limit( 0 );
 		// @TODO fastcgi_finish_request..?
+
+		error_log( 'Kicking off import' );
 
 		$result = $this->_import_from_file( $tmpfile );
 
