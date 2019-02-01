@@ -204,6 +204,11 @@ function jetpack_site_importer_init() {
 		'rest_base'             => 'jetpack-file-imports',
 		'show_in_rest'          => true,
 	) );
+
+	// @TODO probably move this to a dedicated redirects module...?
+	if ( ! post_type_exists( 'jetpack-redirect' ) ) {
+		register_post_type( 'jetpack-redirect', array( 'rewrite' => false ) );
+	}
 }
 
 add_action( 'init', 'jetpack_site_importer_init' );
