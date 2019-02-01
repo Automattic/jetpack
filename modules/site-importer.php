@@ -40,8 +40,8 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 						'description' => __( 'The id of the post storing the export data.' ),
 						'type' => 'integer',
 					),
-					//'checksum'...?
 				),
+				// body: { num_pieces: 'The total number of pieces', @TODO checksum? }
 			),
 		) );
 	}
