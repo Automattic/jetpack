@@ -298,6 +298,21 @@ function wpcomsh_register_theme_hooks() {
 add_action( 'init', 'wpcomsh_register_theme_hooks' );
 
 /**
+ * Provides a favicon fallback in case it's undefined.
+ *
+ * @param string $url Site Icon URL.
+ * @return string Site Icon URL.
+ */
+function wpcomsh_site_icon_url( $url ) {
+	if ( empty( $url ) ) {
+		$url = 'https://en.wordpress.com/i/webclip.png';
+	}
+
+	return $url;
+}
+add_filter( 'get_site_icon_url', 'wpcomsh_site_icon_url' );
+
+/**
  * Filters a user's capabilities depending on specific context and/or privilege.
  *
  * @param array  $required_caps Returns the user's actual capabilities.
