@@ -70,23 +70,6 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 		return true;
 	}
 
-	static function meta_key_matches( $key ) {
-		return preg_match( '/^jetpack_file_import_piece_(\d+)$/', $key );
-	}
-
-	static protected function get_pieces_for_cpt_id( $id ) {
-		$all_meta = get_post_meta( $id );
-
-		// We can't use array_filter w/ ARRAY_FILTER_USE_KEY until 5.6.0, so this is a workaround
-		$pieces = array_intersect_key(
-			$all_meta,
-			array_flip( array_filter( array_keys( $all_meta ), array( 'WP_REST_Jetpack_Imports_Controller', 'meta_key_matches' ) ) )
-		);
-
-		ksort( $pieces );
-		return $pieces;
-	}
-
 	function add_piece( $request ) {
 		$piece = $request->get_param( 'piece' );
 		$piece_id = $request->get_param( 'piece_id' );
@@ -116,24 +99,34 @@ class WP_REST_Jetpack_Imports_Controller extends WP_REST_Posts_Controller {
 			return new WP_Error( 'invalid_post_type', 'The specified post is not the correct type', 500 );
 		}
 
-		$tmpfile = tmpfile();
+		$num_pieces = (int) $request->get_param( 'num_pieces' );
+		if ( $num_pieces < 1 ) {
+			return new WP_Error( 'invalid_num_pieces', 'num_pieces must be an integer at least 1', 500 );
+		}
 
+		// @TODO put this in an attachment instead
+		$tmpfile = tmpfile();
 		if ( false === $tmpfile ) {
 			return new WP_Error( 'tmpfile_error', 'Temporary file could not be created on the server', 500 );
 		}
 
+		$tmpfile_info = stream_get_meta_data( $tmpfile );
+		if ( empty( $tmpfile_info['uri'] ) || ! is_writable( $tmpfile_info['uri'] ) ) {
+			return new WP_Error( 'invalid_file', 'Could not access temp file' );
+		}
+
 		$total_bytes = 0;
+		for ( $i = 0; $i < $num_pieces; $i++ ) {
+			$piece = get_post_meta( $post_id, "jetpack_file_import_piece_$i", true );
+			if ( ! $piece ) {
+				return new WP_Error( 'invalid_piece', "Could not read piece $i" );
+			}
 
-		$pieces = self::get_pieces_for_cpt_id( $post_id );
-
-		foreach ( $pieces as $key => $value ) {
-			$piece = base64_decode( $value[0] );
-
-			$piece_bytes = fwrite( $tmpfile, $piece );
+			$piece_bytes = fwrite( $tmpfile, base64_decode( $piece ) );
 			if ( false === $piece_bytes ) {
 				fclose( $tmpfile );
 				@unlink( $tmpfile );
-				throw new Exception( 'Could not write piece' );
+				return new WP_Error( 'piece_error', "Could not write piece $i" );
 			}
 			$total_bytes += $piece_bytes;
 		}
