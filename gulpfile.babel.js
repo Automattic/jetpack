@@ -291,11 +291,18 @@ gulp.task( 'languages:phpize', function( done ) {
 			log( data.toString() );
 		} );
 		msgexec.on( 'exit', function( code ) {
+			strings.end( footer, done );
+
 			if ( 0 !== code ) {
 				log( 'msgexec exited with code ', code );
 			}
 
-			strings.end( footer, done );
+			log( 'Cleaning up POT files.' );
+			del( [
+				'_inc/build/blocks/*.pot',
+				'./_inc/build/jetpack-strings.pot',
+				'./_inc/build/merged-strings.pot',
+			] );
 		} );
 	} );
 } );
