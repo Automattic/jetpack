@@ -136,7 +136,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function set_importing( $is_importing ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_importing = $is_importing;
 	}
 
@@ -149,7 +149,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function set_doing_cron( $is_doing_cron ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_doing_cron = $is_doing_cron;
 	}
 

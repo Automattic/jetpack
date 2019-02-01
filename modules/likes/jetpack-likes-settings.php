@@ -148,7 +148,7 @@ class Jetpack_Likes_Settings {
 			( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
 			// User wants to update the likes button status for an individual post, but the new status
-			// is the same as if they're asking for the default behaviour according to the current Likes setting.
+			// is the same as if they're asking for the default behavior according to the current Likes setting.
 			// So we delete the meta.
 			delete_post_meta( $post_id, 'switch_like_status' );
 		}
