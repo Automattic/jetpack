@@ -192,11 +192,21 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	return $content;
 }
 
+/**
+ * Business Hours Block.
+ */
 jetpack_register_block(
 	'business-hours',
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );
-
+/**
+ * Business Hours Block dynamic rending of the glock.
+ *
+ * @param array  $attr - Array containing the business hours block attributes.
+ * @param string $content - String containing the business hours block content.
+ *
+ * @return string
+ */
 function jetpack_business_hours_render( $attributes, $content ) {
 	global $wp_locale;
 
