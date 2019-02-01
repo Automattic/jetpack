@@ -1799,6 +1799,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	static $style = false;
 
+	/**
+	 * @var array When printing the submit button, what tags are allowed
+	 */
+	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
+
 	function __construct( $attributes, $content = null ) {
 		global $post;
 
@@ -2057,14 +2062,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$submit_button_text = $form->get_attribute( 'submit_button_text' );
 			}
 
-			$allowed_html_tags_for_submit_button = array( 'br' => array() );
-
 			$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 			if ( ! empty( $submit_button_styles ) ) {
 				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
 			}
 			$r .= ">";
-			$r .= wp_kses( $submit_button_text, $allowed_html_tags_for_submit_button ) . "</button>";
+			$r .= wp_kses(
+				      $submit_button_text,
+				      self::$allowed_html_tags_for_submit_button
+			      ) . "</button>";
 
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer

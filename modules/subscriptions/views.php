@@ -2,6 +2,10 @@
 
 class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static $instance_count = 0;
+	/**
+	 * @var array When printing the submit button, what tags are allowed
+	 */
+	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	function __construct() {
 		$widget_ops = array(
@@ -297,7 +301,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			                style="<?php echo esc_attr( $submit_button_styles ); ?>"
 		                <?php }; ?>
 	                >
-                        <?php echo wp_kses( $subscribe_button, array( 'br' => array() ) ); ?>
+	                    <?php
+	                    echo wp_kses(
+		                    $subscribe_button,
+		                    self::$allowed_html_tags_for_submit_button
+	                    );
+	                    ?>
                     </button>
                 </p>
             </form>
@@ -360,7 +369,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		                    <?php }; ?>
 	                        name="jetpack_subscriptions_widget"
 	                    >
-                            <?php echo wp_kses( $subscribe_button, array( 'br' => array() ) ); ?>
+	                        <?php
+	                        echo wp_kses(
+		                        $subscribe_button,
+		                        self::$allowed_html_tags_for_submit_button
+	                        ); ?>
                         </button>
                     </p>
 				<?php } ?>
