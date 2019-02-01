@@ -145,6 +145,7 @@ export const NavigationSettings = createReactClass( {
 						'post-by-email',
 						'infinite-scroll',
 						'minileven',
+						'copy-post',
 					] ) && (
 						<NavItem
 							path="#writing"
