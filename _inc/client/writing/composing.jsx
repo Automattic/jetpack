@@ -214,7 +214,8 @@ export class Composing extends React.Component {
 					module={ copyPost }
 					support={ {
 						text: __(
-							'Copy data (such as content, featured images, Sharing settings, and more) from existing posts, pages, Testimonials, and Portfolios.'
+							'Duplicate existing posts, pages, Testimonials, and Portfolios. ' +
+								'All the content will be copied including text, featured images, sharing settings, and more.'
 						),
 						link: 'https://jetpack.com/support/copy-post-2/',
 					} }
