@@ -110,6 +110,7 @@ class Jetpack_Copy_Post {
 			'comment_status' => $source_post->comment_status,
 			'ping_status'    => $source_post->ping_status,
 			'post_category'  => $source_post->post_category,
+			'post_password'  => $source_post->post_password,
 			'tags_input'     => $source_post->tags_input,
 		);
 
