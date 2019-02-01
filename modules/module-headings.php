@@ -41,7 +41,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Copy an existing post\'s content into a new post.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Copy an existing post\'s content into a new draft post.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Copy an existing post\'s content into a new post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -179,7 +179,7 @@ function jetpack_get_module_i18n( $key ) {
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow visitors to share your content.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
+				'recommended description' => _x( 'Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'shortcodes' => array(
