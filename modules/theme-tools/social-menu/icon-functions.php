@@ -147,7 +147,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'mailto:'         => 'mail',
 			'meetup.com'      => 'meetup',
 			'medium.com'      => 'medium',
-			'pinterest.com'   => 'pinterest',
+			'pinterest.'      => 'pinterest',
 			'getpocket.com'   => 'pocket',
 			'reddit.com'      => 'reddit',
 			'skype.com'       => 'skype',
