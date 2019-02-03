@@ -130,6 +130,8 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'behance.net'     => 'behance',
 			'codepen.io'      => 'codepen',
 			'deviantart.com'  => 'deviantart',
+			'discord.gg'      => 'discord',
+			'discordapp.com'  => 'discord',
 			'digg.com'        => 'digg',
 			'dribbble.com'    => 'dribbble',
 			'dropbox.com'     => 'dropbox',
