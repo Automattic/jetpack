@@ -30,10 +30,6 @@ class VideoPress_Gutenberg {
 	 * Register the Jetpack Gutenberg extension that adds VideoPress support to the core video block.
 	 */
 	public static function register_video_block_with_videopress() {
-		// We intentionally don't use `jetpack_register_block` because the current Jetpack extensions
-		// registration doesn't fit our needs. Right now, any extension registered with `jetpack_register_block`
-		// needs to have a name that is equal to the name of the registered block (our extension name would be
-		// "videopress" and the name of the block we need to register "core/video").
 		register_block_type(
 			'core/video',
 			array(
