@@ -120,7 +120,10 @@ class Grunion_Contact_Form_Plugin {
 		return $data_without_tags;
 	}
 
-	function __construct() {
+	/**
+	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
+	 */
+	protected function __construct() {
 		$this->add_shortcode();
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
