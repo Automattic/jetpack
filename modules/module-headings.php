@@ -41,7 +41,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Copy an existing post\'s content into a new post.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Copy an existing post\'s content into a new draft post.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Copy an existing post\'s content into a new post.', 'Jumpstart Description', 'jetpack' ),
 			),
 

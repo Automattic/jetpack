@@ -169,18 +169,34 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_scripts() {
 		if ( $this->is_redirecting || isset( $_GET['configure'] ) ) {
-			return; // No need for scripts on a fallback page
+			return; // No need for scripts on a fallback page.
 		}
 
-		// Enqueue jp.js and localize it
-		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		// Enqueue jp.js and localize it.
+		$dependencies = array();
+
+		// WordPress 5.0 and later supports the new client side i18n mechanism.
+		if ( version_compare( $GLOBALS['wp_version'], '5.0', '>' ) ) {
+			$dependencies = array( 'wp-i18n' );
+		}
+		wp_enqueue_script(
+			'react-plugin',
+			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
+			$dependencies,
+			JETPACK__VERSION,
+			true
+		);
+
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
+		}
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
-			// Required for Analytics
+			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		// Add objects to be passed to the initial state of the app
+		// Add objects to be passed to the initial state of the app.
 		wp_localize_script( 'react-plugin', 'Initial_State', $this->get_initial_state() );
 	}
 

@@ -703,6 +703,11 @@ add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' 
 /**
  * Copy Post
  */
+function jetpack_copy_post_more_link() {
+	echo 'https://jetpack.com/support/copy-post-2/';
+}
+add_action( 'jetpack_learn_more_button_copy-post', 'jetpack_copy_post_more_link' );
+
 function jetpack_more_info_copy_post() {
 	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
 }

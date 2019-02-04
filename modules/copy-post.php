@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Copy Post
- * Module Description: Copy an existing post's content into a new post.
+ * Module Description: Copy an existing post's content into a new draft post.
  * Jumpstart Description: Copy an existing post's content into a new post.
  * Sort Order: 15
  * First Introduced: 7.0
@@ -85,13 +85,13 @@ class Jetpack_Copy_Post {
 	}
 
 	/**
-	 * Determine if the current user has access to the source post.
+	 * Determine if the current user has edit access to the source post.
 	 *
 	 * @param int $post_id Source post ID (the post being copied).
-	 * @return bool True if user has the meta cap of `read_post` for the given post ID, false otherwise.
+	 * @return bool True if user has the meta cap of `edit_post` for the given post ID, false otherwise.
 	 */
 	protected function user_can_access_post( $post_id ) {
-		return current_user_can( 'read_post', $post_id );
+		return current_user_can( 'edit_post', $post_id );
 	}
 
 	/**
@@ -110,6 +110,7 @@ class Jetpack_Copy_Post {
 			'comment_status' => $source_post->comment_status,
 			'ping_status'    => $source_post->ping_status,
 			'post_category'  => $source_post->post_category,
+			'post_password'  => $source_post->post_password,
 			'tags_input'     => $source_post->tags_input,
 		);
 
