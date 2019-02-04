@@ -313,6 +313,9 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
+		if ( ! self::is_gutenberg_available() ) {
+			return array();
+		}
 
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
