@@ -27,7 +27,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 /**
  * Helper function to register a Jetpack Gutenberg plugin
  *
- * @deprecated 7.1.0 Use jetpack_set_extension_available() instead
+ * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
  *
  * @param string $slug Slug of the plugin.
  *
@@ -40,36 +40,9 @@ function jetpack_register_plugin( $slug ) {
 }
 
 /**
- * Set an (non-block) extension as available
- *
- * @param string $slug Slug of the block.
- *
- * @since 7.1.0
- *
- * @return void
- */
-function jetpack_set_extension_available( $slug ) {
-	Jetpack_Gutenberg::set_extension_available( $slug );
-}
-
-/**
  * Set the reason why an extension (block or plugin) is unavailable
  *
- * @param string $slug Slug of the block.
- * @param string $reason A string representation of why the extension is unavailable.
- *
- * @since 7.0.0
- *
- * @return void
- */
-function jetpack_set_extension_unavailable( $slug, $reason ) {
-	Jetpack_Gutenberg::set_extension_unavailable( $slug, $reason );
-}
-
-/**
- * Set the reason why an extension (block or plugin) is unavailable
- *
- * @deprecated 7.1.0 Use jetpack_set_extension_unavailable() instead
+ * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_unavailable() instead
  *
  * @param string $slug Slug of the block.
  * @param string $reason A string representation of why the extension is unavailable.
@@ -345,8 +318,8 @@ class Jetpack_Gutenberg {
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
 		 * In the function call you supply, use `register_block_type()` to set a block as available.
-		 * Alternatively, use `jetpack_set_extension_available()` (for a non-block plugin), and
-		 * `jetpack_set_extension_unavailable()` (if the block or plugin should not be registered
+		 * Alternatively, use `Jetpack_Gutenberg::set_extension_available()` (for a non-block plugin), and
+		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
 		 * but marked as unavailable.
 		 *
 		 * @since 7.0.0
