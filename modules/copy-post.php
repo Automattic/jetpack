@@ -104,6 +104,7 @@ class Jetpack_Copy_Post {
 	protected function update_content( $source_post, $target_post_id ) {
 		$data = array(
 			'ID'             => $target_post_id,
+			'post_status'    => 'draft',
 			'post_title'     => $source_post->post_title,
 			'post_content'   => $source_post->post_content,
 			'post_excerpt'   => $source_post->post_excerpt,
