@@ -234,7 +234,7 @@ gulp.task( 'languages:merge', function( done ) {
 	const paths = [];
 
 	gulp
-		.src( [ '_inc/build/blocks/*.pot', '_inc/build/jetpack-strings.pot' ] )
+		.src( [ '_inc/blocks/*.pot', '_inc/build/jetpack-strings.pot' ] )
 		.pipe(
 			tap( function( file ) {
 				paths.push( file.path );
