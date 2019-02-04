@@ -727,7 +727,9 @@ function jetpack_blog_subscriptions_init() {
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
 
 function jetpack_register_subscriptions_block() {
-	register_block_type( 'jetpack/subscriptions' );
+	if ( WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/subscriptions' ) ) {
+		register_block_type( 'jetpack/subscriptions' );
+	}
 }
 
 add_action( 'init', 'jetpack_register_subscriptions_block' );
