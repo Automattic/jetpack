@@ -217,7 +217,8 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$start_of_week = (int) get_option( 'start_of_week', 0 );
 	$time_format = get_option( 'time_format' );
 	$today = current_time( 'D' );
-	$content = '<dl class="business-hours built-by-php">';
+	$custom_class_name = isset( $attributes['className'] ) ? $attributes['className'] : '';
+	$content = "<dl class='jetpack-business-hours $custom_class_name'>";
 
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
@@ -231,21 +232,31 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$opening = strtotime( $hours['opening'] );
 		$closing = strtotime( $hours['closing'] );
 
-		$content .= '<dt class="' . esc_attr( $day ) . '">' . $wp_locale->get_weekday( array_search( $day, $days ) ) . '</dt>';
+		$content .= '<dt class="' . esc_attr( $day ) . '">' .
+                    ucfirst( $wp_locale->get_weekday( array_search( $day, $days ) ) ) .
+                    '</dt>';
 		$content .= '<dd class="' . esc_attr( $day ) . '">';
 		if ( $hours['opening'] && $hours['closing'] ) {
-			$content .= date( $time_format, $opening );
-			$content .= '&nbsp;&mdash;&nbsp;';
-			$content .= date( $time_format, $closing );
+		    $content .= sprintf(
+		            _x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
+                    date( $time_format, $opening ),
+                    date( $time_format, $closing )
+            );
 
 			if ( $today === $day ) {
 				$now = strtotime( current_time( 'H:i' ) );
 				if ( $now < $opening ) {
 					$content .= '<br />';
-					$content .= esc_html( sprintf( __( 'Opening in %s', 'jetpack' ), human_time_diff( $now, $opening ) ) );
+					$content .= esc_html( sprintf(
+					        _x( 'Opening in %s', 'Amount of time until business opens', 'jetpack' ),
+                            human_time_diff( $now, $opening )
+                    ) );
 				} elseif ( $now >= $opening && $now < $closing ) {
 					$content .= '<br />';
-					$content .= esc_html( sprintf( __( 'Closing in %s', 'jetpack' ), human_time_diff( $now, $closing ) ) );
+					$content .= esc_html( sprintf(
+					        _x( 'Closing in %s', 'Amount of time until business closes', 'jetpack' ),
+                            human_time_diff( $now, $closing )
+                    ) );
 				}
 			}
 		} else {
