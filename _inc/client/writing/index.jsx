@@ -39,6 +39,7 @@ export class Writing extends React.Component {
 		};
 
 		const found = [
+			'copy-post',
 			'masterbar',
 			'markdown',
 			'after-the-deadline',
