@@ -60,6 +60,13 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	public function get_mailchimp_status() {
 		$is_wpcom    = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 		$site_id     = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'unavailable_site_id',
+				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
+				403
+			);
+		}
 		$connect_url = sprintf( 'https://wordpress.com/sharing/%s', $site_id );
 		return array(
 			'code'        => $this->is_connected() ? 'connected' : 'not_connected',
