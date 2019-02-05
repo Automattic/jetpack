@@ -233,17 +233,16 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					{ ! unavailableInDevMode &&
-						isAdsActive && (
-							<Card
-								compact
-								className="jp-settings-card__configure-link"
-								onClick={ this.trackConfigureClick }
-								href={ this.props.configureUrl }
-							>
-								{ __( 'View your earnings' ) }
-							</Card>
-						) }
+					{ ! unavailableInDevMode && isAdsActive && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackConfigureClick }
+							href={ this.props.configureUrl }
+						>
+							{ __( 'View your earnings' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

@@ -96,9 +96,9 @@ class Main extends React.Component {
 	};
 
 	/*
- 	 * Shows a confirmation dialog if there are unsaved module settings.
- 	 *
- 	 * Return true or false according to the history.listenBefore specification which is part of react-router
+	 * Shows a confirmation dialog if there are unsaved module settings.
+	 *
+	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave = () => {
 		if ( this.props.areThereUnsavedSettings ) {

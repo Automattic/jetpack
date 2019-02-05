@@ -75,10 +75,9 @@ export class Writing extends React.Component {
 					className="jp-settings-description"
 				/>
 
-				{ this.props.isModuleFound( 'masterbar' ) &&
-					! this.props.masterbarIsAlwaysActive && (
-						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
-					) }
+				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
+					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
+				) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
@@ -86,23 +85,21 @@ export class Writing extends React.Component {
 					<CustomContentTypes { ...commonProps } />
 				) }
 				<ThemeEnhancements { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) &&
-					showPostByEmail && (
-						<PostByEmail
-							{ ...commonProps }
-							connectUrl={ this.props.connectUrl }
-							isLinked={ this.props.isLinked }
-							userCanManageModules={ this.props.userCanManageModules }
-						/>
-					) }
-				{ ! showComposing &&
-					! showPostByEmail && (
-						<Card>
-							{ __(
-								'Writing tools available to you will be shown here when an administrator enables them.'
-							) }
-						</Card>
-					) }
+				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
+					<PostByEmail
+						{ ...commonProps }
+						connectUrl={ this.props.connectUrl }
+						isLinked={ this.props.isLinked }
+						userCanManageModules={ this.props.userCanManageModules }
+					/>
+				) }
+				{ ! showComposing && ! showPostByEmail && (
+					<Card>
+						{ __(
+							'Writing tools available to you will be shown here when an administrator enables them.'
+						) }
+					</Card>
+				) }
 			</div>
 		);
 	}

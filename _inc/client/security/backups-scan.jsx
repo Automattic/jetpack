@@ -207,17 +207,16 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					>
 						{ this.getCardText() }
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'backups' ) &&
-						scanEnabled && (
-							<Card
-								compact
-								className="jp-settings-card__configure-link"
-								onClick={ this.trackConfigureClick }
-								href="https://dashboard.vaultpress.com/"
-							>
-								{ __( 'Configure your Security Scans' ) }
-							</Card>
-						) }
+					{ ! this.props.isUnavailableInDevMode( 'backups' ) && scanEnabled && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackConfigureClick }
+							href="https://dashboard.vaultpress.com/"
+						>
+							{ __( 'Configure your Security Scans' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

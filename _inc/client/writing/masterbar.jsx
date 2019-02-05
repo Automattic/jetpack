@@ -53,16 +53,15 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							{ __( 'Enable the WordPress.com toolbar' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'masterbar' ) &&
-						! this.props.isLinked && (
-							<Card
-								compact
-								className="jp-settings-card__configure-link"
-								href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
-							>
-								{ __( 'Create a Jetpack account to use this feature' ) }
-							</Card>
-						) }
+					{ ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
+						>
+							{ __( 'Create a Jetpack account to use this feature' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

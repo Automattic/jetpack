@@ -205,16 +205,15 @@ class JetpackNotices extends React.Component {
 					siteConnected={ true === this.props.siteConnectionStatus }
 					isLinked={ this.props.isLinked }
 				/>
-				{ ! this.props.siteConnectionStatus &&
-					! this.props.userCanConnectSite && (
-						<SimpleNotice
-							showDismiss={ false }
-							status="is-warning"
-							text={ __(
-								'This site is not connected to WordPress.com. Please ask the site administrator to connect.'
-							) }
-						/>
-					) }
+				{ ! this.props.siteConnectionStatus && ! this.props.userCanConnectSite && (
+					<SimpleNotice
+						showDismiss={ false }
+						status="is-warning"
+						text={ __(
+							'This site is not connected to WordPress.com. Please ask the site administrator to connect.'
+						) }
+					/>
+				) }
 			</div>
 		);
 	}

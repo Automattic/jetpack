@@ -97,16 +97,15 @@ class PostByEmail extends React.Component {
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'post-by-email' ) &&
-					! this.props.isLinked && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
-						>
-							{ __( 'Create a Jetpack account to use this feature' ) }
-						</Card>
-					) }
+				{ ! this.props.isUnavailableInDevMode( 'post-by-email' ) && ! this.props.isLinked && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
+					>
+						{ __( 'Create a Jetpack account to use this feature' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}
