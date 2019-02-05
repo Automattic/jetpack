@@ -628,6 +628,27 @@ jQuery( function($) {
 	list-style: square;
 	padding-left: 1em;
 }
+.publicize__notice-warning {
+	display: inline-block;
+	padding: 7px 10px;
+	margin: 5px 0;
+	border-left-width: 4px;
+	border-left-style: solid;
+	font-size: 12px;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+.publicize__sharing-settings {
+	display: block;
+	text-decoration: none;
+	margin-top: 8px;
+}
+.publicize__sharing-settings:after {
+	content: "\f504";
+	font: normal 18px/.5em dashicons;
+	speak: none;
+	margin-left: 5px;
+	vertical-align: middle;
+}
 #publicize-title:before {
 	content: "\f237";
 	font: normal 20px/1 dashicons;
@@ -672,6 +693,24 @@ jQuery( function($) {
 	}
 
 	/**
+	 * Extracts the connections that require reauthentication, for example, LinkedIn, when it switched v1 to v2 of its API.
+	 *
+	 * @return array Connections that must be reauthenticated
+	 */
+	function get_must_reauth_connections() {
+		$must_reauth = array();
+		$connections = $this->publicize->get_connections( 'linkedin' );
+		if ( is_array( $connections ) ) {
+			foreach ( $connections as $index => $connection ) {
+				if ( $this->publicize->is_invalid_linkedin_connection( $connection ) ) {
+					$must_reauth[ $index ] = 'LinkedIn';
+				}
+			}
+		}
+		return $must_reauth;
+	}
+
+	/**
 	* Controls the metabox that is displayed on the post page
 	* Allows the user to customize the message that will be sent out to the social network, as well as pick which
 	* networks to publish to. Also displays the character counter and some other information.
@@ -700,6 +739,27 @@ jQuery( function($) {
 
 				if ( 0 < count( $connections_data ) ) :
 					$publicize_form = $this->get_metabox_form_connected( $connections_data );
+
+					$must_reauth = $this->get_must_reauth_connections();
+					if ( ! empty( $must_reauth ) ) {
+						foreach ( $must_reauth as $connection_name ) {
+							?>
+							<span class="notice-warning publicize__notice-warning">
+				                <?php
+				                printf( esc_html__(
+					                'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.'
+				                ), $connection_name );
+				                ?>
+								<a
+										class="publicize__sharing-settings"
+										href="<?php echo publicize_calypso_url() ?>"
+								><?php esc_html_e( 'Go to Sharing settings' ) ?></a>
+							</span>
+							<?php
+						}
+						?>
+						<?php
+					}
 
 					$labels = array();
 					$has_google_plus = false;
