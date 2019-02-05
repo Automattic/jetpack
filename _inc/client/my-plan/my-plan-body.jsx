@@ -413,67 +413,6 @@ class MyPlanBody extends React.Component {
 									) }
 								</div>
 							) }
-
-						{ this.props.showBackups &&
-							'is-personal-plan' === planClass && (
-								<div className="jp-landing__plan-features-card">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Three great reasons to go Pro' ) }
-									</h3>
-									<p>
-										{ __(
-											'Design the perfect site with unlimited access to hundreds of themes and unlimited, high-speed, and ad-free video hosting.'
-										) }
-									</p>
-									<p>
-										{ __(
-											'Always-on security including real-time backups, malware scanning, and automatic threat resolution.'
-										) }
-									</p>
-									<p>
-										{ __(
-											'Grow your traffic and revenue with social media scheduling, enhanced site search, SEO tools, PayPal payments, and an ad program.'
-										) }
-									</p>
-									<p>
-										<Button
-											onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
-											href={ this.props.comparePlansUpgradeUrl }
-											className="is-primary"
-										>
-											{ __( 'Compare plans' ) }
-										</Button>
-									</p>
-								</div>
-							) }
-
-						{ ( ! this.props.showBackups && 'is-personal-plan' === planClass ) ||
-							( 'is-premium-plan' === planClass && (
-								<div className="jp-landing__plan-features-card">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Two great reasons to go Pro' ) }
-									</h3>
-									<p>
-										{ __(
-											'Unlimited access to hundreds of premium WordPress themes with dedicated support directly from the theme authors.'
-										) }
-									</p>
-									<p>
-										{ __(
-											'A superior search experience powered by Elasticsearch providing your users with faster and more relevant search results. Previously only available to WordPress.com VIP customers and trusted by industry-leading brands.'
-										) }
-									</p>
-									<p>
-										<Button
-											onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
-											href={ this.props.plansComparePremiumUpgradeUrl }
-											className="is-primary"
-										>
-											{ __( 'Explore Jetpack Professional' ) }
-										</Button>
-									</p>
-								</div>
-							) ) }
 					</div>
 				);
 				break;
