@@ -58,8 +58,8 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	 * site_id:int
 	 */
 	public function get_mailchimp_status() {
-		$is_wpcom    = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id     = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 		if ( ! $site_id ) {
 			return new WP_Error(
 				'unavailable_site_id',
