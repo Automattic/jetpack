@@ -218,7 +218,10 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$time_format = get_option( 'time_format' );
 	$today = current_time( 'D' );
 	$custom_class_name = isset( $attributes['className'] ) ? $attributes['className'] : '';
-	$content = "<dl class='jetpack-business-hours $custom_class_name'>";
+	$content = sprintf(
+		'<dl class="jetpack-business-hours %s">',
+		! empty( $attributes['className'] ) ? esc_attr( $attributes['className'] ) : ''
+	);
 
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
