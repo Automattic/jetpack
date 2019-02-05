@@ -5,7 +5,7 @@
  * API to determine if current site has linked Mailchimp account and mailing list selected.
  * This API is meant to be used in Jetpack and on WPCOM.
  *
- * @since 7.0
+ * @since 7.1
  */
 class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	public function __construct() {
