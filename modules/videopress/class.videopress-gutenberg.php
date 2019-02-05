@@ -6,8 +6,16 @@ class VideoPress_Gutenberg {
 	 * Initialize the VideoPress Gutenberg extension
 	 */
 	public static function init() {
-		// Should not initialize if Gutenberg is not available
-		if ( function_exists( 'register_block_type' ) ) {
+		// Should not initialize if Gutenberg is not available or if Jetpack is not active
+		if (
+			( function_exists( 'register_block_type' ) )
+			&&
+			(
+				( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() )
+				||
+				( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			)
+		) {
 			add_action( 'init', array( __CLASS__, 'register_video_block_with_videopress' ) );
 		}
 	}
