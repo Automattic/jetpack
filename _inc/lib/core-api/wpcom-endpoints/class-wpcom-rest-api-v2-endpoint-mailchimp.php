@@ -9,9 +9,10 @@
  */
 class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'mailchimp';
+		$this->namespace                    = 'wpcom/v2';
+		$this->rest_base                    = 'mailchimp';
 		$this->wpcom_is_wpcom_only_endpoint = true;
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -42,11 +43,12 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 			return false;
 		}
 		$data = json_decode( $option, true );
-		if( ! $data ) {
+		if ( ! $data ) {
 			return false;
 		}
 		return isset( $data['follower_list_id'], $data['keyring_id'] );
 	}
+
 	/**
 	 * Get the status of current blog's Mailchimp connection
 	 *
@@ -66,4 +68,5 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		);
 	}
 }
+
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Mailchimp' );
