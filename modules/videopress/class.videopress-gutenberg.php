@@ -34,7 +34,7 @@ class VideoPress_Gutenberg {
 	 * @return string
 	 */
 	public static function render_video_block_with_videopress( $attributes, $content ) {
-		if ( ! isset( $attributes['id'] ) ) {
+		if ( ! isset( $attributes['id'] ) || isset( $attributes['guid'] ) ) {
 			return $content;
 		}
 
