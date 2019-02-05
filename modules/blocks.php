@@ -103,7 +103,6 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_gif_block_render( $attr ) {
-	$align       = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
 	$style       = 'padding-top:' . $padding_top;
 	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : null;
@@ -114,17 +113,9 @@ function jetpack_gif_block_render( $attr ) {
 		return null;
 	}
 
-	$classes = array(
-		'wp-block-jetpack-gif',
-		'align' . $align,
-	);
-	if ( isset( $attr['className'] ) ) {
-		array_push( $classes, $attr['className'] );
-	}
-
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
+	<div class="<?php echo esc_attr( Jetpack_Gutenberg::block_classes( 'gif', $attr ) ); ?>">
 		<figure>
 			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
 				<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
@@ -227,7 +218,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	}
 	ob_start();
 	?>
-	<div class="wp-block-jetpack-mailchimp" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
+	<div class="<?php echo esc_attr( Jetpack_Gutenberg::block_classes( 'mailchimp', $attr ) ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
 			<h3><?php echo esc_html( $values['title'] ); ?></h3>
 			<form>
