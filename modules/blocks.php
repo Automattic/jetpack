@@ -100,7 +100,7 @@ jetpack_register_block(
 /**
  * Gif block registration/dependency declaration.
  *
- * @param array $attr - Array containing the map block attributes.
+ * @param array $attr - Array containing the gif block attributes.
  *
  * @return string
  */
@@ -126,18 +126,18 @@ function jetpack_gif_block_render( $attr ) {
 
 	ob_start();
 	?>
-    <div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
-        <figure>
-            <div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-                <iframe src="<?php echo esc_url( $giphy_url ); ?>"
-                        title="<?php echo esc_attr( $search_text ); ?>"></iframe>
-            </div>
+	<div class="<?php echo esc_attr( implode( $classes, ' ' ) ); ?>">
+		<figure>
+			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+				<iframe src="<?php echo esc_url( $giphy_url ); ?>"
+						title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+			</div>
 			<?php if ( $caption ) : ?>
-                <figcaption
-                        class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
+				<figcaption
+						class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
 			<?php endif; ?>
-        </figure>
-    </div>
+		</figure>
+	</div>
 	<?php
 	$html = ob_get_clean();
 
@@ -149,7 +149,12 @@ function jetpack_gif_block_render( $attr ) {
 /**
  * Contact Info block and its child blocks.
  */
-jetpack_register_block( 'contact-info' );
+jetpack_register_block(
+	'contact-info',
+	array(
+		'render_callback' => 'jetpack_contact_info_block_load_assets',
+	)
+);
 jetpack_register_block(
 	'email',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
@@ -162,6 +167,19 @@ jetpack_register_block(
 	'phone',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
 );
+
+/**
+ * Contact info block registration/dependency declaration.
+ *
+ * @param array  $attr - Array containing the contact info block attributes.
+ * @param string $content - String containing the contact info block content.
+ *
+ * @return string
+ */
+function jetpack_contact_info_block_load_assets( $attr, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( 'contact-info' );
+	return $content;
+}
 
 /**
  * VR Block.
@@ -181,8 +199,8 @@ jetpack_register_block(
 /**
  * Slideshow block registration/dependency declaration.
  *
- * @param array $attr - Array containing the map block attributes.
- * @param string $content - String containing the map block content.
+ * @param array  $attr - Array containing the slideshow block attributes.
+ * @param string $content - String containing the slideshow block content.
  *
  * @return string
  */
@@ -204,11 +222,12 @@ jetpack_register_block(
 	'business-hours',
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );
+
 /**
  * Business Hours Block dynamic rending of the glock.
  *
- * @param array $attr - Array containing the business hours block attributes.
- * @param string $content - String containing the business hours block content.
+ * @param array  $attributes Array containing the business hours block attributes.
+ * @param string $content    String containing the business hours block content.
  *
  * @return string
  */
@@ -241,8 +260,8 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$closing = strtotime( $hours['closing'] );
 
 		$content .= '<dt class="' . esc_attr( $day ) . '">' .
-		            ucfirst( $wp_locale->get_weekday( array_search( $day, $days ) ) ) .
-		            '</dt>';
+			ucfirst( $wp_locale->get_weekday( array_search( $day, $days ) ) ) .
+			'</dt>';
 		$content .= '<dd class="' . esc_attr( $day ) . '">';
 		if ( $hours['opening'] && $hours['closing'] ) {
 			$content .= sprintf(
