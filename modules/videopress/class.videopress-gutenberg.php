@@ -1,19 +1,25 @@
 <?php
+/**
+ * Block Editor functionality for VideoPress users.
+ *
+ * @package Jetpack
+ */
 
+/**
+ * Register a VideoPress extension to replace the default Core Video block.
+ */
 class VideoPress_Gutenberg {
 
 	/**
 	 * Initialize the VideoPress Gutenberg extension
 	 */
 	public static function init() {
-		// Should not initialize if Gutenberg is not available or if Jetpack is not active
+		// Should not initialize if Gutenberg is not available or if Jetpack is not active.
 		if (
 			( function_exists( 'register_block_type' ) )
-			&&
-			(
+			&& (
 				( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() )
-				||
-				( defined( 'IS_WPCOM' ) && IS_WPCOM )
+				|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 			)
 		) {
 			add_action( 'init', array( __CLASS__, 'register_video_block_with_videopress' ) );
@@ -28,9 +34,12 @@ class VideoPress_Gutenberg {
 		// registration doesn't fit our needs. Right now, any extension registered with `jetpack_register_block`
 		// needs to have a name that is equal to the name of the registered block (our extension name would be
 		// "videopress" and the name of the block we need to register "core/video").
-		register_block_type( 'core/video', array(
-			'render_callback' => array( __CLASS__, 'render_video_block_with_videopress' ),
-		) );
+		register_block_type(
+			'core/video',
+			array(
+				'render_callback' => array( __CLASS__, 'render_video_block_with_videopress' ),
+			)
+		);
 	}
 
 	/**
