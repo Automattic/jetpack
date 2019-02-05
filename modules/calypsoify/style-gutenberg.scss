@@ -1,5 +1,9 @@
 @import 'colors';
 
+
+/* CORE UI */
+@import 'gutenberg-styles/button.scss';
+
 /* Hides the Fullscreen option from the View modes */
 .edit-post-more-menu__content .components-menu-group:first-child .components-menu-item__button:last-child {
   display: none;
@@ -9,6 +13,61 @@
 .editor-inserter__manage-reusable-blocks,
 a.components-menu-item__button[href*="post_type=wp_block"] {
   display: none;
+}
+
+.edit-post-sidebar__panel-tab {
+	&.is-active {
+		border-color: $color-primary;
+	}
+}
+
+.edit-post-sidebar {
+	.input-control,
+	input[type='checkbox'],
+	input[type='color'],
+	input[type='date'],
+	input[type='datetime-local'],
+	input[type='datetime'],
+	input[type='email'],
+	input[type='month'],
+	input[type='number'],
+	input[type='password'],
+	input[type='radio'],
+	input[type='search'],
+	input[type='tel'],
+	input[type='text'],
+	input[type='time'],
+	input[type='url'],
+	input[type='week'],
+	select,
+	textarea {
+		&:focus {
+			border-color: $color-primary;
+			box-shadow: 0 0 0 2px $color-primary-light;
+		}
+	}
+
+	input[type='checkbox'] {
+		&:checked {
+			background: $color-primary;
+			border-color: $color-primary;
+		}
+	}
+}
+
+/* CORE UI */
+a {
+	color: $color-link;
+
+	&:active, &:hover {
+		color: $color-link-dark;
+	}
+
+	&:focus {
+		color: $color-link-dark;
+		box-shadow: none;
+		outline: thin dotted;
+	}
 }
 
 /* REVISIONS */
