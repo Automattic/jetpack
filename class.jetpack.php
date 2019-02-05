@@ -1619,6 +1619,8 @@ class Jetpack {
 			'jetpack_business_monthly',
 			'business-bundle',
 			'business-bundle-2y',
+			'ecommerce-bundle',
+			'ecommerce-bundle-2y',
 			'vip',
 		);
 
