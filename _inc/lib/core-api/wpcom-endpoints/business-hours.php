@@ -15,10 +15,10 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 
 	public function register_routes() {
 		// GET /sites/<blog_id>/business-hours/localized-week - Return the localized
-		register_rest_route( $this->namespace, '/' . $this->rest_base  . '/localized-week', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/localized-week', array(
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_localized_week' ),
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'get_localized_week' ),
 			)
 		) );
 	}
@@ -30,8 +30,9 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 	 */
 	public function get_localized_week() {
 		global $wp_locale;
+
 		return array(
-			'days' => array(
+			'days'        => array(
 				'Sun' => $wp_locale->get_weekday( 0 ),
 				'Mon' => $wp_locale->get_weekday( 1 ),
 				'Tue' => $wp_locale->get_weekday( 2 ),
