@@ -185,12 +185,14 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 /**
  * Mailchimp Block.
  */
-jetpack_register_block(
-	'mailchimp',
-	array(
-		'render_callback' => 'jetpack_mailchimp_block_load_assets',
-	)
-);
+if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
+	jetpack_register_block(
+		'mailchimp',
+		array(
+			'render_callback' => 'jetpack_mailchimp_block_load_assets',
+		)
+	);
+}
 
 /**
  * Mailchimp block registration/dependency declaration.
