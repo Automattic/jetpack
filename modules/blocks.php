@@ -265,6 +265,7 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$content .= '<dd class="' . esc_attr( $day ) . '">';
 		if ( $hours['opening'] && $hours['closing'] ) {
 			$content .= sprintf(
+				/* Translators: Business opening hours info. */
 				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
 				date( $time_format, $opening ),
 				date( $time_format, $closing )
@@ -275,12 +276,14 @@ function jetpack_business_hours_render( $attributes, $content ) {
 				if ( $now < $opening ) {
 					$content .= '<br />';
 					$content .= esc_html( sprintf(
+						/* Translators: Amount of time until business opens. */
 						_x( 'Opening in %s', 'Amount of time until business opens', 'jetpack' ),
 						human_time_diff( $now, $opening )
 					) );
 				} elseif ( $now >= $opening && $now < $closing ) {
 					$content .= '<br />';
 					$content .= esc_html( sprintf(
+						/* Translators: Amount of time until business closes. */
 						_x( 'Closing in %s', 'Amount of time until business closes', 'jetpack' ),
 						human_time_diff( $now, $closing )
 					) );
