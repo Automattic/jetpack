@@ -499,4 +499,29 @@ class Jetpack_Gutenberg {
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
+
+	/**
+	 * Some blocks do not depend on a specific module,
+	 * and can consequently be loaded outside of the usual modules.
+	 * We will look for such modules in the blocks/ directory.
+	 *
+	 * @since 7.1.0
+	 */
+	public static function load_independent_blocks() {
+		// Bail early if Blocks should not be loaded on the site.
+		if ( ! self::should_load() ) {
+			return;
+		}
+
+		/**
+		 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins)
+		 * f available, load them.
+		 */
+		foreach ( self::$extensions as $extension ) {
+			$block_file = JETPACK__PLUGIN_DIR . 'blocks/' . $extension . '.php';
+			if ( file_exists( $block_file ) ) {
+				include_once $block_file;
+			}
+		}
+	}
 }
