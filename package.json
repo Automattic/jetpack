@@ -27,7 +27,7 @@
     "docker:up": "yarn docker:compose up",
     "docker:stop": "yarn docker:compose stop",
     "docker:down": "yarn docker:compose down",
-    "docker:build": "docker run -it --rm  -v ${PWD}:/usr/src/app -w /usr/src/app node yarn",
+    "docker:build": "docker run -it --rm  -v ${PWD}:/usr/src/app -w /usr/src/app node yarn build",
     "docker:build-image": "yarn docker:compose build",
     "docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
     "docker:install": "yarn docker:compose exec wordpress bash -c \"/var/scripts/install.sh\"",
