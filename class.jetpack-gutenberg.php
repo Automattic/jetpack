@@ -499,24 +499,4 @@ class Jetpack_Gutenberg {
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
-
-	/**
-	 * CSS class names from a block's type and attributes
-	 *
-	 * @param string $type - Block type.
-	 * @param array  $attr - Array containing the map block attributes.
-	 *
-	 * @return string
-	 */
-	public static function block_classes( $type, $attr ) {
-		$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
-		$classes = array(
-			'wp-block-jetpack-' . $type,
-			'align' . $align,
-		);
-		if ( isset( $attr['className'] ) ) {
-			array_push( $classes, $attr['className'] );
-		}
-		return implode( $classes, ' ' );
-	}
 }
