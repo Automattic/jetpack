@@ -413,8 +413,8 @@ function jetpack_visited_block_render( $attributes, $content ) {
 	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
 
 	if (
-		( $criteria === 'after-visits' && $count >= $threshold ) ||
-		( $criteria === 'before-visits' && $count <= $threshold )
+		( 'after-visits' === $criteria && $count >= $threshold ) ||
+		( 'before-visits' === $criteria && $count <= $threshold )
 	) {
 		return $content;
 	}
