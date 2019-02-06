@@ -4,7 +4,7 @@ if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
 
-// Hello synced
+// Hello synced again
 
 class Sharing_Admin {
 	public function __construct() {
