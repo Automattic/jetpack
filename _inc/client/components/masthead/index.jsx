@@ -99,27 +99,26 @@ export class Masthead extends React.Component {
 					</div>
 					{ this.props.userCanEditPosts && (
 						<div className="jp-masthead__nav">
-							{ ! isStatic &&
-								this.props.siteConnectionStatus && (
-									<ButtonGroup>
-										<Button
-											compact={ true }
-											href="#/dashboard"
-											primary={ isDashboardView && ! isStatic }
-											onClick={ this.trackDashClick }
-										>
-											{ __( 'Dashboard' ) }
-										</Button>
-										<Button
-											compact={ true }
-											href="#/settings"
-											primary={ ! isDashboardView && ! isStatic }
-											onClick={ this.trackSettingsClick }
-										>
-											{ __( 'Settings' ) }
-										</Button>
-									</ButtonGroup>
-								) }
+							{ ! isStatic && this.props.siteConnectionStatus && (
+								<ButtonGroup>
+									<Button
+										compact={ true }
+										href="#/dashboard"
+										primary={ isDashboardView && ! isStatic }
+										onClick={ this.trackDashClick }
+									>
+										{ __( 'Dashboard' ) }
+									</Button>
+									<Button
+										compact={ true }
+										href="#/settings"
+										primary={ ! isDashboardView && ! isStatic }
+										onClick={ this.trackSettingsClick }
+									>
+										{ __( 'Settings' ) }
+									</Button>
+								</ButtonGroup>
+							) }
 						</div>
 					) }
 				</div>

@@ -139,7 +139,7 @@ class AtAGlance extends Component {
 
 		/*
 		 * Non-admin zone...
-         */
+		 */
 		let stats = '';
 		if ( this.props.userCanViewStats ) {
 			stats = <DashStats { ...settingsProps } { ...urls } />;

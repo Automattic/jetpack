@@ -166,17 +166,16 @@ class RelatedPostsComponent extends React.Component {
 						) }
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) &&
-					isRelatedPostsActive && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
-						>
-							{ __( 'Configure related posts in the Customizer' ) }
-						</Card>
-					) }
+				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) && isRelatedPostsActive && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackConfigureClick }
+						href={ this.props.configureUrl }
+					>
+						{ __( 'Configure related posts in the Customizer' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}

@@ -58,27 +58,25 @@ class Search extends React.Component {
 							) }
 						</ModuleToggle>
 					) }
-					{ plan_is_business &&
-						module_enabled && (
-							<FormFieldset>
-								<p className="jp-form-setting-explanation">
-									{ __(
-										'Add the Jetpack Search widget to your sidebar to configure sorting and filters.'
-									) }
-								</p>
-							</FormFieldset>
-						) }
-				</SettingsGroup>
-				{ plan_is_business &&
-					module_enabled && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							href="customize.php?autofocus[panel]=widgets"
-						>
-							{ __( 'Add Jetpack Search Widget' ) }
-						</Card>
+					{ plan_is_business && module_enabled && (
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __(
+									'Add the Jetpack Search widget to your sidebar to configure sorting and filters.'
+								) }
+							</p>
+						</FormFieldset>
 					) }
+				</SettingsGroup>
+				{ plan_is_business && module_enabled && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href="customize.php?autofocus[panel]=widgets"
+					>
+						{ __( 'Add Jetpack Search Widget' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}
