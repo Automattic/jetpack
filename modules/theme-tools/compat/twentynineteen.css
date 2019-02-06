@@ -64,6 +64,10 @@
 	outline-offset: -4px;
 }
 
+.site-main .infinite-wrap .entry:first-of-type {
+	margin-top: calc(6 * 1rem);
+}
+
 /**
  * Responsive Videos
  */
@@ -77,6 +81,10 @@
 
 .sd-block {
 	line-height: 1;
+}
+
+.entry .entry-content div.sharedaddy:last-of-type {
+	margin-bottom: 0;
 }
 
 .entry div.sharedaddy h3.sd-title,
