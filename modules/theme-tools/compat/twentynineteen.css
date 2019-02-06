@@ -350,6 +350,13 @@
 	content: "\2014\00a0";
 }
 
+/* Top Posts & Pages Widget */
+.widget_top-posts .widgets-list-layout-links {
+	float: inherit;
+	margin-left: calc(40px + 1rem);
+	width: inherit;
+}
+
 /* Search widget override */
 @media only screen and (min-width: 600px) {
 	.widget.widget_search .search-field {
