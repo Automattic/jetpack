@@ -352,7 +352,9 @@
 
 /* Top Posts & Pages Widget */
 .widget_top-posts .widgets-list-layout-links {
+	float: inherit;
     margin-left: calc(40px + 1rem);
+	width: inherit;
 }
 
 /* Search widget override */
