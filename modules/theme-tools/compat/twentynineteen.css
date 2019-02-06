@@ -83,10 +83,6 @@
 	line-height: 1;
 }
 
-.entry .entry-content div.sharedaddy:last-of-type {
-	margin-bottom: 0;
-}
-
 .entry div.sharedaddy h3.sd-title,
 .entry h3.sd-title {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
