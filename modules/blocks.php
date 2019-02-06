@@ -408,7 +408,7 @@ jetpack_register_block(
 function jetpack_visited_block_render( $attributes, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'visited' );
 
-	$count = intval( $_COOKIE[ 'wp-visit-tracking' ] );
+	$count = isset( $_COOKIE[ 'wp-visit-tracking' ] ) ? intval( $_COOKIE[ 'wp-visit-tracking' ] ) : 0;
 	$criteria = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
 	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
 
