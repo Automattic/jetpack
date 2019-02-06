@@ -12,14 +12,12 @@
  * Plans: business, premium
  */
 
-include_once dirname( __FILE__ ) . '/videopress/utility-functions.php';
 include_once dirname( __FILE__ ) . '/videopress/shortcode.php';
 include_once dirname( __FILE__ ) . '/videopress/class.videopress-options.php';
 include_once dirname( __FILE__ ) . '/videopress/class.videopress-scheduler.php';
 include_once dirname( __FILE__ ) . '/videopress/class.videopress-xmlrpc.php';
 include_once dirname( __FILE__ ) . '/videopress/class.videopress-cli.php';
 include_once dirname( __FILE__ ) . '/videopress/class.jetpack-videopress.php';
-include_once dirname( __FILE__ ) . '/videopress/class.videopress-gutenberg.php';
 
 if ( is_admin() ) {
 	include_once dirname( __FILE__ ) . '/videopress/editor-media-view.php';

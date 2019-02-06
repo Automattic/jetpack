@@ -27,6 +27,10 @@ $tools = array(
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'geo-location.php',
 	'calypsoify/class.jetpack-calypsoify.php',
+
+	// Keep working the VideoPress videos in existing posts/pages when the module is deactivated
+	'videopress/utility-functions.php',
+	'videopress/class.videopress-gutenberg.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode
