@@ -86,7 +86,7 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Remove the 'jetpack-' prefix from an extension name
+	 * Remove the 'jetpack/' or jetpack-' prefix from an extension name
 	 *
 	 * @param string $extension_name The extension name.
 	 *
