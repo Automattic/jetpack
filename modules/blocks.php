@@ -8,17 +8,18 @@
  */
 
 /**
- * Load all blocks inside the modules/blocks folder.
+ * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins)
+ * If available, load them.
  */
 function jetpack_load_blocks() {
-	$blocks_include = array();
+	// Get a list of all available Jetpack Gutenberg extensions.
+	$jetpack_available_blocks = Jetpack_Gutenberg::get_jetpack_gutenberg_extensions_whitelist();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/blocks' ) as $file ) {
-		$blocks_include[] = $file;
-	}
-
-	foreach ( $blocks_include as $include ) {
-		include_once $include;
+	foreach ( $jetpack_available_blocks as $available_block ) {
+		$block_file = JETPACK__PLUGIN_DIR . 'modules/blocks/' . $available_block . '.php';
+		if ( file_exists( $block_file ) ) {
+			include_once $block_file;
+		}
 	}
 }
 jetpack_load_blocks();
