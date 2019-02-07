@@ -245,7 +245,7 @@ tunnels:
   jetpack:
     subdomain: YOUR_RESERVED_SUBDOMAIN # without the .ngrok.io
     addr: 80
-    proto: http```
+    proto: http
 ```
 
 You can start your ngrok tunnel like so:
