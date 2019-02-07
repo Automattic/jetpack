@@ -21,7 +21,6 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack
 				'title'   => 'jetpack_videopress_guid',
 				'type'    => 'string',
 				'context' => array( 'view', 'edit' ),
-				'default' => null,
 			),
 			$schema
 		);
