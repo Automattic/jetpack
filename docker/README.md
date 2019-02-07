@@ -230,7 +230,9 @@ To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](h
 
 If you use one-off domains, you'll have to re-install WordPress and re-connect Jetpack each time you close Ngrok (thus losing your randomly assigned domain). That's perfectly fine for quick testing or lightweight development. You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
 
-If you're developing Jetpack often you'll want to reserve a domain you can keep using. If you create an account by signing up via Google and using your a8c Google account you'll be added to our business tier plan which will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
+If you're developing Jetpack often you'll want to reserve a domain you can keep using.
+
+If you are an Automattician, sign up on Ngrok.com using your a8c Google account; you'll be automattically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
 
 Once you’ve joined the team, [reserve yourself a permanent domain here](https://dashboard.ngrok.com/reserved).
 
