@@ -239,7 +239,6 @@ Once you’ve joined the team, [reserve yourself a permanent domain here](https:
 Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
 
-Edit your config file so it looks like this:
 
 ```
 authtoken: YOUR_AUTH_TOKEN # This should already be here
