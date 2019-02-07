@@ -132,7 +132,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 						<pre><?php print_r( esc_html( $info ) ); ?></pre>
 					<?php
 					else :
-						$this->render_json_toggle( $info );
+						$this->render_json_toggle( esc_html( $info ) );
 					endif;
 					?>
 					<?php
