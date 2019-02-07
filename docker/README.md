@@ -23,7 +23,8 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites; you will need to open up Docker to install its dependencies.
-Clone the repository:
+
+Start by cloning the Jetpack repository:
 
 ```sh
 git clone git@github.com:Automattic/jetpack.git && cd jetpack
