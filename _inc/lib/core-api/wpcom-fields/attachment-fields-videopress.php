@@ -47,7 +47,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 		return array(
 			'$schema' => 'http://json-schema.org/draft-04/schema#',
 			'title'   => $this->field_name,
-			'type'    => 'string|null',
+			'type'    => 'string',
 			'context' => array( 'view', 'edit' ),
 			'default' => null,
 		);
@@ -59,7 +59,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 * @param mixed           $object  Response from the attachment endpoint.
 	 * @param WP_REST_Request $request Request to the attachment endpoint.
 	 *
-	 * @return object
+	 * @return string
 	 */
 	public function get( $object, $request ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -73,7 +73,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 		$videopress_guid = $this->get_videopress_guid( $post_id, $blog_id );
 
 		if ( ! $videopress_guid ) {
-			return null;
+			return '';
 		}
 
 		return $videopress_guid;
@@ -87,7 +87,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 * @param int $attachment_id Attachment ID.
 	 * @param int $blog_id Blog ID.
 	 *
-	 * @return object
+	 * @return string
 	 */
 	public function get_videopress_guid( $attachment_id, $blog_id ) {
 		return video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid;
