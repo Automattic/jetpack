@@ -553,24 +553,53 @@ class Sharing_Admin {
 }
 
 /**
+ * Callback to get the value for the jetpack_sharing_enabled field.
+ *
+ */
+function jetpack_post_sharing_get_value( array $post ) {
+	// if sharing IS disabled on this post, enabled=false, so negate the meta
+	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+}
+
+/**
+ * Callback to set sharing_disabled post_meta when the
+ * jetpack_sharing_enabled field is updated.
+ *
+ */
+function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
+	if ( $enable_sharing ) {
+		// delete the override if we want to enable sharing
+		delete_post_meta( $post_object->ID, 'sharing_disabled' );
+	} else {
+		update_post_meta( $post_object->ID, 'sharing_disabled', true );
+	}
+}
+
+/**
  * Add Sharing post_meta to the REST API Post response.
  *
  * @action rest_api_init
- * @uses register_meta
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
  */
-function jetpack_post_sharing_register_meta() {
-	register_meta(
-		'post', 'sharing_disabled',
+function jetpack_post_sharing_register_rest_field() {
+	register_rest_field(
+		'post', 'jetpack_sharing_enabled',
 		array(
-			'type'			=> 'boolean',
-			'single'		=> true,
-			'show_in_rest'	=> true,
+			'get_callback' => 'jetpack_post_sharing_get_value',
+			'update_callback' => 'jetpack_post_sharing_update_value',
 		)
 	);
 }
 
 // Add Sharing post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_sharing_register_meta' );
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
+
+function sharing_admin_init() {
+	global $sharing_admin;
+
+	$sharing_admin = new Sharing_Admin();
+}
 
 function sharing_admin_init() {
 	global $sharing_admin;

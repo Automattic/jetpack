@@ -558,23 +558,45 @@ class Jetpack_Likes {
 }
 
 /**
+ * Callback to get the value for the jetpack_likes_enabled field.
+ */
+function jetpack_post_likes_get_value( array $post ) {
+	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
+
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	return $post_likes_switched xor $sitewide_likes_enabled;
+}
+
+/**
+ * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
+ */
+function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	$should_switch_status = $enable_post_likes xor $sitewide_likes_enabled;
+
+	update_post_meta( $post_object->ID, 'switch_like_status', $should_switch_status );
+}
+
+/**
  * Add Likes post_meta to the REST API Post response.
  *
  * @action rest_api_init
- * @uses register_meta
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
  */
-function jetpack_post_likes_register_meta() {
-	register_meta(
-		'post', 'switch_like_status',
+function jetpack_post_likes_register_rest_field() {
+	register_rest_field(
+		'post', 'jetpack_likes_enabled',
 		array(
-			'type'			=> 'boolean',
-			'single'		=> true,
-			'show_in_rest'	=> true,
+			'get_callback' => 'jetpack_post_likes_get_value',
+			'update_callback' => 'jetpack_post_likes_update_value',
 		)
 	);
 }
 
 // Add Likes post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_likes_register_meta' );
+add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
 Jetpack_Likes::init();
