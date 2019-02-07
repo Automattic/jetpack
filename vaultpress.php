@@ -979,7 +979,7 @@ class VaultPress {
 	function ai_ping_next() {
 		global $wpdb;
 
-		if ( absint( $this->ai_ping_count() ) >= 100 ) {
+		if ( ! $this->allow_ai_pings() ) {
 			return false;
 		}
 
@@ -993,7 +993,7 @@ class VaultPress {
 	}
 
 	function ai_ping_insert( $value ) {
-		if ( absint( $this->ai_ping_count() ) >= 100 ) {
+		if ( ! $this->allow_ai_pings() ) {
 			return false;
 		}
 
@@ -1004,9 +1004,21 @@ class VaultPress {
 		add_option( '_vp_ai_ping_' . $new_id, $value, '', 'no' );
 	}
 
-	function ai_ping_count() {
+	function allow_ai_pings() {
+		static $allow_ai_pings = null;
+
+		if ( null === $allow_ai_pings ) {
+			$queue_size = $this->ai_ping_queue_size();
+			$size_limit = 50 * 1024 * 1024;
+			$allow_ai_pings = ( $queue_size->option_count < 100 && $queue_size->option_size < $size_limit );
+		}
+
+		return $allow_ai_pings;
+	}
+
+	function ai_ping_queue_size() {
 		global $wpdb;
-		return $wpdb->get_var( "SELECT COUNT(`option_id`) FROM $wpdb->options WHERE `option_name` LIKE '\_vp\_ai\_ping\_%'" );
+		return $wpdb->get_row( "SELECT COUNT(`option_id`) `option_count`, SUM(LENGTH(`option_value`)) `option_size` FROM $wpdb->options WHERE `option_name` LIKE '\_vp\_ai\_ping\_%'" );
 	}
 
 	function ai_ping_get( $num=1, $order='ASC' ) {
@@ -1495,7 +1507,7 @@ JS;
 					$vaultpress_response_info                  = get_plugin_data( __FILE__ );
 				else
 					$vaultpress_response_info		   = array( 'Version' => $this->plugin_version );
-				$vaultpress_response_info['deferred_pings']        = (int)$this->ai_ping_count();
+				$vaultpress_response_info['deferred_pings']        = (int)$this->ai_ping_queue_size()->option_count;
 				$vaultpress_response_info['vaultpress_hostname']   = $this->get_option( 'hostname' );
 				$vaultpress_response_info['vaultpress_timeout']    = $this->get_option( 'timeout' );
 				$vaultpress_response_info['disable_firewall']      = $this->get_option( 'disable_firewall' );
