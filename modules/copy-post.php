@@ -170,7 +170,7 @@ class Jetpack_Copy_Post {
 	}
 
 	/**
-	 * Update the target post's post format.
+	 * Ensure the block editor doesn't modify the source post content for non-standard post formats.
 	 *
 	 * @param WP_Post $source_post Post object to be copied.
 	 * @param int     $target_post_id Target post ID.
