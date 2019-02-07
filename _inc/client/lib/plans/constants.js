@@ -6,6 +6,8 @@ import includes from 'lodash/includes';
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
+export const PLAN_ECOMMERCE = 'ecommerce-bundle';
+export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
 export const PLAN_PERSONAL = 'personal-bundle';
@@ -129,6 +131,8 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
 		case PLAN_VIP:
+		case PLAN_ECOMMERCE:
+		case PLAN_ECOMMERCE_2_YEARS:
 			return 'is-business-plan';
 		default:
 			return '';
