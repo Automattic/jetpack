@@ -563,6 +563,7 @@ class Jetpack_Likes {
 function jetpack_post_likes_get_value( array $post ) {
 	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
 
+	/** This filter is documented in modules/likes.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	return $post_likes_switched xor $sitewide_likes_enabled;
@@ -572,6 +573,7 @@ function jetpack_post_likes_get_value( array $post ) {
  * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
+	/** This filter is documented in modules/likes.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	$should_switch_status = $enable_post_likes xor $sitewide_likes_enabled;
