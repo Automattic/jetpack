@@ -233,7 +233,7 @@ If you're developing Jetpack often you'll want to reserve a domain you can keep 
 
 Once you’ve joined the team, [reserve yourself a permanent domain here](https://dashboard.ngrok.com/reserved).
 
-Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
+Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
 
 Edit your config file so it looks like this:
