@@ -601,10 +601,4 @@ function sharing_admin_init() {
 	$sharing_admin = new Sharing_Admin();
 }
 
-function sharing_admin_init() {
-	global $sharing_admin;
-
-	$sharing_admin = new Sharing_Admin();
-}
-
 add_action( 'init', 'sharing_admin_init' );
