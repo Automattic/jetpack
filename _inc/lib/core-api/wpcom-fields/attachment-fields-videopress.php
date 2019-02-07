@@ -50,7 +50,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 			'type'        => 'string',
 			'context'     => array( 'view', 'edit' ),
 			'readonly'    => true,
-			'description' => __( 'Unique VideoPress ID' ),
+			'description' => __( 'Unique VideoPress ID', 'jetpack' ),
 		);
 	}
 
