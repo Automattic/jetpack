@@ -234,7 +234,7 @@ If you're developing Jetpack often you'll want to reserve a domain you can keep 
 
 If you are an Automattician, sign up on Ngrok.com using your a8c Google account; you'll be automattically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
 
-Once you’ve joined the team, [reserve yourself a permanent domain here](https://dashboard.ngrok.com/reserved).
+[Go to this page to reserve a permanent domain](https://dashboard.ngrok.com/reserved).
 
 Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
