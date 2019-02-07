@@ -17,10 +17,12 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack
 
 		$this->assertSame(
 			array(
-				'$schema' => 'http://json-schema.org/draft-04/schema#',
-				'title'   => 'jetpack_videopress_guid',
-				'type'    => 'string',
-				'context' => array( 'view', 'edit' ),
+				'$schema'     => 'http://json-schema.org/draft-04/schema#',
+				'title'       => 'jetpack_videopress_guid',
+				'type'        => 'string',
+				'context'     => array( 'view', 'edit' ),
+				'readonly'    => true,
+				'description' => __( 'Unique VideoPress ID' ),
 			),
 			$schema
 		);

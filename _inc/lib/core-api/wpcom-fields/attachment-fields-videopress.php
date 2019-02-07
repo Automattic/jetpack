@@ -45,10 +45,12 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 */
 	public function get_schema() {
 		return array(
-			'$schema' => 'http://json-schema.org/draft-04/schema#',
-			'title'   => $this->field_name,
-			'type'    => 'string',
-			'context' => array( 'view', 'edit' ),
+			'$schema'     => 'http://json-schema.org/draft-04/schema#',
+			'title'       => $this->field_name,
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit' ),
+			'readonly'    => true,
+			'description' => __( 'Unique VideoPress ID' ),
 		);
 	}
 
