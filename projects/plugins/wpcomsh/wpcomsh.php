@@ -598,6 +598,13 @@ add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 );
 
 /**
  * Filter plugins_url for when __FILE__ is outside of WP_CONTENT_DIR
+ *
+ * @param string $url    The complete URL to the plugins directory including scheme and path.
+ * @param string $path   Path relative to the URL to the plugins directory. Blank string
+ *                       if no path is specified.
+ * @param string $plugin The plugin file path to be relative to. Blank string if no plugin
+ *                       is specified.
+ * @return string Filtered URL.
  */
 function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 	$url = preg_replace(
@@ -605,9 +612,13 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 		'/wp-content/mu-plugins/wpcomsh/',
 		$url
 	);
+
+	if ( 'woocommerce-product-addons.php' === $plugin || 'woocommerce-gateway-stripe.php' === $plugin ) {
+		$url = home_url( '/wp-content/plugins/' . basename( $plugin, '.php' ) );
+	}
+
 	return $url;
 }
-
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
 
 function wpcomsh_activate_masterbar_module() {
