@@ -390,6 +390,8 @@ EOT;
 		<?php
 		$html = ob_get_clean();
 
+		remove_filter( 'the_content', 'wpautop' );
+
 		return $html;
 	}
 
