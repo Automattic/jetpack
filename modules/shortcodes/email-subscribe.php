@@ -119,13 +119,13 @@ class Jetpack_Email_Subscribe {
 		// We allow for overriding the presentation labels.
 		$data = shortcode_atts(
 			array(
-				'title'             => '',
+				'title'             => __( 'Join my email list', 'jetpack' ),
 				'email_placeholder' => __( 'Enter your email', 'jetpack' ),
-				'submit_label'      => __( 'Join My Email List', 'jetpack' ),
+				'submit_label'      => __( 'Join my email list', 'jetpack' ),
 				'consent_text'      => __( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
-				'processing_label'  => __( 'Processing...', 'jetpack' ),
-				'success_label'     => __( 'Success! You\'ve been added to the list.', 'jetpack' ),
-				'error_label'       => __( "Oh no! Unfortunately there was an error.\nPlease try reloading this page and adding your email once more.", 'jetpack' ),
+				'processing_label'  => __( 'Processing…', 'jetpack' ),
+				'success_label'     => __( 'Success! You\'re on the list.', 'jetpack' ),
+				'error_label'       => __( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
 			),
 			is_array( $attrs ) ? array_filter( $attrs ) : array()
 		);

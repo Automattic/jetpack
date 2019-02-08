@@ -330,11 +330,11 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$defaults = array(
 		'title'            => esc_html__( 'Join my email list', 'jetpack' ),
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
-		'submitLabel'      => esc_html__( 'Join My Email List', 'jetpack' ),
+		'submitLabel'      => esc_html__( 'Join my email list', 'jetpack' ),
 		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and MailChimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
-		'successLabel'     => esc_html__( 'Success! You\'ve been added to the list.', 'jetpack' ),
-		'errorLabel'       => esc_html__( 'Oh no! Unfortunately there was an error. Please try reloading this page and adding your email once more.', 'jetpack' ),
+		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
+		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
 	);
 	foreach ( $defaults as $id => $default ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
