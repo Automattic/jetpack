@@ -42,8 +42,14 @@ if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 	);
 }
 
-/* If Gutenberg blocks are enabled, register blocks that aren't associated with modules */
-if ( Jetpack_Gutenberg::should_load() ) {
+/**
+ * If Gutenberg blocks are enabled and if the block editor is supported,
+ * register blocks that aren't associated with modules
+ */
+if (
+	Jetpack_Gutenberg::is_gutenberg_available()
+	&& Jetpack_Gutenberg::should_load()
+) {
 	$tools[] = 'blocks.php';
 }
 
