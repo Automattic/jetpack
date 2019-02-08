@@ -368,7 +368,7 @@ class Jetpack_Gutenberg {
 
 			$unprefixed_block_name = self::remove_extension_prefix( $block_name );
 
-			if( in_array( $unprefixed_block_name, self::$extensions ) ) {
+			if ( in_array( $unprefixed_block_name, self::$extensions ) ) {
 				continue;
 			}
 
