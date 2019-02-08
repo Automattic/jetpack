@@ -21,6 +21,8 @@
  * @return void
  */
 function jetpack_register_block( $slug, $args = array() ) {
+	_deprecated_function( __FUNCTION__, '7.1', 'register_block_type' );
+
 	Jetpack_Gutenberg::register_block( $slug, $args );
 }
 
@@ -36,6 +38,8 @@ function jetpack_register_block( $slug, $args = array() ) {
  * @return void
  */
 function jetpack_register_plugin( $slug ) {
+	_deprecated_function( __FUNCTION__, '7.1', 'Jetpack_Gutenberg::set_extension_available' );
+
 	Jetpack_Gutenberg::register_plugin( $slug );
 }
 
@@ -52,6 +56,8 @@ function jetpack_register_plugin( $slug ) {
  * @return void
  */
 function jetpack_set_extension_unavailability_reason( $slug, $reason ) {
+	_deprecated_function( __FUNCTION__, '7.1', 'Jetpack_Gutenberg::set_extension_unavailable' );
+
 	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $reason );
 }
 
@@ -120,30 +126,36 @@ class Jetpack_Gutenberg {
 	 * @param array  $args Arguments that are passed into register_block_type().
 	 */
 	public static function register_block( $slug, $args ) {
+		_deprecated_function( __METHOD__, '7.1', 'register_block_type' );
+
 		register_block_type( 'jetpack/' . $slug, $args );
 	}
 
 	/**
 	 * Register a plugin
 	 *
-	 * @deprecated 7.1.0 Use set_extension_available() instead
+	 * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
 	 *
 	 * @param string $slug Slug of the plugin.
 	 */
 	public static function register_plugin( $slug ) {
+		_deprecated_function( __METHOD__, '7.1', 'Jetpack_Gutenberg::set_extension_available' );
+
 		self::set_extension_available( $slug );
 	}
 
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.0.0 Use register_block() instead
+	 * @deprecated 7.0.0 Use register_block_type() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into the register_block_type.
 	 * @param array  $availability array containing if a block is available and the reason when it is not.
 	 */
 	public static function register( $slug, $args, $availability ) {
+		_deprecated_function( __METHOD__, '7.0', 'register_block_type' );
+
 		if ( isset( $availability['available'] ) && ! $availability['available'] ) {
 			self::set_extension_unavailability_reason( $slug, $availability['unavailable_reason'] );
 		} else {
@@ -179,6 +191,8 @@ class Jetpack_Gutenberg {
 	 * @param string $reason A string representation of why the extension is unavailable.
 	 */
 	public static function set_extension_unavailability_reason( $slug, $reason ) {
+		_deprecated_function( __METHOD__, '7.1', 'Jetpack_Gutenberg::set_extension_unavailable' );
+
 		self::set_extension_unavailable( $slug, $reason );
 	}
 
