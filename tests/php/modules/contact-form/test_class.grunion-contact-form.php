@@ -46,7 +46,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->post = $post;
 
 		// Initialize plugin
-		$this->plugin = new Grunion_Contact_Form_Plugin;
+		$this->plugin = Grunion_Contact_Form_Plugin::init();
 		// Call to add tokenization hook
 		$this->plugin->process_form_submission();
 	}
@@ -457,7 +457,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_left_intact_when_no_matching_field() {
-		$plugin = new Grunion_Contact_Form_Plugin();
+		$plugin = Grunion_Contact_Form_Plugin::init();
 		$subject = 'Hello {name}!';
 		$field_values = array(
 			'City' => 'Chicago'
@@ -471,7 +471,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_replaced_with_empty_string_when_no_value_in_field() {
-		$plugin = new Grunion_Contact_Form_Plugin();
+		$plugin = Grunion_Contact_Form_Plugin::init();
 		$subject = 'Hello {name}!';
 		$field_values = array(
 			'Name' => null
@@ -485,7 +485,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
-		$plugin = new Grunion_Contact_Form_Plugin();
+		$plugin = Grunion_Contact_Form_Plugin::init();
 		$subject = '{subject token}';
 		$field_values = array(
 			'Subject Token' => 'Chicago'
@@ -499,7 +499,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_with_curly_brackets_can_be_replaced() {
-		$plugin = new Grunion_Contact_Form_Plugin();
+		$plugin = Grunion_Contact_Form_Plugin::init();
 		$subject = '{subject {token}}';
 		$field_values = array(
 			'Subject {Token}' => 'Chicago'
@@ -1294,7 +1294,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'another_field'          => 'thunderstruck'
 		);
 
-		$plugin = new Grunion_Contact_Form_Plugin();
+		$plugin = Grunion_Contact_Form_Plugin::init();
 
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
 
