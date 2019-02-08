@@ -18,12 +18,7 @@ Your extension should follow this structure:
 ```
 .
 └── blockname/
-	├── blockname.php ← PHP file where the block and its assets are registered.
-	└── client/
-		├── editor.js   ← script loaded only in the editor
-		├── editor.scss ← styles loaded only in the editor
-		├── view.js     ← script loaded in the editor and theme
-		└── view.scss   ← styles loaded in the editor and theme
+	└── blockname.php ← PHP file where the block and its assets are registered.
 ```
 
 If your block depends on another block, place them all in extensions folder:
@@ -41,11 +36,5 @@ If your block depends on another block, place them all in extensions folder:
 You can follow [the instructions here](../docs/guides/gutenberg-blocks.md) to add your own block to Jetpack.
 
 ## Block naming conventions
-
-Blocks are registered by providing a `name` and `settings` like this:
-
-```js
-registerBlockType( 'prefix/name', { /* settings */ } );
-```
 
 Blocks should use the `jetpack/` prefix, e.g. `jetpack/markdown`.
