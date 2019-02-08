@@ -254,24 +254,28 @@ EOT;
 	 * @param array $block_attributes The block attributes.
 	 */
 	public function render_block_item( $related_post, $block_attributes ) {
+		$instance_id = 'related-posts-item-' . uniqid();
+		$label_id    = $instance_id . '-label';
 		?>
 		<div
+			aria-labelledby="<?php echo esc_attr( $label_id ); ?>"
+			role="menuitem"
 			data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
 			data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
 			class="jp-related-posts-i2__post"
+			id="<?php echo esc_attr( $instance_id ); ?>"
 		>
-			<h3 class="jp-related-posts-i2__post-heading">
-				<a
-					href="<?php echo esc_url( $related_post['url'] ); ?>"
-					title="<?php echo esc_attr( $related_post['title'] ); ?>"
-					rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-					data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-					data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-					class="jp-related-posts-i2__post-link"
-				>
-					<?php echo esc_html( $related_post['title'] ); ?>
-				</a>
-			</h3>
+			<a
+				href="<?php echo esc_url( $related_post['url'] ); ?>"
+				title="<?php echo esc_attr( $related_post['title'] ); ?>"
+				rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+				data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+				data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+				class="jp-related-posts-i2__post-link"
+				id="<?php echo esc_attr( $label_id ); ?>"
+			>
+				<?php echo esc_html( $related_post['title'] ); ?>
+			</a>
 			<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
 			<a
 				href="<?php echo esc_url( $related_post['url'] ); ?>"
