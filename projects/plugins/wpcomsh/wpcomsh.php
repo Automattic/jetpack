@@ -55,7 +55,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
-const WPCOM_CORE_ATOMIC_PLUGINS = [ 
+const WPCOM_CORE_ATOMIC_PLUGINS = [
 	'jetpack/jetpack.php',
 	'akismet/akismet.php',
 ];
@@ -68,8 +68,10 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'advanced-wp-reset/advanced-wp-reset.php' => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'armember-membership/armember-membership.php' => '"armember-membership" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'autoptimize/autoptimize.php' => '"autoptimize" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
+		'backup/backup.php' => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'better-wp-security/better-wp-security.php' => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
+		'database-browser/database-browser.php' => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'duplicator/duplicator.php' => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php' => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'google-captcha/google-captcha.php' => '"google-captcha" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
@@ -86,6 +88,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wordpress-reset/wordpress-reset.php' => '"wordpress-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-automatic/wp-automatic.php' => '"wp-automatic" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'wp-clone-by-wp-academy/wpclone.php' => '"wp-clone-by-wp-academy" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-config-file-editor/wp-config-file-editor.php' => '"wp-config-file-editor" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-dbmanager/wp-dbmanager.php' => '"wp-dbmanager" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-file-manager/file-folder-manager.php' => '"wp-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-prefix-changer/index.php' => '"wp-prefix-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -129,6 +132,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-rss-aggregator/wp-rss-aggregator.php' => '"wp-rss-aggregator" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'wp-rss-feed-to-post/wp-rss-feed-to-post.php' => '"wp-rss-feed-to-post" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'wp-rss-wordai/wp-rss-wordai.php' => '"wp-rss-wordai" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-session-manager/wp-session-manager.php' => '"wp-session-manager" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'wp-slimstat/wp-slimstat.php' => '"wp-slimstat" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 		'wp-statistics/wp-statistics.php' => '"wp-statistics" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 		'wp-ulike/wp-ulike.php' => '"wp-ulike" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
@@ -149,6 +153,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		// misc
 		'anywhere-elementor/anywhere-elementor.php' => '"anywhere-elementor" is not supported on WordPress.com.',
 		'anywhere-elementor-pro/anywhere-elementor-pro.php' => '"anywhere-elementor-pro" is not supported on WordPress.com.',
+		'ari-adminer/ari-adminer.php' => '"ari-adminer" is not supported on WordPress.com.',
 		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
 		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
 		'cryptocurrency-pricing-list/cryptocurrency-pricing-list-and-ticker.php' => '"cryptocurrency-pricing-list" is not supported on WordPress.com.',
@@ -157,9 +162,13 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'nginx-helper/nginx-helper.php' => '"nginx-helper" is not supported on WordPress.com.',
 		'porn-embed/Porn-Embed.php' => '"porn-embed" is not supported on WordPress.com.',
 		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
+		'speed-contact-bar/speed-contact-bar.php' => '"speed-contact-bar" is not supported on WordPress.com.',
 		'video-importer/video-importer.php' => '"video-importer" is not supported on WordPress.com.',
 		'woozone/plugin.php' => '"woozone" is not supported on WordPress.com.',
 		'wp-cleanfix/index.php' => '"wp-cleanfix" is not supported on WordPress.com.',
+		'wp-file-upload/wordpress_file_upload.php' => '"wp-file-upload" is not supported on WordPress.com.',
+		'wp-monero-miner-pro/monero-miner-pro.php' => '"wp-monero-miner-pro" is not supported on WordPress.com.',
+		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
 	);
