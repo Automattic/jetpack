@@ -102,7 +102,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 * @return false|int
 	 */
 	public function is_video( $attachment ) {
-		return preg_match( '@^video/@', $attachment->post_mime_type );
+		return wp_startswith( $attachment->post_mime_type, 'video/' );
 	}
 
 	/**
