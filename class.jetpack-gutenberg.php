@@ -337,7 +337,7 @@ class Jetpack_Gutenberg {
 		 * In the function call you supply, use `register_block_type()` to set a block as available.
 		 * Alternatively, use `Jetpack_Gutenberg::set_extension_available()` (for a non-block plugin), and
 		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
-		 * but marked as unavailable.
+		 * but marked as unavailable).
 		 *
 		 * @since 7.0.0
 		 */
