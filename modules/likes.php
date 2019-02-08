@@ -566,6 +566,29 @@ function jetpack_post_likes_get_value( array $post ) {
 	/** This filter is documented in modules/likes.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
+	/** This filter is documented in class.json-api-endpoints.php */
+	$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+
+	if ( $is_jetpack ) {
+		// an empty string: post meta was not set, so go with the global setting
+		if ( "" === $post_likes_switched ) {
+			return $sitewide_likes_enabled;
+		}
+
+		// user overrode the global setting to disable likes
+		elseif ( "0" === $post_likes_switched ) {
+			return false;
+		}
+
+		// user overrode the global setting to enable likes
+		elseif ( "1" === $post_likes_switched ) {
+			return true;
+		}
+
+		// no default fallback, let's stay explicit
+	}
+
+	// WPCOM sites always set the meta to 1 if the user is flipping the global setting
 	return $post_likes_switched xor $sitewide_likes_enabled;
 }
 
@@ -578,7 +601,21 @@ function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
 
 	$should_switch_status = $enable_post_likes xor $sitewide_likes_enabled;
 
-	update_post_meta( $post_object->ID, 'switch_like_status', $should_switch_status );
+	/** This filter is documented in class.json-api-endpoints.php */
+	$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+
+	if ( $should_switch_status ) {
+		// WPCOM sites set the meta to 1 if the user is flipping the global setting
+		$meta_value = 1;
+		if ( $is_jetpack ) {
+			// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
+			$meta_value = $enable_post_likes;
+		}
+		update_post_meta( $post_object->ID, 'switch_like_status', $meta_value );
+	} else {
+		// unset the meta otherwise
+		delete_post_meta( $post_object->ID, 'switch_like_status' );
+	}
 }
 
 /**
