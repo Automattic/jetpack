@@ -549,6 +549,7 @@ class Jetpack_Gutenberg {
 			array(
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
+				'siteFragment'     => Jetpack::build_raw_urls( home_url() ),
 			)
 		);
 
