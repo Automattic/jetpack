@@ -565,22 +565,16 @@ class Jetpack_Gutenberg {
 	 * @since 7.1.0
 	 */
 	public static function load_independent_blocks() {
-		// Bail early if Blocks should not be loaded on the site.
-		if (
-			! self::should_load()
-			|| ! self::is_gutenberg_available()
-		) {
-			return;
-		}
-
-		/**
-		 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
-		 * If available, load them.
-		 */
-		foreach ( self::$extensions as $extension ) {
-			$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
-			if ( ! empty( $extension_file_glob ) ) {
-				include_once $extension_file_glob[0];
+		if ( self::should_load() && self::is_gutenberg_available() ) {
+			/**
+			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
+			 * If available, load them.
+			 */
+			foreach ( self::$extensions as $extension ) {
+				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
+				if ( ! empty( $extension_file_glob ) ) {
+					include_once $extension_file_glob[0];
+				}
 			}
 		}
 	}
