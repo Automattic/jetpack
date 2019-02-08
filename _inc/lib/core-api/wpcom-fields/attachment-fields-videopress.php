@@ -57,19 +57,19 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	/**
 	 * Getter: Retrieve current VideoPress data for a given attachment.
 	 *
-	 * @param mixed           $object  Response from the attachment endpoint.
+	 * @param array           $attachment Response from the attachment endpoint.
 	 * @param WP_REST_Request $request Request to the attachment endpoint.
 	 *
 	 * @return string
 	 */
-	public function get( $object, $request ) {
+	public function get( $attachment, $request ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
-		$post_id = absint( $object['id'] );
+		$post_id = absint( $attachment['id'] );
 
 		$videopress_guid = $this->get_videopress_guid( $post_id, $blog_id );
 
