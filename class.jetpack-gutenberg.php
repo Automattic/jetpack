@@ -96,10 +96,10 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $extension_name The extension name.
 	 *
-	 * @return string The prefixed block name.
+	 * @return string The unprefixed extension name.
 	 */
 	private static function remove_extension_prefix( $extension_name ) {
-		if ( wp_startswith( $extension_name, 'jetpack/' ) ) {
+		if ( wp_startswith( $extension_name, 'jetpack/' ) || wp_startswith( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
