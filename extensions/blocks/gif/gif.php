@@ -32,6 +32,11 @@ function jetpack_gif_block_render( $attr ) {
 		return null;
 	}
 
+	$giphy_id = null;
+	if ( ! preg_match( '#^' . preg_quote( 'https://giphy.com/embed/', '#' ) . '(\w+)#', $giphy_url, $matches ) ) {
+		return null;
+	}
+
 	/* TODO: replace with centralized block_class function */
 	$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$type    = 'gif';
@@ -44,17 +49,37 @@ function jetpack_gif_block_render( $attr ) {
 	}
 	$classes = implode( $classes, ' ' );
 
+	global $wp_embed;
+	$embed_html = $wp_embed->shortcode( array(), $giphy_url );
+
+	$width = null;
+	if ( preg_match( '/width="(\d+)"/', $embed_html, $matches ) ) {
+		$width = $matches[1];
+	}
+	$height = null;
+	if ( preg_match( '/height="(\d+)"/', $embed_html, $matches ) ) {
+		$height = $matches[1];
+	}
+
+	$placeholder = preg_replace( '#<img.*?alt="(.*?)".*?>#', '$1', $embed_html );
+
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-				<iframe src="<?php echo esc_url( $giphy_url ); ?>"
-						title="<?php echo esc_attr( $search_text ); ?>"></iframe>
-			</div>
+			<?php if ( Jetpack_AMP_Support::is_amp_request() && $width && $height ) : ?>
+				<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+					<div placeholder>
+						<?php echo wp_kses_post( $placeholder ); ?>
+					</div>
+				</amp-iframe>
+			<?php else : ?>
+				<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+					<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+				</div>
+			<?php endif; ?>
 			<?php if ( $caption ) : ?>
-				<figcaption
-						class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
+				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
 			<?php endif; ?>
 		</figure>
 	</div>
