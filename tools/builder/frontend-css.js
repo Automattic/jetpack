@@ -79,16 +79,7 @@ const pathModifier = function( file, contents ) {
 gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
+		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe( banner( '/*!\n' +
@@ -107,16 +98,7 @@ gulp.task( 'frontendcss', function() {
 gulp.task( 'frontendcss:separate', function() {
 	return gulp.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
+		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
