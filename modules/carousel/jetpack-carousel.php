@@ -345,10 +345,6 @@ class Jetpack_Carousel {
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
-			wp_register_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
-			$GLOBALS['wp_styles']->add_data( 'jetpack-carousel-ie8fix', 'conditional', 'lte IE 8' );
-			wp_enqueue_style( 'jetpack-carousel-ie8fix' );
-
 			/**
 			 * Fires after carousel assets are enqueued for the first time.
 			 * Allows for adding additional assets to the carousel page.
