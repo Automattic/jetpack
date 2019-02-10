@@ -43,7 +43,7 @@ const admincss = [
 gulp.task( 'admincss', function() {
 	return gulp.src( admincss, { base: './' } )
 		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( banner(
 			'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
@@ -64,7 +64,7 @@ gulp.task( 'admincss:rtl', function() {
 			'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 		) )
 		.pipe( gulp.dest( '.' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {

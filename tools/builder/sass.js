@@ -114,7 +114,7 @@ gulp.task( 'sass:old:rtl', function() {
 		.pipe( rename( { dirname: 'css' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Build *-rtl.min.css
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Finished
@@ -137,7 +137,7 @@ gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
 		.pipe( rename( { dirname: 'css' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Build *.min.css & sourcemaps
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './' ) )
 		.pipe( sourcemaps.write( '.' ) )

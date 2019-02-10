@@ -89,7 +89,7 @@ gulp.task( 'frontendcss', function() {
 			'ios 6',
 			'android 4'
 		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe( banner( '/*!\n' +
 			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
@@ -117,7 +117,7 @@ gulp.task( 'frontendcss:separate', function() {
 			'ios 6',
 			'android 4'
 		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( function( file ) {
@@ -129,4 +129,3 @@ export default gulp.parallel(
 	'frontendcss',
 	'frontendcss:separate'
 );
-
