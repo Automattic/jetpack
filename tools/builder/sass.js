@@ -22,7 +22,7 @@ gulp.task( 'sass:dashboard', function( done ) {
 	return gulp.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
-		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
+		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
@@ -37,7 +37,7 @@ gulp.task( 'sass:calypsoify', function( done ) {
 	return gulp.src( './modules/calypsoify/*.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
-		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
+		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/calypsoify' ) )
 		.on( 'end', function() {
@@ -50,7 +50,7 @@ gulp.task( 'sass:dops', function( done ) {
 	log( 'Building dops-components CSS bundle...' );
 
 	return gulp.src( './_inc/build/*dops-style.css' )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
+		.pipe( autoprefixer() )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			log( 'dops-components CSS finished.' );
@@ -114,7 +114,7 @@ gulp.task( 'sass:old:rtl', function() {
 		.pipe( rename( { dirname: 'css' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Build *-rtl.min.css
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Finished
@@ -137,7 +137,7 @@ gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
 		.pipe( rename( { dirname: 'css' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Build *.min.css & sourcemaps
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './' ) )
 		.pipe( sourcemaps.write( '.' ) )

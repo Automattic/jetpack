@@ -44,11 +44,13 @@ Here's a sample of what a helpful summary looks like:
 >
 > Screenshots: _screenshot of error message goes here_
 
-## Cross-Browser Testing, AKA "Don't Forget About Internet Explorer 8"
+## Cross-Browser Testing
 
 If you believe you've come across a bug and you've worked through all the steps detailed above, it's worth checking to see if the issue can be reproduced in different browsers. You can find download links to the most recent versions of all the major browsers on [Browse Happy.](http://browsehappy.com/)
 
 You should also check to see if the potential bug is limited to one browser; this is especially important for any bugs that may be Javascript or jQuery-related, as some browsers are more likely to experience those issues than others.
+
+See which browsers Jetpack supports from [coding guidelines](../coding-guidelines.md#versions-supported) or from the [`package.json`](https://github.com/Automattic/jetpack/blob/master/package.json) file.
 
 ## Contribute and comment on existing issues
 

@@ -10,6 +10,13 @@
     "type": "git",
     "url": "https://github.com/Automattic/jetpack.git"
   },
+  "browserslist": [
+    "last 2 versions",
+    "Safari >= 10",
+    "iOS >= 10",
+    "not ie <= 10",
+    "> 1%"
+  ],
   "bugs": {
     "url": "https://github.com/Automattic/jetpack/issues"
   },
