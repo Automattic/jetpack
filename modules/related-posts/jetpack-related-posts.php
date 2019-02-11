@@ -394,7 +394,19 @@ EOT;
 		<?php
 		$html = ob_get_clean();
 
-		remove_filter( 'the_content', 'wpautop' );
+		/*
+		Below is a hack to get the block content to render correctly.
+
+		This functionality should be covered in /inc/blocks.php but due to an error,
+		this has not been fixed as of this writing.
+
+		Alda has submitted a patch to Core in order to have this issue fixed at
+		https://core.trac.wordpress.org/attachment/ticket/45495/do_blocks.diff and
+		hopefully it makes to to the final RC of WP 5.1.
+		*/
+		$priority = has_filter( 'the_content', 'wpautop' );
+		remove_filter( 'the_content', 'wpautop', $priority );
+		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
 
 		return $html;
 	}
