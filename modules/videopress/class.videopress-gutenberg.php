@@ -11,29 +11,69 @@
 class VideoPress_Gutenberg {
 
 	/**
-	 * Initialize the VideoPress Gutenberg extension
+	 * Singleton
 	 */
 	public static function init() {
-		// Should not initialize if Gutenberg is not available or if Jetpack is not active.
-		if (
-			( function_exists( 'register_block_type' ) )
-			&& (
-				( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() )
-				|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			)
-		) {
-			add_action( 'init', array( __CLASS__, 'register_video_block_with_videopress' ) );
+		static $instance = false;
+
+		if ( ! $instance ) {
+			$instance = new VideoPress_Gutenberg();
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * VideoPress_Gutenberg constructor.
+	 *
+	 * Initialize the VideoPress Gutenberg extension
+	 */
+	private function __construct() {
+		add_action( 'init', array( $this, 'set_extension_availability' ) );
+		add_action( 'init', array( $this, 'register_video_block_with_videopress' ) );
+	}
+
+	/**
+	 * Set the Jetpack Gutenberg extension availability.
+	 */
+	public function set_extension_availability() {
+		// It is available on Simple Sites having the appropriate a plan.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( '1' === get_option( 'video_upgrade' ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
+			} else {
+				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_plan' );
+			}
+			return;
+		}
+
+		// It is available on Jetpack Sites having the VideoPress module active.
+		if ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			if ( Jetpack::is_module_active( 'videopress' ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
+			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
+				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_plan' );
+			} else {
+				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_module' );
+			}
 		}
 	}
 
 	/**
-	 * Register the Jetpack Gutenberg extension that adds VideoPress support to the core video block.
+	 * Register the core video block as a dynamic block.
+	 *
+	 * It defines a server-side rendering that adds VideoPress support to the core video block.
 	 */
-	public static function register_video_block_with_videopress() {
-		jetpack_register_block_type(
+	public function register_video_block_with_videopress() {
+		// Early return if Gutenberg is not available.
+		if ( function_exists( 'register_block_type' ) ) {
+			return;
+		}
+
+		register_block_type(
 			'core/video',
 			array(
-				'render_callback' => array( __CLASS__, 'render_video_block_with_videopress' ),
+				'render_callback' => array( $this, 'render_video_block_with_videopress' ),
 			)
 		);
 	}
@@ -46,15 +86,19 @@ class VideoPress_Gutenberg {
 	 *
 	 * @return string
 	 */
-	public static function render_video_block_with_videopress( $attributes, $content ) {
+	public function render_video_block_with_videopress( $attributes, $content ) {
 		if ( ! isset( $attributes['id'] ) || isset( $attributes['guid'] ) ) {
 			return $content;
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
-		} else {
+		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
 			$blog_id = Jetpack_Options::get_option( 'id' );
+		}
+
+		if ( ! isset( $blog_id ) ) {
+			return $content;
 		}
 
 		$post_id         = absint( $attributes['id'] );
