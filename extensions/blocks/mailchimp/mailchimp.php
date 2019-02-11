@@ -65,7 +65,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 				<button type="submit" class="components-button is-button is-primary">
 					<?php echo esc_html( $values['submitLabel'] ); ?>
 				</button>
-				<p class="wp-block-jetpack-mailchimp_consent-text">
+				<p>
 					<small>
 						<?php echo esc_html( $values['consentText'] ); ?>
 					</small>
