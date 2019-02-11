@@ -6,6 +6,8 @@
 class Jetpack_SEO {
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'init', array( Jetpack_SEO_Posts, 'register_post_meta' ), 20 );
+		add_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_SEO_Posts, 'register_gutenberg_extension' ) );
 	}
 
 	public function init() {
