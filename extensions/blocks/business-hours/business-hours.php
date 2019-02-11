@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-register_block_type(
+jetpack_register_block_type(
 	'jetpack/business-hours',
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );

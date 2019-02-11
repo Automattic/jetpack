@@ -30,7 +30,7 @@ class VideoPress_Gutenberg {
 	 * Register the Jetpack Gutenberg extension that adds VideoPress support to the core video block.
 	 */
 	public static function register_video_block_with_videopress() {
-		register_block_type(
+		jetpack_register_block_type(
 			'core/video',
 			array(
 				'render_callback' => array( __CLASS__, 'render_video_block_with_videopress' ),

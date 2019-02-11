@@ -245,52 +245,52 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	private static function register_contact_form_blocks() {
-		register_block_type( 'jetpack/contact-form', array(
+		jetpack_register_block_type( 'jetpack/contact-form', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 		) );
 
 		// Field render methods.
-		register_block_type( 'jetpack/field-text', array(
+		jetpack_register_block_type( 'jetpack/field-text', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
 		) );
-		register_block_type( 'jetpack/field-name', array(
+		jetpack_register_block_type( 'jetpack/field-name', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
 		) );
-		register_block_type( 'jetpack/field-email', array(
+		jetpack_register_block_type( 'jetpack/field-email', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
 		) );
-		register_block_type( 'jetpack/field-url', array(
+		jetpack_register_block_type( 'jetpack/field-url', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
 		) );
-		register_block_type( 'jetpack/field-date', array(
+		jetpack_register_block_type( 'jetpack/field-date', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
 		) );
-		register_block_type( 'jetpack/field-telephone', array(
+		jetpack_register_block_type( 'jetpack/field-telephone', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
 		) );
-		register_block_type( 'jetpack/field-textarea', array(
+		jetpack_register_block_type( 'jetpack/field-textarea', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 		) );
-		register_block_type( 'jetpack/field-checkbox', array(
+		jetpack_register_block_type( 'jetpack/field-checkbox', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 		) );
-		register_block_type( 'jetpack/field-checkbox-multiple', array(
+		jetpack_register_block_type( 'jetpack/field-checkbox-multiple', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 		) );
-		register_block_type( 'jetpack/field-radio', array(
+		jetpack_register_block_type( 'jetpack/field-radio', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 		) );
-		register_block_type( 'jetpack/field-select', array(
+		jetpack_register_block_type( 'jetpack/field-select', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 		) );
@@ -3232,8 +3232,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		$type_class = $type ? ' ' .$type : '';
 		return
-			"<label 
-				for='" . esc_attr( $id ) . "' 
+			"<label
+				for='" . esc_attr( $id ) . "'
 				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'
 				>"
 				. esc_html( $label )
@@ -3243,13 +3243,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
-		return "<input 
-					type='". esc_attr( $type ) ."' 
-					name='" . esc_attr( $id ) . "' 
-					id='" . esc_attr( $id ) . "' 
-					value='" . esc_attr( $value ) . "' 
-					" . $class . $placeholder . ' 
-					' . ( $required ? "required aria-required='true'" : '' ) . " 
+		return "<input
+					type='". esc_attr( $type ) ."'
+					name='" . esc_attr( $id ) . "'
+					id='" . esc_attr( $id ) . "'
+					value='" . esc_attr( $value ) . "'
+					" . $class . $placeholder . '
+					' . ( $required ? "required aria-required='true'" : '' ) . "
 				/>\n";
 	}
 
@@ -3274,8 +3274,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
-		                name='" . esc_attr( $id ) . "' 
-		                id='contact-form-comment-" . esc_attr( $id ) . "' 
+		                name='" . esc_attr( $id ) . "'
+		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20' "
 		                . $class
 		                . $placeholder
@@ -3291,9 +3291,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( $option ) {
 				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<input 
-									type='radio' 
-									name='" . esc_attr( $id ) . "' 
+				$field .= "<input
+									type='radio'
+									name='" . esc_attr( $id ) . "'
 									value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' "
 				                    . $class
 				                    . checked( $option, $value, false ) . ' '
