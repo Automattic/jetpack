@@ -13,7 +13,7 @@ register_block_type(
 );
 
 /**
- * Business Hours Block dynamic rending of the glock.
+ * Dynamic rendering of the block.
  *
  * @param array  $attributes Array containing the business hours block attributes.
  * @param string $content    String containing the business hours block content.
