@@ -64,6 +64,10 @@
 	outline-offset: -4px;
 }
 
+.site-main .infinite-wrap .entry:first-of-type {
+	margin-top: calc(6 * 1rem);
+}
+
 /**
  * Responsive Videos
  */
