@@ -24,6 +24,9 @@ if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
  * @return string
  */
 function jetpack_mailchimp_block_load_assets( $attr ) {
+	if ( ! jetpack_mailchimp_verify_connection() ) {
+		return null;
+	}
 	$values  = array();
 	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
 		get_current_blog_id() : Jetpack_Options::get_option( 'id' );
@@ -85,4 +88,21 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	<?php
 	$html = ob_get_clean();
 	return $html;
+}
+
+/**
+ * Mailchimp connection/list selection verification.
+ *
+ * @return boolean
+ */
+function jetpack_mailchimp_verify_connection() {
+	$option = get_option( 'jetpack_mailchimp' );
+	if ( ! $option ) {
+		return false;
+	}
+	$data = json_decode( $option, true );
+	if ( ! $data ) {
+		return false;
+	}
+	return isset( $data['follower_list_id'], $data['keyring_id'] );
 }
