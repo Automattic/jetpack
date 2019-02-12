@@ -44,9 +44,26 @@ class VideoPress_Gutenberg {
 	 * unavailable (key `unavailable_reason)`
 	 */
 	public function check_videopress_availability() {
+		// It is available on Simple Sites having the appropriate a plan.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$features = Store_Product_List::get_site_specific_features_data();
+			$has_feature = in_array( 'videopress', $features['active'] );
+			if ( $has_feature ) {
+				return array( 'available' => true );
+			} else {
+				return array(
+					'available'          => false,
+					'unavailable_reason' => 'missing_plan',
+				);
+			}
+		}
+
 		// It is available on Jetpack Sites having the module active.
 		if ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
-			if ( Jetpack::is_module_active( 'videopress' ) ) {
+			if (
+				method_exists( 'Jetpack', 'is_module_active' )
+				&& Jetpack::is_module_active( 'videopress' )
+			) {
 				return array( 'available' => true );
 			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
 				return array(
@@ -61,19 +78,7 @@ class VideoPress_Gutenberg {
 			}
 		}
 
-		// It is available on Simple Sites having the appropriate a plan.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$features = Store_Product_List::get_site_specific_features_data();
-			$has_feature = in_array( 'videopress', $features['active'] );
-			if ( $has_feature ) {
-				return array( 'available' => true );
-			} else {
-				return array(
-					'available'          => false,
-					'unavailable_reason' => 'missing_plan',
-				);
-			}
-		}
+
 
 		return array(
 			'available'          => false,
