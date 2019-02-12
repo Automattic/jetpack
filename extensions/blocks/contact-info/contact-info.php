@@ -7,21 +7,21 @@
  * @package Jetpack
  */
 
-jetpack_register_block_type(
+jetpack_register_block(
 	'jetpack/contact-info',
 	array(
 		'render_callback' => 'jetpack_contact_info_block_load_assets',
 	)
 );
-jetpack_register_block_type(
+jetpack_register_block(
 	'jetpack/email',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
 );
-jetpack_register_block_type(
+jetpack_register_block(
 	'jetpack/address',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
 );
-jetpack_register_block_type(
+jetpack_register_block(
 	'jetpack/phone',
 	array( 'parent' => array( 'jetpack/contact-info' ) )
 );

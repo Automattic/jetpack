@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::init();
-		jetpack_register_block_type( 'jetpack/test' );
+		jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),

@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-jetpack_register_block_type(
+jetpack_register_block(
 	'jetpack/gif',
 	array(
 		'render_callback' => 'jetpack_gif_block_render',
