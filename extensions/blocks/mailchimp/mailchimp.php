@@ -63,7 +63,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
 				/>
 				<button type="submit" class="components-button is-button is-primary">
-					<?php echo esc_html( $values['submitLabel'] ); ?>
+					<?php echo wp_kses_post( $values['submitLabel'] ); ?>
 				</button>
 				<p>
 					<small>
