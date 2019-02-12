@@ -800,6 +800,8 @@ EOT;
 			'has_terms' => array(),
 			'date_range' => array(),
 			'exclude_post_ids' => array(),
+
+
 		);
 		$args = wp_parse_args( $args, $defaults );
 		/**
@@ -828,6 +830,8 @@ EOT;
 		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
 
 		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
+
+		
 		/**
 		 * Filter the array of related posts matched by Elasticsearch.
 		 *
@@ -879,6 +883,10 @@ EOT;
 						case 'category':
 							$tax_fld = 'category.slug';
 							break;
+							
+							
+							
+
 						default:
 							$tax_fld = 'taxonomy.' . $term->taxonomy . '.slug';
 							break;
@@ -928,6 +936,9 @@ EOT;
 		foreach ( $args['post_formats'] as $pf ) {
 			if ( array_key_exists( $pf, $valid_post_formats ) ) {
 				$sanitized_post_formats[] = $pf;
+
+
+
 			}
 		}
 		if ( ! empty( $sanitized_post_formats ) ) {
@@ -997,6 +1008,9 @@ EOT;
 				'from' => date( 'Y-m-01', strtotime( '-1 month', $date_range['from'] ) ) . ' ' . date( 'H:i:s', $coalesce_time ),
 				'to'   => date( 'Y-m-01', $date_range['to'] ) . ' ' . date( 'H:i:s', $coalesce_time ),
 			);
+
+
+			
 		} else {
 			// Use current period
 			return array(
