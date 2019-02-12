@@ -7,9 +7,28 @@
  */
 
 /**
+ * Wrapper function to safely register a Jetpack Gutenberg block
+ *
+ * @param string $slug Slug of the block.
+ * @param array  $args Arguments that are passed into register_block_type.
+ *
+ * @see register_block_type
+ *
+ * @since 7.1.0
+ *
+ * @return WP_Block_Type|false The registered block type on success, or false on failure.
+ */
+function jetpack_register_block_type( $slug, $args = array() ) {
+	if ( ! function_exists( 'register_block_type' ) ) {
+		return false;
+	}
+	return register_block_type( $slug, $args );
+}
+
+/**
  * Helper function to register a Jetpack Gutenberg block
  *
- * @deprecated 7.1.0 Use (Gutenberg's) register_block_type() instead
+ * @deprecated 7.1.0 Use jetpack_register_block_type() instead
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -21,7 +40,7 @@
  * @return void
  */
 function jetpack_register_block( $slug, $args = array() ) {
-	_deprecated_function( __FUNCTION__, '7.1', 'register_block_type' );
+	_deprecated_function( __FUNCTION__, '7.1', 'jetpack_register_block_type' );
 
 	Jetpack_Gutenberg::register_block( $slug, $args );
 }
@@ -120,15 +139,15 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.1.0 Use (Gutenberg's) register_block_type() instead
+	 * @deprecated 7.1.0 Use jetpack_register_block_type() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type().
 	 */
 	public static function register_block( $slug, $args ) {
-		_deprecated_function( __METHOD__, '7.1', 'register_block_type' );
+		_deprecated_function( __METHOD__, '7.1', 'jetpack_register_block_type' );
 
-		register_block_type( 'jetpack/' . $slug, $args );
+		jetpack_register_block_type( 'jetpack/' . $slug, $args );
 	}
 
 	/**
@@ -147,14 +166,14 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.0.0 Use register_block_type() instead
+	 * @deprecated 7.0.0 Use jetpack_register_block_type() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into the register_block_type.
 	 * @param array  $availability array containing if a block is available and the reason when it is not.
 	 */
 	public static function register( $slug, $args, $availability ) {
-		_deprecated_function( __METHOD__, '7.0', 'register_block_type' );
+		_deprecated_function( __METHOD__, '7.0', 'jetpack_register_block_type' );
 
 		if ( isset( $availability['available'] ) && ! $availability['available'] ) {
 			self::set_extension_unavailability_reason( $slug, $availability['unavailable_reason'] );
@@ -334,7 +353,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
-		 * In the function call you supply, use `register_block_type()` to set a block as available.
+		 * In the function call you supply, use `jetpack_register_block_type()` to set a block as available.
 		 * Alternatively, use `Jetpack_Gutenberg::set_extension_available()` (for a non-block plugin), and
 		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
 		 * but marked as unavailable).

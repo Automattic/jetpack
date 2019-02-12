@@ -73,9 +73,7 @@ class WPCom_Markdown {
 			$this->add_o2_helpers();
 		}
 
-		if ( function_exists( 'register_block_type' ) ) {
-			register_block_type( 'jetpack/markdown' );
-		}
+		jetpack_register_block_type( 'jetpack/markdown' );
 	}
 
 	/**
