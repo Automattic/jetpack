@@ -22,8 +22,9 @@ function jetpack_register_block( $slug, $args = array() ) {
 	if ( ! function_exists( 'register_block_type' ) ) {
 		return false;
 	}
-	if ( ! wp_startswith( 'jetpack/', $slug ) && ! strpos( $slug, '/' ) ) {
+	if ( ! 0 === strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
+		$slug = 'jetpack/' . $slug;
 	}
 
 	return register_block_type( $slug, $args );
