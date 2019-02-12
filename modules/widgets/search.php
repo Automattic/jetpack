@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * Jetpack Search: Jetpack_Search_Widget class
  *
  * @package    Jetpack
