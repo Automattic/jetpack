@@ -1,8 +1,9 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20181228';
+	const VERSION   = '20190204';
 	const SHORTCODE = 'jetpack-related-posts';
-	private static $instance = null;
+
+	private static $instance     = null;
 	private static $instance_raw = null;
 
 	/**
@@ -247,6 +248,92 @@ EOT;
 	 */
 
 	/**
+	 * Echoes out items for the Gutenberg block
+	 *
+	 * @param array $related_post The post oject.
+	 * @param array $block_attributes The block attributes.
+	 */
+	public function render_block_item( $related_post, $block_attributes ) {
+		$instance_id = 'related-posts-item-' . uniqid();
+		$label_id    = $instance_id . '-label';
+		?>
+		<div
+			aria-labelledby="<?php echo esc_attr( $label_id ); ?>"
+			role="menuitem"
+			data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
+			data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
+			class="jp-related-posts-i2__post"
+			id="<?php echo esc_attr( $instance_id ); ?>"
+		>
+			<a
+				href="<?php echo esc_url( $related_post['url'] ); ?>"
+				title="<?php echo esc_attr( $related_post['title'] ); ?>"
+				rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+				data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+				data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+				class="jp-related-posts-i2__post-link"
+				id="<?php echo esc_attr( $label_id ); ?>"
+			>
+				<?php echo esc_html( $related_post['title'] ); ?>
+			</a>
+			<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
+			<a
+				href="<?php echo esc_url( $related_post['url'] ); ?>"
+				title="<?php echo esc_attr( $related_post['title'] ); ?>"
+				rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
+				data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
+				data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
+				class="jp-related-posts-i2__post-img-link"
+			>
+				<img
+					class="jp-related-posts-i2__post-img"
+					src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
+					width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
+					alt="<?php echo esc_attr( $related_post['title'] ); ?>"
+				/>
+			</a>
+			<?php endif; ?>
+			<?php if ( $block_attributes['show_date'] ) : ?>
+				<div class="jp-related-posts-i2__post-date has-small-font-size">
+					<?php echo esc_html( $related_post['date'] ); ?>
+				</div>
+			<?php endif; ?>
+			<?php
+			if (
+				( $block_attributes['show_context'] ) &&
+				! empty( $related_post['context'] )
+			) :
+				?>
+				<div class="jp-related-posts-i2__post-context has-small-font-size">
+					<?php echo esc_html( $related_post['context'] ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render a related posts row.
+	 *
+	 * @param array $posts The posts to render into the row.
+	 * @param array $block_attributes Block attributes.
+	 */
+	public function render_block_row( $posts, $block_attributes ) {
+		?>
+		<div
+			class="jp-related-posts-i2__row"
+			data-post-count="<?php echo count( $posts ); ?>"
+		>
+		<?php
+		foreach ( $posts as $post ) {
+			$this->render_block_item( $post, $block_attributes );
+		}
+		?>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render the related posts markup.
 	 *
 	 * @param array $attributes Block attributes.
@@ -261,7 +348,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
+		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
 			array(
@@ -270,81 +357,56 @@ EOT;
 			)
 		);
 
-		if ( ! $related_posts ) {
+		$display_lower_row = $block_attributes['size'] > 3;
+
+		if ( empty( $related_posts ) ) {
 			return '';
 		}
 
+		switch ( count( $related_posts ) ) {
+			case 2:
+			case 4:
+			case 5:
+				$top_row_end = 2;
+				break;
+
+			default:
+				$top_row_end = 3;
+				break;
+		}
+
+		$upper_row_posts = array_slice( $related_posts, 0, $top_row_end );
+		$lower_row_posts = array_slice( $related_posts, $top_row_end );
+
 		ob_start();
 		?>
-		<div id="jp-relatedposts" class="jp-relatedposts jp-relatedposts-block" style="display: block;">
-			<div class="jp-relatedposts-items <?php echo $block_attributes['show_thumbnails'] ? 'jp-relatedposts-items-visual ' : ''; ?>jp-relatedposts-<?php echo esc_attr( $block_attributes['layout'] ); ?>">
-				<?php
-				foreach ( $related_posts as $index => $related_post ) :
-					$classes = array_filter(
-						array(
-							'jp-relatedposts-post',
-							'jp-relatedposts-post' . $index,
-							! empty( $block_attributes['show_thumbnails'] ) ? 'jp-relatedposts-post-thumbs' : '',
-						)
-					);
-					$title_attr = $related_post['title'];
-					if ( '' !== $related_post['excerpt'] ) {
-						$title_attr .= "\n\n" . $related_post['excerpt'];
-					}
-					?>
-					<div
-						class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
-						data-post-id="<?php echo esc_attr( $related_post['id'] ); ?>"
-						data-post-format="<?php echo esc_attr( ! empty( $related_post['format'] ) ? $related_post['format'] : 'false' ); ?>"
-					>
-						<?php if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) : ?>
-							<a class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $title_attr ); ?>"
-								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-							>
-								<img class="jp-relatedposts-post-img"
-									src="<?php echo esc_url( $related_post['img']['src'] ); ?>"
-									width="<?php echo esc_attr( $related_post['img']['width'] ); ?>"
-									alt="<?php echo esc_attr( $title_attr ); ?>"
-								/>
-							</a>
-						<?php endif; ?>
-
-						<h4 class="jp-relatedposts-post-title">
-							<a
-								class="jp-relatedposts-post-a"
-								href="<?php echo esc_url( $related_post['url'] ); ?>"
-								title="<?php echo esc_attr( $title_attr ); ?>"
-								rel="<?php echo esc_attr( $related_post['rel'] ); ?>"
-								data-origin="<?php echo esc_attr( $related_post['url_meta']['origin'] ); ?>"
-								data-position="<?php echo esc_attr( $related_post['url_meta']['position'] ); ?>"
-							>
-								<?php echo esc_html( $related_post['title'] ); ?>
-							</a>
-						</h4>
-
-						<p class="jp-relatedposts-post-excerpt"><?php echo esc_html( $related_post['excerpt'] ); ?></p>
-
-						<?php if ( $block_attributes['show_date'] ) : ?>
-							<p class="jp-relatedposts-post-date" style="display: block;">
-								<?php echo esc_html( $related_post['date'] ); ?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( $block_attributes['show_context'] ) : ?>
-							<p class="jp-relatedposts-post-context">
-								<?php echo esc_html( $related_post['context'] ); ?>
-							</p>
-						<?php endif; ?>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		</div>
+		<nav
+				class="jp-relatedposts-i2"
+				data-layout="<?php echo esc_attr( $block_attributes['layout'] ); ?>"
+		>
+			<?php
+			$this->render_block_row( $upper_row_posts, $block_attributes );
+			if ( $display_lower_row ) {
+				$this->render_block_row( $lower_row_posts, $block_attributes );
+			}
+			?>
+		</nav>
 		<?php
 		$html = ob_get_clean();
+
+		/*
+		Below is a hack to get the block content to render correctly.
+
+		This functionality should be covered in /inc/blocks.php but due to an error,
+		this has not been fixed as of this writing.
+
+		Alda has submitted a patch to Core in order to have this issue fixed at
+		https://core.trac.wordpress.org/attachment/ticket/45495/do_blocks.diff and
+		hopefully it makes to to the final RC of WP 5.1.
+		*/
+		$priority = has_filter( 'the_content', 'wpautop' );
+		remove_filter( 'the_content', 'wpautop', $priority );
+		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
 
 		return $html;
 	}
@@ -726,7 +788,7 @@ EOT;
 			$options['size'] = $args['size'];
 		}
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) || get_post_status( $post_id) !== 'publish' ) {
+		if ( 0 === (int) $post_id || empty( $options['size'] ) ) {
 			return array();
 		}
 
@@ -1221,10 +1283,6 @@ EOT;
 			'height' => 0,
 		);
 
-		if ( ! $options['show_thumbnails'] ) {
-			return $image_params;
-		}
-
 		/**
 		 * Filter the size of the Related Posts images.
 		 *
@@ -1474,7 +1532,7 @@ EOT;
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
-						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
+						esc_html_x( 'In “%s”', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
 					/**
@@ -1680,7 +1738,7 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object, $field_name, $request ) {
-		return $this->get_for_post_id( $object['id'], array() );
+		return $this->get_for_post_id( $object['id'], array( 'size' => 6 ) );
 	}
 }
 
