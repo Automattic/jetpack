@@ -788,6 +788,7 @@ EOT;
 			$options['size'] = $args['size'];
 		}
 
+		// Test see if this can be patched
 		if ( 0 === (int) $post_id || empty( $options['size'] ) ) {
 			return array();
 		}
