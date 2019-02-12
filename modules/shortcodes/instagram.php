@@ -59,9 +59,16 @@ function jetpack_instagram_embed_reversal( $content ) {
 add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
 
 /**
- * Instagram
+ * Instagram's custom Embed provider.
+ * We first remove 2 different embed providers, both registered by Core.
+ * - The first is the original provider,that only supports images.
+ * - The second is tne new provider that replaced the first one in Core when Core added support for videos. https://core.trac.wordpress.org/changeset/44486
+ *
+ * Once the core embed provider is removed (one or the other, depending on your version of Core), we declare our own.
  */
-wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' ); // remove core's oEmbed support so we can override
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' );
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
+
 wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv)/([^/]*)#i', 'jetpack_instagram_handler' );
 
 function jetpack_instagram_handler( $matches, $atts, $url ) {
