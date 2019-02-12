@@ -74,14 +74,24 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	$min_width = 320;
 
 	if ( is_feed() ) {
-		$media_url = sprintf( 'http://instagr.am/%1$s/%2$s/media/?size=l', $matches[4], $matches[5] );
-		return sprintf(
-			'<a href="%1$s" title="%2$s" target="_blank"><img src="%3$s" alt="%4$s" /></a>',
-			esc_url( $url ),
-			esc_attr__( 'View on Instagram', 'jetpack' ),
-			esc_url( $media_url ),
-			( 'tv' === $matches[4] ? esc_html__( 'Instagram video', 'jetpack' ) : esc_html__( 'Instagram Photo', 'jetpack' ) )
-		);
+		// Instagram offers direct links to images, but not to videos.
+		if ( 'p' === $matches[4] ) {
+			$media_url = sprintf( 'http://instagr.am/p/%1$s/media/?size=l', $matches[5] );
+			return sprintf(
+				'<a href="%1$s" title="%2$s" target="_blank"><img src="%3$s" alt="%4$s" /></a>',
+				esc_url( $url ),
+				esc_attr__( 'View on Instagram', 'jetpack' ),
+				esc_url( $media_url ),
+				esc_html__( 'Instagram Photo', 'jetpack' )
+			);
+		} elseif ( 'tv' === $matches[4] ) {
+			return sprintf(
+				'<a href="%1$s" title="%2$s" target="_blank">%3$s</a>',
+				esc_url( $url ),
+				esc_attr__( 'View on Instagram', 'jetpack' ),
+				esc_html__( 'Instagram Video', 'jetpack' )
+			);
+		}
 	}
 
 	$atts = shortcode_atts(
