@@ -1010,7 +1010,7 @@ EOT;
 			);
 
 
-			
+
 		} else {
 			// Use current period
 			return array(
@@ -1663,6 +1663,8 @@ EOT;
 					'_inc/build/related-posts/related-posts.min.js',
 					'modules/related-posts/related-posts.js'
 				),
+
+				// Do something
 				$dependencies,
 				self::VERSION
 			);
