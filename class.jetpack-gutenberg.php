@@ -7,8 +7,7 @@
  */
 
 /**
- * Helper function to register a Jetpack Gutenberg block
- *
+ * Wrapper function to safely register a gutenberg block type
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -17,12 +16,16 @@
  *
  * @since 6.7.0
  *
- * @return void
+ * @return WP_Block_Type or false
  */
 function jetpack_register_block( $slug, $args = array() ) {
-	if( ! wp_startswith( 'jetpack/', $slug ) && ! strpos( $slug, '/' ) ) {
+	if ( ! function_exists( 'register_block_type' ) ) {
+		return false;
+	}
+	if ( ! wp_startswith( 'jetpack/', $slug ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 	}
+
 	return register_block_type( $slug, $args );
 }
 
