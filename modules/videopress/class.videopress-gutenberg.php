@@ -99,12 +99,7 @@ class VideoPress_Gutenberg {
 	 * It defines a server-side rendering that adds VideoPress support to the core video block.
 	 */
 	public function register_video_block_with_videopress() {
-		// Early return if Gutenberg is not available.
-		if ( function_exists( 'register_block_type' ) ) {
-			return;
-		}
-
-		register_block_type(
+		jetpack_register_block_type(
 			'core/video',
 			array(
 				'render_callback' => array( $this, 'render_video_block_with_videopress' ),
