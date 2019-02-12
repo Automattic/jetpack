@@ -128,6 +128,12 @@ class VideoPress_Gutenberg {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			/**
+			 * We're intentionally not using `get_current_blog_id` because it was returning unexpected values.
+			 *
+			 * @see https://github.com/Automattic/jetpack/pull/11193#issuecomment-457883886
+			 * @see https://github.com/Automattic/jetpack/pull/11193/commits/215cf789f3d8bd03ff9eb1bbdb693acb8831d273
+			 */
 			$blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
