@@ -41,14 +41,24 @@ class VideoPress_Gutenberg {
 	 * @see https://github.com/Automattic/jetpack/pull/11321#discussion_r255477815
 	 *
 	 * @return array Associative array indicating if the module is available (key `available`) and the reason why it is
-	 * unavailable (key `unavailable_reason)`
+	 * unavailable (key `unavailable_reason`)
 	 */
 	public function check_videopress_availability() {
 		// It is available on Simple Sites having the appropriate a plan.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$features = Store_Product_List::get_site_specific_features_data();
-			$has_feature = in_array( 'videopress', $features['active'] );
-			if ( $has_feature ) {
+		if (
+			defined( 'IS_WPCOM' ) && IS_WPCOM
+			&& method_exists( 'WPCOM_Store', 'get_bundle_subscription' )
+			&& method_exists( 'Store_Product_List', 'get_feature_list' )
+		) {
+			$current_plan = WPCOM_Store::get_bundle_subscription( get_current_blog_id() );
+			$features     = Store_Product_List::get_feature_list();
+			foreach ( $features as $feature ) {
+				if ( 'videopress' === $feature['product_slug'] ) {
+					$has_feature = array_key_exists( $current_plan->product_id, $feature['plans'] );
+					break;
+				}
+			}
+			if ( isset( $has_feature ) && $has_feature ) {
 				return array( 'available' => true );
 			} else {
 				return array(
@@ -59,11 +69,12 @@ class VideoPress_Gutenberg {
 		}
 
 		// It is available on Jetpack Sites having the module active.
-		if ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
-			if (
-				method_exists( 'Jetpack', 'is_module_active' )
-				&& Jetpack::is_module_active( 'videopress' )
-			) {
+		if (
+			method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active()
+			&& method_exists( 'Jetpack', 'is_module_active' )
+			&& method_exists( 'Jetpack', 'active_plan_supports' )
+		) {
+			if ( Jetpack::is_module_active( 'videopress' ) ) {
 				return array( 'available' => true );
 			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
 				return array(
@@ -77,8 +88,6 @@ class VideoPress_Gutenberg {
 				);
 			}
 		}
-
-
 
 		return array(
 			'available'          => false,
