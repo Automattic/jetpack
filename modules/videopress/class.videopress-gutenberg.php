@@ -34,28 +34,62 @@ class VideoPress_Gutenberg {
 	}
 
 	/**
+	 * Used to check whether VideoPress is enabled for given site.
+	 *
+	 * @todo Create a global `jetpack_check_module_availability( $module )` helper so we can re-use it on other modules.
+	 *       This global helper should be created in a file synced with WordPress.com so we can use it there too.
+	 * @see https://github.com/Automattic/jetpack/pull/11321#discussion_r255477815
+	 *
+	 * @return array Associative array indicating if the module is available (key `available`) and the reason why it is
+	 * unavailable (key `unavailable_reason)`
+	 */
+	public function check_videopress_availability() {
+		// It is available on Jetpack Sites having the module active.
+		if ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			if ( Jetpack::is_module_active( 'videopress' ) ) {
+				return array( 'available' => true );
+			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
+				return array(
+					'available'          => false,
+					'unavailable_reason' => 'missing_plan',
+				);
+			} else {
+				return array(
+					'available'          => false,
+					'unavailable_reason' => 'missing_module',
+				);
+			}
+		}
+
+		// It is available on Simple Sites having the appropriate a plan.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$features = Store_Product_List::get_site_specific_features_data();
+			$has_feature = in_array( 'videopress', $features['active'] );
+			if ( $has_feature ) {
+				return array( 'available' => true );
+			} else {
+				return array(
+					'available'          => false,
+					'unavailable_reason' => 'missing_plan',
+				);
+			}
+		}
+
+		return array(
+			'available'          => false,
+			'unavailable_reason' => 'unknown',
+		);
+	}
+
+	/**
 	 * Set the Jetpack Gutenberg extension availability.
 	 */
 	public function set_extension_availability() {
-		// It is available on Simple Sites having the appropriate a plan.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( '1' === get_option( 'video_upgrade' ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
-			} else {
-				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_plan' );
-			}
-			return;
-		}
-
-		// It is available on Jetpack Sites having the VideoPress module active.
-		if ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
-			if ( Jetpack::is_module_active( 'videopress' ) ) {
-				Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
-			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
-				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_plan' );
-			} else {
-				Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', 'missing_module' );
-			}
+		$availability = $this->check_videopress_availability();
+		if ( $availability['available'] ) {
+			Jetpack_Gutenberg::set_extension_available( 'jetpack/videopress' );
+		} else {
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/videopress', $availability['unavailable_reason'] );
 		}
 	}
 
