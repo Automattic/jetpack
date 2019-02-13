@@ -29,8 +29,8 @@ class VideoPress_Gutenberg {
 	 * Initialize the VideoPress Gutenberg extension
 	 */
 	private function __construct() {
-		add_action( 'init', array( $this, 'set_extension_availability' ) );
 		add_action( 'init', array( $this, 'register_video_block_with_videopress' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 	}
 
 	/**
@@ -47,18 +47,10 @@ class VideoPress_Gutenberg {
 		// It is available on Simple Sites having the appropriate a plan.
 		if (
 			defined( 'IS_WPCOM' ) && IS_WPCOM
-			&& method_exists( 'WPCOM_Store', 'get_bundle_subscription' )
-			&& method_exists( 'Store_Product_List', 'get_feature_list' )
+			&& method_exists( 'Store_Product_List', 'get_site_specific_features_data' )
 		) {
-			$current_plan = WPCOM_Store::get_bundle_subscription( get_current_blog_id() );
-			$features     = Store_Product_List::get_feature_list();
-			foreach ( $features as $feature ) {
-				if ( 'videopress' === $feature['product_slug'] ) {
-					$has_feature = array_key_exists( $current_plan->product_id, $feature['plans'] );
-					break;
-				}
-			}
-			if ( isset( $has_feature ) && $has_feature ) {
+			$features = Store_Product_List::get_site_specific_features_data();
+			if ( in_array( 'videopress', $features['active'], true ) ) {
 				return array( 'available' => true );
 			} else {
 				return array(
