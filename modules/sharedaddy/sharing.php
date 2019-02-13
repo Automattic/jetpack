@@ -51,6 +51,11 @@ class Sharing_Admin {
 		wp_enqueue_style( 'social-logos' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array(), 4 );
 		add_thickbox();
+
+		// On Jetpack sites, make sure we include CSS to style the admin page.
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	public function admin_init() {
