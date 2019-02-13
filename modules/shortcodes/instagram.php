@@ -68,13 +68,19 @@ add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
  */
 wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' );
 wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
-
 wp_embed_register_handler(
 	'jetpack_instagram',
 	'#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv)/([^\/]*)#i',
 	'jetpack_instagram_handler'
 );
 
+/**
+ * Handle Instagram embeds (build embed from regex).
+ *
+ * @param array  $matches Array of matches from the regex.
+ * @param array  $atts    The original unmodified attributes.
+ * @param string $url     The original URL that was matched by the regex.
+ */
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
 
@@ -86,8 +92,8 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 
 	if ( is_feed() ) {
 		// Instagram offers direct links to images, but not to videos.
-		if ( 'p' === $matches[4] ) {
-			$media_url = sprintf( 'http://instagr.am/p/%1$s/media/?size=l', $matches[5] );
+		if ( 'p' === $matches[1] ) {
+			$media_url = sprintf( 'http://instagr.am/p/%1$s/media/?size=l', $matches[2] );
 			return sprintf(
 				'<a href="%1$s" title="%2$s" target="_blank"><img src="%3$s" alt="%4$s" /></a>',
 				esc_url( $url ),
@@ -95,7 +101,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 				esc_url( $media_url ),
 				esc_html__( 'Instagram Photo', 'jetpack' )
 			);
-		} elseif ( 'tv' === $matches[4] ) {
+		} elseif ( 'tv' === $matches[1] ) {
 			return sprintf(
 				'<a href="%1$s" title="%2$s" target="_blank">%3$s</a>',
 				esc_url( $url ),
@@ -193,24 +199,32 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	return '<!-- instagram error: no embed found -->';
 }
 
-// filters instagram's username format to the expected format that matches the embed handler
+/**
+ * Handle an alternate Instagram URL format, where the username is also part of the URL.
+ * We do not actually need that username for the embed.
+ */
 wp_embed_register_handler(
 	'jetpack_instagram_alternate_format',
-	'#http(s?)://(www\.)?instagr(\.am|am\.com)/([^/]*)/(p|tv)/([^\/]*)#i',
+	'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
 	'jetpack_instagram_alternate_format_handler'
 );
+
+/**
+ * Handle alternate Instagram embeds (build embed from regex).
+ *
+ * @param array  $matches Array of matches from the regex.
+ * @param array  $atts    The original unmodified attributes.
+ * @param string $url     The original URL that was matched by the regex.
+ */
 function jetpack_instagram_alternate_format_handler( $matches, $atts, $url ) {
-	$url        = esc_url_raw(
+	// Replace URL saved by original Instagram URL (no username).
+	$matches[0] = esc_url_raw(
 		sprintf(
-			'https://instagram.com/%1$s/%2$s',
-			$matches[5],
-			$matches[6]
+			'https://www.instagram.com/%1$s/%2$s',
+			$matches[1],
+			$matches[2]
 		)
 	);
-	$matches[0] = $url;
-	$matches[4] = $matches[5];
-	$matches[5] = $matches[6];
-	unset( $matches[6] );
 
 	return jetpack_instagram_handler( $matches, $atts, $url );
 }
