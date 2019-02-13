@@ -49,8 +49,7 @@ function jetpack_contact_info_add_schema_attributes( $tags, $context_type ) {
 	if ( $context_type !== 'post' ) {
 		return $tags;
 	}
-	l( 'jetpack_contact_info_add_schema_attributes' );
-	l( $tags );
+
 	$scheme_attribues = array(
 		'itemscope' => true,
 		'itemtype' => true,
