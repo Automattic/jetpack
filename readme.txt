@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Publicize: update LinkedIn connections to use newer API, anticipating changes with LinkedIn's API v1 on March 1st.
+* Publicize: display a message inviting site owners to reconnect their site to their LinkedIn profile.
 * Publicize: remove section in Settings > Sharing in the dashboard.
 
 **Bug fixes**
