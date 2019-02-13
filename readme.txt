@@ -107,6 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Publicize: remove section in Settings > Sharing in the dashboard.
+
 **Bug fixes**
 
 * Tiled Galleries: avoid errors when converting a tiled gallery into a block.
