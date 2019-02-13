@@ -190,7 +190,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 }
 
 // filters instagram's username format to the expected format that matches the embed handler
-wp_embed_register_handler( 'jetpack_instagram_alternate_format', '#http(s?)://(www\.)instagr(\.am|am\.com)/([^/]*)/(p|tv)/([^/]*)#i', 'jetpack_instagram_alternate_format_handler' );
+wp_embed_register_handler( 'jetpack_instagram_alternate_format', '#http(s?)://(www\.)?instagr(\.am|am\.com)/([^/]*)/(p|tv)/([^/]*)#i', 'jetpack_instagram_alternate_format_handler' );
 function jetpack_instagram_alternate_format_handler( $matches, $atts, $url ) {
 	$url        = esc_url_raw(
 		sprintf(
