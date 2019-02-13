@@ -188,6 +188,12 @@ class Jetpack_Sync_Sender {
 		return array( $items_to_send, $skipped_items_ids, $items, microtime( true ) - $start_time );
 	}
 
+	private function fastcgi_finish_request() {
+		if ( function_exists( 'fastcgi_finish_request' ) && version_compare( phpversion(), '7.0.16', '>=' ) ) {
+			fastcgi_finish_request();
+		}
+	}
+
 	public function do_sync_for_queue( $queue ) {
 
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
@@ -199,6 +205,11 @@ class Jetpack_Sync_Sender {
 		// bad state
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
+		}
+
+		/* Don't make the request block till we finish, if possible. */
+		if ( Jetpack_Constants::is_true( 'REST_REQUEST' ) || Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
+			$this->fastcgi_finish_request();
 		}
 
 		$checkout_start_time = microtime( true );
