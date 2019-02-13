@@ -1,0 +1,73 @@
+.wp-block-a8c-trials-list, .wp-block-a8c-trials-list-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 121px auto 110px;
+  grid-column-gap: 11px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid #eee; }
+  .wp-block-a8c-trials-list > footer, .wp-block-a8c-trials-list-item > footer {
+    text-align: center; }
+
+.wp-block-a8c-trials-list {
+  border-top: 1px solid #ddd;
+  padding: 11px 0; }
+  .wp-block-a8c-trials-list > header, .wp-block-a8c-trials-list > div, .wp-block-a8c-trials-list > footer {
+    text-align: center;
+    font-weight: bold; }
+
+.wp-block-a8c-trials-list-item article {
+  margin-bottom: 12px; }
+
+.wp-block-a8c-trials-list-item address {
+  font-style: normal;
+  /* Twentyseventeen adds margin to all <address> tags for some reason */
+  margin: 0; }
+
+.wp-block-a8c-trials-list-item address:not(:empty):before {
+  content: "Team:";
+  font-style: italic;
+  float: left;
+  margin-right: 6px; }
+
+.wp-block-a8c-trials-list-item aside:not(:empty):before {
+  content: "Links:";
+  font-style: italic;
+  float: left;
+  margin-right: 6px; }
+
+.wp-block-a8c-trials-list-item > footer {
+  clear: left; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge, .wp-block-a8c-trials-list-item .status-badge {
+  font-size: 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  text-decoration: none; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge:hover, .wp-block-a8c-trials-list-item .status-badge:hover {
+  color: white; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-planned, .wp-block-a8c-trials-list-item .status-planned {
+  background-color: green; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-new, .wp-block-a8c-trials-list-item .status-new {
+  background-color: dodgerblue; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-in-progress, .wp-block-a8c-trials-list-item .status-in-progress {
+  background-color: #fb8b1e; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-needs-completion, .wp-block-a8c-trials-list-item-status-popover .status-needs-merging, .wp-block-a8c-trials-list-item .status-needs-completion, .wp-block-a8c-trials-list-item .status-needs-merging {
+  background-color: #b17bca; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-done, .wp-block-a8c-trials-list-item .status-done {
+  background-color: red; }
+
+.wp-block-a8c-trials-list-item-status-popover div {
+  padding: 3px; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge {
+  margin: 3px; }
+

@@ -1,0 +1,196 @@
+.wp-block-a8c-editor-notes {
+  border: 2px solid gray;
+  position: relative;
+  padding: 32px 6px 6px;
+  background-color: #c0e7ff; }
+  .wp-block-a8c-editor-notes .is-selected {
+    padding-top: 6px; }
+
+.editor-notes__editor-indicator {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  font-style: italic; }
+
+.wp-block-a8c-prev-next {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between; }
+
+.wp-block-a8c-todo {
+  margin-bottom: 20px; }
+  .wp-block-a8c-todo .wp-block-a8c-todo__list {
+    list-style-type: none;
+    margin-bottom: 20px; }
+  .wp-block-a8c-todo .wp-block-a8c-todo__item {
+    border-bottom: 1px solid #e2e4e7;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+    padding: 4px 0; }
+  .wp-block-a8c-todo .item-status {
+    display: inline-block;
+    content: '';
+    border: 1px solid #e2e4e7;
+    border-radius: 50%;
+    margin: 7px 0 0 8px;
+    height: 16px;
+    width: 18px; }
+  .wp-block-a8c-todo .item-title {
+    width: 100%; }
+  .wp-block-a8c-todo .wp-block-a8c-todo__item--done {
+    color: #31843f; }
+    .wp-block-a8c-todo .wp-block-a8c-todo__item--done .item-status {
+      background: #31843f;
+      border: 0;
+      position: relative; }
+    .wp-block-a8c-todo .wp-block-a8c-todo__item--done .item-status .dashicon {
+      fill: #fff;
+      position: absolute;
+      top: -2px;
+      right: -2px; }
+  .wp-block-a8c-todo .move-buttons {
+    width: 78px;
+    text-align: left; }
+  .wp-block-a8c-todo .move-buttons .components-button {
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: none;
+            box-shadow: none;
+    background: none;
+    color: #e2e4e7; }
+    .wp-block-a8c-todo .move-buttons .components-button .dashicon {
+      fill: #e2e4e7; }
+    .wp-block-a8c-todo .move-buttons .components-button:hover {
+      border-color: #f3f4f5; }
+      .wp-block-a8c-todo .move-buttons .components-button:hover .dashicon {
+        fill: #555d66; }
+  .wp-block-a8c-todo .add-new-todo-item-form {
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center; }
+    .wp-block-a8c-todo .add-new-todo-item-form .components-button {
+      font-size: 13px !important;
+      color: #555d66;
+      border: 1px solid #ccd0d4;
+      background: #f3f4f5;
+      -webkit-box-shadow: 0 1px 0 #ccd0d4;
+              box-shadow: 0 1px 0 #ccd0d4;
+      margin: 0;
+      height: 33px;
+      line-height: 32px;
+      border-radius: 3px;
+      padding: 0 12px 2px;
+      white-space: nowrap; }
+      .wp-block-a8c-todo .add-new-todo-item-form .components-button .dashicon {
+        fill: #7e8993;
+        vertical-align: middle;
+        display: inline; }
+
+.edit-post-visual-editor .wp-block-a8c-todo .wp-block-a8c-todo__list {
+  list-style-type: none; }
+
+.editor-block-list__block .wp-block-a8c-todo .add-new-item {
+  width: 100%;
+  margin-left: 6px;
+  padding: 7.5px 8px; }
+
+body:not(.wp-admin) .gutenberg .wp-block-a8c-todo .wp-block-a8c-todo__item {
+  padding: 10px 0 4px; }
+
+.wp-block-a8c-todo .add-new-todo-item-form {
+  display: none; }
+
+.editor-block-list__block.is-selected .wp-block-a8c-todo .add-new-todo-item-form,
+.editor-block-list__block.is-typing .wp-block-a8c-todo .add-new-todo-item-form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex; }
+
+.wp-block-a8c-trials-list, .wp-block-a8c-trials-list-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 121px auto 110px;
+  grid-column-gap: 11px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid #eee; }
+  .wp-block-a8c-trials-list > footer, .wp-block-a8c-trials-list-item > footer {
+    text-align: center; }
+
+.wp-block-a8c-trials-list {
+  border-top: 1px solid #ddd;
+  padding: 11px 0; }
+  .wp-block-a8c-trials-list > header, .wp-block-a8c-trials-list > div, .wp-block-a8c-trials-list > footer {
+    text-align: center;
+    font-weight: bold; }
+
+.wp-block-a8c-trials-list-item article {
+  margin-bottom: 12px; }
+
+.wp-block-a8c-trials-list-item address {
+  font-style: normal;
+  /* Twentyseventeen adds margin to all <address> tags for some reason */
+  margin: 0; }
+
+.wp-block-a8c-trials-list-item address:not(:empty):before {
+  content: "Team:";
+  font-style: italic;
+  float: right;
+  margin-left: 6px; }
+
+.wp-block-a8c-trials-list-item aside:not(:empty):before {
+  content: "Links:";
+  font-style: italic;
+  float: right;
+  margin-left: 6px; }
+
+.wp-block-a8c-trials-list-item > footer {
+  clear: right; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge, .wp-block-a8c-trials-list-item .status-badge {
+  font-size: 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  text-decoration: none; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge:hover, .wp-block-a8c-trials-list-item .status-badge:hover {
+  color: white; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-planned, .wp-block-a8c-trials-list-item .status-planned {
+  background-color: green; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-new, .wp-block-a8c-trials-list-item .status-new {
+  background-color: dodgerblue; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-in-progress, .wp-block-a8c-trials-list-item .status-in-progress {
+  background-color: #fb8b1e; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-needs-completion, .wp-block-a8c-trials-list-item-status-popover .status-needs-merging, .wp-block-a8c-trials-list-item .status-needs-completion, .wp-block-a8c-trials-list-item .status-needs-merging {
+  background-color: #b17bca; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-done, .wp-block-a8c-trials-list-item .status-done {
+  background-color: red; }
+
+.wp-block-a8c-trials-list-item-status-popover div {
+  padding: 3px; }
+
+.wp-block-a8c-trials-list-item-status-popover .status-badge {
+  margin: 3px; }
+
+.status-badge:hover {
+  cursor: pointer; }
+

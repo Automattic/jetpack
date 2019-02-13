@@ -1,0 +1,14 @@
+/**
+ * SASS placeholder selectors for form styles
+ */
+/** @format */
+.wp-block-a8c-vr {
+  position: relative;
+  max-width: 525px;
+  margin-right: auto;
+  margin-left: auto;
+  overflow: hidden; }
+  .wp-block-a8c-vr .components-placeholder__fieldset {
+    -ms-flex-pack: distribute;
+        justify-content: space-around; }
+

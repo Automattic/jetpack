@@ -1,0 +1,67 @@
+/**
+ * SASS placeholder selectors for form styles
+ */
+.wp-block-a8c-tiled-gallery .tiled-gallery__square {
+  clear: both;
+  margin: 0 0 20px;
+  overflow: hidden; }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__image {
+  margin: 2px !important;
+  /* Ensure that this value isn't overridden by themes that give content images blanket margins */ }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__group {
+  float: left;
+  position: relative; }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__row {
+  overflow: hidden; }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__item {
+  float: left;
+  margin: 0;
+  position: relative;
+  width: inherit;
+  /* prevents ie8 bug with inline width styles */ }
+  .wp-block-a8c-tiled-gallery .tiled-gallery__item a {
+    /* Needs to reset some properties for theme compatibility */
+    background: transparent;
+    border: none;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    width: auto; }
+  .wp-block-a8c-tiled-gallery .tiled-gallery__item figure {
+    margin: 0; }
+  .wp-block-a8c-tiled-gallery .tiled-gallery__item .tiled-gallery__image,
+  .wp-block-a8c-tiled-gallery .tiled-gallery__item .tiled-gallery__image:hover {
+    /* Needs to reset some properties for theme compatibility */
+    background: none;
+    border: none;
+    -webkit-box-shadow: none;
+            box-shadow: none;
+    max-width: 100%;
+    padding: 0;
+    vertical-align: middle; }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__caption {
+  /* Captions */
+  background: #eee;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  font-size: 13px;
+  font-weight: 400;
+  overflow: hidden;
+  padding: 10px 0;
+  position: absolute;
+  bottom: 0;
+  text-indent: 10px;
+  text-overflow: ellipsis;
+  width: 100%;
+  white-space: nowrap; }
+
+.wp-block-a8c-tiled-gallery .tiled-gallery__item-small .tiled-gallery__caption {
+  /* Smaller captions */
+  font-size: 11px; }
+
