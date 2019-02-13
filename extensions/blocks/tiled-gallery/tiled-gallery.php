@@ -27,15 +27,7 @@ if (
 	 * @return string
 	 */
 	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
-		$dependencies = array(
-			// i18n isn't really needed for the view, but the current module structure
-			// requires it during evaluation of an imported module:
-			//
-			// https://github.com/Automattic/wp-calypso/blob/4b25daefec1425165086a0aaac8f10ac6c479463/client/gutenberg/extensions/tiled-gallery/constants.js#L6
-			//
-			// With some restructuring we can remove this view dependency.
-			'wp-i18n',
-		);
+		$dependencies = array();
 		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
 
 		/**
