@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Tiled Galleries: avoid errors when converting a tiled gallery into a block.
+* Shortlinks: do not show Jetpack Sidebar in the block editor if Shortlinks are not available.
 
 = 7.0 =
 
