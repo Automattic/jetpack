@@ -523,7 +523,7 @@ abstract class Publicize_Base {
 				if ( 'linkedin' === $service_name && $this->is_invalid_linkedin_connection( $connection ) ) {
 					$connection_test_passed = 'must_reauth';
 					$user_can_refresh = false;
-					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.' );
+					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.', 'jetpack' );
 				}
 
 				$unique_id = null;

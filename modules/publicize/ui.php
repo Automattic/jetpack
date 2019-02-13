@@ -747,13 +747,14 @@ jQuery( function($) {
 							<span class="notice-warning publicize__notice-warning">
 				                <?php
 				                printf( esc_html__(
-					                'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.'
+					                'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
+							'jetpack'
 				                ), $connection_name );
 				                ?>
 								<a
 										class="publicize__sharing-settings"
 										href="<?php echo publicize_calypso_url() ?>"
-								><?php esc_html_e( 'Go to Sharing settings' ) ?></a>
+								><?php esc_html_e( 'Go to Sharing settings', 'jetpack' ) ?></a>
 							</span>
 							<?php
 						}
