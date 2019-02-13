@@ -164,7 +164,7 @@ class Jetpack_Likes_Settings {
 		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
 		<p>
 			<label for="wpl_enable_post_sharing">
-				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
+				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( ! $disabled ); ?>>
 				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
@@ -237,14 +237,30 @@ class Jetpack_Likes_Settings {
 	 */
 	function is_post_likeable( $post_id = 0 ) {
 		$post = get_post( $post_id );
-		if ( !$post || is_wp_error( $post ) ) {
+		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
 
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 
-		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+		// on WPCOM, we need to look at post edit date so we don't break old posts
+		// if post edit date predates this code, stick with the former (buggy) behavior
+		// see: p7DVsv-64H-p2
+		$last_modified_time = strtotime( $post->post_modified_gmt );
+
+		// TODO set this to the current date/time immediately before committing
+		$behavior_was_changed_at = strtotime( "2019-02-20 00:00:00" );
+
+		if ( $this->in_jetpack || $last_modified_time > $behavior_was_changed_at ) {
+			// the new and improved behavior on Jetpack and recent WPCOM posts:
+			// $post_likes_switched is empty to follow site setting,
+			// 0 if we want likes disabled, 1 if we want likes enabled
+			return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+		}
+
+		// implicit else (old behavior): $post_likes_switched simply inverts the global setting
+		return ( (bool) $post_likes_switched ) xor $sitewide_likes_enabled;
 	}
 
 	/**
