@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Tiled Galleries: avoid errors when converting a tiled gallery into a block.
 * Shortlinks: do not show Jetpack Sidebar in the block editor if Shortlinks are not available.
+* Sync: avoid errors in WordPress' code editor, for sites using PHP 7 with `fastcgi_finish_request` enabled.
 
 = 7.0 =
 
