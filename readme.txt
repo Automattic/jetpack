@@ -109,7 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Tiled Galleries: avoid errors when converting a tiled gallery into a block.
 
 = 7.0 =
 
