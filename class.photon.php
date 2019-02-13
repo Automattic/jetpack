@@ -86,10 +86,10 @@ class Jetpack_Photon {
 	private function enable_noresize_mode() {
 		// The main objective of noresize mode is to disable additional resized image versions creation.
 		// This filter handles removal of additional sizes.
-		add_filter( 'intermediate_image_sizes_advanced', 'wpcom_intermediate_sizes' );
+		add_filter( 'intermediate_image_sizes_advanced', array( __CLASS__, 'filter_photon_noresize_intermediate_sizes' ) );
 
 		// This allows to assign the Photon domain to images that normally use the home URL as base.
-		add_filter( 'jetpack_photon_domain', array( __CLASS__, 'filter_photon_norezise_mode_domain' ), 10, 2 );
+		add_filter( 'jetpack_photon_domain', array( __CLASS__, 'filter_photon_norezise_domain' ), 10, 2 );
 
 		add_filter( 'the_content', array( __CLASS__, 'filter_content_add' ), 0 );
 
@@ -135,7 +135,7 @@ class Jetpack_Photon {
 	 * @param String $image_url the original media URL.
 	 * @return String an URL to be used for the media file.
 	 */
-	public static function filter_photon_norezise_mode_domain( $photon_url, $image_url ) {
+	public static function filter_photon_norezise_domain( $photon_url, $image_url ) {
 		return $photon_url;
 	}
 
@@ -148,6 +148,16 @@ class Jetpack_Photon {
 	 */
 	public static function filter_photon_noresize_allow_downsize( $allow, $params ) {
 		return true;
+	}
+
+	/**
+	 * Disables intermediate sizes to disallow resizing.
+	 *
+	 * @param Array $sizes an array containing image sizes.
+	 * @return Boolean
+	 */
+	public static function filter_photon_noresize_intermediate_sizes( $sizes ) {
+		return array();
 	}
 
 	/**

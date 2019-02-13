@@ -10,6 +10,9 @@
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
+	if ( 'image_downsize' !== current_filter() ) {
+		l( $image_url );
+	}
 	$image_url = trim( $image_url );
 
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
