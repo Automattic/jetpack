@@ -434,6 +434,19 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * LinkedIn needs to be reauthenticated to use v2 of their API.
+	 * If it's using LinkedIn old API, it's an 'invalid' connection
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
+	function is_invalid_linkedin_connection( $connection ) {
+		// LinkedIn API v1 included the profile link in the connection data.
+		$connection_meta = $this->get_connection_meta( $connection );
+		return isset( $connection_meta['connection_data']['meta']['profile_url'] );
+	}
+
+	/**
 	 * Whether the Connection currently being connected
 	 *
 	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
@@ -504,6 +517,13 @@ abstract class Publicize_Base {
 						$user_can_refresh = false;
 						$connection_test_message = __( 'Please select a Facebook Page to publish updates.', 'jetpack' );
 					}
+				}
+
+				// LinkedIn needs reauthentication to be compatible with v2 of their API
+				if ( 'linkedin' === $service_name && $this->is_invalid_linkedin_connection( $connection ) ) {
+					$connection_test_passed = 'must_reauth';
+					$user_can_refresh = false;
+					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.', 'jetpack' );
 				}
 
 				$unique_id = null;
