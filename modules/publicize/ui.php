@@ -81,6 +81,14 @@ class Publicize_UI {
 	}
 
 	/**
+	 * styling for the sharing screen and popups
+	 * JS for the options and switching
+	 */
+	function load_assets() {
+		Jetpack_Admin_Page::load_wrapper_styles();
+	}
+
+	/**
 	 * Lists the current user's publicized accounts for the blog
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
 	 */
