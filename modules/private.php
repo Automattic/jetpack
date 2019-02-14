@@ -281,6 +281,7 @@ class Jetpack_Private {
 	 */
 	static function make_blog_private() {
 		update_option( 'blog_public', -1 );
+		// update_blog_public( 0, 0 );
 	}
 
 	/**
@@ -288,6 +289,7 @@ class Jetpack_Private {
 	 */
 	static function make_blog_public() {
 		update_option( 'blog_public', 1 );
+		// update_blog_public( 1, 1 );
 	}
 }
 
