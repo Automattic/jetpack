@@ -25,6 +25,8 @@ class Jetpack_Private {
 		add_action( 'rest_pre_dispatch', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
+		add_action( 'init', array( __CLASS__, 'make_blog_private' ), 9 );
+		add_action( 'jetpack_deactivate_module_private', array( __CLASS__, 'make_blog_public' ) );
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
 		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
@@ -272,6 +274,20 @@ class Jetpack_Private {
 	 */
 	static function add_private_dashboard_glance_items( $content ) {
 		return $content . '<br><br>' . __( 'This site is currently Private', 'jetpack' );
+	}
+
+	/**
+	 * Changes a blog to private
+	 */
+	static function make_blog_private() {
+		update_option( 'blog_public', -1 );
+	}
+
+	/**
+	 * Changes a blog to public
+	 */
+	static function make_blog_public() {
+		update_option( 'blog_public', 1 );
 	}
 }
 
