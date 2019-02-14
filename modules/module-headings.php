@@ -236,6 +236,12 @@ function jetpack_get_module_i18n( $key ) {
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
 			),
+
+			'wordpress-com-compose' => array(
+				'name' => _x( 'WordPress.com Compose', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Allow new block editor posts to be composed on WordPress.com.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Allow new block editor posts to be composed on WordPress.com.', 'Jumpstart Description', 'jetpack' ),
+			),
 		);
 	}
 	return $modules[ $key ];
@@ -266,6 +272,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/markdown.php
 			//  - modules/post-by-email.php
 			//  - modules/shortcodes.php
+			//  - modules/wordpress-com-compose.php
 			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Photos and Videos` tag:
