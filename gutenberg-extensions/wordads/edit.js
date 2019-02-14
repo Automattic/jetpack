@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import { __ } from 'presets/jetpack/utils/i18n';
 import classNames from 'classnames';
 import { Component } from '@wordpress/element';
 import { PanelBody, Placeholder, SelectControl } from '@wordpress/components';

@@ -8,7 +8,7 @@ import { Component } from '@wordpress/element';
  */
 import HoursRow from './hours-row';
 import apiFetch from '@wordpress/api-fetch/build/index';
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import { __ } from 'presets/jetpack/utils/i18n';
 
 const defaultLocalization = {
 	days: {

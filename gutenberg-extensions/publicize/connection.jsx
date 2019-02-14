@@ -15,7 +15,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import { __ } from 'presets/jetpack/utils/i18n';
 import PublicizeServiceIcon from './service-icon';
 
 class PublicizeConnection extends Component {

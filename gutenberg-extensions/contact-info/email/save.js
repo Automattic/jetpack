@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import textMatchReplace from 'gutenberg/extensions/presets/jetpack/utils/text-match-replace';
+import textMatchReplace from 'presets/jetpack/utils/text-match-replace';
 
 const renderEmail = inputText => {
 	return textMatchReplace(

@@ -12,10 +12,10 @@ import { compose, withInstanceId } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
-import renderMaterialIcon from 'gutenberg/extensions/presets/jetpack/utils/render-material-icon';
-import SubmitButton from 'gutenberg/extensions/presets/jetpack/utils/submit-button';
-import HelpMessage from 'gutenberg/extensions/presets/jetpack/editor-shared/help-message';
+import { __ } from 'presets/jetpack/utils/i18n';
+import renderMaterialIcon from 'presets/jetpack/utils/render-material-icon';
+import SubmitButton from 'presets/jetpack/utils/submit-button';
+import HelpMessage from 'presets/jetpack/editor-shared/help-message';
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
 	'core/paragraph',

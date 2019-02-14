@@ -8,8 +8,8 @@ import { Path } from '@wordpress/components';
  */
 import edit from './edit';
 import save from './save';
-import renderMaterialIcon from 'gutenberg/extensions/presets/jetpack/utils/render-material-icon';
-import { __, _x } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import renderMaterialIcon from 'presets/jetpack/utils/render-material-icon';
+import { __, _x } from 'presets/jetpack/utils/i18n';
 
 const attributes = {
 	phone: {

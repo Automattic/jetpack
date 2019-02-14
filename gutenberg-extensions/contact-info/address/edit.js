@@ -9,8 +9,8 @@ import { ToggleControl, PanelBody, ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
-import ClipboardInput from 'gutenberg/extensions/presets/jetpack/utils/clipboard-input';
+import { __ } from 'presets/jetpack/utils/i18n';
+import ClipboardInput from 'presets/jetpack/utils/clipboard-input';
 import { default as save, googleMapsUrl } from './save';
 
 class AddressEdit extends Component {

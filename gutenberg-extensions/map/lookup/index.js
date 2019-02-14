@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { __, _n } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import { __, _n } from 'presets/jetpack/utils/i18n';
 import { Button, Popover, withFocusOutside, withSpokenMessages } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { debounce, map } from 'lodash';

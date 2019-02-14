@@ -9,9 +9,9 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import ClipboardInput from 'gutenberg/extensions/presets/jetpack/utils/clipboard-input';
-import JetpackPluginSidebar from 'gutenberg/extensions/presets/jetpack/editor-shared/jetpack-plugin-sidebar';
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import ClipboardInput from 'presets/jetpack/utils/clipboard-input';
+import JetpackPluginSidebar from 'presets/jetpack/editor-shared/jetpack-plugin-sidebar';
+import { __ } from 'presets/jetpack/utils/i18n';
 
 export const name = 'shortlinks';
 

@@ -23,7 +23,7 @@ import {
 import HelpMessage from './help-message';
 import ProductPlaceholder from './product-placeholder';
 import FeaturedMedia from './featured-media';
-import { __, _n } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
+import { __, _n } from 'presets/jetpack/utils/i18n';
 import { decimalPlaces, formatPrice } from 'lib/simple-payments/utils';
 import { getCurrencyDefaults } from 'lib/format-currency/currencies';
 import {

@@ -3,8 +3,8 @@
  */
 import edit from './edit';
 import save from './save';
-import { __ } from 'gutenberg/extensions/presets/jetpack/utils/i18n';
-import renderMaterialIcon from 'gutenberg/extensions/presets/jetpack/utils/render-material-icon';
+import { __ } from 'presets/jetpack/utils/i18n';
+import renderMaterialIcon from 'presets/jetpack/utils/render-material-icon';
 import { Path } from '@wordpress/components';
 import { isEmpty } from 'lodash';
 import { RawHTML } from '@wordpress/element';
