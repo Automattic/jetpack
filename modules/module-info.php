@@ -712,3 +712,13 @@ function jetpack_more_info_copy_post() {
 	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
+
+function jetpack_wordpress_com_compose_more_link() {
+	echo 'https://jetpack.com/support/copy-post-2/';
+}
+add_action( 'jetpack_learn_more_button_wordpress-com-compose', 'jetpack_wordpress_com_compose_more_link' );
+
+function jetpack_more_info_wordpress_com_compose() {
+	esc_html_e( 'WordPress.com Compose', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_wordpress-com-compose', 'jetpack_more_info_wordpress_com_compose' );
