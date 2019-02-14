@@ -896,7 +896,9 @@ class The_Neverending_Home_Page {
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-		var infiniteScroll = <?php echo json_encode( array( 'settings' => $js_settings ) ); ?>;
+		var infiniteScroll = JSON.parse( decodeURIComponent( '<?php echo
+			rawurlencode( json_encode( array( 'settings' => $js_settings ) ) );
+		?>' ) );
 		//]]>
 		</script>
 		<?php

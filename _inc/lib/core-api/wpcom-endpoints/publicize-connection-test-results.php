@@ -105,6 +105,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			}
 		}
 
+		if ( 'linkedin' === $item['id'] && 'must_reauth' === $test_result['connectionTestPassed'] ) {
+			$item['test_success'] = 'must_reauth';
+		}
+
 		$response = rest_ensure_response( $items );
 
 		$response->header( 'X-WP-Total', count( $items ) );
