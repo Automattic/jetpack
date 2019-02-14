@@ -86,7 +86,7 @@ class Jetpack_Photon {
 	private function enable_noresize_mode() {
 		// The main objective of noresize mode is to disable additional resized image versions creation.
 		// This filter handles removal of additional sizes.
-		add_filter( 'intermediate_image_sizes_advanced', array( __CLASS__, 'filter_photon_noresize_intermediate_sizes' ) );
+		add_filter( 'intermediate_image_sizes_advanced', '__return_empty_array' );
 
 		// This allows to assign the Photon domain to images that normally use the home URL as base.
 		add_filter( 'jetpack_photon_domain', array( __CLASS__, 'filter_photon_norezise_domain' ), 10, 2 );
@@ -100,7 +100,9 @@ class Jetpack_Photon {
 		// This is temporary until Jetpack allows more easily running these filters for is_admin().
 		if ( is_admin() ) {
 			add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 5, 3 );
-			add_filter( 'jetpack_photon_admin_allow_image_downsize', array( __CLASS__, 'filter_photon_noresize_allow_downsize' ), 10, 2 );
+
+			// Allows any image that gets passed to Photon to be resized via Photon.
+			add_filter( 'jetpack_photon_admin_allow_image_downsize', '__return_true' );
 		}
 	}
 
@@ -137,27 +139,6 @@ class Jetpack_Photon {
 	 */
 	public static function filter_photon_norezise_domain( $photon_url, $image_url ) {
 		return $photon_url;
-	}
-
-	/**
-	 * Allows any image that gets passed to Photon to be resized via Photon.
-	 *
-	 * @param Boolean $allow whether to allow the image to get resized with Photon.
-	 * @param Array   $params an array containing image data, attachment ID and size variant.
-	 * @return Boolean
-	 */
-	public static function filter_photon_noresize_allow_downsize( $allow, $params ) {
-		return true;
-	}
-
-	/**
-	 * Disables intermediate sizes to disallow resizing.
-	 *
-	 * @param Array $sizes an array containing image sizes.
-	 * @return Boolean
-	 */
-	public static function filter_photon_noresize_intermediate_sizes( $sizes ) {
-		return array();
 	}
 
 	/**
