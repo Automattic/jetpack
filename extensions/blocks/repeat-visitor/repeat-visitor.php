@@ -1,0 +1,35 @@
+<?php
+/**
+ * Repeat Visitor Block
+ */
+jetpack_register_block_type( 
+	'repeat-visitor', 
+	array(
+		'render_callback' => 'jetpack_repeat_visitor_block_render',
+	)
+);
+
+/**
+ * Repeat Visitor block dependency declaration.
+ *
+ * @param array  $attributes - Array containing the block attributes.
+ * @param string $content - String containing the block content.
+ *
+ * @return string
+ */
+function jetpack_repeat_visitor_block_render( $attributes, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( 'visited' );
+
+	$count = isset( $_COOKIE[ 'wp-visit-tracking' ] ) ? intval( $_COOKIE[ 'wp-visit-tracking' ] ) : 0;
+	$criteria = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
+	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
+
+	if (
+		( 'after-visits' === $criteria && $count >= $threshold ) ||
+		( 'before-visits' === $criteria && $count <= $threshold )
+	) {
+		return $content;
+	}
+	// return an empty div so that view script increments the visit counter in the cookie
+	return '<div class="wp-block-jetpack-repeat-visitor"></div>';
+}
