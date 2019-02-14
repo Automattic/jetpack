@@ -34,10 +34,81 @@ class Publicize_UI {
 			return;
 		}
 
+		// assets (css, js)
+		if ( $this->in_jetpack ) {
+			add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
+		}
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
+		// management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen)
+		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'post_page_metabox' ) );
+	}
+
+	/**
+	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
+	 */
+	function sharing_menu() {
+		add_submenu_page(
+			'options-general.php',
+			esc_html__( 'Sharing Settings', 'jetpack' ),
+			esc_html__( 'Sharing', 'jetpack' ),
+			'publish_posts',
+			'sharing',
+			array( $this, 'wrapper_admin_page' )
+		);
+	}
+
+	function wrapper_admin_page() {
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+	}
+
+	/**
+	 * Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
+	 */
+	function management_page() { ?>
+		<div class="wrap">
+			<div class="icon32" id="icon-options-general"><br /></div>
+			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
+
+			<?php
+			/** This action is documented in modules/sharedaddy/sharing.php */
+			do_action( 'pre_admin_screen_sharing' );
+			?>
+
+		</div> <?php
+	}
+
+	/**
+	 * styling for the sharing screen and popups
+	 * JS for the options and switching
+	 */
+	function load_assets() {
+		Jetpack_Admin_Page::load_wrapper_styles();
+	}
+
+	/**
+	 * Lists the current user's publicized accounts for the blog
+	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
+	 */
+	function admin_page() {
+		?>
+		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack' ) ?></h2>
+		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack' ) ?></p>
+		<h4><?php
+			printf(
+				wp_kses(
+					__( "We've made some updates to Publicize. Please visit the <a href='%s'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
+					array( 'a' => array( 'href' => array() ) )
+				),
+				esc_url( publicize_calypso_url() )
+			);
+			?>
+		</h4>
+
+		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary"><?php esc_html_e( 'Publicize Settings', 'jetpack' ); ?></a>
+		<?php
 	}
 
 	/**
