@@ -386,38 +386,3 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$html = ob_get_clean();
 	return $html;
 }
-
-/**
- * Visited Block
- */
-jetpack_register_block( 
-	'visited', 
-	array(
-		'render_callback' => 'jetpack_visited_block_render',
-	)
-);
-
-/**
- * Visited block dependency declaration.
- *
- * @param array  $attributes - Array containing the map block attributes.
- * @param string $content - String containing the visited block content.
- *
- * @return string
- */
-function jetpack_visited_block_render( $attributes, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'visited' );
-
-	$count = isset( $_COOKIE[ 'wp-visit-tracking' ] ) ? intval( $_COOKIE[ 'wp-visit-tracking' ] ) : 0;
-	$criteria = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
-	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
-
-	if (
-		( 'after-visits' === $criteria && $count >= $threshold ) ||
-		( 'before-visits' === $criteria && $count <= $threshold )
-	) {
-		return $content;
-	}
-	// return an empty div so that view script increments the visit counter in the cookie
-	return '<div class="wp-block-jetpack-visited"></div>';
-}
