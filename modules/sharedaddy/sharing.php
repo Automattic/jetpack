@@ -555,6 +555,9 @@ class Sharing_Admin {
 /**
  * Callback to get the value for the jetpack_sharing_enabled field.
  *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
  */
 function jetpack_post_sharing_get_value( array $post ) {
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
@@ -564,6 +567,10 @@ function jetpack_post_sharing_get_value( array $post ) {
 /**
  * Callback to set sharing_disabled post_meta when the
  * jetpack_sharing_enabled field is updated.
+ *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
  *
  */
 function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
