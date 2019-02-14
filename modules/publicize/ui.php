@@ -52,8 +52,8 @@ class Publicize_UI {
 	function sharing_menu() {
 		add_submenu_page(
 			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
+			esc_html__( 'Sharing Settings', 'jetpack' ),
+			esc_html__( 'Sharing', 'jetpack' ),
 			'publish_posts',
 			'sharing',
 			array( $this, 'wrapper_admin_page' )
@@ -70,7 +70,7 @@ class Publicize_UI {
 	function management_page() { ?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
-			<h1><?php _e( 'Sharing Settings', 'jetpack' ); ?></h1>
+			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
 
 			<?php
 			/** This action is documented in modules/sharedaddy/sharing.php */
@@ -99,7 +99,7 @@ class Publicize_UI {
 		<h4><?php
 			printf(
 				wp_kses(
-					__( "We've recently made some updates to Publicize. Please visit the <a href='%s'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
+					__( "We've made some updates to Publicize. Please visit the <a href='%s'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
 					array( 'a' => array( 'href' => array() ) )
 				),
 				esc_url( publicize_calypso_url() )
