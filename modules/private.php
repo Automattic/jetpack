@@ -30,6 +30,7 @@ class Jetpack_Private {
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
 		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
+		add_action( 'opml_head', array( __CLASS__, 'hide_opml' ) );
 	}
 
 	/**
@@ -281,7 +282,6 @@ class Jetpack_Private {
 	 */
 	static function make_blog_private() {
 		update_option( 'blog_public', -1 );
-		// update_blog_public( 0, 0 );
 	}
 
 	/**
@@ -289,7 +289,20 @@ class Jetpack_Private {
 	 */
 	static function make_blog_public() {
 		update_option( 'blog_public', 1 );
-		// update_blog_public( 1, 1 );
+	}
+
+	/**
+	 * Returns the private page template for OPML.
+	 */
+	function hide_opml() {
+		global $current_user;
+
+		if ( $current_user && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $current_user ) ) ) {
+			return;
+		}
+		
+		include JETPACK__PLUGIN_DIR . '/modules/private/private.php';
+		wp_die();
 	}
 }
 
