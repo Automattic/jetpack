@@ -7,4 +7,4 @@
  * @package Jetpack
  */
 
-jetpack_register_block_type( 'jetpack/vr' );
+jetpack_register_block( 'jetpack/vr' );

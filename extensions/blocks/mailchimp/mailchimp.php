@@ -8,7 +8,7 @@
  */
 
 if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
-	jetpack_register_block_type(
+	jetpack_register_block(
 		'jetpack/mailchimp',
 		array(
 			'render_callback' => 'jetpack_mailchimp_block_load_assets',

@@ -11,7 +11,7 @@ if (
 	( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
 	class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
 ) {
-	jetpack_register_block_type(
+	jetpack_register_block(
 		'jetpack/tiled-gallery',
 		array(
 			'render_callback' => 'jetpack_tiled_gallery_load_block_assets',

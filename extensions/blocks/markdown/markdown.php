@@ -15,6 +15,6 @@ if (
 	( defined( 'IS_WPCOM' ) && IS_WPCOM )
 	|| ( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'markdown' ) )
 ) {
-	jetpack_register_block_type( 'jetpack/markdown' );
+	jetpack_register_block( 'jetpack/markdown' );
 }
 
