@@ -32,7 +32,7 @@ class Jetpack_Copy_Post {
 
 		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
-			add_filter( 'pre_option_default_post_format', array( $this, 'shortcircuit_default_post_format' ) );
+			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
 	}
 
@@ -180,15 +180,6 @@ class Jetpack_Copy_Post {
 	protected function update_post_format( $source_post, $target_post_id ) {
 		$post_format = get_post_format( $source_post );
 		return set_post_format( $target_post_id, $post_format );
-	}
-
-	/**
-	 * Block core from assigning the default post format.
-	 *
-	 * @return string Empty string.
-	 */
-	public function shortcircuit_default_post_format() {
-		return '';
 	}
 
 	/**
