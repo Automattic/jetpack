@@ -43,7 +43,7 @@ matrix:
     dist: precise
   - language: node_js
     env: WP_TRAVISCI="yarn lint"
-  # This test requires building Jetpack, so skip on built branches.
+  # This test requires building Jetpack, so skip on built version branches.
   - if: branch !~ (^branch-.*-built)
   - language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
