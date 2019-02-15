@@ -51,7 +51,7 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$days_hours = '';
 
 		foreach ( $hours as $hour ) {
-			if ( ! $hour['opening'] && $hour['closing'] ) {
+			if ( empty( $hour['opening'] ) || empty( $hour['closing'] ) ) {
 				continue;
 			}
 			$opening    = strtotime( $hour['opening'] );
@@ -85,7 +85,7 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		}
 
 		if ( empty( $days_hours ) ) {
-			$days_hours = esc_html__( 'CLOSED', 'jetpack' );
+			$days_hours = esc_html__( 'Closed', 'jetpack' );
 		}
 		$content .= $days_hours;
 		$content .= '</dd>';
@@ -93,5 +93,13 @@ function jetpack_business_hours_render( $attributes, $content ) {
 
 	$content .= '</dl>';
 
-	return $content;
+	/**
+	 * Allows folks to filter the HTML content for the Business Hours block
+	 *
+	 * @since 7.1.0
+	 *
+	 * @param string $content The default HTML content set by `jetpack_business_hours_render`
+	 * @param array $attributes Attributes generated in the block editor for the Business Hours block
+	 */
+	return apply_filters( 'jetpack_business_hours_content', $content, $attributes );
 }
