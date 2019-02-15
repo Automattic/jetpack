@@ -100,6 +100,7 @@ class Jetpack_Sync_Defaults {
 		'wp_mobile_app_promos',
 		'monitor_receive_notifications',
 		'post_by_email_address',
+		'jetpack_mailchimp',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'jetpack_sso_require_two_step',
