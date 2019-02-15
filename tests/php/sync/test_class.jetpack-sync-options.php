@@ -158,6 +158,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wp_mobile_app_promos'                 => 'pineapple',
 			'monitor_receive_notifications'        => 'pineapple',
 			'post_by_email_address'                => 'pineapple',
+			'jetpack_mailchimp'                    => '{}',
 			'jetpack_protect_key'                  => 'pineapple',
 			'jetpack_protect_global_whitelist'     => 'pineapple',
 			'jetpack_sso_require_two_step'         => '1',
