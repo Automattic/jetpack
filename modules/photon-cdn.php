@@ -92,7 +92,14 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return string The expected relative path for the CDN-ed URL.
 	 */
 	public static function fix_script_relative_path( $relative, $src ) {
-		return substr( $src, 1 + strpos( $src, '/wp-includes/' ) );
+		$strpos = strpos( $src, '/wp-includes/' );
+
+		// We only treat URLs that have wp-includes in them. Cases like language textdomains
+		// can also use this filter, they don't need to be touched because they are local paths.
+		if ( false === $strpos ) {
+			return $relative;
+		}
+		return substr( $src, 1 + $strpos );
 	}
 
 	/**
