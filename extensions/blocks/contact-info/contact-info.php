@@ -39,18 +39,22 @@ jetpack_register_block(
 );
 
 /**
- * Contact info block registration/dependency declaration.
+ * Class Jetpack_Contact_Info_Block
  *
- * @param array  $attr    Array containing the contact info block attributes.
- * @param string $content String containing the contact info block content.
+ * Helper class that lets us add schema attributes dynamically because they are not something that we store in the post table.
  *
- * @return string
  */
-
 class Jetpack_Contact_Info_Block {
 
 	static $omit = array();
-
+	/**
+	 * Contact info block registration/dependency declaration.
+	 *
+	 * @param array  $attr    Array containing the contact info block attributes.
+	 * @param string $content String containing the contact info block content.
+	 *
+	 * @return string
+	 */
 	static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_assets_as_required( 'contact-info' );
 		if( $content )
@@ -61,7 +65,7 @@ class Jetpack_Contact_Info_Block {
 	}
 
 	static function render_address( $attr, $content ) {
-		if ( ! self::has_some_attributes( $attr, array( 'linkToGoogleMaps' ) ) ) {
+		if ( ! self::has_attributes( $attr, array( 'linkToGoogleMaps' ) ) ) {
 			return ''; // nothing to see here
 		}
 		$find = array(
@@ -83,7 +87,21 @@ class Jetpack_Contact_Info_Block {
 		return str_replace( $find, $replace, $content );
 	}
 
-	static function has_some_attributes( $attr, $omit = array() ) {
+	static function render_email( $attr, $content ) {
+		if ( ! self::has_attributes( $attr ) ) {
+			return ''; // nothing to see here
+		}
+		return str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content );
+	}
+
+	static function render_phone( $attr, $content ) {
+		if ( ! self::has_attributes( $attr ) ) {
+			return ''; // nothing to see here
+		}
+		return str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content );
+	}
+
+	static function has_attributes( $attr, $omit = array() ) {
 		foreach ( $attr as $attribute => $value ) {
 			if ( ! in_array( $attribute, $omit ) && ! empty( $value )  )  {
 				return true;
@@ -91,20 +109,4 @@ class Jetpack_Contact_Info_Block {
 		}
 		return false;
 	}
-
-	static function render_email( $attr, $content ) {
-		if ( ! self::has_some_attributes( $attr ) ) {
-			return ''; // nothing to see here
-		}
-		return str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content );
-	}
-
-	static function render_phone( $attr, $content ) {
-		if ( ! self::has_some_attributes( $attr ) ) {
-			return ''; // nothing to see here
-		}
-		return str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content );
-	}
-
-
 }
