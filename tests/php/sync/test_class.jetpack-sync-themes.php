@@ -421,6 +421,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+		$theme_defaults = array(
+			'title'  => '',
+			'nonce'    => '',
+			'url'  => '',
+			'theme' => '',
+		);
+
 		$api = themes_api(
 			'theme_information',
 			array(
@@ -432,7 +439,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			wp_die( $api );
 		}
 
-		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
+		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( $theme_defaults ) );
 		$upgrader->install( $api->download_link );
 	}
 }
