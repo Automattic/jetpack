@@ -20,7 +20,7 @@ jetpack_register_block_type(
 function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'visited' );
 
-	$count = isset( $_COOKIE[ 'wp-visit-tracking' ] ) ? intval( $_COOKIE[ 'wp-visit-tracking' ] ) : 0;
+	$count = isset( $_COOKIE[ 'jp-visit-counter' ] ) ? intval( $_COOKIE[ 'jp-visit-counter' ] ) : 0;
 	$criteria = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
 	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
 
