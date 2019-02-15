@@ -29,20 +29,20 @@ env:
 matrix:
   include:
   # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=latest
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=previous
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
-  - language: node_js
-    env: WP_TRAVISCI="yarn lint"
+  #- php: "5.2"
+  #  env: WP_MODE=single WP_BRANCH=master
+  #  dist: precise
+  #- php: "5.2"
+  #  env: WP_MODE=single WP_BRANCH=latest
+  #  dist: precise
+  #- php: "5.2"
+  #  env: WP_MODE=single WP_BRANCH=previous
+  #  dist: precise
+  #- php: "5.2"
+  #  env: WP_MODE=multi  WP_BRANCH=master
+  #  dist: precise
+  #- language: node_js
+  #  env: WP_TRAVISCI="yarn lint"
   # This test requires building Jetpack, so skip on built version branches.
   - if: branch !~ (^branch-.*-built)
   - language: node_js
@@ -50,12 +50,12 @@ matrix:
   # We can't test PHP 7.3 with WP_BRANCH=previous just yet, as previous is currently 4.9.9.
   # Running PHP 7.3 tests on 4.9.9 will fail as it does not include https://core.trac.wordpress.org/changeset/44166#file6.
   # We can remove these 3 specific tests and add 7.3 to the global PHP list above when 5.1 is released.
-  - php: "7.3"
-    env: WP_MODE=single WP_BRANCH=master
-  - php: "7.3"
-    env: WP_MODE=single WP_BRANCH=latest
-  - php: "7.3"
-    env: WP_MODE=multi  WP_BRANCH=master
+  #- php: "7.3"
+  #  env: WP_MODE=single WP_BRANCH=master
+  #- php: "7.3"
+  #  env: WP_MODE=single WP_BRANCH=latest
+  #- php: "7.3"
+  #  env: WP_MODE=multi  WP_BRANCH=master
 
 cache:
   directories:
