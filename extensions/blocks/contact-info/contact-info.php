@@ -41,14 +41,13 @@ jetpack_register_block(
 /**
  * Class Jetpack_Contact_Info_Block
  *
- * Helper class that lets us add schema attributes dynamically because they are not something that we store in the post table.
+ * Helper class that lets us add schema attributes dynamically because they are not something that is store with the content
  *
  */
 class Jetpack_Contact_Info_Block {
 
-	static $omit = array();
 	/**
-	 * Contact info block registration/dependency declaration.
+	 * Adds contact info schema attributes
 	 *
 	 * @param array  $attr    Array containing the contact info block attributes.
 	 * @param string $content String containing the contact info block content.
@@ -64,6 +63,14 @@ class Jetpack_Contact_Info_Block {
 			$content );
 	}
 
+	/**
+	 * Adds address schema attributes
+	 *
+	 * @param array  $attr    Array containing the address block attributes.
+	 * @param string $content String containing the address block content.
+	 *
+	 * @return string
+	 */
 	static function render_address( $attr, $content ) {
 		if ( ! self::has_attributes( $attr, array( 'linkToGoogleMaps' ) ) ) {
 			return ''; // nothing to see here
@@ -87,6 +94,14 @@ class Jetpack_Contact_Info_Block {
 		return str_replace( $find, $replace, $content );
 	}
 
+	/**
+	 * Adds email schema attributes
+	 *
+	 * @param array  $attr    Array containing the email block attributes.
+	 * @param string $content String containing the email block content.
+	 *
+	 * @return string
+	 */
 	static function render_email( $attr, $content ) {
 		if ( ! self::has_attributes( $attr ) ) {
 			return ''; // nothing to see here
@@ -94,6 +109,14 @@ class Jetpack_Contact_Info_Block {
 		return str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content );
 	}
 
+	/**
+	 * Adds phone schema attributes
+	 *
+	 * @param array  $attr    Array containing the phone block attributes.
+	 * @param string $content String containing the phone block content.
+	 *
+	 * @return string
+	 */
 	static function render_phone( $attr, $content ) {
 		if ( ! self::has_attributes( $attr ) ) {
 			return ''; // nothing to see here
@@ -101,6 +124,14 @@ class Jetpack_Contact_Info_Block {
 		return str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content );
 	}
 
+	/**
+	 * Helper function that lets us determine if a block has any valid attributes.
+	 *
+	 * @param array  $attr Array containing the block attributes.
+	 * @param array $omit  Array containing the block attributes that we ignore.
+	 *
+	 * @return string
+	 */
 	static function has_attributes( $attr, $omit = array() ) {
 		foreach ( $attr as $attribute => $value ) {
 			if ( ! in_array( $attribute, $omit ) && ! empty( $value )  )  {
