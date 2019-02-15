@@ -1402,97 +1402,60 @@ EOT;
 	 * @return array
 	 */
 	protected function _get_related_post_ids( $post_id, $size, array $filters ) {
-		$now_ts = time();
-		$cache_meta_key = '_jetpack_related_posts_cache';
+		// Set the transient variables.
+		// See: https://artiss.blog/documentation/transients/how-to-use-transients/.
+		$transient_name       = 'jetpack_related_posts_' . $post_id;
+		$transient_value      = get_transient( $transient_name );
+		$transient_expiration = 15 * MINUTE_IN_SECONDS;
 
-		$body = array(
-			'size' => (int) $size,
-		);
-
-		if ( !empty( $filters ) )
-			$body['filter'] = array( 'and' => $filters );
-
-		// Build cache key
-		$cache_key = md5( serialize( $body ) );
-
-		// Load all cached values
-		if ( wp_using_ext_object_cache() ) {
-			$transient_name = "{$cache_meta_key}_{$cache_key}_{$post_id}";
-			$cache = get_transient( $transient_name );
-			if ( false !== $cache ) {
-				return $cache;
-			}
-		} else {
-			$cache = get_post_meta( $post_id, $cache_meta_key, true );
-
-			if ( empty( $cache ) )
-				$cache = array();
-
-
-			// Cache is valid! Return cached value.
-			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
-				return $cache[ $cache_key ][ 'payload' ];
-			}
+		// Return the transient value if the transient is set and not expired.
+		if ( false !== $transient_value ) {
+			return $transient_value;
 		}
 
-		$response = wp_remote_post(
-			"https://public-api.wordpress.com/rest/v1/sites/{$this->get_blog_id()}/posts/$post_id/related/",
-			array(
-				'timeout' => 10,
-				'user-agent' => 'jetpack_related_posts',
-				'sslverify' => true,
-				'body' => $body,
-			)
+		// Set the reqiest paramaters and URL for the API endpoint.
+		// See: https://developer.wordpress.com/docs/api/1.1/post/sites/%24site/posts/%24post/related/.
+		$request_api_body = array(
+			'size'   => (int) $size,
+			'filter' => ( empty( $filters ) ? null : array( 'and' => $filters ) ),
+		);
+		$request_api_args = array(
+			'timeout'    => 10,
+			'user-agent' => 'jetpack_related_posts',
+			'sslverify'  => true,
+			'body'       => $request_api_body,
 		);
 
-		// Oh no... return nothing don't cache errors.
-		if ( is_wp_error( $response ) ) {
-			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) )
-				return $cache[ $cache_key ][ 'payload' ]; // return stale
-			else
-				return array();
+		// Set the request URL.
+		$request_api_url = sprintf(
+			'https://public-api.wordpress.com/rest/v1/sites/%s/posts/%s/related/',
+			$this->get_blog_id(),
+			$post_id
+		);
+
+		// Initialise the response object.
+		$api_response = wp_remote_post( $request_api_url, $request_api_args );
+
+		// Return an empty array of there is an error during the request.
+		if ( is_wp_error( $api_response ) ) {
+			return array();
 		}
 
-		$results = json_decode( wp_remote_retrieve_body( $response ), true );
+		// Initialise variables needed to set transiseents and provide output.
+		$results       = json_decode( wp_remote_retrieve_body( $api_response ), true );
 		$related_posts = array();
-		if ( is_array( $results ) && !empty( $results['hits'] ) ) {
-			foreach( $results['hits'] as $hit ) {
+		if ( is_array( $results ) && ! empty( $results['hits'] ) ) {
+			foreach ( $results['hits'] as $hit ) {
 				$related_posts[] = array(
 					'id' => $hit['fields']['post_id'],
 				);
 			}
 		}
 
-		// An empty array might indicate no related posts or that posts
-		// are not yet synced to WordPress.com, so we cache for only 1
-		// minute in this case
-		if ( empty( $related_posts ) ) {
-			$cache_ttl = 60;
-		} else {
-			$cache_ttl = 12 * HOUR_IN_SECONDS;
-		}
+		// Set the transient to equal.
+		set_transient( $transient_name, $related_posts, $transient_expiration );
 
-		// Update cache
-		if ( wp_using_ext_object_cache() ) {
-			set_transient( $transient_name, $related_posts, $cache_ttl );
-		} else {
-			// Copy all valid cache values
-			$new_cache = array();
-			foreach ( $cache as $k => $v ) {
-				if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
-					$new_cache[ $k ] = $v;
-				}
-			}
-
-			// Set new cache value
-			$cache_expires = $cache_ttl + $now_ts;
-			$new_cache[ $cache_key ] = array(
-				'expires' => $cache_expires,
-				'payload' => $related_posts,
-			);
-			update_post_meta( $post_id, $cache_meta_key, $new_cache );
-		}
-
+		// Return the array of reelated post IDs.
 		return $related_posts;
 	}
 
