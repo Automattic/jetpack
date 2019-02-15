@@ -355,7 +355,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			<title><?php echo $title ?></title>
 			<style type="text/css">
 				html {
-					background: #f3f6f8;
+					background: #f6f6f6;
 				}
 
 				body {
