@@ -372,7 +372,7 @@ jQuery( function($) {
 	padding-left: 1em;
 }
 .publicize__notice-warning {
-	display: inline-block;
+	display: block;
 	padding: 7px 10px;
 	margin: 5px 0;
 	border-left-width: 4px;
@@ -380,17 +380,13 @@ jQuery( function($) {
 	font-size: 12px;
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
-.publicize__sharing-settings {
+.publicize-external-link {
 	display: block;
 	text-decoration: none;
 	margin-top: 8px;
 }
-.publicize__sharing-settings:after {
-	content: "\f504";
-	font: normal 18px/.5em dashicons;
-	speak: none;
-	margin-left: 5px;
-	vertical-align: middle;
+.publicize-external-link__text {
+	text-decoration: underline;
 }
 #publicize-title:before {
 	content: "\f237";
@@ -414,7 +410,7 @@ jQuery( function($) {
 .wpas-twitter-length-limit {
 	color: red;
 }
-.publicize-disabled-service-message .dashicons {
+.publicize__notice-warning .dashicons {
 	font-size: 16px;
 	text-decoration: none;
 }
@@ -488,16 +484,21 @@ jQuery( function($) {
 						foreach ( $must_reauth as $connection_name ) {
 							?>
 							<span class="notice-warning publicize__notice-warning">
-				                <?php
-				                printf( esc_html__(
-					                'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
-							'jetpack'
-				                ), $connection_name );
-				                ?>
+								<?php
+									/* translators: %s is the name of a Pubilicize service like "LinkedIn" */
+									printf( esc_html__(
+										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
+										'jetpack'
+									), $connection_name );
+								?>
 								<a
-										class="publicize__sharing-settings"
-										href="<?php echo publicize_calypso_url() ?>"
-								><?php esc_html_e( 'Go to Sharing settings', 'jetpack' ) ?></a>
+									class="publicize-external-link"
+									href="<?php echo publicize_calypso_url() ?>"
+									target="_blank"
+								>
+									<span class="publicize-external-link__text"><?php esc_html_e( 'Go to Sharing settings', 'jetpack' ); ?></span>
+									<span class="dashicons dashicons-external"></span>
+								</a>
 							</span>
 							<?php
 						}
@@ -523,18 +524,20 @@ jQuery( function($) {
 					}
 
 				?>
-					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
 				<?php if ( $has_google_plus ) : ?>
-					<div class="notice inline notice-warning publicize-disabled-service-message">
-						<p>
-							<strong><?php esc_html_e( 'Google+ support is being removed', 'jetpack' ); ?></strong>
-							<a href="javascript:void(0)" id="jetpack-gplus-deprecated-notice">
-								<?php esc_html_e( 'Why?', 'jetpack' ); ?>
-								<span class="dashicons dashicons-info"></span>
-							</a>
-						</p>
-					</div>
+					<span class="notice-warning publicize__notice-warning">
+						<?php esc_html_e( 'Google+ support is being removed', 'jetpack' ); ?>
+						<a
+							href="javascript:void(0)"
+							id="jetpack-gplus-deprecated-notice"
+							class="publicize-external-link"
+						>
+							<span class="publicize-external-link__text"><?php esc_html_e( 'Why?', 'jetpack' ); ?></span>
+							<span class="dashicons dashicons-info"></span>
+						</a>
+					</span>
 				<?php endif; ?>
+					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php
 
