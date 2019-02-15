@@ -218,6 +218,9 @@ class Jetpack_Cxn_Test_Base {
 	 */
 	public function output_results_for_cli( $group = 'default' ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			if ( Jetpack::is_development_mode() ){
+				WP_CLI::line( __( 'Jetpack is in development mode. Please deactivate development mode for accurate results. ') );
+			}
 			WP_CLI::line( __( 'TEST RESULTS:', 'jetpack' ) );
 			foreach ( $this->raw_results( $group ) as $test ) {
 				if ( true === $test['pass'] ) {
