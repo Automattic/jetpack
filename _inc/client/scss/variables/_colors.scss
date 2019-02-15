@@ -14,8 +14,8 @@ $blue-dark:              #005082;
 $gray:                   #87a6bc;
 $gray-neutral:           desaturate( $gray, 100% ); // Intermediary transform to match dotcom's colors
 
-$gray-light:             lighten( $gray-neutral, 33% ); //#f3f6f8
-$gray-dark:              darken( $gray-neutral, 38% ); //#2e4453
+$gray-light:             lighten( $gray-neutral, 33% ); //#f6f6f6
+$gray-dark:              darken( $gray-neutral, 38% ); //#404040
 
 // Text blues
 $blue-heading:           #668eaa;
