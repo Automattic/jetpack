@@ -37,11 +37,18 @@ function jetpack_business_hours_should_use_schema() {
  */
 function jetpack_business_hours_opening_tag( $attributes ) {
 	if ( jetpack_business_hours_should_use_schema() ) {
-		$itemtype = apply_filters( 'jetpack_business_hours_item_type', 'https://schema.org/LocalBusiness' );
+		/**
+		 * Filters the type of item that the business hours are associated with.
+		 *
+		 * @since 7.1.0
+		 *
+		 * @param string $itemtype Defaults to https://schema.org/LocalBusiness
+		 */
+		$itemtype = apply_filters( 'jetpack_business_hours_itemtype', 'https://schema.org/LocalBusiness' );
 		return sprintf(
 			'<dl class="jetpack-business-hours %s" itemscope itemtype="%s">',
 			! empty( $attributes['className'] ) ? esc_attr( $attributes['className'] ) : '',
-			$itemtype
+			esc_url( $itemtype )
 		);
 	}
 	return sprintf(
@@ -89,7 +96,7 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$start_of_week = (int) get_option( 'start_of_week', 0 );
 	$time_format   = get_option( 'time_format' );
 	$today         = current_time( 'D' );
-	$content       = jetpack_business_hours_opening_tag();
+	$content       = jetpack_business_hours_opening_tag( $attributes );
 
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
