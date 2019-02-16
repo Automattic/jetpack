@@ -17,12 +17,12 @@
 .jp-footer__a8c-attr {
 	width: rem( 180px );
 
-	path { fill: darken( $gray, 10% ); }
+	path { fill: darken( $gray-neutral, 10% ); }
 }
 
 .jp-footer__links {
-	border-top: 1px lighten( $gray, 25% ) solid;
-	border-bottom: 1px lighten( $gray, 25% ) solid;
+	border-top: 1px lighten( $gray-neutral, 25% ) solid;
+	border-bottom: 1px lighten( $gray-neutral, 25% ) solid;
 	margin-top: 0;
 	margin-bottom: rem( 16px );
 
@@ -41,7 +41,7 @@
 
 	@include breakpoint( "<660px" ) {
 		display: block;
-		border-bottom: 1px lighten( $gray, 25% ) solid;
+		border-bottom: 1px lighten( $gray-neutral, 25% ) solid;
 	}
 }
 
@@ -62,7 +62,7 @@
 	@include breakpoint( "<660px" ) {
 		display: block;
 		padding: rem( 8px ) 0;
-		border-bottom: 1px lighten( $gray, 25% ) solid;
+		border-bottom: 1px lighten( $gray-neutral, 25% ) solid;
 		&:last-of-type {
 			border-bottom: none;
 		}
