@@ -84,11 +84,27 @@ function latex_entity_decode( $latex ) {
 }
 
 function latex_render( $latex, $fg, $bg, $s = 0 ) {
-	$url = "//s0.wp.com/latex.php?latex=" . urlencode( $latex ) . "&bg=" . $bg . "&fg=" . $fg . "&s=" . $s;
-	$url = esc_url( $url );
-	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		$markup = sprintf(
+			'<amp-mathml data-formula="%s" inline></amp-mathml>',
+			esc_attr( "$$ $latex $$" )
+		);
+	} else {
+		$url = add_query_arg(
+			array_merge(
+				array( 'latex' => rawurlencode( $latex ) ),
+				compact( 'fg', 'bg', 's' )
+			),
+			'//s0.wp.com/latex.php'
+		);
 
-	return '<img src="' . $url . '" alt="' . $alt . '" title="' . $alt . '" class="latex" />';
+		$markup = sprintf(
+			'<img src="%1$s" alt="%2$s" title="%2$s" class="latex">',
+			esc_url( $url ),
+			str_replace( '\\', '&#92;', esc_attr( $latex ) )
+		);
+	}
+	return $markup;
 }
 
 /**
