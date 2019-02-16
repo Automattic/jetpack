@@ -39,7 +39,7 @@
 	}
 
 	&:disabled {
-		background: $gray-neutral-light;
+		background: $gray-light;
 		border-color: lighten( $gray-neutral, 30% );
 		color: lighten( $gray, 10% );
 		-webkit-text-fill-color: lighten( $gray, 10% );
