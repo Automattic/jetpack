@@ -24,6 +24,7 @@ import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSearch from './search';
 import DashConnections from './connections';
+import DashMobileLogin from './mobile-login';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import { userCanManageModules, userCanViewStats, userIsSubscriber } from 'state/initial-state';
@@ -72,6 +73,12 @@ class AtAGlance extends Component {
 			<div>
 				<DashSectionHeader label={ __( 'Connections' ) } />
 				<DashConnections />
+			</div>
+		);
+		const mobileLogin = (
+			<div>
+				<DashSectionHeader label={ __( 'Mobile' ) } />
+				<DashMobileLogin />
 			</div>
 		);
 		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
@@ -133,6 +140,7 @@ class AtAGlance extends Component {
 					<DashStats { ...settingsProps } { ...urls } />
 					{ renderPairs( pairs ) }
 					{ connections }
+					{ mobileLogin }
 				</div>
 			);
 		}

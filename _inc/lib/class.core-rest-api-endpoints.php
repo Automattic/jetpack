@@ -445,6 +445,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		// Plugins: get list of all plugins.
+		register_rest_route( 'jetpack/v4', '/mobile/is-user', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::is_mobile_user',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/mobile/send-login-email', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::send_mobile_magic_link',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
 	}
 
 	public static function get_plans( $request ) {
@@ -3235,6 +3248,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'message' => esc_html__( 'Plugin found.', 'jetpack' ),
 			'data'    => $plugin_data
 		) );
+	}
+
+	public static function is_mobile_user( $request ) {
+		error_log("got mobile user");
+
+		return true;
+	}
+
+	public static function send_mobile_magic_link( $request ) {
+		error_log("send mobile login email");
+
+		Jetpack::load_xml_rpc_client();
+ 		$xml = new Jetpack_IXR_Client( array(
+ 			'user_id' => get_current_user_id(),
+		) );
+
+		// TODO: perhaps pass 'device' => ios/android/other
+		$args = array();
+
+		$xml->query( 'jetpack.sendMobileMagicLink', $args );
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'error_sending_mobile_magic_link', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		} else {
+			return $xml->getResponse();
+		}
 	}
 
 } // class end
