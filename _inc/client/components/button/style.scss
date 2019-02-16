@@ -7,7 +7,7 @@
 
 .dops-button {
 	background: $white;
-	border-color: lighten( $gray, 20% );
+	border-color: lighten( $gray-neutral, 20% );
 	border-style: solid;
 	border-width: 1px 1px 2px;
 	color: $gray-dark;
@@ -30,7 +30,7 @@
 	appearance: none;
 
 	&:hover {
-		border-color: lighten( $gray, 10% );
+		border-color: lighten( $gray-neutral, 10% );
 		color: $gray-dark;
 	}
 	&:active {
@@ -38,9 +38,9 @@
 	}
 	&[disabled],
 	&:disabled {
-		color: lighten( $gray, 30% );
+		color: lighten( $gray-neutral, 30% );
 		background: $white;
-		border-color: lighten( $gray, 30% );
+		border-color: lighten( $gray-neutral, 30% );
 		cursor: default;
 
 		&:active {
@@ -128,7 +128,7 @@
 	&[disabled],
 	&:disabled {
 		color: lighten( $alert-red, 30% );
-		border-color: lighten( $gray, 30% );
+		border-color: lighten( $gray-neutral, 30% );
 	}
 }
 
