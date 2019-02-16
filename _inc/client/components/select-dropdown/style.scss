@@ -17,7 +17,7 @@
 
 	&.is-disabled .dops-select-dropdown__header {
 		background: $gray-light;
-		border-color: lighten( $gray, 30% );
+		border-color: lighten( $gray-neutral, 30% );
 		color: lighten( $gray, 10% );
 		-webkit-text-fill-color: lighten( $gray, 10% );
 	}
@@ -54,7 +54,7 @@
 .dops-select-dropdown__header {
 	padding: 11px 44px 11px 16px; // 44 = padding (16) + arrow width (20) + arrow margin (8)
 	border-style: solid;
-	border-color: lighten( $gray, 20% );
+	border-color: lighten( $gray-neutral, 20% );
 	border-width: 1px 1px 2px;
 	border-radius: 4px;
 	background-color: $white;
@@ -129,13 +129,13 @@
 	list-style: none;
 	margin: -2px 0 0 0; // account for border overlap with .select-dropdown__header
 	background-color: $white;
-	border: 1px solid lighten( $gray, 20% );
+	border: 1px solid lighten( $gray-neutral, 20% );
 	// $blue-wordpress for outer (with focus shadow), $gray for border with header
 	border-radius: 0 0 4px 4px;
 
 	.dops-accessible-focus & {
 		border: solid 1px $blue-wordpress;
-		border-top-color: lighten( $gray, 20% );
+		border-top-color: lighten( $gray-neutral, 20% );
 	}
 
 	.dops-select-dropdown.is-open & {
@@ -223,7 +223,7 @@
 }
 
 .dops-select-dropdown__separator {
-	border-top: 1px solid lighten( $gray, 20% );
+	border-top: 1px solid lighten( $gray-neutral, 20% );
 	display: block;
 	margin: 8px 0;
 }
