@@ -95,6 +95,12 @@ class Jetpack_Plugin_Search {
 				'activateModuleString' => esc_html__( 'Activate Module', 'jetpack' ),
 				'activatedString'      => esc_html__( 'Activated', 'jetpack' ),
 				'activatingString'     => esc_html__( 'Activating', 'jetpack' ),
+				'logo' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
+				'legend' => esc_html__(
+					'Jetpack is trusted by millions to help secure and speed up their WordPress site. Make the most of it today.',
+					'jetpack'
+				),
+				'hideText' => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
 
