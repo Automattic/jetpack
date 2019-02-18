@@ -52,13 +52,21 @@ class Jetpack_Plugin_Search {
 	}
 
 	public function __construct() {
-		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'current_screen', array( $this, 'start' ) );
 	}
 
-	public function action_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_plugins_search_script' ) );
-		add_filter( 'plugins_api_result', array( $this, 'inject_jetpack_module_suggestion' ), 10, 3 );
-		add_filter( 'plugin_install_action_links', array( $this, 'insert_module_related_links' ), 10, 2 );
+	/**
+	 * Add actions and filters only if this is the plugin installation screen and it's the first page.
+	 *
+	 * @param object $screen
+	 */
+	public function start( $screen ) {
+		if ( 'plugin-install' === $screen->base && ( ! isset( $_GET['paged'] ) || 1 == $_GET['paged'] ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'load_plugins_search_script' ) );
+			add_filter( 'plugins_api_result', array( $this, 'inject_jetpack_module_suggestion' ), 10, 3 );
+			add_filter( 'self_admin_url', array( $this, 'plugin_details' ) );
+			add_filter( 'plugin_install_action_links', array( $this, 'insert_module_related_links' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -76,12 +84,6 @@ class Jetpack_Plugin_Search {
 	}
 
 	public function load_plugins_search_script( $hook ) {
-		if ( 'plugin-install.php' !== $hook ) {
-			return;
-		}
-
-		add_filter( 'self_admin_url', array( $this, 'plugin_details' ) );
-
 		wp_enqueue_script( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			self::$slug,
@@ -229,11 +231,7 @@ class Jetpack_Plugin_Search {
 	 * Put some more appropriate links on our custom result cards.
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
-		if (
-			self::$slug !== $plugin['slug'] ||
-			// Make sure we show injected this card only on first page.
-			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
-		) {
+		if ( self::$slug !== $plugin['slug'] ) {
 			return $links;
 		}
 
