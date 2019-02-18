@@ -276,20 +276,23 @@ class Jetpack_Cxn_Test_Base {
 	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.
 	 */
 	public function encrypt_string_for_wpcom( $data ) {
+		$return = false;
 		if ( ! function_exists( 'openssl_get_publickey' ) || ! function_exists( 'openssl_seal' ) ) {
-			return false;
+			return $return;
 		}
 
 		$public_key = openssl_get_publickey( JETPACK__DEBUGGER_PUBLIC_KEY );
 
-		if ( openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
+		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
-			return array(
+			$return = array(
 				'data' => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 				'key'  => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			);
 		}
 
-		return false;
+		openssl_free_key( $public_key );
+
+		return $return;
 	}
 }
