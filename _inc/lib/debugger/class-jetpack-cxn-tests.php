@@ -73,6 +73,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test( $name );
+		} elseif ( Jetpack::is_development_mode() ) {
+			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __('Disable development mode.', 'jetpack' ) );
 		} else {
 			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
 		}
