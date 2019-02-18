@@ -4,15 +4,15 @@
  * Module Description: Make suggestions when people search the plugin directory for things that Jetpack already does for them.
  * Sort Order: 50
  * Recommendation Order: 1
- * First Introduced: 6.8
- * Requires Connection: No
+ * First Introduced: 7.1
+ * Requires Connection: Yes
  * Auto Activate: Yes
+ * Module Tags: Recommended
+ * Feature: Jumpstart
  */
 
 /**
  * @todo Convert into a Jetpack module. Autoload/enable.
- *
- * @todo Wrap it in a class, proper instantiation, etc.
  *
  * @todo Handle different scenarios:
  * - Jetpack installed, active, not connected; prompt to connect to get feature
@@ -21,14 +21,26 @@
  * - Activate module via AJAX, then prompt to configure/settings
  */
 
-add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
-jetpack_require_lib( 'tracks/client' );
+if (
+	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+	apply_filters( 'jetpack_show_promotions', true ) &&
+	Jetpack::is_active()
+) {
+	add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
+}
 
+/**
+ * Class that includes cards in the plugin search results when users enter terms that match some Jetpack feature.
+ * Card can be dismissed and includes a title, description, button to enable the feature and a link for more information.
+ *
+ * @since 7.1.0
+ */
 class Jetpack_Plugin_Search {
 	public static function init() {
 		static $instance = null;
 
 		if ( ! $instance ) {
+			jetpack_require_lib( 'tracks/client' );
 			$instance = new Jetpack_Plugin_Search();
 		}
 
@@ -203,7 +215,7 @@ class Jetpack_Plugin_Search {
 			'jetpack&plugin-search' !== $plugin['slug'] ||
 			// Make sure we show injected this card only on first page.
 			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
-			) {
+		) {
 			return $links;
 		}
 
@@ -220,18 +232,18 @@ class Jetpack_Plugin_Search {
 			) &&
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
-			) {
+		) {
 			$links = array(
 				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . esc_url( Jetpack::module_configuration_url( $plugin['module'] ) ) . '"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</button>',
 			);
-		// Jetpack installed, active, feature enabled; link to settings.
+			// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
 			! empty( $plugin['configure_url'] ) &&
 			current_user_can( 'jetpack_configure_modules' ) &&
 			Jetpack::is_module_active( $plugin['module'] ) &&
 			/** This filter is documented in class.jetpack-admin.php */
 			apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
-			) {
+		) {
 			$links = array(
 				'<a id="plugin-select-settings" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
 			);
