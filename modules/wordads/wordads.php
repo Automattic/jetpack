@@ -23,12 +23,12 @@ class WordAds {
 	 * @var array
 	 */
 	public static $ad_tag_ids = array(
-		'mrec' => array(
+		'mrec'               => array(
 			'tag'    => '300x250_mediumrectangle',
 			'height' => '250',
 			'width'  => '300',
 		),
-		'leaderboard' => array(
+		'leaderboard'        => array(
 			'tag'    => '728x90_leaderboard',
 			'height' => '90',
 			'width'  => '728',
@@ -38,7 +38,7 @@ class WordAds {
 			'height' => '50',
 			'width'  => '320',
 		),
-		'wideskyscraper' => array(
+		'wideskyscraper'     => array(
 			'tag'    => '160x600_wideskyscraper',
 			'height' => '600',
 			'width'  => '160',
