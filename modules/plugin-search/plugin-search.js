@@ -18,7 +18,7 @@
 			url: pSS.rest_url,
 			method: 'post',
 			beforeSend: function( xhr ) {
-				xhr.setRequestHeader( 'X-WP-Nonce', pSS.jetpackWPNonce );
+				xhr.setRequestHeader( 'X-WP-Nonce', pSS.nonce );
 			},
 			data: window.JSON.stringify( body ),
 			contentType: 'application/json',
@@ -41,4 +41,4 @@
 			$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="button" href="' + configure_url + '">' + pSS.manageSettingsString + '</a>' );
 		}, 1000 );
 	}
-} )( jQuery, window.pluginSearchState );
+} )( jQuery, window.jetpackPluginSearch );

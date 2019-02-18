@@ -22,9 +22,10 @@
  */
 
 if (
+	is_admin() &&
+	Jetpack::is_active() &&
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-	apply_filters( 'jetpack_show_promotions', true ) &&
-	Jetpack::is_active()
+	apply_filters( 'jetpack_show_promotions', true )
 ) {
 	add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
 }
@@ -36,6 +37,9 @@ if (
  * @since 7.1.0
  */
 class Jetpack_Plugin_Search {
+
+	static $slug = 'jetpack-plugin-search';
+
 	public static function init() {
 		static $instance = null;
 
@@ -52,33 +56,47 @@ class Jetpack_Plugin_Search {
 	}
 
 	public function action_init() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_plugins_search_script' ) );
 		add_filter( 'plugins_api_result', array( $this, 'inject_jetpack_module_suggestion' ), 10, 3 );
 		add_filter( 'plugin_install_action_links', array( $this, 'insert_module_related_links' ), 10, 2 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_plugins_search_script' ) );
+	}
+
+	/**
+	 * Modify URL used to fetch to plugin information so it pulls Jetpack plugin page.
+	 *
+	 * @param string $url URL to load in dialog pulling the plugin page from wporg.
+	 *
+	 * @return string The URL with 'jetpack' instead of 'jetpack-plugin-search'.
+	 */
+	public function plugin_details( $url ) {
+		if ( false !== stripos( $url, 'tab=plugin-information&amp;plugin=' . self::$slug ) ) {
+			return 'plugin-install.php?tab=plugin-information&amp;plugin=jetpack&amp;TB_iframe=true&amp;width=600&amp;height=550';
+		}
+		return $url;
 	}
 
 	public function load_plugins_search_script( $hook ) {
-		if( 'plugin-install.php' !== $hook ) {
+		if ( 'plugin-install.php' !== $hook ) {
 			return;
 		}
 
-		wp_enqueue_script( 'plugin-search', plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		add_filter( 'self_admin_url', array( $this, 'plugin_details' ) );
+
+		wp_enqueue_script( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
-			'plugin-search',
-			'pluginSearchState',
+			self::$slug,
+			'jetpackPluginSearch',
 			array(
-				'jetpackWPNonce'       => wp_create_nonce( 'wp_rest' ),
+				'nonce'                => wp_create_nonce( 'wp_rest' ),
 				'rest_url'             => rest_url( '/jetpack/v4/settings/' ),
-				'manageSettingsString' => __( 'Module Settings', 'jetpack' ),
-				'activateModuleString' => __( 'Activate Module', 'jetpack' ),
-				'activatedString'      => __( 'Activated', 'jetpack' ),
-				'activatingString'     => __( 'Activating', 'jetpack' ),
+				'manageSettingsString' => esc_html__( 'Module Settings', 'jetpack' ),
+				'activateModuleString' => esc_html__( 'Activate Module', 'jetpack' ),
+				'activatedString'      => esc_html__( 'Activated', 'jetpack' ),
+				'activatingString'     => esc_html__( 'Activating', 'jetpack' ),
 			)
 		);
 
-		wp_register_style( 'jetpack-plugin-search', null );
-		wp_enqueue_style( 'jetpack-plugin-search' );
-		wp_add_inline_style( 'jetpack-plugin-search', '.plugin-card-jetpackplugin-search { border: solid 2px green; } .plugin-card-jetpackplugin-search .plugin-action-buttons { white-space: nowrap; }' );
+		wp_enqueue_style( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.css', JETPACK__PLUGIN_FILE ) );
 	}
 
 	/**
@@ -89,7 +107,7 @@ class Jetpack_Plugin_Search {
 	public static function get_jetpack_plugin_data() {
 		$data = get_transient( 'jetpack_plugin_data' );
 
-		if ( ! $data || is_wp_error( $data ) ) {
+		if ( false === $data || is_wp_error( $data ) ) {
 			include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
 			$data = plugins_api( 'plugin_information', array(
 				'slug' => 'jetpack',
@@ -152,7 +170,7 @@ class Jetpack_Plugin_Search {
 						$jetpack_modules_list[ $matching_module ]['short_description']
 					),
 					'requires_connection' => (bool) $jetpack_modules_list[ $matching_module ]['requires_connection'],
-					'slug' => 'jetpack&plugin-search',
+					'slug'    => self::$slug,
 					'version' => JETPACK__VERSION,
 					'icons' => array(
 						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
@@ -212,12 +230,15 @@ class Jetpack_Plugin_Search {
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
 		if (
-			'jetpack&plugin-search' !== $plugin['slug'] ||
+			self::$slug !== $plugin['slug'] ||
 			// Make sure we show injected this card only on first page.
 			( array_key_exists( 'paged', $_GET ) && $_GET['paged'] > 1 )
 		) {
 			return $links;
 		}
+
+		// By the time this filter is added, self_admin_url was already applied and we don't need it anymore.
+		remove_filter( 'self_admin_url', array( $this, 'plugin_details' ) );
 
 		$links = array();
 
@@ -234,7 +255,7 @@ class Jetpack_Plugin_Search {
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
 			$links = array(
-				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . esc_url( Jetpack::module_configuration_url( $plugin['module'] ) ) . '"> ' . esc_html__( 'Activate Module', 'jetpack' ) . '</button>',
+				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . esc_url( Jetpack::module_configuration_url( $plugin['module'] ) ) . '"> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>',
 			);
 			// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
@@ -249,9 +270,9 @@ class Jetpack_Plugin_Search {
 			);
 		}
 
-		// Adds "More Information" link.
+		// Adds link pointing to a relevant doc page in jetpack.com
 		if ( ! empty( $plugin['learn_more_button'] ) ) {
-			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'More Information', 'jetpack' ) . '</a>';
+			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
 		}
 
 		return $links;

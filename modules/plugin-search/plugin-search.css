@@ -1,0 +1,7 @@
+.plugin-card-jetpack-plugin-search {
+	border: solid 2px green;
+}
+
+.plugin-card-jetpack-plugin-search .plugin-action-buttons {
+	white-space: nowrap;
+}
