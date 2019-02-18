@@ -955,7 +955,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'rest_route' => $_GET['rest_route'],
 				'timestamp' => intval( $_GET['timestamp'] ),
-				'url' => $_GET['url'],
+				'url' => wp_unslash( $_GET['url'] ),
 			)
 		);
 
