@@ -99,15 +99,15 @@ class Publicize_UI {
 		<h4><?php
 			printf(
 				wp_kses(
-					__( "We've made some updates to Publicize. Please visit the <a href='%s'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
-					array( 'a' => array( 'href' => array() ) )
+					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
+					array( 'a' => array( 'href' => array(), 'class' => array(), 'data-jptracks-name' => array() ) )
 				),
 				esc_url( publicize_calypso_url() )
 			);
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary"><?php esc_html_e( 'Publicize Settings', 'jetpack' ); ?></a>
+		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack' ); ?></a>
 		<?php
 	}
 
