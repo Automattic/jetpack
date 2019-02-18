@@ -395,7 +395,7 @@ class Jetpack_Likes_Settings {
 		}
 
 		// Ensure it's always an array (even if not previously empty or scalar)
-		$setting['show'] = !empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
+		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
 
 		/**
 		 * Filters where the Likes are displayed.
@@ -559,7 +559,7 @@ class Jetpack_Likes_Settings {
 		 * Filters whether Comment Likes are enabled.
 		 * true if enabled, false if not.
 		 *
-		 * @module likes
+		 * @module comment-likes
 		 *
 		 * @since 2.2.0
 		 *
@@ -574,10 +574,10 @@ class Jetpack_Likes_Settings {
 	function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		$new_state = !empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
+		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
 		$db_state  = $this->is_enabled_sitewide();
 
-		$reblogs_new_state = !empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
+		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
 		$reblogs_db_state = $this->reblogs_enabled_sitewide();
 		/** Default State *********************************************************/
 
@@ -615,8 +615,8 @@ class Jetpack_Likes_Settings {
 		}
 
 		// WPCOM only: Comment Likes
-		if( ! $this->in_jetpack ) {
-			$new_comments_state = !empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
+		if ( ! $this->in_jetpack ) {
+			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
 			switch( (bool) $new_comments_state ) {
 				case true:
 					update_option( 'jetpack_comment_likes_enabled', 1 );
