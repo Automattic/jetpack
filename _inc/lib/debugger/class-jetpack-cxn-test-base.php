@@ -219,7 +219,8 @@ class Jetpack_Cxn_Test_Base {
 	public function output_results_for_cli( $group = 'default' ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			if ( Jetpack::is_development_mode() ){
-				WP_CLI::line( __( 'Jetpack is in development mode. Please deactivate development mode for accurate results. ') );
+				WP_CLI::line( __('Jetpack is in Development Mode:') );
+				WP_CLI::line( Jetpack::development_mode_trigger_text() );
 			}
 			WP_CLI::line( __( 'TEST RESULTS:', 'jetpack' ) );
 			foreach ( $this->raw_results( $group ) as $test ) {
@@ -271,6 +272,8 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Encrypt data for sending to WordPress.com.
 	 *
+	 * @todo When PHP minimum is 5.3+, add cipher detection to use an agreed better cipher than RC4. RC4 should be the last resort.
+	 *
 	 * @param string $data Data to encrypt with the WP.com Public Key.
 	 *
 	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.
@@ -286,8 +289,9 @@ class Jetpack_Cxn_Test_Base {
 		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
 			$return = array(
-				'data' => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-				'key'  => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'data'   => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'key'    => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'cipher' => 'RC4', // When Jetpack's minimum WP version is at PHP 5.3+, we will add in detecting and using a stronger one.
 			);
 		}
 
