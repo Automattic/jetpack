@@ -395,7 +395,7 @@ class Jetpack_Likes_Settings {
 		}
 
 		// Ensure it's always an array (even if not previously empty or scalar)
-		$setting['show'] = !empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
+		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
 
 		/**
 		 * Filters where the Likes are displayed.
@@ -507,9 +507,25 @@ class Jetpack_Likes_Settings {
 							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
 							<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
 						</label>
-						<div>
+					</div>
 				</td>
 			</tr>
+			<!-- WPCOM only: Comment Likes -->
+			<?php if ( ! $this->in_jetpack ) : ?>
+				<tr>
+					<th scope="row">
+						<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
+					</th>
+					<td>
+						<div>
+							<label>
+								<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
+								<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
+							</label>
+						</div>
+					</td>
+				</tr>
+			<?php endif; ?>
 		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
 	<?php
@@ -534,15 +550,34 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
+	 * Used for WPCOM ONLY. Comment likes are in their own module in Jetpack.
+	 * Returns if comment likes are enabled. Defaults to 'off'
+	 * @return boolean true if we should show comment likes, false if not
+	 */
+	function is_comments_enabled() {
+		/**
+		 * Filters whether Comment Likes are enabled.
+		 * true if enabled, false if not.
+		 *
+		 * @module comment-likes
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $option Are Comment Likes enabled sitewide.
+		 */
+		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
+	}
+
+	/**
 	 * Saves the setting in the database, bumps a stat on WordPress.com
 	 */
 	function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		$new_state = !empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
+		$new_state = ! empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
 		$db_state  = $this->is_enabled_sitewide();
 
-		$reblogs_new_state = !empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
+		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
 		$reblogs_db_state = $this->reblogs_enabled_sitewide();
 		/** Default State *********************************************************/
 
@@ -578,6 +613,20 @@ class Jetpack_Likes_Settings {
 				delete_option( 'disabled_reblogs' );
 				break;
 		}
+
+		// WPCOM only: Comment Likes
+		if ( ! $this->in_jetpack ) {
+			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
+			switch( (bool) $new_comments_state ) {
+				case true:
+					update_option( 'jetpack_comment_likes_enabled', 1 );
+				break;
+				case false:
+				default:
+					update_option( 'jetpack_comment_likes_enabled', 0 );
+				break;
+			}
+		}
 	}
 
 	/**
@@ -598,8 +647,6 @@ class Jetpack_Likes_Settings {
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 */
 	function admin_settings_showbuttonon_init() {
-		?>
-		<?php
 		/** This action is documented in modules/sharedaddy/sharing.php */
 		echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
 		?>
