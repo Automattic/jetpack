@@ -30,10 +30,11 @@ function parseGitDiffToPathArray( command ) {
  * @param {String} file File name of php file modified.
  * @return {boolean}        If the file matches the whitelist.
  */
-function phpcsFilesToFilter( file ){
-	if ( file.startsWith( '_inc/lib/debugger/' )
-//		|| file.startsWith( 'jetpack.php' ) // Example for future editions.
-		) {
+function phpcsFilesToFilter( file ) {
+	if (
+		file.startsWith( '_inc/lib/debugger/' )
+		// || file.startsWith( 'jetpack.php' ) // Example for future editions.
+	) {
 		return true;
 	}
 
@@ -99,29 +100,28 @@ if ( phpLintResult && phpLintResult.status ) {
 
 let phpcbfResult, phpcsResult;
 if ( phpcsFiles.length > 0 ) {
-	phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [...phpcsFiles], {
+	phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...phpcsFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	phpcsResult = spawnSync( 'vendor/bin/phpcs', [...phpcsFiles], {
+	phpcsResult = spawnSync( 'vendor/bin/phpcs', [ ...phpcsFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 }
 
 if ( phpcbfResult && phpcbfResult.status ) {
-	console.log(
-		chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
+	console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
 }
 
 if ( phpcsResult && phpcsResult.status ) {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
 		'PHPCS reported some problems and cannot automatically fix them. ' +
-		'If you are aware of them and it is OK, ' +
-		'repeat the commit command with --no-verify to avoid this check.' +
-		"But please don't. Code is poetry."
+			'If you are aware of them and it is OK, ' +
+			'repeat the commit command with --no-verify to avoid this check.' +
+			"But please don't. Code is poetry."
 	);
 	process.exit( 1 );
 }
