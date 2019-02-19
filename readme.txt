@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
+* Widgets: support alternative Pinterest domain extensions in the Social Icons Widget.
 
 --------
 
