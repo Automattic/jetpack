@@ -245,8 +245,16 @@ class Jetpack_Debugger {
 					?>
 								</em></b>  
 								<?php
-								/* translators: URLs to Jetpack support pages. */
-								echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' );
+								echo sprintf(
+									/* translators: URLs to Jetpack support pages. */
+									wp_kses( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' ),
+									array(
+										'a' => array(
+											'href'   => array(),
+											'target' => array(),
+										),
+									)
+								);
 								?>
 						</li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
@@ -265,7 +273,7 @@ class Jetpack_Debugger {
 						<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
 					</li>
 					<?php /* translators: The URL to the site's xmlrpc.php file. */ ?>
-					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ), site_url( 'xmlrpc.php' ) ); ?>
+					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( wp_kses( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ), site_url( 'xmlrpc.php' ), array( 'a' => array( 'href' => array() ) ) ) ); ?>
 						<ul>
 							<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
 							<li>- <?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
@@ -303,7 +311,7 @@ class Jetpack_Debugger {
 				</ol>
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
 				<?php /* translators: URL for Jetpack support. */ ?>
-				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ), 'https://jetpack.com/contact-support/' ); ?></p>
+				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  <?php echo sprintf( wp_kses( __( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ), 'https://jetpack.com/contact-support/', array( 'a' => array( 'href' => array() ) ) ) ); ?></p>
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
@@ -311,9 +319,13 @@ class Jetpack_Debugger {
 						<p>
 						<?php
 						printf(
-							/* translators: %s is an e-mail address */
-							__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
-							esc_html( Jetpack::get_master_user_email() )
+
+							wp_kses(
+								/* translators: %s is an e-mail address */
+								__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
+								esc_html( Jetpack::get_master_user_email() ),
+								array( 'strong' => array() )
+							)
 						);
 						?>
 							</p>
@@ -323,9 +335,12 @@ class Jetpack_Debugger {
 						<p>
 						<?php
 						printf(
-							/* translators: Link to a Jetpack support page. */
-							__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
-							'https://jetpack.com/support/development-mode/'
+							wp_kses(
+								/* translators: Link to a Jetpack support page. */
+								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
+								'https://jetpack.com/support/development-mode/',
+								array( 'a' => array( 'href' => array() ) )
+							)
 						);
 						?>
 							</p>
@@ -337,9 +352,15 @@ class Jetpack_Debugger {
 					&& ( Jetpack::is_development_mode() || Jetpack::is_active() )
 				) {
 					printf(
-						'<p><a href="%1$s">%2$s</a></p>',
-						Jetpack::admin_url( 'page=jetpack_modules' ),
-						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+						wp_kses(
+							'<p><a href="%1$s">%2$s</a></p>',
+							Jetpack::admin_url( 'page=jetpack_modules' ),
+							esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ),
+							array(
+								'a' => array( 'href' => array() ),
+								'p' => array(),
+							)
+						)
 					);
 				}
 				?>
