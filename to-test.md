@@ -4,6 +4,16 @@
 
 This release introduces some new blocks we'd like you to test.
 
+#### Business Hours
+
+The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site. To test it, try the following:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add Opening Hours for some days, and not for others. Ensure that the block looks good in the editor and on the site's frontend.
+- Set the business to be closed on some days and open on hours. Does everything work?
+- Make sure the block works regardless of your site's language.
+
 #### Mailchimp
 
 The Mailchimp block allows you to insert Mailchimp subscription forms anywhere in your posts and pages. To test this, you will need [a Mailchimp account](https://mailchimp.com/), and an email list in that account. The block will be used by your readers to add themselves to that list, that you can later use to contact your subscribers.

@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 	- the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
 	- the Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
 	- the Slideshow block allows you to insert beautiful slideshows in your posts and pages.
+	- The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site.
 
 **Enhancements**
 
