@@ -32,6 +32,10 @@ Once you have that, try the following:
 - Test on mobile
 - Test how the block works as a “reusable block”.
 
+#### Related Posts
+
+The Related Posts block isn't new, but we've made some changes to how it works and would appreciate your eyes on this. Try adding the block to one of your site, and try playing with the number of posts listed in the block. You can now add up to 6 related posts! Make sure that works well.
+
 #### Slideshows
 
 Slideshows are often a nice alternative to galleries, and have long been part of Jetpack, alongside Tiled Galleries. We're now bringing that option to the block editor, with a brand new block! You can test it like so:
