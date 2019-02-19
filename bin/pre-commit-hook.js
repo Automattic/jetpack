@@ -112,6 +112,7 @@ if ( phpcsFiles.length > 0 ) {
 }
 
 if ( phpcbfResult && phpcbfResult.status ) {
+	execSync( `git add ${ phpcsFiles.join( ' ' ) }` );
 	console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
 }
 
