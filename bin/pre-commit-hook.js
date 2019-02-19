@@ -27,6 +27,7 @@ function parseGitDiffToPathArray( command ) {
 const dirtyFiles = new Set( parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ) );
 const files = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpcsFiles = phpFiles.filter( name => name.startsWith( '_inc/lib/debugger/' ) );
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -76,6 +77,35 @@ if ( phpLintResult && phpLintResult.status ) {
 		'The linter reported some problems. ' +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.'
+	);
+	process.exit( 1 );
+}
+
+let phpcbfResult, phpcsResult;
+if ( phpcsFiles.length > 0 ) {
+	phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [...phpcsFiles], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	phpcsResult = spawnSync( 'vendor/bin/phpcs', [...phpcsFiles], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+}
+
+if ( phpcbfResult && phpcbfResult.status ) {
+	console.log(
+		chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
+}
+
+if ( phpcsResult && phpcsResult.status ) {
+	console.log(
+		chalk.red( 'COMMIT ABORTED:' ),
+		'PHPCS reported some problems and cannot automatically fix them. ' +
+		'If you are aware of them and it is OK, ' +
+		'repeat the commit command with --no-verify to avoid this check.' +
+		"But please don't. Code is poetry."
 	);
 	process.exit( 1 );
 }
