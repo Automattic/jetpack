@@ -22,6 +22,21 @@ Once you have that, try the following:
 - Test on mobile
 - Test how the block works as a “reusable block”.
 
+#### Slideshows
+
+Slideshows are often a nice alternative to galleries, and have long been part of Jetpack, alongside Tiled Galleries. We're now bringing that option to the block editor, with a brand new block! You can test it like so:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try adding images of different aspect ratios.
+- Try different options, both from the block toolbar, and the sidebar. Verify that each change works like it should. After modifying options, update the post and verify that the saved content on the frontend works and looks like expected.
+	- Change the transition effect
+	- Change the number of images
+	- Change captions (add links)
+- Add new images by uploading using the upload-button, dragging over the gallery and from the Media library using the pen-icon from the toolbar. Try removing images, too.
+- Try converting the block to a regular gallery and images.
+- Try inserting multiple instances of the block and resize the editor either by resizing the browser window, toggling Gutenberg sidebar on/off or changing the orientation of a mobile device.
+
 #### VideoPress
 
 We aim to port our existing [VideoPress](https://jetpack.com/features/design/video-hosting/) functionality into the video block. We're still working hard on this, but we've made some changes to the existing **Video Block** in WordPress to start supporting VideoPress videos. To test this, try the following:
