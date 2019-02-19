@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* PHP 7.3: introduce automated testing for PHP 7.3.
 * Twenty Nineteen: fix Top Posts and Pages Widget image list margins.
 
 **Bug fixes**
