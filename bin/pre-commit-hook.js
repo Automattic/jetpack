@@ -6,13 +6,8 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 
-const gitFiles = execSync( 'git diff --cached --name-only --diff-filter=ACM' )
-	.toString()
-	.split( '\n' )
-	.map( name => name.trim() );
-
 /**
- * Parses the output of a git diff command into javascript file paths.
+ * Parses the output of a git diff command into file paths.
  *
  * @param   {String} command Command to run. Expects output like `git diff --name-only […]`
  * @returns {Array}          Paths output from git command
@@ -20,8 +15,7 @@ const gitFiles = execSync( 'git diff --cached --name-only --diff-filter=ACM' )
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
 		.split( '\n' )
-		.map( name => name.trim() )
-		.filter( name => name.startsWith( '_inc/client/' ) && /\.jsx?$/.test( name ) );
+		.map( name => name.trim() );
 }
 
 /**
@@ -41,10 +35,38 @@ function phpcsFilesToFilter( file ) {
 	return false;
 }
 
-const dirtyFiles = new Set( parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ) );
-const files = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' );
+/**
+ * Provides filter to determine which JS files to run through Prettify and linting.
+ *
+ * @param {String} file File name of js file modified.
+ * @return {boolean}        If the file matches the whitelist.
+ */
+function jsFilesToFilter( file ) {
+	if (
+		file.startsWith( '_inc/client/' ) &&
+		/\.jsx?$/.test( name )
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+const gitFiles = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' ).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter( Boolean );
+const jsFiles = gitFiles.filter( jsFilesToFilter );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
+
+/**
+ * Filters out unstaged changes so we do not add an entire file without intention.
+ *
+ * @param {String} file File name to check against the dirty list.
+ * @return {boolean}    If the file should be checked.
+ */
+function checkFileAgainstDirtyList( file ) {
+	return -1 === dirtyFiles.indexOf( file );
+}
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -52,7 +74,7 @@ dirtyFiles.forEach( file =>
 	)
 );
 
-const toPrettify = files.filter( file => ! dirtyFiles.has( file ) );
+const toPrettify = jsFiles.filter( checkFileAgainstDirtyList );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
@@ -63,7 +85,7 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const toLint = files;
+const toLint = jsFiles;
 if ( toLint.length ) {
 	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
 		shell: true,
@@ -99,11 +121,14 @@ if ( phpLintResult && phpLintResult.status ) {
 }
 
 let phpcbfResult, phpcsResult;
+const toPhpcbf = phpcsFiles.filter( checkFileAgainstDirtyList );
 if ( phpcsFiles.length > 0 ) {
-	phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...phpcsFiles ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
+	if ( toPhpcbf.length > 0 ) {
+		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {
+			shell: true,
+			stdio: 'inherit',
+		} );
+	}
 
 	phpcsResult = spawnSync( 'vendor/bin/phpcs', [ ...phpcsFiles ], {
 		shell: true,
@@ -117,11 +142,12 @@ if ( phpcbfResult && phpcbfResult.status ) {
 }
 
 if ( phpcsResult && phpcsResult.status ) {
+	const phpcsStatus = ( 2 === phpcsResult.status ? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n' : 'PHPCS reported some problems and cannot automatically fix them.\n' );
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
-		'PHPCS reported some problems and cannot automatically fix them. ' +
+			phpcsStatus +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.' +
+			'repeat the commit command with --no-verify to avoid this check.\n' +
 			"But please don't. Code is poetry."
 	);
 	process.exit( 1 );
