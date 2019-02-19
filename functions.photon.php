@@ -280,7 +280,8 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/^chart\.googleapis\.com$/',
 		'/^chart\.apis\.google\.com$/',
 		'/^graph\.facebook\.com$/',
-		'/\.fbcdn\.net$/'
+		'/\.fbcdn\.net$/',
+		'/\.paypalobjects\.com$/',
 	);
 
 	$host = jetpack_photon_parse_url( $image_url, PHP_URL_HOST );
