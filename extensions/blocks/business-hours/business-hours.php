@@ -44,20 +44,20 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	}
 
 	foreach ( $attributes['hours'] as $day => $hours ) {
-		$content    .= '<dt class="' . esc_attr( $day ) . '">' .
+		$content   .= '<dt class="' . esc_attr( $day ) . '">' .
 					   ucfirst( $wp_locale->get_weekday( array_search( $day, $days ) ) ) .
 					   '</dt>';
-		$content    .= '<dd class="' . esc_attr( $day ) . '">';
+		$content   .= '<dd class="' . esc_attr( $day ) . '">';
 		$days_hours = '';
 
 		foreach ( $hours as $hour ) {
 			if ( empty( $hour['opening'] ) || empty( $hour['closing'] ) ) {
 				continue;
 			}
-			$opening    = strtotime( $hour['opening'] );
-			$closing    = strtotime( $hour['closing'] );
+			$opening     = strtotime( $hour['opening'] );
+			$closing     = strtotime( $hour['closing'] );
 			$days_hours .= sprintf(
-			/* Translators: Business opening hours info. */
+				/* Translators: Business opening hours info. */
 				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
 				date( $time_format, $opening ),
 				date( $time_format, $closing )
@@ -67,18 +67,22 @@ function jetpack_business_hours_render( $attributes, $content ) {
 				$now = strtotime( current_time( 'H:i' ) );
 				if ( $now < $opening ) {
 					$days_hours .= '<br />';
-					$days_hours .= esc_html( sprintf(
-					/* Translators: Amount of time until business opens. */
-						_x( 'Opening in %s', 'Amount of time until business opens', 'jetpack' ),
-						human_time_diff( $now, $opening )
-					) );
+					$days_hours .= esc_html(
+						sprintf(
+							/* Translators: Amount of time until business opens. */
+							_x( 'Opening in %s', 'Amount of time until business opens', 'jetpack' ),
+							human_time_diff( $now, $opening )
+						)
+					);
 				} elseif ( $now >= $opening && $now < $closing ) {
 					$days_hours .= '<br />';
-					$days_hours .= esc_html( sprintf(
-					/* Translators: Amount of time until business closes. */
-						_x( 'Closing in %s', 'Amount of time until business closes', 'jetpack' ),
-						human_time_diff( $now, $closing )
-					) );
+					$days_hours .= esc_html(
+						sprintf(
+							/* Translators: Amount of time until business closes. */
+							_x( 'Closing in %s', 'Amount of time until business closes', 'jetpack' ),
+							human_time_diff( $now, $closing )
+						)
+					);
 				}
 			}
 			$days_hours .= '<br />';
