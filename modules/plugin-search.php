@@ -11,16 +11,6 @@
  * Feature: Jumpstart
  */
 
-/**
- * @todo Convert into a Jetpack module. Autoload/enable.
- *
- * @todo Handle different scenarios:
- * - Jetpack installed, active, not connected; prompt to connect to get feature
- * - Done: Installed, active, feature not enabled; prompt to enable
- * - Done: Installed, active, feature enabled; link to settings
- * - Activate module via AJAX, then prompt to configure/settings
- */
-
 if (
 	is_admin() &&
 	Jetpack::is_active() &&
@@ -29,6 +19,9 @@ if (
 ) {
 	add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
 }
+
+// Register endpoints when WP REST API is initialized.
+add_action( 'rest_api_init', array( 'Jetpack_Plugin_Search', 'register_endpoints' ) );
 
 /**
  * Class that includes cards in the plugin search results when users enter terms that match some Jetpack feature.
@@ -59,6 +52,8 @@ class Jetpack_Plugin_Search {
 	 * Add actions and filters only if this is the plugin installation screen and it's the first page.
 	 *
 	 * @param object $screen
+	 *
+	 * @since 7.1.0
 	 */
 	public function start( $screen ) {
 		if ( 'plugin-install' === $screen->base && ( ! isset( $_GET['paged'] ) || 1 == $_GET['paged'] ) ) {
@@ -74,23 +69,133 @@ class Jetpack_Plugin_Search {
 	 *
 	 * @param string $url URL to load in dialog pulling the plugin page from wporg.
 	 *
+	 * @since 7.1.0
+	 *
 	 * @return string The URL with 'jetpack' instead of 'jetpack-plugin-search'.
 	 */
 	public function plugin_details( $url ) {
-		if ( false !== stripos( $url, 'tab=plugin-information&amp;plugin=' . self::$slug ) ) {
-			return 'plugin-install.php?tab=plugin-information&amp;plugin=jetpack&amp;TB_iframe=true&amp;width=600&amp;height=550';
-		}
-		return $url;
+		return false !== stripos( $url, 'tab=plugin-information&amp;plugin=' . self::$slug )
+			? 'plugin-install.php?tab=plugin-information&amp;plugin=jetpack&amp;TB_iframe=true&amp;width=600&amp;height=550'
+			: $url;
 	}
 
-	public function load_plugins_search_script( $hook ) {
+	/**
+	 * Register REST API endpoints.
+	 *
+	 * @since 7.1.0
+	 */
+	public static function register_endpoints() {
+		register_rest_route( 'jetpack/v4', '/hints', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::dismiss',
+			'permission_callback' => __CLASS__ . '::can_request',
+			'args' => array(
+				'hint' => array(
+					'default'           => '',
+					'type'              => 'string',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::is_hint_id',
+				),
+			)
+		) );
+	}
+
+	/**
+	 * A WordPress REST API permission callback method that accepts a request object and
+	 * decides if the current user has enough privileges to act.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return bool does a current user have enough privileges.
+	 */
+	public static function can_request() {
+		return current_user_can( 'jetpack_admin_page' );
+	}
+
+	/**
+	 * Validates that the ID of the hint to dismiss is a string.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function is_hint_id( $value, $request, $param ) {
+		return in_array( $value, Jetpack::get_available_modules(), true )
+			? true
+			: new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
+	}
+
+	/**
+	 * A WordPress REST API callback method that accepts a request object and decides what to do with it.
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $hint Slug of card to dismiss.
+	 * }
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return bool|array|WP_Error a resulting value or object, or an error.
+	 */
+	public static function dismiss( WP_REST_Request $request ) {
+		return self::add_to_dismissed_hints( $request['hint'] )
+			? rest_ensure_response( array( 'code' => 'success' ) )
+			: new WP_Error( 'not_dismissed', esc_html__( 'The card could not be dismissed', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Returns a list of previously dismissed hints.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return array List of dismissed hints.
+	 */
+	protected static function get_dismissed_hints() {
+		$dismissed_hints = Jetpack_Options::get_option( 'dismissed_hints' );
+		return isset( $dismissed_hints ) && is_array( $dismissed_hints )
+			? $dismissed_hints
+			: array();
+	}
+
+	/**
+	 * Save the hint in the list of dismissed hints.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @param string $hint The hint id, which is a Jetpack module slug.
+	 *
+	 * @return bool Whether the card was added to the list and hence dismissed.
+	 */
+	protected static function add_to_dismissed_hints( $hint ) {
+		return Jetpack_Options::update_option( 'dismissed_hints', array_merge( self::get_dismissed_hints(), array( $hint ) ) );
+	}
+
+	/**
+	 * Checks that the module slug passed, the hint, is not in the list of previously dismissed hints.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @param string $hint The hint id, which is a Jetpack module slug.
+	 *
+	 * @return bool True if $hint wasn't already dismissed.
+	 */
+	protected function is_not_dismissed( $hint ) {
+		return ! in_array( $hint, $this->get_dismissed_hints(), true );
+	}
+
+	public function load_plugins_search_script() {
 		wp_enqueue_script( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			self::$slug,
 			'jetpackPluginSearch',
 			array(
 				'nonce'                => wp_create_nonce( 'wp_rest' ),
-				'rest_url'             => rest_url( '/jetpack/v4/settings/' ),
+				'base_rest_url'        => rest_url( '/jetpack/v4' ),
 				'manageSettingsString' => esc_html__( 'Module Settings', 'jetpack' ),
 				'activateModuleString' => esc_html__( 'Activate Module', 'jetpack' ),
 				'activatedString'      => esc_html__( 'Activated', 'jetpack' ),
@@ -164,7 +269,7 @@ class Jetpack_Plugin_Search {
 				}
 			}
 
-			if ( isset( $matching_module ) ) {
+			if ( isset( $matching_module ) && $this->is_not_dismissed( $jetpack_modules_list[ $matching_module ]['module'] ) ) {
 				$inject = (array) self::get_jetpack_plugin_data();
 
 				$overrides = array(
@@ -281,4 +386,6 @@ class Jetpack_Plugin_Search {
 
 		return $links;
 	}
+
+
 }

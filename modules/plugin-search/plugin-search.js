@@ -8,8 +8,7 @@
 /**
  * Replace bottom row of the card to insert logo, text and link to dismiss the card.
  */
-const replaceCardBottom = function( e ) {
-	console.log( e );
+const replaceCardBottom = function() {
 	document
 		.querySelector( '.plugin-card-jetpack-plugin-search' )
 		.querySelector( '.plugin-card-bottom' )
@@ -17,7 +16,7 @@ const replaceCardBottom = function( e ) {
 			`<div class="jetpack-plugin-search__bottom">
 				<img src="${ jetpackPluginSearch.logo }" width="32" />
 				<p class="jetpack-plugin-search__text">${ jetpackPluginSearch.legend }</p>
-				<a href="#" class="jetpack-plugin-search__dismiss">${ jetpackPluginSearch.hideText }</a>
+				<a class="jetpack-plugin-search__dismiss">${ jetpackPluginSearch.hideText }</a>
 			</div>`;
 };
 
@@ -44,7 +43,33 @@ resultsObserver.observe( document.getElementById( 'plugin-filter' ), { childList
 replaceCardBottom();
 
 ( function( $, jpsh ) {
+
 	const $pluginFilter = $( '#plugin-filter' );
+
+	$pluginFilter.on( 'click', '.jetpack-plugin-search__dismiss', function( event ) {
+		event.preventDefault();
+		dismiss( 'contact-form' );
+	} );
+
+	function dismiss( moduleName ) {
+		document.getElementById( 'the-list' ).removeChild( document.querySelector( '.plugin-card-jetpack-plugin-search' ) )
+		$.ajax( {
+			url: `${jpsh.base_rest_url}/hints`,
+			method: 'post',
+			beforeSend: function( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
+			},
+			data: JSON.stringify( {
+				hint: moduleName,
+			} ),
+			contentType: 'application/json',
+			dataType: 'json'
+		} ).done( function() {
+			console.log( 'listo' );
+		} ).error( function() {
+			console.log( 'error' )
+		} );
+	}
 
 	$pluginFilter.on( 'click', 'button#plugin-select-activate', function( event ) {
 		event.preventDefault();
@@ -57,7 +82,7 @@ replaceCardBottom();
 		$moduleBtn.prop( 'disabled', true );
 		$moduleBtn.text( jpsh.activatingString );
 		$.ajax( {
-			url: jpsh.rest_url,
+			url: `${jpsh.base_rest_url}/settings`,
 			method: 'post',
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );

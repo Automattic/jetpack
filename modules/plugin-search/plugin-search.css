@@ -34,3 +34,14 @@
 	flex: 1;
 	margin: 0 24px 0 16px;
 }
+
+.jetpack-plugin-search__dismiss {
+	color: #484848;
+	font-style: italic;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.jetpack-plugin-search__dismiss:hover {
+	color: #666;
+}
