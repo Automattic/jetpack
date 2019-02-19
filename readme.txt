@@ -107,7 +107,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Block Editor: this release introduces a new Mailchimp block.
+* Block Editor: this release introduces 2 new blocks:
+	- the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
+	- The Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
 
 **Enhancements**
 

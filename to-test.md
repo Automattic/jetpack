@@ -20,7 +20,20 @@ Once you have that, try the following:
 - Try adding block as a contributor level user
 - Test how the block looks like from RSS feed or in Jetpack subscription emails
 - Test on mobile
-- Test how the block works as a “reusable block”:
+- Test how the block works as a “reusable block”.
+
+#### VideoPress
+
+We aim to port our existing [VideoPress](https://jetpack.com/features/design/video-hosting/) functionality into the video block. We're still working hard on this, but we've made some changes to the existing **Video Block** in WordPress to start supporting VideoPress videos. To test this, try the following:
+
+- On a site using a free Jetpack plan, go to Media > Library and upload a few small videos.
+- Purchase a Premium or a Professional plan.
+- Go to Jetpack > Settings and toggle the "Enable high-speed, ad-free video player" option.
+- Go to Media > Library and try uploading more videos. You should notice that they will be uploaded to VideoPress at this point.
+- Go to Posts > Add New and try to insert Video Blocks. In the media picker, try picking the videos you uploaded before you purchased a plan, and then try with a VideoPress video.
+- Try editing the blocks. Are you able to upload or select a different video?
+- Try opening an existing post that contains old video blocks. Are they migrated to the new VideoPress-enhanced video blocks?
+- Downgrade to a free plan or, in Jetpack, disable the VideoPress module. What happens when you insert video blocks? What happens to the existing posts containing VideoPress-enhanced video blocks?
 
 ### Others
 
