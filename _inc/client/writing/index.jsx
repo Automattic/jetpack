@@ -24,6 +24,7 @@ import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
 import { isAtomicSite } from 'state/initial-state';
+import WritingMedia from './writing-media';
 
 export class Writing extends React.Component {
 	static displayName = 'WritingSettings';
@@ -39,6 +40,7 @@ export class Writing extends React.Component {
 		};
 
 		const found = [
+			'carousel',
 			'copy-post',
 			'masterbar',
 			'markdown',
@@ -75,6 +77,7 @@ export class Writing extends React.Component {
 					className="jp-settings-description"
 				/>
 
+				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
 				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
 					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 				) }
