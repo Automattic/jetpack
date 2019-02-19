@@ -18,131 +18,9 @@ import {
 	getUserWpComAvatar,
 	getUsername,
 } from 'state/initial-state';
+import { checkIsMobileUser, sendMobileLoginEmail } from 'state/mobile/actions';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
-import { createNotice } from 'state/notices/actions';
-
-/**
- * These should ultimately be in their own state/* file
- */
-
-import restApi from 'rest-api';
-import {
-	JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH,
-	JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH_FAIL,
-	JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH_SUCCESS,
-	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
-	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,
-	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_FAIL,
-} from 'state/action-types';
-
-/**
- * Not used yet, but ultimately should be used to determine whether to show prompt to send login email
- */
-const checkIsMobileUser = () => {
-	return dispatch => {
-		dispatch( {
-			type: JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH,
-		} );
-		return restApi
-			.fetchIsMobileUser()
-			.then( data => {
-				if ( data.errors && data.errors.length > 0 ) {
-					const errorCode = Object.keys( data.errors )[ 0 ];
-					const errorMessage = data.errors[ errorCode ];
-					dispatch( {
-						type: JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH_FAIL,
-						error: {
-							code: errorCode,
-							message: errorMessage,
-						},
-					} );
-					return data;
-				}
-
-				dispatch( {
-					type: JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH_SUCCESS,
-					isMobileUser: data, // TODO: indicate android, iOS, etc? Maybe not useful
-				} );
-
-				return data;
-			} )
-			.catch( error => {
-				dispatch( {
-					type: JETPACK_MOBILE_LOGIN_IS_MOBILE_USER_FETCH_FAIL,
-					error: error.response,
-				} );
-
-				dispatch(
-					createNotice(
-						'is-error',
-						__( 'Failed to check mobile user status: %(error)', {
-							args: {
-								error: error.response.message,
-							},
-						} ),
-						{ id: 'mobile-check-is-user' }
-					)
-				);
-			} );
-	};
-};
-
-const sendMobileLoginEmail = keyringId => {
-	return dispatch => {
-		console.warn( 'sending mobile login email action' );
-		dispatch( {
-			type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
-		} );
-		return restApi
-			.sendMobileLoginEmail( keyringId )
-			.then( data => {
-				if ( data.errors && data.errors.length > 0 ) {
-					const errorCode = Object.keys( data.errors )[ 0 ];
-					const errorMessage = data.errors[ errorCode ];
-					dispatch( {
-						type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_FAIL,
-						error: {
-							code: errorCode,
-							message: errorMessage,
-						},
-					} );
-					return data;
-				}
-
-				dispatch( {
-					type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,
-				} );
-
-				dispatch(
-					createNotice( 'is-success', __( 'Login email sent' ), {
-						id: 'mobile-sent-login-email',
-						duration: 2000,
-					} )
-				);
-
-				return data;
-			} )
-			.catch( error => {
-				dispatch( {
-					type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_FAIL,
-					error: error.response,
-				} );
-
-				dispatch(
-					createNotice(
-						'is-error',
-						__( 'Failed to send login email: %(error)', {
-							args: {
-								error: error.response.message,
-							},
-						} ),
-						{ id: 'mobile-check-is-user' }
-					)
-				);
-			} );
-	};
-};
 
 export class DashMobileLogin extends Component {
 	/*
@@ -194,7 +72,7 @@ export class DashMobileLogin extends Component {
 								comment: '%(username) is the WordPress user login name.',
 							} ) }
 							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
-							<a href="#" onClick={ this.clickSendLoginEmail }>
+							<a href="#send-login-email" onClick={ this.clickSendLoginEmail }>
 								Send me an email that logs me in
 							</a>
 						</div>
@@ -217,9 +95,6 @@ export class DashMobileLogin extends Component {
 
 	clickSendLoginEmail = e => {
 		e.preventDefault();
-
-		console.warn( 'clicked this thing' );
-
 		this.props.sendMobileLoginEmail();
 	};
 
