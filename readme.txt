@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Simple Payments: add generic currency fallback symbol.
 
 **Improved compatibility**
 
