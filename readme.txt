@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Infinite Scroll: fix vertical spacing for new posts loaded with Infinite Scroll.
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
+* Theme Tools: support alternative Pinterest domain extensions in the Social Menus tool.
 * Widgets: support alternative Pinterest domain extensions in the Social Icons Widget.
 * Widgets: update the Cookies & Consents Banner to be fully accessible on mobile devices.
 
