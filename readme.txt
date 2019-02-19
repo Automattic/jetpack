@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Block Editor: improve block registration structure for better management of block availability.
 * General: remove IE8 support fallbacks.
+* Plans: clarify upgrade prompts in the Jetpack dashboard's Plans page.
 * Simple Payments: add generic currency fallback symbol.
 
 **Improved compatibility**
