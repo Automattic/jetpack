@@ -24,10 +24,26 @@ function parseGitDiffToPathArray( command ) {
 		.filter( name => name.startsWith( '_inc/client/' ) && /\.jsx?$/.test( name ) );
 }
 
+/**
+ * Provides filter to determine which PHP files to run through phpcs.
+ *
+ * @param {String} file File name of php file modified.
+ * @return {boolean}        If the file matches the whitelist.
+ */
+function phpcsFilesToFilter( file ){
+	if ( file.startsWith( '_inc/lib/debugger/' )
+//		|| file.startsWith( 'jetpack.php' ) // Example for future editions.
+		) {
+		return true;
+	}
+
+	return false;
+}
+
 const dirtyFiles = new Set( parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ) );
 const files = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
-const phpcsFiles = phpFiles.filter( name => name.startsWith( '_inc/lib/debugger/' ) );
+const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 
 dirtyFiles.forEach( file =>
 	console.log(
