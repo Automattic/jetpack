@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Block Editor: improve block registration structure for better management of block availability.
+* General: remove IE8 support fallbacks.
 * Simple Payments: add generic currency fallback symbol.
 
 **Improved compatibility**
