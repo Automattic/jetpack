@@ -57,6 +57,7 @@ class Jetpack_Options {
 				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
 				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
 				'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
+				'wpcom_site_type'
 			);
 
 		case 'private' :
