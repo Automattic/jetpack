@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Twenty Nineteen: fix Top Posts and Pages Widget image list margins.
 
 **Bug fixes**
 
