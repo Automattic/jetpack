@@ -1,3 +1,47 @@
+/**
+ * Handles the activation of a Jetpack feature, dismissing the card, and replacing the bottom row
+ * of the card with customized content.
+ */
+
+/* global jetpackPluginSearch */
+
+/**
+ * Replace bottom row of the card to insert logo, text and link to dismiss the card.
+ */
+const replaceCardBottom = function( e ) {
+	console.log( e );
+	document
+		.querySelector( '.plugin-card-jetpack-plugin-search' )
+		.querySelector( '.plugin-card-bottom' )
+		.outerHTML =
+			`<div class="jetpack-plugin-search__bottom">
+				<img src="${ jetpackPluginSearch.logo }" width="32" />
+				<p class="jetpack-plugin-search__text">${ jetpackPluginSearch.legend }</p>
+				<a href="#" class="jetpack-plugin-search__dismiss">${ jetpackPluginSearch.hideText }</a>
+			</div>`;
+};
+
+/**
+ * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
+ * @param {array} mutationsList
+ */
+const replaceOnNewResults = function( mutationsList ) {
+	for ( const mutation of mutationsList ) {
+		if (
+			'childList' === mutation.type &&
+			1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
+		) {
+			replaceCardBottom();
+		}
+	}
+};
+
+// Listen for changes in plugin search results
+const resultsObserver = new MutationObserver( replaceOnNewResults );
+resultsObserver.observe( document.getElementById( 'plugin-filter' ), { childList: true } );
+
+// Replace PSH bottom row on page load. Since the script is loaded on the footer, this is ok.
+replaceCardBottom();
 
 ( function( $, jpsh ) {
 	const $pluginFilter = $( '#plugin-filter' );
@@ -7,36 +51,8 @@
 		ajaxActivateModule( $( this ).data( 'module' ) );
 	} );
 
-	const replaceCardBottom = function() {
-		document
-			.querySelector( '.plugin-card-jetpack-plugin-search' )
-			.querySelector( '.plugin-card-bottom' )
-			.outerHTML =
-			`<div class="jetpack-plugin-search__bottom">
-				<img src="${ jpsh.logo }" width="32" />
-				<p>${ jpsh.legend }</p>
-				<a href="#" className="jetpack-plugin-search__dismiss">${ jpsh.hideText }</a>
-			</div>`;
-	};
-
-	// Listen for new results
-	const resultsObserver = new MutationObserver( function( mutationsList ) {
-		for ( const mutation of mutationsList ) {
-			if (
-				'childList' === mutation.type &&
-				1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
-			) {
-				replaceCardBottom();
-			}
-		}
-	} );
-
-	resultsObserver.observe( document.getElementById( 'plugin-filter' ), { childList: true } );
-
 	function ajaxActivateModule( moduleName ) {
-		const body = {};
 		const $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );
-		body[ moduleName ] = true;
 		$moduleBtn.toggleClass( 'install-now updating-message' );
 		$moduleBtn.prop( 'disabled', true );
 		$moduleBtn.text( jpsh.activatingString );
@@ -46,7 +62,9 @@
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
 			},
-			data: window.JSON.stringify( body ),
+			data: JSON.stringify( {
+				[ moduleName ]: true,
+			} ),
 			contentType: 'application/json',
 			dataType: 'json'
 		} ).done( function() {
@@ -64,7 +82,7 @@
 		$moduleBtn.toggleClass( 'install-now updating-message' );
 		$moduleBtn.text( jpsh.activatedString );
 		setTimeout( function() {
-			$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="button" href="' + configure_url + '">' + jpsh.manageSettingsString + '</a>' );
+			$moduleBtn.replaceWith( `<a id="plugin-select-settings" class="button" href="${ configure_url }">${ jpsh.manageSettingsString }</a>` );
 		}, 1000 );
 	}
-} )( jQuery, window.jetpackPluginSearch );
+} )( jQuery, jetpackPluginSearch );
