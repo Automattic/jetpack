@@ -25,10 +25,13 @@ function parseGitDiffToPathArray( command ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function phpcsFilesToFilter( file ) {
-	if (
-		file.startsWith( '_inc/lib/debugger/' )
-		// || file.startsWith( 'jetpack.php' ) // Example for future editions.
-	) {
+	// If the file path starts with anything like in the array below, it should be linted.
+	const whitelist = [
+		'_inc/lib/debugger/',
+		'extensions/',
+	];
+
+	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
 		return true;
 	}
 
