@@ -18,7 +18,7 @@ jetpack_register_block(
 	'jetpack/address',
 	array(
 		'parent' => array( 'jetpack/contact-info' ),
-	    'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_address' )
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_address' )
 	)
 );
 
@@ -26,7 +26,7 @@ jetpack_register_block(
 	'jetpack/email',
 	array(
 		'parent' => array( 'jetpack/contact-info' ),
-	    'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_email' )
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_email' )
 	)
 );
 
@@ -56,7 +56,7 @@ class Jetpack_Contact_Info_Block {
 	 */
 	static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_assets_as_required( 'contact-info' );
-		if( $content )
+		
 		return str_replace(
 			'class="wp-block-jetpack-contact-info"',
 			'class="wp-block-jetpack-contact-info" itemprop="location" itemscope itemtype="http://schema.org/Organization"',
@@ -77,7 +77,7 @@ class Jetpack_Contact_Info_Block {
 		}
 		$find = array(
 			'class="wp-block-jetpack-address"',
-			'class="jetpack-address__address',// Closing " left out on purpose
+			'class="jetpack-address__address', // Closing " left out on purpose - there are multiple address fields and they all need to be updated with the same itemprop
 			'class="jetpack-address__region"',
 			'class="jetpack-address__city"',
 			'class="jetpack-address__postal"',
