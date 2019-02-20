@@ -586,7 +586,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
 				if ( false === $likes ) {
-					update_post_meta( $post_id, 'switch_like_status', 1 );
+					update_post_meta( $post_id, 'switch_like_status', 0 );
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
@@ -601,7 +601,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			if ( isset( $likes ) ) {
 				if ( $sitewide_likes_enabled ) {
 					if ( false === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 1 );
+						update_post_meta( $post_id, 'switch_like_status', 0 );
 					} else {
 						delete_post_meta( $post_id, 'switch_like_status' );
 					}
