@@ -44,7 +44,7 @@ function phpcsFilesToFilter( file ) {
 function jsFilesToFilter( file ) {
 	if (
 		file.startsWith( '_inc/client/' ) &&
-		/\.jsx?$/.test( name )
+		/\.jsx?$/.test( file )
 	) {
 		return true;
 	}
