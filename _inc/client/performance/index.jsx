@@ -30,14 +30,9 @@ class Performance extends Component {
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
-		const found = [
-			'photon',
-			'carousel',
-			'videopress',
-			'lazy-images',
-			'photon-cdn',
-			'search',
-		].some( this.props.isModuleFound );
+		const found = [ 'photon', 'videopress', 'lazy-images', 'photon-cdn', 'search' ].some(
+			this.props.isModuleFound
+		);
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
