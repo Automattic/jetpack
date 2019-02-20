@@ -318,8 +318,18 @@ class Jetpack_Debugger {
 					<?php endif; ?>
 				</ol>
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
-				<?php /* translators: URL for Jetpack support. */ ?>
-				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  <?php echo sprintf( wp_kses( __( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ), 'https://jetpack.com/contact-support/', array( 'a' => array( 'href' => array() ) ) ) ); ?></p>
+				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  
+											<?php
+											echo sprintf(
+												wp_kses(
+													/* translators: URL for Jetpack support. */
+													__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
+													array( 'a' => array( 'href' => array() ) )
+												),
+												'https://jetpack.com/contact-support/'
+											);
+											?>
+						</p>
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
