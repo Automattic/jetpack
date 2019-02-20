@@ -32,6 +32,7 @@ class Jetpack_Copy_Post {
 
 		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
+			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
 	}
 
@@ -64,10 +65,13 @@ class Jetpack_Copy_Post {
 			'update_post_type_terms' => $this->update_post_type_terms( $source_post, $target_post_id ),
 		);
 
-		// Required to satify get_default_post_to_edit(), which has these filters after post creation.
+		// Required to satisfy get_default_post_to_edit(), which has these filters after post creation.
 		add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
+
+		// Required to avoid the block editor from adding default blocks according to post format.
+		add_filter( 'block_editor_settings', array( $this, 'remove_post_format_template' ) );
 
 		/**
 		 * Fires after all updates have been performed, and default content filters have been added.
@@ -176,6 +180,17 @@ class Jetpack_Copy_Post {
 	protected function update_post_format( $source_post, $target_post_id ) {
 		$post_format = get_post_format( $source_post );
 		return set_post_format( $target_post_id, $post_format );
+	}
+
+	/**
+	 * Ensure the block editor doesn't modify the source post content for non-standard post formats.
+	 *
+	 * @param array $settings Settings to be passed into the block editor.
+	 * @return array Settings with any `template` key removed.
+	 */
+	public function remove_post_format_template( $settings ) {
+		unset( $settings['template'] );
+		return $settings;
 	}
 
 	/**
