@@ -278,8 +278,17 @@ class Jetpack_Debugger {
 						?>
 						<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
 					</li>
-					<?php /* translators: The URL to the site's xmlrpc.php file. */ ?>
-					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( wp_kses( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ), site_url( 'xmlrpc.php' ), array( 'a' => array( 'href' => array() ) ) ) ); ?>
+					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  
+						<?php
+													echo sprintf(
+														wp_kses(
+															/* translators: The URL to the site's xmlrpc.php file. */
+															__( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
+															array( 'a' => array( 'href' => array() ) )
+														),
+														esc_attr( site_url( 'xmlrpc.php' ) )
+													);
+						?>
 						<ul>
 							<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
 							<li>- <?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
