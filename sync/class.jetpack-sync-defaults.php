@@ -139,8 +139,8 @@ class Jetpack_Sync_Defaults {
 		'wordads_display_page',
 		'wordads_display_archive',
 		'wordads_custom_adstxt',
-		'wpcom_site_type',
-		'wpcom_site_vertical',
+		'site_segment',
+		'site_vertical',
 	);
 
 	public static function get_options_whitelist() {
