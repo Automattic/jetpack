@@ -246,14 +246,20 @@ class Jetpack_Debugger {
 								</em></b>  
 								<?php
 								echo sprintf(
-									/* translators: URLs to Jetpack support pages. */
-									wp_kses( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' ),
-									array(
-										'a' => array(
-											'href'   => array(),
-											'target' => array(),
-										),
-									)
+									wp_kses(
+										/* translators: URLs to Jetpack support pages. */
+										__( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'target' => array(),
+											),
+										)
+									),
+									'http://jetpack.com/support/getting-started-with-jetpack/known-issues/',
+									'http://jetpack.com/support/getting-started-with-jetpack/known-issues/',
+									'http://jetpack.com/support/',
+									'https://wordpress.org/support/plugin/jetpack'
 								);
 								?>
 						</li>
@@ -283,10 +289,18 @@ class Jetpack_Debugger {
 						<li>
 							<strong><em><?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?></em></strong>
 							<?php
-							echo wp_kses(
-								sprintf(
+							echo sprintf(
+								wp_kses(
 									/* translators: URL to disconnect and reconnect Jetpack. */
 									__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
+									array(
+										'a' => array(
+											'href'  => array(),
+											'class' => array(),
+										),
+									)
+								),
+								esc_attr(
 									wp_nonce_url(
 										Jetpack::admin_url(
 											array(
@@ -297,12 +311,6 @@ class Jetpack_Debugger {
 										'jp_disconnect',
 										'nonce'
 									)
-								),
-								array(
-									'a' => array(
-										'href'  => array(),
-										'class' => array(),
-									),
 								)
 							);
 							?>
@@ -319,13 +327,12 @@ class Jetpack_Debugger {
 						<p>
 						<?php
 						printf(
-
 							wp_kses(
 								/* translators: %s is an e-mail address */
 								__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
-								esc_html( Jetpack::get_master_user_email() ),
 								array( 'strong' => array() )
-							)
+							),
+							esc_html( Jetpack::get_master_user_email() )
 						);
 						?>
 							</p>
@@ -338,9 +345,9 @@ class Jetpack_Debugger {
 							wp_kses(
 								/* translators: Link to a Jetpack support page. */
 								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
-								'https://jetpack.com/support/development-mode/',
 								array( 'a' => array( 'href' => array() ) )
-							)
+							),
+							'https://jetpack.com/support/development-mode/'
 						);
 						?>
 							</p>
@@ -354,13 +361,13 @@ class Jetpack_Debugger {
 					printf(
 						wp_kses(
 							'<p><a href="%1$s">%2$s</a></p>',
-							Jetpack::admin_url( 'page=jetpack_modules' ),
-							esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ),
 							array(
 								'a' => array( 'href' => array() ),
 								'p' => array(),
 							)
-						)
+						),
+						esc_attr( Jetpack::admin_url( 'page=jetpack_modules' ) ),
+						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
 					);
 				}
 				?>
