@@ -45,8 +45,8 @@ function jetpack_business_hours_render( $attributes, $content ) {
 
 	foreach ( $attributes['hours'] as $day => $hours ) {
 		$content   .= '<dt class="' . esc_attr( $day ) . '">' .
-					   ucfirst( $wp_locale->get_weekday( array_search( $day, $days ) ) ) .
-					   '</dt>';
+					ucfirst( $wp_locale->get_weekday( array_search( $day, $days, true ) ) ) .
+					'</dt>';
 		$content   .= '<dd class="' . esc_attr( $day ) . '">';
 		$days_hours = '';
 
