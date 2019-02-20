@@ -56,7 +56,7 @@ class Jetpack_Contact_Info_Block {
 	 */
 	static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_assets_as_required( 'contact-info' );
-		
+
 		return str_replace(
 			'class="wp-block-jetpack-contact-info"',
 			'class="wp-block-jetpack-contact-info" itemprop="location" itemscope itemtype="http://schema.org/Organization"',
@@ -72,8 +72,9 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	static function render_address( $attr, $content ) {
+		// return empty content if the only attribute set is linkToGoogleMaps
 		if ( ! self::has_attributes( $attr, array( 'linkToGoogleMaps' ) ) ) {
-			return ''; // nothing to see here
+			return '';
 		}
 		$find = array(
 			'class="wp-block-jetpack-address"',
