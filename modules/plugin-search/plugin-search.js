@@ -16,8 +16,15 @@ const replaceCardBottom = function() {
 			`<div class="jetpack-plugin-search__bottom">
 				<img src="${ jetpackPluginSearch.logo }" width="32" />
 				<p class="jetpack-plugin-search__text">${ jetpackPluginSearch.legend }</p>
-				<a class="jetpack-plugin-search__dismiss">${ jetpackPluginSearch.hideText }</a>
+				
 			</div>`;
+
+	// Remove link and parent li from action links and move it to bottom row
+	const dismissLink = document.querySelector( '.jetpack-plugin-search__dismiss' );
+	dismissLink.parentNode.parentNode.removeChild( dismissLink.parentNode );
+	document
+		.querySelector( '.jetpack-plugin-search__bottom' )
+		.appendChild( dismissLink );
 };
 
 /**
@@ -48,11 +55,16 @@ replaceCardBottom();
 
 	$pluginFilter.on( 'click', '.jetpack-plugin-search__dismiss', function( event ) {
 		event.preventDefault();
-		dismiss( 'contact-form' );
+		dismiss( $( this ).data( 'module' ) );
+	} );
+
+	$pluginFilter.on( 'click', 'button#plugin-select-activate', function( event ) {
+		event.preventDefault();
+		ajaxActivateModule( $( this ).data( 'module' ) );
 	} );
 
 	function dismiss( moduleName ) {
-		document.getElementById( 'the-list' ).removeChild( document.querySelector( '.plugin-card-jetpack-plugin-search' ) )
+		document.getElementById( 'the-list' ).removeChild( document.querySelector( '.plugin-card-jetpack-plugin-search' ) );
 		$.ajax( {
 			url: `${jpsh.base_rest_url}/hints`,
 			method: 'post',
@@ -65,16 +77,11 @@ replaceCardBottom();
 			contentType: 'application/json',
 			dataType: 'json'
 		} ).done( function() {
-			console.log( 'listo' );
-		} ).error( function() {
-			console.log( 'error' )
+			//
+		} ).error( function( data ) {
+			console.warn( 'error', data )
 		} );
 	}
-
-	$pluginFilter.on( 'click', 'button#plugin-select-activate', function( event ) {
-		event.preventDefault();
-		ajaxActivateModule( $( this ).data( 'module' ) );
-	} );
 
 	function ajaxActivateModule( moduleName ) {
 		const $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );

@@ -35,6 +35,11 @@
 	margin: 0 24px 0 16px;
 }
 
+/* Hides the link to dismiss cards when it's in action links are before being moved to bottom row*/
+.action-links .jetpack-plugin-search__dismiss {
+	display: none;
+}
+
 .jetpack-plugin-search__dismiss {
 	color: #484848;
 	font-style: italic;

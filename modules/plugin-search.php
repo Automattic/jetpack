@@ -278,10 +278,7 @@ class Jetpack_Plugin_Search {
 						_x( 'Jetpack: %s', 'Jetpack: Module Name', 'jetpack' ),
 						$jetpack_modules_list[ $matching_module ]['name']
 					),
-					'short_description' => sprintf(
-						_x( 'You already have Jetpack installed, and it provides this functionality. %s', 'You already have Jetpack installed... Module description.', 'jetpack' ),
-						$jetpack_modules_list[ $matching_module ]['short_description']
-					),
+					'short_description' => $jetpack_modules_list[ $matching_module ]['short_description'],
 					'requires_connection' => (bool) $jetpack_modules_list[ $matching_module ]['requires_connection'],
 					'slug'    => self::$slug,
 					'version' => JETPACK__VERSION,
@@ -383,6 +380,11 @@ class Jetpack_Plugin_Search {
 		if ( ! empty( $plugin['learn_more_button'] ) ) {
 			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
 		}
+
+		// Dismiss link
+		$links[] = '<a class="jetpack-plugin-search__dismiss" data-module="' . esc_attr( $plugin['module'] ) . '">' .
+		           esc_html__( 'Hide this suggestion', 'jetpack' ) .
+		           '</a>';
 
 		return $links;
 	}
