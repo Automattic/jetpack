@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Handles server-side registration and use of all blocks and plugins available in Jetpack for the block editor, aka Gutenberg.
  * Works in tandem with client-side block registration via `index.json`
@@ -303,7 +303,10 @@ class Jetpack_Gutenberg {
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
 	public static function get_preset( $preset ) {
-		return json_decode( file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' ) );
+		return json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+		);
 	}
 
 	/**
@@ -350,7 +353,7 @@ class Jetpack_Gutenberg {
 
 		foreach ( self::$extensions as $extension ) {
 			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
-			( isset( self::$availability[ $extension ] ) && self::$availability[ $extension ] === true );
+			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
 
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
@@ -371,7 +374,7 @@ class Jetpack_Gutenberg {
 
 			$unprefixed_block_name = self::remove_extension_prefix( $block_name );
 
-			if ( in_array( $unprefixed_block_name, self::$extensions ) ) {
+			if ( in_array( $unprefixed_block_name, self::$extensions, true ) ) {
 				continue;
 			}
 
