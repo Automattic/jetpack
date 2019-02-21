@@ -30,7 +30,6 @@ function phpcsFilesToFilter( file ) {
 	const whitelist = [
 		'_inc/lib/debugger/',
 		'extensions/',
-		'sync/',
 		'class.jetpack-gutenberg.php',
 	];
 
