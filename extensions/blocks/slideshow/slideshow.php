@@ -23,7 +23,11 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_slideshow_block_load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'slideshow' );
+	$dependencies = array(
+		'lodash',
+	);
+
+	Jetpack_Gutenberg::load_assets_as_required( 'slideshow', $dependencies );
 
 	return $content;
 }
