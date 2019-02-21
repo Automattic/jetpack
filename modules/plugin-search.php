@@ -194,18 +194,19 @@ class Jetpack_Plugin_Search {
 			self::$slug,
 			'jetpackPluginSearch',
 			array(
-				'nonce'                => wp_create_nonce( 'wp_rest' ),
-				'base_rest_url'        => rest_url( '/jetpack/v4' ),
-				'manageSettingsString' => esc_html__( 'Module Settings', 'jetpack' ),
-				'activateModuleString' => esc_html__( 'Activate Module', 'jetpack' ),
-				'activatedString'      => esc_html__( 'Activated', 'jetpack' ),
-				'activatingString'     => esc_html__( 'Activating', 'jetpack' ),
-				'logo' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
-				'legend' => esc_html__(
+				'nonce'          => wp_create_nonce( 'wp_rest' ),
+				'base_rest_url'  => rest_url( '/jetpack/v4' ),
+				'manageSettings' => esc_html__( 'Settings', 'jetpack' ),
+				'activateModule' => esc_html__( 'Activate Module', 'jetpack' ),
+				'getStarted'     => esc_html__( 'Get started', 'jetpack' ),
+				'activated'      => esc_html__( 'Activated', 'jetpack' ),
+				'activating'     => esc_html__( 'Activating', 'jetpack' ),
+				'logo'           => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
+				'legend'         => esc_html__(
 					'Jetpack is trusted by millions to help secure and speed up their WordPress site. Make the most of it today.',
 					'jetpack'
 				),
-				'hideText' => esc_html__( 'Hide this suggestion', 'jetpack' ),
+				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
 
@@ -240,6 +241,27 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
+	 * Create a list with additional features for those we don't have a module, like Akismet.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return array List of features.
+	 */
+	public function get_extra_features() {
+		return array(
+			'akismet' => array(
+				'name' => 'Akismet',
+				'search_terms' => 'akismet, spam, block',
+				'short_description' => esc_html__( 'Prevent spam and protect you and your site from malicious content.', 'jetpack' ),
+				'requires_connection' => true,
+				'module' => 'akismet',
+				'sort' => '16',
+				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/'
+			),
+		);
+	}
+
+	/**
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
@@ -257,12 +279,13 @@ class Jetpack_Plugin_Search {
 			$this->track_search_term( $args->search );
 			$normalized_term = $this->sanitize_search_term( $args->search );
 
+			$jetpack_modules_list = array_merge( $this->get_extra_features(), $jetpack_modules_list );
+
 			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
 			// Try to match a passed search term with module's search terms
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				$search_terms = strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] );
-				$terms_array  = explode( ', ', $search_terms );
+				$terms_array = explode( ', ', strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] ) );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
 					break;
@@ -336,6 +359,55 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
+	 * Builds a URL to purchase and upgrade inserting the site fragment and the affiliate code if it exists.
+	 *
+	 * @param string $feature Module slug (or forged one for extra features).
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return string URL to upgrade.
+	 */
+	private function get_upgrade_url( $feature ) {
+		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
+		$affiliateCode = Jetpack_Affiliate::init()->get_affiliate_code();
+		$user = wp_get_current_user()->ID;
+		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
+		       ( $affiliateCode ? "&aff=$affiliateCode" : '' );
+	}
+
+	/**
+	 * Modify the URL to the feature settings, for example Publicize.
+	 * Sharing is included here because while we still have a page in WP Admin,
+	 * we prefer to send users to Calypso.
+	 *
+	 * @param string $feature
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return string
+	 */
+	private function get_configure_url( $feature ) {
+		$url = Jetpack::module_configuration_url( $feature );
+		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
+		switch ( $feature ) {
+			case 'sharing':
+			case 'publicize':
+				$url = "https://wordpress.com/sharing/$siteFragment";
+				break;
+			case 'seo-tools':
+				$url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
+				break;
+			case 'google-analytics':
+				$url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
+				break;
+			case 'wordads':
+				$url = "https://wordpress.com/ads/settings/$siteFragment";
+				break;
+		}
+		return esc_url( $url );
+	}
+
+	/**
 	 * Put some more appropriate links on our custom result cards.
 	 */
 	public function insert_module_related_links( $links, $plugin ) {
@@ -343,7 +415,7 @@ class Jetpack_Plugin_Search {
 			return $links;
 		}
 
-		// By the time this filter is added, self_admin_url was already applied and we don't need it anymore.
+		// By the time this filter is applied, self_admin_url was already applied and we don't need it anymore.
 		remove_filter( 'self_admin_url', array( $this, 'plugin_details' ) );
 
 		$links = array();
@@ -360,9 +432,10 @@ class Jetpack_Plugin_Search {
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
-			$links = array(
-				'<button id="plugin-select-activate" class="button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . esc_url( Jetpack::module_configuration_url( $plugin['module'] ) ) . '"> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>',
-			);
+			$links[] = Jetpack::active_plan_supports( $plugin['module'] )
+				? '<button id="plugin-select-activate" class="jetpack-plugin-search__primary button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
+				: '<a class="jetpack-plugin-search__primary button activate-module-now" href="' . $this->get_upgrade_url( $plugin['module'] ) . '" target="_blank"' . '"> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
+
 			// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
 			! empty( $plugin['configure_url'] ) &&
@@ -371,9 +444,10 @@ class Jetpack_Plugin_Search {
 			/** This filter is documented in class.jetpack-admin.php */
 			apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
 		) {
-			$links = array(
-				'<a id="plugin-select-settings" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Module Settings', 'jetpack' ) . '</a>',
-			);
+			$links[] = '<a id="plugin-select-settings" class="jetpack-plugin-search__primary button" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
+			// Module is active, doesn't have options to configure
+		} elseif ( Jetpack::is_module_active( $plugin['module'] ) ) {
+			$links[] = '<a id="plugin-select-settings" class="jetpack-plugin-search__primary button" href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '">' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
 		}
 
 		// Adds link pointing to a relevant doc page in jetpack.com

@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Feature: Search
- * Additional Search Queries: search
+ * Additional Search Queries: search, elasticsearch
  * Plans: business
  */
 
