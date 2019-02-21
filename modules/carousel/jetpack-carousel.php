@@ -390,7 +390,8 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) ) {
+			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) &&
+				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
 				 * If exactly the same image tag is used more than once, overwrite it.
