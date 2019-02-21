@@ -5,6 +5,7 @@
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
+let exitCode = 0;
 
 /**
  * Parses the output of a git diff command into file paths.
@@ -103,7 +104,7 @@ if ( toLint.length ) {
 				'If you are aware of them and it is OK, ' +
 				'repeat the commit command with --no-verify to avoid this check.'
 		);
-		process.exit( 1 );
+		exitCode = 1;
 	}
 }
 
@@ -122,7 +123,7 @@ if ( phpLintResult && phpLintResult.status ) {
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.'
 	);
-	process.exit( 1 );
+	exitCode = 1;
 }
 
 let phpcbfResult, phpcsResult;
@@ -155,5 +156,7 @@ if ( phpcsResult && phpcsResult.status ) {
 			'repeat the commit command with --no-verify to avoid this check.\n' +
 			"But please don't. Code is poetry."
 	);
-	process.exit( 1 );
+	exitCode = 1;
 }
+
+process.exit( exitCode );
