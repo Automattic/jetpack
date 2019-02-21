@@ -136,7 +136,7 @@ if ( phpcsFiles.length > 0 ) {
 		} );
 	}
 
-	phpcsResult = spawnSync( 'vendor/bin/phpcs', [ ...phpcsFiles ], {
+	phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
