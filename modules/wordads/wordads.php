@@ -65,6 +65,26 @@ class WordAds {
 	}
 
 	/**
+	 * Returns the ad tag property array for supported ad types.
+	 * @return array      array with ad tags
+	 *
+	 * @since 7.1.0
+	 */
+	function get_ad_tags() {
+		return self::$ad_tag_ids;
+	}
+
+	/**
+	 * Returns the solo css for unit
+	 * @return string the special css for solo units
+	 *
+	 * @since 7.1.0
+	 */
+	function get_solo_unit_css() {
+		return self::$SOLO_UNIT_CSS;
+	}
+
+	/**
 	 * Instantiate the plugin
 	 *
 	 * @since 4.5.0
@@ -87,12 +107,12 @@ class WordAds {
 		require_once WORDADS_ROOT . '/php/params.php';
 		$this->params = new WordAds_Params();
 
-		if ( is_admin() ) {
-			require_once WORDADS_ROOT . '/php/admin.php';
+		if ( $this->should_bail() ) {
 			return;
 		}
 
-		if ( $this->should_bail() ) {
+		if ( is_admin() ) {
+			require_once WORDADS_ROOT . '/php/admin.php';
 			return;
 		}
 
