@@ -31,10 +31,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'customize_update_custom_css_post_content_args', array( __CLASS__, 'customize_update_custom_css_post_content_args' ), 10, 3 );
 		add_filter( 'update_custom_css_data', array( __CLASS__, 'update_custom_css_data' ), 10, 2 );
 
-		// Handle Sass/LESS.
-		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
-		add_filter( 'customize_update_custom_css_post_content_args', array( __CLASS__, 'customize_update_custom_css_post_content_args' ), 10, 3 );
-
 		// Stuff for stripping out the theme's default stylesheet...
 		add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 		add_filter( 'safecss_skip_stylesheet', array( __CLASS__, 'preview_skip_stylesheet' ) );
