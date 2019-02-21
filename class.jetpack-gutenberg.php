@@ -304,7 +304,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $preset ) {
 		return json_decode(
-			// //phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
 		);
 	}
