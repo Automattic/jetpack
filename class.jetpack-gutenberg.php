@@ -264,8 +264,8 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions         = array();
-		self::$availability       = array();
+		self::$extensions   = array();
+		self::$availability = array();
 	}
 
 	/**
@@ -362,7 +362,7 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		$unwhitelisted_blocks = array();
+		$unwhitelisted_blocks  = array();
 		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
 		foreach ( $all_registered_blocks as $block_name => $block_type ) {
 			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
