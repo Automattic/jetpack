@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/interface.jetpack-sync-codec.php';
  * algorithm to compress objects serialized using json_encode
  */
 class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
-	const CODEC_NAME = "deflate-json-array";
+	const CODEC_NAME = 'deflate-json-array';
 
 	public function name() {
 		return self::CODEC_NAME;
@@ -22,7 +22,6 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 	}
 
 	// @see https://gist.github.com/muhqu/820694
-
 	protected function json_serialize( $any ) {
 		if ( function_exists( 'jetpack_json_wrap' ) ) {
 			return wp_json_encode( jetpack_json_wrap( $any ) );
@@ -37,7 +36,7 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 
 	private function json_wrap( &$any, $seen_nodes = array() ) {
 		if ( is_object( $any ) ) {
-			$input = get_object_vars( $any );
+			$input        = get_object_vars( $any );
 			$input['__o'] = 1;
 		} else {
 			$input = &$any;

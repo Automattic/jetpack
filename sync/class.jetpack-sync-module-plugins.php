@@ -4,7 +4,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	private $action_handler;
 	private $plugin_info = array();
-	private $plugins = array();
+	private $plugins     = array();
 
 	public function name() {
 		return 'plugins';
@@ -13,16 +13,16 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
-		add_action( 'deleted_plugin',  array( $this, 'deleted_plugin' ), 10, 2 );
+		add_action( 'deleted_plugin', array( $this, 'deleted_plugin' ), 10, 2 );
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
-		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
+		add_action( 'delete_plugin', array( $this, 'delete_plugin' ) );
 		add_filter( 'upgrader_pre_install', array( $this, 'populate_plugins' ), 10, 1 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_completion' ), 10, 2 );
 		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
 		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
 		add_action( 'jetpack_plugins_updated', $callable, 10, 2 );
-		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
+		add_action( 'admin_action_update', array( $this, 'check_plugin_edit' ) );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
 	}
@@ -30,7 +30,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_activated_plugin', array( $this, 'expand_plugin_data' ) );
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
-		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
+		// Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
 	}
 	public function populate_plugins( $response ) {
 		$this->plugins = get_plugins();
@@ -98,7 +98,6 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ), $state );
 				break;
 			case 'install':
-
 		}
 
 		if ( 'install' === $details['action'] ) {
@@ -123,8 +122,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		if ( isset( $plugins[ $slug ] ) ) {
 			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
 		};
-		// Try grabbing the info from before the update 
-		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ): array( 'slug' => $slug );
+		// Try grabbing the info from before the update
+		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ) : array( 'slug' => $slug );
 	}
 
 	private function get_errors( $skin ) {
@@ -132,18 +131,27 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		if ( is_wp_error( $errors ) ) {
 			$error_code = $errors->get_error_code();
 			if ( ! empty( $error_code ) ) {
-				return array( 'code' => $error_code, 'message' => $errors->get_error_message() );
+				return array(
+					'code'    => $error_code,
+					'message' => $errors->get_error_message(),
+				);
 			}
 		}
 
 		if ( isset( $skin->result ) ) {
 			$errors = $skin->result;
 			if ( is_wp_error( $errors ) ) {
-				return array( 'code' => $errors->get_error_code(), 'message' => $errors->get_error_message() );
+				return array(
+					'code'    => $errors->get_error_code(),
+					'message' => $errors->get_error_message(),
+				);
 			}
 
 			if ( false == $skin->result ) {
-				return array( 'code' => 'unknown', 'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ) );
+				return array(
+					'code'    => 'unknown',
+					'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ),
+				);
 			}
 		}
 		return false;
@@ -158,7 +166,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$plugin = $_POST['plugin'];
+		$plugin  = $_POST['plugin'];
 		$plugins = get_plugins();
 		if ( ! isset( $plugins[ $plugin ] ) ) {
 			return;
@@ -236,16 +244,16 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	public function delete_plugin( $plugin_path ) {
 		$full_plugin_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_path;
 
-		//Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk
+		// Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk
 		if ( file_exists( $full_plugin_path ) ) {
 			$all_plugin_data = get_plugin_data( $full_plugin_path );
-			$data = array(
-				'name' => $all_plugin_data['Name'],
+			$data            = array(
+				'name'    => $all_plugin_data['Name'],
 				'version' => $all_plugin_data['Version'],
 			);
 		} else {
 			$data = array(
-				'name' => $plugin_path,
+				'name'    => $plugin_path,
 				'version' => 'unknown',
 			);
 		}
@@ -267,8 +275,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		}
 		$all_plugins = get_plugins();
 		if ( isset( $all_plugins[ $plugin_path ] ) ) {
-			$all_plugin_data = $all_plugins[ $plugin_path ];
-			$plugin_data['name'] = $all_plugin_data['Name'];
+			$all_plugin_data        = $all_plugins[ $plugin_path ];
+			$plugin_data['name']    = $all_plugin_data['Name'];
 			$plugin_data['version'] = $all_plugin_data['Version'];
 		}
 
