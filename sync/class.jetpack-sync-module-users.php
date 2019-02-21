@@ -69,7 +69,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 
-
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
@@ -103,7 +102,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return null;
 		}
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
-		$user->allcaps = $this->get_real_user_capabilities( $user );
+		$user->allcaps            = $this->get_real_user_capabilities( $user );
 
 		// Only set the user locale if it is different from the site local
 		if ( get_locale() !== get_user_locale( $user->ID ) ) {
@@ -118,8 +117,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( is_wp_error( $user ) ) {
 			return $user_capabilities;
 		}
-		foreach( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
-			if ( $user_has_capabilities = user_can( $user , $capability ) ) {
+		foreach ( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
+			if ( $user_has_capabilities = user_can( $user, $capability ) ) {
 				$user_capabilities[ $capability ] = true;
 			}
 		}
@@ -145,14 +144,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function expand_login_username( $args ) {
 		list( $login, $user ) = $args;
-		$user = $this->sanitize_user( $user );
+		$user                 = $this->sanitize_user( $user );
 
 		return array( $login, $user );
 	}
 
 	public function expand_logout_username( $args, $user_id ) {
-		$user  = get_userdata( $user_id );
-		$user  = $this->sanitize_user( $user );
+		$user = get_userdata( $user_id );
+		$user = $this->sanitize_user( $user );
 
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
@@ -258,9 +257,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
-		$this->add_flags( $user_id, array( 'role_changed' => true, 'previous_role' => $old_roles ) );
+		$this->add_flags(
+			$user_id,
+			array(
+				'role_changed'  => true,
+				'previous_role' => $old_roles,
+			)
+		);
 
-		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
+		// The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
 			return;
 		}
@@ -365,14 +370,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function remove_user_from_blog_handler( $user_id, $blog_id ) {
-		//User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114
+		// User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114
 		if ( $this->is_add_new_user_to_blog() ) {
 			return;
 		}
 
 		$reassigned_user_id = $this->get_reassigned_network_user_id();
 
-		//Note that we are in the context of the blog the user is removed from, see https://github.com/WordPress/WordPress/blob/473e1ba73bc5c18c72d7f288447503713d518790/wp-includes/ms-functions.php#L233
+		// Note that we are in the context of the blog the user is removed from, see https://github.com/WordPress/WordPress/blob/473e1ba73bc5c18c72d7f288447503713d518790/wp-includes/ms-functions.php#L233
 		/**
 		 * Fires when a user is removed from a blog on a multisite installation
 		 *
@@ -393,7 +398,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	protected function is_delete_user() {
-		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user' , 'remove_user_from_blog' ) );
+		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user', 'remove_user_from_blog' ) );
 	}
 
 	protected function is_create_user() {

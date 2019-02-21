@@ -7,7 +7,7 @@ class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'add_attachment', array( $this, 'process_add' ) );
-		add_action( 'attachment_updated', array( $this, 'process_update'), 10, 3 );
+		add_action( 'attachment_updated', array( $this, 'process_update' ), 10, 3 );
 		add_action( 'jetpack_sync_save_update_attachment', $callable, 10, 2 );
 		add_action( 'jetpack_sync_save_add_attachment', $callable, 10, 2 );
 		add_action( 'jetpack_sync_save_attach_attachment', $callable, 10, 2 );
