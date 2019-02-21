@@ -29,6 +29,7 @@ function phpcsFilesToFilter( file ) {
 	const whitelist = [
 		'_inc/lib/debugger/',
 		'extensions/',
+		'sync/',
 	];
 
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
