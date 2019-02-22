@@ -60,14 +60,18 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
 			<form>
-				<input
-					type="email"
-					required
-					placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-				/>
-				<button type="submit" class="components-button is-button is-primary">
-					<?php echo wp_kses_post( $values['submitLabel'] ); ?>
-				</button>
+				<p>
+					<input
+						type="email"
+						required
+						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+					/>
+				</p>
+				<p>
+					<button type="submit" class="components-button is-button is-primary">
+						<?php echo wp_kses_post( $values['submitLabel'] ); ?>
+					</button>
+				</p>
 				<p>
 					<small>
 						<?php echo wp_kses_post( $values['consentText'] ); ?>
