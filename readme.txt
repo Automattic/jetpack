@@ -137,6 +137,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Photon: add paypalobjects.com to the list of banned domains, as this domain already relies on a CDN.
 * Spelling / Grammar: fix error when spellchecking the contents of a Classic block in the block editor.
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
+* REST API: fix a bug causing Likes settings on a post to sometimes be flipped.
 * Theme Tools: support alternative Pinterest domain extensions in the Social Menus tool.
 * Widgets: support alternative Pinterest domain extensions in the Social Icons Widget.
 * Widgets: update the Cookies & Consents Banner to be fully accessible on mobile devices.
