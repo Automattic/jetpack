@@ -14,6 +14,10 @@
 			&:not(.js-toggle-stats_dashboard_widget_control) {
 				display: flex;
 				align-items:center;
+
+				span {
+					padding: 0 0.4em;
+				}
 			}
 		}
 
@@ -157,6 +161,15 @@
 			margin: 0;
 			padding: 0;
 			text-align: center;
+		}
+	}
+}
+
+/* Hide the widget title's SVG in the Screen Options tab */
+.metabox-prefs {
+	label[for="jetpack_summary_widget-hide"] {
+		span {
+ 			display: none;
 		}
 	}
 }

@@ -7116,7 +7116,10 @@ p {
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
-				esc_html__( 'Stats by %s', 'jetpack' ),
+				wp_kses(
+					__( 'Stats <span>by %s</span>', 'jetpack' ),
+					array( 'span' => array() )
+				),
 				Jetpack::get_jp_emblem( true )
 			);
 
