@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Infinite Scroll: fix vertical spacing for new posts loaded with Infinite Scroll.
 * Internationalization: fix minor problem affecting translations in the block editor.
+* Photon: add paypalobjects.com to the list of banned domains, as this domain already relies on a CDN.
 * Spelling / Grammar: fix error when spellchecking the contents of a Classic block in the block editor.
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
 * Theme Tools: support alternative Pinterest domain extensions in the Social Menus tool.
