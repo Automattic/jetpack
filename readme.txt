@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Page: move Carousel settings from Performance to Writing section.
 * Ads: include search results pages under the `Archive` toggle.
 * Block Editor: improve block registration structure for better management of block availability.
 * General: remove IE8 support fallbacks.
