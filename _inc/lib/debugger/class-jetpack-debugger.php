@@ -240,7 +240,6 @@ class Jetpack_Debugger {
 				<ol>
 					<li><b><em>
 						<?php
-						/* translators: URLs to Jetpack support pages. */
 						esc_html_e( 'A known issue.', 'jetpack' );
 						?>
 					</em></b>
