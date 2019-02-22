@@ -198,6 +198,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wordads_display_page'                 => '1',
 			'wordads_display_archive'              => '1',
 			'wordads_custom_adstxt'                => 'pineapple',
+			'site_segment'                         => 'pineapple',
+			'site_vertical'                        => 'pineapple',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
