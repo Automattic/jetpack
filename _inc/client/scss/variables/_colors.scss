@@ -11,9 +11,11 @@ $blue-medium:            #00aadc;
 $blue-dark:              #005082;
 
 // Grays
-$gray:                   #87a6bc;
-$gray-light:             lighten( $gray, 33% ); //#f3f6f8
-$gray-dark:              darken( $gray, 38% ); //#2e4453
+$gray-original:          #87a6bc;
+$gray:                   desaturate( $gray-original, 100% ); // Intermediary transform to match dotcom's colors
+
+$gray-light:             lighten( $gray, 33% ); //#f6f6f6
+$gray-dark:              darken( $gray, 38% ); //#404040
 
 // Text blues
 $blue-heading:           #668eaa;
