@@ -200,7 +200,7 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
 		$lock = $this->lock_cron();
 		$next = wp_schedule_single_event( $args['timestamp'], $hook, $arguments );
 		$this->maybe_unlock_cron( $lock );
-		return array( 'success' => is_null( $next  ) ? true : false );
+		return array( 'success' => is_null( $next ) || true === $next ? true : false );
 	}
 }
 
