@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Plans: clarify upgrade prompts in the Jetpack dashboard's Plans page.
 * Related Posts: update block to allow for up to 6 related posts.
 * Simple Payments: add generic currency fallback symbol.
+* Sync: further performance improvements in PHP 7+ environments.
 
 **Improved compatibility**
 
