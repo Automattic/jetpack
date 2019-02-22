@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Copy Post: ensure the feature can be used when using non-standard post formats.
 * Infinite Scroll: fix vertical spacing for new posts loaded with Infinite Scroll.
 * Internationalization: fix minor problem affecting translations in the block editor.
 * Photon: add paypalobjects.com to the list of banned domains, as this domain already relies on a CDN.
