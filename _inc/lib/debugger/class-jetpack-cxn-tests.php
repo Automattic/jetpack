@@ -120,6 +120,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( user_can( $master_user, 'manage_options' ) ) {
 			$result = self::passing_test( $name );
 		} else {
+			/** translators: a WordPress username */
 			$result = self::failing_test( $name, sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login ), __( 'Either upgrade the user or disconnect and reconnect Jetpack.', 'jetpack' ) ); // @todo: Link to the right places.
 		}
 
