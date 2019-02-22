@@ -249,8 +249,7 @@ class Jetpack_Likes_Settings {
 		// see: p7DVsv-64H-p2
 		$last_modified_time = strtotime( $post->post_modified_gmt );
 
-		// TODO set this to the current date/time immediately before committing
-		$behavior_was_changed_at = strtotime( "2019-02-20 00:00:00" );
+		$behavior_was_changed_at = strtotime( "2019-02-22 00:40:42" );
 
 		if ( $this->in_jetpack || $last_modified_time > $behavior_was_changed_at ) {
 			// the new and improved behavior on Jetpack and recent WPCOM posts:
