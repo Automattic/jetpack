@@ -73,9 +73,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					</button>
 				</p>
 				<p>
-					<small>
-						<?php echo wp_kses_post( $values['consentText'] ); ?>
-					</small>
+					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
 			</form>
 			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing">
