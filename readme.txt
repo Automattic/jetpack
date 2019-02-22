@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Plans: clarify upgrade prompts in the Jetpack dashboard's Plans page.
 * Related Posts: update block to allow for up to 6 related posts.
 * Social Menus & Icons: add Discord Support.
+* Support: add additional tests to check when Jetpack isn't working as expected and ensures all current debugging platforms use the same testing list.
 * Simple Payments: add generic currency fallback symbol.
 * Sync: further performance improvements in PHP 7+ environments.
 
