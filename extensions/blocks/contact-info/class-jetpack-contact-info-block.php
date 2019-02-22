@@ -40,7 +40,7 @@ class Jetpack_Contact_Info_Block {
 	 */
 	public static function render_address( $attr, $content ) {
 		// Returns empty content if the only attribute set is linkToGoogleMaps.
-		if ( ! self::has_attributes( $attr, array( 'linkToGoogleMaps' ) ) ) {
+		if ( ! self::has_attributes( $attr, array( 'linkToGoogleMaps', 'className' ) ) ) {
 			return '';
 		}
 		$find    = array(
@@ -91,7 +91,7 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	public static function render_email( $attr, $content ) {
-		$content = self::has_attributes( $attr ) ?
+		$content = self::has_attributes( $attr, array( 'className' ) ) ?
 			str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content ) :
 			'';
 		return $content;
@@ -106,7 +106,7 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	public static function render_phone( $attr, $content ) {
-		$content = self::has_attributes( $attr ) ?
+		$content = self::has_attributes( $attr, array( 'className' ) ) ?
 			str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content ) :
 			'';
 		return $content;
