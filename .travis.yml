@@ -11,6 +11,7 @@ php:
 - "5.6"
 - "7.0"
 - "7.2"
+- "7.3"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -46,15 +47,6 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
-  # We can't test PHP 7.3 with WP_BRANCH=previous just yet, as previous is currently 4.9.9.
-  # Running PHP 7.3 tests on 4.9.9 will fail as it does not include https://core.trac.wordpress.org/changeset/44166#file6.
-  # We can remove these 3 specific tests and add 7.3 to the global PHP list above when 5.1 is released.
-  - php: "7.3"
-    env: WP_MODE=single WP_BRANCH=master
-  - php: "7.3"
-    env: WP_MODE=single WP_BRANCH=latest
-  - php: "7.3"
-    env: WP_MODE=multi  WP_BRANCH=master
 
 cache:
   directories:
