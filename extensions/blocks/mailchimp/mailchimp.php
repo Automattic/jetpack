@@ -61,10 +61,15 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		<div class="components-placeholder">
 			<form>
 				<p>
+					<label for="mailchimp_email" class="wp-block-jetpack-mailchimp_hidden-label"><?php echo wp_kses_post( $values['emailPlaceholder'] ); ?></label>
 					<input
-						type="email"
-						required
+						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						id="mailchimp_email"
+						name="mailchimp_email"
 						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						required
+						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						type="email"
 					/>
 				</p>
 				<p>
