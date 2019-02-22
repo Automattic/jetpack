@@ -59,7 +59,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
-			<form>
+			<form aria-describedby="wp-block-jetpack-mailchimp_consent-text">
 				<p>
 					<label for="mailchimp_email" class="wp-block-jetpack-mailchimp_hidden-label"><?php echo wp_kses_post( $values['emailPlaceholder'] ); ?></label>
 					<input
@@ -77,7 +77,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						<?php echo wp_kses_post( $values['submitLabel'] ); ?>
 					</button>
 				</p>
-				<p>
+				<p id="wp-block-jetpack-mailchimp_consent-text" name="wp-block-jetpack-mailchimp_consent-text">
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
 			</form>
