@@ -14,6 +14,16 @@ The Business Hours blocks is useful for companies who want to display their busi
 - Set the business to be closed on some days and open on hours. Does everything work?
 - Make sure the block works regardless of your site's language.
 
+#### Contact Info
+
+The Contact Info block is a great block to go along the Business Hours block. You can use it to list your business' address, phone number, and email address, in a format recognizable by Google and other search engines. To test it, try the following:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add some information, use all the child blocks or only some of them. You can also reorder them around.
+- Make sure every information and every link works well in the editor and on your site.
+- Once you're happy with the result, make sure the page does not throw any warnings in [this Google Structured data tool](https://search.google.com/structured-data/testing-tool).
+
 #### Mailchimp
 
 The Mailchimp block allows you to insert Mailchimp subscription forms anywhere in your posts and pages. To test this, you will need [a Mailchimp account](https://mailchimp.com/), and an email list in that account. The block will be used by your readers to add themselves to that list, that you can later use to contact your subscribers.

@@ -107,11 +107,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Block Editor: this release introduces 3 new blocks:
+* Block Editor: this release introduces 5 new blocks:
 	- the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
 	- the Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
 	- the Slideshow block allows you to insert beautiful slideshows in your posts and pages.
 	- The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site.
+	- The Contact Info block is useful for any business who may want to display useful information on a post or page.
 
 **Enhancements**
 
