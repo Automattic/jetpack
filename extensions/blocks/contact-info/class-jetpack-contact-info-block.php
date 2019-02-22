@@ -92,11 +92,10 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	public static function render_email( $attr, $content ) {
-		if ( ! self::has_attributes( $attr ) ) {
-			return '';
-		}
-
-		return str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content );
+		$content = self::has_attributes( $attr ) ?
+			str_replace( 'href="mailto:', 'itemprop="email" href="mailto:', $content ) :
+			'';
+		return $content;
 	}
 
 	/**
@@ -108,10 +107,9 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	public static function render_phone( $attr, $content ) {
-		if ( ! self::has_attributes( $attr ) ) {
-			return '';
-		}
-
-		return str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content );
+		$content = self::has_attributes( $attr ) ?
+			str_replace( 'href="tel:', 'itemprop="telephone" href="tel:', $content ) :
+			'';
+		return $content;
 	}
 }
