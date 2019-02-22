@@ -31,13 +31,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php' );
+		jetpack_require_lib( 'debugger' );
 
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
-
-		if ( ! Jetpack::is_active() ) {
-			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
-		}
 
 		if ( isset( $args[0] ) && 'full' !== $args[0] ) {
 			/* translators: %s is a command like "prompt" */
@@ -46,14 +42,22 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
-		$jetpack_self_test = Jetpack_Debugger::run_self_test(); // Performs the same tests as jetpack.com/support/debug/
+		$cxntests = new Jetpack_Cxn_Tests();
 
-		if ( ! $jetpack_self_test || ! wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
-			WP_CLI::error( __( 'Jetpack connection status unknown.', 'jetpack' ) );
-		} else if ( 200 == wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+		if ( $cxntests->pass() ) {
+			$cxntests->output_results_for_cli();
+
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 		} else {
-			WP_CLI::error( __( 'Jetpack connection is broken.', 'jetpack' ) );
+			$error = array();
+			foreach ( $cxntests->list_fails() as $fail ) {
+				$error[] = $fail['name'] . ': ' . $fail['message'];
+			}
+			WP_CLI::error_multi_line( $error );
+
+			$cxntests->output_results_for_cli();
+
+			WP_CLI::error( __('Jetpack connection is broken.', 'jetpack' ) ); // Exit CLI.
 		}
 
 		WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
