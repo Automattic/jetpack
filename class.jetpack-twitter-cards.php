@@ -95,7 +95,7 @@ class Jetpack_Twitter_Cards {
 				// Add the alt tag if we have one.
 				if ( ! empty( $featured[0]['alt_text'] ) ) {
 					// Shorten it if it is too long.
-					if ( strlen( $featured['alt_text'] ) > $alt_length ) {
+					if ( strlen( $featured[0]['alt_text'] ) > $alt_length ) {
 						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $featured[0]['alt_text'], 0, $alt_length ) . '…' );
 					} else {
 						$og_tags['twitter:image:alt'] = esc_attr( $featured[0]['alt_text'] );
