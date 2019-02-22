@@ -76,13 +76,13 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
 			</form>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
 				<?php echo esc_html( $values['processingLabel'] ); ?>
 			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
 				<?php echo esc_html( $values['successLabel'] ); ?>
 			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
 				<?php echo esc_html( $values['errorLabel'] ); ?>
 			</div>
 		</div>
