@@ -4,31 +4,34 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 	/**
 	 * @author blobaugh
+	 * @author Alda Vigdís <alda.vigdis@automattic.com>
 	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_single_quotes() {
-		$s = '<img ANYTHINGATALLHERE src="bob.jpg" MOREANYTHINGHERE width="200" height="200" />';
+		$s = '<img ANYTHINGATALLHERE src="bob.jpg" MOREANYTHINGHERE width="200" height="200" alt="Alt Text." />';
 
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertInternalType( 'array', $result );
 		$this->assertFalse( empty( $result ) );
+		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
 	}
 
 	/**
 	 * @author blobaugh
+	 * @author Alda Vigdís <alda.vigdis@automattic.com>
 	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_double_quotes() {
-		$s = "<img ANYTHINGATALLHERE src='bob.jpg' MOREANYTHINGHERE width='200' height='200' />";
+		$s = "<img ANYTHINGATALLHERE src='bob.jpg' MOREANYTHINGHERE width='200' height='200' alt='Alt Text.' />";
 
 		$result = Jetpack_PostImages::from_html( $s );
 
-
 		$this->assertInternalType( 'array', $result );
 		$this->assertFalse( empty( $result ) );
+		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
 	}
 
 	/**
@@ -67,13 +70,15 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
+	 * @author Alda Vigdís <alda.vigdis@automattic.com>
 	 * @covers Jetpack_PostImages::from_attachment
 	 * @since 3.2
 	 */
 	public function test_from_attachment_is_correct_array() {
 		$img_name = 'image.jpg';
+		$alt_text = 'Alt Text.';
 		$img_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $img_name;
-		$img_html = '<img src="' . $img_url . '" width="250" height="250"/>';
+		$img_html = '<img src="' . $img_url . '" width="250" height="250" alt="' . $alt_text . '"/>';
 		$img_dimensions = array( 'width' => 250, 'height' => 250 );
 
 		$post_id = $this->factory->post->create( array(
@@ -81,14 +86,16 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		) );
 		$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
 			'post_mime_type' => 'image/jpeg',
-			'post_type' => 'attachment'
+			'post_type' => 'attachment',
 		) );
 		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
 		$images = Jetpack_PostImages::from_attachment( $post_id );
 
 		$this->assertEquals( count( $images ), 1 );
 		$this->assertEquals( $images[ 0 ][ 'src' ], $img_url );
+		$this->assertEquals( $alt_text, $images[ 0 ][ 'alt_text' ] );
 	}
 
 	/**
@@ -104,7 +111,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 */
 	protected function get_post_with_image_block() {
 		$img_name = 'image.jpg';
-		$img_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $img_name;
+		$alt_text = 'Alt Text.';
+		$img_url  = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $img_name;
 		$img_dimensions = array( 'width' => 250, 'height' => 250 );
 
 		$post_id = $this->factory->post->create();
@@ -113,6 +121,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'post_type' => 'attachment'
 		) );
 		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
 		// Create another post with that picture.
 		$post_html = sprintf(
@@ -125,8 +134,9 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		) );
 
 		return array(
-			'post_id' => $second_post_id,
-			'img_url' => $img_url,
+			'post_id'  => $second_post_id,
+			'img_url'  => $img_url,
+			'alt_text' => $alt_text,
 		);
 	}
 
@@ -150,7 +160,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if the array extracted from Image blocks include the image URL.
+	 * Test if the array extracted from Image blocks include the image URL and alt text.
 	 *
 	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
@@ -166,6 +176,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
 		$this->assertEquals( $images[ 0 ][ 'src' ], $post_info['img_url'] );
+		$this->assertEquals( $images[ 0 ][ 'alt_text' ], $post_info['alt_text'] );
 	}
 
 	/**

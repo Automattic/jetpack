@@ -269,7 +269,7 @@ class Jetpack_PostImages {
 				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url = $img_src[0];
+			$url    = $img_src[0];
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
@@ -277,6 +277,7 @@ class Jetpack_PostImages {
 				'src_width'  => $img_src[1],
 				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
+				'alt_text'   => self::get_alt_text( $thumb ),
 			) );
 
 		}
@@ -299,6 +300,7 @@ class Jetpack_PostImages {
 					'src_width'  => $meta_thumbnail['width'],
 					'src_height' => $meta_thumbnail['height'],
 					'href'       => $meta_thumbnail['URL'],
+					'alt_text'   => self::get_alt_text( $thumb ),
 				) );
 			}
 		}
@@ -420,8 +422,9 @@ class Jetpack_PostImages {
 			}
 
 			$meta = array(
-				'width'  => (int) $image_tag->getAttribute( 'width' ),
-				'height' => (int) $image_tag->getAttribute( 'height' ),
+				'width'    => (int) $image_tag->getAttribute( 'width' ),
+				'height'   => (int) $image_tag->getAttribute( 'height' ),
+				'alt_text' => $image_tag->getAttribute( 'alt' ),
 			);
 
 			/**
@@ -456,6 +459,7 @@ class Jetpack_PostImages {
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
 				'href'       => $html_info['post_url'],
+				'alt_text'   => $meta['alt_text'],
 			);
 		}
 		return $images;
@@ -491,6 +495,7 @@ class Jetpack_PostImages {
 			'src_width'  => $size,
 			'src_height' => $size,
 			'href'       => $permalink,
+			'alt_text'   => '',
 		) );
 	}
 
@@ -526,6 +531,7 @@ class Jetpack_PostImages {
 				'src_width'  => $size,
 				'src_height' => $size,
 				'href'       => $permalink,
+				'alt_text'   => '',
 			),
 		);
 	}
@@ -770,6 +776,19 @@ class Jetpack_PostImages {
 			'src_width'  => $meta['width'],
 			'src_height' => $meta['height'],
 			'href'       => $post_url,
+			'alt_text'   => self::get_alt_text( $attachment_id ),
 		);
+	}
+
+	/**
+	 * Get the alt text for an image or other media from the Media Library.
+	 *
+	 * @since 7.1
+	 *
+	 * @param int $attachment_id The Post ID of the media.
+	 * @return string The alt text value or an emptry string.
+	 */
+	public static function get_alt_text( $attachment_id ) {
+		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 	}
 }
