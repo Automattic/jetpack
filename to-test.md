@@ -4,6 +4,14 @@
 
 This release introduces some new blocks we'd like you to test.
 
+#### Ads
+
+the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages. To use it, you need to purchase a Premium or a Professional plan. Once you have one, you can turn on the Ads feature under Jetpack > Settings > Traffic in your dashboard. Once you've done so, try the following:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Make sure the ads are displayed properly on your site.
+
 #### Business Hours
 
 The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site. To test it, try the following:

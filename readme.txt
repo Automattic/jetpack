@@ -107,7 +107,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Block Editor: this release introduces 5 new blocks:
+* Block Editor: this release introduces 6 new blocks:
+	- the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages.
 	- the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
 	- the Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
 	- the Slideshow block allows you to insert beautiful slideshows in your posts and pages.
