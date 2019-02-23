@@ -26,7 +26,7 @@ class Jetpack_WordAds_Gutenblock {
 	}
 
 	public static function register() {
-		if ( self::is_wpcom() || self::is_jetpack_module_active() ) {
+		if ( self::is_available() ) {
 			jetpack_register_block(
 				self::BLOCK_NAME,
 				array(
