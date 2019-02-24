@@ -618,6 +618,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Spotify',
 			),
 			array(
+				'url'   => 'stackoverflow.com',
+				'icon'  => 'stackoverflow',
+				'label' => 'StackOverflow',
+			),
+			array(
 				'url'   => 'stumbleupon.com',
 				'icon'  => 'stumbleupon',
 				'label' => 'StumbleUpon',
