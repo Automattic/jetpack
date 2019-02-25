@@ -172,6 +172,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			'name'     => $product->get_title(),
 			'category' => $this->get_product_categories_concatenated( $product ),
 			'price'    => $product->get_price(),
+			'type'     => $product->get_type(),
 		);
 	}
 
