@@ -62,29 +62,6 @@ function jetpack_business_hours_render( $attributes, $content ) {
 				date( $time_format, $opening ),
 				date( $time_format, $closing )
 			);
-
-			if ( $today === $day ) {
-				$now = strtotime( current_time( 'H:i' ) );
-				if ( $now < $opening ) {
-					$days_hours .= '<br />';
-					$days_hours .= esc_html(
-						sprintf(
-							/* Translators: Amount of time until business opens. */
-							_x( 'Opening in %s', 'Amount of time until business opens', 'jetpack' ),
-							human_time_diff( $now, $opening )
-						)
-					);
-				} elseif ( $now >= $opening && $now < $closing ) {
-					$days_hours .= '<br />';
-					$days_hours .= esc_html(
-						sprintf(
-							/* Translators: Amount of time until business closes. */
-							_x( 'Closing in %s', 'Amount of time until business closes', 'jetpack' ),
-							human_time_diff( $now, $closing )
-						)
-					);
-				}
-			}
 			$days_hours .= '<br />';
 		}
 
