@@ -2078,7 +2078,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since 6.7.0
+			 * @since 7.1.0
 			 *
 			 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
 			 */
