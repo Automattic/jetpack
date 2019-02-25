@@ -211,6 +211,11 @@ class Jetpack_Subscriptions {
 			return false;
 		}
 
+		// Private posts are not sent to subscribers.
+		if ( 'private' === $post->post_status ) {
+			return false;
+		}
+
 		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
