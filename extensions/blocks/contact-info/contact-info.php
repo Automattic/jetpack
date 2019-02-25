@@ -10,31 +10,31 @@
 jetpack_register_block(
 	'jetpack/contact-info',
 	array(
-		'render_callback' => 'jetpack_contact_info_block_load_assets',
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render' ),
 	)
 );
-jetpack_register_block(
-	'jetpack/email',
-	array( 'parent' => array( 'jetpack/contact-info' ) )
-);
+
 jetpack_register_block(
 	'jetpack/address',
-	array( 'parent' => array( 'jetpack/contact-info' ) )
-);
-jetpack_register_block(
-	'jetpack/phone',
-	array( 'parent' => array( 'jetpack/contact-info' ) )
+	array(
+		'parent'          => array( 'jetpack/contact-info' ),
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_address' ),
+	)
 );
 
-/**
- * Contact info block registration/dependency declaration.
- *
- * @param array  $attr    Array containing the contact info block attributes.
- * @param string $content String containing the contact info block content.
- *
- * @return string
- */
-function jetpack_contact_info_block_load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'contact-info' );
-	return $content;
-}
+jetpack_register_block(
+	'jetpack/email',
+	array(
+		'parent'          => array( 'jetpack/contact-info' ),
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_email' ),
+	)
+);
+
+jetpack_register_block(
+	'jetpack/phone',
+	array(
+		'parent'          => array( 'jetpack/contact-info' ),
+		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render_phone' ),
+	)
+);
+require_once 'class-jetpack-contact-info-block.php';
