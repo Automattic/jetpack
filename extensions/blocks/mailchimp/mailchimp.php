@@ -34,7 +34,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp', null );
 	$defaults = array(
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
-		'submitLabel'      => esc_html__( 'Join my email list', 'jetpack' ),
+		'submitButtonText'      => esc_html__( 'Join my email list', 'jetpack' ),
 		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
@@ -75,7 +75,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 				</p>
 				<p>
 					<button type="submit" class="components-button is-button is-primary">
-						<?php echo wp_kses_post( $values['submitLabel'] ); ?>
+						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
 					</button>
 				</p>
 				<p id="wp-block-jetpack-mailchimp_consent-text" name="wp-block-jetpack-mailchimp_consent-text">
