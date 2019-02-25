@@ -88,15 +88,12 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-	.dops-card {
-		background-color: $gray-light;
-	}
 	.dops-section-header__label {
 		padding-right: rem( 8px );
 	}
 	.dops-section-header__label-text {
 		&:before {
-			@include long-content-fade( $size: 8px, $color : $gray-light );
+			@include long-content-fade( $size: 8px, $color : $white );
 		}
 	}
 	.jp-dash-item__description {
