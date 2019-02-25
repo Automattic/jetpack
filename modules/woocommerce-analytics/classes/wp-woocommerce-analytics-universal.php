@@ -97,6 +97,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 								'pc': '" . esc_js( $product_details['category'] ) . "',
 								'pp': '" . esc_js( $product_details['price'] ) . "',
 								'pq': '" . esc_js( $data_instance['quantity'] ) . "',
+								'pt': '" . esc_js( $product_details['type'] ) . "',
 								'ui': '" . esc_js( $this->get_user_id() ) . "',
 							} );"
 					);
@@ -193,6 +194,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pn': '" . esc_js( $product_details['name'] ) . "',
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );"
 		);
@@ -227,6 +229,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );";
 		}
@@ -258,6 +261,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $order_item->get_quantity() ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'oi': '" . esc_js( $order->get_order_number() ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );";
