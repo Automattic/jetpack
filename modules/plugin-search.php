@@ -294,11 +294,11 @@ class Jetpack_Plugin_Search {
 
 			if ( isset( $matching_module ) && $this->is_not_dismissed( $jetpack_modules_list[ $matching_module ]['module'] ) ) {
 				$inject = (array) self::get_jetpack_plugin_data();
-
+				$image_url = plugins_url( 'modules/plugin-search/psh', JETPACK__PLUGIN_FILE );
 				$overrides = array(
 					'plugin-search' => true, // Helps to determine if that an injected card.
 					'name' => sprintf(       // Supplement name/description so that they clearly indicate this was added.
-						_x( 'Jetpack: %s', 'Jetpack: Module Name', 'jetpack' ),
+						esc_html_x( 'Jetpack: %s', 'Jetpack: Module Name', 'jetpack' ),
 						$jetpack_modules_list[ $matching_module ]['name']
 					),
 					'short_description' => $jetpack_modules_list[ $matching_module ]['short_description'],
@@ -306,9 +306,9 @@ class Jetpack_Plugin_Search {
 					'slug'    => self::$slug,
 					'version' => JETPACK__VERSION,
 					'icons' => array(
-						'1x'  => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
-						'2x'  => 'https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404',
-						'svg' => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
+						'1x'  => "$image_url-128.png",
+						'2x'  => "$image_url-256.png",
+						'svg' => "$image_url.svg",
 					),
 				);
 
@@ -433,8 +433,17 @@ class Jetpack_Plugin_Search {
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
 			$links[] = Jetpack::active_plan_supports( $plugin['module'] )
-				? '<button id="plugin-select-activate" class="jetpack-plugin-search__primary button activate-module-now" data-module="' . esc_attr( $plugin['module'] ) . '" data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
-				: '<a class="jetpack-plugin-search__primary button activate-module-now" href="' . $this->get_upgrade_url( $plugin['module'] ) . '" target="_blank"' . '"> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
+				? '<button
+					id="plugin-select-activate"
+					class="jetpack-plugin-search__primary button activate-module-now"
+					data-module="' . esc_attr( $plugin['module'] ) . '"
+					data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"
+					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
+				: '<a
+					class="jetpack-plugin-search__primary button activate-module-now"
+					href="' . $this->get_upgrade_url( $plugin['module'] ) . '"
+					target="_blank"
+					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
 
 			// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
@@ -444,21 +453,34 @@ class Jetpack_Plugin_Search {
 			/** This filter is documented in class.jetpack-admin.php */
 			apply_filters( 'jetpack_module_configurable_' . $plugin['module'], false )
 		) {
-			$links[] = '<a id="plugin-select-settings" class="jetpack-plugin-search__primary button" href="' . esc_url( $plugin['configure_url'] ) . '">' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
+			$links[] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary button"
+				href="' . esc_url( $plugin['configure_url'] ) . '"
+				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
 			// Module is active, doesn't have options to configure
 		} elseif ( Jetpack::is_module_active( $plugin['module'] ) ) {
-			$links[] = '<a id="plugin-select-settings" class="jetpack-plugin-search__primary button" href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '">' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
+				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
 		}
 
-		// Adds link pointing to a relevant doc page in jetpack.com
-		if ( ! empty( $plugin['learn_more_button'] ) ) {
-			$links[] = '<a href="' . esc_url( $plugin['learn_more_button'] ) . '" target="_blank">' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
+		// Add link pointing to a relevant doc page in jetpack.com only if the Get started button isn't displayed.
+		if ( ! empty( $plugin['learn_more_button'] ) && ! isset( $links['jp_get_started'] ) ) {
+			$links[] = '<a
+				href="' . esc_url( $plugin['learn_more_button'] ) . '"
+				target="_blank"
+				class="jetpack-plugin-search__learn-more"
+				>' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
 		}
 
 		// Dismiss link
-		$links[] = '<a class="jetpack-plugin-search__dismiss" data-module="' . esc_attr( $plugin['module'] ) . '">' .
-		           esc_html__( 'Hide this suggestion', 'jetpack' ) .
-		           '</a>';
+		$links[] = '<a
+			class="jetpack-plugin-search__dismiss"
+			data-module="' . esc_attr( $plugin['module'] ) . '"
+			>' . esc_html__( 'Hide this suggestion', 'jetpack' ) . '</a>';
 
 		return $links;
 	}
