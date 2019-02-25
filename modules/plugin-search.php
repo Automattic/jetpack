@@ -196,7 +196,7 @@ class Jetpack_Plugin_Search {
 			array(
 				'nonce'          => wp_create_nonce( 'wp_rest' ),
 				'base_rest_url'  => rest_url( '/jetpack/v4' ),
-				'manageSettings' => esc_html__( 'Settings', 'jetpack' ),
+				'manageSettings' => esc_html__( 'Configure', 'jetpack' ),
 				'activateModule' => esc_html__( 'Activate Module', 'jetpack' ),
 				'getStarted'     => esc_html__( 'Get started', 'jetpack' ),
 				'activated'      => esc_html__( 'Activated', 'jetpack' ),

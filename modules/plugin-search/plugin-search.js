@@ -134,7 +134,7 @@ var JetpackPSH = {};
 						label = jpsh.getStarted,
 						classes = 'button jetpack-plugin-search__primary';
 					// If the feature has options in Jetpack admin UI, link to them.
-					if ( response.options && 0 < response.options.length ) {
+					if ( response.options && 0 < Object.keys( response.options ).length ) {
 						url = $moduleBtn.data( 'configure-url' );
 						label = jpsh.manageSettings;
 					} else {
