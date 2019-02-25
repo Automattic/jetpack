@@ -437,7 +437,9 @@ class Grunion_Contact_Form_Plugin {
 		/**
 		 * Enable / disable reCAPTCHA flag for contact form.
 		 */
-		$is_recaptcha_enabled = constant( 'GRUNION_RECAPTCHA_ENABLED' ) && defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' );
+		$is_recaptcha_enabled = Jetpack_Constants::is_true( 'GRUNION_RECAPTCHA_ENABLED' )
+			&& defined( 'RECAPTCHA_PUBLIC_KEY' )
+			&& defined( 'RECAPTCHA_PRIVATE_KEY' );
 
 		if ( $is_recaptcha_enabled ) {
 			$recaptcha_response = $_POST['g-recaptcha-response'];
@@ -2080,9 +2082,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @since 7.1.0
 			 *
-			 * @param bool GRUNION_RECAPTCHA_ENABLED Constant Value.
+			 * @param bool|null GRUNION_RECAPTCHA_ENABLED Value of the GRUNION_RECAPTCHA_ENABLED constant, or null if it does not exist.
 			 */
-			$is_recaptcha_enabled = apply_filters( 'grunion_contact_form_enable_recaptcha', constant( 'GRUNION_RECAPTCHA_ENABLED' ) );
+			$is_recaptcha_enabled = apply_filters(
+				'grunion_contact_form_enable_recaptcha',
+				Jetpack_Constants::get_constant( 'GRUNION_RECAPTCHA_ENABLED' )
+			);
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
 
