@@ -486,7 +486,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$result = Jetpack_Client::wpcom_json_api_request_as_user(
 			$api_path,
 			'2',
-			array( 'method' => 'POST' ),
+			array(
+				'method' => 'POST',
+				'timeout' => 60,
+			),
 			array( 'site_url' => $params['site_url'] )
 		);
 		return $result;
