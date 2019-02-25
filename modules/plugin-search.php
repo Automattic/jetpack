@@ -430,15 +430,15 @@ class Jetpack_Plugin_Search {
 			$links[] = Jetpack::active_plan_supports( $plugin['module'] )
 				? '<button
 					id="plugin-select-activate"
-					class="jetpack-plugin-search__primary button activate-module-now"
+					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
 					data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"
 					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
 				: '<a
-					class="jetpack-plugin-search__primary button activate-module-now"
+					class="jetpack-plugin-search__primary button"
 					href="' . $this->get_upgrade_url( $plugin['module'] ) . '"
-					target="_blank"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
+					data-track="purchase"
 					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
 
 			// Jetpack installed, active, feature enabled; link to settings.
@@ -451,9 +451,10 @@ class Jetpack_Plugin_Search {
 		) {
 			$links[] = '<a
 				id="plugin-select-settings"
-				class="jetpack-plugin-search__primary button"
+				class="jetpack-plugin-search__primary button jetpack-plugin-search__configure"
 				href="' . esc_url( $plugin['configure_url'] ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="configure"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
 			// Module is active, doesn't have options to configure
 		} elseif ( Jetpack::is_module_active( $plugin['module'] ) ) {
@@ -462,6 +463,7 @@ class Jetpack_Plugin_Search {
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
 				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
 		}
 
@@ -472,6 +474,7 @@ class Jetpack_Plugin_Search {
 				href="' . esc_url( $plugin['learn_more_button'] ) . '"
 				target="_blank"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="learn_more"
 				>' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
 		}
 

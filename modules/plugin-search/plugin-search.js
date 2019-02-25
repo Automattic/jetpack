@@ -132,18 +132,24 @@ var JetpackPSH = {};
 				setTimeout( function() {
 					var url = 'https://jetpack.com/redirect/?source=plugin-hint-learn-' + moduleName,
 						label = jpsh.getStarted,
-						classes = 'button jetpack-plugin-search__primary';
+						classes = 'jetpack-plugin-search__primary button',
+						track = 'configure';
+
 					// If the feature has options in Jetpack admin UI, link to them.
 					if ( response.options && 0 < Object.keys( response.options ).length ) {
 						url = $moduleBtn.data( 'configure-url' );
 						label = jpsh.manageSettings;
+						classes += ' jetpack-plugin-search__configure';
 					} else {
 						// If it has no options, the Get started button will be displayed so remove the Learn more link if it's there.
 						var learnMore = document.querySelector( '.jetpack-plugin-search__learn-more' );
 						learnMore.parentNode.removeChild( learnMore );
 						classes += ' jetpack-plugin-search__get-started';
+						track = 'get_started';
 					}
-					$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="' + classes + '" href="' + url + '">' + label + '</a>' );
+					$moduleBtn.replaceWith(
+						'<a id="plugin-select-settings" class="' + classes + '" href="' + url + '" data-module="' + moduleName + '" data-track="' + track + '">' + label + '</a>'
+					);
 				}, 1000 );
 
 			} );
@@ -169,15 +175,18 @@ var JetpackPSH = {};
 					event.preventDefault();
 					JetpackPSH.ajaxActivateModule( $( this ).data( 'module' ) );
 				} )
+				.on( 'click', '.jetpack-plugin-search__primary', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					if ( $this.data( 'track' ) ) {
+						// This catches Purchase, Configure, and Get started. Feature activation is tracked when it ends successfully, in its callback.
+						JetpackPSH.trackEvent( 'wpa_plugin_search_' + $this.data( 'track' ), $this.data( 'module' ), $this.get(0) );
+					}
+				} )
 				.on( 'click', '.jetpack-plugin-search__learn-more', function( event ) {
 					event.preventDefault();
 					var $this = $( this );
 					JetpackPSH.trackEvent( 'wpa_plugin_search_learn_more', $this.data( 'module' ), $this.get(0) );
-				} )
-				.on( 'click', '.jetpack-plugin-search__get-started', function( event ) {
-					event.preventDefault();
-					var $this = $( this );
-					JetpackPSH.trackEvent( 'wpa_plugin_search_get_started', $this.data( 'module' ), $this.get(0) );
 				} );
 		}
 
