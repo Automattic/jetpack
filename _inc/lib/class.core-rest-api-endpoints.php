@@ -483,7 +483,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$jetpack_site_slug  = Jetpack::build_raw_urls( get_home_url() );
 		$api_path = '/sites/' . $jetpack_site_slug. '/jetpack-site-importer/fetch-wxr-from-url';
 		$params = $request->get_params();
-		$result = Jetpack_Client::wpcom_json_api_request_as_user(
+		$response = Jetpack_Client::wpcom_json_api_request_as_user(
 			$api_path,
 			'2',
 			array(
@@ -492,7 +492,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			array( 'site_url' => $params['site_url'] )
 		);
-		return $result;
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $code ) {
+			return new WP_Error( 'wxr_fetch_failed', 'Could not retrieve an archive of the site', array( 'status' => $code ) );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		return json_decode( $body );
 	}
 
 	public static function get_plans( $request ) {
