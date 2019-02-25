@@ -141,7 +141,7 @@ abstract class Publicize_Base {
 	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
 
 	function can_connect_service( $service_name ) {
-		return 'google_plus' !== $service_name;
+		return true;
 	}
 
 	/**
@@ -207,9 +207,6 @@ abstract class Publicize_Base {
 		switch ( $service_name ) {
 			case 'linkedin':
 				return 'LinkedIn';
-				break;
-			case 'google_plus':
-				return  'Google+';
 				break;
 			case 'twitter':
 			case 'facebook':
@@ -335,10 +332,6 @@ abstract class Publicize_Base {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
-		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
-			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
-		} elseif ( 'google_plus' == $service_name ) {
-			return 'https://plus.google.com/' . $cmeta['external_id'];
 		} else if ( 'linkedin' == $service_name ) {
 			if ( !isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
