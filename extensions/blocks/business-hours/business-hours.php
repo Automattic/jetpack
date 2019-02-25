@@ -23,7 +23,7 @@ jetpack_register_block(
 function jetpack_business_hours_render( $attributes, $content ) {
 	global $wp_locale;
 
-	if ( empty( $attributes['hours'] ) || ! is_array( $attributes['hours'] ) ) {
+	if ( empty( $attributes['days'] ) || ! is_array( $attributes['days'] ) ) {
 		return $content;
 	}
 
@@ -43,14 +43,14 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$attributes['hours'] = array_merge( $chunk2, $chunk1 );
 	}
 
-	foreach ( $attributes['hours'] as $day => $hours ) {
-		$content   .= '<dt class="' . esc_attr( $day ) . '">' .
-					ucfirst( $wp_locale->get_weekday( array_search( $day, $days, true ) ) ) .
+	foreach ( $attributes['days'] as $day ) {
+		$content   .= '<dt class="' . esc_attr( $day['name'] ) . '">' .
+					ucfirst( $wp_locale->get_weekday( array_search( $day['name'], $days, true ) ) ) .
 					'</dt>';
-		$content   .= '<dd class="' . esc_attr( $day ) . '">';
+		$content   .= '<dd class="' . esc_attr( $day['name'] ) . '">';
 		$days_hours = '';
 
-		foreach ( $hours as $hour ) {
+		foreach ( $day['hours'] as $hour ) {
 			if ( empty( $hour['opening'] ) || empty( $hour['closing'] ) ) {
 				continue;
 			}
