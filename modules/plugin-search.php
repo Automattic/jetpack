@@ -345,6 +345,7 @@ class Jetpack_Plugin_Search {
 	 * Tracks every search term used in plugins search as 'jetpack_wpa_plugin_search_term'
 	 *
 	 * @param String $term The raw search term.
+	 *
 	 * @return true|WP_Error true for success, WP_Error if error occurred.
 	 */
 	private function track_search_term( $term ) {
@@ -443,6 +444,7 @@ class Jetpack_Plugin_Search {
 					class="jetpack-plugin-search__primary button activate-module-now"
 					href="' . $this->get_upgrade_url( $plugin['module'] ) . '"
 					target="_blank"
+					data-module="' . esc_attr( $plugin['module'] ) . '"
 					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
 
 			// Jetpack installed, active, feature enabled; link to settings.
@@ -457,6 +459,7 @@ class Jetpack_Plugin_Search {
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary button"
 				href="' . esc_url( $plugin['configure_url'] ) . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
 			// Module is active, doesn't have options to configure
 		} elseif ( Jetpack::is_module_active( $plugin['module'] ) ) {
@@ -464,15 +467,17 @@ class Jetpack_Plugin_Search {
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
 				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
 		}
 
 		// Add link pointing to a relevant doc page in jetpack.com only if the Get started button isn't displayed.
 		if ( ! empty( $plugin['learn_more_button'] ) && ! isset( $links['jp_get_started'] ) ) {
 			$links[] = '<a
+				class="jetpack-plugin-search__learn-more"
 				href="' . esc_url( $plugin['learn_more_button'] ) . '"
 				target="_blank"
-				class="jetpack-plugin-search__learn-more"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
 				>' . esc_html__( 'Learn more', 'jetpack' ) . '</a>';
 		}
 

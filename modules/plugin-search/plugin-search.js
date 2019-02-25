@@ -3,133 +3,186 @@
  * of the card with customized content.
  */
 
-/* global jetpackPluginSearch, JSON, console */
+/* global jetpackPluginSearch, JSON, jpTracksAJAX */
 
-/**
- * Replace bottom row of the card to insert logo, text and link to dismiss the card.
- */
-var replaceCardBottom = function() {
-	var hint = document.querySelector( '.plugin-card-jetpack-plugin-search' );
-	if ( 'object' === typeof hint && null !== hint ) {
-		hint.querySelector( '.plugin-card-bottom' ).outerHTML =
-			'<div class="jetpack-plugin-search__bottom"><img src="' + jetpackPluginSearch.logo + '" width="32" />' +
-				'<p class="jetpack-plugin-search__text">' + jetpackPluginSearch.legend + '</p>' +
-			'</div>';
-
-		// Remove link and parent li from action links and move it to bottom row
-		var dismissLink = document.querySelector( '.jetpack-plugin-search__dismiss' );
-		dismissLink.parentNode.parentNode.removeChild( dismissLink.parentNode );
-		document
-			.querySelector( '.jetpack-plugin-search__bottom' )
-			.appendChild( dismissLink );
-	}
-};
-
-/**
- * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
- * @param {array} mutationsList
- */
-var replaceOnNewResults = function( mutationsList ) {
-	mutationsList.forEach( function( mutation ) {
-		if (
-			'childList' === mutation.type &&
-			1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
-		) {
-			replaceCardBottom();
-		}
-	} );
-};
-
-// Listen for changes in plugin search results
-var resultsObserver = new MutationObserver( replaceOnNewResults );
-resultsObserver.observe( document.getElementById( 'plugin-filter' ), { childList: true } );
-
-// Replace PSH bottom row on page load
-document.addEventListener( 'DOMContentLoaded', replaceCardBottom );
+var JetpackPSH = {};
 
 ( function( $, jpsh ) {
+	JetpackPSH = {
 
-	var $pluginFilter = $( '#plugin-filter' );
+		$pluginFilter: $( '#plugin-filter' ),
 
-	$pluginFilter.on( 'click', '.jetpack-plugin-search__dismiss', function( event ) {
-		event.preventDefault();
-		dismiss( $( this ).data( 'module' ) );
-	} );
+		/**
+		 * Get parent search hint element.
+		 * @returns {Element | null}
+		 */
+		getCard: function() {
+			return document.querySelector( '.plugin-card-jetpack-plugin-search' );
+		},
 
-	$pluginFilter.on( 'click', 'button#plugin-select-activate', function( event ) {
-		event.preventDefault();
-		ajaxActivateModule( $( this ).data( 'module' ) );
-	} );
+		/**
+		 * Track user event such as a click on a button or a link.
+		 *
+		 * @param {string} eventName Event identifier.
+		 * @param {object} feature   Identifier of feature involved in the event.
+		 * @param {object} target    Object where action was performed.
+		 */
+		trackEvent: function( eventName, feature, target ) {
+			jpTracksAJAX
+				.record_ajax_event( eventName, 'click', { 'feature' : feature } )
+				.always( function() {
+					if ( 'undefined' !== typeof target && !! target.getAttribute( 'href' ) ) {
+						// If it has an href, follow it.
+						window.location = target.getAttribute( 'href' );
+					}
+				} );
+		},
 
-	function dismiss( moduleName ) {
-		document.getElementById( 'the-list' ).removeChild( document.querySelector( '.plugin-card-jetpack-plugin-search' ) );
-		$.ajax( {
-			url: jpsh.base_rest_url + '/hints',
-			method: 'post',
-			beforeSend: function( xhr ) {
-				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
-			},
-			data: JSON.stringify( {
-				hint: moduleName
-			} ),
-			contentType: 'application/json',
-			dataType: 'json'
-		} ).done( function() {
-			//
-		} ).error( function( data ) {
-			console.warn( 'error', data );
-		} );
-	}
+		/**
+		 * Replace bottom row of the card to insert logo, text and link to dismiss the card.
+		 */
+		replaceCardBottom: function() {
+			var hint = JetpackPSH.getCard();
+			if ( 'object' === typeof hint && null !== hint ) {
+				hint.querySelector( '.plugin-card-bottom' ).outerHTML =
+					'<div class="jetpack-plugin-search__bottom"><img src="' + jetpackPluginSearch.logo + '" width="32" />' +
+					'<p class="jetpack-plugin-search__text">' + jetpackPluginSearch.legend + '</p>' +
+					'</div>';
 
-	function ajaxActivateModule( moduleName ) {
-		var $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );
-		$moduleBtn.toggleClass( 'install-now updating-message' );
-		$moduleBtn.prop( 'disabled', true );
-		$moduleBtn.text( jpsh.activating );
-		var data = {};
-		data[ moduleName ] = true;
-		$.ajax( {
-			url: jpsh.base_rest_url + '/settings',
-			method: 'post',
-			beforeSend: function( xhr ) {
-				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
-			},
-			data: JSON.stringify( data ),
-			contentType: 'application/json',
-			dataType: 'json'
-		} ).done( function() {
-			updateButton( moduleName );
-		} ).error( function() {
-			$moduleBtn.toggleClass( 'install-now updating-message' );
-		} );
-	}
+				// Remove link and parent li from action links and move it to bottom row
+				var dismissLink = document.querySelector( '.jetpack-plugin-search__dismiss' );
+				dismissLink.parentNode.parentNode.removeChild( dismissLink.parentNode );
+				document
+					.querySelector( '.jetpack-plugin-search__bottom' )
+					.appendChild( dismissLink );
+			}
+		},
 
-	// Remove onclick handler, disable loading spinner, update button to redirect to module settings.
-	function updateButton( moduleName ) {
-		$.ajax( {
-			url: jpsh.base_rest_url + '/module/' + moduleName,
-			method: 'get',
-			beforeSend: function( xhr ) {
-				xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
-			},
-			dataType: 'json'
-		} ).done( function( response ) {
-			console.log( response );
-			var $moduleBtn = $pluginFilter.find( '#plugin-select-activate' );
-			$moduleBtn.prop( 'onclick', null ).off( 'click' );
-			$moduleBtn.toggleClass( 'install-now updating-message' );
-			$moduleBtn.text( jpsh.activated );
-			setTimeout( function() {
-				var url = 'https://jetpack.com/redirect/?source=plugin-hint-learn-' + moduleName,
-					label = jpsh.getStarted;
-				if ( response.options && 0 < response.options.length ) {
-					url = $moduleBtn.data( 'configure-url' );
-					label = jpsh.manageSettings;
+		/**
+		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
+		 * @param {array} mutationsList
+		 */
+		replaceOnNewResults: function( mutationsList ) {
+			mutationsList.forEach( function( mutation ) {
+				if (
+					'childList' === mutation.type &&
+					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
+				) {
+					JetpackPSH.replaceCardBottom();
 				}
-				$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="button jetpack-plugin-search__primary" href="' + url + '">' + label + '</a>' );
-			}, 1000 );
+			} );
+		},
 
-		} );
+		dismiss: function( moduleName ) {
+			document.getElementById( 'the-list' ).removeChild( JetpackPSH.getCard() );
+			$.ajax( {
+				url: jpsh.base_rest_url + '/hints',
+				method: 'post',
+				beforeSend: function( xhr ) {
+					xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
+				},
+				data: JSON.stringify( {
+					hint: moduleName
+				} ),
+				contentType: 'application/json',
+				dataType: 'json'
+			} ).done( function() {
+				JetpackPSH.trackEvent( 'wpa_plugin_search_dismiss', moduleName );
+			} );
+		},
 
-	}
+		ajaxActivateModule: function( moduleName ) {
+			var $moduleBtn = JetpackPSH.$pluginFilter.find( '#plugin-select-activate' );
+			$moduleBtn.toggleClass( 'install-now updating-message' );
+			$moduleBtn.prop( 'disabled', true );
+			$moduleBtn.text( jpsh.activating );
+			var data = {};
+			data[ moduleName ] = true;
+			$.ajax( {
+				url: jpsh.base_rest_url + '/settings',
+				method: 'post',
+				beforeSend: function( xhr ) {
+					xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
+				},
+				data: JSON.stringify( data ),
+				contentType: 'application/json',
+				dataType: 'json'
+			} ).done( function() {
+				JetpackPSH.updateButton( moduleName );
+				JetpackPSH.trackEvent( 'wpa_plugin_search_activate', moduleName );
+			} ).error( function() {
+				$moduleBtn.toggleClass( 'install-now updating-message' );
+			} );
+		},
+
+		// Remove onclick handler, disable loading spinner, update button to redirect to module settings.
+		updateButton: function( moduleName ) {
+			$.ajax( {
+				url: jpsh.base_rest_url + '/module/' + moduleName,
+				method: 'get',
+				beforeSend: function( xhr ) {
+					xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
+				},
+				dataType: 'json'
+			} ).done( function( response ) {
+				var $moduleBtn = JetpackPSH.$pluginFilter.find( '#plugin-select-activate' );
+				$moduleBtn.prop( 'onclick', null ).off( 'click' );
+				$moduleBtn.toggleClass( 'install-now updating-message' );
+				$moduleBtn.text( jpsh.activated );
+				setTimeout( function() {
+					var url = 'https://jetpack.com/redirect/?source=plugin-hint-learn-' + moduleName,
+						label = jpsh.getStarted,
+						classes = 'button jetpack-plugin-search__primary';
+					// If the feature has options in Jetpack admin UI, link to them.
+					if ( response.options && 0 < response.options.length ) {
+						url = $moduleBtn.data( 'configure-url' );
+						label = jpsh.manageSettings;
+					} else {
+						// If it has no options, the Get started button will be displayed so remove the Learn more link if it's there.
+						var learnMore = document.querySelector( '.jetpack-plugin-search__learn-more' );
+						learnMore.parentNode.removeChild( learnMore );
+						classes += ' jetpack-plugin-search__get-started';
+					}
+					$moduleBtn.replaceWith( '<a id="plugin-select-settings" class="' + classes + '" href="' + url + '">' + label + '</a>' );
+				}, 1000 );
+
+			} );
+		},
+
+		/**
+		 * Start suggesting.
+		 */
+		init: function() {
+			// Replace PSH bottom row on page load
+			JetpackPSH.replaceCardBottom();
+
+			// Listen for changes in plugin search results
+			var resultsObserver = new MutationObserver( JetpackPSH.replaceOnNewResults );
+			resultsObserver.observe( document.getElementById( 'plugin-filter' ), { childList: true } );
+
+			JetpackPSH.$pluginFilter
+				.on( 'click', '.jetpack-plugin-search__dismiss', function( event ) {
+					event.preventDefault();
+					JetpackPSH.dismiss( $( this ).data( 'module' ) );
+				} )
+				.on( 'click', 'button#plugin-select-activate', function( event ) {
+					event.preventDefault();
+					JetpackPSH.ajaxActivateModule( $( this ).data( 'module' ) );
+				} )
+				.on( 'click', '.jetpack-plugin-search__learn-more', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					JetpackPSH.trackEvent( 'wpa_plugin_search_learn_more', $this.data( 'module' ), $this.get(0) );
+				} )
+				.on( 'click', '.jetpack-plugin-search__get-started', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					JetpackPSH.trackEvent( 'wpa_plugin_search_get_started', $this.data( 'module' ), $this.get(0) );
+				} );
+		}
+
+	};
+
+	JetpackPSH.init();
+
 } )( jQuery, jetpackPluginSearch );
