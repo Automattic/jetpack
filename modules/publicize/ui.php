@@ -131,12 +131,6 @@ class Publicize_UI {
 		$max_length = defined( 'JETPACK_PUBLICIZE_TWITTER_LENGTH' ) ? JETPACK_PUBLICIZE_TWITTER_LENGTH : 280;
 		$max_length = $max_length - 24; // t.co link, space
 
-		// for deprecation tooltip
-		wp_enqueue_style( 'wp-pointer' );
-		wp_enqueue_script( 'wp-pointer' );
-
-		$this->google_plus_shut_down_tooltip_script();
-
 		?>
 
 <script type="text/javascript">
@@ -507,14 +501,9 @@ jQuery( function($) {
 					}
 
 					$labels = array();
-					$has_google_plus = false;
 					foreach ( $connections_data as $connection_data ) {
 						if ( ! $connection_data['enabled'] ) {
 							continue;
-						}
-
-						if ( 'google_plus' === $connection_data['service_name'] ) {
-							$has_google_plus = true;
 						}
 
 						$labels[] = sprintf(
@@ -524,19 +513,6 @@ jQuery( function($) {
 					}
 
 				?>
-				<?php if ( $has_google_plus ) : ?>
-					<span class="notice-warning publicize__notice-warning">
-						<?php esc_html_e( 'Google+ support is being removed', 'jetpack' ); ?>
-						<a
-							href="javascript:void(0)"
-							id="jetpack-gplus-deprecated-notice"
-							class="publicize-external-link"
-						>
-							<span class="publicize-external-link__text"><?php esc_html_e( 'Why?', 'jetpack' ); ?></span>
-							<span class="dashicons dashicons-info"></span>
-						</a>
-					</span>
-				<?php endif; ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php
@@ -677,54 +653,5 @@ jQuery( function($) {
 			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 		</div><?php // #publicize-form
 		return ob_get_clean();
-	}
-
-	private function google_plus_shut_down_notice() {
-		return wp_kses(
-			sprintf(
-				/* Translators: placeholder is a link to an announcement post on Google's blog. */
-				__(
-					'<h3>Google+ Support is being removed</h3><p>Google recently <a href="%1$s" target="_blank">announced</a> that Google+ is shutting down in April 2019, and access via third-party tools like Jetpack will cease in March 2019.</p><p>For now, you can still post to Google+ using existing connections, but you cannot add new connections. The ability to post will be removed in early 2019.</p>',
-					'jetpack'
-				),
-				esc_url( 'https://www.blog.google/technology/safety-security/expediting-changes-google-plus/' )
-			),
-			array(
-				'a'  => array(
-					'href' => true,
-					'target' => true,
-				),
-				'h3' => true,
-				'p'  => true,
-			)
-		);
-	}
-
-	private function google_plus_shut_down_tooltip_script() {
-		$google_plus_exp_msg = $this->google_plus_shut_down_notice();
-	?>
-		<script>
-		// deprecation tooltip
-		(function($){
-			var setup = function() {
-				$('#jetpack-gplus-deprecated-notice').first().pointer(
-					{
-						content: decodeURIComponent( "<?php echo rawurlencode( $google_plus_exp_msg ); ?>" ),
-						position: {
-							edge: "right",
-							align: "bottom"
-						},
-						pointerClass: "wp-pointer arrow-bottom",
-						pointerWidth: 420
-					}
-				).click( function( e ) {
-					e.preventDefault();
-					$( this ).pointer( 'open' );
-				} );
-			};
-			$(document).ready( setup );
-		})(jQuery);
-		</script>
-	<?php
 	}
 }
