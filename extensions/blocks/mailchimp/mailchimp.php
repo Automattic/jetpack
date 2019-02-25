@@ -27,14 +27,14 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	if ( ! jetpack_mailchimp_verify_connection() ) {
 		return null;
 	}
-	$emailInputId = 'wp-block-jetpack-mailchimp_email_input-' . uniqid();
-	$values  = array();
-	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+	$email_input_id = 'wp-block-jetpack-mailchimp_email_input-' . uniqid();
+	$values         = array();
+	$blog_id        = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
 		get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp', null );
 	$defaults = array(
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
-		'submitButtonText'      => esc_html__( 'Join my email list', 'jetpack' ),
+		'submitButtonText' => esc_html__( 'Join my email list', 'jetpack' ),
 		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
@@ -64,11 +64,11 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		<div class="components-placeholder">
 			<form aria-describedby="wp-block-jetpack-mailchimp_consent-text">
 				<p>
-					<label for="<?php echo $emailInputId; ?>" class="wp-block-jetpack-mailchimp_hidden-label"><?php echo wp_kses_post( $values['emailPlaceholder'] ); ?></label>
+					<label for="<?php echo esc_attr( $email_input_id ); ?>" class="wp-block-jetpack-mailchimp_hidden-label"><?php echo wp_kses_post( $values['emailPlaceholder'] ); ?></label>
 					<input
 						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-						id="<?php echo $emailInputId; ?>"
-						name="<?php echo $emailInputId; ?>"
+						id="<?php echo esc_attr( $email_input_id ); ?>"
+						name="<?php echo esc_attr( $email_input_id ); ?>"
 						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
 						required
 						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
