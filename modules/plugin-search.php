@@ -275,8 +275,10 @@ class Jetpack_Plugin_Search {
 		if ( ! empty( $args->search ) ) {
 			$matching_module = null;
 
+			// Record event when user searches for a term
+			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
-			$this->track_search_term( $args->search );
 			$normalized_term = $this->sanitize_search_term( $args->search );
 
 			$jetpack_modules_list = array_merge( $this->get_extra_features(), $jetpack_modules_list );
@@ -293,6 +295,9 @@ class Jetpack_Plugin_Search {
 			}
 
 			if ( isset( $matching_module ) && $this->is_not_dismissed( $jetpack_modules_list[ $matching_module ]['module'] ) ) {
+				// Record event when a matching feature is found
+				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
+
 				$inject = (array) self::get_jetpack_plugin_data();
 				$image_url = plugins_url( 'modules/plugin-search/psh', JETPACK__PLUGIN_FILE );
 				$overrides = array(
@@ -339,17 +344,6 @@ class Jetpack_Plugin_Search {
 		$term = trim( str_replace( array( 'jetpack', 'jp', 'free', 'wordpress' ), '', $term ) );
 
 		return $term;
-	}
-
-	/**
-	 * Tracks every search term used in plugins search as 'jetpack_wpa_plugin_search_term'
-	 *
-	 * @param String $term The raw search term.
-	 *
-	 * @return true|WP_Error true for success, WP_Error if error occurred.
-	 */
-	private function track_search_term( $term ) {
-		return JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $term ) );
 	}
 
 	/**
