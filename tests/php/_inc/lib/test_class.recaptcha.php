@@ -1,5 +1,8 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/sharedaddy/recaptcha.php';
+
+if ( ! class_exists( 'Jetpack_ReCaptcha' ) ) {
+	jetpack_require_lib( 'recaptcha' );
+}
 
 class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
