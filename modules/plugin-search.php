@@ -1,15 +1,10 @@
 <?php
 /**
- * Module Name: Plugin Search Hints
- * Module Description: Make suggestions when people search the plugin directory for things that Jetpack already does for them.
- * Sort Order: 50
- * Recommendation Order: 1
- * First Introduced: 7.1
- * Requires Connection: Yes
- * Auto Activate: Yes
- * Module Tags: Recommended
- * Feature: Jumpstart
+ * Disable direct access and execution.
  */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 if (
 	is_admin() &&
@@ -17,7 +12,7 @@ if (
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 	apply_filters( 'jetpack_show_promotions', true )
 ) {
-	add_action( 'jetpack_modules_loaded', array( 'Jetpack_Plugin_Search', 'init' ) );
+	Jetpack_Plugin_Search::init();
 }
 
 // Register endpoints when WP REST API is initialized.
