@@ -29,7 +29,6 @@ function jetpack_business_hours_render( $attributes, $content ) {
 
 	$start_of_week = (int) get_option( 'start_of_week', 0 );
 	$time_format   = get_option( 'time_format' );
-	$today         = current_time( 'D' );
 	$content       = sprintf(
 		'<dl class="jetpack-business-hours %s">',
 		! empty( $attributes['className'] ) ? esc_attr( $attributes['className'] ) : ''
@@ -38,9 +37,9 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
 	if ( $start_of_week ) {
-		$chunk1              = array_slice( $attributes['hours'], 0, $start_of_week );
-		$chunk2              = array_slice( $attributes['hours'], $start_of_week );
-		$attributes['hours'] = array_merge( $chunk2, $chunk1 );
+		$chunk1              = array_slice( $attributes['days'], 0, $start_of_week );
+		$chunk2              = array_slice( $attributes['days'], $start_of_week );
+		$attributes['days'] = array_merge( $chunk2, $chunk1 );
 	}
 
 	foreach ( $attributes['days'] as $day ) {
