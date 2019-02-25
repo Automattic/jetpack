@@ -44,6 +44,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
 	}
 
+	$values['submitButtonText'] = empty( $values['submitButtonText'] ) ? $defaults['submitButtonText'] : $values['submitButtonText'];
+
 	/* TODO: replace with centralized block_class function */
 	$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$type    = 'mailchimp';
