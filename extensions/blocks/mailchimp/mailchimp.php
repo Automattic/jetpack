@@ -24,6 +24,7 @@ if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
  * @return string
  */
 function jetpack_mailchimp_block_load_assets( $attr ) {
+
 	if ( ! jetpack_mailchimp_verify_connection() ) {
 		return null;
 	}
@@ -58,6 +59,15 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	}
 	$classes = implode( $classes, ' ' );
 
+	$button_styles = array();
+	if ( isset( $attr['customBackgroundButtonColor'] ) && strlen( $attr['customBackgroundButtonColor'] ) ) {
+		array_push( $button_styles, sprintf( 'background-color: %s', $attr['customBackgroundButtonColor'] ) );
+	}
+	if ( isset( $attr['customTextButtonColor'] ) && strlen( $attr['customTextButtonColor'] ) ) {
+		array_push( $button_styles, sprintf( 'color: %s', $attr['customTextButtonColor'] ) );
+	}
+	$button_styles = implode( $button_styles, ';' );
+
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
@@ -76,7 +86,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					/>
 				</p>
 				<p>
-					<button type="submit" class="components-button is-button is-primary">
+					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
 					</button>
 				</p>
