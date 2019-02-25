@@ -109,6 +109,15 @@ class AdminNotices extends React.Component {
 			} );
 		}
 
+		// Hide the rest of the core notices, they don't look very good above the react app.
+		const $allNotices = jQuery( '.notice' );
+		if ( $allNotices.length > 0 ) {
+			$allNotices.each( function() {
+				const $notice = jQuery( this );
+				$notice.hide();
+			} );
+		}
+
 		if ( $adminNotices.length > 0 ) {
 			jQuery( '.dops-notice__dismiss' ).click( function() {
 				jQuery( this )
