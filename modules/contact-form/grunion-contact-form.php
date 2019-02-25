@@ -435,7 +435,7 @@ class Grunion_Contact_Form_Plugin {
 		$form = false;
 
 		/**
-		 * Enable/Disable reCaptcha Flag for Contact Form.
+		 * Enable / disable reCAPTCHA flag for contact form.
 		 */
 		$is_recaptcha_enabled = constant( 'GRUNION_RECAPTCHA_ENABLED' ) && defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' );
 
@@ -444,7 +444,7 @@ class Grunion_Contact_Form_Plugin {
 			$error              = new WP_Error();
 
 			if ( empty( $recaptcha_response ) ) {
-				$error->add( '403', __( 'reCaptcha Validation is Required.', 'jetpack' ) );
+				$error->add( '403', esc_html__( 'reCAPTCHA Validation is required.', 'jetpack' ) );
 
 				// Set WP_Error for `template_redirect` errors.
 				set_query_var( 'grunion_contact_form_recaptcha_error', $error );
@@ -461,7 +461,7 @@ class Grunion_Contact_Form_Plugin {
 			$result    = $recaptcha->verify( $recaptcha_response, $_SERVER['REMOTE_ADDR'] );
 
 			if ( empty( $result ) || is_wp_error( $result ) ) {
-				$error->add( '403', __( 'Invalid reCaptcha, Please try again.', 'jetpack' ) );
+				$error->add( '403', esc_html__( 'Invalid reCAPTCHA, please try again.', 'jetpack' ) );
 
 				// Set WP_Error for `template_redirect` errors.
 				set_query_var( 'grunion_contact_form_recaptcha_error', $error );
@@ -2074,7 +2074,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
 			/**
-			 * Filter for Enable/Disable reCaptcha for Contact Form.
+			 * Filter to enable or disable reCAPTCHA for the contact form.
 			 *
 			 * @module contact-form
 			 *
