@@ -452,6 +452,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/site-importer/fetch-wxr-for-url',
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => __CLASS__ . '::fetch_wxr_for_url',
+				'permission_callback' => __CLASS__ . '::import_content_permission_check',
+				'args' => array(
+					'site_url' => array(
+						'description' => __( 'The URL of the site for which to fetch a WXR' ),
+						'required' => true,
+						'type' => 'string',
+					),
+				),
+			)
+		);
+	}
+
+	static function import_content_permission_check() {
+		if ( current_user_can( 'import' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_import', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	static function fetch_wxr_for_url( $request ) {
+		$jetpack_site_slug  = Jetpack::build_raw_urls( get_home_url() );
+		$api_path = '/sites/' . $jetpack_site_slug. '/jetpack-site-importer/fetch-wxr-from-url';
+		$params = $request->get_params();
+		$result = Jetpack_Client::wpcom_json_api_request_as_user(
+			$api_path,
+			'2',
+			array( 'method' => 'POST' ),
+			array( 'site_url' => $params['site_url'] )
+		);
+		return $result;
 	}
 
 	public static function get_plans( $request ) {
