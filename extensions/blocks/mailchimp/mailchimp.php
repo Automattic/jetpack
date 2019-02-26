@@ -61,10 +61,22 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 
 	$button_styles = array();
 	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
-		array_push( $button_styles, sprintf( 'background-color: %s', $attr['customBackgroundButtonColor'] ) );
+		array_push(
+			$button_styles,
+			sprintf(
+				'background-color: %s',
+				sanitize_hex_color( $attr['customBackgroundButtonColor'] )
+			)
+		);
 	}
 	if ( ! empty( $attr['customTextButtonColor'] ) ) {
-		array_push( $button_styles, sprintf( 'color: %s', $attr['customTextButtonColor'] ) );
+		array_push(
+			$button_styles,
+			sprintf(
+				'color: %s',
+				sanitize_hex_color( $attr['customTextButtonColor'] )
+			)
+		);
 	}
 	$button_styles = implode( $button_styles, ';' );
 
