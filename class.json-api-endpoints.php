@@ -1320,6 +1320,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 					foreach ( $sizes as $size => $size_details ) {
 						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
 					}
+					/**
+					 * Filter the thumbnail URLs for attachment files.
+					 *
+					 * @module json-api
+					 *
+					 * @since 7.1.0
+					 *
+					 * @param array $metadata['sizes'] Array with thumbnail sizes as keys and URLs as values.
+					 */
+					$response['thumbnails'] = apply_filters( 'rest_api_thumbnail_size_urls', $response['thumbnails'] );
 				}
 			}
 

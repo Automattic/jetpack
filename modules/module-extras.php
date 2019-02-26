@@ -31,6 +31,8 @@ $tools = array(
 	// Keep working the VideoPress videos in existing posts/pages when the module is deactivated
 	'videopress/utility-functions.php',
 	'videopress/class.videopress-gutenberg.php',
+
+	'plugin-search.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode

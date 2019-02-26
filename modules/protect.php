@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Block suspicious-looking sign in activity
+ * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -9,7 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
+ * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
