@@ -28,9 +28,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	if ( ! jetpack_mailchimp_verify_connection() ) {
 		return null;
 	}
-	$email_input_id = 'wp-block-jetpack-mailchimp_email_input-' . uniqid();
-	$values         = array();
-	$blog_id        = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+	$values  = array();
+	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
 		get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp', null );
 	$defaults = array(
@@ -86,11 +85,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		<div class="components-placeholder">
 			<form aria-describedby="wp-block-jetpack-mailchimp_consent-text">
 				<p>
-					<label for="<?php echo esc_attr( $email_input_id ); ?>" class="wp-block-jetpack-mailchimp_hidden-label"><?php echo wp_kses_post( $values['emailPlaceholder'] ); ?></label>
 					<input
 						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-						id="<?php echo esc_attr( $email_input_id ); ?>"
-						name="<?php echo esc_attr( $email_input_id ); ?>"
 						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
 						required
 						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
