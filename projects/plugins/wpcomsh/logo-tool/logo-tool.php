@@ -19,7 +19,7 @@
  */
 
 function add_logojoy_button( $wp_customize ) {
-	if ( ! ( current_theme_supports( 'custom-logo' ) || current_theme_supports( 'site-logo' ) ) || ! is_admin() ) {
+	if ( ! current_theme_supports( 'custom-logo' ) || ! is_admin() ) {
 		return;
 	}
 	$logo_control = $wp_customize->get_control( 'custom_logo' );
