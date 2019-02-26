@@ -140,6 +140,11 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'plugin-search' => array(
+				'name' => _x( 'Plugin Search Hints', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Make suggestions when people search the plugin directory for things that Jetpack already does for them.', 'Module Description', 'jetpack' ),
+			),
+
 			'post-by-email' => array(
 				'name' => _x( 'Post by email', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
