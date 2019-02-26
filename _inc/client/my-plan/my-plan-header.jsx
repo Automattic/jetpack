@@ -38,11 +38,11 @@ class MyPlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Powerful services for your site' ) }
+								{ __( 'Welcome to Jetpack Free' ) }
 							</h3>
 							<p className="jp-landing__plan-features-text">
 								{ __(
-									'Always-on security, a better search experience, unlimited CDN use, advanced marketing tools, and monetization services.'
+									'Get started with hassle-free design, stats, and performance tools.'
 								) }
 							</p>
 						</div>
