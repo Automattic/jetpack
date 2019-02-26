@@ -27,7 +27,7 @@ import {
 	getModuleOverride,
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 class MyPlanBody extends React.Component {
 	static propTypes = {
@@ -506,20 +506,6 @@ class MyPlanBody extends React.Component {
 								{ __( 'Explore Jetpack plans' ) }
 							</Button>
 						</div>
-
-						<p className="jp-landing__plan-features-link">
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
-								href={
-									'is-free-plan' === planClass
-										? this.props.plansMainBottomUpgradeUrl
-										: this.props.plansMainBottomDevModeUpgradeUrl
-								}
-								className="is-primary"
-							>
-								{ __( 'Compare plans' ) }
-							</Button>
-						</p>
 					</div>
 				);
 				break;
@@ -563,10 +549,6 @@ export default connect(
 			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
 			getModuleOverride: module_slug => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
-			comparePlansUpgradeUrl: getUpgradeUrl( state, 'plans-compare-personal' ),
-			plansMainBottomUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom' ),
-			plansMainBottomDevModeUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom-dev-mode' ),
-			plansComparePremiumUpgradeUrl: getUpgradeUrl( state, 'plans-compare-premium' ),
 		};
 	},
 	dispatch => {
