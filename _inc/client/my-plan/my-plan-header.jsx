@@ -33,7 +33,7 @@ class MyPlanHeader extends React.Component {
 							<img
 								src={ imagePath + '/plans/plan-free.svg' }
 								className="jp-landing__plan-icon"
-								alt=""
+								alt={ __( 'Jetpack Free Plan' ) }
 							/>
 						</div>
 						<div className="jp-landing__plan-card-current">
@@ -41,9 +41,7 @@ class MyPlanHeader extends React.Component {
 								{ __( 'Welcome to Jetpack Free' ) }
 							</h3>
 							<p className="jp-landing__plan-features-text">
-								{ __(
-									'Get started with hassle-free design, stats, and performance tools.'
-								) }
+								{ __( 'Get started with hassle-free design, stats, and performance tools.' ) }
 							</p>
 						</div>
 					</div>
@@ -57,7 +55,7 @@ class MyPlanHeader extends React.Component {
 							<img
 								src={ imagePath + '/plans/plan-personal.svg' }
 								className="jp-landing__plan-icon"
-								alt=""
+								alt={ __( 'Jetpack Personal Plan' ) }
 							/>
 						</div>
 						<div className="jp-landing__plan-card-current">
@@ -85,7 +83,7 @@ class MyPlanHeader extends React.Component {
 							<img
 								src={ imagePath + '/plans/plan-premium.svg' }
 								className="jp-landing__plan-icon"
-								alt=""
+								alt={ __( 'Jetpack Premium Plan' ) }
 							/>
 						</div>
 						<div className="jp-landing__plan-iconcard-current">
@@ -109,7 +107,7 @@ class MyPlanHeader extends React.Component {
 							<img
 								src={ imagePath + '/plans/plan-business.svg' }
 								className="jp-landing__plan-icon"
-								alt=""
+								alt={ __( 'Jetpack Business Plan' ) }
 							/>
 						</div>
 						<div className="jp-landing__plan-card-current">
@@ -133,7 +131,7 @@ class MyPlanHeader extends React.Component {
 							<img
 								src={ imagePath + '/plans/plan-free.svg' }
 								className="jp-landing__plan-icon"
-								alt=""
+								alt={ __( 'Jetpack Free Plan' ) }
 							/>
 						</div>
 						<div className="jp-landing__plan-card-current">
@@ -162,11 +160,7 @@ class MyPlanHeader extends React.Component {
 				);
 				break;
 		}
-		return (
-			<div>
-				{ planCard }
-			</div>
-		);
+		return <div>{ planCard }</div>;
 	}
 }
 export default connect( state => {
