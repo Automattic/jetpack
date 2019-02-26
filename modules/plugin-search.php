@@ -279,6 +279,24 @@ class Jetpack_Plugin_Search {
 
 			// Try to match a passed search term with module's search terms
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
+				if ( ! in_array( $module_slug, array(
+					'contact-form',
+					'lazy-images',
+					'monitor',
+					'photon',
+					'photon-cdn',
+					'protect',
+					'publicize',
+					'related-posts',
+					'sharedaddy',
+					'akismet',
+					'vaultpress',
+					'videopress',
+					'search',
+
+				), true ) ) {
+					continue;
+				}
 				$terms_array = explode( ', ', strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] ) );
 				if ( in_array( $normalized_term, $terms_array ) ) {
 					$matching_module = $module_slug;
