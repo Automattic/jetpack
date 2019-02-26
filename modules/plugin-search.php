@@ -386,14 +386,14 @@ class Jetpack_Plugin_Search {
 	 * Sharing is included here because while we still have a page in WP Admin,
 	 * we prefer to send users to Calypso.
 	 *
-	 * @param string $feature
+	 * @param string $feature Feature to configure.
+	 * @param string $url     Default URL to configure feature settings.
 	 *
 	 * @since 7.1.0
 	 *
 	 * @return string
 	 */
-	private function get_configure_url( $feature ) {
-		$url = Jetpack::module_configuration_url( $feature );
+	private function get_configure_url( $feature, $url ) {
 		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
@@ -428,13 +428,6 @@ class Jetpack_Plugin_Search {
 
 		// Jetpack installed, active, feature not enabled; prompt to enable.
 		if (
-			(
-				Jetpack::is_active() ||
-				(
-					Jetpack::is_development_mode() &&
-					! $plugin[ 'requires_connection' ]
-				)
-			) &&
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
@@ -443,7 +436,7 @@ class Jetpack_Plugin_Search {
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
-					data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"
+					data-configure-url="' . $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) . '"
 					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
 				: '<a
 					class="jetpack-plugin-search__primary button"
@@ -463,7 +456,7 @@ class Jetpack_Plugin_Search {
 			$links[] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary button jetpack-plugin-search__configure"
-				href="' . esc_url( $plugin['configure_url'] ) . '"
+				href="' . $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="configure"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
