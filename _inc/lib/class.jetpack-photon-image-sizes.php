@@ -60,13 +60,7 @@ class Jetpack_Photon_ImageSizes {
 
 		$sizes = array();
 
-		/*
-		 * Remove filter preventing WordPress from reading the sizes, it's meant
-		 * to prevent creation of intermediate files, which are not really being used.
-		 */
-		remove_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
 		$intermediate_image_sizes = get_intermediate_image_sizes();
-		add_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' ); // Re-add the filter.
 
 		foreach ( $intermediate_image_sizes as $s ) {
 			$sizes[ $s ] = array(
