@@ -148,6 +148,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Photon: add paypalobjects.com to the list of banned domains, as this domain already relies on a CDN.
 * Spelling / Grammar: fix error when spellchecking the contents of a Classic block in the block editor.
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
+* Related Posts: avoid display a dulplicated set of related posts when using the Related Posts block.
 * REST API: fix a bug causing Likes settings on a post to sometimes be flipped.
 * Site Stats: do not show the Jetpack logo in the Stats dashboard widget title in the Screen Options tab.
 * Theme Tools: support alternative Pinterest domain extensions in the Social Menus tool.
