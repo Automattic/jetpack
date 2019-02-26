@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: Data Backups
- * Module Description: Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location.
+ * Module Name: Backups and Scanning
+ * Module Description: Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location. Anti-virus, malware, and threat detection for your WordPress site, with automated resolution.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false
@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Feature: Security, Health
- * Additional Search Queries: backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress
+ * Additional Search Queries: backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, wordpress security
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );
