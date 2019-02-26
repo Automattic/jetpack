@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Support: add additional tests to check when Jetpack isn't working as expected and ensures all current debugging platforms use the same testing list.
 * Simple Payments: add generic currency fallback symbol.
 * Sync: further performance improvements in PHP 7+ environments.
+* Woocommerce Analytics: include product type with analytics data.
 
 **Improved compatibility**
 
