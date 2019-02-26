@@ -279,7 +279,9 @@ class Jetpack_Plugin_Search {
 
 			// Try to match a passed search term with module's search terms
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				if ( ! in_array( $module_slug, array(
+
+				// Whitelist of features to look for
+				if ( ! in_array( $module_opts['module'], array(
 					'contact-form',
 					'lazy-images',
 					'monitor',
@@ -293,7 +295,6 @@ class Jetpack_Plugin_Search {
 					'vaultpress',
 					'videopress',
 					'search',
-
 				), true ) ) {
 					continue;
 				}
