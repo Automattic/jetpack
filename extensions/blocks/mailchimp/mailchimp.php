@@ -60,10 +60,10 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$classes = implode( $classes, ' ' );
 
 	$button_styles = array();
-	if ( isset( $attr['customBackgroundButtonColor'] ) && strlen( $attr['customBackgroundButtonColor'] ) ) {
+	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
 		array_push( $button_styles, sprintf( 'background-color: %s', $attr['customBackgroundButtonColor'] ) );
 	}
-	if ( isset( $attr['customTextButtonColor'] ) && strlen( $attr['customTextButtonColor'] ) ) {
+	if ( ! empty( $attr['customTextButtonColor'] ) ) {
 		array_push( $button_styles, sprintf( 'color: %s', $attr['customTextButtonColor'] ) );
 	}
 	$button_styles = implode( $button_styles, ';' );
