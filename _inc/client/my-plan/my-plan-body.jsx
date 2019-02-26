@@ -422,6 +422,38 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+							<p>
+								{ __(
+									'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
+								) }
+							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_security' ) }
+								href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+								className="is-primary"
+							>
+								{ __( 'Set up your site security' ) }
+							</Button>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Built-in Performance' ) }</h3>
+							<p>
+								{ __(
+									'Load pages faster by serving your images from our global network of servers.'
+								) }
+							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
+								href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+								className="is-primary"
+							>
+								{ __( 'Make your site faster' ) }
+							</Button>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">
 								{ __( 'Design the perfect website' ) }
 							</h3>
@@ -453,28 +485,12 @@ class MyPlanBody extends React.Component {
 								href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
 								className="is-primary"
 							>
-								{ __( 'Connect your social media accounts' ) }
+								{ __( 'Start publicizing now' ) }
 							</Button>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
-							<p>
-								{ __(
-									'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
-								) }
-							</p>
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'free_security' ) }
-								href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-								className="is-primary"
-							>
-								{ __( 'Set up your site security' ) }
-							</Button>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
 							<p>
 								{ __(
 									'View a chronological list of all the changes and updates to your site in an organized, readable way.'
