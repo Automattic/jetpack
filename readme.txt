@@ -135,6 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * PHP 7.3: introduce automated testing for PHP 7.3.
 * Site Accelerator: ensure compatibility with the AMP plugin.
 * Twenty Nineteen: fix Top Posts and Pages Widget image list margins.
+* WordPress 5.1 Compatibility: update usage of `wp_schedule_single_event` to match changes in WordPress.
 
 **Bug fixes**
 
