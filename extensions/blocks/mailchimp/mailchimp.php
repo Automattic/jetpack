@@ -24,6 +24,7 @@ if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
  * @return string
  */
 function jetpack_mailchimp_block_load_assets( $attr ) {
+
 	if ( ! jetpack_mailchimp_verify_connection() ) {
 		return null;
 	}
@@ -33,7 +34,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp', null );
 	$defaults = array(
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
-		'submitLabel'      => esc_html__( 'Join my email list', 'jetpack' ),
+		'submitButtonText' => esc_html__( 'Join my email list', 'jetpack' ),
 		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
@@ -42,6 +43,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	foreach ( $defaults as $id => $default ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
 	}
+
+	$values['submitButtonText'] = empty( $values['submitButtonText'] ) ? $defaults['submitButtonText'] : $values['submitButtonText'];
 
 	/* TODO: replace with centralized block_class function */
 	$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
@@ -55,32 +58,57 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	}
 	$classes = implode( $classes, ' ' );
 
+	$button_styles = array();
+	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
+		array_push(
+			$button_styles,
+			sprintf(
+				'background-color: %s',
+				sanitize_hex_color( $attr['customBackgroundButtonColor'] )
+			)
+		);
+	}
+	if ( ! empty( $attr['customTextButtonColor'] ) ) {
+		array_push(
+			$button_styles,
+			sprintf(
+				'color: %s',
+				sanitize_hex_color( $attr['customTextButtonColor'] )
+			)
+		);
+	}
+	$button_styles = implode( $button_styles, ';' );
+
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
-			<form>
-				<input
-					type="email"
-					required
-					placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-				/>
-				<button type="submit" class="components-button is-button is-primary">
-					<?php echo wp_kses_post( $values['submitLabel'] ); ?>
-				</button>
+			<form aria-describedby="wp-block-jetpack-mailchimp_consent-text">
 				<p>
-					<small>
-						<?php echo wp_kses_post( $values['consentText'] ); ?>
-					</small>
+					<input
+						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						required
+						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+						type="email"
+					/>
+				</p>
+				<p>
+					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
+						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
+					</button>
+				</p>
+				<p id="wp-block-jetpack-mailchimp_consent-text" name="wp-block-jetpack-mailchimp_consent-text">
+					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
 			</form>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
 				<?php echo esc_html( $values['processingLabel'] ); ?>
 			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
 				<?php echo esc_html( $values['successLabel'] ); ?>
 			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error">
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
 				<?php echo esc_html( $values['errorLabel'] ); ?>
 			</div>
 		</div>
