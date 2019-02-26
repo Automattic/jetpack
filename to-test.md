@@ -102,6 +102,13 @@ Once you've done that, you should be able to use your contact forms just like be
 
 You will also want to make sure the forms are still working, even when you don't use that feature.
 
+### Plugin Search Hints
+
+Jetpack offers many useful features, so many that it is sometimes hard to remember all of them. From now on, we'll remind you of features that may be useful to you when you search for new plugins under Plugins > Add New in your dashboard. When you look for plugins there, if we think that an existing Jetpack feature may be a good fit for what you are looking for, we'll suggest that you discover, enable, or configure that feature on your site.
+
+To test this, head over to Plugins > Add New and search for plugins similar to some of the things Jetpack offers. You should see a "Jetpack: feature" card appear among the search results. Try to interact with that card (dismiss it, activate the feature, configure it), and see that everything works as expected.
+
+
 ### Others
 
 **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
