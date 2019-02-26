@@ -7,8 +7,6 @@
 
 /**
  * Represents a resizable image, exposing properties necessary for properly generating srcset.
- *
- * @package Automattic\VIP\Files
  */
 class Jetpack_Photon_Image {
 
@@ -179,9 +177,9 @@ class Jetpack_Photon_Image {
 	}
 
 	/**
-	 * Get filename with proper args for the VIP Go File Service.
+	 * Get filename with proper args for the Photon service.
 	 *
-	 * @return string Filename with query args for VIP Go File Service
+	 * @return string Filename with query args for Photon service
 	 */
 	protected function get_resized_filename() {
 		$query_args = array(
