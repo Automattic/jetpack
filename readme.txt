@@ -146,6 +146,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mobile Theme: fix PHP notices when trying to display gallery images.
 * Mobile Theme: fix redirection issues when clicking on the "Desktop version" links.
 * Photon: add paypalobjects.com to the list of banned domains, as this domain already relies on a CDN.
+* Publicize / Subscriptions: do not show message at the top of the editor when creating a private post.
 * Spelling / Grammar: fix error when spellchecking the contents of a Classic block in the block editor.
 * Top Posts: allow fetching posts from a long timeframe when using the `jetpack_top_posts_days` filter.
 * Related Posts: avoid display a dulplicated set of related posts when using the Related Posts block.
