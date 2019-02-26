@@ -427,32 +427,51 @@ class MyPlanBody extends React.Component {
 							</h3>
 							<p>
 								{ __(
-									'Get unlimited access to hundreds of professional themes, a superior search experience for your users, and unlimited high-speed, and ad-free video hosting.'
+									'Get unlimited access to hundreds of professional themes, and customize your site exactly how you like it.'
 								) }
 							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
+								href={ 'https://wordpress.com/themes/' + this.props.siteRawUrl }
+								className="is-primary"
+							>
+								{ __( 'Explore free themes' ) }
+							</Button>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Increase traffic and revenue' ) }
+								{ __( 'Increase traffic to your site' ) }
 							</h3>
 							<p>
 								{ __(
-									'Reach more people and earn money with automated social media scheduling, better search results, SEO preview tools, PayPal payments, and an ad program.'
+									'Reach a wider audience by automatically sharing your posts on social media.'
 								) }
 							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
+								href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
+								className="is-primary"
+							>
+								{ __( 'Connect your social media accounts' ) }
+							</Button>
 						</div>
 
-						{ this.props.showBackups && (
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
-								<p>
-									{ __(
-										'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.'
-									) }
-								</p>
-							</div>
-						) }
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+							<p>
+								{ __(
+									'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
+								) }
+							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_security' ) }
+								href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+								className="is-primary"
+							>
+								{ __( 'Set up your site security' ) }
+							</Button>
+						</div>
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
@@ -472,13 +491,20 @@ class MyPlanBody extends React.Component {
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Enjoy priority support' ) }
+								{ __( 'Jetpack offers so much more' ) }
 							</h3>
 							<p>
 								{ __(
-									'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible.'
+									'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
 								) }
 							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
+								href={ '#/plans' }
+								className="is-primary"
+							>
+								{ __( 'Explore Jetpack plans' ) }
+							</Button>
 						</div>
 
 						<p className="jp-landing__plan-features-link">
