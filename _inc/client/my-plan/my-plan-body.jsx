@@ -40,7 +40,7 @@ class MyPlanBody extends React.Component {
 
 	trackPlansClick = target => {
 		analytics.tracks.recordJetpackClick( {
-			page: 'plans',
+			page: 'my-plan',
 			target: target,
 			plan: this.props.plan,
 		} );
