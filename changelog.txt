@@ -2,6 +2,24 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.0.1 =
+
+* Release date: February 14, 2019
+* Release post: https://wp.me/p1moTy-eFX
+
+**Improved compatibility**
+
+* Publicize: update LinkedIn connections to use newer API, anticipating changes with LinkedIn's API v1 on March 1st.
+* Publicize: display a message inviting site owners to reconnect their site to their LinkedIn profile.
+* Publicize: remove section in Settings > Sharing in the dashboard.
+
+**Bug fixes**
+
+* Tiled Galleries: avoid errors when converting a tiled gallery into a block.
+* Security: ensure json_encode()d data safely output to the page.
+* Shortlinks: do not show Jetpack Sidebar in the block editor if Shortlinks are not available.
+* Sync: avoid errors in WordPress' code editor, for sites using PHP 7 with `fastcgi_finish_request` enabled.
+
 = 7.0 =
 
 * Release date: February 05, 2019
@@ -53,7 +71,7 @@
 
 = 6.9 =
 
-* Release date: January 10, 2018
+* Release date: January 10, 2019
 * Release post: https://wp.me/p1moTy-cEZ
 
 **Major Enhancements**
