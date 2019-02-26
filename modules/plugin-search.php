@@ -246,8 +246,8 @@ class Jetpack_Plugin_Search {
 		return array(
 			'akismet' => array(
 				'name' => 'Akismet',
-				'search_terms' => 'akismet, spam, block',
-				'short_description' => esc_html__( 'Prevent spam and protect you and your site from malicious content.', 'jetpack' ),
+				'search_terms' => 'akismet, anti-spam, antispam, comments, spam, spam protection, form spam, captcha, no captcha, nocaptcha, recaptcha, phising, google',
+				'short_description' => esc_html__( 'Keep your visitors and search engines happy by stopping comment and contact form spam with Akismet.', 'jetpack' ),
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
@@ -262,9 +262,6 @@ class Jetpack_Plugin_Search {
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
-
-		// Never suggest this module.
-		unset( $jetpack_modules_list['plugin-search'] );
 
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
