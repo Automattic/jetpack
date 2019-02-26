@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: improve block registration structure for better management of block availability.
 * Contact Form: Add support for Google's reCAPTCHA feature.
 * General: remove IE8 support fallbacks.
+* Image CDN: add new mode that disables the creation of resized images, thus saving disk space.
 * Instagram: update embed to support Instagram TV URLs.
 * Post Images detection: add support for alt text.
 * Plans: clarify upgrade prompts in the Jetpack dashboard's Plans page.
