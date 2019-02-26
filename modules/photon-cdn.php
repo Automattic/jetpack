@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Asset CDN
- * Module Description: Serve static assets from our servers
+ * Module Description: Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.
  * Sort Order: 26
  * Recommendation Order: 1
  * First Introduced: 6.6
@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
- * Additional Search Queries: photon, image, cdn, performance, speed, assets
+ * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, seo, bandwidth, content delivery network, pagespeed, combine js, optimize css
  */
 
 $GLOBALS['concatenate_scripts'] = false;

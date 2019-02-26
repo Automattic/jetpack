@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: VideoPress
- * Module Description: Fast, ad-free video hosting
+ * Module Description: Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.
  * First Introduced: 2.5
  * Free: false
  * Requires Connection: Yes
  * Sort Order: 27
  * Module Tags: Photos and Videos
  * Feature: Writing
- * Additional Search Queries: video, videos, videopress
+ * Additional Search Queries: video, videos, videopress, video gallery, video player, videoplayer, mobile video, vimeo, youtube, html5 video, stream
  * Plans: business, premium
  */
 
