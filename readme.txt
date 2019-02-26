@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Ads: include search results pages under the `Archive` toggle.
 * Block Editor: improve block registration structure for better management of block availability.
 * General: remove IE8 support fallbacks.
+* Instagram: update embed to support Instagram TV URLs.
 * Post Images detection: add support for alt text.
 * Plans: clarify upgrade prompts in the Jetpack dashboard's Plans page.
 * Related Posts: update block to allow for up to 6 related posts.
