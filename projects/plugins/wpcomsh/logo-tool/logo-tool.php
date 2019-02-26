@@ -45,8 +45,5 @@ function add_logojoy_button( $wp_customize ) {
 			'create' => __( 'Create logo', 'jetpack' ),
 		] );
 	});
-
-echo "<!-- " . print_r( $logo_control->description, true ) . " -->";
-
 }
 add_action( 'customize_register', 'add_logojoy_button', 20 );
