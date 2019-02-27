@@ -261,28 +261,13 @@ class Jetpack_Plugin_Search {
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
 
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
-			$matching_module = null;
-
-			// Record event when user searches for a term
-			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
-
-			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
-			$normalized_term = $this->sanitize_search_term( $args->search );
-
-			$jetpack_modules_list = array_merge( $this->get_extra_features(), $jetpack_modules_list );
-
-			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
-
-			// Try to match a passed search term with module's search terms
-			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-
-				// Whitelist of features to look for
-				if ( ! in_array( $module_opts['module'], array(
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$jetpack_modules_list = array_intersect_key(
+				array_merge( $this->get_extra_features(), Jetpack_Admin::init()->get_modules() ),
+				array_flip( array(
 					'contact-form',
 					'lazy-images',
 					'monitor',
@@ -296,11 +281,21 @@ class Jetpack_Plugin_Search {
 					'vaultpress',
 					'videopress',
 					'search',
-				), true ) ) {
-					continue;
-				}
-				$terms_array = explode( ', ', strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] ) );
-				if ( in_array( $normalized_term, $terms_array ) ) {
+				) )
+			);
+			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
+
+			// Record event when user searches for a term
+			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+
+			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
+			$normalized_term = $this->sanitize_search_term( $args->search );
+
+			$matching_module = null;
+
+			// Try to match a passed search term with module's search terms
+			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
+				if ( false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term ) ) {
 					$matching_module = $module_slug;
 					break;
 				}
