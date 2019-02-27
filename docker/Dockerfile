@@ -17,26 +17,26 @@ RUN \
 		composer \
 		curl \
 		less \
-		libapache2-mod-php7.2 \
+		libapache2-mod-php7.3 \
 		mysql-client \
 		nano \
 		php-apcu \
 		php-xdebug \
-		php7.2 \
-		php7.2-cli \
-		php7.2-curl \
-		php7.2-gd \
-		php7.2-json \
-		php7.2-ldap \
-		php7.2-mbstring \
-		php7.2-mysql \
-		php7.2-opcache \
-		php7.2-pgsql \
-		php7.2-soap \
-		php7.2-sqlite3 \
-		php7.2-xml \
-		php7.2-xsl \
-		php7.2-zip \
+		php7.3 \
+		php7.3-cli \
+		php7.3-curl \
+		php7.3-gd \
+		php7.3-json \
+		php7.3-ldap \
+		php7.3-mbstring \
+		php7.3-mysql \
+		php7.3-opcache \
+		php7.3-pgsql \
+		php7.3-soap \
+		php7.3-sqlite3 \
+		php7.3-xml \
+		php7.3-xsl \
+		php7.3-zip \
 		ssmtp \
 		subversion \
 		sudo \
@@ -51,7 +51,7 @@ RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/build
 	&& chmod +x /usr/local/bin/wp
 
 # Install PHPUnit
-RUN curl https://phar.phpunit.de/phpunit-6.phar -L -o phpunit.phar \
+RUN curl https://phar.phpunit.de/phpunit-7.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
@@ -59,8 +59,8 @@ RUN curl https://phar.phpunit.de/phpunit-6.phar -L -o phpunit.phar \
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
 
 # Copy a default set of settings for PHP (php.ini)
-COPY ./config/php.ini /etc/php/7.2/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./config/php.ini /etc/php/7.2/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.3/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.3/cli/conf.d/20-jetpack-wordpress.ini
 
 # Copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /tmp/htaccess

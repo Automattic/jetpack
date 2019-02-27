@@ -30,7 +30,7 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 	// VVV
 	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
-	// Manual checkout
+	// Manual checkout & Jetpack's docker environment
 	$test_root = '/tmp/wordpress-develop/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
 	// Legacy tests
@@ -114,4 +114,4 @@ function in_running_uninstall_group() {
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/speed-trap-listener.php';
+require $test_root . '/includes/listener-loader.php';
