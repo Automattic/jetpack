@@ -219,10 +219,10 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 
 			foreach ( $members as $member ) {
 				$my_community .= sprintf(
-					'<li><a href="%s" %s><img alt="" src="%s" class="avatar avatar-240" height="48" width="48" originals="240" scale="1" /></a></li>',
-					$member->profile_URL,
-					empty( $member->name ) ? '' : 'title="' . $member->name . '"',
-					$member->avatar_URL
+					'<li><a href="%s" title="%s"><img alt="" src="%s" class="avatar avatar-240" height="48" width="48" originals="240" scale="1" /></a></li>',
+					esc_url( $member->profile_URL ),
+					esc_attr( $member->name ),
+					esc_url( $member->avatar_URL )
 				);
 			}
 
