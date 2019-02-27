@@ -438,7 +438,7 @@ class Jetpack_Plugin_Search {
 
 		$links = array();
 
-		if ( 'akismet' === $plugin['module'] ) {
+		if ( 'akismet' === $plugin['module'] || 'vaultpress' === $plugin['module'] ) {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
