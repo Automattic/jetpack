@@ -9,7 +9,6 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { FEATURE_PRIVATE_JETPACK } from 'lib/plans/constants';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
