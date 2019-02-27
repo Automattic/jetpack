@@ -601,17 +601,15 @@ function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
 	/** This filter is documented in modules/jetpack-likes-settings.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
-	$should_switch_status = $enable_post_likes xor $sitewide_likes_enabled;
-
-	/** This filter is documented in class.json-api-endpoints.php */
-	$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
 
 	if ( $should_switch_status ) {
 		// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
-		update_post_meta( $post_object->ID, 'switch_like_status', $enable_post_likes );
+		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
+		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
 	} else {
 		// unset the meta otherwise
-		delete_post_meta( $post_object->ID, 'switch_like_status' );
+		return delete_post_meta( $post_object->ID, 'switch_like_status' );
 	}
 }
 
@@ -628,6 +626,10 @@ function jetpack_post_likes_register_rest_field() {
 		array(
 			'get_callback' => 'jetpack_post_likes_get_value',
 			'update_callback' => 'jetpack_post_likes_update_value',
+			'schema' => array(
+				'description' => __( 'Are Likes enabled?' ),
+				'type'        => 'boolean'
+			),
 		)
 	);
 }
