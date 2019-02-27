@@ -120,7 +120,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: move Carousel settings from Performance to Writing section.
 * Ads: include search results pages under the `Archive` toggle.
 * Block Editor: improve block registration structure for better management of block availability.
-* Contact Form: Add support for Google's reCAPTCHA feature.
 * General: remove IE8 support fallbacks.
 * General: add feature suggestions to the plugin search screen.
 * Image CDN: add new mode that disables the creation of resized images, thus saving disk space.

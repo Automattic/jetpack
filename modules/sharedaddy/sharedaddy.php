@@ -256,20 +256,14 @@ function sharing_global_resources_save() {
 }
 
 function sharing_email_dialog() {
-
-	if ( ! class_exists( 'Jetpack_ReCaptcha' ) ) {
-		jetpack_require_lib( 'recaptcha' );
-	}
+	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
 	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
 	echo $recaptcha->get_recaptcha_html(); // xss ok
 }
 
 function sharing_email_check( $true, $post, $data ) {
-
-	if ( ! class_exists( 'Jetpack_ReCaptcha' ) ) {
-		jetpack_require_lib( 'recaptcha' );
-	}
+	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
 	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
 	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
