@@ -82,26 +82,6 @@ We aim to port our existing [VideoPress](https://jetpack.com/features/design/vid
 - Try opening an existing post that contains old video blocks. Are they migrated to the new VideoPress-enhanced video blocks?
 - Downgrade to a free plan or, in Jetpack, disable the VideoPress module. What happens when you insert video blocks? What happens to the existing posts containing VideoPress-enhanced video blocks?
 
-### Contact Form
-
-This release brings a change to all Contact Forms; whether you still use the classic editor and its "Add Contact Form" button, the block editor its new Form block, or if you set up your contact form a long time, you now have the option to protect that form using Google's reCAPTCHA feature.
-
-This is not enabled by default though. To test this, you'l need to do the following:
-
-1. Go to [this page](https://www.google.com/recaptcha/intro/v3.html) to set up Google reCAPTCHA for your site.
-2. You will want to set up reCAPTCHA version 2, with the "I'm not a robot" checkbox.
-3. Once you've done so, copy the public and private keys you receive, and add the following to your site's `wp-config.php` file:
-
-```php
-define( 'GRUNION_RECAPTCHA_ENABLED', true );
-define( 'RECAPTCHA_PUBLIC_KEY', 'XXXXXXX' );
-define( 'RECAPTCHA_PRIVATE_KEY', 'XXXXXXX' );
-```
-
-Once you've done that, you should be able to use your contact forms just like before. You'll only notice a new reCAPTCHA form at the bottom of each one of your forms.
-
-You will also want to make sure the forms are still working, even when you don't use that feature.
-
 ### Plugin Search Hints
 
 Jetpack offers many useful features, so many that it is sometimes hard to remember all of them. From now on, we'll remind you of features that may be useful to you when you search for new plugins under Plugins > Add New in your dashboard. When you look for plugins there, if we think that an existing Jetpack feature may be a good fit for what you are looking for, we'll suggest that you discover, enable, or configure that feature on your site.
