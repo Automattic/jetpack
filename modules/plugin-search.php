@@ -251,7 +251,8 @@ class Jetpack_Plugin_Search {
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
-				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/'
+				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/',
+				'configure_url' => admin_url( 'admin.php?page=akismet-key-config' ),
 			),
 		);
 	}
@@ -332,10 +333,21 @@ class Jetpack_Plugin_Search {
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ], $overrides );
 
 				// Add it to the top of the list
-				array_unshift( $result->plugins, $inject );
+				$result->plugins = array( $inject ) + array_filter( $result->plugins, array( $this, 'filter_cards' ) );
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Remove cards for Akismet, Jetpack and VaultPress plugins since we don't want duplicates.
+	 *
+	 * @param array $plugin
+	 *
+	 * @return bool
+	 */
+	function filter_cards( $plugin = array() ) {
+		return ! in_array( $plugin['slug'], array( 'akismet', 'jetpack', 'vaultpress' ), true );
 	}
 
 	/**
@@ -386,31 +398,31 @@ class Jetpack_Plugin_Search {
 	 * Sharing is included here because while we still have a page in WP Admin,
 	 * we prefer to send users to Calypso.
 	 *
-	 * @param string $feature Feature to configure.
-	 * @param string $url     Default URL to configure feature settings.
-	 *
-	 * @since 7.1.0
+	 * @param string $feature
+	 * @param string $configure_url
 	 *
 	 * @return string
+	 * @since 7.1.0
+	 *
 	 */
-	private function get_configure_url( $feature, $url ) {
+	private function get_configure_url( $feature, $configure_url ) {
 		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$url = "https://wordpress.com/sharing/$siteFragment";
+				$configure_url = "https://wordpress.com/sharing/$siteFragment";
 				break;
 			case 'seo-tools':
-				$url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
+				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
 				break;
 			case 'google-analytics':
-				$url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
+				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
 				break;
 			case 'wordads':
-				$url = "https://wordpress.com/ads/settings/$siteFragment";
+				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
 				break;
 		}
-		return esc_url( $url );
+		return esc_url( $configure_url );
 	}
 
 	/**
@@ -426,8 +438,16 @@ class Jetpack_Plugin_Search {
 
 		$links = array();
 
-		// Jetpack installed, active, feature not enabled; prompt to enable.
-		if (
+		if ( 'akismet' === $plugin['module'] ) {
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
+				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="get_started"
+				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
+			// Jetpack installed, active, feature not enabled; prompt to enable.
+		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
