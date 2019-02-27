@@ -1,78 +1,93 @@
-## 7.0
-
-### AMP
-
-Once again we've made some changes to ensure that Jetpack plays well with the AMP plugin. To test, try the following:
-
-* Install the AMP plugin.
-* Switch AMP mode (AMP > General) to `Paired` or `Classic`.
-* Activate the Carousel module, the sharing module, and ensure that `SCRIPT_DEBUG` is set to `false` on your install.
-* Create a post with a gallery
-* Add a Facebook sharing button to that post.
-* Share that post on Facebook once.
-* Comment on one of the images in the gallery.
-* Load the post in a non-AMP view, and in the 3 modes available in the AMP options screen: Native, Paired, Classic. (`Native` mode -  all views are AMP views; `Paired` mode - add `?amp` to get to the AMP view; `Classic` mode - add `/amp` to get to the AMP view)
-	-  **In non-AMP views:** Does the Carousel modal work? Do you see the comment in the Carousel modal? Do you see the sharing buttons? Do you see the counter next to the sharing button? Do you see the `jetpack.css` file when viewing source?
-	- **In AMP views:** you should not see the Carousel. You should see a special styling of the sharing buttons. If you check the network tab in your browser tools, you should see a request to pixel.wp.com when logged out. You should not see a `jetpack.css` file in the source.
-
-In all cases:
-- You should not see any js errors in the browser console.
-- You should not get any PHP notices in your debug log.
-
-Now try adding the following to a functionality plugin on your site:
-
-```php
-add_filter( 'jetpack_implode_frontend_css', '__return_false' );
-add_filter( 'jetpack_sharing_counts', '__return_false' );
-```
-
-Once you've done so, check the non-AMP view again:
-- you should not see the sharing counter on the Facebook button.
-- you should not see the `jetpack.css` file in your source.
+## 7.1
 
 ### Block Editor
 
-This release adds one more block to the list of blocks available in Jetpack. The Gif block will allow you to quickly search and add images to your posts. To test it, load the block editor and search for the new Gif block. You should then be able to search for images using any keyword, choose an image, and add a caption if you want to. The image should be displayed nicely on the front end of your site.
+This release introduces some new blocks we'd like you to test.
 
-### Copy A Post
+#### Ads
 
-This release introduces a brand new feature, "Copy Post". The feature is not activated by default, so you'll need to go Jetpack > Settings, search for the feature, and activate it. Once you've done so, here is how you can test the feature:
+the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages. To use it, you need to purchase a Premium or a Professional plan. Once you have one, you can turn on the Ads feature under Jetpack > Settings > Traffic in your dashboard. Once you've done so, try the following:
 
-- Create a test post that has the following: title, content, except, featured image, post format, categories, and tags (be sure the theme supports Post Formats, like Twenty Seventeen; Twenty Nineteen does not).
-- From `/wp-admin/edit.php`, hover over the test post and then click Copy.
-- Verify the draft post that loads contains all of the data from the existing post.
-- Publish, and verify all information was saved without errors.
-- Repeat the same with pages and a custom post type.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Make sure the ads are displayed properly on your site.
 
-### Google+
+#### Business Hours
 
-As you may know, Google+ will be shut down in April 2019. Google reported that intermittent service failures may begin as soon as January 28. We've consequently opted to deprecate the Google+ features of Jetpack in this release. 4 different features are impacted by the changes:
+The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site. To test it, try the following:
 
-#### Publicize
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add Opening Hours for some days, and not for others. Ensure that the block looks good in the editor and on the site's frontend.
+- Set the business to be closed on some days and open on hours. Does everything work?
+- Make sure the block works regardless of your site's language.
 
-If you go to Settings > Sharing in your dashboard, or try to publish a new post on a site you had previously connected to Google+, you will now see a notice in the Publicize settings, to let you know about the upcoming change. In Settings > Sharing, you should not be able to create a new connection anymore.
+#### Contact Info
 
-#### Sharing
+The Contact Info block is a great block to go along the Business Hours block. You can use it to list your business' address, phone number, and email address, in a format recognizable by Google and other search engines. To test it, try the following:
 
-The Google+ sharing button will not be displayed on Jetpack sites anymore.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add some information, use all the child blocks or only some of them. You can also reorder them around.
+- Make sure every information and every link works well in the editor and on your site.
+- Once you're happy with the result, make sure the page does not throw any warnings in [this Google Structured data tool](https://search.google.com/structured-data/testing-tool).
 
-- If you had not added a Google+ button to your site before, you won't see the option to add one to your site anymore. Under Settings > Sharing, you will not see any Google+ option.
-- If you had added a Google+ button to your site in the past, you will see a new button instead, when you are logged in to your admin account. That button will invite you to remove that deprecated service from your site. Your readers, however, won't see anything.
+#### Mailchimp
 
-#### Shortcodes
+The Mailchimp block allows you to insert Mailchimp subscription forms anywhere in your posts and pages. To test this, you will need [a Mailchimp account](https://mailchimp.com/), and an email list in that account. The block will be used by your readers to add themselves to that list, that you can later use to contact your subscribers.
 
-Jetpack used to offer a Google+ embed solution. We now only display a link to the Google+ post instead, for posterity. To test this, you can try adding the following to a post on your site:
+Once you have that, try the following:
 
-- Add `https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7` on its own line.
-- Add a `[googleplus url=https://plus.google.com/106672383817838331060/posts/ddyLLrp2mw7]` shortcode on its own line.
-- Preview the post. You should see two clickable URLs each in their own paragraph tag.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try modifying button text and description.
+- Try subscribing to a mailing list – can you see the email at your list over at Mailchimp.com?
+- Try inserting multiple instances of the block.
+- Try testing on a variety of screen sizes, and devices if possible, both in the editor and theme -side.
+- Try changing a theme (feel free to test a few different ones)
+- Try adding block as a contributor level user
+- Test how the block looks like from RSS feed or in Jetpack subscription emails
+- Test on mobile
+- Test how the block works as a “reusable block”.
 
-#### Widgets
+#### Related Posts
 
-Jetpack also offered a Google+ Badge widget. If you used such a widget on your site, we will remove it from your sidebar for you. To test this, try the following:
+The Related Posts block isn't new, but we've made some changes to how it works and would appreciate your eyes on this. Try adding the block to one of your site, and try playing with the number of posts listed in the block. You can now add up to 6 related posts! Make sure that works well.
 
-- On the stable version of Jetpack, add a Google+ Widget to your sidebar. You can use `https://plus.google.com/+JeremyHerve` as a "Person" URL, or `https://plus.google.com/communities/101504763068635549461` as a "Community" URL. The widgets should work just fine.
-- Update to the Beta version; the widgets should be gone.
+#### Slideshows
+
+Slideshows are often a nice alternative to galleries, and have long been part of Jetpack, alongside Tiled Galleries. We're now bringing that option to the block editor, with a brand new block! You can test it like so:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try adding images of different aspect ratios.
+- Try different options, both from the block toolbar, and the sidebar. Verify that each change works like it should. After modifying options, update the post and verify that the saved content on the frontend works and looks like expected.
+	- Change the transition effect
+	- Change the number of images
+	- Change captions (add links)
+- Add new images by uploading using the upload-button, dragging over the gallery and from the Media library using the pen-icon from the toolbar. Try removing images, too.
+- Try converting the block to a regular gallery and images.
+- Try inserting multiple instances of the block and resize the editor either by resizing the browser window, toggling Gutenberg sidebar on/off or changing the orientation of a mobile device.
+
+#### VideoPress
+
+We aim to port our existing [VideoPress](https://jetpack.com/features/design/video-hosting/) functionality into the video block. We're still working hard on this, but we've made some changes to the existing **Video Block** in WordPress to start supporting VideoPress videos. To test this, try the following:
+
+- On a site using a free Jetpack plan, go to Media > Library and upload a few small videos.
+- Purchase a Premium or a Professional plan.
+- Go to Jetpack > Settings and toggle the "Enable high-speed, ad-free video player" option.
+- Go to Media > Library and try uploading more videos. You should notice that they will be uploaded to VideoPress at this point.
+- Go to Posts > Add New and try to insert Video Blocks. In the media picker, try picking the videos you uploaded before you purchased a plan, and then try with a VideoPress video.
+- Try editing the blocks. Are you able to upload or select a different video?
+- Try opening an existing post that contains old video blocks. Are they migrated to the new VideoPress-enhanced video blocks?
+- Downgrade to a free plan or, in Jetpack, disable the VideoPress module. What happens when you insert video blocks? What happens to the existing posts containing VideoPress-enhanced video blocks?
+
+### Plugin Search Hints
+
+Jetpack offers many useful features, so many that it is sometimes hard to remember all of them. From now on, we'll remind you of features that may be useful to you when you search for new plugins under Plugins > Add New in your dashboard. When you look for plugins there, if we think that an existing Jetpack feature may be a good fit for what you are looking for, we'll suggest that you discover, enable, or configure that feature on your site.
+
+To test this, head over to Plugins > Add New and search for plugins similar to some of the things Jetpack offers. You should see a "Jetpack: feature" card appear among the search results. Try to interact with that card (dismiss it, activate the feature, configure it), and see that everything works as expected.
+
 
 ### Others
 

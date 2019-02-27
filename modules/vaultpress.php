@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Data Backups
- * Module Description: Off-site backups, security scans, and automatic fixes.
+ * Module Description: Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false
@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Feature: Security, Health
- * Additional Search Queries: vaultpress, backup, security
+ * Additional Search Queries: backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );

@@ -175,6 +175,9 @@ function jetpack_og_tags() {
 		if ( ! empty( $image_info['height'] ) ) {
 			$tags['og:image:height'] = (int) $image_info['height'];
 		}
+		if ( ! empty( $image_info['alt_text'] ) ) {
+			$tags['og:image:alt'] = esc_attr( $image_info['alt_text'] );
+		}
 	}
 
 	// Facebook whines if you give it an empty title
@@ -293,6 +296,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
 						$image['width']  = $post_image['src_width'];
 						$image['height'] = $post_image['src_height'];
+					}
+					if ( ! empty( $post_image['alt_text'] ) ) {
+						$image['alt_text'] = $post_image['alt_text'];
 					}
 				}
 			}

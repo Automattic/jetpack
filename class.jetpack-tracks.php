@@ -85,7 +85,7 @@ class JetpackTracking {
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
-		jetpack_tracks_record_event( $user, $event_type, $data );
+		return jetpack_tracks_record_event( $user, $event_type, $data );
 	}
 }
 

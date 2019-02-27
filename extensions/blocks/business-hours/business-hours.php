@@ -37,8 +37,8 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
 	if ( $start_of_week ) {
-		$chunk1              = array_slice( $attributes['days'], 0, $start_of_week );
-		$chunk2              = array_slice( $attributes['days'], $start_of_week );
+		$chunk1             = array_slice( $attributes['days'], 0, $start_of_week );
+		$chunk2             = array_slice( $attributes['days'], $start_of_week );
 		$attributes['days'] = array_merge( $chunk2, $chunk1 );
 	}
 
@@ -50,11 +50,11 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$days_hours = '';
 
 		foreach ( $day['hours'] as $hour ) {
-			if ( empty( $hour['opening'] ) || empty( $hour['closing'] ) ) {
-				continue;
-			}
 			$opening     = strtotime( $hour['opening'] );
 			$closing     = strtotime( $hour['closing'] );
+			if ( ! $opening || ! $closing ) {
+				continue;
+			}
 			$days_hours .= sprintf(
 				/* Translators: Business opening hours info. */
 				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),

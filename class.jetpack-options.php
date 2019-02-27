@@ -94,6 +94,7 @@ class Jetpack_Options {
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
+			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 		);
 	}
 
