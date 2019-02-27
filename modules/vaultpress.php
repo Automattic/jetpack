@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Backups and Scanning
- * Module Description: Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location. Anti-virus, malware, and threat detection for your WordPress site, with automated resolution.
+ * Module Description: Protect your site with daily or real-time backups and automated virus scanning and threat detection.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false
