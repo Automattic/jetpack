@@ -37,8 +37,8 @@ function jetpack_business_hours_render( $attributes, $content ) {
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
 	if ( $start_of_week ) {
-		$chunk1              = array_slice( $attributes['days'], 0, $start_of_week );
-		$chunk2              = array_slice( $attributes['days'], $start_of_week );
+		$chunk1             = array_slice( $attributes['days'], 0, $start_of_week );
+		$chunk2             = array_slice( $attributes['days'], $start_of_week );
 		$attributes['days'] = array_merge( $chunk2, $chunk1 );
 	}
 
