@@ -77,9 +77,8 @@
 	&.is-compact {
 		padding: rem( 7px );
 		color: darken( $gray, 10% );
-		font-size: rem( 11px );
+		font-size: rem( 12px );
 		line-height: 1;
-		text-transform: uppercase;
 
 		&:disabled {
 			color: lighten( $gray, 30% );
@@ -113,15 +112,12 @@
 	}
 }
 
-// if JITM appears directly below WordPress "help" menu adjust margins
-#screen-meta-links+.jitm-card {
-	margin: rem( 40px ) 1.5385em 0 auto;
-}
 
 .jitm-card {
 	display: block;
+	clear: both;
 	position: relative;
-	margin: rem( 16px ) 0 0 auto;
+	margin: rem( 48px ) rem( 20px ) 0 auto;
 	padding: rem( 16px );
 	box-sizing: border-box;
 	background: $white;
@@ -150,10 +146,25 @@
 	}
 }
 
+// if JITM appears directly below WordPress "help" menu adjust margins
+#screen-meta-links+.jitm-card {
+	margin: rem( 40px ) 1.5385em 0 auto;
+}
+
+// if JITM appears directly below WordPress hello dolly adjust margins
+#dolly+.jitm-card {
+  margin: 3rem 1rem 0 auto;
+}
+
 // remove right margin for jitms in the editor
 .post-php .jitm-card {
 	margin-right: 0;
 }
+
+ // if JITM appears inside of the jetpack dashboard adjust margins
+ .jp-lower .jitm-card {
+   margin: 3rem 0 rem( 24px );
+ }
 
 .jitm-banner.jitm-card {
 	border-left: 4px solid;
@@ -317,6 +328,21 @@
 		line-height: 1.5;
 		margin-top: rem( 6px );
 	}
+
+	.banner__list {
+		font-size: 12px;
+		list-style: none;
+		margin: 10px 0;
+		li {
+			margin: 6px 0;
+			.gridicon {
+				fill: $gray;
+				display: inline;
+				margin-right: 12px;
+				vertical-align: bottom;
+			}
+		}
+	}
 }
 
 .jitm-banner__action {
@@ -384,4 +410,8 @@
 
 .jitm-banner__action + .jitm-banner__dismiss {
 	margin-left: rem( 10px );
+}
+
+#dolly + .jitm-card {
+  margin: 3rem 1rem 0 auto;
 }

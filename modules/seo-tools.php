@@ -2,15 +2,15 @@
 /**
  * Module Name: SEO Tools
  * Module Description: Better results on search engines and social media.
- * Jumpstart Description: Better results on search engines and social media.
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social, Appearance
- * Feature: Traffic, Jumpstart
+ * Feature: Traffic
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
+ * Plans: business, premium
  */
 
 include dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
@@ -22,6 +22,7 @@ $jetpack_seo_conflicting_plugins = array(
 	'wordpress-seo-premium/wp-seo-premium.php',
 	'all-in-one-seo-pack/all_in_one_seo_pack.php',
 	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+	'autodescription/autodescription.php',
 );
 
 foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {

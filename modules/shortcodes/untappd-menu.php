@@ -1,6 +1,7 @@
 <?php
 /**
  * Untappd Shortcodes
+ *
  * @author kraftbj
  *
  * [untappd-menu location="123" theme="123"]
@@ -21,22 +22,25 @@ class Jetpack_Untappd {
 
 	/**
 	 * [untappd-menu] shortcode.
-	 *
 	 */
 	static function menu_shortcode( $atts, $content = '' ) {
 		// Let's bail if we don't have location or theme.
 		if ( ! isset( $atts['location'] ) || ! isset( $atts['theme'] ) ) {
-			if ( current_user_can( 'edit_posts') ){
+			if ( current_user_can( 'edit_posts' ) ) {
 				return __( 'No location or theme ID provided in the untappd-menu shortcode.', 'jetpack' );
 			}
 			return;
 		}
 
 		// Let's apply some defaults.
-		$atts = shortcode_atts( array(
-			'location' => '',
-			'theme'    => '',
-		), $atts, 'untappd-menu' );
+		$atts = shortcode_atts(
+			array(
+				'location' => '',
+				'theme'    => '',
+			),
+			$atts,
+			'untappd-menu'
+		);
 
 		// We're going to clean the user input.
 		$atts = array_map( 'absint', $atts );
@@ -53,7 +57,7 @@ class Jetpack_Untappd {
 		$html .= 't.async=1,a.parentNode.insertBefore(t,a),t.onload=t.onreadystatechange=function(e,a){' . PHP_EOL;
 		$html .= '(a||!t.readyState||/loaded|complete/.test(t.readyState))&&(t.onload=t.onreadystatechange=null,t=void 0,a||n&&n())},' . PHP_EOL;
 		$html .= 't.src=e}("https://embed-menu-preloader.untappdapi.com/embed-menu-preloader.min.js",function(){' . PHP_EOL;
-		$html .= 'PreloadEmbedMenu( "menu-container-untappd-' . $untappd_menu . '",' . $atts["location"] . ',' . $atts["theme"] . ' )});' . PHP_EOL;
+		$html .= 'PreloadEmbedMenu( "menu-container-untappd-' . $untappd_menu . '",' . $atts['location'] . ',' . $atts['theme'] . ' )});' . PHP_EOL;
 		$html .= '</script>';
 
 		$untappd_menu++;

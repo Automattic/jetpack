@@ -109,6 +109,32 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Used to simulate a successful response to any XML-RPC request.
+	 * Should be hooked on the `http_response` filter.
+	 *
+	 * @param array|obj $response HTTP Response.
+	 * @param array     $args     HTTP request arguments.
+	 * @param string    $url      The request URL.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function mock_xmlrpc_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Check response status code.
 	 *
 	 * @since 4.4.0
@@ -613,49 +639,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test connection url build when there's onboarding.
-	 *
-	 * @since 5.4.0
-	 */
-	public function test_build_connect_url_onboarding() {
-
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		wp_set_current_user( $user->ID );
-
-		// Enable connection onboarding
-		$token = Jetpack::create_onboarding_token();
-
-		// Build URL to compare scheme and host with the one in response
-		$admin_url = parse_url( admin_url() );
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection/url' );
-
-		// Format data to test it
-		$response->data = parse_url( $response->data );
-		parse_str( $response->data['query'], $response->data['query'] );
-
-		// Remove nonce for comparing
-		unset( $response->data['query']['_wpnonce'] );
-
-		// The URL was properly built
-		$this->assertResponseData(
-			array(
-				'scheme' => $admin_url['scheme'],
-				'host'   => $admin_url['host'],
-				'path'   => '/wp-admin/admin.php',
-				'query'  =>
-					array(
-						'page'       => 'jetpack',
-						'action'     => 'register',
-						'onboarding' => $token,
-					)
-			), $response
-		);
-	}
-
-	/**
 	 * Test onboarding token and make sure it's a network option.
 	 *
 	 * @since 5.4.0
@@ -801,7 +784,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
-		
+
 		// It should also work correctly with a POST body that is not JSON encoded
 		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
@@ -815,7 +798,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * Here we test three types of settings:
 	 * - module settings
 	 * - module activation state
-	 * - misc setting (holiday snow)
 	 *
 	 * @since 4.6.0
 	 */
@@ -828,7 +810,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
-		update_option( 'jetpack_holiday_snow_enabled', 'letitsnow' );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
@@ -840,10 +821,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'carousel', $response_data );
 		$this->assertTrue( $response_data['carousel'] );
-
-		$this->assertArrayHasKey( 'jetpack_holiday_snow_enabled', $response_data );
-		$this->assertTrue( $response_data['jetpack_holiday_snow_enabled'] );
-
 	}
 
 	/**
@@ -1016,6 +993,51 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Fails because the widget is inactive
 		$this->assertResponseStatus( 404, $response );
+	}
+
+	/**
+	 * Test changing the master user.
+	 *
+	 * @since 6.2.0
+	 */
+	public function test_change_owner() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		$user->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( $user->ID );
+
+		// Mock site already registered
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Attempt change, fail because not master user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
+		$this->assertResponseStatus( 403, $response );
+
+		// Set up user as master user
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+
+		// Attempt owner change with bad user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Attempt owner change to same user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Create another user
+		$new_owner = $this->create_and_get_user( 'administrator' );
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$user->ID => "honey.badger.$user->ID",
+			$new_owner->ID => "honey.badger.$new_owner->ID",
+		) );
+
+		// Change owner to valid user
+		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
+		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 

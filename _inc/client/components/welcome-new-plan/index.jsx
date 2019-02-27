@@ -46,18 +46,22 @@ class WelcomeNewPlan extends Component {
 		};
 
 		// Hide from non-admins
-		if ( ! this.props.newPlanActivated || ! this.props.userCanManageModules || this.state.planWelcomeDismissed ) {
+		if (
+			! this.props.newPlanActivated ||
+			! this.props.userCanManageModules ||
+			this.state.planWelcomeDismissed
+		) {
 			return false;
 		}
 
 		switch ( planClass ) {
-			case 'is-personal-plan' :
+			case 'is-personal-plan':
 				return <WelcomePersonal { ...defaultProps } />;
-			case 'is-premium-plan' :
+			case 'is-premium-plan':
 				return <WelcomePremium { ...defaultProps } />;
-			case 'is-business-plan' :
+			case 'is-business-plan':
 				return <WelcomeProfessional { ...defaultProps } />;
-			default :
+			default:
 				return false;
 		}
 	}
@@ -75,14 +79,14 @@ WelcomeNewPlan.defaultProps = {
 };
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			sitePlan: getSitePlan( state ),
 		};
 	},
-	( dispatch ) => ( {
+	dispatch => ( {
 		dismiss: () => {
 			return dispatch( updateSettings( { show_welcome_for_new_plan: false } ) );
-		}
+		},
 	} )
 )( WelcomeNewPlan );

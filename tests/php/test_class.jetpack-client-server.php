@@ -23,7 +23,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @runInSeparateProcess
 	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
@@ -45,7 +44,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @runInSeparateProcess
 	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
@@ -66,7 +64,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @runInSeparateProcess
 	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
@@ -87,7 +84,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @runInSeparateProcess
 	 * @covers Jetpack_Client_Server::deactivate_plugin
 	 * @since 3.2
 	 */
@@ -101,7 +97,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @runInSeparateProcess
 	 * @covers Jetpack_Client_Server::get_token
 	 * @since 3.2
 	 */

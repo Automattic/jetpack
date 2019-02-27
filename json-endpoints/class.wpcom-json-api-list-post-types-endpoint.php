@@ -108,6 +108,9 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return false;
 		}
 
-		return in_array( $post_type, $featured_content[0]['post_types'] );
+		if ( is_array( $featured_content[0]['post_types'] ) ) {
+			return in_array( $post_type, $featured_content[0]['post_types'] );
+		}
+		return $post_type === $featured_content[0]['post_types'];
 	}
 }

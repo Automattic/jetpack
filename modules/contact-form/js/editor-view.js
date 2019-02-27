@@ -115,6 +115,11 @@
 					$editframe.trigger( 'checkheight' );
 				}, 250 );
 
+				// Add a second timeout for super long forms racing, and to not slow it down for shorter forms unnecessarily.
+				setTimeout( function(){
+					$editframe.trigger( 'checkheight' );
+				}, 500 );
+
 				var $editfields = $editframe.contents().find( '.grunion-fields' ),
 					$buttons = $editframe.contents().find( '.grunion-controls' );
 

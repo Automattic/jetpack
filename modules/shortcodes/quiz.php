@@ -165,24 +165,23 @@ class Quiz_Shortcode {
 
 			$default_atts = self::is_wpcom()
 				? array(
-					'trackid' => '',
+					'trackid'     => '',
 					'a8ctraining' => '',
 				)
 				: array(
 					'trackid' => '',
 				);
 
-
 			self::$quiz_params = shortcode_atts( $default_atts, $atts );
 
-			if ( ! empty( self::$quiz_params[ 'trackid' ] ) ) {
-				$id .= ' data-trackid="' . esc_attr( self::$quiz_params[ 'trackid' ] ) . '"';
+			if ( ! empty( self::$quiz_params['trackid'] ) ) {
+				$id .= ' data-trackid="' . esc_attr( self::$quiz_params['trackid'] ) . '"';
 			}
-			if ( self::is_wpcom() && ! empty( self::$quiz_params[ 'a8ctraining' ] ) ) {
+			if ( self::is_wpcom() && ! empty( self::$quiz_params['a8ctraining'] ) ) {
 				if ( is_null( self::$username ) ) {
 					self::$username = wp_get_current_user()->user_login;
 				}
-				$id .= ' data-a8ctraining="'. esc_attr( self::$quiz_params[ 'a8ctraining' ] ) . '" data-username="' . esc_attr( self::$username ) . '"';
+				$id .= ' data-a8ctraining="' . esc_attr( self::$quiz_params['a8ctraining'] ) . '" data-username="' . esc_attr( self::$username ) . '"';
 			}
 		}
 
@@ -206,15 +205,24 @@ class Quiz_Shortcode {
 		// Add internal parameter so it's only rendered when it has it
 		$content = preg_replace( '/\[(question|answer|wrong|explanation)\]/i', '[$1 quiz_item="true"]', $content );
 		$content = do_shortcode( $content );
-		$content = wp_kses( $content, array(
-			'tt' => array(),
-			'pre' => array(),
-			'strong' => array(),
-			'i' => array(),
-			'br' => array(),
-			'img' => array( 'src' => true),
-			'div' => array( 'class' => true, 'data-correct' => 1, 'data-track-id' => 1, 'data-a8ctraining' => 1, 'data-username' => 1 ),
-		) );
+		$content = wp_kses(
+			$content,
+			array(
+				'tt'     => array(),
+				'pre'    => array(),
+				'strong' => array(),
+				'i'      => array(),
+				'br'     => array(),
+				'img'    => array( 'src' => true ),
+				'div'    => array(
+					'class'            => true,
+					'data-correct'     => 1,
+					'data-track-id'    => 1,
+					'data-a8ctraining' => 1,
+					'data-username'    => 1,
+				),
+			)
+		);
 		return $content;
 	}
 

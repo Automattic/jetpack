@@ -31,6 +31,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_event_storage;
 
 	public function setUp() {
+
+		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
@@ -51,6 +53,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+	}
+
+	public function tearDown() {
+		parent::tearDown();
+		unset( $_SERVER['HTTP_USER_AGENT'] );
 	}
 
 	public function setSyncClientDefaults() {
@@ -104,6 +111,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
 		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
+	}
+
+	function pre_http_request_success() {
+		return array( 'body' => json_encode( array( 'success' => true ) ) );
 	}
 }
 

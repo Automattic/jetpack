@@ -234,7 +234,9 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string       Text with hashed preseravtion placeholders replaced by original text
 	 */
 	protected function do_restore( $text ) {
-		foreach( $this->preserve_text_hash as $hash => $value ) {
+		// Reverse hashes to ensure nested blocks are restored.
+		$hashes = array_reverse( $this->preserve_text_hash, true );
+		foreach( $hashes as $hash => $value ) {
 			$placeholder = $this->hash_maker( $hash );
 			$text = str_replace( $placeholder, $value, $text );
 		}

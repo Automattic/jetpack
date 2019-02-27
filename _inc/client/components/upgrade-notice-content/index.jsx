@@ -6,68 +6,108 @@ import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
 
-class UpgradeNoticeContent extends Component {
-	renderInnerContent() {
-		return (
-			<div>
-				<p>
-					{ __( 'With this release, your contact form just got a bit sweeter. We moved the big old button ' +
-						"right down into your editor's toolbar on the right. Yes, it's a little smaller, but it fits " +
-						"in a bit better, don't you think? Oh and all your forms now have a preview that can be edited " +
-						'all right inside the editor.' ) }
-				</p>
+const UpgradeNoticeContent = withModuleSettingsFormHelpers(
+	class extends Component {
+		componentDidMount() {
+			analytics.tracks.recordEvent( 'jetpack_warm_welcome_view', { version: this.props.version } );
+		}
 
-				<img src={ imagePath + 'cf-ss.png' } alt={ __( 'Contact Form screen shot' ) } />
+		trackLearnMoreClick = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_view_editor',
+				version: this.props.version,
+			} );
+		};
 
-				<p>
-					{ __( "To use it, just open up a post or page to the visual editor. From there, you'll find a button " +
-						'inside the toolbar with an icon that looks a bit like the contact form. It is usually furthest ' +
-						'to the right. Then just click the button and, voila, a contact form has been created!' ) }
-				</p>
+		dismissNotice = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_dismiss',
+				version: this.props.version,
+			} );
 
-				<p>
-					{ __( 'You will likely want to customize it to properly encourage folks to contact you. To do that, ' +
-						"simply select the contact form preview and then click or tap the edit button. It's the one that " +
-						'looks like a pencil.' ) }
-				</p>
+			this.props.dismiss();
+		};
 
-				<div className="jp-dialogue__cta-container">
-					<Button
-						primary={ true }
-						href={ this.props.adminUrl + 'post-new.php' }
-					>
-						{ __( 'Try it out!' ) }
-					</Button>
-
-					<p className="jp-dialogue__note">
-						<a href="https://jetpack.com/?p=22509">{ __( 'Read the full release post' ) }</a>
+		renderInnerContent() {
+			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
+			return (
+				<div className="jp-upgrade-notice__content">
+					<p>
+						{ __( 'The features you rely on, adapted for the new WordPress editor.' ) }
+						<br />
+						{ __( 'A new editor? Yes! {{a}}Learn more{{/a}}.', {
+							components: {
+								a: (
+									<ExternalLink
+										target="_blank"
+										rel="noopener noreferrer"
+										href={ 'https://wp.me/p1moTy-cee' }
+									/>
+								),
+							},
+						} ) }
 					</p>
-				</div>
-			</div>
-		);
-	}
 
-	render() {
-		return (
-			<JetpackDialogue
-				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
-				title={ __( 'A new contact form is here at last!' ) }
-				content={ this.renderInnerContent() }
-				dismiss={ this.props.dismiss }
-			/>
-		);
+					<h2>{ __( 'Build your Jetpack site with blocks' ) }</h2>
+
+					<p>
+						{ __(
+							'Today, we are introducing the first wave of Jetpack-specific blocks built specifically ' +
+								'for the new editor experience: Simple Payment button, Form, Map, and Markdown.'
+						) }
+					</p>
+					<p>
+						<img
+							src={ imagePath + 'block-picker.png' }
+							width="250"
+							alt={ __( 'Jetpack is ready for the new WordPress editor' ) }
+						/>
+					</p>
+					<div className="jp-dialogue__cta-container">
+						<Button primary={ true } href={ blockEditorUrl } onClick={ this.trackLearnMoreClick }>
+							{ __( 'Take me to the new editor' ) }
+						</Button>
+						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
+					</div>
+				</div>
+			);
+		}
+
+		render() {
+			return (
+				// TODO: update SVG?
+				<JetpackDialogue
+					svg={
+						<img
+							src={ imagePath + 'jetpack-gutenberg.svg' }
+							width="250"
+							alt={ __( 'Jetpack is ready for the new WordPress editor' ) }
+						/>
+					}
+					title={ __( 'New in Jetpack!' ) }
+					content={ this.renderInnerContent() }
+					dismiss={ this.dismissNotice }
+				/>
+			);
+		}
 	}
-}
+);
 
 JetpackDialogue.propTypes = {
-	dismiss: PropTypes.func
+	adminUrl: PropTypes.string,
+	dismiss: PropTypes.func,
+	isUnavailableInDevMode: PropTypes.func,
+	version: PropTypes.string,
 };
 
 export default UpgradeNoticeContent;

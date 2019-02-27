@@ -42,7 +42,8 @@ describe( 'NavigationSettings', () => {
 			context: {
 				router: {
 					goBack: () => {},
-					listen: () => {}
+					listen: () => {},
+					getCurrentLocation: () => ( {} ),
 				},
 			},
 			moduleList: []
@@ -211,8 +212,8 @@ describe( 'NavigationSettings', () => {
 
 			describe( 'and a search term is opened', () => {
 				it( 'adds a search term in a query string', () => {
-					instance.doSearch( 'search term' );
-					expect( window.location.hash ).to.be.equal( '#settings?term=search term' );
+					instance.doSearch( 'search-term' );
+					expect( window.location.hash ).to.be.equal( '#settings?term=search-term' );
 				} );
 
 				describe( 'and a search term is deleted', () => {

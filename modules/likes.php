@@ -2,13 +2,12 @@
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
- * Jumpstart Description: Give visitors an easy way to show they appreciate your content.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Feature: Engagement, Jumpstart
+ * Feature: Engagement
  * Additional Search Queries: like, likes, wordpress.com
  */
 
@@ -38,7 +37,10 @@ class Jetpack_Likes {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
 
-		add_action( 'init', array( &$this, 'action_init' ) );
+		// We need to run on wp hook rather than init because we check is_amp_endpoint()
+		// when bootstrapping hooks
+		add_action( 'wp', array( &$this, 'action_init' ), 99 );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
@@ -47,6 +49,7 @@ class Jetpack_Likes {
 
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
+			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
 
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
@@ -123,6 +126,16 @@ class Jetpack_Likes {
 	}
 
 	/**
+	 * Overrides default configuration url
+	 *
+	 * @uses admin_url
+	 * @return string module settings URL
+	 */
+	function jetpack_likes_configuration_url() {
+		return admin_url( 'options-general.php?page=sharing#likes' );
+	}
+
+	/**
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
 	 */
 	function load_jp_css() {
@@ -139,6 +152,20 @@ class Jetpack_Likes {
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}
+	}
+
+
+	/**
+     * Stub for is_post_likeable, since some wpcom functions call this directly on the class
+	 * Are likes enabled for this post?
+     *
+     * @param int $post_id
+     * @return bool
+	 */
+	static function is_post_likeable( $post_id = 0 ) {
+		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
+		$settings = new Jetpack_Likes_Settings();
+		return $settings->is_post_likeable();
 	}
 
 	/**
@@ -162,21 +189,6 @@ class Jetpack_Likes {
 	function configuration_target_area( $html = '' ) {
 		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
 		return $html;
-	}
-
-	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
-	 */
-	function sharing_meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
-		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
-		<p>
-			<label for="wpl_enable_post_sharing">
-				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
-			</label>
-			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> <?php
 	}
 
 	/**
@@ -260,6 +272,10 @@ class Jetpack_Likes {
 			return;
 		}
 
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
 			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
@@ -296,7 +312,16 @@ class Jetpack_Likes {
 			JETPACK__VERSION,
 			false
 		);
-		wp_register_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+		wp_register_script(
+			'jetpack_likes_queuehandler',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/likes/queuehandler.min.js',
+				'modules/likes/queuehandler.js'
+			),
+			array( 'jquery', 'postmessage', 'jetpack_resize' ),
+			JETPACK__VERSION,
+			true
+		);
 	}
 
 	/**
@@ -348,8 +373,24 @@ class Jetpack_Likes {
 	function enqueue_admin_scripts() {
 		if ( empty( $_GET['post_type'] ) || 'post' == $_GET['post_type'] || 'page' == $_GET['post_type'] ) {
 			if ( $this->in_jetpack ) {
-				wp_enqueue_script( 'likes-post-count', plugins_url( 'modules/likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
-				wp_enqueue_script( 'likes-post-count-jetpack', plugins_url( 'modules/likes/post-count-jetpack.js', dirname( __FILE__ ) ), array( 'likes-post-count' ), JETPACK__VERSION );
+				wp_enqueue_script(
+					'likes-post-count',
+					Jetpack::get_file_url_for_environment(
+						'_inc/build/likes/post-count.min.js',
+						'modules/likes/post-count.js'
+					),
+					array( 'jquery' ),
+					JETPACK__VERSION
+				);
+				wp_enqueue_script(
+					'likes-post-count-jetpack',
+					Jetpack::get_file_url_for_environment(
+						'_inc/build/likes/post-count-jetpack.min.js',
+						'modules/likes/post-count-jetpack.js'
+					),
+					array( 'likes-post-count' ),
+					JETPACK__VERSION
+				);
 			} else {
 				wp_enqueue_script( 'jquery.wpcom-proxy-request', "/wp-content/js/jquery/jquery.wpcom-proxy-request.js", array('jquery'), NULL, true );
 				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
@@ -391,7 +432,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /><span class="screen-reader-text">' . __( 'Likes', 'jetpack' ) . '</span></span>';
 		$columns['date'] = $date;
 
 		return $columns;
@@ -515,5 +556,25 @@ class Jetpack_Likes {
 		$wp_admin_bar->add_node( $node );
 	}
 }
+
+/**
+ * Add Likes post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_meta
+ */
+function jetpack_post_likes_register_meta() {
+	register_meta(
+		'post', 'switch_like_status',
+		array(
+			'type'			=> 'boolean',
+			'single'		=> true,
+			'show_in_rest'	=> true,
+		)
+	);
+}
+
+// Add Likes post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_likes_register_meta' );
 
 Jetpack_Likes::init();

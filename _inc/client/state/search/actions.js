@@ -1,15 +1,13 @@
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SEARCH_TERM
-} from 'state/action-types';
+import { JETPACK_SEARCH_TERM } from 'state/action-types';
 
-export const filterSearch = ( term ) => {
-	return ( dispatch ) => {
+export const filterSearch = term => {
+	return dispatch => {
 		dispatch( {
 			type: JETPACK_SEARCH_TERM,
-			term: term
+			term: term,
 		} );
 	};
 };

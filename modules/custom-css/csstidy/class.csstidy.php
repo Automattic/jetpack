@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -241,6 +240,7 @@ class csstidy {
 	 * @var string
 	 */
 	public $tokens_list = "";
+
 	/**
 	 * Loads standard template and sets default settings
 	 * @access private
@@ -283,6 +283,10 @@ class csstidy {
 		$this->optimise = new csstidy_optimise($this);
 
 		$this->tokens_list = & $GLOBALS['csstidy']['tokens'];
+	}
+
+	function csstidy() {
+		$this->__construct();
 	}
 
 	/**
@@ -851,7 +855,7 @@ class csstidy {
 						$this->str_char[] = $string{$i} == "(" ? ")" : $string{$i};
 						$this->from[] = 'instr';
 						$this->quoted_string[] = !($string{$i} === "(");
-						continue;
+						continue 2;
 					}
 
 					if ($_str_char !== ")" && ($string{$i} === "\n" || $string{$i} === "\r") && !($string{$i - 1} === '\\' && !csstidy::escaped($string, $i - 1))) {
@@ -1023,7 +1027,7 @@ class csstidy {
 			return $media;
 		}
 		end($this->css);
-		list($at,) = each($this->css);
+		$at = current( $this->css );
 		if ($at == $media){
 			return $media;
 		}
@@ -1062,7 +1066,7 @@ class csstidy {
 
 			// if last is the same, keep it
 			end($this->css[$media]);
-			list($sel,) = each($this->css[$media]);
+			$sel = current( $this->css[$media] );
 			if ($sel == $selector){
 				return $selector;
 			}

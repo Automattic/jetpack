@@ -5,7 +5,6 @@
 // the proxy to send the X-Forwarded-Port header.
 defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
-defined( 'JETPACK__WPCOM_JSON_API_HOST' )  or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
 class Jetpack_Signature {
 	public $token;
@@ -37,6 +36,10 @@ class Jetpack_Signature {
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
 
+		/**
+		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Please update the test if any changes are made in this logic.
+		 */
 		if ( is_ssl() ) {
 			// 443: Standard Port
 			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
@@ -162,10 +165,6 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
 		}
 
-		if ( $parsed['host'] === JETPACK__WPCOM_JSON_API_HOST ) {
-			$parsed['host'] = 'public-api.wordpress.com';
-		}
-
 		if ( !empty( $parsed['port'] ) ) {
 			$port = $parsed['port'];
 		} else {
@@ -204,6 +203,17 @@ class Jetpack_Signature {
 		);
 
 		$normalized_request_pieces = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
+		$flat_normalized_request_pieces = array();
+		foreach ($normalized_request_pieces as $piece) {
+			if ( is_array( $piece ) ) {
+				foreach ( $piece as $subpiece ) {
+					$flat_normalized_request_pieces[] = $subpiece;
+				}
+			} else {
+				$flat_normalized_request_pieces[] = $piece;
+			}
+		}
+		$normalized_request_pieces = $flat_normalized_request_pieces;
 
 		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
 
@@ -230,12 +240,23 @@ class Jetpack_Signature {
 		return $pairs;
 	}
 
-	function encode_3986( $string ) {
-		$string = rawurlencode( $string );
-		return str_replace( '%7E', '~', $string ); // prior to PHP 5.3, rawurlencode was RFC 1738
+	function encode_3986( $string_or_array ) {
+		if ( is_array( $string_or_array ) ) {
+			return array_map( array( $this, 'encode_3986' ), $string_or_array );
+		}
+
+		$string_or_array = rawurlencode( $string_or_array );
+		return str_replace( '%7E', '~', $string_or_array ); // prior to PHP 5.3, rawurlencode was RFC 1738
 	}
 
 	function join_with_equal_sign( $name, $value ) {
+		if ( is_array( $value ) ) {
+			$result = array();
+			foreach ( $value as $array_key => $array_value ) {
+				$result[] = $name . '[' . $array_key . ']' . '=' . $array_value;
+			}
+			return $result;
+		}
 		return "{$name}={$value}";
 	}
 }

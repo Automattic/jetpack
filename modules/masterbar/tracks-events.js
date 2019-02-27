@@ -1,4 +1,4 @@
-/*globals JSON */
+/*globals jQuery, JSON */
 ( function( $ ) {
 	var eventName = 'masterbar_click';
 
@@ -14,6 +14,7 @@
 		'wp-admin-bar-blog-info'                   : 'my_sites_blog_info',
 		'wp-admin-bar-site-view'                   : 'my_sites_view_site',
 		'wp-admin-bar-blog-stats'                  : 'my_sites_blog_stats',
+		'wp-admin-bar-activity'                    : 'my_sites_activity',
 		'wp-admin-bar-plan'                        : 'my_sites_plan',
 		'wp-admin-bar-plan-badge'                  : 'my_sites_plan_badge',
 		//my sites - manage
@@ -97,7 +98,7 @@
 			'#wp-admin-bar-user-info .ab-item,' +
 			'.mb-trackable .ab-secondary';
 
-			$( trackableLinks ).on( 'click touchstart', function( e ) {
+		$( trackableLinks ).on( 'click touchstart', function( e ) {
 			if ( ! window.jpTracksAJAX || 'function' !== typeof( window.jpTracksAJAX.record_ajax_event ) ) {
 				return;
 			}
@@ -105,7 +106,11 @@
 			var $target = $( e.target ),
 					$parent = $target.closest( 'li' );
 
-			if ( ! $parent ) {
+			if ( ! $target.is( 'a' ) ) {
+				$target = $target.closest( 'a' );
+			}
+
+			if ( ! $parent || ! $target ) {
 				return;
 			}
 
@@ -133,7 +138,7 @@
 			return;
 		}
 
-		var event = ! e.data && e.originalEvent.data ? e.originalEvent : event;
+		var event = ! e.data && e.originalEvent.data ? e.originalEvent : e;
 		if ( event.origin !== 'https://widgets.wp.com' ) {
 			return;
 		}

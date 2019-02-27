@@ -61,7 +61,7 @@ function create_release_gitignore {
 
 # Remove stuff from .svnignore for releases
 function modify_svnignore {
-    awk '!/.eslintrc/' .svnignore > temp && mv temp .svnignore
+    awk '!/.eslintrc.js/' .svnignore > temp && mv temp .svnignore
     awk '!/.eslintignore/' .svnignore > temp && mv temp .svnignore
     git commit .svnignore -m "Updated .svnignore"
 }
@@ -204,9 +204,14 @@ hash yarn 2>/dev/null || {
     exit 1;
 }
 
+# Start clean by removing previously installed dependencies and built files
 yarn run distclean
+yarn run clean-client
+# Clean yarn's cache
 yarn cache clean
+# Install dependencies
 yarn
+# Build the Admin Page
 NODE_ENV=production yarn run build-client
 echo "Done"
 

@@ -77,7 +77,10 @@ class Jetpack_Google_Analytics_Legacy {
 		if ( is_404() ) {
 			// This is a 404 and we are supposed to track them.
 			$custom_vars[] = "_gaq.push(['_trackEvent', '404', document.location.href, document.referrer]);";
-		} elseif ( is_search() ) {
+		} elseif (
+			is_search()
+			&& isset( $_REQUEST['s'] )
+		) {
 			// Set track for searches, if it's a search, and we are supposed to.
 			$track['data'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // Input var okay.
 			$track['code'] = 'search';
@@ -102,22 +105,19 @@ class Jetpack_Google_Analytics_Legacy {
 		$custom_vars = apply_filters( 'jetpack_wga_classic_custom_vars', $custom_vars );
 
 		// Ref: https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingEcommerce#Example
-		$async_code = "<!-- Jetpack Google Analytics -->
+		printf(
+			"<!-- Jetpack Google Analytics -->
 			<script type='text/javascript'>
 				var _gaq = _gaq || [];
-				%custom_vars%
-
+				%s
 				(function() {
 					var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-					ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+					ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 				})();
-			</script>";
-
-		$custom_vars_string = implode( "\r\n", $custom_vars );
-		$async_code = str_replace( '%custom_vars%', $custom_vars_string, $async_code );
-
-		echo "$async_code\r\n";
+			</script>\r\n",
+			implode( "\r\n", $custom_vars )
+		);
 	}
 
 	/**

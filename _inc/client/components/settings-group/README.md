@@ -11,7 +11,13 @@ var SettingsGroup = require( 'components/settings-group' );
 
 render: function() {
 	return (
-		<SettingsGroup hasChild support={ this.props.getModule( 'related-posts' ).learn_more_button }>
+		<SettingsGroup
+			hasChild
+			support={
+				text: 'A short explanation about the feature.',
+				link: 'https://jetpack.com/support/feature-doc',
+			}
+			>
 			<FormFieldset>
 				// form elements
 			</FormFieldset>

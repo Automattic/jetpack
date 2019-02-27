@@ -53,6 +53,10 @@ class Jetpack_Options {
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
 				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
+				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
+				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
+				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
+				'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 			);
 
 		case 'private' :
@@ -89,6 +93,8 @@ class Jetpack_Options {
 			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
+			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
+			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 		);
 	}
 
@@ -190,9 +196,9 @@ class Jetpack_Options {
 
 		if ( false === $value && false !== $default ) {
 			if ( $is_network_option ) {
-				update_site_option( $name, $default );
+				add_site_option( $name, $default );
 			} else {
-				update_option( $name, $default );
+				add_option( $name, $default );
 			}
 			$value = $default;
 		}
@@ -533,6 +539,10 @@ class Jetpack_Options {
 			'jetpack_sso_require_two_step',
 			'jetpack_sso_remove_login_form',
 			'jetpack_last_connect_url_check',
+			'jpo_business_address',
+			'jpo_site_type',
+			'jpo_homepage_format',
+			'jpo_contact_page',
 		);
 	}
 

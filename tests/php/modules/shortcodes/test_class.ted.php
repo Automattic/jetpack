@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Ted_External extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world.html', $shortcode_content );
+		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}

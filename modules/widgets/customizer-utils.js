@@ -1,4 +1,4 @@
-/* global gapi, FB, twttr */
+/* global wp, gapi, FB, twttr, PaypalExpressCheckout */
 
 /**
  * Utilities to work with widgets in Customizer.
@@ -56,6 +56,24 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					// Refresh Twitter
 					else if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
 						twttr.widgets.load( placement.container[0] );
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'eu_cookie_law_widget' ) ) {
+						// Refresh EU Cookie Law
+						if ( $( '#eu-cookie-law' ).hasClass( 'top' ) ) {
+							$( '.widget_eu_cookie_law_widget' ).addClass( 'top' );
+						} else {
+							$( '.widget_eu_cookie_law_widget' ).removeClass( 'top' );
+						}
+						placement.container.fadeIn();
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
+						// Refresh Simple Payments Widget
+						try {
+							var buttonId = $( '.jetpack-simple-payments-button', placement.container ).attr( 'id' ).replace( '_button', '' );
+							PaypalExpressCheckout.renderButton( null, null, buttonId, null );
+						} catch ( e ) {
+							// PaypalExpressCheckout may fail.
+							// For the same usage, see also:
+							// https://github.com/Automattic/jetpack/blob/6c1971e6bed7d3df793392a7a58ffe0afaeeb5fe/modules/simple-payments/simple-payments.php#L111
+						}
 					}
 				}
 			} );
@@ -63,14 +81,15 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 			// Refresh widgets when they're moved.
 			wp.customize.selectiveRefresh.bind( 'partial-content-moved', function( placement ) {
 				if ( placement.container ) {
-
 					// Refresh Twitter timeline iframe, since it has to be re-built.
 					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length ) {
+						placement.partial.refresh();
+					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
+						// Refresh Simple Payments Widget
 						placement.partial.refresh();
 					}
 				}
 			} );
 		}
-	});
-
-})(jQuery);
+	} );
+} )( jQuery );

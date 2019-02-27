@@ -23,7 +23,7 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 		}
 
 		return array(
-			'user' => (array)$user,
+			'user' => $user->to_array(),
 			'meta' => get_user_meta( $user->ID ),
 		);
 	}

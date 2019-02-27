@@ -51,7 +51,18 @@ function sharing_email_send_post( $data ) {
 	// Make sure to pass the title through the normal sharing filters.
 	$title = $data['sharing_source']->get_share_title( $data['post']->ID );
 
-	wp_mail( $data['target'], '[' . __( 'Shared Post', 'jetpack' ) . '] ' . $title, $content, $headers );
+	/**
+	 * Filter the Sharing Email Send Post Subject.
+	 *
+	 * @module sharedaddy
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $var Sharing Email Send Post Subject. Default is "Shared Post".
+	 */
+	$subject = apply_filters( 'wp_sharing_email_send_post_subject', '[' . __( 'Shared Post', 'jetpack' ) . '] ' . $title );
+
+	wp_mail( $data['target'], $subject, $content, $headers );
 }
 
 
@@ -132,7 +143,7 @@ function sharing_add_meta_box() {
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
 	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default' );
 		}
 	}
 }
@@ -211,7 +222,7 @@ function sharing_plugin_settings( $links ) {
 function sharing_add_plugin_settings($links, $file) {
 	if ( $file == basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ) ) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
-		$links[] = '<a href="http://support.wordpress.com/sharing/" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
+		$links[] = '<a href="http://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
 
 	return $links;
@@ -264,6 +275,7 @@ function sharing_email_check( $true, $post, $data ) {
 add_action( 'init', 'sharing_init' );
 add_action( 'add_meta_boxes', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
+add_action( 'edit_attachment', 'sharing_meta_box_save' );
 add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );

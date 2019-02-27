@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -74,6 +73,10 @@ class csstidy_print {
 		$this->charset = & $css->charset;
 		$this->import = & $css->import;
 		$this->namespace = & $css->namespace;
+	}
+
+	function csstidy_print(&$css) {
+		$this->__construct($css);
 	}
 
 	/**
@@ -197,7 +200,6 @@ class csstidy_print {
 				$output .= $template[0] . '@import ' . $template[5] . $this->import[$i] . $template[6];
 			}
 		}
-
 		if (!empty($this->namespace)) {
 			if (substr($this->namespace, 0, 4) === 'url(' && substr($this->namespace, -1, 1) === ')') {
 				$this->namespace = '\'' . substr($this->namespace, 4, -1) . '\'';

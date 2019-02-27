@@ -27,5 +27,4 @@ class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$this->user_token = sanitize_text_field( $input[ 'user_token'] );
 		return parent::validate_input( $user_id );
 	}
-
 }

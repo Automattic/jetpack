@@ -35,8 +35,14 @@ function jetpack_get_module_i18n( $key ) {
 
 			'contact-form' => array(
 				'name' => _x( 'Contact Form', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Insert a customizable contact form anywhere on your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add a customizable contact form to any post or page using the Jetpack Form Block.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' ),
+			),
+
+			'copy-post' => array(
+				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Copy an existing post\'s content into a new draft post', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Copy an existing post\'s content into a new draft post', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -82,13 +88,13 @@ function jetpack_get_module_i18n( $key ) {
 
 			'lazy-images' => array(
 				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Improve performance by loading images just before they scroll into view', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Lazy-loading images improve your site\'s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'manage' => array(
@@ -114,7 +120,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'monitor' => array(
 				'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -123,9 +129,14 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
 			),
 
+			'photon-cdn' => array(
+				'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.', 'Module Description', 'jetpack' ),
+			),
+
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Speed up images and photos', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -136,12 +147,12 @@ function jetpack_get_module_i18n( $key ) {
 
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Block suspicious-looking sign in activity', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
 				'name' => _x( 'Publicize', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.', 'Module Description', 'jetpack' ),
 			),
 
 			'pwa' => array(
@@ -151,25 +162,24 @@ function jetpack_get_module_i18n( $key ) {
 
 			'related-posts' => array(
 				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Increase page views by showing related content to your visitors.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'search' => array(
 				'name' => _x( 'Search', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enhanced search, powered by Elasticsearch', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.', 'Module Description', 'jetpack' ),
 			),
 
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow visitors to share your content.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
+				'description' => _x( 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'shortcodes' => array(
@@ -188,7 +198,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'sso' => array(
-				'name' => _x( 'Single Sign On', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow users to log into this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
@@ -212,7 +222,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'vaultpress' => array(
 				'name' => _x( 'Data Backups', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Off-site backups, security scans, and automatic fixes.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location.', 'Module Description', 'jetpack' ),
 			),
 
 			'verification-tools' => array(
@@ -222,7 +232,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Fast, ad-free video hosting', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
@@ -261,6 +271,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Writing` tag:
 			//  - modules/after-the-deadline.php
+			//  - modules/copy-post.php
 			//  - modules/custom-content-types.php
 			//  - modules/enhanced-distribution.php
 			//  - modules/json-api.php
@@ -272,6 +283,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/shortcodes.php
 			//  - modules/tiled-gallery.php
@@ -298,6 +310,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/infinite-scroll.php
 			//  - modules/lazy-images.php
 			//  - modules/minileven.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/seo-tools.php
 			//  - modules/shortcodes.php
@@ -317,6 +330,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
+			//  - modules/photon-cdn.php
 			//  - modules/photon.php
 			//  - modules/protect.php
 			//  - modules/publicize.php

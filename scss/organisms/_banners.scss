@@ -41,49 +41,77 @@
 // Full Page Connection Banner
 // only show when Jetpack is disconnected
 .jetpack-disconnected {
-
 	.jp-connect-full__container {
 		box-sizing: border-box;
 		position: absolute;
 			top: 0;
 			right: 0;
-			bottom: 0;
+			bottom: rem( 20px );
 			left: 0;
-		z-index: 9999; // to sit over other elements
-		background: rgba($gray-light, .95);
+		z-index: 999; // to sit over other elements
+		background: rgb( 241, 241, 241 );
 		text-align: center;
-		padding: rem( 32px );
+
+		.jp-connect-full__container-card {
+			padding: rem( 48px ) rem( 64px ) rem( 96px );
+			background: white;
+			margin: 1em;
+
+				img.jetpack-logo {
+					width: 160px;
+				}
+
+				img.support-characters {
+					margin-top: rem( 24px );
+					width: 50%;
+				}
+		}
+
+		h4 {
+			line-height: 1.25;
+			font-size: rem( 22px );
+			font-weight: normal;
+			margin: 1em 0;
+		}
 
 		@include minbreakpoint(tablet) {
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
+
+	}
+
+	// Full page connection banner in the Jetpack dashboard.
+	&.toplevel_page_jetpack .jp-connect-full__container {
+		position: relative;
+		bottom: 0;
+		box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
+			0 1px 2px lighten( $gray, 30% );
+
+		.jp-connect-full__container-card {
+			margin: 0;
+		}
+
+		@include minbreakpoint(tablet) {
+			left: 0;
+		};
+
+		@include breakpoint(tablet) {
+			top: 46px;
+		};
+
+		// hide the notice by default. Only display it when it is injected in the middle of the page.
+		display: none;
+	}
+
+	// Only display the banner when it is injected in the middle of the page.
+	&.toplevel_page_jetpack .jp-jetpack-connect__container {
+		.jp-connect-full__container {
+			display: block;
+		}
 	}
 }
 
-// Planet + star svgs for decoration only
-.jp-connect-full__svg-jupiter {
-	position: absolute;
-		right: 0;
-		top: rem( 80px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
-}
-
-.jp-connect-full__svg-stars {
-	position: absolute;
-		left: rem( 100px );
-		top: rem( 100px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
-}
-
-// dismiss 
+// dismiss
 .jp-connect-full__svg-dismiss {
 	position: absolute;
 		right: 0;
@@ -98,85 +126,49 @@
 	};
 }
 
-.jp-connect-full__step-header-logos {
-	display: flex;
-	align-items: center;
-	flex-direction: row;
-	justify-content: center;
-
-	.jp-connect-full__svg-jetpack,
-	.jp-connect-full__svg-jetpack {
-		fill: $gray;
-	}
-
-	.jp-connect-full__svg-sync {
-		fill: $gray-dark;
-		margin: 0 rem( 16px );
-	}
-
-	@include breakpoint(phablet) {
-			padding-top: rem( 32px );
-	};
-}
-
-.jp-connect-full__step-header-title {
-	padding: rem( 16px );
-	font-size: rem( 24px );
-	line-height: 1.25;
-	color: $gray-dark;
-	font-weight: 400;
-}
-
-.jp-connect-full__card {
-	padding: 0;
+.jp-connect-full__step-header {
+	max-width: 700px;
 	margin: 0 auto;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-	background: $white;
-	max-width: rem( 550px );
-}
+	line-height: 1.5;
 
-.jp-connect-full__card-inner {
-	padding: rem( 16px );
-}
+	h2 {
+		margin: rem( 24px ) 0 0;
+		font-size: rem( 22px );
+		font-weight: bold;
+		color: black;
+	}
 
-.jp-connect-full__card-description {
-	font-size: rem( 14px );
-	color: $gray-dark;
-}
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
 
-.jp-connect-full__card-footer {
-	background: $gray-light;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	&.bottom {
+		margin-top: rem( 80px );
+	}
 }
-
 .jp-connect-full__tos-blurb {
 	font-size: rem( 11px );
-	margin: 0 auto rem( 16px );
-	max-width: rem( 385px );
-	color: $gray-dark;
-}
-
-.jp-connect-full__tos-a {
-	text-decoration: none;
-	color: $blue-wordpress;
+	margin: 0 auto rem( 24px );
+	color: $gray-text-min;
+	a{
+		text-decoration: none;
+		color: $green-primary;
+	}
 }
 
 .jp-connect-full__button-container {
 	margin: 0;
-}
+	.dops-button.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;
 
-.jp-connect-full__help-button {
-	display: inline-block;
-	text-decoration: none;
-	color: $gray;
-	padding: rem( 16px );
-
-	.gridicon {
-		width: rem( 18px );
-		height: rem( 18px );
-		position: relative;
-		top: 4px;
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
 	}
 }
 
@@ -184,8 +176,83 @@
 	cursor: pointer;
 }
 
+.jp-connect-full__dismiss-paragraph {
+	font-size: .6875rem;
 
-// Plugin List Connection Banners
+	a {
+		cursor: pointer;
+		color: $gray-text-min;
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+}
+
+.jp-connect-full__slide {
+	max-width: 750px;
+	margin: 4em auto;
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+
+	@include breakpoint(tablet) {
+		flex-wrap: wrap;
+	};
+
+	.jp-connect-full__slide-card {
+		flex: 1;
+		text-align: left;
+		order: 2;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
+	}
+
+	.illustration {
+		order: 1;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
+
+		img {
+			margin: 2.5em 1em;
+			display: block;
+			min-width: 200px;
+
+			@include minbreakpoint(phablet) {
+				margin: 2.5em auto;
+				width: 75%;
+			};
+		}
+	}
+}
+
+.jp-connect-full__step-support {
+	max-width: 700px;
+	margin: 0 auto;
+	line-height: 1.25;
+
+	h2 {
+		margin: rem( 16px ) 0 0;
+		font-size: rem( 22px );
+		font-weight: normal;
+		color: black;
+	}
+
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
+}
+
+
+// Plugin List + wp-admin dashboard Connection Banners (displayed after plugin activation)
 // Written in the style of React to stay consistent with the Jetpack interior
 
 // wp-admin overrides
@@ -206,13 +273,40 @@
 .updated .notice-dismiss {
 	z-index: 1;
 	text-decoration: none;
+	&:before {
+		color: $white;
+	}
 }
 // end overrides
+
+.jp-wpcom-connect__container-top-text {
+	padding: 15px 15px 25px 15px;
+	background-color: $green-primary;
+	color: $white;
+	font-weight: 600;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		margin-right: 10px;
+		position: relative;
+		top: 7px;
+
+		path {
+			fill: #fff;
+		}
+	}
+
+	span {
+		display: inline-block;
+	}
+}
 
 .jp-wpcom-connect__container {
 	display: block;
 	position: relative;
 	box-sizing: border-box;
+	background-color: $green-primary;
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
@@ -224,10 +318,12 @@
 	flex-direction: row;
 	flex-wrap: nowrap;
 	justify-content: left;
+	// border: 4px $green-primary solid;
+	background: #fff;
 }
 
 .jp-wpcom-connect__content-container {
-	max-width: 800px;
+	width: 1250px;
 	position: relative;
 	padding: rem( 32px );
 	z-index: 0;
@@ -247,6 +343,8 @@
 	color: #4F748E;
 	line-height: 1.6;
 }
+
+
 
 .jp-wpcom-connect__content-icon {
 	float: right;
@@ -271,6 +369,16 @@
 	}
 }
 
+.jp-wpcom-connect__slide ul {
+	list-style: disc;
+	padding: 0 0 0 rem( 15px );
+}
+
+.jp-wpcom-connect__slide ul li {
+	color: darken( $gray, 20% );
+	font-size: rem( 12px );
+}
+
 .jp-wpcom-connect__content-container .jp-banner__button-container {
 	@include minbreakpoint(tablet) {
 		position: absolute;
@@ -280,6 +388,16 @@
 
 .jp-banner__button-container .dops-button {
 	margin: rem( 5px ) 0;
+
+	&.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;
+
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
+	}
 }
 
 // Connection Banner Vertical Menu
@@ -311,7 +429,7 @@
 		flex-direction: row;
 		align-items: center;
 		border: none;
-		padding: rem( 8px );
+		padding: rem( 12px ) rem( 8px );
 		border-bottom: 1px solid #c8d7e1;
 		border-right: 1px solid #c8d7e1;
 		border-left: 3px solid #F3F6F8;
@@ -319,7 +437,7 @@
 		color: #87a6bc;
 		cursor: pointer;
 
-		// trick to hide the bottom border of the last menu item when the menu is the tallest element, 
+		// trick to hide the bottom border of the last menu item when the menu is the tallest element,
 		// but display the border when the overall container is taller than the menu
 		&:last-of-type {
 			position: relative;
@@ -328,13 +446,13 @@
 	}
 
 	.vertical-menu__feature-item-is-selected {
-		border-left: 3px solid #0087be;
+		border-left: 3px solid #F3F6F8;
 		border-right: 1px solid #fff;
 		background-color: #fff;
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid #8CC258;
+			border-left: 3px solid #F3F6F8;
 		}
 	}
 
@@ -360,7 +478,7 @@
 
 		&.jp-feature-intro {
 			svg {
-				fill: #8CC258;
+				fill: $green-primary;
 			}
 		}
 

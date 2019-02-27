@@ -1,6 +1,9 @@
 /**
  * External dependencies
+ *
+ * @format
  */
+
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -17,198 +20,178 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { getSitePlan } from 'state/site';
-import {
-	disconnectSite,
-	isDisconnectingSite,
-} from 'state/connection';
+import { disconnectSite, isDisconnectingSite } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 
-export const JetpackDisconnectDialog = React.createClass( {
-	propTypes: {
+export class JetpackDisconnectDialog extends React.Component {
+	static propTypes = {
 		show: PropTypes.bool,
 		toggleModal: PropTypes.func,
-		disconnectSite: PropTypes.func
-	},
+		disconnectSite: PropTypes.func,
+	};
 
-	getDefaultProps() {
-		return {
-			show: false,
-			toggleModal: noop,
-			disconnectSite: noop
-		};
-	},
+	static defaultProps = {
+		show: false,
+		toggleModal: noop,
+		disconnectSite: noop,
+	};
 
-	getPlanFeatures() {
+	getPlanFeatures = () => {
 		switch ( getPlanClass( this.props.sitePlan.product_slug ) ) {
 			case 'is-personal-plan':
 				return [
 					{
 						text: __( 'Daily, automated backups (unlimited storage)' ),
-						icon: 'history'
+						icon: 'history',
 					},
 					{
 						text: __( 'Priority support' ),
-						icon: 'chat'
+						icon: 'chat',
 					},
 					{
 						text: __( 'Spam filtering' ),
-						icon: 'spam'
-					}
+						icon: 'spam',
+					},
 				];
 
 			case 'is-premium-plan':
 				return [
 					{
 						text: __( 'Daily, automated backups (unlimited storage)' ),
-						icon: 'history'
+						icon: 'history',
 					},
 					{
 						text: __( 'Daily, automated malware scanning' ),
-						icon: 'spam'
+						icon: 'spam',
 					},
 					{
 						text: __( 'Priority support' ),
-						icon: 'chat'
+						icon: 'chat',
 					},
 					{
-						text: __( '13Gb of high-speed video hosting' ),
-						icon: 'video'
-					}
+						text: __( 'Unlimited, high-speed video hosting' ),
+						icon: 'video',
+					},
 				];
 
 			case 'is-business-plan':
 				return [
 					{
-						text: __( 'Daily, automated backups (unlimited storage)' ),
-						icon: 'history'
+						text: __( 'Real-time, automated backups (unlimited storage)' ),
+						icon: 'history',
 					},
 					{
 						text: __( 'Daily, automated malware scanning with automated resolution' ),
-						icon: 'spam'
+						icon: 'spam',
 					},
 					{
 						text: __( 'Priority support' ),
-						icon: 'chat'
+						icon: 'chat',
 					},
 					{
-						text: __( 'Unlimited high-speed video hosting' ),
-						icon: 'video'
+						text: __( 'Unlimited, high-speed video hosting' ),
+						icon: 'video',
 					},
 					{
 						text: __( 'SEO preview tools' ),
-						icon: 'globe'
-					}
+						icon: 'globe',
+					},
 				];
 			default:
 				return [
 					{
 						text: __( 'Site stats, related content, and sharing tools' ),
-						icon: 'stats-alt'
+						icon: 'stats-alt',
 					},
 					{
-						text: __( 'Brute force attack protection and uptime monitoring' ),
-						icon: 'lock'
+						text: __( 'Brute force attack protection and downtime monitoring' ),
+						icon: 'lock',
 					},
 					{
 						text: __( 'Unlimited, high-speed image hosting' ),
-						icon: 'image'
-					}
+						icon: 'image',
+					},
 				];
 		}
-	},
+	};
 
-	closeModal() {
+	closeModal = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
-			button: 'stay-connected'
+			button: 'stay-connected',
 		} );
 
 		this.props.toggleModal();
-	},
+	};
 
-	disconnectSiteTrack() {
+	disconnectSiteTrack = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
-			button: 'disconnect-site'
+			button: 'disconnect-site',
 		} );
 
-		this.props.disconnectSite();
-	},
+		this.props.disconnectSite( true );
+	};
 
 	render() {
-		return this.props.show && (
-			<Modal
-				className="jp-connection-settings__modal"
-				onRequestClose={ this.props.toggleModal }
-				>
-				<Card className="jp-connection-settings__modal-body">
-					<h2>
-						{
-							__( 'Disconnect Jetpack' )
-						}
-					</h2>
-					<h4>
-						{
-							__( 'By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:', {
-								args: {
-									siteName: this.props.siteRawUrl.replace( '::', '/' )
+		return (
+			this.props.show && (
+				<Modal className="jp-connection-settings__modal" onRequestClose={ this.props.toggleModal }>
+					<Card className="jp-connection-settings__modal-body">
+						<h2>{ __( 'Disconnect Jetpack' ) }</h2>
+						<h4>
+							{ __(
+								'By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:',
+								{
+									args: {
+										siteName: this.props.siteRawUrl.replace( /::/g, '/' ),
+									},
 								}
-							} )
-						}
-					</h4>
-					<ul>
-						{
-							this.getPlanFeatures().map( item => (
+							) }
+						</h4>
+						<ul>
+							{ this.getPlanFeatures().map( item => (
 								<li key={ `feature_${ item.icon }` }>
 									<Gridicon icon={ item.icon } size={ 18 } />
 									{ item.text }
 								</li>
-							) )
-						}
-					</ul>
-					<div className="jp-connection-settings__modal-actions">
-						<Button
-							className="jp-connection-settings__modal-cancel"
-							onClick={ this.closeModal }>
-							{
-								__( 'Stay connected', { context: 'A caption for a button to cancel disconnection.' } )
-							}
-						</Button>
-						<Button
-							onClick={ this.disconnectSiteTrack }
-							scary
-							primary>
-							{
-								__( 'Disconnect', { context: 'A caption for a button to disconnect.' } )
-							}
-						</Button>
-					</div>
-					<p className="jp-connection-settings__modal-more">
-						<a href="https://jetpack.com/features/">
-							{
-								__( 'Read more about Jetpack benefits' )
-							}
-						</a>
-					</p>
-				</Card>
-			</Modal>
+							) ) }
+						</ul>
+						<div className="jp-connection-settings__modal-actions">
+							<Button className="jp-connection-settings__modal-cancel" onClick={ this.closeModal }>
+								{ __( 'Stay connected', {
+									context: 'A caption for a button to cancel disconnection.',
+								} ) }
+							</Button>
+							<Button onClick={ this.disconnectSiteTrack } scary primary>
+								{ __( 'Disconnect', { context: 'A caption for a button to disconnect.' } ) }
+							</Button>
+						</div>
+						<p className="jp-connection-settings__modal-more">
+							<a href="https://jetpack.com/features/">
+								{ __( 'Read more about Jetpack benefits' ) }
+							</a>
+						</p>
+					</Card>
+				</Modal>
+			)
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {
 		return {
 			siteRawUrl: getSiteRawUrl( state ),
 			isDisconnecting: isDisconnectingSite( state ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			disconnectSite: () => {
-				return dispatch( disconnectSite() );
-			}
+				return dispatch( disconnectSite( true ) );
+			},
 		};
 	}
 )( JetpackDisconnectDialog );

@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sitemap_Finder extends WP_UnitTestCase {
 	public function test_sitemap_finder_recognize_default_master_sitemap() {
 		$finder = new Jetpack_Sitemap_Finder();
 
-		$array = parse_url( $finder->construct_sitemap_url( 'sitemap.xml' ) );
+		$array = wp_parse_url( $finder->construct_sitemap_url( 'sitemap.xml' ) );
 
 		$result = $finder->recognize_sitemap_uri(
 			// Get just the path+query part of the URL.

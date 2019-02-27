@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Block suspicious-looking sign in activity
+ * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -9,7 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
+ * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -50,7 +50,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_init', array ( $this, 'check_use_math' ) );
+		add_action( 'login_form', array ( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
@@ -58,7 +58,13 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_head', array ( $this, 'check_login_ability' ), 100, 3 );
+		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
+
+		// Load math fallback after math page form submission
+		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+		}
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
@@ -268,7 +274,8 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return void
 	 */
-	function log_failed_attempt() {
+	function log_failed_attempt( $login_user = null ) {
+
 		/**
 		 * Fires before every failed login attempt.
 		 *
@@ -276,9 +283,12 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string jetpack_protect_get_ip IP stored by Protect.
+		 * @param array Information about failed login attempt
+		 *   [
+		 *     'login' => (string) Username or email used in failed login attempt
+		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
+		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
@@ -431,7 +441,7 @@ class Jetpack_Protect_Module {
 		/**
 		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
 		 */
-		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
+		if ( Jetpack_Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
 			$this->kill_login();
 		}
 
@@ -550,7 +560,7 @@ class Jetpack_Protect_Module {
 		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
-		if ( ! $allow_math_fallback_on_fail ) {
+		if ( ! $allow_math_fallback_on_fail  ) {
 			$this->kill_login();
 		}
 		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';

@@ -4,27 +4,41 @@ require dirname( __FILE__ ) . '/../../../../modules/verification-tools/verificat
 class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 
 	/**
-	 * @author zinigor
+	 * @author cbauerman
 	 * @covers jetpack_verification_validate
-	 * @since 5.5.0
+	 * @since 6.5.0
 	 */
-	public function test_jetpack_verification_validate_processes_and_returns_codes() {
-		$codes = array(
-			'         untrimmed code      ',
-			'some code that is going to be longer than 100 chars in order to test the trimming'
-			. ' some code that isgoing to be longer than 100 chars in order to test the trimming'
-			. ' some code that isgoing to be longer than 100 chars in order to test the trimming',
-			'some regular string with nothing special in it'
+	public function test_jetpack_verification_validate_google_raw_code() {
+		$this->assertEquals(
+			jetpack_verification_validate( array( 'google' => 'W2gxpExLATRT5c0dgRjlJsXRnrLE7vpr_1YtYxEnDIzn9ylj7C' ) ),
+			array( 'google' => 'W2gxpExLATRT5c0dgRjlJsXRnrLE7vpr_1YtYxEnDIzn9ylj7C' ),
+			'raw code should be accepeted'
 		);
+	}
 
-		$processed_codes = jetpack_verification_validate( $codes );
+	/**
+	 * @author cbauerman
+	 * @covers jetpack_verification_validate
+	 * @since 6.5.0
+	 */
+	public function test_jetpack_verification_validate_google_code_in_meta_double_quotes() {
+		$this->assertEquals(
+			jetpack_verification_validate( array( 'test' => '<meta name="google-site-verification" content="bX1szG_kxD6O0CGSVgS8m4F5gKvgUPMdo96McTiJ7pZ5Ax7mQr" />' ) ),
+			array( 'test' => 'bX1szG_kxD6O0CGSVgS8m4F5gKvgUPMdo96McTiJ7pZ5Ax7mQr' ),
+			'google-style meta tag with double quotes should be accepeted'
+		);
+	}
 
-		foreach( array_merge( $codes, $processed_codes ) as $code ) {
-			$this->assertEquals(
-				substr( esc_attr( trim( $code ) ), 0, 100 ),
-				$code,
-				'the code should be processed'
-			);
-		}
+	/**
+	 * @author cbauerman
+	 * @covers jetpack_verification_validate
+	 * @since 6.5.0
+	 */
+	public function test_jetpack_verification_validate_google_code_in_meta_single_quotes() {
+		$this->assertEquals(
+			jetpack_verification_validate( array( 'test' => '<meta name="google-site-verification" content=\'jLjbTBvtuQepL3eR09id83p4q_w8JBStrB5DKCunOX7kK1XKub\' />' ) ),
+			array( 'test' => 'jLjbTBvtuQepL3eR09id83p4q_w8JBStrB5DKCunOX7kK1XKub' ),
+			'google-style meta tag with single quotes should be accepeted'
+		);
 	}
 }

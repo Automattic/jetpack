@@ -1,12 +1,18 @@
 /**
  * External dependencies
+ *
+ * @format
  */
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import get from 'lodash/get';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
@@ -16,6 +22,8 @@ import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import { ManagePlugins } from './manage-plugins';
+import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -58,30 +66,53 @@ export class Security extends Component {
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			rewindStatus: this.props.rewindStatus,
+			siteRawUrl: this.props.siteRawUrl,
 		};
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			foundBackups = this.props.isModuleFound( 'vaultpress' );
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			foundMonitor = this.props.isModuleFound( 'monitor' ),
+			foundManage = this.props.isModuleFound( 'manage' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups ) {
+		if (
+			! foundSso &&
+			! foundProtect &&
+			! foundAkismet &&
+			! foundBackups &&
+			! foundMonitor &&
+			! foundManage
+		) {
 			return null;
 		}
 
 		return (
 			<div>
 				<QuerySite />
+
+				<Card
+					title={ __(
+						'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
+					) }
+					className="jp-settings-description"
+				/>
+
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
-				{ foundAkismet &&
+				{ foundMonitor && <Monitor { ...commonProps } /> }
+				{ foundAkismet && (
 					<div>
 						<Antispam { ...commonProps } />
 						<QueryAkismetKeyCheck />
-					</div> }
+					</div>
+				) }
+				{ foundManage && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>

@@ -1,6 +1,7 @@
 <?php
 /**
  * Sync architecture prototype
+ *
  * @author Dan Walmsley
  * To run tests: phpunit --testsuite sync --filter New_Sync
  */
@@ -73,6 +74,8 @@ interface iJetpack_Sync_Replicastore {
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 
 	public function delete_metadata( $type, $object_id, $meta_ids );
+
+	public function delete_batch_metadata( $type, $object_ids, $meta_key );
 
 	// constants
 	public function get_constant( $constant );

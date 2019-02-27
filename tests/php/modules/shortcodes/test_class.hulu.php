@@ -43,6 +43,17 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 			: 'http://www.hulu.com/embed.html?eid=';
 		$this->video_id = '771496';
 		$this->video_eid = '_hHzwnAcj3RrXMJFDDvkuw';
+
+		/**
+		 * We normally make an HTTP request to Hulu's oEmbed endpoint
+		 * to translate id (human readable video ID) -> eid (Hulu's internal video ID).
+		 * This filter bypasses that HTTP request for these tests.
+		 */
+		add_filter( "pre_transient_hulu-{$this->video_id}", array( $this, '_video_eid' ) );
+	}
+
+	public function _video_eid() {
+		return $this->video_eid;
 	}
 
 	public function test_shortcodes_hulu_exists() {
@@ -67,9 +78,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$content  = "[hulu http://www.hulu.com/watch/$this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
-		if ( false === stripos( $shortcode_content, 'Hulu Error' ) ) {
-			$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
-		}
+		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
 	}
 
 	public function test_shortcodes_hulu_width_height() {
@@ -108,5 +117,22 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$expected_shortcode = "[hulu id=$this->video_eid width=512 height=288 start_time=10 end_time=20 thumbnail_frame=11]";
 
 		$this->assertEquals( $expected_shortcode, $shortcode );
+	}
+
+	/**
+	 * Uses a real HTTP request to Hulu's oEmbed endpoint to
+	 * translate id (human readable video ID) -> eid (Hulu's internal video ID).
+	 * @see ::setUp()
+	 *
+	 * @group external-http
+	 */
+	public function test_shortcodes_hulu_id_via_oembed_http_request() {
+		// Remove the HTTP request bypass
+		remove_all_filters( "pre_transient_hulu-{$this->video_id}" );
+
+		$content  = "[hulu $this->video_id]";
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
 	}
 }

@@ -21,136 +21,152 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
-	PLUGIN_UPDATES_FETCH_SUCCESS
+	PLUGIN_UPDATES_FETCH_SUCCESS,
 } from 'state/action-types';
 
-export const statsSwitchTab = ( tab ) => {
-	return ( dispatch ) => {
+export const statsSwitchTab = tab => {
+	return dispatch => {
 		dispatch( {
 			type: STATS_SWITCH_TAB,
-			activeStatsTab: tab
+			activeStatsTab: tab,
 		} );
 	};
 };
 
-export const fetchStatsData = ( range ) => {
-	return ( dispatch ) => {
+export const fetchStatsData = range => {
+	return dispatch => {
 		dispatch( {
-			type: STATS_DATA_FETCH
+			type: STATS_DATA_FETCH,
 		} );
-		return restApi.fetchStatsData( range ).then( statsData => {
-			dispatch( {
-				type: STATS_DATA_FETCH_SUCCESS,
-				statsData: statsData
+		return restApi
+			.fetchStatsData( range )
+			.then( statsData => {
+				dispatch( {
+					type: STATS_DATA_FETCH_SUCCESS,
+					statsData: statsData,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: STATS_DATA_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: STATS_DATA_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchProtectCount = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: DASHBOARD_PROTECT_COUNT_FETCH
+			type: DASHBOARD_PROTECT_COUNT_FETCH,
 		} );
-		return restApi.getProtectCount().then( protectCount => {
-			dispatch( {
-				type: DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
-				protectCount: protectCount
+		return restApi
+			.getProtectCount()
+			.then( protectCount => {
+				dispatch( {
+					type: DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
+					protectCount: protectCount,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchVaultPressData = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: VAULTPRESS_SITE_DATA_FETCH
+			type: VAULTPRESS_SITE_DATA_FETCH,
 		} );
-		return restApi.getVaultPressData().then( vaultPressData => {
-			dispatch( {
-				type: VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
-				vaultPressData: vaultPressData
+		return restApi
+			.getVaultPressData()
+			.then( vaultPressData => {
+				dispatch( {
+					type: VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
+					vaultPressData: vaultPressData,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: VAULTPRESS_SITE_DATA_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: VAULTPRESS_SITE_DATA_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchAkismetData = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: AKISMET_DATA_FETCH
+			type: AKISMET_DATA_FETCH,
 		} );
-		return restApi.getAkismetData().then( akismetData => {
-			dispatch( {
-				type: AKISMET_DATA_FETCH_SUCCESS,
-				akismetData: akismetData
+		return restApi
+			.getAkismetData()
+			.then( akismetData => {
+				dispatch( {
+					type: AKISMET_DATA_FETCH_SUCCESS,
+					akismetData: akismetData,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: AKISMET_DATA_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: AKISMET_DATA_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const checkAkismetKey = ( apiKey = '' ) => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: AKISMET_KEY_CHECK_FETCH
+			type: AKISMET_KEY_CHECK_FETCH,
 		} );
-		const response = '' === apiKey
-			? restApi.checkAkismetKey().then( isAkismetKeyValid => {
-				dispatch( {
-					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
-					akismet: isAkismetKeyValid
-				} );
-			} )
-			: restApi.checkAkismetKeyTyped( apiKey ).then( isAkismetKeyValid => {
-				dispatch( {
-					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
-					akismet: isAkismetKeyValid
-				} );
-			} );
+		const response =
+			'' === apiKey
+				? restApi.checkAkismetKey().then( isAkismetKeyValid => {
+						dispatch( {
+							type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+							akismet: isAkismetKeyValid,
+						} );
+				  } )
+				: restApi.checkAkismetKeyTyped( apiKey ).then( isAkismetKeyValid => {
+						dispatch( {
+							type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+							akismet: isAkismetKeyValid,
+						} );
+				  } );
 		return response.catch( error => {
 			dispatch( {
 				type: AKISMET_KEY_CHECK_FETCH_FAIL,
-				error: error
+				error: error,
 			} );
 		} );
 	};
 };
 
 export const fetchPluginUpdates = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: PLUGIN_UPDATES_FETCH
+			type: PLUGIN_UPDATES_FETCH,
 		} );
-		return restApi.getPluginUpdates().then( pluginUpdates => {
-			dispatch( {
-				type: PLUGIN_UPDATES_FETCH_SUCCESS,
-				pluginUpdates: pluginUpdates
+		return restApi
+			.getPluginUpdates()
+			.then( pluginUpdates => {
+				dispatch( {
+					type: PLUGIN_UPDATES_FETCH_SUCCESS,
+					pluginUpdates: pluginUpdates,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: PLUGIN_UPDATES_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: PLUGIN_UPDATES_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };

@@ -28,8 +28,8 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 */
 	function __construct() {
 		$widget_ops = array(
-			'classname' => 'blog-stats',
-			'description' => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
+			'classname'                   => 'blog-stats',
+			'description'                 => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
 		parent::__construct(

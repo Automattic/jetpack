@@ -4,7 +4,7 @@
 
 ## Three Steps to Being a GitHub Star
 
-### 1. Make sure the bug is really a bug.
+### 1. Make sure the bug is really a bug
 
 Before you report a bug, make sure it's not just internet gremlins or a compatibility problem. Before you begin your investigation, make sure you're running the latest versions of WordPress and Jetpack.
 
@@ -12,7 +12,7 @@ Start by turning off all your other plugins and switching to the default Twenty 
 
 If the issue disappears, it was probably caused by a conflict with one of your plugins or themes. Now, test them one at a time -- activate only Jetpack and that theme or plugin to eliminate other variables. When the issue reappears, you've found the culprit!
 
-### 2. See if it's already been reported.
+### 2. See if it's already been reported
 
 To check if a bug has already been reported, you can:
 
@@ -22,7 +22,7 @@ To check if a bug has already been reported, you can:
 
 Not mentioned in any of those places? Not caused by a conflict with another plugin or theme? By George, you've found a bug! Time to report it.
 
-### 3. Submit a detailed, precise bug report.
+### 3. Submit a detailed, precise bug report
 
 The more specific your ticket is, the easier it will be for someone to zap the bug. Log in to GitHub, [open a new issue](https://github.com/Automattic/jetpack/issues/new), and be sure to fill out all the relevant details: a concise summary and a clear description are key. If it's been mentioned by someone else, like on the [Jetpack Support Forums](http://wordpress.org/support/plugin/jetpack), include a link.
 
@@ -44,11 +44,13 @@ Here's a sample of what a helpful summary looks like:
 >
 > Screenshots: _screenshot of error message goes here_
 
-## Cross-Browser Testing, AKA "Don't Forget About Internet Explorer 8"
+## Cross-Browser Testing
 
 If you believe you've come across a bug and you've worked through all the steps detailed above, it's worth checking to see if the issue can be reproduced in different browsers. You can find download links to the most recent versions of all the major browsers on [Browse Happy.](http://browsehappy.com/)
 
 You should also check to see if the potential bug is limited to one browser; this is especially important for any bugs that may be Javascript or jQuery-related, as some browsers are more likely to experience those issues than others.
+
+See which browsers Jetpack supports from [coding guidelines](../coding-guidelines.md#versions-supported) or from the [`package.json`](https://github.com/Automattic/jetpack/blob/master/package.json) file.
 
 ## Contribute and comment on existing issues
 

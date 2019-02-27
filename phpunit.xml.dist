@@ -10,9 +10,12 @@
 			<file>tests/php/test_class.jetpack-client-server.php</file>
 			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
 			<file>tests/php/test_class.jetpack-heartbeat.php</file>
+			<file>tests/php/test_class.jetpack-gutenberg.php</file>
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
+		</testsuite>
+		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>
 		</testsuite>
 		<testsuite name="core-api">
@@ -31,6 +34,7 @@
 		</testsuite>
 		<testsuite name="json-api">
 			<file>tests/php/test_class.json-api-jetpack-endpoints.php</file>
+			<directory prefix="test_" suffix=".php">tests/php/sal</directory>
 		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
@@ -86,6 +90,9 @@
 		<testsuite name="jitm">
 			<file>tests/php/test_class.jetpack-jitm.php</file>
 		</testsuite>
+		<testsuite name="affiliate">
+			<file>tests/php/test_class.jetpack-affiliate.php</file>
+		</testsuite>
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
@@ -94,6 +101,9 @@
 		</testsuite>
 		<testsuite name="lazy-images">
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
+		</testsuite>
+		<testsuite name="search">
+			<directory prefix="test_" suffix=".php">tests/php/modules/search</directory>
 		</testsuite>
 	</testsuites>
 	<groups>
@@ -110,4 +120,15 @@
 			</exclude>
 		</whitelist>
 	</filter>
+	<listeners>
+		<listener class="SpeedTrapListener">
+			<arguments>
+				<array>
+					<element key="slowThreshold">
+						<integer>150</integer>
+					</element>
+				</array>
+			</arguments>
+		</listener>
+	</listeners>
 </phpunit>

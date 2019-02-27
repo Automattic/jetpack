@@ -262,11 +262,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'likes_enabled' :
 				/** This filter is documented in modules/likes.php */
 				$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-				$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
-				$post_likes_enabled = $sitewide_likes_enabled;
-				if ( $post_likes_switched ) {
-					$post_likes_enabled = ! $post_likes_enabled;
-				}
+				$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
+				$post_likes_enabled = $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 				$response[$key] = (bool) $post_likes_enabled;
 				break;
 			case 'sharing_enabled' :

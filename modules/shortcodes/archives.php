@@ -46,15 +46,17 @@ function archives_shortcode( $atts ) {
 	$after     = wp_kses( $attr['after'], $allowedposttags );
 
 	// Get the archives
-	$archives = wp_get_archives( array(
-		'type'            => $attr['type'],
-		'limit'           => $limit,
-		'format'          => $attr['format'],
-		'echo'            => false,
-		'show_post_count' => $showcount,
-		'before'          => $before,
-		'after'           => $after,
-	) );
+	$archives = wp_get_archives(
+		array(
+			'type'            => $attr['type'],
+			'limit'           => $limit,
+			'format'          => $attr['format'],
+			'echo'            => false,
+			'show_post_count' => $showcount,
+			'before'          => $before,
+			'after'           => $after,
+		)
+	);
 
 	if ( 'asc' === $attr['order'] ) {
 		$archives = implode( "\n", array_reverse( explode( "\n", $archives ) ) );
@@ -63,9 +65,9 @@ function archives_shortcode( $atts ) {
 	// Check to see if there are any archives
 	if ( empty( $archives ) ) {
 		$archives = '<p>' . __( 'Your blog does not currently have any published posts.', 'jetpack' ) . '</p>';
-	} else if ( 'option' === $attr['format'] ) {
+	} elseif ( 'option' === $attr['format'] ) {
 		$archives = '<select name="archive-dropdown" onchange="document.location.href=this.options[this.selectedIndex].value;"><option value="' . get_permalink() . '">--</option>' . $archives . '</select>';
-	} else if ( 'html' === $attr['format'] ) {
+	} elseif ( 'html' === $attr['format'] ) {
 		$archives = '<ul>' . $archives . '</ul>';
 	}
 

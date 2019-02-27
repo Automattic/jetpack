@@ -45,7 +45,7 @@
 			}
 		}
 
-		.jp-module-settings__learn-more {
+		.jp-support-info {
 			right: rem( -21px );
 			top: rem( 7px );
 			@include breakpoint( "<480px" ) {
@@ -83,16 +83,38 @@
 		.dops-foldable-card__action {
 			right: rem( 10px );
 		}
-		.jp-form-settings-group .jp-module-settings__learn-more {
+		.jp-form-settings-group .jp-support-info {
 			right: rem( 2px );
 			top: 0;
 		}
 	}
 
 	@include breakpoint( "<480px" ) {
-		.jp-form-settings-group .jp-module-settings__learn-more {
+		.jp-form-settings-group .jp-support-info {
 			right: rem( -31px );
 			top: rem( 6px );
 		}
+	}
+}
+
+.jp-banner__no-border {
+	border-left: none !important;
+
+	.dops-banner__icon-circle {
+		background: none !important;
+		padding: 0 0 0 3px;
+	}
+
+	svg.gridicon.gridicons-checkmark-circle {
+		width: 28px;
+		height: 28px;
+		color: #4ab866;
+	}
+
+	.dops-banner__description {
+		font-size: .875rem;
+		line-height: 1.65;
+		color: #537994;
+		margin-top: 0;
 	}
 }

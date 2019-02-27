@@ -112,7 +112,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getPluginUpdates( state )**
 * **getProtectCount( state )**
 * **getSearchTerm( state )**
-* **getSettingName( state, name )**
 * **getSettings( state )**
 * **getSiteAdminUrl( state )**
 * **getSiteConnectionStatus( state )**
@@ -126,8 +125,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUserWpComEmail( state )**
 * **getUserWpComLogin( state )**
 * **getUsername( state )**
-* **getVaultPressData( state )**
-* **getVaultPressScanThreatCount( state )**
+* **isGutenbergAvailable( state )**
 
 ### Available action creators (thunks)
 
@@ -149,7 +147,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **fetchSiteData()**
 * **fetchStatsData( range )**
 * **fetchUserConnectionData()**
-* **fetchVaultPressData()**
 * **filterSearch( term )**
 * **jumpStartActivate()**
 * **jumpStartSkip()**

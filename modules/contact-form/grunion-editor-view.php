@@ -39,12 +39,15 @@ class Grunion_Editor_View {
 	}
 
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] =  plugins_url( 'js/tinymce-plugin-form-button.js', __FILE__ );
+		$plugin_array['grunion_form'] = Jetpack::get_file_url_for_environment(
+			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
+			'modules/contact-form/js/tinymce-plugin-form-button.js'
+		);
 		return $plugin_array;
 	}
 
 	public static function mce_buttons( $buttons ) {
-		$size = sizeof( $buttons );
+		$size     = sizeof( $buttons );
 		$buttons1 = array_slice( $buttons, 0, $size - 1 );
 		$buttons2 = array_slice( $buttons, $size - 1 );
 		return array_merge(
@@ -64,24 +67,35 @@ class Grunion_Editor_View {
 
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
-		wp_enqueue_script( 'grunion-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery', 'quicktags' ), false, true );
-		wp_localize_script( 'grunion-editor-view', 'grunionEditorView', array(
-			'inline_editing_style' => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
-			'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),
-			'dashicons_css_url'    => includes_url( 'css/dashicons.css' ),
-			'default_form'  => '[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]' .
-								'[contact-field label="' . __( 'Email', 'jetpack' )   . '" type="email" required="true" /]' .
-								'[contact-field label="' . __( 'Website', 'jetpack' ) . '" type="url" /]' .
-								'[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]',
-			'labels'      => array(
-				'submit_button_text'  => __( 'Submit', 'jetpack' ),
-				/** This filter is documented in modules/contact-form/grunion-contact-form.php */
-				'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ),
-				'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack' ),
-				'quicktags_label'     => __( 'contact form', 'jetpack' ),
-				'tinymce_label'       => __( 'Add contact form', 'jetpack' ),
+		wp_enqueue_script(
+			'grunion-editor-view',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/contact-form/js/editor-view.min.js',
+				'modules/contact-form/js/editor-view.js'
+			),
+			array( 'wp-util', 'jquery', 'quicktags' ),
+			false,
+			true
+		);
+		wp_localize_script(
+			'grunion-editor-view', 'grunionEditorView', array(
+				'inline_editing_style'     => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
+				'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),
+				'dashicons_css_url'        => includes_url( 'css/dashicons.css' ),
+				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]' .
+									'[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]' .
+									'[contact-field label="' . __( 'Website', 'jetpack' ) . '" type="url" /]' .
+									'[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]',
+				'labels'                   => array(
+					'submit_button_text'  => __( 'Submit', 'jetpack' ),
+					/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+					'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ),
+					'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack' ),
+					'quicktags_label'     => __( 'contact form', 'jetpack' ),
+					'tinymce_label'       => __( 'Add contact form', 'jetpack' ),
+				),
 			)
-		) );
+		);
 
 		add_editor_style( plugin_dir_url( __FILE__ ) . 'css/editor-style.css' );
 	}
@@ -92,7 +106,7 @@ class Grunion_Editor_View {
 	public static function editor_view_js_templates() {
 		?>
 <script type="text/html" id="tmpl-grunion-contact-form">
-	<form class="card" action='#' method='post' class='contact-form commentsblock' onsubmit="return false;">
+	<form class="card jetpack-contact-form-shortcode-preview" action='#' method='post' class='contact-form commentsblock' onsubmit="return false;">
 		{{{ data.body }}}
 		<p class='contact-submit'>
 			<input type='submit' value='{{ data.submit_button_text }}' class='pushbutton-wide'/>

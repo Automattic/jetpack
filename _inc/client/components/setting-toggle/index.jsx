@@ -9,28 +9,35 @@ import React from 'react';
  */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
-export const SettingToggle = React.createClass( {
-	propTypes: {
+export class SettingToggle extends React.Component {
+	static propTypes = {
 		toggleSetting: PropTypes.func,
 		activated: PropTypes.bool,
 		disabled: PropTypes.bool,
 		className: PropTypes.string,
-		id: PropTypes.string
-	},
-	getDefaultProps: function() {
-		return {
-			activated: false
-		};
-	},
-	toggleSetting() {
+		id: PropTypes.string,
+	};
+
+	static defaultProps = {
+		activated: false,
+	};
+
+	toggleSetting = () => {
 		return this.props.toggleSetting( this.props.slug, this.props.activated );
-	},
+	};
+
 	render() {
-		return <CompactFormToggle checked={ this.props.activated }
-			className={ this.props.className }
-			onChange={ this.toggleSetting }
-			disabled={ this.props.disabled }
-			id={ this.props.id }
-		> { this.props.children }</CompactFormToggle>;
+		return (
+			<CompactFormToggle
+				checked={ this.props.activated }
+				className={ this.props.className }
+				onChange={ this.toggleSetting }
+				disabled={ this.props.disabled }
+				id={ this.props.id }
+			>
+				{' '}
+				{ this.props.children }
+			</CompactFormToggle>
+		);
 	}
-} );
+}
