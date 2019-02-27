@@ -144,7 +144,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		$instance['include_followers']  = (bool) $new_instance['include_followers'];
 		$instance['include_commenters'] = (bool) $new_instance['include_commenters'];
 
-		delete_transient( "$this->id-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'] );
+		delete_transient( "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'] );
 
 		return $instance;
 	}
@@ -183,7 +183,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
-		$transient_name = "$this->id-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'];
+		$transient_name = "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'];
 
 		$my_community = get_transient( $transient_name );
 
