@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -22,8 +23,6 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
-	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
@@ -34,19 +33,19 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, action.modules );
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
 			return assign( {}, state, {
-				[ action.module ]: assign( {}, state[ action.module ], { activated: true } )
+				[ action.module ]: assign( {}, state[ action.module ], { activated: true } ),
 			} );
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
 			return assign( {}, state, {
-				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
+				[ action.module ]: assign( {}, state[ action.module ], { activated: false } ),
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let updatedModule = assign( {}, state[ action.module ] );
+			const updatedModule = assign( {}, state[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
 			} );
 			return assign( {}, state, {
-				[ action.module ]: updatedModule
+				[ action.module ]: updatedModule,
 			} );
 		default:
 			return state;
@@ -57,81 +56,69 @@ export const initialRequestsState = {
 	fetchingModulesList: false,
 	activating: {},
 	deactivating: {},
-	updatingOption: {}
+	updatingOption: {},
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
-			return assign( {}, state, { fetchingModulesList: true} );
+			return assign( {}, state, { fetchingModulesList: true } );
 		case JETPACK_MODULES_LIST_FETCH_FAIL:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, state, { fetchingModulesList: false} );
+			return assign( {}, state, { fetchingModulesList: false } );
 		case JETPACK_MODULE_ACTIVATE:
 			return assign( {}, state, {
 				activating: assign( {}, state.activating, {
-					[ action.module ]: true
-				}
-			) } );
+					[ action.module ]: true,
+				} ),
+			} );
 		case JETPACK_MODULE_ACTIVATE_FAIL:
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
 			return assign( {}, state, {
 				activating: assign( {}, state.activating, {
-					[ action.module ]: false
-				}
-			) } );
+					[ action.module ]: false,
+				} ),
+			} );
 		case JETPACK_MODULE_DEACTIVATE:
 			return assign( {}, state, {
 				deactivating: assign( {}, state.deactivating, {
-					[ action.module ]: true
-				}
-			) } );
+					[ action.module ]: true,
+				} ),
+			} );
 		case JETPACK_MODULE_DEACTIVATE_FAIL:
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
 			return assign( {}, state, {
 				deactivating: assign( {}, state.deactivating, {
-					[ action.module ]: false
-				}
-			) } );
+					[ action.module ]: false,
+				} ),
+			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS:
-			let updatingOption = assign( {}, state.updatingOption );
+			const updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
-			Object.keys( action.newOptionValues ).forEach( ( key ) => {
+			Object.keys( action.newOptionValues ).forEach( key => {
 				updatingOption[ action.module ][ key ] = true;
 			} );
 			return assign( {}, state, {
-				updatingOption: assign( {}, state.updatingOption, updatingOption
-			) } );
+				updatingOption: assign( {}, state.updatingOption, updatingOption ),
+			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let _updatingOption = assign( {}, state.updatingOption );
+			const _updatingOption = assign( {}, state.updatingOption );
 			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
-			Object.keys( action.newOptionValues ).forEach( ( key ) => {
+			Object.keys( action.newOptionValues ).forEach( key => {
 				_updatingOption[ action.module ][ key ] = false;
 			} );
 			return assign( {}, state, {
-				updatingOption: assign( {}, state.updatingOption, _updatingOption
-			) } );
+				updatingOption: assign( {}, state.updatingOption, _updatingOption ),
+			} );
 		default:
 			return state;
 	}
 };
 
-export const unsavedOptionsFlag = ( state = false, action ) => {
-	switch ( action.type ) {
-		case JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG:
-			return true;
-		case JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG:
-			return false;
-		default:
-			return state;
-	}
-}
-
 export const reducer = combineReducers( {
 	items,
 	requests,
-	unsavedOptionsFlag
 } );
 
 /**
@@ -180,7 +167,12 @@ export function isUpdatingModuleOption( state, module_slug, option_name ) {
 }
 
 export function getModuleOption( state, module_slug, option_name ) {
-	return get( state.jetpack.modules.items, [ module_slug, 'options', option_name, 'current_value' ] );
+	return get( state.jetpack.modules.items, [
+		module_slug,
+		'options',
+		option_name,
+		'current_value',
+	] );
 }
 
 /**
@@ -224,9 +216,9 @@ export function getModule( state, name ) {
  * @return {Array}          Array of modules that match the feature.
  */
 export function getModulesByFeature( state, feature ) {
-	return Object.keys( state.jetpack.modules.items ).filter( ( name ) =>
-		state.jetpack.modules.items[ name ].feature.indexOf( feature ) !== -1
-	).map( ( name ) => state.jetpack.modules.items[ name ] );
+	return Object.keys( state.jetpack.modules.items )
+		.filter( name => state.jetpack.modules.items[ name ].feature.indexOf( feature ) !== -1 )
+		.map( name => state.jetpack.modules.items[ name ] );
 }
 
 /**
@@ -238,8 +230,8 @@ export function getModulesByFeature( state, feature ) {
  * @return {Array}          Array of modules that require connection.
  */
 export function getModulesThatRequireConnection( state ) {
-	return Object.keys( state.jetpack.modules.items ).filter( ( module_slug ) =>
-		state.jetpack.modules.items[ module_slug ].requires_connection
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].requires_connection
 	);
 }
 
@@ -253,6 +245,47 @@ export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
 }
 
-export function areThereUnsavedModuleOptions( state ) {
-	return get( state.jetpack.modules, 'unsavedOptionsFlag' );
+/**
+ * Returns true if the module is available.
+ * @param  {Object}  state      Global state tree.
+ * @param  {String}  moduleSlug The slug of a module.
+ * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
+ */
+export function isModuleAvailable( state, moduleSlug ) {
+	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
+}
+
+/**
+ * Returns the module override for a given module slug.
+ *
+ * Expected values are false if no override, 'active' if module forced on,
+ * or 'inactive' if module forced off.
+ *
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
+ *
+ * @return {Boolean|String} Whether the module is overriden, and if so, how.
+ */
+export function getModuleOverride( state, name ) {
+	return get( state.jetpack.modules.items, [ name, 'override' ], false );
+}
+
+/**
+ * Returns true if the module is forced to be active.
+ * @param {Object}   state Global state tree
+ * @param {String}   name  A module's name
+ * @return {Boolean}       Whether the module is forced to be active.
+ */
+export function isModuleForcedActive( state, name ) {
+	return getModuleOverride( state, name ) === 'active';
+}
+
+/**
+ * Returns true if the module is forced to be inactive.
+ * @param {Object}   state Global state tree
+ * @param {String}   name  A module's name
+ * @return {Boolean}       Whether the module is forced to be inactive.
+ */
+export function isModuleForcedInactive( state, name ) {
+	return getModuleOverride( state, name ) === 'inactive';
 }

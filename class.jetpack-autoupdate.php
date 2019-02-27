@@ -32,7 +32,6 @@ class Jetpack_Autoupdate {
 
 	private function __construct() {
 		if ( Jetpack::is_module_active( 'manage' ) ) {
-			add_filter( 'auto_update_plugin', array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme', array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), 10, 2 );
 			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation' ), 10, 2 );
@@ -40,23 +39,12 @@ class Jetpack_Autoupdate {
 		}
 	}
 
-	public function autoupdate_plugin( $update, $item ) {
-		$autoupdate_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		if ( in_array( $item->plugin, $autoupdate_plugin_list ) ) {
-			$this->expect( $item->plugin, 'plugin' );
-
-			return true;
-		}
-
-		return $update;
-	}
-
 	public function autoupdate_translation( $update, $item ) {
 		// Autoupdate all translations
 		if ( Jetpack_Options::get_option( 'autoupdate_translations', false ) ) {
 			return true;
 		}
-		
+
 		// Themes
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
@@ -76,7 +64,7 @@ class Jetpack_Autoupdate {
 		       || in_array( $item->slug, $autoupdate_theme_list ) )
 		     && 'theme' === $item->type
 		) {
-			$this->expect( $item->type + ':' + $item->slug, 'translation' );
+			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 
 			return true;
 		}
@@ -90,7 +78,7 @@ class Jetpack_Autoupdate {
 		if ( in_array( $item->slug, $plugin_slugs )
 		     && 'plugin' === $item->type
 		) {
-			$this->expect( $item->type + ':' + $item->slug, 'translation' );
+			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 			return true;
 		}
 
@@ -187,15 +175,6 @@ class Jetpack_Autoupdate {
 		$instance = Jetpack::init();
 		$log      = array();
 		// Bump numbers
-		if ( ! empty( $this->success['plugin'] ) ) {
-			$instance->stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );
-			$log['plugins_success'] = $this->success['plugin'];
-		}
-
-		if ( ! empty( $this->failed['plugin'] ) ) {
-			$instance->stat( 'autoupdates/plugin-fail', count( $this->failed['plugin'] ) );
-			$log['plugins_failed'] = $this->failed['plugin'];
-		}
 
 		if ( ! empty( $this->success['theme'] ) ) {
 			$instance->stat( 'autoupdates/theme-success', count( $this->success['theme'] ) );
@@ -240,11 +219,8 @@ class Jetpack_Autoupdate {
 					case 'theme':
 						$successful_updates[] = $result->item->theme;
 						break;
-					case 'plugin':
-						$successful_updates[] = $result->item->plugin;
-						break;
 					case 'translation':
-						$successful_updates[] = $result->item->type + ':' + $result->item->slug;
+						$successful_updates[] = $result->item->type . ':' . $result->item->slug;
 						break;
 				}
 			}

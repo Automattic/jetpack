@@ -109,35 +109,16 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @author georgestephanis
-	 * @covers jetpack_photon_url()
-	 * @since 4.?.0
-	 * @group jetpack_photon_no_filter
-	 */
-	public function test_wpcom_files_to_photon_urls() {
-		$source = 'https://jetpackme.files.wordpress.com/2015/06/sec-11.png';
-
-		// This uses only the whitelisted attributes, so it should stay on jetpackme.files.wordpress.com
-		$url = jetpack_photon_url( $source, array( 'w' => 300 ) );
-		$this->assertEquals( add_query_arg( 'w', 300, $source ), $url );
-
-		// `filter` is not whitelisted, so this should remap to photon.
-		$url = jetpack_photon_url( $source, array( 'filter' => 'edgedetect' ) );
-		$suffix = '.wp.com/jetpackme.files.wordpress.com/2015/06/sec-11.png?filter=edgedetect&ssl=1';
-		$this->assertStringEndsWith( $suffix, $url );
-	}
-
-	/**
 	 * @author aduth
 	 * @covers jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http() {
-		$this->apply_custom_domain( 'http://photon.dev' );
+		$this->apply_custom_domain( 'http://photon.test' );
 		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
 
-		$this->assertEquals( 'http://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -147,10 +128,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http_to_http() {
-		$this->apply_custom_domain( 'http://photon.dev' );
+		$this->apply_custom_domain( 'http://photon.test' );
 		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
 
-		$this->assertEquals( 'http://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -160,10 +141,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http() {
-		$this->apply_custom_domain( 'http://photon.dev' );
-		$url = jetpack_photon_url( 'http://photon.dev/example.com/img.jpg' );
+		$this->apply_custom_domain( 'http://photon.test' );
+		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg' );
 
-		$this->assertEquals( 'http://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -173,10 +154,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_https() {
-		$this->apply_custom_domain( 'http://photon.dev' );
-		$url = jetpack_photon_url( 'https://photon.dev/example.com/img.jpg' );
+		$this->apply_custom_domain( 'http://photon.test' );
+		$url = jetpack_photon_url( 'https://photon.test/example.com/img.jpg' );
 
-		$this->assertEquals( 'https://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -186,10 +167,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http_to_https() {
-		$this->apply_custom_domain( 'http://photon.dev' );
-		$url = jetpack_photon_url( 'http://photon.dev/example.com/img.jpg', array(), 'https' );
+		$this->apply_custom_domain( 'http://photon.test' );
+		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg', array(), 'https' );
 
-		$this->assertEquals( 'https://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -199,10 +180,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http() {
-		$this->apply_custom_domain( '//photon.dev' );
+		$this->apply_custom_domain( '//photon.test' );
 		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
 
-		$this->assertEquals( '//photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( '//photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -212,10 +193,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http_to_http() {
-		$this->apply_custom_domain( '//photon.dev' );
+		$this->apply_custom_domain( '//photon.test' );
 		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
 
-		$this->assertEquals( 'http://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -225,10 +206,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_http() {
-		$this->apply_custom_domain( '//photon.dev' );
-		$url = jetpack_photon_url( 'http://photon.dev/example.com/img.jpg' );
+		$this->apply_custom_domain( '//photon.test' );
+		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg' );
 
-		$this->assertEquals( 'http://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -238,10 +219,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_https() {
-		$this->apply_custom_domain( '//photon.dev' );
-		$url = jetpack_photon_url( 'https://photon.dev/example.com/img.jpg' );
+		$this->apply_custom_domain( '//photon.test' );
+		$url = jetpack_photon_url( 'https://photon.test/example.com/img.jpg' );
 
-		$this->assertEquals( 'https://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -251,10 +232,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_to_https() {
-		$this->apply_custom_domain( '//photon.dev' );
-		$url = jetpack_photon_url( '//photon.dev/example.com/img.jpg', array(), 'https' );
+		$this->apply_custom_domain( '//photon.test' );
+		$url = jetpack_photon_url( '//photon.test/example.com/img.jpg', array(), 'https' );
 
-		$this->assertEquals( 'https://photon.dev/example.com/img.jpg', $url );
+		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
@@ -393,6 +374,27 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 		$host = jetpack_photon_parse_url( '//i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
 
 		$this->assertEquals( 'i0.wp.com', $host );
+	}
+
+	/**
+	 * @author aduth
+	 * @covers jetpack_photon_banned_domains
+	 * @since  5.0.0
+	 * @group  jetpack_photon_banned_domains
+	 */
+	public function test_photon_banned_domains_banned() {
+		$this->assertTrue( jetpack_photon_banned_domains( false, 'http://graph.facebook.com/37512822/picture' ) );
+		$this->assertTrue( jetpack_photon_banned_domains( false, 'https://scontent-mrs1-1.xx.fbcdn.net/v/t31.0-8/00000000_000000000000000_0000000000000000000_o.jpg' ) );
+	}
+
+	/**
+	 * @author aduth
+	 * @covers jetpack_photon_banned_domains
+	 * @since  5.0.0
+	 * @group  jetpack_photon_banned_domains
+	 */
+	public function test_photon_banned_domains_not_banned() {
+		$this->assertFalse( jetpack_photon_banned_domains( false, 'https://s.w.org/style/images/wp-header-logo-2x.png' ) );
 	}
 
 }

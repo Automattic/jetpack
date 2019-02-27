@@ -38,6 +38,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 			// If the alternative install method was not used, use the standard method.
 			if ( ! $result ) {
+				jetpack_require_lib( 'class.jetpack-automatic-install-skin' );
 				$skin     = new Jetpack_Automatic_Install_Skin();
 				$upgrader = new Theme_Upgrader( $skin );
 

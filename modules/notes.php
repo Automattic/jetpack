@@ -104,7 +104,22 @@ class Jetpack_Notifications {
 	}
 
 	function styles_and_scripts() {
-		if ( !is_rtl() ) {
+		$is_rtl = is_rtl();
+
+		if ( Jetpack::is_module_active( 'masterbar' ) ) {
+			/**
+			 * Can be used to force Notifications to display in RTL style.
+			 *
+			 * @module notes
+			 *
+			 * @since 4.8.0
+			 *
+			 * @param bool true Should notifications be displayed in RTL style. Defaults to false.
+			 */
+			$is_rtl = apply_filters( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', false );
+		}
+
+		if ( ! $is_rtl ) {
 			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		} else {
 			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );

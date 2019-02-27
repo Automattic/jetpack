@@ -25,9 +25,10 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		// Deal with bulk actions if any were requested by the user
 		$this->process_bulk_action();
 
-		$sites = get_sites( array( 
+		$sites = get_sites( array(
 			'site__not_in' => array( get_current_blog_id() ),
-			'archived' => false,
+			'archived'     => false,
+			'number'       => 0,
 		) );
 
 		// Setup pagination

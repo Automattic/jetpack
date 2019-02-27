@@ -467,6 +467,30 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 
 }
 
+new WPCOM_JSON_API_Menus_New_Menu_Endpoint( array (
+	'method' => 'POST',
+	'description' => 'Create a new navigation menu.',
+	'group' => 'menus',
+	'stat' => 'menus:new-menu',
+	'path' => '/sites/%s/menus/new',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+	'request_format'  => array(
+		'name' => '(string) Name of menu',
+	),
+	'response_format' => array(
+		'id' => '(int) Newly created menu ID',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/new',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Menu 1'
+		)
+	),
+) );
+
 class WPCOM_JSON_API_Menus_New_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 	function callback( $path = '', $site = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
@@ -486,6 +510,36 @@ class WPCOM_JSON_API_Menus_New_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstra
 		return array( 'id' => $id );
 	}
 }
+
+new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
+	'method' => 'POST',
+	'description' => 'Update a navigation menu.',
+	'group' => 'menus',
+	'stat' => 'menus:update-menu',
+	'path' => '/sites/%s/menus/%d',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$menu_id' => '(int) Menu ID',
+	),
+	'request_format'  => array(
+		'name'  => '(string) Name of menu',
+		'items' => '(array) A list of menu item objects.
+			<br/><br/>
+			Item objects contain fields relating to that item, e.g. id, type, content_id,
+			but they can also contain other items objects - this nesting represents parents
+			and child items in the item tree.'
+	),
+	'response_format' => array(
+		'menu' => '(object) Updated menu object',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/510604099',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Test Menu'
+		),
+	),
+) );
 
 class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 	function callback( $path = '', $site = 0, $menu_id = 0 ) {
@@ -598,6 +652,31 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	}
 }
 
+new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
+	'method'=> 'GET',
+	'description' => 'Get a list of all navigation menus.',
+	'group' => 'menus',
+	'stat' => 'menus:list-menu',
+	'path' => '/sites/%s/menus',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+	'response_format' => array(
+		'menus' => '(array) A list of menu objects.<br/><br/>
+			A menu object contains a name, items, locations, etc.
+			Check the example response for the full structure.
+			<br/><br/>
+			Item objects contain fields relating to that item, e.g. id, type, content_id,
+			but they can also contain other items objects - this nesting represents parents
+			and child items in the item tree.',
+		'locations' => '(array) Locations where menus can be placed. List of objects, one per location.'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
 class WPCOM_JSON_API_Menus_List_Menus_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 	function callback( $path = '', $site = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
@@ -630,6 +709,31 @@ class WPCOM_JSON_API_Menus_List_Menus_Endpoint extends WPCOM_JSON_API_Menus_Abst
 	}
 }
 
+new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
+	'method'=> 'GET',
+	'description' => 'Get a single navigation menu.',
+	'group' => 'menus',
+	'stat' => 'menus:get-menu',
+	'path' => '/sites/%s/menus/%d',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$menu_id' => '(int) Menu ID',
+	),
+	'response_format' => array(
+		'menu' => '(object) A menu object.<br/><br/>
+			A menu object contains a name, items, locations, etc.
+			Check the example response for the full structure.
+			<br/><br/>
+			Item objects contain fields relating to that item, e.g. id, type, content_id,
+			but they can also contain other items objects - this nesting represents parents
+			and child items in the item tree.'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/510604099',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
 class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 	function callback( $path = '', $site = 0, $menu_id = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
@@ -659,6 +763,25 @@ class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstra
 		return array( 'menu' => $this->simplify( $menu ) );
 	}
 }
+
+new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
+	'method' => 'POST',
+	'description' => 'Delete a navigation menu',
+	'group' => 'menus',
+	'stat' => 'menus:delete-menu',
+	'path' => '/sites/%s/menus/%d/delete',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$menu_id' => '(int) Menu ID',
+	),
+	'response_format' => array(
+		'deleted' => '(bool) Has the menu been deleted?',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/$menu_id/delete',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
 
 class WPCOM_JSON_API_Menus_Delete_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
 	function callback( $path = '', $site = 0, $menu_id = 0 ) {

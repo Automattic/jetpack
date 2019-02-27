@@ -9,8 +9,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec
 class Jetpack_Sync_Server {
 	private $codec;
 	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
-	const BLOG_LOCK_TRANSIENT_PREFIX = 'jp_sync_req_lock_';
-	const BLOG_LOCK_TRANSIENT_EXPIRY = 60; // seconds
+	const BLOG_LOCK_TRANSIENT_PREFIX      = 'jp_sync_req_lock_';
+	const BLOG_LOCK_TRANSIENT_EXPIRY      = 60; // seconds
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {

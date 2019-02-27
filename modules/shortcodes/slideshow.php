@@ -119,7 +119,9 @@ class Jetpack_Slideshow_Shortcode {
 				'exclude'   => '',
 				'autostart' => true,
 				'size'      => '',
-			), $attr, 'slideshow'
+			),
+			$attr,
+			'slideshow'
 		);
 
 		if ( 'rand' == strtolower( $attr['order'] ) ) {
@@ -140,15 +142,16 @@ class Jetpack_Slideshow_Shortcode {
 
 		$attachments = get_posts(
 			array(
-				'post_status'    => 'inherit',
-				'post_type'      => 'attachment',
-				'post_mime_type' => 'image',
-				'posts_per_page' => - 1,
-				'post_parent'    => $post_parent,
-				'order'          => $attr['order'],
-				'orderby'        => $attr['orderby'],
-				'include'        => $attr['include'],
-				'exclude'        => $attr['exclude'],
+				'post_status'      => 'inherit',
+				'post_type'        => 'attachment',
+				'post_mime_type'   => 'image',
+				'posts_per_page'   => - 1,
+				'post_parent'      => $post_parent,
+				'order'            => $attr['order'],
+				'orderby'          => $attr['orderby'],
+				'include'          => $attr['include'],
+				'exclude'          => $attr['exclude'],
+				'suppress_filters' => false,
 			)
 		);
 
@@ -177,11 +180,11 @@ class Jetpack_Slideshow_Shortcode {
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
-				'src'     => (string) esc_url_raw( $attachment_image_src ),
-				'id'      => (string) $attachment->ID,
-				'title'   => (string) esc_attr( $attachment_image_title ),
-				'alt'     => (string) esc_attr( $attachment_image_alt ),
-				'caption' => (string) $caption,
+				'src'      => (string) esc_url_raw( $attachment_image_src ),
+				'id'       => (string) $attachment->ID,
+				'title'    => (string) esc_attr( $attachment_image_title ),
+				'alt'      => (string) esc_attr( $attachment_image_alt ),
+				'caption'  => (string) $caption,
 				'itemprop' => 'image',
 			);
 		}
@@ -227,7 +230,7 @@ class Jetpack_Slideshow_Shortcode {
 
 		if ( defined( 'JSON_HEX_AMP' ) ) {
 			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below
-			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore PHPCompatibility
 		} else {
 			$gallery = json_encode( $attr['gallery'] );
 		}
@@ -270,12 +273,15 @@ class Jetpack_Slideshow_Shortcode {
 	function enqueue_scripts() {
 
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
-		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20160119.1', true );
-		if ( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/rtl/slideshow-shortcode-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
-		}
+		wp_enqueue_script(
+			'jetpack-slideshow',
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
+			array( 'jquery-cycle' ),
+			'20160119.1',
+			true
+		);
+		wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
+		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
 		wp_localize_script(
 			'jetpack-slideshow',
@@ -292,15 +298,18 @@ class Jetpack_Slideshow_Shortcode {
 			 * - string - spinner - URL of the spinner image.
 			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
 			 */
-			apply_filters( 'jetpack_js_slideshow_settings', array(
-				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				'speed'   => '4000',
-			) )
+			apply_filters(
+				'jetpack_js_slideshow_settings',
+				array(
+					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+					'speed'   => '4000',
+				)
+			)
 		);
 	}
 
 	public static function init() {
-		new Jetpack_Slideshow_Shortcode;
+		new Jetpack_Slideshow_Shortcode();
 	}
 }
 

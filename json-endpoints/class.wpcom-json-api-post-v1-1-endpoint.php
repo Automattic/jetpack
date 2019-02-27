@@ -4,7 +4,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 	public $post_object_format = array(
 		// explicitly document and cast all output
 		'ID'                => '(int) The post ID.',
-		'site_ID'		    => '(int) The site ID.',
+		'site_ID'           => '(int) The site ID.',
 		'author'            => '(object>author) The author of the post.',
 		'date'              => "(ISO 8601 datetime) The post's creation time.",
 		'modified'          => "(ISO 8601 datetime) The post's most recent update time.",
@@ -46,9 +46,9 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'terms'             => '(object) Hash of taxonomy names mapping to a hash of terms keyed by term name.',
 		'tags'              => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'        => '(object:category) Hash of categories (keyed by category name) applied to the post.',
-		'attachments'	    => '(object:attachment) Hash of post attachments (keyed by attachment ID). Returns the most recent 20 attachments. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
+		'attachments'       => '(object:attachment) Hash of post attachments (keyed by attachment ID). Returns the most recent 20 attachments. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
 		'attachment_count'  => '(int) The total number of attachments for this post. Use the `/sites/$site/media` endpoint to query the attachments beyond the default of 20 that are returned here.',
-		'metadata'	        => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+		'metadata'          => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'              => '(object) API result meta data',
 		'capabilities'      => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 		'revisions'         => '(array) List of post revision IDs. Only available for posts retrieved with context=edit.',
@@ -103,7 +103,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 
 		if ( is_wp_error( $post ) ) {
 			return $post;
-		} 
+		}
 
 		$GLOBALS['post'] = $post;
 
@@ -112,7 +112,16 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			setup_postdata( $post );
 		}
 
-		$response = $this->render_response_keys( $post, $context, array_keys( $this->post_object_format ) );
+		$keys_to_render = array_keys( $this->post_object_format );
+		if ( isset( $this->api->query[ 'fields' ] ) ) {
+			$limit_to_fields = array_map( 'trim', explode( ',', $this->api->query['fields'] ) );
+			$keys_to_render = array_intersect( $keys_to_render, $limit_to_fields );
+		}
+
+		// always include some keys because processors require it to validate access
+		$keys_to_render = array_unique( array_merge( $keys_to_render, array( 'type', 'status', 'password' ) ) );
+
+		$response = $this->render_response_keys( $post, $context, $keys_to_render );
 
 		unset( $GLOBALS['post'] );
 

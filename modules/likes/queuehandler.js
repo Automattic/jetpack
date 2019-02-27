@@ -1,10 +1,18 @@
 /* global pm, wpcom_reblog, JSON */
 
-var jetpackLikesWidgetQueue = [];
 var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
 
-function JetpackLikespostMessage( message, target ) {
+// Due to performance problems on pages with a large number of widget iframes that need to be loaded,
+// we are limiting the processing at any instant to unloaded widgets that are currently in viewport,
+// plus this constant that will allow processing of widgets above and bellow the current fold.
+// This aim of it is to improve the UX and hide the transition from unloaded to loaded state from users.
+var jetpackLikesLookAhead = 2000; // pixels
+
+// Keeps track of loaded comment likes widget so we can unload them when they are scrolled out of view.
+var jetpackCommentLikesLoadedWidgets = [];
+
+function JetpackLikesPostMessage(message, target ) {
 	if ( 'string' === typeof message ){
 		try {
 			message = JSON.parse( message );
@@ -27,7 +35,13 @@ function JetpackLikesBatchHandler() {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
 			return;
 		}
+
+		if ( ! jetpackIsScrolledIntoView( this ) ) {
+			return;
+		}
+
 		jetpackLikesWidgetBatch.push( this.id );
+
 		var regex = /like-(post|comment)-wrapper-(\d+)-(\d+)-(\w+)/,
 			match = regex.exec( this.id ),
 			info;
@@ -53,7 +67,7 @@ function JetpackLikesBatchHandler() {
 	});
 
 	if ( requests.length > 0 ) {
-		JetpackLikespostMessage( { event: 'initialBatch', requests: requests }, window.frames['likes-master'] );
+		JetpackLikesPostMessage( { event: 'initialBatch', requests: requests }, window.frames['likes-master'] );
 	}
 }
 
@@ -65,140 +79,143 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 
 	// We only allow messages from one origin
-	allowedOrigin = window.location.protocol + '//widgets.wp.com';
+	allowedOrigin = 'https://widgets.wp.com';
 	if ( allowedOrigin !== message.origin ) {
 		return;
 	}
 
-	if ( 'masterReady' === event.event ) {
-		jQuery( document ).ready( function() {
-			jetpackLikesMasterReady = true;
+	switch ( event.event ) {
+		case 'masterReady':
+			jQuery( document ).ready( function() {
+				jetpackLikesMasterReady = true;
 
-			var stylesData = {
-					event: 'injectStyles'
-				},
-				$sdTextColor = jQuery( '.sd-text-color' ),
-				$sdLinkColor = jQuery( '.sd-link-color' );
+				var stylesData = {
+						event: 'injectStyles'
+					},
+					$sdTextColor = jQuery( '.sd-text-color' ),
+					$sdLinkColor = jQuery( '.sd-link-color' );
 
-			if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
-				JetpackLikespostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
+				if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
+					JetpackLikesPostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
 
-				stylesData.adminBarStyles = {
-					background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
-					isRtl: ( 'rtl' === jQuery( '#wpadminbar' ).css( 'direction' ) )
+					stylesData.adminBarStyles = {
+						background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
+						isRtl: ( 'rtl' === jQuery( '#wpadminbar' ).css( 'direction' ) )
+					};
+				}
+
+				if ( ! window.addEventListener ) {
+					jQuery( '#wp-admin-bar-admin-bar-likes-widget' ).hide();
+				}
+
+				stylesData.textStyles = {
+					color:          $sdTextColor.css( 'color' ),
+					fontFamily:     $sdTextColor.css( 'font-family' ),
+					fontSize:       $sdTextColor.css( 'font-size' ),
+					direction:      $sdTextColor.css( 'direction' ),
+					fontWeight:     $sdTextColor.css( 'font-weight' ),
+					fontStyle:      $sdTextColor.css( 'font-style' ),
+					textDecoration: $sdTextColor.css( 'text-decoration' )
 				};
-			}
 
-			if ( ! window.addEventListener ) {
-				jQuery( '#wp-admin-bar-admin-bar-likes-widget' ).hide();
-			}
+				stylesData.linkStyles = {
+					color:          $sdLinkColor.css( 'color' ),
+					fontFamily:     $sdLinkColor.css( 'font-family' ),
+					fontSize:       $sdLinkColor.css( 'font-size' ),
+					textDecoration: $sdLinkColor.css( 'text-decoration' ),
+					fontWeight:     $sdLinkColor.css( 'font-weight' ),
+					fontStyle:      $sdLinkColor.css( 'font-style' )
+				};
 
-			stylesData.textStyles = {
-				color:          $sdTextColor.css( 'color' ),
-				fontFamily:     $sdTextColor.css( 'font-family' ),
-				fontSize:       $sdTextColor.css( 'font-size' ),
-				direction:      $sdTextColor.css( 'direction' ),
-				fontWeight:     $sdTextColor.css( 'font-weight' ),
-				fontStyle:      $sdTextColor.css( 'font-style' ),
-				textDecoration: $sdTextColor.css('text-decoration')
-			};
+				JetpackLikesPostMessage( stylesData, window.frames[ 'likes-master' ] );
 
-			stylesData.linkStyles = {
-				color:          $sdLinkColor.css('color'),
-				fontFamily:     $sdLinkColor.css('font-family'),
-				fontSize:       $sdLinkColor.css('font-size'),
-				textDecoration: $sdLinkColor.css('text-decoration'),
-				fontWeight:     $sdLinkColor.css( 'font-weight' ),
-				fontStyle:      $sdLinkColor.css( 'font-style' )
-			};
+				JetpackLikesBatchHandler();
+			} );
 
-			JetpackLikespostMessage( stylesData, window.frames[ 'likes-master' ] );
+			break;
 
-			JetpackLikesBatchHandler();
+		case 'showLikeWidget':
+			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			break;
 
-			jQuery( document ).on( 'inview', 'div.jetpack-likes-widget-unloaded', function() {
-				jetpackLikesWidgetQueue.push( this.id );
-			});
-		});
-	}
+		case 'showCommentLikeWidget':
+			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			break;
 
-	if ( 'showLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .post-likes-widget-placeholder'  ).fadeOut( 'fast', function() {
-			jQuery( '#' + event.id + ' .post-likes-widget' ).fadeIn( 'fast', function() {
-				JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
-			});
-		});
-	}
+		case 'killCommentLikes':
+			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
+			jQuery( '.jetpack-comment-likes-widget-wrapper' ).remove();
+			break;
 
-	if ( 'clickReblogFlair' === event.event ) {
-		wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
-	}
+		case 'clickReblogFlair':
+			wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
+			break;
 
-	if ( 'showOtherGravatars' === event.event ) {
-		$container = jQuery( '#likes-other-gravatars' );
-		$list = $container.find( 'ul' );
+		case 'showOtherGravatars':
+			$container = jQuery( '#likes-other-gravatars' );
+			$list = $container.find( 'ul' );
 
-		$container.hide();
-		$list.html( '' );
+			$container.hide();
+			$list.html( '' );
 
-		$container.find( '.likes-text span' ).text( event.total );
+			$container.find( '.likes-text span' ).text( event.total );
 
-		jQuery.each( event.likers, function( i, liker ) {
-			var element;
+			jQuery.each( event.likers, function( i, liker ) {
+				var element;
 
-			if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
-				// We only display gravatars with http or https schema
-				return;
-			}
+				if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
+					// We only display gravatars with http or https schema
+					return;
+				}
 
-			element = jQuery( '<li><a><img /></a></li>' );
-			element.addClass( liker.css_class );
+				element = jQuery( '<li><a><img /></a></li>' );
+				element.addClass( liker.css_class );
 
-			element.find( 'a' ).
-				attr({
+				element.find( 'a' ).
+				attr( {
 					href: liker.profile_URL,
 					rel: 'nofollow',
 					target: '_parent'
-				}).
+				} ).
 				addClass( 'wpl-liker' );
 
-			element.find( 'img' ).
-				attr({
+				element.find( 'img' ).
+				attr( {
 					src: liker.avatar_URL,
 					alt: liker.name
-				}).
-				css({
+				} ).
+				css( {
 					width: '30px',
 					height: '30px',
 					paddingRight: '3px'
-				});
+				} );
 
-			$list.append( element );
-		} );
+				$list.append( element );
+			} );
 
-		offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
+			offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
 
-		$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
-		$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
+			$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
+			$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
 
-		rowLength = Math.floor( event.width / 37 );
-		height = ( Math.ceil( event.likers.length / rowLength ) * 37 ) + 13;
-		if ( height > 204 ) {
-			height = 204;
-		}
+			rowLength = Math.floor( event.width / 37 );
+			height = ( Math.ceil( event.likers.length / rowLength ) * 37 ) + 13;
+			if ( height > 204 ) {
+				height = 204;
+			}
 
-		$container.css( 'height', height + 'px' );
-		$container.css( 'width', rowLength * 37 - 7 + 'px' );
+			$container.css( 'height', height + 'px' );
+			$container.css( 'width', rowLength * 37 - 7 + 'px' );
 
-		$list.css( 'width', rowLength * 37 + 'px' );
+			$list.css( 'width', rowLength * 37 + 'px' );
 
-		$container.fadeIn( 'slow' );
+			$container.fadeIn( 'slow' );
 
-		scrollbarWidth = $list[0].offsetWidth - $list[0].clientWidth;
-		if ( scrollbarWidth > 0 ) {
-			$container.width( $container.width() + scrollbarWidth );
-			$list.width( $list.width() + scrollbarWidth );
-		}
+			scrollbarWidth = $list[0].offsetWidth - $list[0].clientWidth;
+			if ( scrollbarWidth > 0 ) {
+				$container.width( $container.width() + scrollbarWidth );
+				$list.width( $list.width() + scrollbarWidth );
+			}
 	}
 }
 
@@ -213,66 +230,155 @@ jQuery( document ).click( function( e ) {
 });
 
 function JetpackLikesWidgetQueueHandler() {
-	var $wrapper, wrapperID, found;
+	var wrapperID;
+
 	if ( ! jetpackLikesMasterReady ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}
 
-	if ( jetpackLikesWidgetQueue.length > 0 ) {
-		// We may have a widget that needs creating now
-		found = false;
-		while( jetpackLikesWidgetQueue.length > 0 ) {
-			// Grab the first member of the queue that isn't already loading.
-			wrapperID = jetpackLikesWidgetQueue.splice( 0, 1 )[0];
-			if ( jQuery( '#' + wrapperID ).hasClass( 'jetpack-likes-widget-unloaded' ) ) {
-				found = true;
-				break;
-			}
-		}
-		if ( ! found ) {
-			setTimeout( JetpackLikesWidgetQueueHandler, 500 );
-			return;
-		}
-	} else if ( jQuery( 'div.jetpack-likes-widget-unloaded' ).length > 0 ) {
+	// Restore widgets to initial unloaded state when they are scrolled out of view.
+	jetpackUnloadScrolledOutWidgets();
+
+	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
+
+	if ( unloadedWidgetsInView.length > 0 ) {
 		// Grab any unloaded widgets for a batch request
 		JetpackLikesBatchHandler();
-
-		// Get the next unloaded widget
-		wrapperID = jQuery( 'div.jetpack-likes-widget-unloaded' ).first()[0].id;
-		if ( ! wrapperID ) {
-			// Everything is currently loaded
-			setTimeout( JetpackLikesWidgetQueueHandler, 500 );
-			return;
-		}
 	}
 
+	for ( var i=0, length = unloadedWidgetsInView.length; i <= length - 1; i++ ) {
+		wrapperID = unloadedWidgetsInView[i].id;
+
+		if ( ! wrapperID ){
+			continue;
+		}
+
+		jetpackLoadLikeWidgetIframe( wrapperID );
+	}
+}
+
+function jetpackLoadLikeWidgetIframe( wrapperID ) {
+	var $wrapper;
+	
 	if ( 'undefined' === typeof wrapperID ) {
-		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}
 
 	$wrapper = jQuery( '#' + wrapperID );
 	$wrapper.find( 'iframe' ).remove();
 
-	if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
-		$wrapper.find( '.post-likes-widget-placeholder' ).after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="22px" width="68px" frameBorder="0" scrolling="no" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
-	} else {
-		$wrapper.find( '.post-likes-widget-placeholder' ).after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="55px" width="100%" frameBorder="0" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
+	var placeholder = $wrapper.find( '.likes-widget-placeholder' );
+
+	// Post like iframe
+	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
+		var postLikesFrame = document.createElement( 'iframe' );
+
+		postLikesFrame['class'] = 'post-likes-widget jetpack-likes-widget';
+		postLikesFrame.name = $wrapper.data( 'name' );
+		postLikesFrame.src = $wrapper.data( 'src' );
+		postLikesFrame.height = '18px';
+		postLikesFrame.width = '200px';
+		postLikesFrame.frameBorder = '0';
+		postLikesFrame.scrolling = 'no';
+
+		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
+			postLikesFrame.height = '22px';
+			postLikesFrame.width = '68px';
+			postLikesFrame.scrolling = 'no';
+		} else {
+			postLikesFrame.height = '55px';
+			postLikesFrame.width = '100%';
+		}
+
+		placeholder.after( postLikesFrame );
+	}
+
+	// Comment like iframe
+	if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
+		var commentLikesFrame = document.createElement( 'iframe' );
+
+		commentLikesFrame['class'] = 'comment-likes-widget-frame jetpack-likes-widget-frame';
+		commentLikesFrame.name = $wrapper.data( 'name' );
+		commentLikesFrame.src = $wrapper.data( 'src' );
+		commentLikesFrame.height = '18px';
+		commentLikesFrame.width = '100%';
+		commentLikesFrame.frameBorder = '0';
+		commentLikesFrame.scrolling = 'no';
+
+		$wrapper.find( '.comment-like-feedback' ).after( commentLikesFrame );
+		
+		jetpackCommentLikesLoadedWidgets.push( commentLikesFrame );
 	}
 
 	$wrapper.removeClass( 'jetpack-likes-widget-unloaded' ).addClass( 'jetpack-likes-widget-loading' );
 
 	$wrapper.find( 'iframe' ).load( function( e ) {
 		var $iframe = jQuery( e.target );
-		$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
-		JetpackLikespostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
+		JetpackLikesPostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
+
+		$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			$wrapper.find( 'iframe' ).Jetpack( 'resizeable' );
 		}
 	});
-	setTimeout( JetpackLikesWidgetQueueHandler, 250 );
 }
+
+function jetpackGetUnloadedWidgetsInView() {
+	var $unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
+
+	return $unloadedWidgets.filter( function() {
+		return jetpackIsScrolledIntoView( this );
+	} );
+}
+
+function jetpackIsScrolledIntoView( element ) {
+	var top = element.getBoundingClientRect().top;
+	var bottom = element.getBoundingClientRect().bottom;
+
+	// Allow some slack above and bellow the fold with jetpackLikesLookAhead,
+	// with the aim of hiding the transition from unloaded to loaded widget from users.
+	return ( top + jetpackLikesLookAhead >= 0 ) && ( bottom <= window.innerHeight + jetpackLikesLookAhead );
+}
+
+function jetpackUnloadScrolledOutWidgets() {
+	for ( var i = jetpackCommentLikesLoadedWidgets.length - 1; i >= 0; i-- ) {
+		var currentWidgetIframe = jetpackCommentLikesLoadedWidgets[ i ];
+
+		if ( ! jetpackIsScrolledIntoView( currentWidgetIframe ) ) {
+			var $widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
+
+			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
+			$widgetWrapper
+				.removeClass( 'jetpack-likes-widget-loaded jetpack-likes-widget-loading' )
+				.addClass( 'jetpack-likes-widget-unloaded' );
+
+			// Bring back the loading placeholder into view.
+			$widgetWrapper.children( '.comment-likes-widget-placeholder' ).fadeIn();
+
+			// Remove it from the list of loaded widgets.
+			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
+
+			// Remove comment like widget iFrame.
+			jQuery( currentWidgetIframe ).remove();
+		}
+	}
+}
+
+var jetpackWidgetsDelayedExec = function( after, fn ) {
+	var timer;
+	return function() {
+		timer && clearTimeout( timer );
+		timer = setTimeout( fn, after );
+	};
+};
+
+var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
+
+// Load initial batch of widgets, prior to any scrolling events.
 JetpackLikesWidgetQueueHandler();
+
+// Add event listener to execute queue handler after scroll.
+window.addEventListener( 'scroll', jetpackOnScrollStopped, true );

@@ -12,12 +12,14 @@ import NoticeAction from 'components/notice/notice-action.jsx';
  */
 import {
 	isNoticeDismissed as _isNoticeDismissed,
-	dismissJetpackNotice
+	dismissJetpackNotice,
 } from 'state/jetpack-notices';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
-const FeedbackDashRequest = React.createClass( {
-	displayName: 'FeedbackDashRequest',
-	renderContent: function() {
+class FeedbackDashRequest extends React.Component {
+	static displayName = 'FeedbackDashRequest';
+
+	renderContent = () => {
 		if ( this.props.isDismissed( 'feedback_dash_request' ) ) {
 			return;
 		}
@@ -30,36 +32,28 @@ const FeedbackDashRequest = React.createClass( {
 					onDismissClick={ this.props.dismissNotice }
 					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
-					<NoticeAction
-						href="https://jetpack.com/contact-support/"
-					>
-						{ __( 'Let us know!' ) }
-					</NoticeAction>
+					<NoticeAction href={ JETPACK_CONTACT_SUPPORT }>{ __( 'Let us know!' ) }</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);
-	},
+	};
 
 	render() {
-		return (
-			<div>
-				{ this.renderContent() }
-			</div>
-		);
+		return <div>{ this.renderContent() }</div>;
 	}
-} );
+}
 
 export default connect(
 	state => {
 		return {
-			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
+			isDismissed: notice => _isNoticeDismissed( state, notice ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			dismissNotice: () => {
 				return dispatch( dismissJetpackNotice( 'feedback_dash_request' ) );
-			}
+			},
 		};
 	}
 )( FeedbackDashRequest );

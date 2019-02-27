@@ -116,6 +116,7 @@ jQuery( function( $ ) {
 			$( this ).closest( 'div.widget' ).find( 'a.display-options' ).click();
 			$condition.find( 'select.conditions-rule-major' ).val( '' ).change();
 		} else {
+			$condition.find( 'select.conditions-rule-major' ).change();
 			$condition.detach();
 		}
 
@@ -223,12 +224,12 @@ jQuery( function( $ ) {
 					subkey = majorData[i][1][j][0];
 					subval = majorData[i][1][j][1];
 
-					optgroup.append( $( '<option/>' ).val( subkey ).text( subval.replace( /&nbsp;/g, '\xA0' ) ) );
+					optgroup.append( $( '<option/>' ).val( subkey ).text( decodeEntities( subval.replace( /&nbsp;/g, '\xA0' ) ) ) );
 				}
 
 				select.append( optgroup );
 			} else {
-				select.append( $( '<option/>' ).val( key ).text( val.replace( /&nbsp;/g, '\xA0' ) ) );
+				select.append( $( '<option/>' ).val( key ).text( decodeEntities( val.replace( /&nbsp;/g, '\xA0' ) ) ) );
 			}
 		}
 
@@ -254,5 +255,11 @@ jQuery( function( $ ) {
 				$( this ).attr( 'name', 'conditions[page_children][' + index + ']' );
 				index++;
 			} );
+	}
+
+	function decodeEntities( encodedString ) {
+		var textarea = document.createElement( 'textarea' );
+		textarea.innerHTML = encodedString;
+		return textarea.value;
 	}
 } );

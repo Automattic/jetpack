@@ -56,6 +56,8 @@ function jetpack_load_shortcodes() {
 	/**
 	 * This filter allows other plugins to override which shortcodes Jetpack loads.
 	 *
+	 * Fires as part of the `plugins_loaded` WP hook, so modifying code needs to be in a plugin, not in a theme's functions.php.
+	 *
 	 * @module shortcodes
 	 *
 	 * @since 2.2.1
@@ -66,7 +68,7 @@ function jetpack_load_shortcodes() {
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
-		include $include;
+		include_once $include;
 	}
 }
 
@@ -189,6 +191,14 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( intval( $attrs['height'] ) ) : $defaults['height'];
 
 	return $attrs;
+}
+
+/**
+ * When an embed service goes away, we can use this handler
+ * to output a link for history's sake.
+ */
+function jetpack_deprecated_embed_handler( $matches, $attr, $url ) {
+	return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( esc_url( $url ) ) );
 }
 
 jetpack_load_shortcodes();

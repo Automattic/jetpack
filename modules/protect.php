@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Prevent and block malicious login attempts.
+ * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -9,7 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
+ * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -50,7 +50,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_activate_module_protect', array ( $this, 'on_activation' ) );
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_init', array ( $this, 'check_use_math' ) );
+		add_action( 'login_form', array ( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
@@ -58,7 +58,13 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_head', array ( $this, 'check_login_ability' ) );
+		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
+
+		// Load math fallback after math page form submission
+		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+		}
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
@@ -133,7 +139,7 @@ class Jetpack_Protect_Module {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
 
-			if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			if ( ! ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) || is_plugin_active_for_network( 'jetpack-dev/jetpack.php' ) ) ) {
 				add_action( 'load-index.php', array ( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 			}
 		}
@@ -268,7 +274,8 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return void
 	 */
-	function log_failed_attempt() {
+	function log_failed_attempt( $login_user = null ) {
+
 		/**
 		 * Fires before every failed login attempt.
 		 *
@@ -276,9 +283,12 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string jetpack_protect_get_ip IP stored by Protect.
+		 * @param array Information about failed login attempt
+		 *   [
+		 *     'login' => (string) Username or email used in failed login attempt
+		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
+		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
@@ -311,7 +321,11 @@ class Jetpack_Protect_Module {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address whitelist
 	 */
-	public function log_successful_login( $user_login, $user ) {
+	public function log_successful_login( $user_login, $user = null ) {
+		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
+			$user = get_user_by( 'login', $user_login );
+		}
+
 		$this->protect_call( 'successful_login', array ( 'roles' => $user->roles ) );
 	}
 
@@ -423,6 +437,47 @@ class Jetpack_Protect_Module {
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
+
+		/**
+		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
+		 */
+		if ( Jetpack_Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
+			$this->kill_login();
+		}
+
+		if ( $this->is_current_ip_whitelisted() ) {
+		    return true;
+        }
+
+		$status = $this->get_cached_status();
+
+		if ( empty( $status ) ) {
+			// If we've reached this point, this means that the IP isn't cached.
+			// Now we check with the Protect API to see if we should allow login
+			$response = $this->protect_call( $action = 'check_ip' );
+
+			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
+				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+				new Jetpack_Protect_Math_Authenticate;
+
+				return false;
+			}
+
+			$status = $response['status'];
+		}
+
+		if ( 'blocked' == $status ) {
+			$this->block_with_math();
+		}
+
+		if ( 'blocked-hard' == $status ) {
+			$this->kill_login();
+		}
+
+		return true;
+	}
+
+	function is_current_ip_whitelisted() {
 		$ip = jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP
@@ -433,9 +488,9 @@ class Jetpack_Protect_Module {
 			ob_end_clean();
 			return true;
 		}
-		
+
 		/**
-		 * Short-circuit check_login_ability. 
+		 * Short-circuit check_login_ability.
 		 *
 		 * If there is an alternate way to validate the current IP such as
 		 * a hard-coded list of IP addresses, we can short-circuit the rest
@@ -450,11 +505,6 @@ class Jetpack_Protect_Module {
 		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
 			return true;
 		}
-		
-		$headers         = $this->get_headers();
-		$header_hash     = md5( json_encode( $headers ) );
-		$transient_name  = 'jpp_li_' . $header_hash;
-		$transient_value = $this->get_transient( $transient_name );
 
 		if ( jetpack_protect_ip_is_private( $ip ) ) {
 			return true;
@@ -463,40 +513,26 @@ class Jetpack_Protect_Module {
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
 		}
+    }
 
-		// Check out our transients
-		if ( isset( $transient_value ) && 'ok' == $transient_value['status'] ) {
-			return true;
-		}
+    function has_login_ability() {
+	    if ( $this->is_current_ip_whitelisted() ) {
+		    return true;
+	    }
+	    $status = $this->get_cached_status();
+	    if ( empty( $status ) || $status === 'ok' ) {
+	        return true;
+        }
+        return false;
+    }
 
-		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
-			$this->block_with_math();
-		}
-
-		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
-			$this->kill_login();
-		}
-
-		// If we've reached this point, this means that the IP isn't cached.
-		// Now we check with the Protect API to see if we should allow login
-		$response = $this->protect_call( $action = 'check_ip' );
-
-		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
-
-			return false;
-		}
-
-		if ( 'blocked' == $response['status'] ) {
-			$this->block_with_math();
-		}
-
-		if ( 'blocked-hard' == $response['status'] ) {
-			$this->kill_login();
-		}
-
-		return true;
+	function get_cached_status() {
+		$transient_name  = $this->get_transient_name();
+		$value = $this->get_transient( $transient_name );
+		if ( isset( $value['status'] ) ) {
+		    return $value['status'];
+        }
+        return '';
 	}
 
 	function block_with_math() {
@@ -524,7 +560,7 @@ class Jetpack_Protect_Module {
 		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
-		if ( ! $allow_math_fallback_on_fail ) {
+		if ( ! $allow_math_fallback_on_fail  ) {
 			$this->kill_login();
 		}
 		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
@@ -537,6 +573,17 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
+		if (
+			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+			'logout' === $_GET['action'] &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'log-out' ) &&
+			wp_get_current_user()
+
+		) {
+			// Allow users to logout
+			return;
+		}
+
 		$ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
@@ -548,19 +595,24 @@ class Jetpack_Protect_Module {
 		 * @param string $ip IP flagged by Protect.
 		 */
 		do_action( 'jpp_kill_login', $ip );
-		$help_url = 'https://jetpack.com/support/security-features/#unblock';
-
-		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
 
 		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
+			wp_die(
+				$die_string,
+				__( 'Login Blocked by Jetpack', 'jetpack' ),
+				array ( 'response' => 403 )
+			);
 		}
 
-		wp_die(
-			$die_string,
-			__( 'Login Blocked by Jetpack', 'jetpack' ),
-			array ( 'response' => 403 )
-		);
+		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
+		$blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
+
+		if ( $blocked_login_page->is_blocked_user_valid() ) {
+			return;
+		}
+
+		$blocked_login_page->render_and_die();
 	}
 
 	/*
@@ -593,6 +645,7 @@ class Jetpack_Protect_Module {
 			// If it fails we need access to $this->api_key_error
 			if ( $result ) {
 				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
+				exit;
 			}
 		}
 
@@ -676,7 +729,7 @@ class Jetpack_Protect_Module {
 	 * @return array
 	 */
 	function protect_call( $action = 'check_ip', $request = array () ) {
-		global $wp_version, $wpdb, $current_user;
+		global $wp_version;
 
 		$api_key = $this->maybe_get_protect_key();
 
@@ -716,9 +769,8 @@ class Jetpack_Protect_Module {
 
 		$response_json           = wp_remote_post( $this->get_api_host(), $args );
 		$this->last_response_raw = $response_json;
-		$headers                 = $this->get_headers();
-		$header_hash             = md5( json_encode( $headers ) );
-		$transient_name          = 'jpp_li_' . $header_hash;
+
+		$transient_name = $this->get_transient_name();
 		$this->delete_transient( $transient_name );
 
 		if ( is_array( $response_json ) ) {
@@ -748,6 +800,12 @@ class Jetpack_Protect_Module {
 		return $response;
 	}
 
+	function get_transient_name() {
+		$headers     = $this->get_headers();
+		$header_hash = md5( json_encode( $headers ) );
+
+		return 'jpp_li_' . $header_hash;
+	}
 
 	/**
 	 * Wrapper for WordPress set_transient function, our version sets
@@ -857,8 +915,9 @@ class Jetpack_Protect_Module {
 
 }
 
-Jetpack_Protect_Module::instance();
+$jetpack_protect = Jetpack_Protect_Module::instance();
 
+global $pagenow;
 if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
-	Jetpack_Protect_Module::check_login_ability();
+	$jetpack_protect->check_login_ability();
 }

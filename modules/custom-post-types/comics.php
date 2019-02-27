@@ -47,10 +47,6 @@ class Jetpack_Comic {
 		// post type needs to be registered no matter what, but none of the UI needs to be
 		// available.
 
-		// Enable Omnisearch for Comic posts.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
-			new Jetpack_Omnisearch_Posts( self::POST_TYPE );
-
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		if ( function_exists( 'queue_publish_post' ) ) {
@@ -173,13 +169,17 @@ class Jetpack_Comic {
 	}
 
 	public function register_scripts() {
-		if( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/rtl/comics-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
-		}
+		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
+		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
 
-		wp_enqueue_script( 'jetpack-comics', plugins_url( 'comics/comics.js', __FILE__ ), array( 'jquery', 'jquery.spin' ) );
+		wp_enqueue_script(
+			'jetpack-comics',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/custom-post-types/comics/comics.min.js',
+				'modules/custom-post-types/comics/comics.js'
+			),
+			array( 'jquery', 'jquery.spin' )
+		);
 
 		$options = array(
 			'nonce' => wp_create_nonce( 'jetpack_comic_upload_nonce' ),

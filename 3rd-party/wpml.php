@@ -28,9 +28,11 @@ function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
 
 	foreach ( $posts as $k => $post ) {
 		$lang_information = wpml_get_language_information( $post['post_id'] );
-		$post_language    = substr( $lang_information['locale'], 0, 2 );
-		if ( $post_language !== $sitepress->get_current_language() ) {
-			unset( $posts[ $k ] );
+		if ( ! is_wp_error( $lang_information ) ) {
+			$post_language = substr( $lang_information['locale'], 0, 2 );
+			if ( $post_language !== $sitepress->get_current_language() ) {
+				unset( $posts[ $k ] );
+			}
 		}
 	}
 

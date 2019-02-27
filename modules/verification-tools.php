@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Module Name: Site Verification
+ * Module Name: Site verification
  * Module Description: Establish your site's authenticity with external services.
  * First Introduced: 3.0
  * Sort Order: 33

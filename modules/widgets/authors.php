@@ -23,8 +23,8 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Authors', 'jetpack' ) ),
 			array(
-				'classname' => 'widget_authors',
-				'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
+				'classname'                   => 'widget_authors',
+				'description'                 => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -57,7 +57,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
 		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
-			if ( $output = wp_cache_get( $cache_bucket, 'widget') ) {
+			if ( $output = wp_cache_get( $cache_bucket, 'widget' ) ) {
 				echo $output;
 				return;
 			}
@@ -65,7 +65,14 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			ob_start();
 		}
 
-		$instance = wp_parse_args( $instance, array( 'title' => __( 'Authors', 'jetpack' ), 'all' => false, 'number' => 5, 'avatar_size' => 48 ) );
+		$instance           = wp_parse_args(
+			$instance, array(
+				'title'       => __( 'Authors', 'jetpack' ),
+				'all'         => false,
+				'number'      => 5,
+				'avatar_size' => 48,
+			)
+		);
 		$instance['number'] = min( 10, max( 0, (int) $instance['number'] ) );
 
 		// We need to query at least one post to determine whether an author has written any posts or not
@@ -83,11 +90,13 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 */
 		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', $default_excluded_authors );
 
-		$authors = get_users( array(
-			'fields' => 'all',
-			'who' => 'authors',
-			'exclude' => (array) $excluded_authors,
-		) );
+		$authors = get_users(
+			array(
+				'fields'  => 'all',
+				'who'     => 'authors',
+				'exclude' => (array) $excluded_authors,
+			)
+		);
 
 		echo $args['before_widget'];
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -108,14 +117,16 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		$post_types = apply_filters( 'jetpack_widget_authors_post_types', $default_post_type );
 
 		foreach ( $authors as $author ) {
-			$r = new WP_Query( array(
-				'author'         => $author->ID,
-				'posts_per_page' => $query_number,
-				'post_type'      => $post_types,
-				'post_status'    => 'publish',
-				'no_found_rows'  => true,
-				'has_password'   => false,
-			) );
+			$r = new WP_Query(
+				array(
+					'author'         => $author->ID,
+					'posts_per_page' => $query_number,
+					'post_type'      => $post_types,
+					'post_status'    => 'publish',
+					'no_found_rows'  => true,
+					'has_password'   => false,
+				)
+			);
 
 			if ( ! $r->have_posts() && ! $instance['all'] ) {
 				continue;
@@ -133,8 +144,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 				echo '</a>';
-			}
-			else if ( $instance['all'] ) {
+			} elseif ( $instance['all'] ) {
 				if ( $instance['avatar_size'] > 1 ) {
 					echo get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
 				}
@@ -185,7 +195,14 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$instance = wp_parse_args( $instance, array( 'title' => '', 'all' => false, 'avatar_size' => 48, 'number' => 5 ) );
+		$instance = wp_parse_args(
+			$instance, array(
+				'title'       => '',
+				'all'         => false,
+				'avatar_size' => 48,
+				'number'      => 5,
+			)
+		);
 
 		?>
 		<p>
@@ -211,7 +228,16 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			<label>
 				<?php _e( 'Avatar Size (px):', 'jetpack' ); ?>
 				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
-					<?php foreach( array( '1' => __( 'No Avatars', 'jetpack' ), '16' => '16x16', '32' => '32x32', '48' => '48x48', '96' => '96x96', '128' => '128x128' ) as $value => $label ) { ?>
+					<?php
+					foreach ( array(
+						'1'   => __( 'No Avatars', 'jetpack' ),
+						'16'  => '16x16',
+						'32'  => '32x32',
+						'48'  => '48x48',
+						'96'  => '96x96',
+						'128' => '128x128',
+					) as $value => $label ) {
+?>
 						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php } ?>
 				</select>
@@ -228,9 +254,9 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 * @return array
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$new_instance['title'] = strip_tags( $new_instance['title'] );
-		$new_instance['all'] = isset( $new_instance['all'] );
-		$new_instance['number'] = (int) $new_instance['number'];
+		$new_instance['title']       = strip_tags( $new_instance['title'] );
+		$new_instance['all']         = isset( $new_instance['all'] );
+		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
 		Jetpack_Widget_Authors::flush_cache();

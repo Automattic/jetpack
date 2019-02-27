@@ -15,11 +15,13 @@ add_shortcode( 'sitemap', 'jetpack_sitemap_shortcode' );
  * @return string
  */
 function jetpack_sitemap_shortcode() {
-	$tree = wp_list_pages( array(
-		'title_li' => '<b><a href="/">' . esc_html( get_bloginfo( 'name' ) ) . '</a></b>',
-		'exclude'  => get_option( 'page_on_front' ),
-		'echo'     => false,
-	) );
+	$tree = wp_list_pages(
+		array(
+			'title_li' => '<b><a href="/">' . esc_html( get_bloginfo( 'name' ) ) . '</a></b>',
+			'exclude'  => get_option( 'page_on_front' ),
+			'echo'     => false,
+		)
+	);
 	return empty( $tree )
 		? ''
 		: '<ul class="jetpack-sitemap-shortcode">' . $tree . '</ul>';

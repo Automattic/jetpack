@@ -21,14 +21,14 @@ class Jetpack_Sync_Users {
 	static function user_role_change( $user_id ) {
 		if ( Jetpack::is_user_connected( $user_id ) ) {
 			self::update_role_on_com( $user_id );
-			//try to choose a new master if we're demoting the current one
+			// try to choose a new master if we're demoting the current one
 			self::maybe_demote_master_user( $user_id );
 		}
 	}
 
 	static function get_role( $user_id ) {
-		if ( isset( $user_roles[ $user_id ] ) ) {
-			return $user_roles[ $user_id ];
+		if ( isset( self::$user_roles[ $user_id ] ) ) {
+			return self::$user_roles[ $user_id ];
 		}
 
 		$current_user_id = get_current_user_id();
@@ -41,7 +41,7 @@ class Jetpack_Sync_Users {
 	}
 
 	static function get_signed_role( $user_id ) {
-		return Jetpack::sign_role( self::get_role( $user_id ) );
+		return Jetpack::sign_role( self::get_role( $user_id ), $user_id );
 	}
 
 	static function update_role_on_com( $user_id ) {

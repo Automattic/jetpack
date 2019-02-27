@@ -4,6 +4,8 @@
  *
  * @since 4.4.0
  */
+require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
@@ -104,6 +106,32 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			}
 		}
 		return $this->server->dispatch( $request );
+	}
+
+	/**
+	 * Used to simulate a successful response to any XML-RPC request.
+	 * Should be hooked on the `http_response` filter.
+	 *
+	 * @param array|obj $response HTTP Response.
+	 * @param array     $args     HTTP request arguments.
+	 * @param string    $url      The request URL.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function mock_xmlrpc_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+		}
+
+		return $response;
 	}
 
 	/**
@@ -611,6 +639,21 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test onboarding token and make sure it's a network option.
+	 *
+	 * @since 5.4.0
+	 */
+	public function test_check_onboarding_token() {
+		$this->assertFalse( Jetpack_Options::get_option( 'onboarding' ) );
+
+		Jetpack::create_onboarding_token();
+
+		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
+		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
+		$this->assertTrue( in_array( 'onboarding', Jetpack_Options::get_option_names( 'network' ) ) );
+	}
+
+	/**
 	 * Test connection url build when there's a blog token or id.
 	 *
 	 * @since 4.4.0
@@ -633,12 +676,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response->data = parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
+
+		// Because dotcom will not respond to a fake token, the method
+		// generates a register URL
+		$this->assertContains( 'register', $response->data['query'] );
+
 		unset( $response->data['query'] );
 		$this->assertResponseData(
 			array(
-				'scheme' => 'https',
-				'host'   => 'jetpack.wordpress.com',
-				'path'   => '/jetpack.authorize/1/',
+				'scheme' => 'http',
+				'host'   => 'example.org',
+				'path'   => '/wp-admin/admin.php'
 			), $response
 		);
 	}
@@ -736,7 +784,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
-		
+
 		// It should also work correctly with a POST body that is not JSON encoded
 		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
@@ -750,7 +798,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * Here we test three types of settings:
 	 * - module settings
 	 * - module activation state
-	 * - misc setting (holiday snow)
 	 *
 	 * @since 4.6.0
 	 */
@@ -763,7 +810,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
-		update_option( 'jetpack_holiday_snow_enabled', 'letitsnow' );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
@@ -775,10 +821,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'carousel', $response_data );
 		$this->assertTrue( $response_data['carousel'] );
-
-		$this->assertArrayHasKey( 'jetpack_holiday_snow_enabled', $response_data );
-		$this->assertTrue( $response_data['jetpack_holiday_snow_enabled'] );
-
 	}
 
 	/**
@@ -815,5 +857,188 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'jumpstart', array( 'active' => false ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 	}
+
+	/**
+	 * Test fetching milestone widget data.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_milestone_widget_data() {
+		jetpack_register_widget_milestone();
+
+		global $_wp_sidebars_widgets, $wp_registered_widgets;
+
+		$widget_instances = array(
+			3 => array(
+				'title' => 'Ouou',
+				'event' => 'The Biog Day',
+				'unit' => 'years',
+				'type' => 'until',
+				'message' => 'The big day is here.',
+				'year' => date( 'Y' ) + 10,
+				'month' => date( 'm' ),
+				'hour' => '0',
+				'min' => '00',
+				'day' => date( 'd' )
+			)
+		);
+
+		update_option( 'widget_milestone_widget', $widget_instances );
+
+		$sidebars = wp_get_sidebars_widgets();
+		foreach( $sidebars as $key => $sidebar ) {
+			$sidebars[ $key ][] = 'milestone_widget-3';
+		}
+		$_wp_sidebars_widgets = $sidebars;
+		wp_set_sidebars_widgets( $sidebars );
+
+		$wp_registered_widgets['milestone_widget-3'] = array(
+			'name' => 'Milestone Widget',
+			'id' => 'milestone_widget-3',
+			'callback' => array( 'Milestone_Widget', 'widget' ),
+			'params' => array()
+		);
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		// Should return the widget data
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+			),
+			$response
+		);
+
+		$widget_instances[3] = array_merge(
+			$widget_instances[3],
+			array(
+				'year' => date( 'Y' ) + 1,
+				'unit' => 'months',
+			)
+		);
+		update_option( 'widget_milestone_widget', $widget_instances );
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
+			),
+			$response
+		);
+
+		// Cleaning up the sidebars
+		$sidebars = wp_get_sidebars_widgets();
+		foreach( $sidebars as $key => $sidebar ) {
+			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
+		}
+		$_wp_sidebars_widgets = $sidebars;
+		wp_set_sidebars_widgets( $sidebars );
+	}
+
+	/**
+	 * Test fetching a widget that does not exist.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/some_other_slug-133', array(), 'GET' );
+
+		// Fails because there is no such widget
+		$this->assertResponseStatus( 404, $response );
+
+		unregister_widget( 'Milestone_Widget' );
+	}
+
+	/**
+	 * Test fetching a nonexistent instance of an existing widget.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_instance_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-333', array(), 'GET' );
+
+		// Fails because there is no such widget instance
+		$this->assertResponseStatus( 404, $response );
+
+		unregister_widget( 'Milestone_Widget' );
+	}
+
+	/**
+	 * Test fetching a widget that exists but has not been registered.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_not_registered_widget_data() {
+		update_option(
+			'widget_milestone_widget',
+			array(
+				3 => array(
+					'title' => 'Ouou',
+					'event' => 'The Biog Day',
+				)
+			)
+		);
+
+		foreach( wp_get_sidebars_widgets() as $sidebar ) {
+			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
+		}
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		// Fails because the widget is inactive
+		$this->assertResponseStatus( 404, $response );
+	}
+
+	/**
+	 * Test changing the master user.
+	 *
+	 * @since 6.2.0
+	 */
+	public function test_change_owner() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		$user->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( $user->ID );
+
+		// Mock site already registered
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Attempt change, fail because not master user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
+		$this->assertResponseStatus( 403, $response );
+
+		// Set up user as master user
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+
+		// Attempt owner change with bad user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Attempt owner change to same user
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Create another user
+		$new_owner = $this->create_and_get_user( 'administrator' );
+		Jetpack_Options::update_option( 'user_tokens', array(
+			$user->ID => "honey.badger.$user->ID",
+			$new_owner->ID => "honey.badger.$new_owner->ID",
+		) );
+
+		// Change owner to valid user
+		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
+		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
+	}
+
 
 } // class end

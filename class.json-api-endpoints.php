@@ -77,6 +77,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint allowed if the site is red flagged?
 	public $allowed_if_red_flagged = false;
 
+	// Is this endpoint allowed if the site is deleted?
+	public $allowed_if_deleted = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -117,11 +120,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $allow_jetpack_site_auth = false;
 
+	/**
+	 * @var bool Set to true if the endpoint should accept auth from an upload token.
+	 */
+	public $allow_upload_token_auth = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
 			'allowed_if_flagged'   => false,
 			'allowed_if_red_flagged' => false,
+			'allowed_if_deleted'	=> false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -146,6 +155,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'allow_cross_origin_request' => false,
 			'allow_unauthorized_request' => false,
 			'allow_jetpack_site_auth'    => false,
+			'allow_upload_token_auth'    => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -154,6 +164,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->allowed_if_flagged = $args['allowed_if_flagged'];
 		$this->allowed_if_red_flagged = $args['allowed_if_red_flagged'];
+		$this->allowed_if_deleted = $args['allowed_if_deleted'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
@@ -169,12 +180,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->deprecated  = $args['deprecated'];
 		$this->new_version = $args['new_version'];
 
+		// Ensure max version is not less than min version
+		if ( version_compare( $this->min_version, $this->max_version, '>' ) ) {
+			$this->max_version = $this->min_version;
+		}
+
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
+		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
 
 		$this->version     = $args['version'];
 
@@ -240,7 +257,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return = json_decode( $input, true );
 
 			if ( function_exists( 'json_last_error' ) ) {
-				if ( JSON_ERROR_NONE !== json_last_error() ) {
+				if ( JSON_ERROR_NONE !== json_last_error() ) { // phpcs:ignore PHPCompatibility
 					return null;
 				}
 			} else {
@@ -267,11 +284,32 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		}
 
-		if ( !$cast_and_filter ) {
-			return $return;
+		if ( isset( $this->api->query['force'] )
+		    && 'secure' === $this->api->query['force']
+		    && isset( $return['secure_key'] ) ) {
+			$this->api->post_body = $this->get_secure_body( $return['secure_key'] );
+			$this->api->query['force'] = false;
+			return $this->input( $return_default_values, $cast_and_filter );
 		}
 
-		return $this->cast_and_filter( $return, $this->request_format, $return_default_values );
+		if ( $cast_and_filter ) {
+			$return = $this->cast_and_filter( $return, $this->request_format, $return_default_values );
+		}
+		return $return;
+	}
+
+
+	protected function get_secure_body( $secure_key ) {
+		$response =  Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option('id' ) ),
+			'1.1',
+			array( 'method' => 'POST' ),
+			array( 'secure_key' => $secure_key )
+		);
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+		return json_decode( $response['body'], true );
 	}
 
 	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
@@ -358,6 +396,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = false;
 			break;
 		case 'url' :
+			if ( is_object( $value ) && isset( $value->url ) && false !== strpos( $value->url, 'https://videos.files.wordpress.com/' ) ) {
+				$value = $value->url;
+			}
+			// Check for string since esc_url_raw() expects one.
+			if ( ! is_string( $value ) ) {
+				break;
+			}
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
@@ -484,6 +529,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'slug'        => '(string)',
 				'description' => '(HTML)',
 				'post_count'  => '(int)',
+				'feed_url'    => '(string)',
 				'meta'        => '(object)',
 			);
 			if ( 'category' === $type['type'] ) {
@@ -523,7 +569,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'avatar_URL'     => '(URL)',
 				'profile_URL'    => '(URL)',
 				'is_super_admin' => '(bool)',
-				'roles'          => '(array:string)'
+				'roles'          => '(array:string)',
+				'ip_address'     => '(string|false)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -579,19 +626,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'plugin' :
 			$docs = array(
-				'id'          => '(safehtml) The plugin\'s ID',
-				'slug'        => '(safehtml) The plugin\'s Slug',
-				'active'      => '(boolean)  The plugin status.',
-				'update'      => '(object)   The plugin update info.',
-				'name'        => '(safehtml) The name of the plugin.',
-				'plugin_url'  => '(url)      Link to the plugin\'s web site.',
-				'version'     => '(safehtml) The plugin version number.',
-				'description' => '(safehtml) Description of what the plugin does and/or notes from the author',
-				'author'      => '(safehtml) The plugin author\'s name',
-				'author_url'  => '(url)      The plugin author web site address',
-				'network'     => '(boolean)  Whether the plugin can only be activated network wide.',
-				'autoupdate'  => '(boolean)  Whether the plugin is auto updated',
-				'log'         => '(array:safehtml) An array of update log strings.',
+				'id'            => '(safehtml) The plugin\'s ID',
+				'slug'          => '(safehtml) The plugin\'s Slug',
+				'active'        => '(boolean)  The plugin status.',
+				'update'        => '(object)   The plugin update info.',
+				'name'          => '(safehtml) The name of the plugin.',
+				'plugin_url'    => '(url)      Link to the plugin\'s web site.',
+				'version'       => '(safehtml) The plugin version number.',
+				'description'   => '(safehtml) Description of what the plugin does and/or notes from the author',
+				'author'        => '(safehtml) The plugin author\'s name',
+				'author_url'    => '(url)      The plugin author web site address',
+				'network'       => '(boolean)  Whether the plugin can only be activated network wide.',
+				'autoupdate'    => '(boolean)  Whether the plugin is auto updated',
+				'log'           => '(array:safehtml) An array of update log strings.',
+				'action_links'  => '(array) An array of action links that the plugin uses.',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
@@ -609,6 +657,35 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$for_output
 			);
 			break;
+		case 'plugin_v1_2' :
+			$docs = class_exists( 'Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint' )
+				? Jetpack_JSON_API_Get_Plugins_v1_2_Endpoint::$_response_format
+				: Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/**
+				 * Filter the documentation returned for a plugin.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.1.0
+				 *
+				 * @param array $docs Array of documentation about a plugin.
+				 */
+				apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
+			break;
+		case 'file_mod_capabilities':
+			$docs           = array(
+				'reasons_modify_files_unavailable' => '(array) The reasons why files can\'t be modified',
+				'reasons_autoupdate_unavailable'   => '(array) The reasons why autoupdates aren\'t allowed',
+				'modify_files'                     => '(boolean) true if files can be modified',
+				'autoupdate_files'                 => '(boolean) true if autoupdates are allowed',
+			);
+			$return[ $key ] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 		case 'jetpackmodule' :
 			$docs = array(
 				'id'          => '(string)   The module\'s ID',
@@ -619,7 +696,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
 				'changed'     => '(string)   The Jetpack version when the module was changed.',
 				'free'        => '(boolean)  The module\'s Free or Paid status.',
-				'module_tags' => '(array)    The module\'s tags.'
+				'module_tags' => '(array)    The module\'s tags.',
+				'override'    => '(string)   The module\'s override. Empty if no override, otherwise \'active\' or \'inactive\'',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
@@ -651,6 +729,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'site_keyring':
+			$docs = array(
+				'keyring_id'       => '(int) Keyring ID',
+				'service'          => '(string) The service name',
+				'external_user_id' => '(string) External user id for the service'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 		case 'taxonomy':
 			$docs = array(
 				'name'         => '(string) The taxonomy slug',
@@ -666,7 +752,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		default :
 			$method_name = $type['type'] . '_docs';
-			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
+			if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
 				$docs = WPCOM_JSON_API_Jetpack_Overrides::$method_name();
 			}
 
@@ -973,7 +1059,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					if ( !current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( 'trash' === $post->post_status ) {
+				} elseif ( in_array( $post->post_status, array( 'inherit', 'trash' ) ) ) {
 					if ( !current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
@@ -1018,13 +1104,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns author object.
 	 *
-	 * @param $author user ID, user row, WP_User object, comment row, post row
-	 * @param $show_email output the author's email address?
+	 * @param object $author user ID, user row, WP_User object, comment row, post row
+	 * @param bool $show_email_and_ip output the author's email address and IP address?
 	 *
-	 * @return (object)
+	 * @return object
 	 */
-	function get_author( $author, $show_email = false ) {
-		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
+	function get_author( $author, $show_email_and_ip = false ) {
+		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+
+		if ( isset( $author->comment_author_email ) ) {
 			$ID          = 0;
 			$login       = '';
 			$email       = $author->comment_author_email;
@@ -1032,7 +1120,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$first_name  = '';
 			$last_name   = '';
 			$URL         = $author->comment_author_url;
-			$avatar_URL  = get_avatar_url( $author );
+			$avatar_URL  = $this->api->get_avatar_url( $author );
 			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
@@ -1096,16 +1184,28 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
+				if ( $site_id > -1 ) {
+					$site_visible = (
+						-1 != $active_blog->public ||
+						is_private_blog_user( $site_id, get_current_user_id() )
+					);
+				}
 				$profile_URL = "https://en.gravatar.com/{$login}";
 			} else {
 				$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
 
-			$avatar_URL = get_avatar_url( $email );
+			$avatar_URL = $this->api->get_avatar_url( $email );
 		}
 
-		$email = $show_email ? (string) $email : false;
+		if ( $show_email_and_ip ) {
+			$email = (string) $email;
+			$ip_address = (string) $ip_address;
+		} else {
+			$email = false;
+			$ip_address = false;
+		}
 
 		$author = array(
 			'ID'          => (int) $ID,
@@ -1118,10 +1218,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'URL'         => (string) esc_url_raw( $URL ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
 			'profile_URL' => (string) esc_url_raw( $profile_URL ),
+			'ip_address'  => $ip_address, // (string|bool)
 		);
 
-		if ($site_id > -1) {
-			$author['site_ID'] = (int) $site_id;
+		if ( $site_id > -1 ) {
+			$author['site_ID']      = (int) $site_id;
+			$author['site_visible'] = $site_visible;
 		}
 
 		return (object) $author;
@@ -1161,13 +1263,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $response;
 	}
 
-	function get_media_item_v1_1( $media_id ) {
-		$media_item = get_post( $media_id );
+	function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
 
-		if ( ! $media_item || is_wp_error( $media_item ) )
+		if ( ! $media_item ) {
+			$media_item = get_post( $media_id );
+		}
+
+		if ( ! $media_item || is_wp_error( $media_item ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
 
-		$file = basename( wp_get_attachment_url( $media_item->ID ) );
+		$attachment_file = get_attached_file( $media_item->ID );
+
+		$file = basename( $attachment_file ? $attachment_file : $file );
 		$file_info = pathinfo( $file );
 		$ext  = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
 
@@ -1185,6 +1293,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'caption'      => $media_item->post_excerpt,
 			'description'  => $media_item->post_content,
 			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'icon'         => wp_mime_type_icon( $media_item->ID ),
 			'thumbnails'   => array()
 		);
 
@@ -1206,11 +1315,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 				 * @param array $metadata['sizes'] Array of thumbnail sizes available for a given attachment ID.
 				 * @param string $media_id Attachment ID.
 				 */
-				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
+				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_item->ID );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
 						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
 					}
+					/**
+					 * Filter the thumbnail URLs for attachment files.
+					 *
+					 * @module json-api
+					 *
+					 * @since 7.1.0
+					 *
+					 * @param array $metadata['sizes'] Array with thumbnail sizes as keys and URLs as values.
+					 */
+					$response['thumbnails'] = apply_filters( 'rest_api_thumbnail_size_urls', $response['thumbnails'] );
 				}
 			}
 
@@ -1225,8 +1344,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response['exif']   = $metadata;
 		}
 
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		$is_video = false;
+
+		if (
+			in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
+			||
+			$response['mime_type'] === 'video/videopress'
+		) {
+			$is_video = true;
+		}
+
+
+		if ( $is_video ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
@@ -1238,7 +1369,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
+				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_item->ID );
+
+				// If we failed to get VideoPress info, but it exists in the meta data (for some reason)
+				// then let's use that.
+				if ( false === $info && isset( $metadata['videopress'] ) ) {
+				    $info = (object) $metadata['videopress'];
+				}
 
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
@@ -1252,10 +1389,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 				}
 
-				$response['videopress_guid'] = $info->guid;
-				$response['videopress_processing_done'] = true;
-				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
-					$response['videopress_processing_done'] = false;
+				// If we didn't get VideoPress information (for some reason) then let's
+				// not try and include it in the response.
+				if ( isset( $info->guid ) ) {
+					$response['videopress_guid']            = $info->guid;
+					$response['videopress_processing_done'] = true;
+					if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
+						$response['videopress_processing_done'] = false;
+					}
 				}
 			}
 		}
@@ -1264,14 +1405,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
-				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID ),
+				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID, 'help' ),
 				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
 
 		// add VideoPress link to the meta
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		if ( isset ( $response['videopress_guid'] ) ) {
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$response['meta']->links->videopress = (string) $this->links->get_link( '/videos/%s', $response['videopress_guid'], '' );
 			}
@@ -1318,6 +1459,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
+		$response['feed_url']    = get_term_feed_link( $taxonomy->term_id, $taxonomy_type );
 
 		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
@@ -1439,6 +1581,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// add inc/wpcom.php and/or includes/wpcom.php
 		wpcom_load_theme_compat_file();
 
+		// Enable including additional directories or files in actions to be copied
+		$copy_dirs = apply_filters( 'restapi_theme_action_copy_dirs', $copy_dirs );
+
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
 
@@ -1479,8 +1624,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( $from_hook != $hook ) {
 				continue;
 			}
+			if ( ! has_action( $hook ) ) {
+				continue;
+			}
 
-			foreach ( (array) $actions as $priority => $callbacks ) {
+			foreach ( $actions as $priority => $callbacks ) {
 				foreach( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
 
@@ -1606,7 +1754,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
 		$media_ids = $errors = array();
-		$user_can_upload_files = current_user_can( 'upload_files' );
+		$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
 		$media_attrs = array_values( $media_attrs ); // reset the keys
 		$i = 0;
 
@@ -1742,9 +1890,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// First check to see if we get a mime-type match by file, otherwise, check to
 		// see if WordPress supports this file as an image. If neither, then it is not supported.
-		if ( ! $this->is_file_supported_for_sideloading( $tmp ) && 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
+		if ( ! $this->is_file_supported_for_sideloading( $tmp ) || 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return false;
+			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 
 		// emulate a $_FILES entry
@@ -1754,7 +1902,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		);
 
 		$id = media_handle_sideload( $file_array, $parent_post_id );
-		@unlink( $tmp );
+		if ( file_exists( $tmp ) ) {
+			@unlink( $tmp );
+		}
 
 		if ( is_wp_error( $id ) ) {
 			return $id;
@@ -1776,6 +1926,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	protected function is_file_supported_for_sideloading( $file ) {
 		if ( class_exists( 'finfo' ) ) { // php 5.3+
+			// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
 			$finfo = new finfo( FILEINFO_MIME );
 			$mime = explode( '; ', $finfo->file( $file ) );
 			$type = $mime[0];
@@ -1907,6 +2058,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
+	}
+
+	/**
+	 * Allows the endpoint to perform logic to allow it to decide whether-or-not it should force a
+	 * response from the WPCOM API, or potentially go to the Jetpack blog.
+	 *
+	 * Override this method if you want to do something different.
+	 *
+	 * @param  int  $blog_id
+	 * @return bool
+	 */
+	function force_wpcom_request( $blog_id ) {
+		return false;
 	}
 
 	/**

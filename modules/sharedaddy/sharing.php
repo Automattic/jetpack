@@ -1,12 +1,11 @@
 <?php
+if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
+	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
 
 class Sharing_Admin {
 	public function __construct() {
-		if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
-			define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-			define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-		}
-
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
@@ -23,8 +22,25 @@ class Sharing_Admin {
 	}
 
 	public function sharing_head() {
-		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL . 'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
-		$postfix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_enqueue_script(
+			'sharing-js',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/sharedaddy/admin-sharing.min.js',
+				'modules/sharedaddy/admin-sharing.js'
+			),
+			array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ),
+			2
+		);
+
+		/**
+		 * Filters the switch that if set to true allows Jetpack to use minified assets. Defaults to true
+		 * if the SCRIPT_DEBUG constant is not set or set to false. The filter overrides it.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param boolean $var should Jetpack use minified assets.
+		 */
+		$postfix = apply_filters( 'jetpack_should_use_minified_assets', true ) ? '.min' : '';
 		if ( is_rtl() ) {
 			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL . 'admin-sharing-rtl' . $postfix . '.css', false, JETPACK__VERSION );
 		} else {
@@ -35,6 +51,11 @@ class Sharing_Admin {
 		wp_enqueue_style( 'social-logos' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array(), 4 );
 		add_thickbox();
+
+		// On Jetpack sites, make sure we include CSS to style the admin page.
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	public function admin_init() {
@@ -69,7 +90,14 @@ class Sharing_Admin {
 			}
 		}
 
-		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
+		add_submenu_page(
+			'options-general.php',
+			__( 'Sharing Settings', 'jetpack' ),
+			__( 'Sharing', 'jetpack' ),
+			'publish_posts',
+			'sharing',
+			array( &$this, 'wrapper_admin_page' )
+		);
 	}
 
 	public function ajax_save_services() {
@@ -125,11 +153,15 @@ class Sharing_Admin {
 	}
 
 	public function output_preview( $service ) {
+
 		$klasses = array( 'advanced', 'preview-item' );
 
 		if ( $service->button_style != 'text' || $service->has_custom_button_style() ) {
 			$klasses[] = 'preview-' . $service->get_class();
 			$klasses[] = 'share-' . $service->get_class();
+			if ( $service->is_deprecated() ) {
+				$klasses[] = 'share-deprecated';
+			}
 
 			if ( $service->get_class() != $service->get_id() ) {
 				$klasses[] = 'preview-' . $service->get_id();
@@ -142,8 +174,15 @@ class Sharing_Admin {
 	}
 
 	public function output_service( $id, $service, $show_dropdown = false ) {
+		$title = '';
+		$klasses = array( 'service', 'advanced', 'share-' . $service->get_class() );
+		if ( $service->is_deprecated() ) {
+			$title = sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $service->get_name() );
+			$klasses[] = 'share-deprecated';
+		}
+
 ?>
-	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0">
+	<li class="<?php echo implode( ' ', $klasses ); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0" title="<?php echo esc_attr( $title ); ?>">
 		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
 		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
 		<span class="close"><a href="#" class="remove">&times;</a></span>
@@ -157,6 +196,10 @@ class Sharing_Admin {
 <?php
 	}
 
+	public function wrapper_admin_page() {
+		Jetpack_Admin_Page::wrap_ui( array( &$this, 'management_page' ), array( 'is-wide' =>true ) );
+	}
+
 	public function management_page() {
 		$sharer	 = new Sharing_Service();
 		$enabled = $sharer->get_blog_services();
@@ -167,7 +210,7 @@ class Sharing_Admin {
 
 		if ( false == function_exists( 'mb_stripos' ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! Multibyte support missing!', 'jetpack' ) . '</h3>';
-			echo '<p>' . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), 'http://www.php.net/manual/en/mbstring.installation.php' ) . '</p></div>';
+			echo '<p>' . sprintf( __( 'This plugin will work without it, but multibyte support is used <a href="%s" rel="noopener noreferrer" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack' ), 'http://www.php.net/manual/en/mbstring.installation.php' ) . '</p></div>';
 		}
 
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ) {
@@ -376,10 +419,10 @@ class Sharing_Admin {
 										$label = $post_type_object->labels->name;
 									}
 								?>
-								<?php 
-								if ( $br ) { 
+								<?php
+								if ( $br ) {
 									echo '<br />';
-								} 
+								}
 								?>
 								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 								<?php
@@ -414,7 +457,7 @@ class Sharing_Admin {
 			</table>
 
 			<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php _e( 'Save Changes', 'jetpack' ); ?>" />
+					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
 			</p>
 
 				<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' );?>" />
@@ -449,7 +492,7 @@ class Sharing_Admin {
 					<tr valign="top" width="100">
 						<th scope="row"></th>
 						<td>
-								<input type="submit" class="button-primary" value="<?php _e( 'Create Share Button', 'jetpack' ); ?>" />
+							<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Create Share Button', 'jetpack' ); ?>" />
 							<img src="<?php echo admin_url( 'images/loading.gif' ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
 						</td>
 					</tr>
@@ -508,6 +551,26 @@ class Sharing_Admin {
 <?php
 	}
 }
+
+/**
+ * Add Sharing post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_meta
+ */
+function jetpack_post_sharing_register_meta() {
+	register_meta(
+		'post', 'sharing_disabled',
+		array(
+			'type'			=> 'boolean',
+			'single'		=> true,
+			'show_in_rest'	=> true,
+		)
+	);
+}
+
+// Add Sharing post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_meta' );
 
 function sharing_admin_init() {
 	global $sharing_admin;

@@ -2,24 +2,23 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
+import get from 'lodash/get';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import { getModuleOption, getModuleOptionValidValues } from 'state/modules';
 import {
-	updateModuleOptions,
-	getModuleOption,
-	getModuleOptionValidValues,
-	isUpdatingModuleOption,
-	regeneratePostByEmailAddress,
-	setUnsavedOptionFlag,
-	clearUnsavedOptionFlag
-} from 'state/modules';
+	fetchSettings,
+	getSetting,
+	updateSettings,
+	isUpdatingSetting,
+	setUnsavedSettingsFlag,
+	clearUnsavedSettingsFlag,
+} from 'state/settings';
 import { getCurrentIp, getSiteAdminUrl } from 'state/initial-state';
-import {
-	getSiteRoles,
-	getAdminEmailAddress
-} from 'state/initial-state';
+import { getSiteRoles, getAdminEmailAddress } from 'state/initial-state';
 
 import { isCurrentUserLinked } from 'state/connection';
 
@@ -34,29 +33,47 @@ export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
-				validValues: ( option_name ) => getModuleOptionValidValues( state, ownProps.module.module, option_name ),
-				getOptionCurrentValue: ( module_slug, option_name ) => getModuleOption( state, module_slug, option_name ),
+				validValues: ( option_name, module_slug = '' ) => {
+					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
+						module_slug = ownProps.module.module;
+					}
+					return getModuleOptionValidValues( state, module_slug, option_name );
+				},
+				getOptionCurrentValue: ( module_slug, option_name ) =>
+					getModuleOption( state, module_slug, option_name ),
+				getSettingCurrentValue: ( setting_name, moduleName = '' ) =>
+					getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: ( option_name ) => isUpdatingModuleOption( state, ownProps.module.module, option_name ),
+				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
-				isCurrentUserLinked: isCurrentUserLinked( state )
-			}
+				isCurrentUserLinked: isCurrentUserLinked( state ),
+			};
 		},
-		( dispatch, ownProps ) => ( {
-			updateOptions: ( newOptions ) => {
-				return dispatch( updateModuleOptions( ownProps.module.module, newOptions ) );
+		dispatch => ( {
+			updateOptions: ( newOptions, messages = {} ) => {
+				return dispatch( updateSettings( newOptions, messages ) );
 			},
 			regeneratePostByEmailAddress: () => {
-				return dispatch( regeneratePostByEmailAddress() );
+				const messages = {
+					progress: __( 'Updating Post by Email address…' ),
+					success: __( 'Regenerated Post by Email address.' ),
+					error: error =>
+						__( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } ),
+				};
+
+				return dispatch( updateSettings( { post_by_email_address: 'regenerate' }, messages ) );
 			},
-			setUnsavedOptionFlag: () => {
-				return dispatch( setUnsavedOptionFlag() );
+			setUnsavedSettingsFlag: () => {
+				return dispatch( setUnsavedSettingsFlag() );
 			},
-			clearUnsavedOptionFlag: () => {
-				return dispatch( clearUnsavedOptionFlag() );
-			}
+			clearUnsavedSettingsFlag: () => {
+				return dispatch( clearUnsavedSettingsFlag() );
+			},
+			refreshSettings: () => {
+				return dispatch( fetchSettings() );
+			},
 		} )
 	)( Component );
 }

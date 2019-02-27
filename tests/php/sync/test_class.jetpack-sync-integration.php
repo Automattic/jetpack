@@ -17,43 +17,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
 
-	function test_upgrading_sends_options_constants_and_callables() {
-		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-
-		global $wpdb;
-
-		$expected_sync_config = array( 
-			'options' => true, 
-			'network_options' => true,
-			'functions' => true, 
-			'constants' => true, 
-			'users' => 'initial'
-		);
-
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		
-		$this->assertEquals( $sync_status['config'], $expected_sync_config );
-	}
-
-	function test_upgrading_from_42_plus_does_not_start_an_initial_sync() {
-
-		$initial_sync_with_users_config = array( 'options' => true, 'functions' => true, 'constants' => true, 'network_options' => true, 'users' => 'initial' );
-
-		do_action( 'updating_jetpack_version', '4.3', '4.2' );
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
-
-		$this->assertNull( $sync_config );
-		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
-
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
-
-		$this->assertEquals( $initial_sync_with_users_config, $sync_config );
-	}
-
 	function test_schedules_incremental_sync_cron() {
 		// we need to run this again because cron is cleared between tests
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
@@ -103,8 +66,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Jetpack_Sync_Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_starts_full_sync_on_client_authorized() {
-		do_action( 'jetpack_client_authorized', 'abcd1234' );
+	function test_starts_full_sync_on_user_authorized() {
+		do_action( 'jetpack_user_authorized', 'abcd1234' );
 		$this->assertTrue( Jetpack_Sync_Modules::get_module( 'full-sync' )->is_started() );
 	}
 

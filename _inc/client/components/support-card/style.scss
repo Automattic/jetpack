@@ -4,13 +4,24 @@
 }
 
 .jp-support-card__description {
-	margin: 0;
 	font-size: rem( 14px);
 	line-height: 1.65;
-	color: $wpui-dark-medium-gray;
+	color: $blue-text;
 
-	@include breakpoint( "<660px" ) {
+	&:first-of-type {
+		margin-top: 4px;
+	}
+
+	&:last-of-type {
 		margin-bottom: 0;
+	}
+
+	.dops-button {
+		margin: 0 16px 0 0;
+
+		@include breakpoint( "<960px" ) {
+			margin: 0 16px 8px 0;
+		}
 	}
 }
 
@@ -19,7 +30,6 @@
 
 	@include breakpoint( "<660px" ) {
 		display: block;
-		width: 100%;
 		width: 100%;
 		padding: rem( 10px ) 0;
 		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
@@ -39,13 +49,10 @@
 	flex-flow: row nowrap;
 
 	@include breakpoint( "<660px" ) {
-		padding-bottom: 0;
-
 		.jp-support-card__description:first-of-type {
 			margin-bottom: rem( 16px );
 		}
 	}
-
 }
 
 .jp-support-card__social {
@@ -60,34 +67,13 @@
 }
 
 .jp-support-card__header {
-	margin: 0 0 rem( 16px ) 0;
-}
-
-.jp-support-card__happiness-engineer {
-
-	@include breakpoint( ">660px" ) {
-		flex-basis: 15%;
-		flex-shrink: 1;
-		flex-grow: 1;
-	}
-
-	@include breakpoint( "<660px" ) {
-		display: none;
-	}
-}
-
-.jp-support-card__happiness-engineer-img {
-	width: rem( 72px );
-	height: rem( 72px );
-	margin-right: rem( 24px );
-	border-radius: 50%;
+	color: $blue-heading;
+	font-weight: 400;
+	font-size: rem( 21px );
+	margin: 0;
 }
 
 .jp-support-card__happiness-contact {
-
-	@include breakpoint( ">660px" ) {
-		flex-basis: 85%;
-		flex-shrink: 1;
-		flex-grow: 1;
-	}
+	flex-shrink: 1;
+	flex-grow: 1;
 }

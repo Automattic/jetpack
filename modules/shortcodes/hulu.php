@@ -13,7 +13,7 @@
  * <param name="allowFullScreen" value="true"></param>
  * <embed src="http://www.hulu.com/embed/gQ6Z0I990IWv_VFQI2J7Eg" type="application/x-shockwave-flash"  width="512" height="288" allowFullScreen="true"></embed>
  * </object>
-*/
+ */
 
 if ( get_option( 'embed_autourls' ) ) {
 
@@ -28,7 +28,7 @@ add_shortcode( 'hulu', 'jetpack_hulu_shortcode' );
  *
  * @since 4.5.0
  *
- * @param array  $atts Shortcode parameters.
+ * @param array $atts Shortcode parameters.
  *
  * @return string $id  Hulu video ID.
  */
@@ -37,10 +37,10 @@ function jetpack_shortcode_get_hulu_id( $atts ) {
 	if ( isset( $atts['id'] ) ) {
 		// First we check to see if [hulu id=369061] or [hulu id=gQ6Z0I990IWv_VFQI2J7Eg] was used
 		$id = esc_attr( $atts['id'] );
-	} else if ( isset( $atts[0] ) && preg_match( '|www\.hulu\.com/watch/(\d+)|i', $atts[0], $match ) ) {
+	} elseif ( isset( $atts[0] ) && preg_match( '|www\.hulu\.com/watch/(\d+)|i', $atts[0], $match ) ) {
 		// this checks for [hulu http://www.hulu.com/watch/369061]
 		$id = (int) $match[1];
-	} else if ( isset( $atts[0] ) ) {
+	} elseif ( isset( $atts[0] ) ) {
 		// This checks for [hulu 369061] or [hulu 65yppv6xqa45s5n7_m1wng]
 		$id = esc_attr( $atts[0] );
 	} else {
@@ -69,8 +69,9 @@ function jetpack_hulu_shortcode( $atts ) {
 			'width'           => $content_width ? $content_width : 640,
 			'start_time'      => '',
 			'end_time'        => '',
-			'thumbnail_frame' => ''
-		), $atts
+			'thumbnail_frame' => '',
+		),
+		$atts
 	);
 
 	$id = jetpack_shortcode_get_hulu_id( $atts );
@@ -170,7 +171,7 @@ mozallowfullscreen allowfullscreen></iframe></div>',
  */
 function jetpack_hulu_link_callback( $matches ) {
 	$video_id = $matches[4];
-	$src = is_ssl()
+	$src      = is_ssl()
 		? 'https://secure.hulu.com'
 		: 'http://www.hulu.com';
 

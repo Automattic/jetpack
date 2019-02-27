@@ -1,17 +1,44 @@
-/* jQuery */
+/* global jQuery, jp_banner */
 
 ( function( $ ) {
 	var nav = $( '.jp-wpcom-connect__vertical-nav-container' ),
 		contentContainer = $( '.jp-wpcom-connect__content-container' ),
 		nextFeatureButtons = $( '.jp-banner__button-container .next-feature' ),
 		fullScreenContainer = $( '.jp-connect-full__container' ),
-		fullScreenDismiss = $( '.jp-connect-full__dismiss' );
+		fullScreenDismiss = $( '.jp-connect-full__dismiss, .jp-connect-full__dismiss-paragraph' ),
+		wpWelcomeNotice = $( '#welcome-panel' ),
+		connectionBanner = $( '#message' ),
+		connectionBannerDismiss = $( '.connection-banner-dismiss' );
+
+	// Move the banner below the WP Welcome notice on the dashboard
+	$( window ).on( 'load', function() {
+		wpWelcomeNotice.insertBefore( connectionBanner );
+	} );
+
+	// Dismiss the connection banner via AJAX
+	connectionBannerDismiss.on( 'click', function() {
+		$( connectionBanner ).hide();
+
+		var data = {
+			action: 'jetpack_connection_banner',
+			nonce: jp_banner.connectionBannerNonce,
+			dismissBanner: true
+		};
+
+		$.post( jp_banner.ajax_url, data, function( response ) {
+			if ( true !== response.success ) {
+				$( connectionBanner ).show();
+			}
+		} );
+	} );
 
 	nav.on( 'click', '.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )', function() {
 		transitionSlideToIndex( $( this ).index() );
 	} );
 
-	nextFeatureButtons.on( 'click', function() {
+	nextFeatureButtons.on( 'click', function( e ) {
+		e.preventDefault();
+
 		var slideIndex = $( this )
 			.closest( '.jp-wpcom-connect__slide' )
 			.index();
@@ -46,9 +73,6 @@
 	 */
 	fullScreenDismiss.on( 'click', function() {
 		$( fullScreenContainer ).hide();
-
-		// Re-enable scrolling
-		$( 'body' ).css( 'overflow', 'visible' );
 	} );
 
 	$( document ).keyup( function( e ) {
@@ -56,9 +80,4 @@
 			$( fullScreenDismiss ).click();
 		}
 	} );
-
-	// Prevent scrolling if full-page prompt is showing
-	if ( $( fullScreenContainer ).is( ':visible' ) ) {
-		$( 'body' ).css( 'overflow', 'hidden' );
-	}
 } )( jQuery );

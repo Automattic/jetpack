@@ -53,6 +53,10 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	static function record_event( $event ) {
+		if ( ! Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+			return false;
+		}
+		
 		if ( ! $event instanceof Jetpack_Tracks_Event ) {
 			$event = new Jetpack_Tracks_Event( $event );
 		}
@@ -157,7 +161,10 @@ class Jetpack_Tracks_Client {
 
 				$anon_id = 'jetpack:' . base64_encode( $binary );
 
-				if ( ! headers_sent() ) {
+				if ( ! headers_sent()
+					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+					&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+				) {
 					setcookie( 'tk_ai', $anon_id );
 				}
 			}

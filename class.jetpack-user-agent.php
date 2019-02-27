@@ -52,7 +52,7 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 		return false;
 	}
 
-	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false ) {
+	if( $ua_info->is_android_tablet() &&  false === $ua_info->is_kindle_touch() ) {
 		return false;
 	}
 
@@ -600,14 +600,14 @@ class Jetpack_User_Agent_Info {
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if( strpos( $ua, 'iphone' ) === false )
+		if( false === strpos( $ua, 'iphone' ) )
 			return false;
 
-		if ( strpos( $ua, 'facebook' ) !== false  && strpos( $ua, 'ipad' ) === false )
+		if ( false !== strpos( $ua, 'facebook' ) && false === strpos( $ua, 'ipad' ) )
 			return true;
-		else if ( strpos( $ua, 'fbforiphone' ) !== false && strpos( $ua, 'tablet' ) === false )
+		else if ( false !== strpos( $ua, 'fbforiphone' ) && false === strpos( $ua, 'tablet' ) )
 			return true;
-		else if ( strpos( $ua, 'fban/fbios;' ) !== false && strpos( $ua, 'tablet' ) === false ) //FB app v5.0 or higher
+		else if ( false !== strpos( $ua, 'fban/fbios;' ) && false === strpos( $ua, 'tablet' ) ) //FB app v5.0 or higher
 			return true;
 		else
 			return false;
@@ -625,10 +625,10 @@ class Jetpack_User_Agent_Info {
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if ( strpos( $ua, 'ipad' ) === false )
+		if ( false === strpos( $ua, 'ipad' ) )
 			return false;
 
-		if ( strpos( $ua, 'facebook' ) !== false || strpos( $ua, 'fbforiphone' ) !== false  || strpos( $ua, 'fban/fbios;' ) !== false )
+		if ( false !== strpos( $ua, 'facebook' ) || false !== strpos( $ua, 'fbforiphone' ) || false !== strpos( $ua, 'fban/fbios;' ) )
 			return true;
 		else
 			return false;
@@ -642,7 +642,7 @@ class Jetpack_User_Agent_Info {
 			return false;
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		if ( strpos( $ua, 'wp-iphone' ) !== false )
+		if ( false !== strpos( $ua, 'wp-iphone' ) )
 			return true;
 		else
 			return false;
@@ -825,7 +825,7 @@ class Jetpack_User_Agent_Info {
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if ( strpos( $ua, 'windows phone os 7' ) === false ) {
+		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
 		} else {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -865,7 +865,7 @@ class Jetpack_User_Agent_Info {
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if ( strpos( $ua, 'webos' ) === false ) {
+		if ( false === strpos( $ua, 'webos' ) ) {
 	   		return false;
 		} else {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -1036,7 +1036,7 @@ class Jetpack_User_Agent_Info {
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if ( strpos( $ua, 'meego' ) === false ) {
+		if ( false === strpos( $ua, 'meego' ) ) {
 	   		return false;
 		} else {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -1102,7 +1102,7 @@ class Jetpack_User_Agent_Info {
 		$pos_mobile = strpos( $agent, 'mobile' );
 		$post_android_app = strpos( $agent, 'wp-android' );
 
-		if ( $pos_android !== false && $pos_mobile === false && $post_android_app === false ) {
+		if ( false !== $pos_android && false === $pos_mobile && false === $post_android_app ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
 				return false;
 			else
@@ -1145,7 +1145,7 @@ class Jetpack_User_Agent_Info {
  			return false;
  		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
  		$pos_kindle_touch = strpos( $agent, 'kindle/3.0+' );
- 		if ( $pos_kindle_touch !== false && self::is_kindle_fire() === false )
+ 		if ( false !== $pos_kindle_touch && false === self::is_kindle_fire() )
  			return true;
  		else
  			return false;
@@ -1159,7 +1159,7 @@ class Jetpack_User_Agent_Info {
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos = strpos( $agent, 'msauthhost' );
-		if ( $pos !== false )
+		if ( false !== $pos )
 	   		return true;
 		else
 			return false;
@@ -1172,7 +1172,7 @@ class Jetpack_User_Agent_Info {
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos   = strpos( $agent, 'wp-windows8' );
-		if ( $pos !== false )
+		if ( false !== $pos )
 			return true;
 		else
 			return false;
@@ -1194,7 +1194,7 @@ class Jetpack_User_Agent_Info {
 		$pos_playbook = stripos( $agent, 'PlayBook' );
 		$pos_rim_tablet = stripos( $agent, 'RIM Tablet' );
 
-		if ( ($pos_playbook === false) || ($pos_rim_tablet === false) )
+		if ( ( false === $pos_playbook ) || ( false === $pos_rim_tablet ) )
 		{
 			return false;
 		} else {
@@ -1260,7 +1260,7 @@ class Jetpack_User_Agent_Info {
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$pos_blackberry = stripos( $agent, 'blackberry' );
-		if ( $pos_blackberry === false ) {
+		if ( false === $pos_blackberry ) {
 			// not a blackberry device
 			return false;
 		}
@@ -1270,17 +1270,17 @@ class Jetpack_User_Agent_Info {
 		// Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en) AppleWebKit/534.1+ (KHTML, Like Gecko) Version/6.0.0.141 Mobile Safari/534.1+
 		// Mozilla/5.0 (BlackBerry; U; BlackBerry 9900; en-US) AppleWebKit/534.11+ (KHTML, like Gecko) Version/7.0.0 Mobile Safari/534.11+
 		$pos_webkit = stripos( $agent, 'webkit' );
-		if ( $pos_webkit !== false ) {
+		if ( false !== $pos_webkit ) {
 			// detected blackberry webkit browser
 			$pos_torch = stripos( $agent, 'BlackBerry 9800' );
-			if ( $pos_torch !== false ) {
+			if ( false !== $pos_torch ) {
 				return 'blackberry-torch'; // match the torch first edition. the 2nd edition should use the OS7 and doesn't need any special rule
 			} else {
 				// detecting the BB OS version for devices running OS 6.0 or higher
 				if ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) {
 					$version = $matches[1];
 					$version_num = explode( '.', $version );
-					if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
+					if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
 						return 'blackberry-6'; // not a BB device that match our rule.
 					} else {
 						return 'blackberry-' . $version_num[0];
@@ -1345,14 +1345,14 @@ class Jetpack_User_Agent_Info {
 		}
 
 		$pos_blackberry = strpos( $agent, 'blackberry' );
-		if ( $pos_blackberry === false ) {
+		if ( false === $pos_blackberry ) {
 			// not a blackberry device
 			return false;
 		}
 
 		$pos_webkit = strpos( $agent, 'webkit' );
 
-		if ( ! ( $pos_webkit === false ) ) {
+		if ( ! ( false === $pos_webkit ) ) {
 			return 'blackberry-webkit';
 		} else {
 			if ( preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
@@ -1363,7 +1363,7 @@ class Jetpack_User_Agent_Info {
 
 			$version_num = explode( '.', $version );
 
-			if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
+			if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
 				return false;
 			}
 
@@ -1453,8 +1453,8 @@ class Jetpack_User_Agent_Info {
 
 		$bot_agents = array(
 			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
-			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
-			'iescholar', 'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
+			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'httrack', 'ia_archiver', 'irlbot',
+			'iescholar', 'infoseek', 'jumpbot', 'linkcheck', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
 			'pss-webkit-request', 'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'taptubot', 'technoratisnoop',
 			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot', 'ahrefsbot', 'pingdom.com_bot', 'kraken', 'yandexbot',
 			'twitterbot', 'tweetmemebot', 'openhosebot', 'queryseekerspider', 'linkdexbot', 'grokkit-crawler',

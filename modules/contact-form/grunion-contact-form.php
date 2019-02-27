@@ -34,6 +34,18 @@ class Grunion_Contact_Form_Plugin {
 
 	static $using_contact_form_field = false;
 
+	/**
+	 * @var int The last Feedback Post ID Erased as part of the Personal Data Eraser.
+	 * Helps with pagination.
+	 */
+	private $pde_last_post_id_erased = 0;
+
+	/**
+	 * @var string The email address for which we are deleting/exporting all feedbacks
+	 * as part of a Personal Data Eraser or Personal Data Exporter request.
+	 */
+	private $pde_email_address = '';
+
 	static function init() {
 		static $instance = false;
 
@@ -59,9 +71,30 @@ class Grunion_Contact_Form_Plugin {
 			return;
 		}
 
+		/**
+		 * Fires right before deleting the _feedback_akismet_values post meta on $feedback_ids
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array $feedback_ids list of feedback post ID
+		 */
+		do_action( 'jetpack_daily_akismet_meta_cleanup_before', $feedback_ids );
 		foreach ( $feedback_ids as $feedback_id ) {
 			delete_post_meta( $feedback_id, '_feedback_akismet_values' );
 		}
+
+		/**
+		 * Fires right after deleting the _feedback_akismet_values post meta on $feedback_ids
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array $feedback_ids list of feedback post ID
+		 */
+		do_action( 'jetpack_daily_akismet_meta_cleanup_after', $feedback_ids );
 	}
 
 	/**
@@ -87,7 +120,10 @@ class Grunion_Contact_Form_Plugin {
 		return $data_without_tags;
 	}
 
-	function __construct() {
+	/**
+	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
+	 */
+	protected function __construct() {
 		$this->add_shortcode();
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
@@ -97,9 +133,14 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if ( ! has_filter( 'widget_text', 'do_shortcode' ) ) {
+		if (
+			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
+			&& ! has_filter( 'widget_text', 'do_shortcode' )
+		) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
+
+		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blacklist' ), 10, 2 );
 
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
@@ -112,67 +153,76 @@ class Grunion_Contact_Form_Plugin {
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
+		// GDPR: personal data exporter & eraser.
+		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ) );
+		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_personal_data_eraser' ) );
+
 		// Export to CSV feature
 		if ( is_admin() ) {
-			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
+			add_action( 'admin_init', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
-			add_action( 'admin_menu',            array( $this, 'admin_menu' ) );
-			add_action( 'current_screen',        array( $this, 'unread_count' ) );
+			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
-		register_post_type( 'feedback', array(
-			'labels'            => array(
-				'name'               => __( 'Feedback', 'jetpack' ),
-				'singular_name'      => __( 'Feedback', 'jetpack' ),
-				'search_items'       => __( 'Search Feedback', 'jetpack' ),
-				'not_found'          => __( 'No feedback found', 'jetpack' ),
-				'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
-			),
-			'menu_icon'         	=> 'dashicons-feedback',
-			'show_ui'           	=> TRUE,
-			'show_in_admin_bar' 	=> FALSE,
-			'public'            	=> FALSE,
-			'rewrite'           	=> FALSE,
-			'query_var'         	=> FALSE,
-			'capability_type'   	=> 'page',
-			'show_in_rest'      	=> true,
-			'rest_controller_class' => 'Grunion_Contact_Form_Endpoint',
-			'capabilities'			=> array(
-				'create_posts'        => false,
-				'publish_posts'       => 'publish_pages',
-				'edit_posts'          => 'edit_pages',
-				'edit_others_posts'   => 'edit_others_pages',
-				'delete_posts'        => 'delete_pages',
-				'delete_others_posts' => 'delete_others_pages',
-				'read_private_posts'  => 'read_private_pages',
-				'edit_post'           => 'edit_page',
-				'delete_post'         => 'delete_page',
-				'read_post'           => 'read_page',
-			),
-			'map_meta_cap'			=> true,
-		) );
+		register_post_type(
+			'feedback', array(
+				'labels'                => array(
+					'name'               => __( 'Feedback', 'jetpack' ),
+					'singular_name'      => __( 'Feedback', 'jetpack' ),
+					'search_items'       => __( 'Search Feedback', 'jetpack' ),
+					'not_found'          => __( 'No feedback found', 'jetpack' ),
+					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
+				),
+				// Matrial Ballot icon
+				'menu_icon'             => 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z"/></svg>'),
+				'show_ui'               => true,
+				'show_in_admin_bar'     => false,
+				'public'                => false,
+				'rewrite'               => false,
+				'query_var'             => false,
+				'capability_type'       => 'page',
+				'show_in_rest'          => true,
+				'rest_controller_class' => 'Grunion_Contact_Form_Endpoint',
+				'capabilities'          => array(
+					'create_posts'        => false,
+					'publish_posts'       => 'publish_pages',
+					'edit_posts'          => 'edit_pages',
+					'edit_others_posts'   => 'edit_others_pages',
+					'delete_posts'        => 'delete_pages',
+					'delete_others_posts' => 'delete_others_pages',
+					'read_private_posts'  => 'read_private_pages',
+					'edit_post'           => 'edit_page',
+					'delete_post'         => 'delete_page',
+					'read_post'           => 'read_page',
+				),
+				'map_meta_cap'          => true,
+			)
+		);
 
 		// Add to REST API post type whitelist
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
 
 		// Add "spam" as a post status
-		register_post_status( 'spam', array(
-			'label'                  => 'Spam',
-			'public'                 => false,
-			'exclude_from_search'    => true,
-			'show_in_admin_all_list' => false,
-			'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
-			'protected'              => true,
-			'_builtin'               => false,
-		) );
+		register_post_status(
+			'spam', array(
+				'label'                  => 'Spam',
+				'public'                 => false,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
+				'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
 
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] )
-		&&
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' == $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] )
 		) {
 			add_action( 'template_redirect', array( $this, 'process_form_submission' ) );
@@ -186,11 +236,128 @@ class Grunion_Contact_Form_Plugin {
 		 *	}
 		 *	add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		if ( is_rtl() ) {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/rtl/grunion-rtl.css', array(), JETPACK__VERSION );
-		} else {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
+		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
+		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
+			self::register_contact_form_blocks();
 		}
+	}
+
+	private static function register_contact_form_blocks() {
+		jetpack_register_block( 'jetpack/contact-form', array(
+			'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+		) );
+
+		// Field render methods.
+		jetpack_register_block( 'jetpack/field-text', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
+		) );
+		jetpack_register_block( 'jetpack/field-name', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
+		) );
+		jetpack_register_block( 'jetpack/field-email', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
+		) );
+		jetpack_register_block( 'jetpack/field-url', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
+		) );
+		jetpack_register_block( 'jetpack/field-date', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
+		) );
+		jetpack_register_block( 'jetpack/field-telephone', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
+		) );
+		jetpack_register_block( 'jetpack/field-textarea', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
+		) );
+		jetpack_register_block( 'jetpack/field-checkbox', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
+		) );
+		jetpack_register_block( 'jetpack/field-checkbox-multiple', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
+		) );
+		jetpack_register_block( 'jetpack/field-radio', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+		) );
+		jetpack_register_block( 'jetpack/field-select', array(
+			'parent'          => array( 'jetpack/contact-form' ),
+			'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
+		) );
+	}
+
+	public static function gutenblock_render_form( $atts, $content ) {
+		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+
+	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
+		$atts['type'] = $type;
+		if ( isset( $atts['className'] ) ) {
+			$atts['class'] = $atts['className'];
+			unset( $atts['className'] );
+		}
+
+		if ( isset( $atts['defaultValue'] ) ) {
+			$atts['default'] = $atts['defaultValue'];
+			unset( $atts['defaultValue'] );
+		}
+
+		return $atts;
+	}
+
+	public static function gutenblock_render_field_text( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_name( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_email( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_url( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_date( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_telephone( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_textarea( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_radio( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+	public static function gutenblock_render_field_select( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
@@ -232,7 +399,7 @@ class Grunion_Contact_Form_Plugin {
 					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
-							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
+							$unread_count       = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
 							$menu[ $index ][0] .= $unread_count;
 						}
 						break;
@@ -251,7 +418,9 @@ class Grunion_Contact_Form_Plugin {
 		// Add a filter to replace tokens in the subject field with sanitized field values
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		$id = stripslashes( $_POST['contact-form-id'] );
+		$id   = stripslashes( $_POST['contact-form-id'] );
+		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
+		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
@@ -264,7 +433,7 @@ class Grunion_Contact_Form_Plugin {
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
 			$this->current_widget_id = substr( $id, 7 ); // remove "widget-"
-			$widget_type = implode( '-', array_slice( explode( '-', $this->current_widget_id ), 0, -1 ) ); // Remove trailing -#
+			$widget_type             = implode( '-', array_slice( explode( '-', $this->current_widget_id ), 0, -1 ) ); // Remove trailing -#
 
 			// Is the widget active?
 			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
@@ -273,10 +442,17 @@ class Grunion_Contact_Form_Plugin {
 			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
+				// prevent PHP notices by populating widget args
+				$widget_args = array(
+					'before_widget' => '',
+					'after_widget'  => '',
+					'before_title'  => '',
+					'after_title'   => '',
+				);
 				// This is lamer - no API for outputting a given widget by ID
 				ob_start();
 				// Process the widget to populate Grunion_Contact_Form::$last
-				call_user_func( $widget['callback'], array(), $widget['params'][0] );
+				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
 		} else {
@@ -288,22 +464,22 @@ class Grunion_Contact_Form_Plugin {
 			apply_filters( 'the_content', $post->post_content );
 		}
 
-		$form = Grunion_Contact_Form::$last;
+		$form = isset( Grunion_Contact_Form::$forms[ $hash ] ) ? Grunion_Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form ) {
 
 			// Get shortcode from post meta
-			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+			$shortcode = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
 			if ( $shortcode != '' ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
-				$attributes = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode_atts', true );
+				$attributes = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
-					foreach( array_filter( $attributes ) as $param => $value  ) {
+					foreach ( array_filter( $attributes ) as $param => $value ) {
 						$parameters .= " $param=\"$value\"";
 					}
 				}
@@ -370,8 +546,8 @@ class Grunion_Contact_Form_Plugin {
 	 * The "child" contact-field shortcode is enabled as needed by the contact-form shortcode handler
 	 */
 	function add_shortcode() {
-		add_shortcode( 'contact-form',         array( 'Grunion_Contact_Form', 'parse' ) );
-		add_shortcode( 'contact-field',        array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 	}
 
 	static function tokenize_label( $label ) {
@@ -454,9 +630,32 @@ class Grunion_Contact_Form_Plugin {
 		$text = do_shortcode( $text );
 
 		Grunion_Contact_Form_Plugin::$using_contact_form_field = false;
-		$GLOBALS['shortcode_tags'] = $old;
+		$GLOBALS['shortcode_tags']                             = $old;
 
 		return $text;
+	}
+
+	/**
+	 * Check if a submission matches the Comment Blacklist.
+	 * The Comment Blacklist is a means to moderate discussion, and contact
+	 * forms are 1:1 discussion forums, ripe for abuse by users who are being
+	 * removed from the public discussion.
+	 * Attached to `jetpack_contact_form_is_spam`
+	 *
+	 * @param bool  $is_spam
+	 * @param array $form
+	 * @return bool TRUE => spam, FALSE => not spam
+	 */
+	function is_spam_blacklist( $is_spam, $form = array() ) {
+		if ( $is_spam ) {
+			return $is_spam;
+		}
+
+		if ( wp_blacklist_check( $form['comment_author'], $form['comment_author_email'], $form['comment_author_url'], $form['comment_content'], $form['user_ip'], $form['user_agent'] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -509,7 +708,7 @@ class Grunion_Contact_Form_Plugin {
 		// If something only sends an array, assume it's still using the old
 		// signature and work around it.
 		if ( empty( $form ) && is_array( $is_spam ) ) {
-			$form = $is_spam;
+			$form    = $is_spam;
 			$is_spam = false;
 		}
 
@@ -569,9 +768,9 @@ class Grunion_Contact_Form_Plugin {
 			$query_string = http_build_query( $form );
 		}
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+			$response = Akismet::http_post( $query_string, "submit-{$as}" );
 		} else {
-		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+			$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
 
 		return trim( $response[1] );
@@ -597,16 +796,16 @@ class Grunion_Contact_Form_Plugin {
 		?>
 
 		<div id="feedback-export" style="display:none">
-			<h2><?php _e( 'Export feedback as CSV', 'jetpack' ) ?></h2>
+			<h2><?php _e( 'Export feedback as CSV', 'jetpack' ); ?></h2>
 			<div class="clear"></div>
 			<form action="<?php echo admin_url( 'admin-post.php' ); ?>" method="post" class="form">
-				<?php wp_nonce_field( 'feedback_export','feedback_export_nonce' ); ?>
+				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
 
 				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php _e( 'Select feedback to download', 'jetpack' ) ?></label>
+				<label for="post"><?php _e( 'Select feedback to download', 'jetpack' ); ?></label>
 				<select name="post">
-					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ) ?></option>
-					<?php echo $this->get_feedbacks_as_options() ?>
+					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
+					<?php echo $this->get_feedbacks_as_options(); ?>
 				</select>
 
 				<br><br>
@@ -619,12 +818,12 @@ class Grunion_Contact_Form_Plugin {
 		// so this inline JS moves it from the top of the page to the bottom.
 		?>
 		<script type='text/javascript'>
-		var menu = document.getElementById( 'feedback-export' ),
-		wrapper = document.getElementsByClassName( 'wrap' )[0];
-		<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
-		wrapper.appendChild(menu);
-		<?php endif; ?>
-		menu.style.display = 'block';
+		    var menu = document.getElementById( 'feedback-export' ),
+                wrapper = document.getElementsByClassName( 'wrap' )[0];
+            <?php if ( 'edit-feedback' === $current_screen->id ) : ?>
+            wrapper.appendChild(menu);
+            <?php endif; ?>
+            menu.style.display = 'block';
 		</script>
 		<?php
 	}
@@ -705,6 +904,286 @@ class Grunion_Contact_Form_Plugin {
 		return $mapped_fields;
 	}
 
+	/**
+	 * Registers the personal data exporter.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  array $exporters An array of personal data exporters.
+	 *
+	 * @return array $exporters An array of personal data exporters.
+	 */
+	public function register_personal_data_exporter( $exporters ) {
+		$exporters['jetpack-feedback'] = array(
+			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'callback'               => array( $this, 'personal_data_exporter' ),
+		);
+
+		return $exporters;
+	}
+
+	/**
+	 * Registers the personal data eraser.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  array $erasers An array of personal data erasers.
+	 *
+	 * @return array $erasers An array of personal data erasers.
+	 */
+	public function register_personal_data_eraser( $erasers ) {
+		$erasers['jetpack-feedback'] = array(
+			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'callback'             => array( $this, 'personal_data_eraser' ),
+		);
+
+		return $erasers;
+	}
+
+	/**
+	 * Exports personal data.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email  Email address.
+	 * @param  int    $page   Page to export.
+	 *
+	 * @return array  $return Associative array with keys expected by core.
+	 */
+	public function personal_data_exporter( $email, $page = 1 ) {
+		return $this->_internal_personal_data_exporter( $email, $page );
+	}
+
+	/**
+	 * Internal method for exporting personal data.
+	 *
+	 * Allows us to have a different signature than core expects
+	 * while protecting against future core API changes.
+	 *
+	 * @internal
+	 * @since 6.5
+	 *
+	 * @param  string $email    Email address.
+	 * @param  int    $page     Page to export.
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 *
+	 * @return array            Associative array with keys expected by core.
+	 */
+	public function _internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
+		$export_data = array();
+		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
+
+		foreach ( $post_ids as $post_id ) {
+			$post_fields = $this->get_parsed_field_contents_of_post( $post_id );
+
+			if ( ! is_array( $post_fields ) || empty( $post_fields['_feedback_subject'] ) ) {
+				continue; // Corrupt data.
+			}
+
+			$post_fields['_feedback_main_comment'] = $this->get_post_content_for_csv_export( $post_id );
+			$post_fields                           = $this->map_parsed_field_contents_of_post_to_field_names( $post_fields );
+
+			if ( ! is_array( $post_fields ) || empty( $post_fields ) ) {
+				continue; // No fields to export.
+			}
+
+			$post_meta = $this->get_post_meta_for_csv_export( $post_id );
+			$post_meta = is_array( $post_meta ) ? $post_meta : array();
+
+			$post_export_data = array();
+			$post_data        = array_merge( $post_fields, $post_meta );
+			ksort( $post_data );
+
+			foreach ( $post_data as $post_data_key => $post_data_value ) {
+				$post_export_data[] = array(
+					'name'  => preg_replace( '/^[0-9]+_/', '', $post_data_key ),
+					'value' => $post_data_value,
+				);
+			}
+
+			$export_data[] = array(
+				'group_id'    => 'feedback',
+				'group_label' => __( 'Feedback', 'jetpack' ),
+				'item_id'     => 'feedback-' . $post_id,
+				'data'        => $post_export_data,
+			);
+		}
+
+		return array(
+			'data' => $export_data,
+			'done' => count( $post_ids ) < $per_page,
+		);
+	}
+
+	/**
+	 * Erases personal data.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email Email address.
+	 * @param  int    $page  Page to erase.
+	 *
+	 * @return array         Associative array with keys expected by core.
+	 */
+	public function personal_data_eraser( $email, $page = 1 ) {
+		return $this->_internal_personal_data_eraser( $email, $page );
+	}
+
+	/**
+	 * Internal method for erasing personal data.
+	 *
+	 * Allows us to have a different signature than core expects
+	 * while protecting against future core API changes.
+	 *
+	 * @internal
+	 * @since 6.5
+	 *
+	 * @param  string $email    Email address.
+	 * @param  int    $page     Page to erase.
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 *
+	 * @return array            Associative array with keys expected by core.
+	 */
+	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) {
+		$removed      = false;
+		$retained     = false;
+		$messages     = array();
+		$option_name  = sprintf( '_jetpack_pde_feedback_%s', md5( $email ) );
+		$last_post_id = 1 === $page ? 0 : get_option( $option_name, 0 );
+		$post_ids     = $this->personal_data_post_ids_by_email( $email, $per_page, $page, $last_post_id );
+
+		foreach ( $post_ids as $post_id ) {
+			/**
+			 * Filters whether to erase a particular Feedback post.
+			 *
+			 * @since 6.3.0
+			 *
+			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
+			 *                                        Custom prevention message (string). Default true.
+			 * @param int         $post_id            Feedback post ID.
+			 */
+			$prevention_message = apply_filters( 'grunion_contact_form_delete_feedback_post', true, $post_id );
+
+			if ( true !== $prevention_message ) {
+				if ( $prevention_message && is_string( $prevention_message ) ) {
+					$messages[] = esc_html( $prevention_message );
+				} else {
+					$messages[] = sprintf(
+					// translators: %d: Post ID.
+						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+						$post_id
+					);
+				}
+
+				$retained = true;
+
+				continue;
+			}
+
+			if ( wp_delete_post( $post_id, true ) ) {
+				$removed = true;
+			} else {
+				$retained   = true;
+				$messages[] = sprintf(
+				// translators: %d: Post ID.
+					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+					$post_id
+				);
+			}
+		}
+
+		$done = count( $post_ids ) < $per_page;
+
+		if ( $done ) {
+			delete_option( $option_name );
+		} else {
+			update_option( $option_name, (int) $post_id );
+		}
+
+		return array(
+			'items_removed'  => $removed,
+			'items_retained' => $retained,
+			'messages'       => $messages,
+			'done'           => $done,
+		);
+	}
+
+	/**
+	 * Queries personal data by email address.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $email        Email address.
+	 * @param  int    $per_page     Post IDs per page. Default is `250`.
+	 * @param  int    $page         Page to query. Default is `1`.
+	 * @param  int    $last_post_id Page to query. Default is `0`. If non-zero, used instead of $page.
+	 *
+	 * @return array An array of post IDs.
+	 */
+	public function personal_data_post_ids_by_email( $email, $per_page = 250, $page = 1, $last_post_id = 0 ) {
+		add_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
+
+		$this->pde_last_post_id_erased = $last_post_id;
+		$this->pde_email_address       = $email;
+
+		$post_ids = get_posts(
+			array(
+				'post_type'        => 'feedback',
+				'post_status'      => 'publish',
+				// This search parameter gets overwritten in ->personal_data_search_filter()
+				's'                => '..PDE..AUTHOR EMAIL:..PDE..',
+				'sentence'         => true,
+				'order'            => 'ASC',
+				'orderby'          => 'ID',
+				'fields'           => 'ids',
+				'posts_per_page'   => $per_page,
+				'paged'            => $last_post_id ? 1 : $page,
+				'suppress_filters' => false,
+			)
+		);
+
+		$this->pde_last_post_id_erased = 0;
+		$this->pde_email_address       = '';
+
+		remove_filter( 'posts_search', array( $this, 'personal_data_search_filter' ) );
+
+		return $post_ids;
+	}
+
+	/**
+	 * Filters searches by email address.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param  string $search SQL where clause.
+	 *
+	 * @return array          Filtered SQL where clause.
+	 */
+	public function personal_data_search_filter( $search ) {
+		global $wpdb;
+
+		/*
+		 * Limits search to `post_content` only, and we only match the
+		 * author's email address whenever it's on a line by itself.
+		 */
+		if ( $this->pde_email_address && false !== strpos( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
+			$search = $wpdb->prepare(
+				" AND (
+					{$wpdb->posts}.post_content LIKE %s
+					OR {$wpdb->posts}.post_content LIKE %s
+				)",
+				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r`
+				'%' . $wpdb->esc_like( chr( 10 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 10 ) ) . '%',
+				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%'
+			);
+
+			if ( $this->pde_last_post_id_erased ) {
+				$search .= $wpdb->prepare( " AND {$wpdb->posts}.ID > %d", $this->pde_last_post_id_erased );
+			}
+		}
+
+		return $search;
+	}
 
 	/**
 	 * Prepares feedback post data for CSV export.
@@ -857,7 +1336,7 @@ class Grunion_Contact_Form_Plugin {
 			return;
 		}
 
-		$filename  = sanitize_file_name( $filename );
+		$filename = sanitize_file_name( $filename );
 
 		/**
 		 * Prepare data for export.
@@ -931,7 +1410,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return string
 	 */
-	function esc_csv( $field ) {
+	public function esc_csv( $field ) {
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
 		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
@@ -950,22 +1429,26 @@ class Grunion_Contact_Form_Plugin {
 		$options = '';
 
 		// Get the feedbacks' parents' post IDs
-		$feedbacks = get_posts( array(
-			'fields'           => 'id=>parent',
-			'posts_per_page'   => 100000,
-			'post_type'        => 'feedback',
-			'post_status'      => 'publish',
-			'suppress_filters' => false,
-		) );
-		$parents = array_unique( array_values( $feedbacks ) );
+		$feedbacks = get_posts(
+			array(
+				'fields'           => 'id=>parent',
+				'posts_per_page'   => 100000,
+				'post_type'        => 'feedback',
+				'post_status'      => 'publish',
+				'suppress_filters' => false,
+			)
+		);
+		$parents   = array_unique( array_values( $feedbacks ) );
 
-		$posts = get_posts( array(
-			'orderby'          => 'ID',
-			'posts_per_page'   => 1000,
-			'post_type'        => 'any',
-			'post__in'         => array_values( $parents ),
-			'suppress_filters' => false,
-		) );
+		$posts = get_posts(
+			array(
+				'orderby'          => 'ID',
+				'posts_per_page'   => 1000,
+				'post_type'        => 'any',
+				'post__in'         => array_values( $parents ),
+				'suppress_filters' => false,
+			)
+		);
 
 		// creates the string of <option> elements
 		foreach ( $posts as $post ) {
@@ -985,7 +1468,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @deprecated As this is no longer necessary as of the CSV export rewrite. - 2015-12-29
 	 */
 	protected function get_field_names( $posts ) {
-		$posts = (array) $posts;
+		$posts      = (array) $posts;
 		$all_fields = array();
 
 		foreach ( $posts as $post ) {
@@ -993,7 +1476,7 @@ class Grunion_Contact_Form_Plugin {
 
 			if ( isset( $fields['_feedback_all_fields'] ) ) {
 				$extra_fields = array_keys( $fields['_feedback_all_fields'] );
-				$all_fields = array_merge( $all_fields, $extra_fields );
+				$all_fields   = array_merge( $all_fields, $extra_fields );
 			}
 		}
 
@@ -1075,7 +1558,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		// Overwrite the parsed content with the content we stored in post_meta in a better format.
-		$extra_fields   = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
 		foreach ( $extra_fields as $extra_field => $extra_value ) {
 			$all_fields[ $extra_field ] = $extra_value;
 		}
@@ -1089,7 +1572,8 @@ class Grunion_Contact_Form_Plugin {
 				continue;
 			} elseif ( array_key_exists( $field, $all_fields ) ) {
 				$row_items[] = $all_fields[ $field ];
-			} else { $row_items[] = '';
+			} else {
+				$row_items[] = '';
 			}
 		}
 
@@ -1192,7 +1676,12 @@ class Crunion_Contact_Form_Shortcode {
 		// Shortcode attributes can't contain "]"
 		$value = str_replace( ']', '', $value );
 		$value = str_replace( ',', '&#x002c;', $value ); // store commas encoded
-		$value = strtr( $value, array( '%' => '%25', '&' => '%26' ) );
+		$value = strtr(
+			$value, array(
+				'%' => '%25',
+				'&' => '%26',
+			)
+		);
 
 		// shortcode_parse_atts() does stripcslashes()
 		$value = addslashes( $value );
@@ -1206,7 +1695,12 @@ class Crunion_Contact_Form_Shortcode {
 
 		// For back-compat with old Grunion encoding
 		// Also, unencode commas
-		$value = strtr( $value, array( '%26' => '&', '%25' => '%' ) );
+		$value = strtr(
+			$value, array(
+				'%26' => '&',
+				'%25' => '%',
+			)
+		);
 		$value = preg_replace( array( '/&#x0*22;/i', '/&#x0*27;/i', '/&#x0*26;/i', '/&#x0*2c;/i' ), array( '"', "'", '&', ',' ), $value );
 		$value = htmlspecialchars_decode( $value, ENT_QUOTES );
 		$value = Grunion_Contact_Form_Plugin::strip_tags( $value );
@@ -1284,6 +1778,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public $errors;
 
 	/**
+	 * @var string The SHA1 hash of the attributes that comprise the form.
+	 */
+	public $hash;
+
+	/**
 	 * @var Grunion_Contact_Form The most recent (inclusive) contact-form shortcode processed
 	 */
 	static $last;
@@ -1294,15 +1793,28 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static $current_form;
 
 	/**
+	 * @var array All found forms, indexed by hash.
+	 */
+	static $forms = array();
+
+	/**
 	 * @var bool Whether to print the grunion.css style when processing the contact-form shortcode
 	 */
 	static $style = false;
 
+	/**
+	 * @var array When printing the submit button, what tags are allowed
+	 */
+	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
+
 	function __construct( $attributes, $content = null ) {
 		global $post;
 
+		$this->hash                 = sha1( json_encode( $attributes ) . $content );
+		self::$forms[ $this->hash ] = $this;
+
 		// Set up the default subject and recipient for this form
-		$default_to = '';
+		$default_to      = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
@@ -1310,14 +1822,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$default_to .= get_option( 'admin_email' );
+			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
+			$default_subject  = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
-			$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
-			$post_author = get_userdata( $post->post_author );
-			$default_to .= $post_author->user_email;
+			$default_subject  = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
+			$post_author      = get_userdata( $post->post_author );
+			$default_to      .= $post_author->user_email;
 		}
 
 		// Keep reference to $this for parsing form fields
@@ -1329,7 +1841,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'show_subject'       => 'no', // only used in back-compat mode
 			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
 			'id'                 => null, // Not exposed to the user. Set above.
-			'submit_button_text' => __( 'Submit &#187;', 'jetpack' ),
+			'submit_button_text' => __( 'Submit', 'jetpack' ),
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -1358,10 +1870,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$this->parse_content( $default_form );
 
 			// Store the shortcode
-			$this->store_shortcode( $default_form, $attributes );
+			$this->store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
 			// Store the shortcode
-			$this->store_shortcode( $content, $attributes );
+			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -1370,21 +1882,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 	/**
 	 * Store shortcode content for recall later
-	 *	- used to receate shortcode when user uses do_shortcode
+	 *  - used to receate shortcode when user uses do_shortcode
 	 *
 	 * @param string $content
+	 * @param array $attributes
+	 * @param string $hash
 	 */
-	static function store_shortcode( $content = null, $attributes = null ) {
+	static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
 
 		if ( $content != null and isset( $attributes['id'] ) ) {
 
-			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
+			if ( empty( $hash ) ) {
+				$hash = sha1( json_encode( $attributes ) . $content );
+			}
+
+			$shortcode_meta = get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
 
 			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
 
 				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode_atts', $attributes );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
 			}
 		}
 	}
@@ -1396,7 +1914,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	static function style( $style ) {
 		$previous_style = self::$style;
-		self::$style = (bool) $style;
+		self::$style    = (bool) $style;
 		return $previous_style;
 	}
 
@@ -1436,17 +1954,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '[contact-form]';
 		}
 
-		// Only allow one contact form per post/widget
-		if ( self::$last && $id == self::$last->get_attribute( 'id' ) ) {
-			// We're processing the same post
-			if ( self::$last->attributes != $form->attributes || self::$last->content != $form->content ) {
-				// And we're processing a different shortcode;
-				return '';
-			} // else, we're processing the same shortcode - probably a separate run of do_shortcode() - let it through
-
-		} else {
-			self::$last = $form;
-		}
+		self::$last = $form;
 
 		// Enqueue the grunion.css stylesheet if self::$style allows it
 		if ( self::$style && ( empty( $_REQUEST['action'] ) || $_REQUEST['action'] != 'grunion_shortcode_to_json' ) ) {
@@ -1456,7 +1964,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_enqueue_style( 'grunion.css' );
 		}
 
-		$r = '';
+		$r  = '';
 		$r .= "<div id='contact-form-$id'>\n";
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
@@ -1468,7 +1976,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
-		if ( isset( $_GET['contact-form-id'] ) && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' ) && isset( $_GET['contact-form-sent'] ) ) {
+		if ( isset( $_GET['contact-form-id'] )
+		     && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
+		     && isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+		     && hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -1485,7 +1996,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			/**
-			 * Filter the message returned after a successfull contact form submission.
+			 * Filter the message returned after a successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -1524,12 +2035,52 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
-			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='pushbutton-wide'/>\n";
+
+			$gutenberg_submit_button_classes = '';
+			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
+				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
+			}
+
+			/**
+			 * Filter the contact form submit button class attribute.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 6.6.0
+			 *
+			 * @param string $class Additional CSS classes for button attribute.
+			 */
+			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
+
+			$submit_button_styles = '';
+			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
+				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
+			}
+			if ( ! empty( $attributes['customTextButtonColor'] ) ) {
+				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
+			}
+			if ( ! empty( $attributes['submitButtonText'] ) ) {
+				$submit_button_text = $attributes['submitButtonText'];
+			} else {
+				$submit_button_text = $form->get_attribute( 'submit_button_text' );
+			}
+
+			$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
+			if ( ! empty( $submit_button_styles ) ) {
+				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
+			}
+			$r .= ">";
+			$r .= wp_kses(
+				      $submit_button_text,
+				      self::$allowed_html_tags_for_submit_button
+			      ) . "</button>";
+
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
+			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 			$r .= "\t</p>\n";
 			$r .= "</form>\n";
 		}
@@ -1552,7 +2103,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'<blockquote class="contact-form-submission">'
 			. '<p>' . join( self::get_compiled_form( $feedback_id, $form ), '</p><p>' ) . '</p>'
 			. '</blockquote>',
-			array( 'br' => array(), 'blockquote' => array( 'class' => array() ), 'p' => array() )
+			array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+			)
 		);
 	}
 
@@ -1592,16 +2147,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value = $feedback->post_content;
+					$value         = $feedback->post_content;
 					list( $value ) = explode( '<!--more-->', $value );
-					$value = trim( $value );
+					$value         = trim( $value );
 				}
 
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'] );
+				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'] );
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
-					nl2br( wp_kses( $value, array() ) )
+					self::escape_and_sanitize_field_value( $value )
 				);
 			}
 		}
@@ -1628,7 +2183,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$compiled_form[ $field_index ] = sprintf(
 						'<b>%1$s:</b> %2$s<br /><br />',
 						wp_kses( $label, array() ),
-						nl2br( wp_kses( $extra_fields[ $extra_field_keys[ $i ] ], array() ) )
+						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
 					$i++;
@@ -1640,6 +2195,22 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		ksort( $compiled_form );
 
 		return $compiled_form;
+	}
+
+	static function escape_and_sanitize_field_value( $value ) {
+        $value = str_replace( array( '[' , ']' ) ,  array( '&#91;' , '&#93;' ) , $value );
+        return nl2br( wp_kses( $value, array() ) );
+    }
+
+	/**
+	 * Only strip out empty string values and keep all the other values as they are.
+     *
+	 * @param $single_value
+	 *
+	 * @return bool
+	 */
+	static function remove_empty( $single_value ) {
+		return ( $single_value !== '' );
 	}
 
 	/**
@@ -1654,11 +2225,25 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
 			$att_strs = array();
+			if ( ! isset( $attributes['label'] )  ) {
+				$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+				$attributes['label'] = self::get_default_label_from_type( $type );
+			}
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = esc_html( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
-					$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
+					if ( ( $att === 'options' || $att === 'values' ) && is_string( $val ) ) { // remove any empty strings
+						$val = explode( ',', $val );
+					}
+ 					if ( is_array( $val ) ) {
+						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
+						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( 'esc_html', $val ) ) . '"';
+					} elseif ( is_bool( $val ) ) {
+						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ? '1' : '' ) . '"';
+					} else {
+						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ) . '"';
+					}
 				}
 			}
 
@@ -1686,8 +2271,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if (
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
+			&&
+			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -1695,6 +2282,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Output HTML
 		return $field->render();
+	}
+
+	static function get_default_label_from_type( $type ) {
+		switch ( $type ) {
+			case 'text':
+				return __( 'Text', 'jetpack' );
+			case 'name':
+				return __( 'Name', 'jetpack' );
+			case 'email':
+				return __( 'Email', 'jetpack' );
+			case 'url':
+				return __( 'Website', 'jetpack' );
+			case 'date':
+				return __( 'Date', 'jetpack' );
+			case 'telephone':
+				return __( 'Phone', 'jetpack' );
+			case 'textarea':
+				return __( 'Message', 'jetpack' );
+			case 'checkbox':
+				return __( 'Checkbox', 'jetpack' );
+			case 'checkbox-multiple':
+				return __( 'Choose several', 'jetpack' );
+			case 'radio':
+				return __( 'Choose one', 'jetpack' );
+			case 'select':
+				return __( 'Select one', 'jetpack' );
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -1768,14 +2384,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * See method description before modifying the switch cases.
 			 */
 			switch ( $type ) {
-				case 'email' :
-				case 'name' :
-				case 'url' :
-				case 'subject' :
-				case 'textarea' :
+				case 'email':
+				case 'name':
+				case 'url':
+				case 'subject':
+				case 'textarea':
 					$field_ids[ $type ] = $id;
 					break;
-				default :
+				default:
 					// Put everything else in extra
 					$field_ids['extra'][] = $id;
 			}
@@ -1799,7 +2415,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$contact_form_subject = $this->get_attribute( 'subject' );
 
-		$to = str_replace( ' ', '', $to );
+		$to     = str_replace( ' ', '', $to );
 		$emails = explode( ',', $to );
 
 		$valid_emails = array();
@@ -1846,11 +2462,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$comment_author_email = $comment_author_email_label = // v
 		$comment_author       = $comment_author_label       = // v
 		$comment_author_url   = $comment_author_url_label   = // v
-		$comment_content      = $comment_content_label      = null;
+		$comment_content      = $comment_content_label = null;
 
 		// For each of the "standard" fields, grab their field label and value.
 		if ( isset( $field_ids['name'] ) ) {
-			$field = $this->fields[ $field_ids['name'] ];
+			$field          = $this->fields[ $field_ids['name'] ];
 			$comment_author = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
 					/** This filter is already documented in core/wp-includes/comment-functions.php */
@@ -1861,7 +2477,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $field_ids['email'] ) ) {
-			$field = $this->fields[ $field_ids['email'] ];
+			$field                = $this->fields[ $field_ids['email'] ];
 			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
 					/** This filter is already documented in core/wp-includes/comment-functions.php */
@@ -1872,7 +2488,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $field_ids['url'] ) ) {
-			$field = $this->fields[ $field_ids['url'] ];
+			$field              = $this->fields[ $field_ids['url'] ];
 			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
 					/** This filter is already documented in core/wp-includes/comment-functions.php */
@@ -1886,8 +2502,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $field_ids['textarea'] ) ) {
-			$field = $this->fields[ $field_ids['textarea'] ];
-			$comment_content = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
+			$field                 = $this->fields[ $field_ids['textarea'] ];
+			$comment_content       = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
 			$comment_content_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
@@ -1899,7 +2515,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$all_values = $extra_values = array();
-		$i = 1; // Prefix counter for stored metadata
+		$i          = 1; // Prefix counter for stored metadata
 
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
@@ -1937,7 +2553,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Ensure that Akismet gets all of the relevant information from the contact form,
 		// not just the textarea field and predetermined subject.
-		$akismet_vars = compact( $vars );
+		$akismet_vars                    = compact( $vars );
 		$akismet_vars['comment_content'] = $comment_content;
 
 		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
@@ -1969,7 +2585,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
 		}
 
-		$spam = '';
+		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
@@ -1994,33 +2610,36 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string|array $to Array of valid email addresses, or single email address.
 		 */
-		$to = (array) apply_filters( 'contact_form_to', $to );
+		$to            = (array) apply_filters( 'contact_form_to', $to );
+		$reply_to_addr = $to[0]; // get just the address part before the name part is added
+
 		foreach ( $to as $to_key => $to_value ) {
 			$to[ $to_key ] = Grunion_Contact_Form_Plugin::strip_tags( $to_value );
+			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
-		$blog_url = parse_url( site_url() );
+		$blog_url        = parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
-		$reply_to_addr = $to[0];
 		if ( ! empty( $comment_author_email ) ) {
 			$reply_to_addr = $comment_author_email;
 		}
 
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
-					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n" .
-					'Content-Type: text/html; charset="' . get_option( 'blog_charset' ) . '"';
+		           'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
 
 		// Build feedback reference
 		$feedback_time  = current_time( 'mysql' );
 		$feedback_title = "{$comment_author} - {$feedback_time}";
 		$feedback_id    = md5( $feedback_title );
 
-		$all_values = array_merge( $all_values, array(
-			'entry_title'     => the_title_attribute( 'echo=0' ),
-			'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
-			'feedback_id'     => $feedback_id,
-		) );
+		$all_values = array_merge(
+			$all_values, array(
+				'entry_title'     => the_title_attribute( 'echo=0' ),
+				'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
+				'feedback_id'     => $feedback_id,
+			)
+		);
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -2028,7 +2647,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
-		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
+		$time             = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
 		// keep a copy of the feedback as a custom post type
 		$feedback_status = $is_spam === true ? 'spam' : 'publish';
@@ -2056,15 +2675,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * with this work around. */
 		add_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
-		$post_id = wp_insert_post( array(
-			'post_date'    => addslashes( $feedback_time ),
-			'post_type'    => 'feedback',
-			'post_status'  => addslashes( $feedback_status ),
-			'post_parent'  => (int) $post->ID,
-			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
-			'post_name'    => $feedback_id,
-		) );
+		$post_id = wp_insert_post(
+			array(
+				'post_date'    => addslashes( $feedback_time ),
+				'post_type'    => 'feedback',
+				'post_status'  => addslashes( $feedback_status ),
+				'post_parent'  => (int) $post->ID,
+				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+				'post_name'    => $feedback_id,
+			)
+		);
 
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
@@ -2085,7 +2706,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		array_push(
 			$message,
-			"", // Empty line left intentionally
+			'<br />',
 			'<hr />',
 			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
 			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />',
@@ -2095,20 +2716,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( is_user_logged_in() ) {
 			array_push(
 				$message,
-				'',
 				sprintf(
-					__( 'Sent by a verified %s user.', 'jetpack' ),
+					'<p>' . __( 'Sent by a verified %s user.', 'jetpack' ) . '</p>',
 					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
 						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 				)
 			);
 		} else {
-			array_push( $message, __( 'Sent by an unverified visitor to your site.', 'jetpack' ) );
+			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
 		}
 
-		$message = join( $message, "\n" );
+		$message = join( $message, '' );
+
 		/**
-		 * Filters the message sent via email after a successfull form submission.
+		 * Filters the message sent via email after a successful form submission.
 		 *
 		 * @module contact-form
 		 *
@@ -2117,6 +2738,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string $message Feedback email message.
 		 */
 		$message = apply_filters( 'contact_form_message', $message );
+
+		// This is called after `contact_form_message`, in order to preserve back-compat
+		$message = self::wrap_message_in_html_tags( $message );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -2142,7 +2766,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if (
 			$is_spam !== true &&
 			/**
-			 * Filter to choose whether an email should be sent after each successfull contact form submission.
+			 * Filter to choose whether an email should be sent after each successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -2153,7 +2777,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			true === apply_filters( 'grunion_should_send_email', true, $post_id )
 		) {
-			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		} elseif (
 			true === $is_spam &&
 			/**
@@ -2167,7 +2791,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			apply_filters( 'grunion_still_email_spam', false ) == true
 		) { // don't send spam by default.  Filterable.
-			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
@@ -2179,11 +2803,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$redirect = $_SERVER['REQUEST_URI'];
 		}
 
-		$redirect = add_query_arg( urlencode_deep( array(
-			'contact-form-id'   => $id,
-			'contact-form-sent' => $post_id,
-			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
-		) ), $redirect );
+		$redirect = add_query_arg(
+			urlencode_deep(
+				array(
+					'contact-form-id'   => $id,
+					'contact-form-sent' => $post_id,
+					'contact-form-hash' => $this->hash,
+					'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
+				)
+			), $redirect
+		);
 
 		/**
 		 * Filter the URL where the reader is redirected after submitting a form.
@@ -2200,6 +2829,116 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Wrapper for wp_mail() that enables HTML messages with text alternatives
+	 *
+	 * @param string|array $to          Array or comma-separated list of email addresses to send message.
+	 * @param string       $subject     Email subject.
+	 * @param string       $message     Message contents.
+	 * @param string|array $headers     Optional. Additional headers.
+	 * @param string|array $attachments Optional. Files to attach.
+	 *
+	 * @return bool Whether the email contents were sent successfully.
+	 */
+	public static function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
+		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
+		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
+
+		$result = wp_mail( $to, $subject, $message, $headers, $attachments );
+
+		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
+		remove_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
+
+		return $result;
+	}
+
+	/**
+	 * Add a display name part to an email address
+	 *
+	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
+	 * instead of `"Foo Bar" <foo@bar.org>`.
+	 *
+	 * @param string $address
+	 *
+	 * @return string
+	 */
+	function add_name_to_address( $address ) {
+		// If it's just the address, without a display name
+		if ( is_email( $address ) ) {
+			$address_parts = explode( '@', $address );
+			$address       = sprintf( '"%s" <%s>', $address_parts[0], $address );
+		}
+
+		return $address;
+	}
+
+	/**
+	 * Get the content type that should be assigned to outbound emails
+	 *
+	 * @return string
+	 */
+	static function get_mail_content_type() {
+		return 'text/html';
+	}
+
+	/**
+	 * Wrap a message body with the appropriate in HTML tags
+	 *
+	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
+	 *
+	 * @param string $body
+	 *
+	 * @return string
+	 */
+	static function wrap_message_in_html_tags( $body ) {
+		// Don't do anything if the message was already wrapped in HTML tags
+		// That could have be done by a plugin via filters
+		if ( false !== strpos( $body, '<html' ) ) {
+			return $body;
+		}
+
+		$html_message = sprintf(
+			// The tabs are just here so that the raw code is correctly formatted for developers
+			// They're removed so that they don't affect the final message sent to users
+			str_replace(
+				"\t", '',
+				'<!doctype html>
+				<html xmlns="http://www.w3.org/1999/xhtml">
+				<body>
+
+				%s
+
+				</body>
+				</html>'
+			),
+			$body
+		);
+
+		return $html_message;
+	}
+
+	/**
+	 * Add a plain-text alternative part to an outbound email
+	 *
+	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
+	 * that the message will be flagged as spam.
+	 *
+	 * @param PHPMailer $phpmailer
+	 */
+	static function add_plain_text_alternative( $phpmailer ) {
+		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out
+		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
+
+		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep
+		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
+
+		// Convert <hr> to an plain-text equivalent, to preserve the integrity of the message
+		$alt_body = str_replace( array( '<hr>', '<hr />' ), "----\n", $alt_body );
+
+		// Trim the plain text message to remove the \n breaks that were after <doctype>, <html>, and <body>
+		$phpmailer->AltBody = trim( strip_tags( $alt_body ) );
 	}
 
 	function addslashes_deep( $value ) {
@@ -2246,17 +2985,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param Grunion_Contact_Form $form The parent form
 	 */
 	function __construct( $attributes, $content = null, $form = null ) {
-		$attributes = shortcode_atts( array(
-					'label'       => null,
-					'type'        => 'text',
-					'required'    => false,
-					'options'     => array(),
-					'id'          => null,
-					'default'     => null,
-					'values'      => null,
-					'placeholder' => null,
-					'class'       => null,
-		), $attributes, 'contact-field' );
+		$attributes = shortcode_atts(
+			array(
+				'label'       => null,
+				'type'        => 'text',
+				'required'    => false,
+				'options'     => array(),
+				'id'          => null,
+				'default'     => null,
+				'values'      => null,
+				'placeholder' => null,
+				'class'       => null,
+			), $attributes, 'contact-field'
+		);
 
 		// special default for subject field
 		if ( 'subject' == $attributes['type'] && is_null( $attributes['default'] ) && ! is_null( $form ) ) {
@@ -2266,7 +3007,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		// allow required=1 or required=true
 		if ( '1' == $attributes['required'] || 'true' == strtolower( $attributes['required'] ) ) {
 			$attributes['required'] = true;
-		} else { $attributes['required'] = false;
+		} else {
+			$attributes['required'] = false;
 		}
 
 		// parse out comma-separated options list (for selects, radios, and checkbox-multiples)
@@ -2281,15 +3023,15 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		if ( $form ) {
 			// make a unique field ID based on the label, with an incrementing number if needed to avoid clashes
 			$form_id = $form->get_attribute( 'id' );
-			$id = isset( $attributes['id'] ) ? $attributes['id'] : false;
+			$id      = isset( $attributes['id'] ) ? $attributes['id'] : false;
 
 			$unescaped_label = $this->unesc_attr( $attributes['label'] );
 			$unescaped_label = str_replace( '%', '-', $unescaped_label ); // jQuery doesn't like % in IDs?
 			$unescaped_label = preg_replace( '/[^a-zA-Z0-9.-_:]/', '', $unescaped_label );
 
 			if ( empty( $id ) ) {
-				$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
-				$i = 0;
+				$id        = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
+				$i         = 0;
 				$max_tries = 99;
 				while ( isset( $form->fields[ $id ] ) ) {
 					$i++;
@@ -2360,21 +3102,21 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 
 		switch ( $field_type ) {
-			case 'email' :
+			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
 				}
-			break;
-			case 'checkbox-multiple' :
+				break;
+			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack' ), $field_label ) );
 				}
-			break;
-			default :
+				break;
+			default:
 				// Just check for presence of any text
 				if ( ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
@@ -2408,16 +3150,23 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	function render() {
 		global $current_user, $user_identity;
 
-		$r = '';
-
 		$field_id          = $this->get_attribute( 'id' );
 		$field_type        = $this->get_attribute( 'type' );
 		$field_label       = $this->get_attribute( 'label' );
 		$field_required    = $this->get_attribute( 'required' );
-		$placeholder       = $this->get_attribute( 'placeholder' );
-		$class             = $this->get_attribute( 'class' );
-		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
-		$field_class       = "class='" . trim( esc_attr( $field_type ) . ' ' . esc_attr( $class ) ) . "' ";
+		$field_placeholder = $this->get_attribute( 'placeholder' );
+		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+
+		/**
+		 * Filters the "class" attribute of the contact form input
+		 *
+		 * @module contact-form
+		 *
+		 * @since 6.6.0
+		 *
+		 * @param string $class Additional CSS classes for input class attribute.
+		 */
+		$field_class = apply_filters( 'jetpack_contact_form_input_class', $class );
 
 		if ( isset( $_POST[ $field_id ] ) ) {
 			if ( is_array( $_POST[ $field_id ] ) ) {
@@ -2430,30 +3179,30 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		} elseif (
 			is_user_logged_in() &&
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-			/**
-			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.2.0
-			 *
-			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			 */
-			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			  /**
+			   * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+			   *
+			   * @module contact-form
+			   *
+			   * @since 3.2.0
+			   *
+			   * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+			   */
+			  true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 			)
 		) {
 			// Special defaults for logged-in users
 			switch ( $this->get_attribute( 'type' ) ) {
-				case 'email' :
+				case 'email':
 					$this->value = $current_user->data->user_email;
-				break;
-				case 'name' :
+					break;
+				case 'name':
 					$this->value = $user_identity;
-				break;
-				case 'url' :
+					break;
+				case 'url':
 					$this->value = $current_user->data->user_url;
-				break;
-				default :
+					break;
+				default:
 					$this->value = $this->get_attribute( 'default' );
 			}
 		} else {
@@ -2463,6 +3212,173 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_value = Grunion_Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Grunion_Contact_Form_Plugin::strip_tags( $field_label );
 
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required );
+
+		/**
+		 * Filter the HTML of the Contact Form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param string $rendered_field Contact Form HTML output.
+		 * @param string $field_label Field label.
+		 * @param int|null $id Post ID.
+		 */
+		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
+	}
+
+	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+
+		$type_class = $type ? ' ' .$type : '';
+		return
+			"<label
+				for='" . esc_attr( $id ) . "'
+				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'
+				>"
+				. esc_html( $label )
+				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
+			. "</label>\n";
+
+	}
+
+	function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
+		return "<input
+					type='". esc_attr( $type ) ."'
+					name='" . esc_attr( $id ) . "'
+					id='" . esc_attr( $id ) . "'
+					value='" . esc_attr( $value ) . "'
+					" . $class . $placeholder . '
+					' . ( $required ? "required aria-required='true'" : '' ) . "
+				/>\n";
+	}
+
+	function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field = $this->render_label( 'email', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field = $this->render_label( 'url', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
+		$field .= "<textarea
+		                name='" . esc_attr( $id ) . "'
+		                id='contact-form-comment-" . esc_attr( $id ) . "'
+		                rows='20' "
+		                . $class
+		                . $placeholder
+		                . ' ' . ( $required ? "required aria-required='true'" : '' ) .
+		                '>' . esc_textarea( $value )
+		          . "</textarea>\n";
+		return $field;
+	}
+
+	function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+			if ( $option ) {
+				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "<input
+									type='radio'
+									name='" . esc_attr( $id ) . "'
+									value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' "
+				                    . $class
+				                    . checked( $option, $value, false ) . ' '
+				                    . ( $required ? "required aria-required='true'" : '' )
+				              . '/> ';
+				$field .= esc_html( $option ) . "</label>\n";
+				$field .= "\t\t<div class='clear-form'></div>\n";
+			}
+		}
+		return $field;
+	}
+
+	function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$field = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+			$field .= "\t\t" . esc_html( $label ) . ( $required ? '<span>' . $required_field_text . '</span>' : '' );
+		$field .=  "</label>\n";
+		$field .= "<div class='clear-form'></div>\n";
+		return $field;
+	}
+
+	function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text  ) {
+		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+			if ( $option  ) {
+				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value ), true, false ) . ' /> ';
+				$field .= esc_html( $option ) . "</label>\n";
+				$field .= "\t\t<div class='clear-form'></div>\n";
+			}
+		}
+
+		return $field;
+	}
+
+	function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$field = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+		$field  .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
+			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+			if ( $option ) {
+				$field .= "\t\t<option"
+				               . selected( $option, $value, false )
+				               . " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) )
+				               . "'>" . esc_html( $option )
+				          . "</option>\n";
+			}
+		}
+		$field  .= "\t</select>\n";
+		return $field;
+	}
+
+	function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$field = $this->render_label( 'date', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
+
+		wp_enqueue_script(
+			'grunion-frontend',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/contact-form/js/grunion-frontend.min.js',
+				'modules/contact-form/js/grunion-frontend.js'
+			),
+			array( 'jquery', 'jquery-ui-datepicker' )
+		);
+		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+
+		// Using Core's built-in datepicker localization routine
+		wp_localize_jquery_ui_datepicker();
+		return $field;
+	}
+
+	function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
+		$field = $this->render_label( $type, $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
+		return $field;
+	}
+
+	function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
+		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
+		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
+		$wrap_classes = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
+
+		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
+		/**
 		/**
 		 * Filter the Contact Form required field text
 		 *
@@ -2474,98 +3390,45 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ) );
 
-		switch ( $field_type ) {
-			case 'email' :
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label email" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<input type='email' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
-				$r .= "\t</div>\n";
-			break;
-			case 'telephone' :
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . "/>\n";
-			break;
-			case 'textarea' :
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<textarea name='" . esc_attr( $field_id ) . "' id='contact-form-comment-" . esc_attr( $field_id ) . "' rows='20' " . $field_class . $field_placeholder . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . '>' . esc_textarea( $field_value ) . "</textarea>\n";
-				$r .= "\t</div>\n";
-			break;
-			case 'radio' :
-				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
-					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-					$r .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-					$r .= "<input type='radio' name='" . esc_attr( $field_id ) . "' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $field_class . checked( $option, $field_value, false ) . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . '/> ';
-					$r .= esc_html( $option ) . "</label>\n";
-					$r .= "\t\t<div class='clear-form'></div>\n";
-				}
-				$r .= "\t\t</div>\n";
-			break;
-			case 'checkbox' :
-				$r .= "\t<div>\n";
-				$r .= "\t\t<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>\n";
-				$r .= "\t\t<input type='checkbox' name='" . esc_attr( $field_id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $field_class . checked( (bool) $field_value, true, false ) . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . "/> \n";
-				$r .= "\t\t" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<div class='clear-form'></div>\n";
-				$r .= "\t</div>\n";
-			break;
-			case 'checkbox-multiple' :
-				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
-					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-					$r .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-					$r .= "<input type='checkbox' name='" . esc_attr( $field_id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $field_class . checked( in_array( $option, (array) $field_value ), true, false ) . ' /> ';
-					$r .= esc_html( $option ) . "</label>\n";
-					$r .= "\t\t<div class='clear-form'></div>\n";
-				}
-				$r .= "\t\t</div>\n";
-			break;
-			case 'select' :
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label select" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t<select name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : '' ) . ">\n";
-				foreach ( $this->get_attribute( 'options' ) as $optionIndex => $option ) {
-					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-					$r .= "\t\t<option" . selected( $option, $field_value, false ) . " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "'>" . esc_html( $option ) . "</option>\n";
-				}
-				$r .= "\t</select>\n";
-				$r .= "\t</div>\n";
-			break;
-			case 'date' :
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
-				$r .= "\t</div>\n";
-
-				wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
-			break;
-			default : // text field
-				// note that any unknown types will produce a text input, so we can use arbitrary type names to handle
-				// input fields like name, email, url that require special validation or handling at POST
-				$r .= "\n<div>\n";
-				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<input type='text' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
-				$r .= "\t</div>\n";
+		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		switch ( $type ) {
+			case 'email':
+				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'telephone':
+				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'url':
+				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'textarea':
+				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'radio':
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'checkbox':
+				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				break;
+			case 'checkbox-multiple':
+				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				break;
+			case 'select':
+				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				break;
+			case 'date':
+				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			default: // text field
+				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
+				break;
 		}
-
-		/**
-		 * Filter the HTML of the Contact Form.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param string $r Contact Form HTML output.
-		 * @param string $field_label Field label.
-		 * @param int|null $id Post ID.
-		 */
-		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
+		$field .= "\t</div>\n";
+		return $field;
 	}
 }
 
-add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ) );
+add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ), 9 );
 
 add_action( 'grunion_scheduled_delete', 'grunion_delete_old_spam' );
 
@@ -2577,15 +3440,17 @@ function grunion_delete_old_spam() {
 
 	$grunion_delete_limit = 100;
 
-	$now_gmt = current_time( 'mysql', 1 );
-	$sql = $wpdb->prepare( "
+	$now_gmt  = current_time( 'mysql', 1 );
+	$sql      = $wpdb->prepare(
+		"
 		SELECT `ID`
 		FROM $wpdb->posts
 		WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
 			AND `post_type` = 'feedback'
 			AND `post_status` = 'spam'
 		LIMIT %d
-	", $now_gmt, $grunion_delete_limit );
+	", $now_gmt, $grunion_delete_limit
+	);
 	$post_ids = $wpdb->get_col( $sql );
 
 	foreach ( (array) $post_ids as $post_id ) {
@@ -2593,21 +3458,18 @@ function grunion_delete_old_spam() {
 		wp_delete_post( $post_id, true );
 	}
 
-	// Arbitrary check points for running OPTIMIZE
-	// nothing special about 5000 or 11
-	// just trying to periodically recover deleted rows
-	$random_num = mt_rand( 1, 5000 );
 	if (
 		/**
-		 * Filter how often the module run OPTIMIZE TABLE on the core WP tables.
+		 * Filter if the module run OPTIMIZE TABLE on the core WP tables.
 		 *
 		 * @module contact-form
 		 *
 		 * @since 1.3.1
+		 * @since 6.4.0 Set to false by default.
 		 *
-		 * @param int $random_num Random number.
+		 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 		 */
-		apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
+		apply_filters( 'grunion_optimize_table', false )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}

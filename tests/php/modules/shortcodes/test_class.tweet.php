@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
-		$this->assertContains( '<a href="https://twitter.com/jetpack/status/759034293385502721">', $shortcode_content );
+		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
 
 	/**
@@ -64,7 +64,7 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
-		$this->assertContains( '<a href="https://twitter.com/jetpack/status/759034293385502721">', $shortcode_content );
+		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
 
 	/**

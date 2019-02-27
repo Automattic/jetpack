@@ -1,4 +1,35 @@
 <?php
+
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Get a single post (by ID).',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7'
+) );
+
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Get a single post (by slug).',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:slug',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/slug:%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff',
+) );
+
 class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	// /sites/%s/posts/%d      -> $blog_id, $post_id
 	// /sites/%s/posts/slug:%s -> $blog_id, $post_id
@@ -10,15 +41,17 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 
 		$args = $this->query_args();
 
+		$site = $this->get_platform()->get_site( $blog_id );
+
 		if ( false !== strpos( $path, '/posts/slug:' ) ) {
-			$post_id = $this->get_platform()->get_site( $blog_id )->get_post_id_by_name( $post_id );
+			$post_id = $site->get_post_id_by_name( $post_id );
 			if ( is_wp_error( $post_id ) ) {
 				return $post_id;
 			}
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
-				! in_array( get_post_type( $post_id ), array( false, 'post', 'page', 'revision' ) ) ) {
+				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ) ) ) {
 			$this->load_theme_functions();
 		}
 
@@ -28,7 +61,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 			return $return;
 		}
 
-		if ( ! $this->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
+		if ( ! $site->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 

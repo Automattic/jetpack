@@ -58,7 +58,7 @@ class Jetpack_SSO_Helpers {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 
 		/**
-		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations. 
+		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
 		 * If you return a string that corresponds to a user role, the user will be given that role.
 		 *
 		 * @module sso
@@ -191,10 +191,7 @@ class Jetpack_SSO_Helpers {
 		$hosts[] = 'jetpack.wordpress.com';
 		$hosts[] = 'public-api.wordpress.com';
 
-		if (
-			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
-			( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) )
-		) {
+		if ( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) ) {
 			$base_url_parts = parse_url( esc_url_raw( $api_base ) );
 			if ( $base_url_parts && ! empty( $base_url_parts[ 'host' ] ) ) {
 				$hosts[] = $base_url_parts[ 'host' ];
@@ -206,7 +203,6 @@ class Jetpack_SSO_Helpers {
 
 	static function generate_user( $user_data ) {
 		$username = $user_data->login;
-
 		/**
 		 * Determines how many times the SSO module can attempt to randomly generate a user.
 		 *
@@ -227,10 +223,10 @@ class Jetpack_SSO_Helpers {
 			return false;
 		}
 
-		$password = wp_generate_password( 20 );
-		$user_id  = wp_create_user( $username, $password, $user_data->email );
-		$user     = get_userdata( $user_id );
-
+		$user = (object) array();
+		$user->user_pass    = wp_generate_password( 20 );
+		$user->user_login   = wp_slash( $username );
+		$user->user_email   = wp_slash( $user_data->email );
 		$user->display_name = $user_data->display_name;
 		$user->first_name   = $user_data->first_name;
 		$user->last_name    = $user_data->last_name;
@@ -241,11 +237,10 @@ class Jetpack_SSO_Helpers {
 			$user->role     = $user_data->role;
 		}
 
-		wp_update_user( $user );
+		$created_user_id = wp_insert_user( $user );
 
-		update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
-		
-		return $user;
+		update_user_meta( $created_user_id, 'wpcom_user_id', $user_data->ID );
+		return get_userdata( $created_user_id );
 	}
 
 	static function extend_auth_cookie_expiration_for_sso() {
@@ -255,10 +250,11 @@ class Jetpack_SSO_Helpers {
 		 * @module sso
 		 *
 		 * @since 4.4.0
+		 * @since 6.1.0 Fixed a typo. Filter was previously jetpack_sso_auth_cookie_expirtation.
 		 *
 		 * @param int YEAR_IN_SECONDS
 		 */
-		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+		return intval( apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS ) );
 	}
 
 	/**

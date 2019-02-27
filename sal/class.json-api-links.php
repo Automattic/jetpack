@@ -5,6 +5,9 @@ require_once dirname( __FILE__ ) . '/../class.json-api.php';
 class WPCOM_JSON_API_Links {
 	private $api;
 	private static $instance;
+	private $closest_endpoint_cache_by_version = array();
+	private $matches_by_version = array();
+	private $cache_result = null;
 
 	public static function getInstance() {
 		if ( null === self::$instance ) {
@@ -38,9 +41,12 @@ class WPCOM_JSON_API_Links {
 
 		if ( $path ) {
 			$path = '/' . ltrim( $path, '/' );
+			// tack the path onto the end of the format string
+			// have to escape %'s in the path as %% because
+			// we're about to pass it through sprintf and we don't
+			// want it to see the % as a placeholder
+			$format .= str_replace( '%', '%%', $path );
 		}
-
-		$args[] = $path;
 
 		// Escape any % in args before using sprintf
 		$escaped_args = array();
@@ -48,7 +54,7 @@ class WPCOM_JSON_API_Links {
 			$escaped_args[ $arg_key ] = str_replace( '%', '%%', $arg_value );
 		}
 
-		$relative_path = vsprintf( "$format%s", $escaped_args );
+		$relative_path = vsprintf( $format, $escaped_args );
 
 		if ( ! wp_startswith( $relative_path, '.' ) ) {
 			// Generic version. Match the requested version as best we can
@@ -122,41 +128,45 @@ class WPCOM_JSON_API_Links {
 	 *
 	 * This method is used in get_link() to construct meta links for API responses.
 	 * 
-	 * @param $template_path The generic endpoint path, e.g. /sites/%s
+	 * @param $template_path string The generic endpoint path, e.g. /sites/%s
 	 * @param $path string The current endpoint path, relative to the version, e.g. /sites/12345
-	 * @param $method string Request method used to access the endpoint path
+	 * @param $request_method string Request method used to access the endpoint path
 	 * @return string The current version, or otherwise the maximum version available
 	 */
 	function get_closest_version_of_endpoint( $template_path, $path, $request_method = 'GET' ) {
-		static $closest_endpoint_cache;
+		$closest_endpoint_cache_by_version = & $this->closest_endpoint_cache_by_version;
 
-		if ( ! $closest_endpoint_cache ) {
-			$closest_endpoint_cache = array();
+		$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
+		if ( !$closest_endpoint_cache ) {
+			$closest_endpoint_cache_by_version[ $this->api->version ] = array();
+			$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
 		}
 
 		if ( ! isset( $closest_endpoint_cache[ $template_path ] ) ) {
 			$closest_endpoint_cache[ $template_path ] = array();
 		} elseif ( isset( $closest_endpoint_cache[ $template_path ][ $request_method ] ) ) {
-			return $closest_endpoint_cache[ $template_path ][ $request_method ];	
+			return $closest_endpoint_cache[ $template_path ][ $request_method ];
 		}
 
 		$path = untrailingslashit( $path );
 
 		// /help is a special case - always use the current request version
 		if ( wp_endswith( $path, '/help' ) ) {
-			return $closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
+			$closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
+			return $this->api->version;
 		}
 
-		static $matches;
-		if ( empty( $matches ) ) {
-			$matches = array();
-		} else {
-			// try to match out of saved matches
-			foreach( $matches as $match ) {
-				$regex = $match->regex;
-				if ( preg_match( "#^$regex\$#", $path ) ) {
-					return $closest_endpoint_cache[ $template_path ][ $request_method ] = $match->version;
-				}
+		$matches_by_version = & $this->matches_by_version;
+
+		// try to match out of saved matches
+		if ( ! isset( $matches_by_version[ $this->api->version ] ) ) {
+			$matches_by_version[ $this->api->version ] = array();
+		}
+		foreach ( $matches_by_version[ $this->api->version ] as $match ) {
+			$regex = $match->regex;
+			if ( preg_match( "#^$regex\$#", $path ) ) {
+				$closest_endpoint_cache[ $template_path ][ $request_method ] = $match->version;
+				return $match->version;
 			}
 		}
 
@@ -188,8 +198,12 @@ class WPCOM_JSON_API_Links {
 				// Make sure the endpoint exists at the same version
 				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
 					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
-					array_push( $matches, (object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex ) );
-					return $closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
+					array_push(
+						$matches_by_version[ $this->api->version ],
+						(object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex )
+					);
+					$closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
+					return $this->api->version;
 				}
 
 				// If the endpoint doesn't exist at the same version, record the max version we found
@@ -201,7 +215,11 @@ class WPCOM_JSON_API_Links {
 
 		// If the endpoint version is less than the requested endpoint version, return the max version found
 		if ( ! empty( $max_version_found ) ) {
-			array_push( $matches, (object) $max_version_found );
+			array_push(
+				$matches_by_version[ $this->api->version ],
+				(object) $max_version_found
+			);
+			$closest_endpoint_cache[ $template_path ][ $request_method ] = $max_version_found['version'];
 			return $max_version_found['version'];
 		}
 
@@ -212,16 +230,12 @@ class WPCOM_JSON_API_Links {
 	/**
 	 * Get an array of endpoint paths with their associated versions
 	 *
-	 * The result is cached for 30 minutes.
-	 *
 	 * @return array Array of endpoint paths, min_versions and max_versions, keyed by last segment of path
 	 **/
 	protected function get_endpoint_path_versions() {
 
-		static $cache_result;
-
-		if ( ! empty ( $cache_result ) ) {
-			return $cache_result;
+		if ( ! empty ( $this->cache_result ) ) {
+			return $this->cache_result;
 		}
 
 		/*
@@ -246,7 +260,7 @@ class WPCOM_JSON_API_Links {
 			);
 		}
 
-		$cache_result = $endpoint_path_versions;
+		$this->cache_result = $endpoint_path_versions;
 
 		return $endpoint_path_versions;
 	}

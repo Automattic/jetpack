@@ -31,26 +31,28 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @throws Error message if the math is wrong
 		 */
 		static function math_authenticate() {
-			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : '' ;
-			$salted_ans  = sha1( $salt . $ans );
-			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
-
 			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
-				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+				$jetpack_protect = Jetpack_Protect_Module::instance();
+				$transient = $jetpack_protect->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+
 				if( !$transient || $transient < 1 ) {
 					Jetpack_Protect_Math_Authenticate::generate_math_page();
 				}
 				return true;
 			}
 
-			if ( ! $correct_ans || !$_POST['jetpack_protect_num'] ) {
+			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
+			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : '' ;
+			$salted_ans  = sha1( $salt . $ans );
+			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
+
+			if ( ! $correct_ans || ! $ans ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page();
 			} elseif ( $salted_ans != $correct_ans ) {
 				wp_die(
 				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
 				'',
-				401
+				array ( 'response' => 401 )
 				);
 			} else {
 				return true;
@@ -63,11 +65,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @return none, execution stopped
 		 */
 		static function generate_math_page( $error = false ) {
-			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$num1 = rand( 0, 10 );
-			$num2 = rand( 1, 10 );
-			$sum  = $num1 + $num2;
-			$ans  = sha1( $salt . $sum );
 			ob_start();
 			?>
 			<h2><?php _e( 'Please solve this math problem to prove that you are not a bot.  Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
@@ -86,22 +83,25 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			wp_die(
 				$mathpage,
 				'',
-				'401'
+				array ( 'response' => 401 )
 			);
 		}
 
 		public function process_generate_math_page() {
 			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$ans         = (int)$_POST['jetpack_protect_num'];
+			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int)$_POST['jetpack_protect_num'] : '';
 			$salted_ans  = sha1( $salt . $ans );
-			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
+			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
 
 			if ( $salted_ans != $correct_ans ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page(true);
 			} else {
 				$temp_pass = substr( sha1( rand( 1, 100000000 ) . get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
-				Jetpack_Protect_Module::set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
+
+				$jetpack_protect = Jetpack_Protect_Module::instance();
+				$jetpack_protect->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
 				setcookie('jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
 			}
 		}
@@ -112,6 +112,16 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @return VOID outputs html
 		 */
 		static function math_form() {
+			// Check if jpp_math_pass cookie is set and it matches valid transient
+			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+				$jetpack_protect = Jetpack_Protect_Module::instance();
+				$transient = $jetpack_protect->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+
+				if( $transient && $transient > 0 ) {
+					return '';
+				}
+			}
+
 			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
 			$num1 = rand( 0, 10 );
 			$num2 = rand( 1, 10 );
@@ -119,9 +129,14 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$ans  = sha1( $salt . $sum );
 			?>
 			<div style="margin: 5px 0 20px;">
-				<strong><?php esc_html_e( 'Prove your humanity:', 'jetpack' ); ?> </strong>
-				<?php echo $num1 ?> &nbsp; + &nbsp; <?php echo $num2 ?> &nbsp; = &nbsp;
-				<input type="input" name="jetpack_protect_num" value="" size="2" />
+				<label for="jetpack_protect_answer">
+					<?php esc_html_e( 'Prove your humanity', 'jetpack' ); ?>
+				</label>
+				<br/>
+				<span style="vertical-align:super;">
+					<?php echo "$num1 &nbsp; + &nbsp; $num2 &nbsp; = &nbsp;"; ?>
+				</span>
+				<input type="text" id="jetpack_protect_answer" name="jetpack_protect_num" value="" size="2" style="width:30px;height:25px;vertical-align:middle;font-size:13px;" class="input" />
 				<input type="hidden" name="jetpack_protect_answer" value="<?php echo $ans; ?>" />
 			</div>
 		<?php

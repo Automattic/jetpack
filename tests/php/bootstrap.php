@@ -7,17 +7,37 @@
  * @package wordpress-plugin-tests
  */
 
+/**
+ * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
+ *
+ *	if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+ *		self::markTestSkipped( 'This test only runs on WPCOM' );
+ *	}
+ */
+define( 'TESTING_IN_JETPACK', true );
+
 // Support for:
 // 1. `WP_DEVELOP_DIR` environment variable
 // 2. Plugin installed inside of WordPress.org developer checkout
 // 3. Tests checked out to /tmp
 if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
+	// Defined on command line
 	$test_root = getenv( 'WP_DEVELOP_DIR' );
 } else if ( file_exists( '../../../../tests/phpunit/includes/bootstrap.php' ) ) {
+	// Installed inside wordpress-develop
 	$test_root = '../../../../tests/phpunit';
+} else if ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
+	// VVV
+	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
+} else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
+	// Manual checkout
+	$test_root = '/tmp/wordpress-develop/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
+	// Legacy tests
 	$test_root = '/tmp/wordpress-tests-lib';
-}
+} 
+
+echo "Using test root $test_root\n";
 
 if ( '1' != getenv( 'WP_MULTISITE' ) &&
  ( defined( 'WP_TESTS_MULTISITE') && ! WP_TESTS_MULTISITE ) ) {
@@ -26,7 +46,7 @@ if ( '1' != getenv( 'WP_MULTISITE' ) &&
 }
 
 if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
- echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
+	echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
 } else {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
 }
@@ -91,3 +111,7 @@ function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
+
+// Using the Speed Trap Listener provided by WordPress Core testing suite to expose
+// slowest running tests. See the configuration in phpunit.xml.dist
+require $test_root . '/includes/speed-trap-listener.php';

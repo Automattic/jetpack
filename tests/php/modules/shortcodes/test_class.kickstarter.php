@@ -44,6 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_kickstarter_image() {
+		$this->markTestSkipped();
 		$url = 'https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world';
 		$content = "[kickstarter url='$url']";
 

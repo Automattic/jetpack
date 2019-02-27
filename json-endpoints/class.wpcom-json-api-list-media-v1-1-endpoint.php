@@ -1,5 +1,52 @@
 <?php
 
+new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
+	'description' => 'Get a list of items in the media library.',
+	'group'       => 'media',
+	'stat'        => 'media',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'    => '(int=20) The number of media items to return. Limit: 100.',
+		'offset'    => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
+		'page_handle' => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
+		'order'    => array(
+			'DESC' => 'Return files in descending order. For dates, that means newest to oldest.',
+			'ASC'  => 'Return files in ascending order. For dates, that means oldest to newest.',
+		),
+		'order_by' => array(
+			'date'          => 'Order by the uploaded time of each file.',
+			'title'         => "Order lexicographically by file titles.",
+			'ID'            => 'Order by media ID.',
+		),
+		'search'    => '(string) Search query.',
+		'post_ID'   => '(int) Default is showing all items. The post where the media item is attached. 0 shows unattached media items.',
+		'mime_type' => "(string) Default is empty. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'). Partial searches also work (e.g. passing 'image' will search for all image files).",
+		'after'     => '(ISO 8601 datetime) Return media items uploaded after the specified datetime.',
+		'before'    => '(ISO 8601 datetime) Return media items uploaded before the specified datetime.',
+	),
+
+	'response_format' => array(
+		'media' => '(array) Array of media objects',
+		'found' => '(int) The number of total results found',
+		'meta'  => '(object) Meta data',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public $date_range = array();
@@ -97,6 +144,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array();
+
 		foreach ( $media->posts as $item ) {
 			$response[] = $this->get_media_item_v1_1( $item->ID );
 		}

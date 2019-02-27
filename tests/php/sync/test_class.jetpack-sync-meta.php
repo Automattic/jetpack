@@ -101,9 +101,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( '_private_meta' ) ) );
-		
+
 		add_post_meta( $this->post_id, '_private_meta', 'boo' );
-		
+
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'boo', $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_comment_meta_whitelist_cab_be_appened_in_settings() {
 		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
-		
+
 		add_comment_meta( $comment_ids[0], '_private_meta', 'foo' );
 		$this->sender->do_sync();
 
@@ -185,6 +185,30 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertOptionIsSynced( '_wpas_skip_1234', '1', 'post', $this->post_id );
+	}
+
+	public function test_sync_daily_akismet_meta_cleanup() {
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+		$post_id = wp_insert_post( array( 'post_type' => 'feedback', 'post_title' => 'fun' ) );
+		// This event can trigger a deletion of many _feedbacakismet_values terms.
+		add_post_meta( $post_id, '_feedback_akismet_values', '1' );
+
+		$grunion = Grunion_Contact_Form_Plugin::init();
+		$grunion->daily_akismet_meta_cleanup();
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_meta_batch_delete' );
+
+		$this->assertEquals( array( $post_id ), $event->args[0] );
+		$this->assertEquals( '_feedback_akismet_values', $event->args[1] );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
+
+		$this->assertFalse( $event );
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $post_id, '_feedback_akismet_values', true );
+		$this->assertEquals( get_post_meta( $post_id, '_feedback_akismet_values', true ), $meta_key_value );
 	}
 
 	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {

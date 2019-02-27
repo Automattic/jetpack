@@ -1530,8 +1530,9 @@ img.latex {
 	display: none;
 }
 
-/* Adjust the width of PollDaddy polls */
-.PDS_Poll .pds-box {
+/* Adjust the width of Crowdsignal polls */
+.PDS_Poll .pds-box,
+.CSS_Poll .css-box {
 	width: 99% !important;
 }
 

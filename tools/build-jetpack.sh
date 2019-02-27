@@ -68,10 +68,9 @@ NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore
 for file in $( cat "$TARGET_DIR/.svnignore" 2>/dev/null ); do
-    if [[ $file == "to-test.md" ]]; then
+    if [[ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]]; then
         continue
     fi
     rm -rf $TARGET_DIR/$file
 done
 echo "Done!"
-

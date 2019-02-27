@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Infinite Scroll
- * Module Description: Automatically load new content when a visitor scrolls.
+ * Module Description: Automatically load new content when a visitor scrolls
  * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
@@ -64,6 +64,7 @@ class Jetpack_Infinite_Scroll_Extras {
 	public function action_jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
 		Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
+		add_filter( 'jetpack_module_configuration_url_infinite-scroll', array( $this, 'infinite_scroll_configuration_url' ) );
 	}
 
 	/**
@@ -75,6 +76,16 @@ class Jetpack_Infinite_Scroll_Extras {
 	public function module_configuration_load() {
 		wp_safe_redirect( admin_url( 'options-reading.php#infinite-scroll-options' ) );
 		exit;
+	}
+
+	/**
+	 * Overrides default configuration url
+	 *
+	 * @uses admin_url
+	 * @return string module settings URL
+	 */
+	public function infinite_scroll_configuration_url() {
+		return admin_url( 'options-reading.php#infinite-scroll-options' );
 	}
 
 	/**
@@ -116,12 +127,12 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * As released in Jetpack 2.0, a child theme's parent wasn't checked for in the plugin's bundled support, hence the convoluted way the parent is checked for now.
 	 *
-	 * @uses is_admin, wp_get_theme, get_theme, get_current_theme, apply_filters
+	 * @uses is_admin, wp_get_theme, apply_filters
 	 * @action setup_theme
 	 * @return null
 	 */
 	function action_after_setup_theme() {
-		$theme = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_theme( get_current_theme() );
+		$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
 			return;
@@ -220,7 +231,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		// Fire the post_gallery action early so Carousel scripts are present.
 		if ( Jetpack::is_module_active( 'carousel' ) ) {
 			/** This filter is already documented in core/wp-includes/media.php */
-			do_action( 'post_gallery', '', '' );
+			do_action( 'post_gallery', '', '', 0 );
 		}
 
 		// Always enqueue Tiled Gallery scripts when both IS and Tiled Galleries are enabled

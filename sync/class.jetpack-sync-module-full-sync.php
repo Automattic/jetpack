@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-options.php';
-
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -16,7 +14,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-options.php';
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
-	const FULL_SYNC_TIMEOUT = 3600;
+	const FULL_SYNC_TIMEOUT    = 3600;
 
 	public function name() {
 		return 'full-sync';
@@ -52,7 +50,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_status_option( 'started', time() );
 		$this->update_status_option( 'params', $module_configs );
 
-		$enqueue_status = array();
+		$enqueue_status   = array();
 		$full_sync_config = array();
 
 		// default value is full sync
@@ -65,9 +63,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
+			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
-			
+
 			if ( ! $module_config ) {
 				continue;
 			}
@@ -83,7 +81,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			// if there's information to process, configure this module
 			if ( ! is_null( $total_items ) && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
-				$enqueue_status[ $module_name ] = array(
+				$enqueue_status[ $module_name ]   = array(
 					$total_items,   // total
 					0,              // queued
 					false,          // current state
@@ -114,8 +112,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// if full sync queue is full, don't enqueue more items
 		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
-		$full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		
+		$full_sync_queue          = new Jetpack_Sync_Queue( 'full_sync' );
+
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
 
 		if ( $available_queue_slots <= 0 ) {
@@ -136,24 +134,24 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			$module_name = $module->name();
 
 			// skip module if not configured for this sync or module is done
-			if ( ! isset( $configs[ $module_name ] ) 
+			if ( ! isset( $configs[ $module_name ] )
 				|| // no module config
-					! $configs[ $module_name ] 
+					! $configs[ $module_name ]
 				|| // no enqueue status
-					! $enqueue_status[ $module_name ] 
+					! $enqueue_status[ $module_name ]
 				|| // finished enqueuing this module
-					true === $enqueue_status[ $module_name ][ 2 ] ) {
+					true === $enqueue_status[ $module_name ][2] ) {
 				continue;
 			}
 
-			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][ 2 ] );
+			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
 
-			$enqueue_status[ $module_name ][ 2 ] = $next_enqueue_state;
+			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
 
 			// if items were processed, subtract them from the limit
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				$enqueue_status[ $module_name ][ 1 ] += $items_enqueued;
-				$remaining_items_to_enqueue -= $items_enqueued;
+				$enqueue_status[ $module_name ][1] += $items_enqueued;
+				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
 			// stop processing if we've reached our limit of items to enqueue
@@ -162,7 +160,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				return;
 			}
 		}
-		
+
 		$this->set_enqueue_status( $enqueue_status );
 
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
@@ -203,7 +201,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 			if ( $items_sent > 0 ) {
 				$this->update_status_option( $status_option_name, $items_sent );
-			}	
+			}
 		}
 
 		if ( isset( $actions_with_counts['jetpack_full_sync_end'] ) ) {
@@ -219,11 +217,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	public function is_started() {
-		return !! $this->get_status_option( 'started' );
+		return ! ! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( 'finished' );
+		return ! ! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
@@ -250,15 +248,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			list( $total, $queued, $state ) = $enqueue_status[ $name ];
 
 			if ( $total ) {
-				$status[ 'total' ][ $name ] = $total;
+				$status['total'][ $name ] = $total;
 			}
 
 			if ( $queued ) {
-				$status[ 'queue' ][ $name ] = $queued;
+				$status['queue'][ $name ] = $queued;
 			}
-			
+
 			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
-				$status[ 'sent' ][ $name ] = $sent;
+				$status['sent'][ $name ] = $sent;
 			}
 		}
 
@@ -267,48 +265,59 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	public function clear_status() {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		Jetpack_Sync_Options::delete_option( "{$prefix}_started" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_params" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_queue_finished" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_send_started" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_finished" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_started" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_params" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_queue_finished" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_send_started" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_finished" );
+
+		$this->delete_enqueue_status();
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			Jetpack_Sync_Options::delete_option( "{$prefix}_{$module->name()}_sent" );
+			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
 		}
 	}
 
 	public function reset_data() {
 		$this->clear_status();
+		$this->delete_config();
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 		$listener = Jetpack_Sync_Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
 	}
 
 	private function get_status_option( $name, $default = null ) {
-		$value = Jetpack_Sync_Options::get_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
+		$value = Jetpack_Options::get_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
 		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
 	private function update_status_option( $name, $value, $autoload = false ) {
-		Jetpack_Sync_Options::update_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
+		Jetpack_Options::update_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
 	}
 
 	private function set_enqueue_status( $new_status ) {
-		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_enqueue_status', $new_status );
+		Jetpack_Options::update_raw_option( 'jetpack_sync_full_enqueue_status', $new_status );
+	}
+
+	private function delete_enqueue_status() {
+		return Jetpack_Options::delete_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
 	private function get_enqueue_status() {
-		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_enqueue_status' );
+		return Jetpack_Options::get_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
 	private function set_config( $config ) {
-		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_config', $config );
+		Jetpack_Options::update_raw_option( 'jetpack_sync_full_config', $config );
 	}
-	
+
+	private function delete_config() {
+		return Jetpack_Options::delete_raw_option( 'jetpack_sync_full_config' );
+	}
+
 	private function get_config() {
-		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_config' );
+		return Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
 
 	private function write_option( $name, $value ) {
@@ -320,7 +329,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// below we used "insert ignore" to at least suppress the resulting error
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
-				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
 				$serialized_value,
 				$name
 			)
@@ -329,7 +338,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
-					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )",
 					$name,
 					$serialized_value
 				)
@@ -340,9 +349,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	private function read_option( $name, $default = null ) {
 		global $wpdb;
-		$value = $wpdb->get_var( 
+		$value = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
 				$name
 			)
 		);

@@ -10,7 +10,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-actions.php';
  */
 class Jetpack_Sync_Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT = 300; // 5 minutes
+	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes
 
 	private $sync_queue;
 	private $full_sync_queue;
@@ -35,7 +35,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	private function init() {
-		$handler = array( $this, 'action_handler' );
+		$handler           = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -102,8 +102,8 @@ class Jetpack_Sync_Listener {
 		list( $queue_size, $queue_age ) = $queue_state;
 
 		return ( $queue_age < $this->sync_queue_lag_limit )
-		       ||
-		       ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+			   ||
+			   ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
 	function full_sync_action_handler() {
@@ -126,7 +126,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
@@ -137,12 +137,14 @@ class Jetpack_Sync_Listener {
 		$currtime        = microtime( true );
 		$is_importing    = Jetpack_Sync_Settings::is_importing();
 
-		foreach( $args_array as $args ) {
+		foreach ( $args_array as $args ) {
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
 			 *
 			 * @since 4.2.0
+			 *
+			 * @module sync
 			 *
 			 * @param array The action parameters
 			 */
@@ -172,6 +174,15 @@ class Jetpack_Sync_Listener {
 		}
 
 		/**
+		 * Add an action hook to execute when anything on the whitelist gets sent to the queue to sync.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.9.0
+		 */
+		do_action( 'jetpack_sync_action_before_enqueue' );
+
+		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
 		 * @since 4.2.0
@@ -191,19 +202,44 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
 
-		$queue->add( array(
-			$current_filter,
-			$args,
-			get_current_user_id(),
-			microtime( true ),
-			Jetpack_Sync_Settings::is_importing()
-		) );
+		if (
+			'sync' === $queue->id ||
+			in_array(
+				$current_filter,
+				array(
+					'jetpack_full_sync_start',
+					'jetpack_full_sync_end',
+					'jetpack_full_sync_cancel',
+				)
+			)
+		) {
+			$queue->add(
+				array(
+					$current_filter,
+					$args,
+					get_current_user_id(),
+					microtime( true ),
+					Jetpack_Sync_Settings::is_importing(),
+					$this->get_actor( $current_filter, $args ),
+				)
+			);
+		} else {
+			$queue->add(
+				array(
+					$current_filter,
+					$args,
+					get_current_user_id(),
+					microtime( true ),
+					Jetpack_Sync_Settings::is_importing(),
+				)
+			);
+		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
 		if ( ! Jetpack_Sync_Actions::$sender ) {
@@ -214,10 +250,67 @@ class Jetpack_Sync_Listener {
 		}
 	}
 
+	function get_actor( $current_filter, $args ) {
+		if ( 'wp_login' === $current_filter ) {
+			$user = get_user_by( 'ID', $args[1]->data->ID );
+		} else {
+			$user = wp_get_current_user();
+		}
+
+		$translated_role = Jetpack::translate_user_to_role( $user );
+
+		$actor = array(
+			'wpcom_user_id'    => null,
+			'external_user_id' => isset( $user->ID ) ? $user->ID : null,
+			'display_name'     => isset( $user->display_name ) ? $user->display_name : null,
+			'user_email'       => isset( $user->user_email ) ? $user->user_email : null,
+			'user_roles'       => isset( $user->roles ) ? $user->roles : null,
+			'translated_role'  => $translated_role ? $translated_role : null,
+			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
+			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
+			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
+			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
+			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+			'is_wp_admin'      => is_admin(),
+			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
+			'from_url'         => $this->get_request_url(),
+		);
+
+		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			$actor['ip']         = jetpack_protect_get_ip();
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
+		}
+
+		return $actor;
+	}
+
+	function should_send_user_data_with_actor( $current_filter ) {
+		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
+		/**
+		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
+		 *
+		 * @since 5.8.0
+		 *
+		 * @module sync
+		 *
+		 * @param bool True if we should send user data
+		 * @param string The current filter that is performing the sync action
+		 */
+		return apply_filters( 'jetpack_sync_actor_user_data', $should_send, $current_filter );
+	}
+
 	function set_defaults() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
+	}
+
+	function get_request_url() {
+		if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
+			return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		}
+		return is_admin() ? get_admin_url( get_current_blog_id() ) : home_url();
 	}
 }
