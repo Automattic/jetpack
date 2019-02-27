@@ -51,7 +51,7 @@ RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/build
 	&& chmod +x /usr/local/bin/wp
 
 # Install PHPUnit
-RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
+RUN curl https://phar.phpunit.de/phpunit-6.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
