@@ -50,11 +50,11 @@ function jetpack_business_hours_render( $attributes, $content ) {
 		$days_hours = '';
 
 		foreach ( $day['hours'] as $hour ) {
-			if ( empty( $hour['opening'] ) || empty( $hour['closing'] ) ) {
-				continue;
-			}
 			$opening     = strtotime( $hour['opening'] );
 			$closing     = strtotime( $hour['closing'] );
+			if ( ! $opening || ! $closing ) {
+				continue;
+			}
 			$days_hours .= sprintf(
 				/* Translators: Business opening hours info. */
 				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
