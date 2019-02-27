@@ -576,9 +576,9 @@ function jetpack_post_sharing_get_value( array $post ) {
 function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
 	if ( $enable_sharing ) {
 		// delete the override if we want to enable sharing
-		delete_post_meta( $post_object->ID, 'sharing_disabled' );
+		return delete_post_meta( $post_object->ID, 'sharing_disabled' );
 	} else {
-		update_post_meta( $post_object->ID, 'sharing_disabled', true );
+		return update_post_meta( $post_object->ID, 'sharing_disabled', true );
 	}
 }
 
@@ -595,6 +595,10 @@ function jetpack_post_sharing_register_rest_field() {
 		array(
 			'get_callback' => 'jetpack_post_sharing_get_value',
 			'update_callback' => 'jetpack_post_sharing_update_value',
+			'schema' => array(
+				'description' => __( 'Are sharing buttons enabled?' ),
+				'type'        => 'boolean'
+			),
 		)
 	);
 }
