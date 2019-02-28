@@ -114,4 +114,11 @@ function in_running_uninstall_group() {
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/listener-loader.php';
+// @todo Remove version check when 5.1 is the minimum WP version.
+if ( version_compare( $wp_version, '5.1', '>=' ) ) {
+	require $test_root . '/includes/listener-loader.php';
+} else {
+	require $test_root . '/includes/speed-trap-listener.php';
+}
+
+
