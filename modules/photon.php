@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Photon
+ * Module Name: Image CDN
  * Module Description:  Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.
  * Jumpstart Description: Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.
  * Sort Order: 25
