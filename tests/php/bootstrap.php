@@ -120,5 +120,3 @@ if ( version_compare( $wp_version, '5.1', '>=' ) ) {
 } else {
 	require $test_root . '/includes/speed-trap-listener.php';
 }
-
-
