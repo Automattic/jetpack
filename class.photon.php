@@ -146,6 +146,13 @@ class Jetpack_Photon {
 	 * @return String an URL to be used for the media file.
 	 */
 	public static function filter_photon_norezise_domain( $photon_url, $image_url ) {
+		$home_url = home_url();
+
+		// If the URL does not begin with the site's home URL, we do not process it - it's hosted elsewhere.
+		if ( ! wp_startswith( $image_url, $home_url ) ) {
+			return $image_url;
+		}
+
 		return $photon_url;
 	}
 
@@ -161,7 +168,7 @@ class Jetpack_Photon {
 
 	public static function filter_photon_noresize_thumbnail_urls( $sizes ) {
 		foreach ( $sizes as $size => $url ) {
-			$parts = explode( '?', $url );
+			$parts     = explode( '?', $url );
 			$arguments = isset( $parts[1] ) ? $parts[1] : array();
 
 			$sizes[ $size ] = jetpack_photon_url( $url, wp_parse_args( $arguments ) );
