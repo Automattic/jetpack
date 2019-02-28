@@ -89,7 +89,7 @@ jetpack_register_module(
 	'contact-form', 
 	array(
 		'name' => _x( 'Contact Form', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Insert a customizable contact form anywhere on your site.', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Add a customizable contact form to any post or page using the Jetpack Form Block.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 15,
 		'recommendation_order' => 14,
@@ -103,7 +103,7 @@ jetpack_register_module(
 			_x( 'Writing', 'Feature', 'jetpack' ),
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'contact, form, grunion, feedback, submission',
+		'additional_search_queries' => 'contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free',
 	) 
 );
 
@@ -289,7 +289,7 @@ jetpack_register_module(
 	'lazy-images', 
 	array(
 		'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Lazy load images', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Lazy-loading images improve your site\'s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 24,
 		'recommendation_order' => 14,
@@ -304,7 +304,7 @@ jetpack_register_module(
 			_x( 'Appearance', 'Feature', 'jetpack' ),
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'mobile, theme, performance, image',
+		'additional_search_queries' => 'mobile, theme, fast images, fast image, image, lazy, lazy load, lazyload, images, lazy images, thumbnail, image lazy load, lazy loading, load, loading',
 	) 
 );
 
@@ -411,7 +411,7 @@ jetpack_register_module(
 	'monitor', 
 	array(
 		'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 28,
 		'recommendation_order' => 10,
@@ -425,7 +425,7 @@ jetpack_register_module(
 			_x( 'Security', 'Feature', 'jetpack' ),
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'monitor, uptime, downtime, monitoring',
+		'additional_search_queries' => 'monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error',
 	) 
 );
 
@@ -452,7 +452,7 @@ jetpack_register_module(
 	'photon-cdn', 
 	array(
 		'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Serve static assets from our servers', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.', 'Module Description', 'jetpack' ),
 		'sort' => 26,
 		'recommendation_order' => 1,
 		'introduced' => '6.6',
@@ -467,7 +467,7 @@ jetpack_register_module(
 			_x( 'Recommended', 'Feature', 'jetpack' ),
 			_x( 'Appearance', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'photon, image, cdn, performance, speed, assets',
+		'additional_search_queries' => 'site accelerator, accelerate, static, assets, javascript, css, files, performance, seo, bandwidth, content delivery network, pagespeed, combine js, optimize css',
 	) 
 );
 
@@ -475,7 +475,7 @@ jetpack_register_module(
 	'photon', 
 	array(
 		'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Serve images from our servers', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 25,
 		'recommendation_order' => 1,
@@ -492,7 +492,7 @@ jetpack_register_module(
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 			_x( 'Appearance', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'photon, image, cdn, performance, speed',
+		'additional_search_queries' => 'photon, photo cdn, image cdn, speed, compression, resize, responsive images, responsive, content distribution network, optimize, page speed, image optimize, photon jetpack',
 	) 
 );
 
@@ -519,7 +519,7 @@ jetpack_register_module(
 	'protect', 
 	array(
 		'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Block suspicious-looking sign in activity', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.', 'Module Description', 'jetpack' ),
 		'sort' => 1,
 		'recommendation_order' => 4,
 		'introduced' => '3.4',
@@ -531,7 +531,7 @@ jetpack_register_module(
 		'feature' => array(
 			_x( 'Security', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'security, secure, protection, botnet, brute force, protect, login',
+		'additional_search_queries' => 'security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin',
 	) 
 );
 
@@ -539,7 +539,7 @@ jetpack_register_module(
 	'publicize', 
 	array(
 		'name' => _x( 'Publicize', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.', 'Module Description', 'jetpack' ),
 		'sort' => 10,
 		'recommendation_order' => 7,
 		'introduced' => '2.0',
@@ -552,7 +552,7 @@ jetpack_register_module(
 		'feature' => array(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'facebook, twitter, tumblr, linkedin, social, tweet, connections, sharing',
+		'additional_search_queries' => 'facebook, jetpack publicize, twitter, tumblr, linkedin, social, tweet, connections, sharing, social media, automated, automated sharing, auto publish, auto tweet and like, auto tweet, facebook auto post, facebook posting',
 	) 
 );
 
@@ -580,7 +580,7 @@ jetpack_register_module(
 	'related-posts', 
 	array(
 		'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Increase page views by showing related content to your visitors.', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 29,
 		'recommendation_order' => 9,
@@ -594,7 +594,7 @@ jetpack_register_module(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'related, related posts',
+		'additional_search_queries' => 'related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin',
 	) 
 );
 
@@ -602,7 +602,7 @@ jetpack_register_module(
 	'search', 
 	array(
 		'name' => _x( 'Search', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Enhanced search, powered by Elasticsearch', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.', 'Module Description', 'jetpack' ),
 		'sort' => 34,
 		'introduced' => '5.0',
 		'free' => false,
@@ -611,7 +611,7 @@ jetpack_register_module(
 		'feature' => array(
 			_x( 'Search', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'search',
+		'additional_search_queries' => 'search, elastic, elastic search, elasticsearch, fast search, search results, search performance, google search',
 		'plan_classes' => array(
 			 'business',
 		),
@@ -647,7 +647,7 @@ jetpack_register_module(
 	'sharedaddy', 
 	array(
 		'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Allow visitors to share your content.', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 7,
 		'recommendation_order' => 6,
@@ -663,7 +663,7 @@ jetpack_register_module(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
 			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'share, sharing, sharedaddy, buttons, icons, email, facebook, twitter, linkedin, pinterest, pocket, press this, print, reddit, tumblr',
+		'additional_search_queries' => 'share, sharing, sharedaddy, social buttons, buttons, share facebook, share twitter, social media sharing, social media share, social share, icons, email, facebook, twitter, linkedin, pinterest, pocket, social widget, social media',
 	) 
 );
 
@@ -815,8 +815,8 @@ jetpack_register_module(
 jetpack_register_module( 
 	'vaultpress', 
 	array(
-		'name' => _x( 'Data Backups', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Off-site backups, security scans, and automatic fixes.', 'Module Description', 'jetpack' ),
+		'name' => _x( 'Backups and Scanning', 'Module Name', 'jetpack' ),
+		'description' => _x( 'Protect your site with daily or real-time backups and automated virus scanning and threat detection.', 'Module Description', 'jetpack' ),
 		'sort' => 32,
 		'introduced' => '0:1.2',
 		'deactivate' => false,
@@ -827,7 +827,7 @@ jetpack_register_module(
 			_x( 'Security', 'Feature', 'jetpack' ),
 			_x( 'Health', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'vaultpress, backup, security',
+		'additional_search_queries' => 'backup, cloud backup, database backup, restore, wordpress backup, backup plugin, wordpress backup plugin, back up, backup wordpress, backwpup, vaultpress, backups, off-site backups, offsite backup, offsite, off-site, antivirus, malware scanner, security, virus, viruses, prevent viruses, scan, anti-virus, antimalware, protection, safe browsing, malware, wp security, wordpress security',
 	) 
 );
 
@@ -851,7 +851,7 @@ jetpack_register_module(
 	'videopress', 
 	array(
 		'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-		'description' => _x( 'Fast, ad-free video hosting', 'Module Description', 'jetpack' ),
+		'description' => _x( 'Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.', 'Module Description', 'jetpack' ),
 		'sort' => 27,
 		'introduced' => '2.5',
 		'free' => false,
@@ -862,7 +862,7 @@ jetpack_register_module(
 		'feature' => array(
 			_x( 'Writing', 'Feature', 'jetpack' ),
 		),
-		'additional_search_queries' => 'video, videos, videopress',
+		'additional_search_queries' => 'video, videos, videopress, video gallery, video player, videoplayer, mobile video, vimeo, youtube, html5 video, stream',
 		'plan_classes' => array(
 			 'business',
 			 'premium',
