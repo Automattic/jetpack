@@ -18,14 +18,17 @@ RUN \
 		curl \
 		less \
 		libapache2-mod-php7.3 \
+		libsodium23 \
 		mysql-client \
 		nano \
 		php-apcu \
 		php-xdebug \
 		php7.3 \
+		php7.3-bcmath \
 		php7.3-cli \
 		php7.3-curl \
 		php7.3-gd \
+		php7.3-imagick \
 		php7.3-json \
 		php7.3-ldap \
 		php7.3-mbstring \
