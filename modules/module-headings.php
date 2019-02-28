@@ -135,7 +135,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'photon' => array(
-				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Image CDN', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
@@ -221,8 +221,8 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'vaultpress' => array(
-				'name' => _x( 'Data Backups', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Every bit and byte of your site is backed up safely - daily or in real-time - to an off-site location.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'Backups and Scanning', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Protect your site with daily or real-time backups and automated virus scanning and threat detection.', 'Module Description', 'jetpack' ),
 			),
 
 			'verification-tools' => array(
