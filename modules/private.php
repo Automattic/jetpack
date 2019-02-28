@@ -21,7 +21,7 @@ class Jetpack_Private {
 		add_action( 'blog_privacy_selector', array( __CLASS__, 'privatize_blog_priv_selector' ) );
 		add_filter( 'robots_txt', array( __CLASS__, 'private_robots_txt' ) );
 		add_action( 'wp_head', array( __CLASS__, 'private_no_pinning' ) );
-		add_action( 'admin_init', array( __CLASS__, 'private_blog_admin_ajax' ), 9 );
+		add_action( 'admin_init', array( __CLASS__, 'private_blog_prevent_requests' ), 9 );
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ), 9, 2 );
 		add_action( 'rest_pre_dispatch', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
@@ -194,22 +194,28 @@ class Jetpack_Private {
 	}
 
 	/**
-	 * Prevents ajax requests on private blogs for users who don't have permissions
+	 * Prevents ajax and post requests on private blogs for users who don't have permissions
 	 */
-	static function private_blog_admin_ajax() {
-		$this_current_user = wp_get_current_user();
+	static function private_blog_prevent_requests() {
+		global $pagenow;
+
+		$this_current_user     = wp_get_current_user();
+		$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
+		$is_admin_post_request = ( 'admin-post.php' === $pagenow );
 
 		if ( is_super_admin() ) {
 			return;
 		}
 		
+		
 		// Make sure we are in the right code path, if not bail now.
-		if ( ! is_admin() || ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+		
+		if ( ! is_admin() || ( ! $is_ajax_request && ! $is_admin_post_request ) ) {
 			return;
 		}
 
 		if ( ! Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) {
-			wp_die( -1 );
+			wp_die();
 		}
 	}
 
@@ -221,6 +227,7 @@ class Jetpack_Private {
 	 */
 	static function private_blog_ajax_nonce_check( $action, $result ) {
 		global $wpdb;
+
 		$this_current_user = wp_get_current_user();
 
 		if ( is_super_admin() ) {
@@ -326,6 +333,7 @@ class Jetpack_Private {
 		}
 
 		include JETPACK__PLUGIN_DIR . '/modules/private/private.php';
+		
 		wp_die();
 	}
 }
