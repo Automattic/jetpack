@@ -417,7 +417,7 @@ class Jetpack_Plugin_Search {
 				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
 				break;
 		}
-		return esc_url( $configure_url );
+		return $configure_url;
 	}
 
 	/**
@@ -451,11 +451,11 @@ class Jetpack_Plugin_Search {
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
-					data-configure-url="' . $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) . '"
+					data-configure-url="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
 					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
 				: '<a
 					class="jetpack-plugin-search__primary button"
-					href="' . $this->get_upgrade_url( $plugin['module'] ) . '"
+					href="' . esc_url( $this->get_upgrade_url( $plugin['module'] ) ) . '"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
 					data-track="purchase"
 					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
@@ -471,7 +471,7 @@ class Jetpack_Plugin_Search {
 			$links[] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary button jetpack-plugin-search__configure"
-				href="' . $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) . '"
+				href="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="configure"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
