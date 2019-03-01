@@ -4818,6 +4818,7 @@ p {
 					'site_lang'     => get_locale(),
 					'_ui'           => $tracks_identity['_ui'],
 					'_ut'           => $tracks_identity['_ut'],
+					'site_created'  => Jetpack::get_site_creation_date(),
 				)
 			);
 
@@ -4842,6 +4843,24 @@ p {
 		}
 
 		return $raw ? $url : esc_url( $url );
+	}
+
+	/**
+	 * Get the site age, based on the earliest user registration date.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return string Site creation date and time.
+	 */
+	public static function get_site_creation_date() {
+		$oldest_user = get_users( array(
+			'role'    => 'administrator',
+			'orderby' => 'user_registered',
+			'order'   => 'ASC',
+			'fields'  => array( 'user_registered' ),
+			'number'  => 1,
+		) );
+		return $oldest_user[0]->user_registered;
 	}
 
 	public static function apply_activation_source_to_args( &$args ) {
@@ -5463,6 +5482,7 @@ p {
 				'state'           => get_current_user_id(),
 				'_ui'             => $tracks_identity['_ui'],
 				'_ut'             => $tracks_identity['_ut'],
+				'site_created'    => Jetpack::get_site_creation_date(),
 				'jetpack_version' => JETPACK__VERSION
 			),
 			'headers' => array(
