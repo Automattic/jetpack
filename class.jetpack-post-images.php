@@ -239,7 +239,7 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		if ( 'attachment' === get_post_type( $post ) ) {
+		if ( 'attachment' === get_post_type( $post ) && wp_attachment_is_image( $post )) {
 			$thumb = $post_id;
 		} else {
 			$thumb = get_post_thumbnail_id( $post );
