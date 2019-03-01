@@ -2949,9 +2949,9 @@ eslint-config-prettier@4.1.0:
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-config-wpcalypso@0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-0.8.0.tgz#e097552997bebef0d8256d9163741267c6ab510b"
+eslint-config-wpcalypso@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-4.0.1.tgz#f0f8a8b999e5236e628045b3402d3c4433363507"
 
 eslint-loader@2.1.2:
   version "2.1.2"

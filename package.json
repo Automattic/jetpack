@@ -89,7 +89,7 @@
     "es6-promise": "4.2.5",
     "eslint": "3.19.0",
     "eslint-config-prettier": "4.1.0",
-    "eslint-config-wpcalypso": "0.8.0",
+    "eslint-config-wpcalypso": "4.0.1",
     "eslint-loader": "2.1.2",
     "eslint-plugin-jsx-a11y": "4.0.0",
     "eslint-plugin-lodash": "5.1.0",
