@@ -451,7 +451,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
@@ -536,7 +536,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
