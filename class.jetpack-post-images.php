@@ -239,7 +239,11 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		$thumb = get_post_thumbnail_id( $post_id );
+		if ( 'attachment' === get_post_type( $post ) ) {
+			$thumb = $post_id;
+		} else {
+			$thumb = get_post_thumbnail_id( $post );
+		}
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
