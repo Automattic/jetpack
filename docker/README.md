@@ -132,7 +132,7 @@ Will stop all of the containers created by this docker-compose configuration and
 ### Rebuild images
 
 ```sh
-yarn docker:build
+yarn docker:build-image
 ```
 
 You need to rebuild the WordPress image with this command if you modified `Dockerfile`, `docker-composer.yml` or the provisioned files we use for configuring Apache and PHP.
