@@ -107,7 +107,7 @@
     "gulp-concat": "2.6.1",
     "gulp-if": "2.0.2",
     "gulp-jshint": "2.1.0",
-    "gulp-json-transform": "0.4.5",
+    "gulp-json-transform": "0.4.6",
     "gulp-minify": "3.1.0",
     "gulp-modify": "0.1.1",
     "gulp-po2json": "1.0.0",
