@@ -143,18 +143,6 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Checks if WordPress version is too old to have REST API.
-	 *
-	 * @since 4.3
-	 *
-	 * @return bool
-	 */
-	function is_wp_version_too_old() {
-		global $wp_version;
-		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
-	}
-
-	/**
 	 * Checks if REST API is enabled.
 	 *
 	 * @since 4.4.2
