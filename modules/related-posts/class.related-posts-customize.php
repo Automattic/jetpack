@@ -178,10 +178,7 @@ class Jetpack_Related_Posts_Customize {
 	function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 
-		// Get the correct translated string for preview in WP 4.7 and later.
-		$switched_locale = function_exists( 'switch_to_locale' )
-			? switch_to_locale( get_user_locale() )
-			: false;
+		$switched_locale = switch_to_locale( get_user_locale() );
 		$headline = __( 'Related', 'jetpack' );
 		if ( $switched_locale ) {
 			restore_previous_locale();
