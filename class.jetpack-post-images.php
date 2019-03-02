@@ -235,10 +235,6 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
-			return $images;
-		}
-
 		if ( 'attachment' === get_post_type( $post ) && wp_attachment_is_image( $post ) ) {
 			$thumb = $post_id;
 		} else {
