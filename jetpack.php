@@ -12,7 +12,7 @@
  * Domain Path: /languages/
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '4.9' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
 
 define( 'JETPACK__VERSION',            '7.2-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
