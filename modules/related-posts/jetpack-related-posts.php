@@ -165,7 +165,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( function_exists( 'has_block' ) && has_block( 'jetpack/related-posts', $content ) ) {
+		if ( has_block( 'jetpack/related-posts', $content ) ) {
 			return $content;
 		}
 

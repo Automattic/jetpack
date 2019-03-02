@@ -332,21 +332,10 @@ class Jetpack_Calypsoify {
 	 * @since 6.7.0
 	 */
 	public function is_post_type_gutenberg( $post_type ) {
-		// @TODO: Remove function check once 5.0 is the minimum supported WP version.
-		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
-			return use_block_editor_for_post_type( $post_type );
-		} else {
-			// We use the filter introduced in WordPress 5.0 to be backwards compatible.
-			/** This filter is already documented in core/wp-admin/includes/post.php */
-			return apply_filters( 'use_block_editor_for_post_type', true, $post_type );
-		}
+		return use_block_editor_for_post_type( $post_type );
 	}
 
 	public function is_page_gutenberg() {
-		if ( ! Jetpack_Gutenberg::is_gutenberg_available() ) {
-			return false;
-		}
-
 		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
 
 		if ( false !== strpos( $page, 'post-new.php' ) && empty ( $_GET['post_type'] ) ) {

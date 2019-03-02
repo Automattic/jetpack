@@ -320,11 +320,6 @@ class Jetpack_PostImages {
 	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
 
-		// Bail early if the site does not support the block editor.
-		if ( ! function_exists( 'parse_blocks' ) ) {
-			return $images;
-		}
-
 		$html_info = self::get_post_html( $html_or_id );
 
 		if ( empty( $html_info['html'] ) ) {

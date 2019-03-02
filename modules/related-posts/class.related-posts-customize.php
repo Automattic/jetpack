@@ -115,18 +115,12 @@ class Jetpack_Related_Posts_Customize {
 
 	/**
 	 * Check whether the current post contains a Related Posts block.
-	 * If we're on WP < 5.0, this automatically means it doesn't,
-	 * because block support is intrododuced in WP 5.0.
 	 *
 	 * @since 6.9.0
 	 *
 	 * @return bool
 	 */
 	public static function contains_related_posts_block() {
-		if ( ! function_exists( 'has_block' ) ) {
-			return false;
-		}
-
 		if ( has_block( 'jetpack/related-posts' ) ) {
 			return true;
 		}
