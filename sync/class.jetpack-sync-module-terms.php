@@ -106,28 +106,15 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	}
 
 	public function expand_term_ids( $args ) {
-		global $wp_version;
 		$term_ids = $args[0];
 		$taxonomy = $args[1];
-		// version 4.5 or higher
-		if ( version_compare( $wp_version, 4.5, '>=' ) ) {
-			$terms = get_terms(
-				array(
-					'taxonomy'   => $taxonomy,
-					'hide_empty' => false,
-					'include'    => $term_ids,
-				)
-			);
-		} else {
-			$terms = get_terms(
-				$taxonomy,
-				array(
-					'hide_empty' => false,
-					'include'    => $term_ids,
-				)
-			);
-		}
 
-		return $terms;
+		return get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+				'include'    => $term_ids,
+			)
+		);
 	}
 }

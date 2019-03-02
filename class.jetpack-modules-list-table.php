@@ -10,9 +10,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		Jetpack::init();
 
-		// In WP 4.2 WP_List_Table will be sanitizing which values are __set()
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.2-z', '>=' ) && $this->compat_fields && is_array( $this->compat_fields ) ) {
+		if ( $this->compat_fields && is_array( $this->compat_fields ) ) {
 			array_push( $this->compat_fields, 'all_items' );
 		}
 

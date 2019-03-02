@@ -41,7 +41,6 @@ class Sharing_Service {
 	 * Gets a list of all available service names and classes
 	 */
 	public function get_all_services( $include_custom = true ) {
-		global $wp_version;
 		// Default services
 		// if you update this list, please update the REST API tests
 		// in bin/tests/api/suites/SharingTest.php
@@ -76,7 +75,7 @@ class Sharing_Service {
 			$services['email'] = 'Share_Email';
 		}
 
-		if ( is_multisite() && ( version_compare( $wp_version, '4.9-RC1-42107', '<' ) || is_plugin_active( 'press-this/press-this-plugin.php' ) ) ) {
+		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
 			$services['press-this'] = 'Share_PressThis';
 		}
 

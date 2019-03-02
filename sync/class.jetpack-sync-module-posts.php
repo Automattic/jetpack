@@ -26,11 +26,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
-		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
-		global $wp_version;
-		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
-
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
+		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
