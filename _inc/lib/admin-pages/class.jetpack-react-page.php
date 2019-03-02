@@ -172,24 +172,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page.
 		}
 
-		// Enqueue jp.js and localize it.
-		$dependencies = array();
-
-		// WordPress 5.0 and later supports the new client side i18n mechanism.
-		if ( version_compare( $GLOBALS['wp_version'], '5.0', '>' ) ) {
-			$dependencies = array( 'wp-i18n' );
-		}
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$dependencies,
+			array( 'wp-i18n' ),
 			JETPACK__VERSION,
 			true
 		);
 
-		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
-		}
+		wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
 			// Required for Analytics.
