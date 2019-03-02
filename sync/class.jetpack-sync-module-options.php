@@ -151,11 +151,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	function jetpack_sync_core_icon() {
-		if ( function_exists( 'get_site_icon_url' ) ) {
-			$url = get_site_icon_url();
-		} else {
-			return;
-		}
+		$url = get_site_icon_url();
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.

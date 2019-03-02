@@ -236,9 +236,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( $user, 'jpc_remote_provision_fail' );
 		}
 
-		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
-			? get_site_icon_url()
-			: false;
+		$site_icon = get_site_icon_url();
 
 		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
 
