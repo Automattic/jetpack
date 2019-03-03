@@ -139,6 +139,7 @@ class Jetpack_Sync_Defaults {
 		'wordads_display_page',
 		'wordads_display_archive',
 		'wordads_custom_adstxt',
+		'site_ownership',
 		'site_segment',
 		'site_vertical',
 	);
