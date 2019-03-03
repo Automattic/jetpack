@@ -37,6 +37,6 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<script type="text/javascript" data-dojo-config="usePlainJson: true, isDebug: false">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/embed.js", function( data, textStatus, jqxhr ) { require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"' . $uuid . '","lid":"' . $lid . '"}) }); window.define.amd = undefined; } );</script>', $shortcode_content );
+		$this->assertContains( '<script type="text/javascript" data-dojo-config="usePlainJson: true, isDebug: false">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/unique-methods/embed.js", function( data, textStatus, jqxhr ) { window.dojoRequire(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"' . $uuid . '","lid":"' . $lid . '","uniqueMethods":true}) });} );</script>', $shortcode_content );
 	}
 }

@@ -9,6 +9,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * Widget constructor.
 	 */
 	public function __construct() {
+		global $pagenow;
+
 		$widget_ops = array(
 			'classname'                   => 'jetpack_widget_social_icons',
 			'description'                 => __( 'Add social-media icons to your site.', 'jetpack' ),
@@ -33,10 +35,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_print_footer_scripts', array( $this, 'render_admin_js' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
-		add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
+		// Enqueue admin scrips and styles, only in the customizer or the old widgets page.
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_print_footer_scripts', array( $this, 'render_admin_js' ) );
+		}
+
+		// Enqueue scripts and styles for the display of the widget, on the frontend or in the customizer.
+		if ( is_active_widget( false, $this->id, $this->id_base, true ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
+			add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
+		}
 	}
 
 	/**
@@ -58,12 +67,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * JavaScript for admin widget form.
 	 */
 	public function render_admin_js() {
-		global $wp_customize;
-		global $pagenow;
-
-		if ( ! isset( $wp_customize ) && 'widgets.php' !== $pagenow ) {
-			return;
-		}
 	?>
 		<script type="text/html" id="tmpl-jetpack-widget-social-icons-template">
 			<?php self::render_icons_template(); ?>
@@ -75,10 +78,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * Add SVG definitions to the footer.
 	 */
 	public function include_svg_icons() {
-		if ( ! is_active_widget( false, $this->id, $this->id_base, true ) ) {
-			return;
-		}
-
 		// Define SVG sprite file in Jetpack
 		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
 
@@ -116,14 +115,14 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		if ( ! empty( $instance['icons'] ) ) :
 
 			// Get supported social icons.
-			$social_icons  = $this->get_supported_icons();
-			$default_icon  = $this->get_svg_icon( array( 'icon' => 'chain' ) );
+			$social_icons = $this->get_supported_icons();
+			$default_icon = $this->get_svg_icon( array( 'icon' => 'chain' ) );
 
 			// Set target attribute for the link
 			if ( true === $instance['new-tab'] ) {
 				$target = '_blank';
 			} else {
-				$target = '_self';				
+				$target = '_self';
 			}
 		?>
 
@@ -137,18 +136,18 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 								<?php
 									$found_icon = false;
 
-									foreach( $social_icons as $social_icon ) {
-										if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
-											echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-											echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-											$found_icon = true;
-											break;
-										}
+								foreach ( $social_icons as $social_icon ) {
+									if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
+										echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
+										echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
+										$found_icon = true;
+										break;
 									}
+								}
 
-									if ( ! $found_icon ) {
-										echo $default_icon;
-									}
+								if ( ! $found_icon ) {
+									echo $default_icon;
+								}
 								?>
 							</a>
 						</li>
@@ -189,7 +188,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$icon_count          = count( $new_instance['url-icons'] );
 		$instance['icons']   = array();
 
-		foreach( $new_instance['url-icons'] as $url ) {
+		foreach ( $new_instance['url-icons'] as $url ) {
 			$url = filter_var( $url, FILTER_SANITIZE_URL );
 
 			if ( ! empty( $url ) ) {
@@ -242,13 +241,15 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		>
 
 			<?php
-				foreach ( $instance['icons'] as $icon ) {
-					self::render_icons_template( array(
+			foreach ( $instance['icons'] as $icon ) {
+				self::render_icons_template(
+					array(
 						'url-icon-id'   => $this->get_field_id( 'url-icons' ),
 						'url-icon-name' => $this->get_field_name( 'url-icons' ),
 						'url-value'     => $icon['url'],
-					) );
-				}
+					)
+				);
+			}
 			?>
 
 		</div>
@@ -260,18 +261,18 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<?php
-			switch ( get_locale() ) {
-				case 'es':
-					$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
-					break;
+		switch ( get_locale() ) {
+			case 'es':
+				$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
+				break;
 
-				case 'pt-br':
-					$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
-					break;
+			case 'pt-br':
+				$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
+				break;
 
-				default:
-					$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
-			}
+			default:
+				$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
+		}
 		?>
 
 		<p>
@@ -309,7 +310,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 				<p class="jetpack-widget-social-icons-url">
 					<?php
-						printf( '<input class="widefat id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
+						printf(
+							'<input class="widefat id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
 							esc_attr( $args['url-icon-id'] ),
 							esc_attr( $args['url-icon-name'] ),
 							esc_attr__( 'Account URL', 'jetpack' ),
@@ -476,6 +478,16 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
+				'url'   => 'discord.gg',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
+				'url'   => 'discordapp.com',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
 				'url'   => 'dribbble.com',
 				'icon'  => 'dribbble',
 				'label' => 'Dribbble',
@@ -561,7 +573,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
-				'url'   => 'pinterest.com',
+				'url'   => 'pinterest.',
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
 			),

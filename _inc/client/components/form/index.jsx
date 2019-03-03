@@ -28,7 +28,7 @@ class Form extends React.Component {
 		onInvalidSubmit: PropTypes.func,
 		onValid: PropTypes.func,
 		onInvalid: PropTypes.func,
-		validationErrors: PropTypes.object
+		validationErrors: PropTypes.object,
 	};
 
 	state = {};
@@ -50,7 +50,7 @@ class Form extends React.Component {
 		return (
 			<div className="dops-form" style={ style }>
 				<Formsy.Form ref="form" { ...other }>
-					{this.props.children}
+					{ this.props.children }
 				</Formsy.Form>
 			</div>
 		);
@@ -77,7 +77,7 @@ const luhnChk = ( function( arr ) {
 
 		return sum && sum % 10 === 0;
 	};
-}( [ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 ] ) );
+} )( [ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 ] );
 
 // To find out more about validators, see:
 // https://github.com/christianalfoni/formsy-react/blob/master/API.md#validators

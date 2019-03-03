@@ -5,7 +5,6 @@
 // the proxy to send the X-Forwarded-Port header.
 defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
-defined( 'JETPACK__WPCOM_JSON_API_HOST' )  or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
 class Jetpack_Signature {
 	public $token;
@@ -37,6 +36,10 @@ class Jetpack_Signature {
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
 
+		/**
+		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Please update the test if any changes are made in this logic.
+		 */
 		if ( is_ssl() ) {
 			// 443: Standard Port
 			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
@@ -160,10 +163,6 @@ class Jetpack_Signature {
 		$parsed = parse_url( $url );
 		if ( !isset( $parsed['host'] ) ) {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
-		}
-
-		if ( $parsed['host'] === JETPACK__WPCOM_JSON_API_HOST ) {
-			$parsed['host'] = 'public-api.wordpress.com';
 		}
 
 		if ( !empty( $parsed['port'] ) ) {

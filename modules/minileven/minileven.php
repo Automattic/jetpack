@@ -117,7 +117,7 @@ function jetpack_mobile_template( $theme ) {
 }
 
 function jetpack_mobile_available() {
-	echo '<div class="jetpack-mobile-link" style="text-align:center;margin:10px 0;"><a href="'. home_url( '?ak_action=accept_mobile' ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
+	echo '<div class="jetpack-mobile-link" style="text-align:center;margin:10px 0;"><a href="'. esc_url( home_url( add_query_arg('ak_action', 'accept_mobile') ) ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
 }
 
 function jetpack_mobile_request_handler() {
@@ -176,10 +176,7 @@ function jetpack_mobile_request_handler() {
 		if ($redirect) {
 			if ( isset( $_GET['redirect_to'] ) && $_GET['redirect_to'] ) {
 				$go = urldecode( $_GET['redirect_to'] );
-			} else if (!empty($_SERVER['HTTP_REFERER'])) {
-				$go = $_SERVER['HTTP_REFERER'];
-			}
-			else {
+			} else {
 				$go = remove_query_arg( array( 'ak_action' ) );
 			}
 			wp_safe_redirect( $go );

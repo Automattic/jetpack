@@ -31,6 +31,10 @@
 			margin-top: rem( 16px );
 		}
 
+		&.is-warning {
+			color: $alert-red;
+		}
+
 		a {
 			text-decoration: underline;
 		}

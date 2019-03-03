@@ -112,15 +112,12 @@
 	}
 }
 
-// if JITM appears directly below WordPress "help" menu adjust margins
-#screen-meta-links+.jitm-card {
-	margin: rem( 40px ) 1.5385em 0 auto;
-}
 
 .jitm-card {
 	display: block;
+	clear: both;
 	position: relative;
-	margin: rem( 16px ) 0 0 auto;
+	margin: rem( 48px ) rem( 20px ) 0 auto;
 	padding: rem( 16px );
 	box-sizing: border-box;
 	background: $white;
@@ -149,10 +146,25 @@
 	}
 }
 
+// if JITM appears directly below WordPress "help" menu adjust margins
+#screen-meta-links+.jitm-card {
+	margin: rem( 40px ) 1.5385em 0 auto;
+}
+
+// if JITM appears directly below WordPress hello dolly adjust margins
+#dolly+.jitm-card {
+  margin: 3rem 1rem 0 auto;
+}
+
 // remove right margin for jitms in the editor
 .post-php .jitm-card {
 	margin-right: 0;
 }
+
+ // if JITM appears inside of the jetpack dashboard adjust margins
+ .jp-lower .jitm-card {
+   margin: 3rem 0 rem( 24px );
+ }
 
 .jitm-banner.jitm-card {
 	border-left: 4px solid;
@@ -398,4 +410,8 @@
 
 .jitm-banner__action + .jitm-banner__dismiss {
 	margin-left: rem( 10px );
+}
+
+#dolly + .jitm-card {
+  margin: 3rem 1rem 0 auto;
 }

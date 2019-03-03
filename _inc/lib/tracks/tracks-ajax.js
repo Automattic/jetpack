@@ -1,7 +1,7 @@
 /* global jpTracksAJAX, jQuery */
-
 (function( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
+	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
 	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
 		var data = {
@@ -15,11 +15,17 @@
 		return $.ajax( {
 			type: 'POST',
 			url: jpTracksAJAX.ajaxurl,
-			data: data
+			data: data,
+			success: function( response ) {
+				if ( debugSet ) {
+					// eslint-disable-next-line
+					console.log( 'AJAX tracks event recorded: ', data, response );
+				}
+			}
 		} );
 	};
 
-	$( document ).ready( function () {
+	$( document ).ready( function() {
 		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function( event ) {
 			// We know that the jptracks element is either this, or its ancestor
 			var $jptracks = $( this ).closest( '.jptracks' );

@@ -2,12 +2,12 @@
 
 // Include the class file containing methods for rounding constrained array elements.
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
-include_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
+require_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
 
 // Layouts
-include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-rectangular.php';
-include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
-include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
+require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-rectangular.php';
+require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
+require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
 	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
@@ -16,8 +16,6 @@ class Jetpack_Tiled_Gallery {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
-
-
 	}
 
 	public function tiles_enabled() {
@@ -28,20 +26,24 @@ class Jetpack_Tiled_Gallery {
 	public function set_atts( $atts ) {
 		global $post;
 
-		$this->atts = shortcode_atts( array(
-			'order'      => 'ASC',
-			'orderby'    => 'menu_order ID',
-			'id'         => isset( $post->ID ) ? $post->ID : 0,
-			'include'    => '',
-			'exclude'    => '',
-			'type'       => '',
-			'grayscale'  => false,
-			'link'       => '',
-			'columns'	 => 3
-		), $atts, 'gallery' );
+		$this->atts = shortcode_atts(
+			array(
+				'order'     => 'ASC',
+				'orderby'   => 'menu_order ID',
+				'id'        => isset( $post->ID ) ? $post->ID : 0,
+				'include'   => '',
+				'exclude'   => '',
+				'type'      => '',
+				'grayscale' => false,
+				'link'      => '',
+				'columns'   => 3,
+			),
+			$atts,
+			'gallery'
+		);
 
 		$this->atts['id'] = (int) $this->atts['id'];
-		$this->float = is_rtl() ? 'right' : 'left';
+		$this->float      = is_rtl() ? 'right' : 'left';
 
 		// Default to rectangular is tiled galleries are checked
 		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) ) {
@@ -49,10 +51,11 @@ class Jetpack_Tiled_Gallery {
 			$this->atts['type'] = apply_filters( 'jetpack_default_gallery_type', 'rectangular' );
 		}
 
-		if ( !$this->atts['orderby'] ) {
+		if ( ! $this->atts['orderby'] ) {
 			$this->atts['orderby'] = sanitize_sql_orderby( $this->atts['orderby'] );
-			if ( !$this->atts['orderby'] )
+			if ( ! $this->atts['orderby'] ) {
 				$this->atts['orderby'] = 'menu_order ID';
+			}
 		}
 
 		if ( 'rand' == strtolower( $this->atts['order'] ) ) {
@@ -68,24 +71,55 @@ class Jetpack_Tiled_Gallery {
 	public function get_attachments() {
 		extract( $this->atts );
 
-		if ( !empty( $include ) ) {
-			$include = preg_replace( '/[^0-9,]+/', '', $include );
-			$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false) );
+		if ( ! empty( $include ) ) {
+			$include      = preg_replace( '/[^0-9,]+/', '', $include );
+			$_attachments = get_posts(
+				array(
+					'include'          => $include,
+					'post_status'      => 'inherit',
+					'post_type'        => 'attachment',
+					'post_mime_type'   => 'image',
+					'order'            => $order,
+					'orderby'          => $orderby,
+					'suppress_filters' => false,
+				)
+			);
 
 			$attachments = array();
 			foreach ( $_attachments as $key => $val ) {
-				$attachments[$val->ID] = $_attachments[$key];
+				$attachments[ $val->ID ] = $_attachments[ $key ];
 			}
 		} elseif ( 0 == $id ) {
 			// Should NEVER Happen but infinite_scroll_load_other_plugins_scripts means it does
 			// Querying with post_parent == 0 can generate stupidly memcache sets on sites with 10000's of unattached attachments as get_children puts every post in the cache.
 			// TODO Fix this properly
 			$attachments = array();
-		} elseif ( !empty( $exclude ) ) {
-			$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
-			$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false) );
+		} elseif ( ! empty( $exclude ) ) {
+			$exclude     = preg_replace( '/[^0-9,]+/', '', $exclude );
+			$attachments = get_children(
+				array(
+					'post_parent'      => $id,
+					'exclude'          => $exclude,
+					'post_status'      => 'inherit',
+					'post_type'        => 'attachment',
+					'post_mime_type'   => 'image',
+					'order'            => $order,
+					'orderby'          => $orderby,
+					'suppress_filters' => false,
+				)
+			);
 		} else {
-			$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby, 'suppress_filters' => false ) );
+			$attachments = get_children(
+				array(
+					'post_parent'      => $id,
+					'post_status'      => 'inherit',
+					'post_type'        => 'attachment',
+					'post_mime_type'   => 'image',
+					'order'            => $order,
+					'orderby'          => $orderby,
+					'suppress_filters' => false,
+				)
+			);
 		}
 		return $attachments;
 	}
@@ -104,16 +138,18 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public function gallery_shortcode( $val, $atts ) {
-		if ( ! empty( $val ) ) // something else is overriding post_gallery, like a custom VIP shortcode
+		if ( ! empty( $val ) ) { // something else is overriding post_gallery, like a custom VIP shortcode
 			return $val;
+		}
 
 		global $post;
 
 		$this->set_atts( $atts );
 
 		$attachments = $this->get_attachments();
-		if ( empty( $attachments ) )
+		if ( empty( $attachments ) ) {
 			return '';
+		}
 
 		if ( is_feed() || defined( 'IS_HTML_EMAIL' ) ) {
 			return '';
@@ -139,14 +175,15 @@ class Jetpack_Tiled_Gallery {
 
 			// Generate gallery HTML
 			$gallery_class = 'Jetpack_Tiled_Gallery_Layout_' . ucfirst( $this->atts['type'] );
-			$gallery = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'], (int) $this->atts['columns'] );
-			$gallery_html = $gallery->HTML();
+			$gallery       = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'], (int) $this->atts['columns'] );
+			$gallery_html  = $gallery->HTML();
 
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Photon' ) ) {
 				// Tiled Galleries in Jetpack require that Photon be active.
 				// If it's not active, run it just on the gallery output.
-				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() )
+				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() ) {
 					$gallery_html = Jetpack_Photon::filter_the_content( $gallery_html );
+				}
 			}
 
 			return trim( preg_replace( '/\s+/', ' ', $gallery_html ) ); // remove any new lines from the output so that the reader parses it better
@@ -158,7 +195,7 @@ class Jetpack_Tiled_Gallery {
 	public static function gallery_already_redefined() {
 		global $shortcode_tags;
 		$redefined = false;
-		if ( ! isset( $shortcode_tags[ 'gallery' ] ) || $shortcode_tags[ 'gallery' ] !== 'gallery_shortcode' ) {
+		if ( ! isset( $shortcode_tags['gallery'] ) || $shortcode_tags['gallery'] !== 'gallery_shortcode' ) {
 			$redefined = true;
 		}
 		/**
@@ -176,18 +213,20 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public static function init() {
-		if ( self::gallery_already_redefined() )
+		if ( self::gallery_already_redefined() ) {
 			return;
+		}
 
-		$gallery = new Jetpack_Tiled_Gallery;
+		$gallery = new Jetpack_Tiled_Gallery();
 		add_filter( 'post_gallery', array( $gallery, 'gallery_shortcode' ), 1001, 2 );
 	}
 
 	public static function get_content_width() {
 		$tiled_gallery_content_width = Jetpack::get_content_width();
 
-		if ( ! $tiled_gallery_content_width )
+		if ( ! $tiled_gallery_content_width ) {
 			$tiled_gallery_content_width = 500;
+		}
 
 		/**
 		 * Filter overwriting the default content width.
@@ -213,9 +252,9 @@ class Jetpack_Tiled_Gallery {
 		}
 
 		$types['rectangular'] = __( 'Tiled Mosaic', 'jetpack' );
-		$types['square'] = __( 'Square Tiles', 'jetpack' );
-		$types['circle'] = __( 'Circles', 'jetpack' );
-		$types['columns'] = __( 'Tiled Columns', 'jetpack' );
+		$types['square']      = __( 'Square Tiles', 'jetpack' );
+		$types['circle']      = __( 'Circles', 'jetpack' );
+		$types['columns']     = __( 'Tiled Columns', 'jetpack' );
 
 		return $types;
 	}
@@ -236,10 +275,11 @@ class Jetpack_Tiled_Gallery {
 		global $wp_settings_sections;
 
 		// Add the setting field [tiled_galleries] and place it in Settings > Media
-		if ( isset( $wp_settings_sections['media']['carousel_section'] ) )
+		if ( isset( $wp_settings_sections['media']['carousel_section'] ) ) {
 			$section = 'carousel_section';
-		else
+		} else {
 			$section = 'default';
+		}
 
 		add_settings_field( 'tiled_galleries', __( 'Tiled Galleries', 'jetpack' ), array( $this, 'setting_html' ), 'media', $section );
 		register_setting( 'media', 'tiled_galleries', 'esc_attr' );

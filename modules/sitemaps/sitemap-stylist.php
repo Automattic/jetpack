@@ -105,61 +105,61 @@ class Jetpack_Sitemap_Stylist {
 		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
-  xmlns:html='http://www.w3.org/TR/REC-html40'
-  xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
-  xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+	xmlns:html='http://www.w3.org/TR/REC-html40'
+	xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
+	xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 <xsl:output method='html' version='1.0' encoding='UTF-8' indent='yes'/>
 <xsl:template match="/">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>$title</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-  <style type='text/css'>
+	<title>$title</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<style type='text/css'>
 $css
-  </style>
+	</style>
 </head>
 <body>
-  <div id='description'>
-    <h1>$title</h1>
-    <p>$description</p>
-    <p>$more_info</p>
-  </div>
-  <div id='content'>
-    <!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
-    <table>
-      <tr>
-        <th>#</th>
-        <th>$header_url</th>
-        <th>$header_lastmod</th>
-      </tr>
-      <xsl:for-each select="sitemap:urlset/sitemap:url">
-        <tr>
-          <xsl:choose>
-            <xsl:when test='position() mod 2 != 1'>
-              <xsl:attribute name="class">odd</xsl:attribute>
-            </xsl:when>
-          </xsl:choose>
-          <td>
-            <xsl:value-of select = "position()" />
-          </td>
-          <td>
-            <xsl:variable name='itemURL'>
-              <xsl:value-of select='sitemap:loc'/>
-            </xsl:variable>
-            <a href='{\$itemURL}'>
-              <xsl:value-of select='sitemap:loc'/>
-            </a>
-          </td>
-          <td>
-            <xsl:value-of select='sitemap:lastmod'/>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-  </div>
-  <div id='footer'>
-    <p>$generated_by</p>
-  </div>
+	<div id='description'>
+		<h1>$title</h1>
+		<p>$description</p>
+		<p>$more_info</p>
+	</div>
+	<div id='content'>
+		<!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
+		<table>
+			<tr>
+				<th>#</th>
+				<th>$header_url</th>
+				<th>$header_lastmod</th>
+			</tr>
+			<xsl:for-each select="sitemap:urlset/sitemap:url">
+				<tr>
+					<xsl:choose>
+						<xsl:when test='position() mod 2 != 1'>
+							<xsl:attribute name="class">odd</xsl:attribute>
+						</xsl:when>
+					</xsl:choose>
+					<td>
+						<xsl:value-of select = "position()" />
+					</td>
+					<td>
+						<xsl:variable name='itemURL'>
+							<xsl:value-of select='sitemap:loc'/>
+						</xsl:variable>
+						<a href='{\$itemURL}'>
+							<xsl:value-of select='sitemap:loc'/>
+						</a>
+					</td>
+					<td>
+						<xsl:value-of select='sitemap:lastmod'/>
+					</td>
+				</tr>
+			</xsl:for-each>
+		</table>
+	</div>
+	<div id='footer'>
+		<p>$generated_by</p>
+	</div>
 </body>
 </html>
 </xsl:template>
@@ -192,6 +192,14 @@ XSL;
 			)
 		);
 
+		if ( current_user_can( 'manage_options' ) ) {
+			$next = human_time_diff( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+			/* translators: %s is a human_time_diff until next sitemap generation. */
+			$no_nodes_warning = sprintf( __( 'No sitemap found. The system will try to build it again in %s.', 'jetpack' ), $next );
+		} else {
+			$no_nodes_warning = '';
+		}
+
 		$more_info = self::sanitize_with_links(
 			__(
 				'You can find more information on XML sitemaps at <a href="%1$s" rel="noopener noreferrer" target="_blank">sitemaps.org</a>',
@@ -217,60 +225,65 @@ XSL;
 		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
-  xmlns:html='http://www.w3.org/TR/REC-html40'
-  xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
-  xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+	xmlns:html='http://www.w3.org/TR/REC-html40'
+	xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
+	xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 <xsl:output method='html' version='1.0' encoding='UTF-8' indent='yes'/>
 <xsl:template match="/">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>$title</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-  <style type='text/css'>
+	<title>$title</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<style type='text/css'>
 $css
-  </style>
+	</style>
 </head>
 <body>
-  <div id='description'>
-    <h1>$title</h1>
-    <p>$description</p>
-    <p>$more_info</p>
-  </div>
-  <div id='content'>
-    <table>
-      <tr>
-        <th>#</th>
-        <th>$header_url</th>
-        <th>$header_lastmod</th>
-      </tr>
-      <xsl:for-each select='sitemap:sitemapindex/sitemap:sitemap'>
-        <tr>
-          <xsl:choose>
-            <xsl:when test='position() mod 2 != 1'>
-              <xsl:attribute name="class">odd</xsl:attribute>
-            </xsl:when>
-          </xsl:choose>
-          <td>
-            <xsl:value-of select = "position()" />
-          </td>
-          <td>
-            <xsl:variable name='itemURL'>
-              <xsl:value-of select='sitemap:loc'/>
-            </xsl:variable>
-            <a href='{\$itemURL}'>
-	            <xsl:value-of select='sitemap:loc'/>
-  	        </a>
-          </td>
-          <td>
-            <xsl:value-of select='sitemap:lastmod'/>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-  </div>
-  <div id='footer'>
-    <p>$generated_by</p>
-  </div>
+	<div id='description'>
+		<h1>$title</h1>
+		<xsl:choose>
+			<xsl:when test='not(sitemap:sitemapindex/sitemap:sitemap)'>
+				<p><strong>$no_nodes_warning</strong></p>
+			</xsl:when>
+		</xsl:choose>
+		<p>$description</p>
+		<p>$more_info</p>
+	</div>
+	<div id='content'>
+		<table>
+			<tr>
+				<th>#</th>
+				<th>$header_url</th>
+				<th>$header_lastmod</th>
+			</tr>
+			<xsl:for-each select='sitemap:sitemapindex/sitemap:sitemap'>
+				<tr>
+					<xsl:choose>
+						<xsl:when test='position() mod 2 != 1'>
+							<xsl:attribute name="class">odd</xsl:attribute>
+						</xsl:when>
+					</xsl:choose>
+					<td>
+						<xsl:value-of select = "position()" />
+					</td>
+					<td>
+						<xsl:variable name='itemURL'>
+							<xsl:value-of select='sitemap:loc'/>
+						</xsl:variable>
+						<a href='{\$itemURL}'>
+							<xsl:value-of select='sitemap:loc'/>
+						</a>
+					</td>
+					<td>
+						<xsl:value-of select='sitemap:lastmod'/>
+					</td>
+				</tr>
+			</xsl:for-each>
+		</table>
+	</div>
+	<div id='footer'>
+		<p>$generated_by</p>
+	</div>
 </body>
 </html>
 </xsl:template>
@@ -332,85 +345,85 @@ XSL;
 		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
-  xmlns:html='http://www.w3.org/TR/REC-html40'
-  xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
-  xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'
-  xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+	xmlns:html='http://www.w3.org/TR/REC-html40'
+	xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
+	xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'
+	xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 <xsl:output method='html' version='1.0' encoding='UTF-8' indent='yes'/>
 <xsl:template match="/">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>$title</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-  <style type='text/css'>
+	<title>$title</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<style type='text/css'>
 $css
-  </style>
+	</style>
 </head>
 <body>
-  <div id='description'>
-    <h1>$title</h1>
-    <p>$description</p>
-    <p>$more_info</p>
-  </div>
-  <div id='content'>
-    <!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
-    <table>
-      <tr>
-        <th>#</th>
-        <th>$header_url</th>
-        <th>$header_image_url</th>
-        <th>$header_title</th>
-        <th>$header_caption</th>
-        <th>$header_lastmod</th>
+	<div id='description'>
+		<h1>$title</h1>
+		<p>$description</p>
+		<p>$more_info</p>
+	</div>
+	<div id='content'>
+		<!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
+		<table>
+			<tr>
+				<th>#</th>
+				<th>$header_url</th>
+				<th>$header_image_url</th>
+				<th>$header_title</th>
+				<th>$header_caption</th>
+				<th>$header_lastmod</th>
 				<th>$header_thumbnail</th>
-      </tr>
-      <xsl:for-each select="sitemap:urlset/sitemap:url">
-        <tr>
-          <xsl:choose>
-            <xsl:when test='position() mod 2 != 1'>
-              <xsl:attribute name="class">odd</xsl:attribute>
-            </xsl:when>
-          </xsl:choose>
-          <td>
-            <xsl:value-of select = "position()" />
-          </td>
-          <td>
-            <xsl:variable name='pageURL'>
-              <xsl:value-of select='sitemap:loc'/>
-            </xsl:variable>
-            <a href='{\$pageURL}'>
-              <xsl:value-of select='sitemap:loc'/>
-            </a>
-          </td>
-          <xsl:variable name='itemURL'>
-            <xsl:value-of select='image:image/image:loc'/>
-          </xsl:variable>
-          <td>
-            <a href='{\$itemURL}'>
-              <xsl:value-of select='image:image/image:loc'/>
-            </a>
-          </td>
-          <td>
-            <xsl:value-of select='image:image/image:title'/>
-          </td>
-          <td>
-            <xsl:value-of select='image:image/image:caption'/>
-          </td>
-          <td>
-            <xsl:value-of select='sitemap:lastmod'/>
-          </td>
-          <td>
-            <a href='{\$itemURL}'>
-              <img class='thumbnail' src='{\$itemURL}'/>
-            </a>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-  </div>
-  <div id='footer'>
-    <p>$generated_by</p>
-  </div>
+			</tr>
+			<xsl:for-each select="sitemap:urlset/sitemap:url">
+				<tr>
+					<xsl:choose>
+						<xsl:when test='position() mod 2 != 1'>
+							<xsl:attribute name="class">odd</xsl:attribute>
+						</xsl:when>
+					</xsl:choose>
+					<td>
+						<xsl:value-of select = "position()" />
+					</td>
+					<td>
+						<xsl:variable name='pageURL'>
+							<xsl:value-of select='sitemap:loc'/>
+						</xsl:variable>
+						<a href='{\$pageURL}'>
+							<xsl:value-of select='sitemap:loc'/>
+						</a>
+					</td>
+					<xsl:variable name='itemURL'>
+						<xsl:value-of select='image:image/image:loc'/>
+					</xsl:variable>
+					<td>
+						<a href='{\$itemURL}'>
+							<xsl:value-of select='image:image/image:loc'/>
+						</a>
+					</td>
+					<td>
+						<xsl:value-of select='image:image/image:title'/>
+					</td>
+					<td>
+						<xsl:value-of select='image:image/image:caption'/>
+					</td>
+					<td>
+						<xsl:value-of select='sitemap:lastmod'/>
+					</td>
+					<td>
+						<a href='{\$itemURL}'>
+							<img class='thumbnail' src='{\$itemURL}'/>
+						</a>
+					</td>
+				</tr>
+			</xsl:for-each>
+		</table>
+	</div>
+	<div id='footer'>
+		<p>$generated_by</p>
+	</div>
 </body>
 </html>
 </xsl:template>
@@ -472,88 +485,88 @@ XSL;
 		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
-  xmlns:html='http://www.w3.org/TR/REC-html40'
-  xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
-  xmlns:video='http://www.google.com/schemas/sitemap-video/1.1'
-  xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+	xmlns:html='http://www.w3.org/TR/REC-html40'
+	xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
+	xmlns:video='http://www.google.com/schemas/sitemap-video/1.1'
+	xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 <xsl:output method='html' version='1.0' encoding='UTF-8' indent='yes'/>
 <xsl:template match="/">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>$title</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-  <style type='text/css'>
+	<title>$title</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<style type='text/css'>
 $css
-  </style>
+	</style>
 </head>
 <body>
-  <div id='description'>
-    <h1>$title</h1>
-    <p>$description</p>
-    <p>$more_info</p>
-  </div>
-  <div id='content'>
-    <!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
-    <table>
-      <tr>
-        <th>#</th>
-        <th>$header_url</th>
-        <th>$header_image_url</th>
-        <th>$header_title</th>
-        <th>$header_description</th>
-        <th>$header_lastmod</th>
+	<div id='description'>
+		<h1>$title</h1>
+		<p>$description</p>
+		<p>$more_info</p>
+	</div>
+	<div id='content'>
+		<!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
+		<table>
+			<tr>
+				<th>#</th>
+				<th>$header_url</th>
+				<th>$header_image_url</th>
+				<th>$header_title</th>
+				<th>$header_description</th>
+				<th>$header_lastmod</th>
 				<th>$header_thumbnail</th>
-      </tr>
-      <xsl:for-each select="sitemap:urlset/sitemap:url">
-        <tr>
-          <xsl:choose>
-            <xsl:when test='position() mod 2 != 1'>
-              <xsl:attribute name="class">odd</xsl:attribute>
-            </xsl:when>
-          </xsl:choose>
-          <td>
-            <xsl:value-of select = "position()" />
-          </td>
-          <td>
-            <xsl:variable name='pageURL'>
-              <xsl:value-of select='sitemap:loc'/>
-            </xsl:variable>
-            <a href='{\$pageURL}'>
-              <xsl:value-of select='sitemap:loc'/>
-            </a>
-          </td>
-          <xsl:variable name='itemURL'>
-            <xsl:value-of select='video:video/video:content_loc'/>
-          </xsl:variable>
-          <td>
-            <a href='{\$itemURL}'>
-              <xsl:value-of select='video:video/video:content_loc'/>
-            </a>
-          </td>
-          <td>
-            <xsl:value-of select='video:video/video:title'/>
-          </td>
-          <td>
-            <xsl:value-of select='video:video/video:description'/>
-          </td>
-          <td>
-            <xsl:value-of select='sitemap:lastmod'/>
-          </td>
-          <td>
-            <xsl:variable name='thumbURL'>
-              <xsl:value-of select='video:video/video:thumbnail_loc'/>
-            </xsl:variable>
-            <a href='{\$thumbURL}'>
-              <img class='thumbnail' src='{\$thumbURL}'/>
-            </a>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-  </div>
-  <div id='footer'>
-    <p>$generated_by</p>
-  </div>
+			</tr>
+			<xsl:for-each select="sitemap:urlset/sitemap:url">
+				<tr>
+					<xsl:choose>
+						<xsl:when test='position() mod 2 != 1'>
+							<xsl:attribute name="class">odd</xsl:attribute>
+						</xsl:when>
+					</xsl:choose>
+					<td>
+						<xsl:value-of select = "position()" />
+					</td>
+					<td>
+						<xsl:variable name='pageURL'>
+							<xsl:value-of select='sitemap:loc'/>
+						</xsl:variable>
+						<a href='{\$pageURL}'>
+							<xsl:value-of select='sitemap:loc'/>
+						</a>
+					</td>
+					<xsl:variable name='itemURL'>
+						<xsl:value-of select='video:video/video:content_loc'/>
+					</xsl:variable>
+					<td>
+						<a href='{\$itemURL}'>
+							<xsl:value-of select='video:video/video:content_loc'/>
+						</a>
+					</td>
+					<td>
+						<xsl:value-of select='video:video/video:title'/>
+					</td>
+					<td>
+						<xsl:value-of select='video:video/video:description'/>
+					</td>
+					<td>
+						<xsl:value-of select='sitemap:lastmod'/>
+					</td>
+					<td>
+						<xsl:variable name='thumbURL'>
+							<xsl:value-of select='video:video/video:thumbnail_loc'/>
+						</xsl:variable>
+						<a href='{\$thumbURL}'>
+							<img class='thumbnail' src='{\$thumbURL}'/>
+						</a>
+					</td>
+				</tr>
+			</xsl:for-each>
+		</table>
+	</div>
+	<div id='footer'>
+		<p>$generated_by</p>
+	</div>
 </body>
 </html>
 </xsl:template>
@@ -612,68 +625,68 @@ XSL;
 		return <<<XSL
 <?xml version='1.0' encoding='UTF-8'?>
 <xsl:stylesheet version='2.0'
-  xmlns:html='http://www.w3.org/TR/REC-html40'
-  xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
-  xmlns:news='http://www.google.com/schemas/sitemap-news/0.9'
-  xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+	xmlns:html='http://www.w3.org/TR/REC-html40'
+	xmlns:sitemap='http://www.sitemaps.org/schemas/sitemap/0.9'
+	xmlns:news='http://www.google.com/schemas/sitemap-news/0.9'
+	xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 <xsl:output method='html' version='1.0' encoding='UTF-8' indent='yes'/>
 <xsl:template match="/">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>$title</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-  <style type='text/css'>
+	<title>$title</title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<style type='text/css'>
 $css
-  </style>
+	</style>
 </head>
 <body>
-  <div id='description'>
-    <h1>$title</h1>
-    <p>$description</p>
-    <p>$more_info</p>
-  </div>
-  <div id='content'>
-    <!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
-    <table>
-      <tr>
-        <th>#</th>
-        <th>$header_url</th>
-        <th>$header_title</th>
-        <th>$header_pubdate</th>
-      </tr>
-      <xsl:for-each select="sitemap:urlset/sitemap:url">
-        <tr>
-          <xsl:choose>
-            <xsl:when test='position() mod 2 != 1'>
-              <xsl:attribute name="class">odd</xsl:attribute>
-            </xsl:when>
-          </xsl:choose>
-          <td>
-            <xsl:value-of select = "position()" />
-          </td>
-          <xsl:variable name='pageURL'>
-            <xsl:value-of select='sitemap:loc'/>
-          </xsl:variable>
-          <td>
-            <a href='{\$pageURL}'>
-              <xsl:value-of select='sitemap:loc'/>
-            </a>
-          </td>
-          <td>
-            <a href='{\$pageURL}'>
-              <xsl:value-of select='news:news/news:title'/>
-            </a>
-          </td>
-          <td>
-            <xsl:value-of select='news:news/news:publication_date'/>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-  </div>
-  <div id='footer'>
-    <p>$generated_by</p>
-  </div>
+	<div id='description'>
+		<h1>$title</h1>
+		<p>$description</p>
+		<p>$more_info</p>
+	</div>
+	<div id='content'>
+		<!-- <xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> -->
+		<table>
+			<tr>
+				<th>#</th>
+				<th>$header_url</th>
+				<th>$header_title</th>
+				<th>$header_pubdate</th>
+			</tr>
+			<xsl:for-each select="sitemap:urlset/sitemap:url">
+				<tr>
+					<xsl:choose>
+						<xsl:when test='position() mod 2 != 1'>
+							<xsl:attribute name="class">odd</xsl:attribute>
+						</xsl:when>
+					</xsl:choose>
+					<td>
+						<xsl:value-of select = "position()" />
+					</td>
+					<xsl:variable name='pageURL'>
+						<xsl:value-of select='sitemap:loc'/>
+					</xsl:variable>
+					<td>
+						<a href='{\$pageURL}'>
+							<xsl:value-of select='sitemap:loc'/>
+						</a>
+					</td>
+					<td>
+						<a href='{\$pageURL}'>
+							<xsl:value-of select='news:news/news:title'/>
+						</a>
+					</td>
+					<td>
+						<xsl:value-of select='news:news/news:publication_date'/>
+					</td>
+				</tr>
+			</xsl:for-each>
+		</table>
+	</div>
+	<div id='footer'>
+		<p>$generated_by</p>
+	</div>
 </body>
 </html>
 </xsl:template>
@@ -692,78 +705,78 @@ XSL;
 	 */
 	public static function sitemap_xsl_css() {
 		return <<<CSS
-    body {
-      font: 14px 'Open Sans', Helvetica, Arial, sans-serif;
-      margin: 0;
-    }
+		body {
+			font: 14px 'Open Sans', Helvetica, Arial, sans-serif;
+			margin: 0;
+		}
 
-    a {
-      color: #3498db;
-      text-decoration: none;
-    }
+		a {
+			color: #3498db;
+			text-decoration: none;
+		}
 
-    h1 {
-      margin: 0;
-    }
+		h1 {
+			margin: 0;
+		}
 
-    #description {
-      background-color: #81a844;
-      color: #FFF;
-      padding: 30px 30px 20px;
-    }
+		#description {
+			background-color: #81a844;
+			color: #FFF;
+			padding: 30px 30px 20px;
+		}
 
-    #description a {
-      color: #fff;
-    }
+		#description a {
+			color: #fff;
+		}
 
-    #content {
-      padding: 10px 30px 30px;
-      background: #fff;
-    }
+		#content {
+			padding: 10px 30px 30px;
+			background: #fff;
+		}
 
-    a:hover {
-      border-bottom: 1px solid;
-    }
+		a:hover {
+			border-bottom: 1px solid;
+		}
 
-    th, td {
-      font-size: 12px;
-    }
+		th, td {
+			font-size: 12px;
+		}
 
-    th {
-      text-align: left;
-      border-bottom: 1px solid #ccc;
-    }
+		th {
+			text-align: left;
+			border-bottom: 1px solid #ccc;
+		}
 
-    th, td {
-      padding: 10px 15px;
-    }
+		th, td {
+			padding: 10px 15px;
+		}
 
-    .odd {
-      background-color: #E7F1D4;
-    }
+		.odd {
+			background-color: #E7F1D4;
+		}
 
-    #footer {
-      margin: 20px 30px;
-      font-size: 12px;
-      color: #999;
-    }
+		#footer {
+			margin: 20px 30px;
+			font-size: 12px;
+			color: #999;
+		}
 
-    #footer a {
-      color: inherit;
-    }
+		#footer a {
+			color: inherit;
+		}
 
-    #description a, #footer a {
-      border-bottom: 1px solid;
-    }
+		#description a, #footer a {
+			border-bottom: 1px solid;
+		}
 
-    #description a:hover, #footer a:hover {
-      border-bottom: none;
-    }
+		#description a:hover, #footer a:hover {
+			border-bottom: none;
+		}
 
-    img.thumbnail {
-      max-height: 100px;
-      max-width: 100px;
-    }
+		img.thumbnail {
+			max-height: 100px;
+			max-width: 100px;
+		}
 CSS;
 	}
 

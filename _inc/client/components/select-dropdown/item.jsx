@@ -18,18 +18,18 @@ class SelectDropdownItem extends React.Component {
 		path: PropTypes.string,
 		selected: PropTypes.bool,
 		onClick: PropTypes.func,
-		count: PropTypes.number
+		count: PropTypes.number,
 	};
 
 	static defaultProps = {
-		selected: false
+		selected: false,
 	};
 
 	render() {
 		const optionClassName = classNames( this.props.className, {
 			'dops-select-dropdown__item': true,
 			'is-selected': this.props.selected,
-			'is-disabled': this.props.disabled
+			'is-disabled': this.props.disabled,
 		} );
 
 		return (
@@ -42,13 +42,11 @@ class SelectDropdownItem extends React.Component {
 					data-bold-text={ this.props.value || this.props.children }
 					role="option"
 					tabIndex={ 0 }
-					aria-selected={ this.props.selected } >
+					aria-selected={ this.props.selected }
+				>
 					<span className="dops-select-dropdown__item-text">
 						{ this.props.children }
-						{
-							'number' === typeof this.props.count &&
-							<Count count={ this.props.count } />
-						}
+						{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
 					</span>
 				</a>
 			</li>

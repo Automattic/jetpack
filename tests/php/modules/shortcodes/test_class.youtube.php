@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		wp_reset_postdata();
 		$this->assertContains( '<span class="embed-youtube"', $actual );
 		$this->assertContains( "<iframe class='youtube-player'", $actual );
-		$this->assertContains( "http://www.youtube.com/embed/$youtube_id", $actual );
+		$this->assertContains( "https://www.youtube.com/embed/$youtube_id", $actual );
 
 	}
 

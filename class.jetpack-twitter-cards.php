@@ -13,6 +13,13 @@ class Jetpack_Twitter_Cards {
 	static function twitter_cards_tags( $og_tags ) {
 		global $post;
 
+		/**
+		 * Maximum alt text length.
+		 *
+		 * @see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary-card-with-large-image.html
+		 */
+		$alt_length = 420;
+
 		if ( post_password_required() ) {
 			return $og_tags;
 		}
@@ -25,6 +32,15 @@ class Jetpack_Twitter_Cards {
 		/*
 		 * These tags apply to any page (home, archives, etc)
 		 */
+
+		// If we have information on the author/creator, then include that as well
+		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
+			if ( ! empty( $handle ) && ! self::is_default_site_tag( $handle ) ) {
+				$og_tags['twitter:creator'] = self::sanitize_twitter_user( $handle );
+			}
+		}
 
 		$site_tag = self::site_tag();
 		/** This action is documented in modules/sharedaddy/sharing-sources.php */
@@ -75,6 +91,16 @@ class Jetpack_Twitter_Cards {
 				} else {
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $featured[0]['src'] ) );
 				}
+
+				// Add the alt tag if we have one.
+				if ( ! empty( $featured[0]['alt_text'] ) ) {
+					// Shorten it if it is too long.
+					if ( strlen( $featured[0]['alt_text'] ) > $alt_length ) {
+						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $featured[0]['alt_text'], 0, $alt_length ) . '…' );
+					} else {
+						$og_tags['twitter:image:alt'] = esc_attr( $featured[0]['alt_text'] );
+					}
+				}
 			}
 		}
 
@@ -107,15 +133,6 @@ class Jetpack_Twitter_Cards {
 
 		$og_tags['twitter:card'] = $card_type;
 
-		// If we have information on the author/creator, then include that as well
-		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
-			/** This action is documented in modules/sharedaddy/sharing-sources.php */
-			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
-			if ( ! empty( $handle ) && 'wordpressdotcom' != $handle && 'jetpack' != $handle ) {
-				$og_tags['twitter:creator'] = self::sanitize_twitter_user( $handle );
-			}
-		}
-
 		// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
 		if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) || __('Visit the post for more.', 'jetpack') == $og_tags['og:description'] ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
 			$has_creator = ( ! empty($og_tags['twitter:creator']) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
@@ -143,9 +160,13 @@ class Jetpack_Twitter_Cards {
 		return '@' . preg_replace( '/^@/', '', $str );
 	}
 
+	static function is_default_site_tag( $site_tag ) {
+		return in_array( $site_tag, array( '@wordpressdotcom', '@jetpack', 'wordpressdotcom', 'jetpack' ) );
+	}
+
 	static function prioritize_creator_over_default_site( $site_tag, $og_tags = array() ) {
-		if ( ! empty( $og_tags['twitter:creator'] ) && in_array( $site_tag, array( '@wordpressdotcom', '@jetpack' ) ) ) {
-			$site_tag = $og_tags['twitter:creator'];
+		if ( ! empty( $og_tags['twitter:creator'] ) && self::is_default_site_tag( $site_tag ) ) {
+			return $og_tags['twitter:creator'];
 		}
 		return $site_tag;
 	}

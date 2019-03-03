@@ -140,7 +140,8 @@ function googleapps_shortcode( $atts ) {
 			'dir'    => 'document',
 			'query'  => '',
 			'src'    => '',
-		), $atts
+		),
+		$atts
 	);
 
 	if ( isset( $content_width ) && is_numeric( $attr['width'] ) && $attr['width'] > $content_width ) {
@@ -174,7 +175,7 @@ function googleapps_shortcode( $atts ) {
 	do_action( 'jetpack_bump_stats_extras', 'embeds', googleapps_service_name( $attr['domain'], $attr['dir'] ) );
 
 	return sprintf(
-		'<iframe src="%s" frameborder="0" width="%s" height="%s" marginheight="0" marginwidth="0"></iframe>',
+		'<iframe src="%s" frameborder="0" width="%s" height="%s" marginheight="0" marginwidth="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>',
 		esc_url( 'https://' . $attr['domain'] . '.google.com/' . $attr['query'] ),
 		esc_attr( $attr['width'] ),
 		esc_attr( $attr['height'] )

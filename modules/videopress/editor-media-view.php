@@ -23,26 +23,30 @@ function videopress_handle_editor_view_js() {
 		false,
 		true
 	);
-	wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
-		'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
-		'min_content_width' => VIDEOPRESS_MIN_WIDTH,
-		'content_width'     => $content_width,
-		'modal_labels'      => array(
-			'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
-			'guid'      => esc_html__( 'Video ID', 'jetpack' ),
-			'w'         => esc_html__( 'Video Width', 'jetpack' ),
-			'w_unit'    => esc_html__( 'pixels', 'jetpack' ),
-			/* Translators: example of usage of this is "Start Video After 10 seconds" */
-			'at'        => esc_html__( 'Start Video After', 'jetpack' ),
-			'at_unit'   => esc_html__( 'seconds', 'jetpack' ),
-			'hd'        => esc_html__( 'High definition on by default', 'jetpack' ),
-			'permalink' => esc_html__( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
-			'autoplay'  => esc_html__( 'Autoplay video on page load', 'jetpack' ),
-			'loop'      => esc_html__( 'Loop video playback', 'jetpack' ),
-			'freedom'   => esc_html__( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
-			'flashonly' => esc_html__( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
+	wp_localize_script(
+		'videopress-editor-view',
+		'vpEditorView',
+		array(
+			'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
+			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
+			'content_width'     => $content_width,
+			'modal_labels'      => array(
+				'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
+				'guid'      => esc_html__( 'Video ID', 'jetpack' ),
+				'w'         => esc_html__( 'Video Width', 'jetpack' ),
+				'w_unit'    => esc_html__( 'pixels', 'jetpack' ),
+				/* Translators: example of usage of this is "Start Video After 10 seconds" */
+				'at'        => esc_html__( 'Start Video After', 'jetpack' ),
+				'at_unit'   => esc_html__( 'seconds', 'jetpack' ),
+				'hd'        => esc_html__( 'High definition on by default', 'jetpack' ),
+				'permalink' => esc_html__( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
+				'autoplay'  => esc_html__( 'Autoplay video on page load', 'jetpack' ),
+				'loop'      => esc_html__( 'Loop video playback', 'jetpack' ),
+				'freedom'   => esc_html__( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
+				'flashonly' => esc_html__( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
+			),
 		)
-	) );
+	);
 
 	add_editor_style( plugins_url( 'css/videopress-editor-style.css', __FILE__ ) );
 }
@@ -77,7 +81,7 @@ function videopress_editor_view_js_templates() {
 /*************************************************\
 | This is the chunk that handles overriding core  |
 | media stuff so VideoPress can display natively. |
-\*************************************************/
+\*/
 
 /**
  * Media Grid:
@@ -161,7 +165,7 @@ function add_videopress_media_overrides() {
  *
  * We have a template for the iframe to get injected.
  */
-function videopress_override_media_templates(){
+function videopress_override_media_templates() {
 	?>
 	<script type="text/html" id="tmpl-videopress_iframe_vnext">
 		<iframe style="display: block; max-width: 100%;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>

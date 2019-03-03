@@ -17,7 +17,11 @@ import util from 'gulp-util';
  */
 import { transformRelativePath } from './transform-relative-paths';
 
-/* Front-end CSS to be concatenated */
+/**
+ * Front-end CSS to be concatenated.
+ *
+ * When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
+ */
 const concat_list = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
@@ -40,11 +44,12 @@ const concat_list = [
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
-	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',
-	'modules/search/css/search-widget-frontend.css'
+	'modules/widgets/search/css/search-widget-frontend.css',
+	'modules/widgets/simple-payments/style.css',
+	'modules/widgets/social-icons/social-icons.css',
 ];
 
 /**
@@ -58,6 +63,7 @@ const separate_list = [
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
+	'modules/theme-tools/compat/twentynineteen.css',
 ];
 
 const pathModifier = function( file, contents ) {
@@ -69,20 +75,11 @@ const pathModifier = function( file, contents ) {
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
+gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe( banner( '/*!\n' +
 			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
@@ -100,20 +97,16 @@ gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
 gulp.task( 'frontendcss:separate', function() {
 	return gulp.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( function( file ) {
 			return path.dirname( file.path );
 		} ) );
 } );
+
+export default gulp.parallel(
+	'frontendcss',
+	'frontendcss:separate'
+);

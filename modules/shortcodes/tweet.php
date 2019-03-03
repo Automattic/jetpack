@@ -31,7 +31,8 @@ class Jetpack_Tweet {
 	 *
 	 * @return string
 	 */
-	static public function jetpack_tweet_shortcode( $atts ) {
+	public static function jetpack_tweet_shortcode( $atts ) {
+		global $wp_embed;
 		$default_atts = array(
 			'tweet'       => '',
 			'align'       => 'none',
@@ -68,7 +69,7 @@ class Jetpack_Tweet {
 		add_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10, 3 );
 
 		// Fetch tweet
-		$output = wp_oembed_get( $id, $atts );
+		$output = $wp_embed->shortcode( $atts, $id );
 
 		// Clean up filter
 		remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
@@ -93,7 +94,7 @@ class Jetpack_Tweet {
 	 *
 	 * @return string
 	 */
-	static public function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) {
+	public static function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) {
 		foreach ( self::$provider_args as $key => $value ) {
 			switch ( $key ) {
 				case 'align':
@@ -135,7 +136,7 @@ class Jetpack_Tweet {
 	 *
 	 * @since 4.5.0
 	 */
-	static public function jetpack_tweet_shortcode_script() {
+	public static function jetpack_tweet_shortcode_script() {
 		if ( ! wp_script_is( 'twitter-widgets', 'registered' ) ) {
 			wp_register_script( 'twitter-widgets', 'https://platform.twitter.com/widgets.js', array(), JETPACK__VERSION, true );
 			wp_print_scripts( 'twitter-widgets' );

@@ -20,20 +20,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Set the admin language, based on user language.
  *
  * @since 4.5.0
+ * @deprecated 6.6.0 Use Core function instead.
  *
  * @return string
- *
- * @todo Remove this function when WordPress 4.8 is released
- * and replace `jetpack_get_user_locale()` in this file with `get_user_locale()`.
  */
 function jetpack_get_user_locale() {
-	$locale = get_locale();
-
-	if ( function_exists( 'get_user_locale' ) ) {
-		$locale = get_user_locale();
-	}
-
-	return $locale;
+	_deprecated_function( __FUNCTION__, 'jetpack-6.6.0', 'get_user_locale' );
+	return get_user_locale();
 }
 
 /**
@@ -118,7 +111,7 @@ function jetpack_get_migration_data( $option_name ) {
  */
 function jetpack_render_tos_blurb() {
 	printf(
-		__( 'By connecting your site you agree to our <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
+		__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com.', 'jetpack' ),
 		'https://wordpress.com/tos',
 		'https://jetpack.com/support/what-data-does-jetpack-sync'
 	);

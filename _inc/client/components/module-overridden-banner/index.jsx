@@ -14,7 +14,6 @@ import JetpackBanner from 'components/jetpack-banner';
 require( './style.scss' );
 
 class ModuleOverridenBanner extends JetpackBanner {
-
 	static propTypes = {
 		moduleName: PropTypes.string.isRequired,
 	};
@@ -28,7 +27,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 
 		const translationArgs = {
 			args: {
-				moduleName: this.props.moduleName
+				moduleName: this.props.moduleName,
 			},
 			components: {
 				link: (
@@ -37,8 +36,8 @@ class ModuleOverridenBanner extends JetpackBanner {
 						target="_blank"
 						rel="noopener noreferrer"
 					/>
-				)
-			}
+				),
+			},
 		};
 
 		const classes = classNames( 'module-overridden-banner', {
@@ -57,7 +56,6 @@ class ModuleOverridenBanner extends JetpackBanner {
 			/>
 		);
 	}
-
 }
 
 export default ModuleOverridenBanner;

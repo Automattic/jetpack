@@ -25,11 +25,14 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	MOCK_SWITCH_USER_PERMISSIONS
+	MOCK_SWITCH_USER_PERMISSIONS,
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
-export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
+export const status = (
+	state = { siteConnected: window.Initial_State.connectionStatus },
+	action
+) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -73,7 +76,7 @@ export const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
-	fetchingUserData: false
+	fetchingUserData: false,
 };
 
 export const requests = ( state = connectionRequests, action ) => {
@@ -112,7 +115,7 @@ export const reducer = combineReducers( {
 	connectUrl,
 	status,
 	user,
-	requests
+	requests,
 } );
 
 /**
@@ -138,8 +141,10 @@ export function getSiteConnectionStatus( state ) {
  * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
  */
 export function isSiteConnected( state ) {
-	if ( ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) ||
-		true === state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+	if (
+		'object' !== typeof state.jetpack.connection.status.siteConnected ||
+		true === state.jetpack.connection.status.siteConnected.devMode.isActive
+	) {
 		return false;
 	}
 	return state.jetpack.connection.status.siteConnected.isActive;
@@ -256,10 +261,7 @@ export function isInIdentityCrisis( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return includes( getModulesThatRequireConnection( state ).concat( [
-		'backups',
-		'scan'
-	] ), slug );
+	return includes( getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ), slug );
 }
 
 /**
@@ -271,4 +273,14 @@ export function requiresConnection( state, slug ) {
  */
 export function isUnavailableInDevMode( state, module ) {
 	return isDevMode( state ) && requiresConnection( state, module );
+}
+
+/**
+ * Checks if the JETPACK__SANDBOX_DOMAIN is set
+ *
+ * @param  {Object} state Global state tree
+ * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
+ */
+export function getSandboxDomain( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
 }

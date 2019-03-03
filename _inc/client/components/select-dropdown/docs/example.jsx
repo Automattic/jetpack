@@ -25,7 +25,7 @@ const SelectDropdownDemo = createReactClass( {
 		return {
 			childSelected: 'Published',
 			selectedCount: 10,
-			compactButtons: false
+			compactButtons: false,
 		};
 	},
 
@@ -37,8 +37,8 @@ const SelectDropdownDemo = createReactClass( {
 				{ value: 'scheduled', label: 'Scheduled' },
 				{ value: 'drafts', label: 'Drafts' },
 				null,
-				{ value: 'trashed', label: 'Trashed' }
-			]
+				{ value: 'trashed', label: 'Trashed' },
+			],
 		};
 	},
 
@@ -60,14 +60,17 @@ const SelectDropdownDemo = createReactClass( {
 			<div className="design-assets__group">
 				<h2>
 					<a href="/devdocs/design/select-dropdown">Select Dropdown</a>
-					<a className="design-assets__toggle button" onClick={ this.toggleButtons }>{ toggleButtonsText }</a>
+					<a className="design-assets__toggle button" onClick={ this.toggleButtons }>
+						{ toggleButtonsText }
+					</a>
 				</h2>
 
 				<h3>Items passed as options prop</h3>
 				<SelectDropdown
 					compact={ this.state.compactButtons }
 					options={ this.props.options }
-					onSelect={ this.onDropdownSelect } />
+					onSelect={ this.onDropdownSelect }
+				/>
 
 				<h3 style={ { marginTop: 20 } }>Items passed as children</h3>
 				<SelectDropdown
@@ -76,8 +79,9 @@ const SelectDropdownDemo = createReactClass( {
 					selectedText={ this.state.childSelected }
 					selectedCount={ this.state.selectedCount }
 				>
-
-					<DropdownLabel><strong>Statuses</strong></DropdownLabel>
+					<DropdownLabel>
+						<strong>Statuses</strong>
+					</DropdownLabel>
 
 					<DropdownItem
 						count={ 10 }
@@ -119,11 +123,11 @@ const SelectDropdownDemo = createReactClass( {
 	selectItem: function( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
-			selectedCount: count
+			selectedCount: count,
 		} );
 	},
 
-	onDropdownSelect: function() {}
+	onDropdownSelect: function() {},
 } );
 
 module.exports = SelectDropdownDemo;

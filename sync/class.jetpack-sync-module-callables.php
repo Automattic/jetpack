@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
-		add_action( 'admin_init', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
+		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
 
 		// For some options, we should always send the change right away!
 		$always_send_updates_to_these_options = array(
@@ -30,9 +30,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			'home',
 			'siteurl',
 			'jetpack_sync_error_idc',
+			'paused_plugins',
+			'paused_themes',
 		);
-		foreach( $always_send_updates_to_these_options as $option ) {
+		foreach ( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
+			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
 		// Provide a hook so that hosts can send changes to certain callables right away.
@@ -61,7 +64,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
-		foreach( $url_callables as $callable ) {
+		foreach ( $url_callables as $callable ) {
 			delete_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
 		}
 	}
@@ -125,16 +128,18 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function set_plugin_action_links() {
 		if (
 			! class_exists( 'DOMDocument' ) ||
-			! function_exists ( 'libxml_use_internal_errors' ) ||
-			! function_exists ( 'mb_convert_encoding' )
+			! function_exists( 'libxml_use_internal_errors' ) ||
+			! function_exists( 'mb_convert_encoding' )
 		) {
 			return;
 		}
 
+		$current_screeen = get_current_screen();
+
 		$plugins_action_links = array();
 		// Is the transient lock in place?
 		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
-		if ( ! empty( $plugins_lock ) ) {
+		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
 		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
@@ -144,19 +149,19 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			 */
 			$action_links = array(
 				'deactivate' => '',
-				'activate' => '',
-				'details' => '',
-				'delete' => '',
-				'edit' => ''
+				'activate'   => '',
+				'details'    => '',
+				'delete'     => '',
+				'edit'       => '',
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
-			$action_links = array_filter( $action_links );
+			$action_links           = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$action_links           = array_filter( $action_links );
 			$formatted_action_links = null;
 			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
-				$dom_doc = new DOMDocument;
+				$dom_doc = new DOMDocument();
 				foreach ( $action_links as $action_link ) {
 					// The @ is not enough to suppress errors when dealing with libxml,
 					// we have to tell it directly how we want to handle errors.
@@ -250,7 +255,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function expand_callables( $args ) {
 		if ( $args[0] ) {
-			$callables = $this->get_all_callables();
+			$callables           = $this->get_all_callables();
 			$callables_checksums = array();
 			foreach ( $callables as $name => $value ) {
 				$callables_checksums[ $name ] = $this->get_check_sum( $value );

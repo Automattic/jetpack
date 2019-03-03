@@ -17,29 +17,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
 
-	function test_upgrading_sends_options_constants_and_callables() {
-		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-
-		global $wpdb;
-
-		$current_user = wp_get_current_user();
-
-		$expected_sync_config = array( 
-			'options' => true,
-			'functions' => true, 
-			'constants' => true, 
-			'users' => array( $current_user->ID )
-		);
-
-		if ( is_multisite() ) {
-			$expected_sync_config['network_options'] = true;
-		}
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		
-		$this->assertEquals( $sync_status['config'], $expected_sync_config );
-	}
-
 	function test_schedules_incremental_sync_cron() {
 		// we need to run this again because cron is cleared between tests
 		Jetpack_Sync_Actions::init_sync_cron_jobs();

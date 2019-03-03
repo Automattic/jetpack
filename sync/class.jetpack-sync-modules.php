@@ -90,7 +90,7 @@ class Jetpack_Sync_Modules {
 	}
 
 	static function load_module( $module_name ) {
-		return new $module_name;
+		return new $module_name();
 	}
 
 	static function set_module_defaults( $module ) {

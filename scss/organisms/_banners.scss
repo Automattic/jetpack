@@ -41,7 +41,6 @@
 // Full Page Connection Banner
 // only show when Jetpack is disconnected
 .jetpack-disconnected {
-
 	.jp-connect-full__container {
 		box-sizing: border-box;
 		position: absolute;
@@ -49,7 +48,7 @@
 			right: 0;
 			bottom: rem( 20px );
 			left: 0;
-		z-index: 9999; // to sit over other elements
+		z-index: 999; // to sit over other elements
 		background: rgb( 241, 241, 241 );
 		text-align: center;
 
@@ -79,6 +78,36 @@
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
 
+	}
+
+	// Full page connection banner in the Jetpack dashboard.
+	&.toplevel_page_jetpack .jp-connect-full__container {
+		position: relative;
+		bottom: 0;
+		box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
+			0 1px 2px lighten( $gray, 30% );
+
+		.jp-connect-full__container-card {
+			margin: 0;
+		}
+
+		@include minbreakpoint(tablet) {
+			left: 0;
+		};
+
+		@include breakpoint(tablet) {
+			top: 46px;
+		};
+
+		// hide the notice by default. Only display it when it is injected in the middle of the page.
+		display: none;
+	}
+
+	// Only display the banner when it is injected in the middle of the page.
+	&.toplevel_page_jetpack .jp-jetpack-connect__container {
+		.jp-connect-full__container {
+			display: block;
+		}
 	}
 }
 
@@ -134,7 +163,7 @@
 	margin: 0;
 	.dops-button.is-primary {
 		background: $green-primary;
-		border-color: $green-secondary;		
+		border-color: $green-secondary;
 
 		&:hover, &:focus {
 			background: $green-secondary;
@@ -168,15 +197,31 @@
 	flex-direction: row;
 	justify-content: stretch;
 
+	@include breakpoint(tablet) {
+		flex-wrap: wrap;
+	};
+
 	.jp-connect-full__slide-card {
 		flex: 1;
 		text-align: left;
+		order: 2;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
 	}
 
 	.illustration {
+		order: 1;
+
+		@include minbreakpoint(tablet) {
+			order: unset;
+		};
+
 		img {
 			margin: 2.5em 1em;
 			display: block;
+			min-width: 200px;
 
 			@include minbreakpoint(phablet) {
 				margin: 2.5em auto;
@@ -207,7 +252,7 @@
 }
 
 
-// Plugin List Connection Banners
+// Plugin List + wp-admin dashboard Connection Banners (displayed after plugin activation)
 // Written in the style of React to stay consistent with the Jetpack interior
 
 // wp-admin overrides
@@ -228,13 +273,40 @@
 .updated .notice-dismiss {
 	z-index: 1;
 	text-decoration: none;
+	&:before {
+		color: $white;
+	}
 }
 // end overrides
+
+.jp-wpcom-connect__container-top-text {
+	padding: 15px 15px 25px 15px;
+	background-color: $green-primary;
+	color: $white;
+	font-weight: 600;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		margin-right: 10px;
+		position: relative;
+		top: 7px;
+
+		path {
+			fill: #fff;
+		}
+	}
+
+	span {
+		display: inline-block;
+	}
+}
 
 .jp-wpcom-connect__container {
 	display: block;
 	position: relative;
 	box-sizing: border-box;
+	background-color: $green-primary;
 }
 
 .jp-wpcom-connect__inner-container > a:first-child {
@@ -246,6 +318,8 @@
 	flex-direction: row;
 	flex-wrap: nowrap;
 	justify-content: left;
+	// border: 4px $green-primary solid;
+	background: #fff;
 }
 
 .jp-wpcom-connect__content-container {
@@ -270,6 +344,8 @@
 	line-height: 1.6;
 }
 
+
+
 .jp-wpcom-connect__content-icon {
 	float: right;
 	margin: 0 rem( 24px ) 0 rem( 36px );
@@ -291,6 +367,16 @@
 	&.jp__slide-is-active {
 		display: block;
 	}
+}
+
+.jp-wpcom-connect__slide ul {
+	list-style: disc;
+	padding: 0 0 0 rem( 15px );
+}
+
+.jp-wpcom-connect__slide ul li {
+	color: darken( $gray, 20% );
+	font-size: rem( 12px );
 }
 
 .jp-wpcom-connect__content-container .jp-banner__button-container {
@@ -343,7 +429,7 @@
 		flex-direction: row;
 		align-items: center;
 		border: none;
-		padding: rem( 8px );
+		padding: rem( 12px ) rem( 8px );
 		border-bottom: 1px solid #c8d7e1;
 		border-right: 1px solid #c8d7e1;
 		border-left: 3px solid #F3F6F8;
@@ -360,13 +446,13 @@
 	}
 
 	.vertical-menu__feature-item-is-selected {
-		border-left: 3px solid #0087be;
+		border-left: 3px solid #F3F6F8;
 		border-right: 1px solid #fff;
 		background-color: #fff;
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid $green-primary;
+			border-left: 3px solid #F3F6F8;
 		}
 	}
 

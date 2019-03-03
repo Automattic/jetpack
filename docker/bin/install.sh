@@ -22,6 +22,11 @@ wp --allow-root core install \
 # https://wordpress.org/plugins/query-monitor/
 wp --allow-root plugin install query-monitor --activate
 
+# Install Gutenberg and Gutenberg debugger
+# https://wordpress.org/plugins/gutenberg/
+# https://wordpress.org/plugins/g-debugger/
+wp --allow-root plugin install g-debugger gutenberg
+
 # Activate Jetpack
 wp --allow-root plugin activate jetpack
 

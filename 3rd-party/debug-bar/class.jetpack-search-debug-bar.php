@@ -26,6 +26,8 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 		$this->title( esc_html__( 'Jetpack Search', 'jetpack' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'enqueue_embed_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -46,6 +48,11 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function enqueue_scripts() {
+		// Do not enqueue scripts if we haven't already enqueued Debug Bar or Query Monitor styles.
+		if ( ! wp_style_is( 'debug-bar' ) && ! wp_style_is( 'query-monitor' ) ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'jetpack-search-debug-bar',
 			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE )
@@ -145,7 +152,19 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	public function render_json_toggle( $value ) {
 	?>
 		<div class="json-toggle-wrap">
-			<pre class="json"><?php echo wp_json_encode( $value ); ?></pre>
+			<pre class="json"><?php
+				// esc_html() will not double-encode entities (&amp; -> &amp;amp;).
+				// If any entities are part of the JSON blob, we want to re-encoode them
+				// (double-encode them) so that they are displayed correctly in the debug
+				// bar.
+				// Use _wp_specialchars() "manually" to ensure entities are encoded correctly.
+				echo _wp_specialchars(
+					wp_json_encode( $value ),
+					ENT_NOQUOTES, // Don't need to encode quotes (output is for a text node).
+					'UTF-8',      // wp_json_encode() outputs UTF-8 (really just ASCII), not the blog's charset.
+					true          // Do "double-encode" existing HTML entities
+				);
+			?></pre>
 			<span class="pretty toggle"><?php echo esc_html_x( 'Pretty', 'label for formatting JSON', 'jetpack' ); ?></span>
 			<span class="ugly toggle"><?php echo esc_html_x( 'Minify', 'label for formatting JSON', 'jetpack' ); ?></span>
 		</div>

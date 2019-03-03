@@ -746,8 +746,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'bing':
 				case 'pinterest':
 				case 'yandex':
-					$grouped_options          = $grouped_options_current = (array) get_option( 'verification_services_codes' );
-					$grouped_options[$option] = $value;
+					$grouped_options = $grouped_options_current = (array) get_option( 'verification_services_codes' );
+
+					// Extracts the content attribute from the HTML meta tag if needed
+					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
+						$grouped_options[ $option ] = $matches[1];
+					} else {
+						$grouped_options[ $option ] = $value;
+					}
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;

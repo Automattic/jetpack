@@ -644,6 +644,18 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 
+		if ( current_user_can( 'manage_options' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'activity',
+				'title'  => esc_html__( 'Activity', 'jetpack' ),
+				'href'   => 'https://wordpress.com/activity-log/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
+		}
+
 		// Add Calypso plans link and plan type indicator
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
@@ -1018,7 +1030,7 @@ class A8C_WPCOM_Masterbar {
 			/**
 			 * Fires when menu items are added to the masterbar "My Sites" menu.
 			 *
-			 * @since 5.4
+			 * @since 5.4.0
 			 */
 			do_action( 'jetpack_masterbar' );
 		}

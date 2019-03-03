@@ -956,6 +956,35 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 
 //	BACKUPS
 
+// GET /sites/%s/database-object/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-database-object-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a database object, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/database-object/backup',
+	'stat'           => 'database-objects:1:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'query_parameters' => array(
+		'object_type' => '(string) Type of object to fetch from the database',
+		'object_id'   => '(int) ID of the database object to fetch',
+	),
+	'response_format' => array(
+		'object'   => '(array) Database object row',
+		'meta'     => '(array) Associative array of key/value metadata associated with the row',
+		'children' => '(array) Where appropriate, child records associated with the object. eg: Woocommerce tax rate locations',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/database-object/backup'
+) );
+
 // GET /sites/%s/comments/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
@@ -1163,4 +1192,41 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
     }',
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create'
 
+) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-jps-woocommerce-connect-endpoint.php' );
+
+// POST /sites/%s/jps/woo-connect
+new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
+	'description'    => 'Attempts to connect the WooCommerce plugin for this site to WooCommerce.com.',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/jps/woo-connect',
+	'stat'           => 'jps:woo-connect',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format'  => array(
+		'access_token'        => '(string) The access token for WooCommerce to connect to WooCommerce.com',
+		'access_token_secret' => '(string) The access token secret for WooCommerce to connect to WooCommerce.com',
+		'user_id'             => '(int) The user\'s ID after registering for a host plan',
+		'site_id'             => '(int) The site\'s ID after registering for a host plan',
+	),
+	'response_format' => array(
+		'success' => '(bool) Setting access token and access token secret successful?',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+		'body' => array(
+			'access_token'        => '123456789',
+			'access_token_secret' => 'abcdefghiklmnop',
+			'user_id'             => 1,
+			'site_id'             => 2,
+		),
+	),
+	'example_response' => '{ "success": true }',
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jps/woo-connect'
 ) );

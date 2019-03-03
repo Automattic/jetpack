@@ -93,3 +93,13 @@ function jetpack_woocommerce_infinite_scroll_style() {
 	}";
 	wp_add_inline_style( 'woocommerce-layout', $custom_css );
 }
+
+function jetpack_woocommerce_lazy_images_compat() {
+	wp_add_inline_script( 'wc-cart-fragments', "
+		jQuery( 'body' ).bind( 'wc_fragments_refreshed', function() {
+			jQuery( 'body' ).trigger( 'jetpack-lazy-images-load' );
+		} );
+	" );
+}
+
+add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_lazy_images_compat', 11 );

@@ -21,8 +21,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function __construct() {
 			$widget_ops = array(
-				'classname' => 'widget_contact_info',
-				'description' => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
+				'classname'                   => 'widget_contact_info',
+				'description'                 => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			);
 			parent::__construct(
@@ -63,7 +63,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
-				'lon'     => null
+				'lon'     => null,
 			);
 		}
 
@@ -114,14 +114,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$map_link = $this->build_map_link( $instance['address'] );
 
-				echo '<div class="confit-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
+				echo '<div class="confit-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", '<br/>', esc_html( $instance['address'] ) ) . '</a></div>';
 			}
 
 			if ( '' != $instance['phone'] ) {
 				if ( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></span></div>";
-				}
-				else {
+					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . '</a></span></div>';
+				} else {
 					echo '<div class="confit-phone"><span itemprop="telephone">' . esc_html( $instance['phone'] ) . '</span></div>';
 				}
 			}
@@ -134,7 +133,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if ( '' != $instance['hours'] ) {
-				echo '<div class="confit-hours" itemprop="openingHours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
+				echo '<div class="confit-hours" itemprop="openingHours">' . str_replace( "\n", '<br/>', esc_html( $instance['hours'] ) ) . '</div>';
 			}
 
 			echo '</div>';
@@ -191,30 +190,29 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
-				$path    = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
+				$path    = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=' . $address;
 				/** This action is documented in modules/widgets/contact-info.php */
 				$key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
 
 				if ( ! empty( $key ) ) {
 					$path = add_query_arg( 'key', $key, $path );
 				}
-				$json    = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
+				$json = wp_remote_retrieve_body( wp_remote_get( esc_url( $path, null, null ) ) );
 
 				if ( ! $json ) {
 					// The read failed :(
-					esc_html_e( "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.", 'jetpack' );
+					esc_html_e( 'There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.', 'jetpack' );
 					die();
 				}
 
 				$json_obj = json_decode( $json );
 
-				if ( "ZERO_RESULTS" == $json_obj->status ) {
+				if ( 'ZERO_RESULTS' == $json_obj->status ) {
 					// The address supplied does not have a matching lat / lon.
 					// No map is available.
-					$instance['lat'] = "0";
-					$instance['lon'] = "0";
-				}
-				else {
+					$instance['lat'] = '0';
+					$instance['lon'] = '0';
+				} else {
 
 					$loc = $json_obj->results[0]->geometry->location;
 
@@ -228,8 +226,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;
-			}
-			else {
+			} else {
 				$instance['showmap'] = intval( $new_instance['showmap'] );
 			}
 
@@ -271,8 +268,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					<input class="jp-contact-info-showmap" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
 					<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 					<?php
-				}
-				else {
+				} else {
 					?>
 					<span class="error-message"><?php _e( 'Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?', 'jetpack' ); ?></span>
 					<input id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="<?php echo( intval( $instance['showmap'] ) ); ?>" type="hidden" />
@@ -318,7 +314,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function build_map_link( $address ) {
 			// Google map urls have lots of available params but zoom (z) and query (q) are enough.
-			return "https://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
+			return 'https://maps.google.com/maps?z=16&q=' . $this->urlencode_address( $address );
 		}
 
 
@@ -350,8 +346,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function urlencode_address( $address ) {
 
 			$address = strtolower( $address );
-			$address = preg_replace( "/\s+/", " ", trim( $address ) ); // Get rid of any unwanted whitespace
-			$address = str_ireplace( " ", "+", $address ); // Use + not %20
+			$address = preg_replace( '/\s+/', ' ', trim( $address ) ); // Get rid of any unwanted whitespace
+			$address = str_ireplace( ' ', '+', $address ); // Use + not %20
 			urlencode( $address );
 
 			return $address;
@@ -366,7 +362,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function has_good_map( $instance ) {
 			// The lat and lon of an address that could not be plotted will have values of 0 and 0.
-			return ! ( "0" == $instance['lat'] && "0" == $instance['lon'] );
+			return ! ( '0' == $instance['lat'] && '0' == $instance['lon'] );
 		}
 
 	}

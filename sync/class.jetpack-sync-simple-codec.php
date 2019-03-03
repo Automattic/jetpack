@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec
  * algorithm to compress objects serialized using json_encode
  */
 class Jetpack_Sync_Simple_Codec extends Jetpack_Sync_JSON_Deflate_Array_Codec {
-	const CODEC_NAME = "simple";
+	const CODEC_NAME = 'simple';
 
 	public function name() {
 		return self::CODEC_NAME;

@@ -16,7 +16,7 @@ services:
       - ./data/mysql:/var/lib/mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "${PORT_MYSQL:-3306}:3306"
     env_file:
       - default.env
       - .env
@@ -28,8 +28,8 @@ services:
     container_name: maildev
     restart: always
     ports:
-      - "1080:80"
-      - "25:25"
+      - "${PORT_MAILDEV:-1080}:80"
+      - "${PORT_SMTP:-25}:25"
 
   ## SFTP server running at localhost:1022
   sftp:
@@ -41,7 +41,7 @@ services:
       - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
       - ./wordpress:/home/wordpress/var/www/html
     ports:
-      - "1022:22"
+      - "${PORT_SFTP:-1022}:22"
     env_file:
       - ./default.env
       - ./.env
@@ -77,8 +77,10 @@ services:
       - ./logs/php:/var/log/php
       - ./bin:/var/scripts
     ports:
-      - "80:80"
+      - "${PORT_WORDPRESS:-80}:80"
     restart: always
     env_file:
       - default.env
       - .env
+    environment:
+      - HOST_PORT=${PORT_WORDPRESS}

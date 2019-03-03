@@ -4,6 +4,9 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
  * Control your local Jetpack installation.
+ *
+ * Minimum PHP requirement for WP-CLI is PHP 5.3, so ignore PHP 5.2 compatibility issues.
+ * @phpcs:disable PHPCompatibility.PHP.NewLanguageConstructs.t_ns_separatorFound
  */
 class Jetpack_CLI extends WP_CLI_Command {
 	// Aesthetics
@@ -28,13 +31,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php' );
+		jetpack_require_lib( 'debugger' );
 
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
-
-		if ( ! Jetpack::is_active() ) {
-			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
-		}
 
 		if ( isset( $args[0] ) && 'full' !== $args[0] ) {
 			/* translators: %s is a command like "prompt" */
@@ -43,14 +42,22 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
-		$jetpack_self_test = Jetpack_Debugger::run_self_test(); // Performs the same tests as jetpack.com/support/debug/
+		$cxntests = new Jetpack_Cxn_Tests();
 
-		if ( ! $jetpack_self_test || ! wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
-			WP_CLI::error( __( 'Jetpack connection status unknown.', 'jetpack' ) );
-		} else if ( 200 == wp_remote_retrieve_response_code( $jetpack_self_test ) ) {
+		if ( $cxntests->pass() ) {
+			$cxntests->output_results_for_cli();
+
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 		} else {
-			WP_CLI::error( __( 'Jetpack connection is broken.', 'jetpack' ) );
+			$error = array();
+			foreach ( $cxntests->list_fails() as $fail ) {
+				$error[] = $fail['name'] . ': ' . $fail['message'];
+			}
+			WP_CLI::error_multi_line( $error );
+
+			$cxntests->output_results_for_cli();
+
+			WP_CLI::error( __('Jetpack connection is broken.', 'jetpack' ) ); // Exit CLI.
 		}
 
 		WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
@@ -889,7 +896,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $token->access_token,
-				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+				'Host'          => 'public-api.wordpress.com',
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
@@ -1033,12 +1040,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'A non-empty token argument must be passed.', 'jetpack' ) );
 		}
 
-		$token = sanitize_text_field( $named_args['token'] );
-
 		$is_master_user  = ! Jetpack::is_active();
 		$current_user_id = get_current_user_id();
 
-		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
 
 		WP_CLI::log( wp_json_encode( $named_args ) );
 
@@ -1229,7 +1234,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 	}
 
-	/*
+	/**
 	 * Allows management of publicize connections.
 	 *
 	 * ## OPTIONS
@@ -1238,8 +1243,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : The action to perform.
 	 * ---
 	 * options:
-	 *  - list
-	 *  - disconnect
+	 *   - list
+	 *   - disconnect
 	 * ---
 	 *
 	 * [<identifier>]
@@ -1250,28 +1255,63 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ---
 	 * default: table
 	 * options:
-	 *  - table
-	 *  - json
-	 *  - csv
-	 *  - yaml
-	 *  - ids
-	 *  - count
+	 *   - table
+	 *   - json
+	 *   - csv
+	 *   - yaml
+	 *   - ids
+	 *   - count
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack publicize list
-	 * wp jetpack publicize list twitter
-	 * wp --user=1 jetpack publicize list
-	 * wp --user=1 jetpack publicize list twitter
-	 * wp jetpack publicize list 123456
-	 * wp jetpack publicize disconnect 123456
-	 * wp jetpack publicize disconnect all
-	 * wp jetpack publicize disconnect twitter
+	 *     # List all publicize connections.
+	 *     $ wp jetpack publicize list
+	 *
+	 *     # List publicize connections for a given service.
+	 *     $ wp jetpack publicize list twitter
+	 *
+	 *     # List all publicize connections for a given user.
+	 *     $ wp --user=1 jetpack publicize list
+	 *
+	 *     # List all publicize connections for a given user and service.
+	 *     $ wp --user=1 jetpack publicize list twitter
+	 *
+	 *     # Display details for a given connection.
+	 *     $ wp jetpack publicize list 123456
+	 *
+	 *     # Diconnection a given connection.
+	 *     $ wp jetpack publicize disconnect 123456
+	 *
+	 *     # Disconnect all connections.
+	 *     $ wp jetpack publicize disconnect all
+	 *
+	 *     # Disconnect all connections for a given service.
+	 *     $ wp jetpack publicize disconnect twitter
 	 */
 	public function publicize( $args, $named_args ) {
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
+		}
+
+		if ( Jetpack::is_development_mode() ) {
+			if (
+				! defined( 'JETPACK_DEV_DEBUG' ) &&
+				! has_filter( 'jetpack_development_mode' ) &&
+				false === strpos( site_url(), '.' )
+			) {
+				WP_CLI::error( __( "Jetpack is current in development mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in development mode, the publicize module will not load.", 'jetpack' ) );
+			}
+
+			WP_CLI::error( __( 'Jetpack is currently in development mode, so the publicize module will not load.', 'jetpack' ) );
+		}
+
+		if ( ! class_exists( 'Publicize' ) ) {
+			WP_CLI::error( __( 'The publicize module is not loaded.', 'jetpack' ) );
 		}
 
 		$action        = $args[0];
@@ -1288,7 +1328,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// differs from the logic in the Publicize class.
 				$option_connections = is_user_logged_in()
 					? (array) $publicize->get_all_connections_for_user()
-					: Jetpack_Options::get_option( 'publicize_connections' );
+					: (array) $publicize->get_all_connections();
 
 				foreach ( $option_connections as $service_name => $connections ) {
 					foreach ( (array) $connections as $id => $connection ) {
@@ -1313,10 +1353,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$connections_to_return = wp_list_filter( $connections_to_return, array( 'id' => $identifier ) );
 				}
 
-				if ( empty( $connections_to_return ) ) {
-					return false;
-				}
-
 				$expected_keys = array(
 					'id',
 					'service',
@@ -1330,6 +1366,24 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'type',
 					'connection_data',
 				);
+
+				// Somehow, a test site ended up in a state where $connections_to_return looked like:
+				// array( array( array( 'id' => 0, 'service' => 0 ) ) ) // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// This caused the CLI command to error when running WP_CLI\Utils\format_items() below. So
+				// to minimize future issues, this nested loop will remove any connections that don't contain
+				// any keys that we expect.
+				foreach ( (array) $connections_to_return as $connection_key => $connection ) {
+					foreach ( $expected_keys as $expected_key ) {
+						if ( ! isset( $connection[ $expected_key ] ) ) {
+							unset( $connections_to_return[ $connection_key ] );
+							continue;
+						}
+					}
+				}
+
+				if ( empty( $connections_to_return ) ) {
+					return false;
+				}
 
 				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys );
 				break; // list.
@@ -1355,7 +1409,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					$option_connections = is_user_logged_in()
 						? (array) $publicize->get_all_connections_for_user()
-						: Jetpack_Options::get_option( 'publicize_connections' );
+						: (array) $publicize->get_all_connections();
 
 					if ( 'all' === $service ) {
 						foreach ( (array) $option_connections as $service_name => $service_connections ) {
@@ -1447,10 +1501,9 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	}
 
 	if ( ! $flagged ) {
-		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
+		$prompt_message = _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command - do not translate.', 'jetpack' );
 	} else {
-		/* translators: Don't translate the word yes here. */
-		$prompt_message = __( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', 'jetpack' );
+		$prompt_message = _x( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', '"yes" is a command - do not translate.', 'jetpack' );
 	}
 
 	WP_CLI::line( $prompt_message );

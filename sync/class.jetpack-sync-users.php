@@ -21,7 +21,7 @@ class Jetpack_Sync_Users {
 	static function user_role_change( $user_id ) {
 		if ( Jetpack::is_user_connected( $user_id ) ) {
 			self::update_role_on_com( $user_id );
-			//try to choose a new master if we're demoting the current one
+			// try to choose a new master if we're demoting the current one
 			self::maybe_demote_master_user( $user_id );
 		}
 	}

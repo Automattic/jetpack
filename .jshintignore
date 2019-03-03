@@ -6,6 +6,7 @@ modules/custom-css/custom-css/js/codemirror.min.js
 modules/shortcodes/js/jmpress.js
 modules/shortcodes/js/jquery.cycle.min.js
 modules/theme-tools/responsive-videos/responsive-videos.min.js
+modules/**/test-*.js
 
 todo:
 modules/infinite-scroll/infinity.js

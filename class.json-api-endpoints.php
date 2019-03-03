@@ -257,7 +257,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return = json_decode( $input, true );
 
 			if ( function_exists( 'json_last_error' ) ) {
-				if ( JSON_ERROR_NONE !== json_last_error() ) {
+				if ( JSON_ERROR_NONE !== json_last_error() ) { // phpcs:ignore PHPCompatibility
 					return null;
 				}
 			} else {
@@ -396,6 +396,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = false;
 			break;
 		case 'url' :
+			if ( is_object( $value ) && isset( $value->url ) && false !== strpos( $value->url, 'https://videos.files.wordpress.com/' ) ) {
+				$value = $value->url;
+			}
+			// Check for string since esc_url_raw() expects one.
+			if ( ! is_string( $value ) ) {
+				break;
+			}
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
@@ -1313,6 +1320,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 					foreach ( $sizes as $size => $size_details ) {
 						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
 					}
+					/**
+					 * Filter the thumbnail URLs for attachment files.
+					 *
+					 * @module json-api
+					 *
+					 * @since 7.1.0
+					 *
+					 * @param array $metadata['sizes'] Array with thumbnail sizes as keys and URLs as values.
+					 */
+					$response['thumbnails'] = apply_filters( 'rest_api_thumbnail_size_urls', $response['thumbnails'] );
 				}
 			}
 
@@ -1909,6 +1926,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	protected function is_file_supported_for_sideloading( $file ) {
 		if ( class_exists( 'finfo' ) ) { // php 5.3+
+			// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
 			$finfo = new finfo( FILEINFO_MIME );
 			$mime = explode( '; ', $finfo->file( $file ) );
 			$type = $mime[0];

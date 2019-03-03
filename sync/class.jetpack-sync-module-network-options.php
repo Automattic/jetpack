@@ -33,10 +33,13 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		}
 
 		// full sync
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array(
-			$this,
-			'expand_network_options',
-		) );
+		add_filter(
+			'jetpack_sync_before_send_jetpack_full_sync_network_options',
+			array(
+				$this,
+				'expand_network_options',
+			)
+		);
 	}
 
 	public function set_defaults() {
@@ -65,7 +68,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		if ( ! is_multisite() ) {
 			return 0;
 		}
-		
+
 		return 1;
 	}
 

@@ -88,8 +88,9 @@ class Jetpack_XMLRPC_Server {
 
 	function provision_xmlrpc_methods() {
 		return array(
-			'jetpack.remoteRegister' => array( $this, 'remote_register' ),
-			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
+			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
+			'jetpack.remoteConnect'   => array( $this, 'remote_connect' ),
 		);
 	}
 
@@ -228,11 +229,11 @@ class Jetpack_XMLRPC_Server {
 		$user = $this->fetch_and_verify_local_user( $request );
 
 		if ( ! $user ) {
-			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_register_fail' );
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_provision_fail' );
 		}
 
 		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
-			return $this->error( $user, 'jpc_remote_register_fail' );
+			return $this->error( $user, 'jpc_remote_provision_fail' );
 		}
 
 		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
@@ -279,6 +280,78 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
+	 * an access token for the given user.
+	 *
+	 * @param array $request An array containing local_user and nonce keys at minimum.
+	 * @return mixed
+	 */
+	public function remote_connect( $request, $ixr_client = false ) {
+		if ( Jetpack::is_active() ) {
+			return $this->error(
+				new WP_Error(
+					'already_connected',
+					__( 'Jetpack is already connected.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user || is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error(
+				new WP_Error(
+					'input_error',
+					__( 'Valid user is required.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		if ( empty( $request['nonce'] ) ) {
+			return $this->error(
+				new WP_Error(
+					'input_error',
+					__( 'A non-empty nonce must be supplied.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		if ( ! $ixr_client ) {
+			Jetpack::load_xml_rpc_client();
+			$ixr_client = new Jetpack_IXR_Client();
+		}
+		$ixr_client->query( 'jetpack.getUserAccessToken', array(
+			'nonce'            => sanitize_text_field( $request['nonce'] ),
+			'external_user_id' => $user->ID,
+		) );
+
+		$token = $ixr_client->isError() ? false : $ixr_client->getResponse();
+		if ( empty( $token ) ) {
+			return $this->error(
+				new WP_Error(
+					'token_fetch_failed',
+					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+		$token = sanitize_text_field( $token );
+
+		Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+
+		$this->do_post_authorization();
+
+		return Jetpack::is_active();
 	}
 
 	private function fetch_and_verify_local_user( $request ) {
@@ -697,5 +770,19 @@ class Jetpack_XMLRPC_Server {
 			(string) $nonce,
 			(string) $hmac,
 		);
+	}
+
+	/**
+	 * Handles authorization actions after connecting a site, such as enabling modules.
+	 *
+	 * This do_post_authorization() is used in this class, as opposed to calling
+	 * Jetpack::handle_post_authorization_actions() directly so that we can mock this method as necessary.
+	 *
+	 * @return void
+	 */
+	public function do_post_authorization() {
+		/** This filter is documented in class.jetpack-cli.php */
+		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
+		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
 	}
 }

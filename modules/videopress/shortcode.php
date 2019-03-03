@@ -16,9 +16,9 @@ class VideoPress_Shortcode {
 		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
 
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
-		add_shortcode( 'wpvideo',    array( $this, 'shortcode_callback' ) );
+		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
 
-		add_filter('wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4);
+		add_filter( 'wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4 );
 
 		add_filter( 'oembed_fetch_url', array( $this, 'add_oembed_for_parameter' ) );
 
@@ -29,7 +29,7 @@ class VideoPress_Shortcode {
 	 * @return VideoPress_Shortcode
 	 */
 	public static function initialize() {
-		if ( ! isset ( self::$instance ) ) {
+		if ( ! isset( self::$instance ) ) {
 			self::$instance = new self();
 		}
 
@@ -124,24 +124,27 @@ class VideoPress_Shortcode {
 		 *
 		 * @param array $args Array of VideoPress shortcode options.
 		 */
-		$options = apply_filters( 'videopress_shortcode_options', array(
-			'at'              => (int) $attr['at'],
-			'hd'              => $attr['hd'],
-			'loop'            => $attr['loop'],
-			'freedom'         => $attr['freedom'],
-			'autoplay'        => $attr['autoplay'],
-			'permalink'       => $attr['permalink'],
-			'force_flash'     => (bool) $attr['flashonly'],
-			'defaultlangcode' => $attr['defaultlangcode'],
-			'forcestatic'     => false, // This used to be a displayed option, but now is only
+		$options = apply_filters(
+			'videopress_shortcode_options',
+			array(
+				'at'              => (int) $attr['at'],
+				'hd'              => $attr['hd'],
+				'loop'            => $attr['loop'],
+				'freedom'         => $attr['freedom'],
+				'autoplay'        => $attr['autoplay'],
+				'permalink'       => $attr['permalink'],
+				'force_flash'     => (bool) $attr['flashonly'],
+				'defaultlangcode' => $attr['defaultlangcode'],
+				'forcestatic'     => false, // This used to be a displayed option, but now is only
 			// accessible via the `videopress_shortcode_options` filter.
-		) );
+			)
+		);
 
 		// Register VideoPress scripts
 		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09' );
 
-		require_once( dirname( __FILE__ ) . '/class.videopress-video.php' );
-		require_once( dirname( __FILE__ ) . '/class.videopress-player.php' );
+		require_once dirname( __FILE__ ) . '/class.videopress-video.php';
+		require_once dirname( __FILE__ ) . '/class.videopress-player.php';
 
 		$player = new VideoPress_Player( $guid, $attr['width'], $options );
 
@@ -165,7 +168,7 @@ class VideoPress_Shortcode {
 	 *
 	 * @return string
 	 */
-	public function video_shortcode_override($html, $attr, $content, $instance) {
+	public function video_shortcode_override( $html, $attr, $content, $instance ) {
 
 		$videopress_guid = null;
 
@@ -177,9 +180,9 @@ class VideoPress_Shortcode {
 			$url_keys = array( 'src', 'mp4' );
 
 			foreach ( $url_keys as $key ) {
-				if ( isset ( $attr[ $key ] ) ) {
+				if ( isset( $attr[ $key ] ) ) {
 					$url = $attr[ $key ];
-
+					// phpcs:ignore WordPress.WP.CapitalPDangit
 					if ( preg_match( '@videos.(videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
 						$videopress_guid = $matches[2];
 					}

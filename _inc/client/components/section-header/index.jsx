@@ -17,37 +17,21 @@ export default class SectionHeader extends React.Component {
 
 	static propTypes = {
 		label: PropTypes.string,
-		cardBadge: PropTypes.oneOfType( [
-			PropTypes.string,
-			PropTypes.element,
-			PropTypes.object
-		] )
 	};
 
 	static defaultProps = {
 		label: '',
-		cardBadge: ''
 	};
 
 	render() {
-		const classes = classNames(
-			this.props.className,
-			'dops-section-header'
-		);
-
-		const maybeShowCardBadge = this.props.cardBadge !== ''
-			? <span className="dops-section-header__card-badge">{ this.props.cardBadge }</span>
-			: '';
+		const classes = classNames( this.props.className, 'dops-section-header' );
 
 		return (
-			<Card compact className={ classNames( classes, { 'has-card-badge': this.props.cardBadge !== '' } ) }>
+			<Card compact className={ classes }>
 				<div className="dops-section-header__label">
 					<span className="dops-section-header__label-text">{ this.props.label }</span>
-					{ maybeShowCardBadge }
 				</div>
-				<div className="dops-section-header__actions">
-					{ this.props.children }
-				</div>
+				<div className="dops-section-header__actions">{ this.props.children }</div>
 			</Card>
 		);
 	}

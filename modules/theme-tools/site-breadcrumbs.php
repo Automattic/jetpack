@@ -10,10 +10,10 @@
  */
 
 function jetpack_breadcrumbs() {
-	$taxonomy = is_category() ? 'category' : get_query_var( 'taxonomy' );
+	$taxonomy                 = is_category() ? 'category' : get_query_var( 'taxonomy' );
 	$is_taxonomy_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
-	$post_type = is_page() ? 'page' : get_query_var( 'post_type' );
+	$post_type                 = is_page() ? 'page' : get_query_var( 'post_type' );
 	$is_post_type_hierarchical = is_post_type_hierarchical( $post_type );
 
 	if ( ! ( $is_post_type_hierarchical || $is_taxonomy_hierarchical ) || is_front_page() ) {
@@ -23,7 +23,7 @@ function jetpack_breadcrumbs() {
 	$breadcrumb = '';
 
 	if ( $is_post_type_hierarchical ) {
-		$post_id = get_queried_object_id();
+		$post_id   = get_queried_object_id();
 		$ancestors = array_reverse( get_post_ancestors( $post_id ) );
 		if ( $ancestors ) {
 			foreach ( $ancestors as $ancestor ) {
@@ -53,9 +53,9 @@ function jetpack_breadcrumbs() {
 /**
  * Return the parents for a given taxonomy term ID.
  *
- * @param int $term Taxonomy term whose parents will be returned.
+ * @param int    $term Taxonomy term whose parents will be returned.
  * @param string $taxonomy Taxonomy name that the term belongs to.
- * @param array $visited Terms already added to prevent duplicates.
+ * @param array  $visited Terms already added to prevent duplicates.
  *
  * @return string A list of links to the term parents.
  */
@@ -70,7 +70,7 @@ function jetpack_get_term_parents( $term, $taxonomy, $visited = array() ) {
 
 	if ( $parent->parent && ( $parent->parent != $parent->term_id ) && ! in_array( $parent->parent, $visited ) ) {
 		$visited[] = $parent->parent;
-		$chain .= jetpack_get_term_parents( $parent->parent, $taxonomy, $visited );
+		$chain    .= jetpack_get_term_parents( $parent->parent, $taxonomy, $visited );
 	}
 
 	$chain .= '<a href="' . esc_url( get_category_link( $parent->term_id ) ) . '">' . $parent->name . '</a>';

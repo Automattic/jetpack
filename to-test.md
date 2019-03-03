@@ -1,158 +1,96 @@
-## 6.2
+## 7.1
 
-### AMP
+### Block Editor
 
-We now allow Jetpack features to work on AMP pages, and prevent Jetpack features from rendering to the front end at all.
+This release introduces some new blocks we'd like you to test.
 
-To test:
+#### Ads
 
-* Install amp-wp from Automattic/amp-wp master branch.
-* Activate AMP in your site's plugins list
-* To test Legacy AMP, add `?amp=1` to any post URL, e.g. http://example.com/2018/03/23/a-post/?amp=1.
-* Expect to see that all Jetpack features work (or be hidden if broken) in this mode.
-* To text Canonical AMP:
-    * Use this code snippet. This will set the home page to use "canonical amp", which the the preferred way of using AMP after 1.0:
-        ```
-	function add_amp_theme_support() {
-	    add_theme_support( 'amp' );
-	}
+the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages. To use it, you need to purchase a Premium or a Professional plan. Once you have one, you can turn on the Ads feature under Jetpack > Settings > Traffic in your dashboard. Once you've done so, try the following:
 
-	add_action( 'plugins_loaded', 'add_amp_theme_support' );
-        ```
-    * Expect all Jetpack features to work (or be hidden if broken) in this mode.
-    * Now try using various Jetpack features and make sure they don't break validation (or simply break).
- 
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Make sure the ads are displayed properly on your site.
 
-#### Screenshots
+#### Business Hours
 
-##### Legacy AMP
+The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site. To test it, try the following:
 
-| Before  | After |
-| ------------- | ------------- |
-| <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png"><img src="https://user-images.githubusercontent.com/51896/40072400-91c49dc4-5828-11e8-91ad-38da1d92aca0.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1" style="max-width:50%;"></a>  | <a target="_blank" href="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png"><img src="https://user-images.githubusercontent.com/51896/40072460-c97f89f4-5828-11e8-9817-2b92a2b8bb65.png" alt="goldsounds ngrok io_2018_03_23_another-amp-post__amp 1 1" style="max-width:100%;"></a>  |
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add Opening Hours for some days, and not for others. Ensure that the block looks good in the editor and on the site's frontend.
+- Set the business to be closed on some days and open on hours. Does everything work?
+- Make sure the block works regardless of your site's language.
 
-##### Canonical AMP
+#### Contact Info
 
-| Before  | After |
-| ------------- | ------------- |
-| ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad](https://user-images.githubusercontent.com/51896/40073029-8be896f6-582a-11e8-81e5-9cbb6f9c8435.png) | ![goldsounds ngrok io_2018_03_23_another-amp-post_ ipad 1](https://user-images.githubusercontent.com/51896/40073045-986d9a34-582a-11e8-9213-2b5a8e4481bc.png) |
+The Contact Info block is a great block to go along the Business Hours block. You can use it to list your business' address, phone number, and email address, in a format recognizable by Google and other search engines. To test it, try the following:
 
-### Contact Form
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add some information, use all the child blocks or only some of them. You can also reorder them around.
+- Make sure every information and every link works well in the editor and on your site.
+- Once you're happy with the result, make sure the page does not throw any warnings in [this Google Structured data tool](https://search.google.com/structured-data/testing-tool).
 
-We fixed scrolling/height for very large contact forms.
+#### Mailchimp
 
-* With Firefox
-* Insert this shortcode in the html editor
-    ```
-    [contact-form][contact-field label="Name" type="name" required="1"][contact-field label="Email" type="email" required="1"][contact-field label="Website" type="url"][contact-field label="Message" type="textarea"][contact-field label="date" type="date"][contact-field label="multiple" type="checkbox-multiple" options="hi,one,two"][contact-field label="whatever" type="textarea"][contact-field label="Keep going..." type="text"][contact-field label="check" type="checkbox"][contact-field label="drop" type="select" options="whatever,yo,ma"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][contact-field label="" type="text"][/contact-form]
-    ```
-* Switch back to visual.
-* Click to edit the form
-* Expect to be able to scroll all the way down.
+The Mailchimp block allows you to insert Mailchimp subscription forms anywhere in your posts and pages. To test this, you will need [a Mailchimp account](https://mailchimp.com/), and an email list in that account. The block will be used by your readers to add themselves to that list, that you can later use to contact your subscribers.
+
+Once you have that, try the following:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try modifying button text and description.
+- Try subscribing to a mailing list – can you see the email at your list over at Mailchimp.com?
+- Try inserting multiple instances of the block.
+- Try testing on a variety of screen sizes, and devices if possible, both in the editor and theme -side.
+- Try changing a theme (feel free to test a few different ones)
+- Try adding block as a contributor level user
+- Test how the block looks like from RSS feed or in Jetpack subscription emails
+- Test on mobile
+- Test how the block works as a “reusable block”.
+
+#### Related Posts
+
+The Related Posts block isn't new, but we've made some changes to how it works and would appreciate your eyes on this. Try adding the block to one of your site, and try playing with the number of posts listed in the block. You can now add up to 6 related posts! Make sure that works well.
+
+#### Slideshows
+
+Slideshows are often a nice alternative to galleries, and have long been part of Jetpack, alongside Tiled Galleries. We're now bringing that option to the block editor, with a brand new block! You can test it like so:
+
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try adding images of different aspect ratios.
+- Try different options, both from the block toolbar, and the sidebar. Verify that each change works like it should. After modifying options, update the post and verify that the saved content on the frontend works and looks like expected.
+	- Change the transition effect
+	- Change the number of images
+	- Change captions (add links)
+- Add new images by uploading using the upload-button, dragging over the gallery and from the Media library using the pen-icon from the toolbar. Try removing images, too.
+- Try converting the block to a regular gallery and images.
+- Try inserting multiple instances of the block and resize the editor either by resizing the browser window, toggling Gutenberg sidebar on/off or changing the orientation of a mobile device.
+
+#### VideoPress
+
+We aim to port our existing [VideoPress](https://jetpack.com/features/design/video-hosting/) functionality into the video block. We're still working hard on this, but we've made some changes to the existing **Video Block** in WordPress to start supporting VideoPress videos. To test this, try the following:
+
+- On a site using a free Jetpack plan, go to Media > Library and upload a few small videos.
+- Purchase a Premium or a Professional plan.
+- Go to Jetpack > Settings and toggle the "Enable high-speed, ad-free video player" option.
+- Go to Media > Library and try uploading more videos. You should notice that they will be uploaded to VideoPress at this point.
+- Go to Posts > Add New and try to insert Video Blocks. In the media picker, try picking the videos you uploaded before you purchased a plan, and then try with a VideoPress video.
+- Try editing the blocks. Are you able to upload or select a different video?
+- Try opening an existing post that contains old video blocks. Are they migrated to the new VideoPress-enhanced video blocks?
+- Downgrade to a free plan or, in Jetpack, disable the VideoPress module. What happens when you insert video blocks? What happens to the existing posts containing VideoPress-enhanced video blocks?
+
+### Plugin Search Hints
+
+Jetpack offers many useful features, so many that it is sometimes hard to remember all of them. From now on, we'll remind you of features that may be useful to you when you search for new plugins under Plugins > Add New in your dashboard. When you look for plugins there, if we think that an existing Jetpack feature may be a good fit for what you are looking for, we'll suggest that you discover, enable, or configure that feature on your site.
+
+To test this, head over to Plugins > Add New and search for plugins similar to some of the things Jetpack offers. You should see a "Jetpack: feature" card appear among the search results. Try to interact with that card (dismiss it, activate the feature, configure it), and see that everything works as expected.
 
 
-### Content Options
+### Others
 
-We now exclude CPTs like Portfolio and Testimonial when we toggle content/excerpt via the Blog Display option.
-
-To test:
-
-* Check a CPT archive page and check if you have the option to switch between content and excerpt (you shouldn't be able to).
-* Check a Post archive page and check if you have the option to switch between content and excerpt (you should be able to).
-
-### Shortcodes
-
-We fixed the Facebook shortcode in wp-admin.
-
-To Test:
-
-* Paste a facebook post link in wp-admin editor, like https://www.facebook.com/WordPresscom/posts/10154113693553980
-* You should see an facebook embed in the post editor.
-* Make sure selective refresh still works for the facebook widget in the customizer.
-
-We also added a Gutenberg block for the `[vr]` shortcode.
-
-To test:
-
-* Install Gutenberg
-* Edit a post in Gutenberg
-* Add a "VR Image" block to any post
-* Paste in the URL of any 360' image, e.g. https://en-blog.files.wordpress.com/2016/12/regents_park.jpg
-* Save the post.
-* Visit the post and expect to be able to navigate the 360 image.
-
-### Related Posts
-
-We stopped attempting to fetch related posts for unpublished posts.
-
-* Open the Javascript console
-* Write a draft with Gutenberg. 
-* Confirm that there's no failing request in the background receiving a HTTP status 400 as response.
-
-### Sharing
-
-Fixed an issue that resulted in wrong URLs for sharing via WhatsApp.
-
-* Add the WhatsApp sharing button
-* Attempt to share a post via WhatsApp
-* Confirm that the URL that you get in the message is working properly by visiting it.
-
-### Tiled Galleries
-
-We now use Photon if active when a Tiled Gallery links to media file.
-
-To test:
-
-* Create a Gallery with the link set to Media File.
-* Disable Carousel (via the old modules page `page=jetpack_module`).
-* View page and see the URL.
-
-### Widget visibility
-
-We fixed some styling issues for Microsoft Edge.
-
-To test:
-
-* In MS Edge, open wp-admin/widgets.php and look at a widget's Visibility settings.
-* Open wp-admin/widgets.php, click "Manage with Live Preview" to open the Customizer, and look at a widget's Visibility settings.
-* Expect to see the red crosses align properly vertically.
-
-### Widgets
-
-#### Cookies and Consent Widget
-
-The `.widget` CSS class used for targetting the Cookies and Consent widget was removed since .widget is not used in every theme.
-
-To test:
-
-* Apply one of the themes that don't use the `.widget` class like Graphene or Kahuna.
-* Add the Cookie & Consent Widget to the footer widget area.
-* View the site from the front-end. 
-* Expect the banner to always float at the bottom of the viewport when scrolling down.
-
-Also, we fixed the positioning for themes that set a specific margin for forms.
-
-* Install and activate Storefront theme.
-* Enable the cookie widget.
-* Verify the margins are consistent within the widget. Previously the vertical alignment was not balanced.
-
-We added a "top" option for the cookie widget position. The existing bottom of the screen position is the default.
-
-To test:
-
-* Add a Cookies & Consent Widget.
-* Test both the top and bottom for existing and new instances of the widget. Test with and without the admin bar present.
-
-#### Twitter Timeline Widget
-
-Usage of Widget Ids for the Twitter Timeline Widget is being deprecated. This is because Twitter is deprecating Widget IDs in July 2018.
-
-To test: 
-
-* Before checking out this feature, if you have the chance, with Jetpack 6.1.1, try to add a Twitter Timeline of type `widget-id` to a sidebar (the only way to create a Twitter Widget right now is at https://twitter.com/settings/widgets/new: create a widget, edit it, and copy the ID from the URL).
-* After updating to this 6.2 Beta again, make sure that the widget will display a deprecation notice, only visible to admins.
-* In the Customizer or in the Widgets dashboard, make sure there is no "Widget Type" selector anymore.
- 
+**At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**
-

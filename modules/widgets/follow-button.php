@@ -16,7 +16,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Follow Button', 'jetpack' ) ),
 			array(
-				'description' => __( 'Add a WordPress.com follow button to allow people to follow your blog easier', 'jetpack' ),
+				'description'                 => __( 'Add a WordPress.com follow button to allow people to follow your blog easier', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -24,7 +24,12 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 
 	public function widget( $args, $instance ) {
 		$attributes = array();
-		$instance = wp_parse_args( (array) $instance, array( 'show_name' => 1, 'show_count' => 0 ) );
+		$instance   = wp_parse_args(
+			(array) $instance, array(
+				'show_name'  => 1,
+				'show_count' => 0,
+			)
+		);
 
 		$wpcom_locale = get_locale();
 
@@ -56,7 +61,11 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			class="wordpress-follow-button"
 			href="<?php echo esc_url( home_url() ); ?>"
 			data-blog="<?php echo esc_url( home_url() ); ?>"
-			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>
+			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>" 
+									<?php
+									if ( ! empty( $attributes ) ) {
+										echo implode( ' ', $attributes );}
+?>
 		>
 			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
 		</a>
@@ -70,25 +79,30 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array( 'show_name' => 1, 'show_count' => 0 ) );
+		$instance = wp_parse_args(
+			(array) $instance, array(
+				'show_name'  => 1,
+				'show_count' => 0,
+			)
+		);
 
-		$show_name = isset( $instance['show_name'] ) ? (bool) $instance['show_name'] : false;
+		$show_name  = isset( $instance['show_name'] ) ? (bool) $instance['show_name'] : false;
 		$show_count = isset( $instance['show_count'] ) ? (bool) $instance['show_count'] : false;
 		?>
 
 		<p>
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('show_name'); ?>" name="<?php echo $this->get_field_name('show_name'); ?>"<?php checked( $show_name ); ?> />
-		<label for="<?php echo $this->get_field_id('show_name'); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_name' ); ?>" name="<?php echo $this->get_field_name( 'show_name' ); ?>"<?php checked( $show_name ); ?> />
+		<label for="<?php echo $this->get_field_id( 'show_name' ); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
 		<br />
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('show_count'); ?>" name="<?php echo $this->get_field_name('show_count'); ?>"<?php checked( $show_count ); ?> />
-		<label for="<?php echo $this->get_field_id('show_count'); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>"<?php checked( $show_count ); ?> />
+		<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
 		</p>
 
 		<?php
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$old_instance['show_name'] = ! empty( $new_instance['show_name'] ) ? 1 : 0;
+		$old_instance['show_name']  = ! empty( $new_instance['show_name'] ) ? 1 : 0;
 		$old_instance['show_count'] = ! empty( $new_instance['show_count'] ) ? 1 : 0;
 		return $old_instance;
 	}

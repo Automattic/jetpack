@@ -12,14 +12,14 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import Button from 'components/button';
-import { getSiteRawUrl, getUserId } from 'state/initial-state';
+import { getSiteRawUrl, getUpgradeUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
+import { showBackups } from 'state/initial-state';
 
 class PlanGrid extends React.Component {
-
 	/**
 	 * Memoized storage for plans to display according to highlighted features
 	 */
@@ -35,10 +35,7 @@ class PlanGrid extends React.Component {
 		}
 
 		const length = Object.values( this.getPlans() ).length;
-		const tableClasses = classNames(
-			'plan-features__table',
-			`has-${ length }-cols`
-		);
+		const tableClasses = classNames( 'plan-features__table', `has-${ length }-cols` );
 
 		return (
 			<div className="plan-features">
@@ -60,7 +57,7 @@ class PlanGrid extends React.Component {
 
 	renderMobileCard() {
 		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
-			args: { plan: this.props.sitePlan.product_name_short }
+			args: { plan: this.props.sitePlan.product_name_short },
 		} );
 		const myPlanUrl = `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`;
 		const plansUrl = `https://wordpress.com/plans/${ this.props.siteRawUrl }`;
@@ -69,9 +66,7 @@ class PlanGrid extends React.Component {
 			<div className="plans-mobile-notice dops-card">
 				<h2>{ __( 'Your Plan' ) }</h2>
 				<p>{ currently }</p>
-				<Button href={ myPlanUrl }>
-					{ __( 'Manage your plan' ) }
-				</Button>
+				<Button href={ myPlanUrl }>{ __( 'Manage your plan' ) }</Button>
 				<Button href={ plansUrl } primary>
 					{ __( 'View all Jetpack plans' ) }
 				</Button>
@@ -82,7 +77,7 @@ class PlanGrid extends React.Component {
 	/**
 	 * We have different nomenclature around the various plans because of course we do. This normalizes it for internal use.
 	 * @return {string} plan type
-	*/
+	 */
 	getCurrentPlanType() {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		// these are `is-TYPE-plan` (or empty string) so easy-peasy regex-squeezy
@@ -115,21 +110,29 @@ class PlanGrid extends React.Component {
 			return this.featuredPlans;
 		}
 		// reduce the .features member to only the highlighted features.
-		const featuredPlans = reduce( this.props.plans, ( plans, plan, key ) => {
-			// ignore the free plan
-			if ( 'free' === key ) {
-				return plans;
-			}
-			const highlights = plan.highlight;
-			plan.features = reduce( plan.features, ( highlightedFeatures, feature ) => {
-				if ( includes( highlights, feature.id ) ) {
-					highlightedFeatures.push( feature );
+		const featuredPlans = reduce(
+			this.props.plans,
+			( plans, plan, key ) => {
+				// ignore the free plan
+				if ( 'free' === key ) {
+					return plans;
 				}
-				return highlightedFeatures;
-			}, [] );
-			plans[ key ] = plan;
-			return plans;
-		}, {} );
+				const highlights = plan.highlight;
+				plan.features = reduce(
+					plan.features,
+					( highlightedFeatures, feature ) => {
+						if ( includes( highlights, feature.id ) ) {
+							highlightedFeatures.push( feature );
+						}
+						return highlightedFeatures;
+					},
+					[]
+				);
+				plans[ key ] = plan;
+				return plans;
+			},
+			{}
+		);
 
 		this.featuredPlans = featuredPlans;
 		return featuredPlans;
@@ -164,10 +167,7 @@ class PlanGrid extends React.Component {
 	 */
 	renderPrices() {
 		return map( this.getPlans(), ( plan, type ) => {
-			const className = classNames(
-				'plan-features__table-item',
-				'plan-price'
-			);
+			const className = classNames( 'plan-features__table-item', 'plan-price' );
 
 			if ( this.isCurrentPlanType( type ) ) {
 				return (
@@ -178,16 +178,17 @@ class PlanGrid extends React.Component {
 			}
 			// don't show prices for a lower plan
 			if ( ! this.shouldRenderButton( type ) ) {
-				return (
-					<td key={ 'price-' + type } className={ className } />
-				);
+				return <td key={ 'price-' + type } className={ className } />;
 			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
 			/*eslint-disable react/no-danger*/
 			return (
 				<td key={ 'price-' + type } className={ className }>
-					<span className="plan-price__yearly" dangerouslySetInnerHTML={ { __html: plan.price.yearly.per } } />
+					<span
+						className="plan-price__yearly"
+						dangerouslySetInnerHTML={ { __html: plan.price.yearly.per } }
+					/>
 				</td>
 			);
 		} );
@@ -215,7 +216,7 @@ class PlanGrid extends React.Component {
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const url = isActivePlan
 				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: `https://jetpack.com/redirect/?source=plans-${ planType }&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
+				: this.props.plansUpgradeUrl( planType );
 			const isPrimary = this.isPrimary( planType, plan );
 			const className = classNames(
 				'plan-features__table-item',
@@ -223,9 +224,7 @@ class PlanGrid extends React.Component {
 				'is-top-buttons'
 			);
 			if ( ! this.shouldRenderButton( planType ) ) {
-				return (
-					<td key={ 'button-' + planType } className={ className } />
-				);
+				return <td key={ 'button-' + planType } className={ className } />;
 			}
 			const clickHandler = () => {
 				if ( ! isActivePlan ) {
@@ -235,12 +234,10 @@ class PlanGrid extends React.Component {
 					target: `upgrade-${ planType }`,
 					type: 'upgrade',
 					plan: this.props.sitePlan.product_slug,
-					page: 'Plans'
+					page: 'Plans',
 				} );
 			};
-			const text = isActivePlan
-				? plan.strings.manage
-				: plan.strings.upgrade;
+			const text = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
@@ -254,7 +251,7 @@ class PlanGrid extends React.Component {
 	/**
 	 * Check if a plan should be highlighted as primary in the CTAs
 	 * @param {string} planType the plan type to check for primariness
-	 * @param {objcet} plan the plan object to check for primariness
+	 * @param {object} plan the plan object to check for primariness
 	 * @return {boolean} plan is primary
 	 */
 	isPrimary( planType, plan ) {
@@ -276,10 +273,12 @@ class PlanGrid extends React.Component {
 	 */
 	renderBottomButtons() {
 		return map( this.getPlans(), ( plan, planType ) => {
-			const url = `https://jetpack.com/redirect/?source=plans-learn-more&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
 			return (
-				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
-					<Button href={ url }>{ plan.strings.see_all }</Button>
+				<td
+					key={ 'bottom-' + planType }
+					className="plan-features__table-item is-bottom-buttons has-border-bottom"
+				>
+					<Button href={ this.props.plansLearnMoreUpgradeUrl }>{ plan.strings.see_all }</Button>
 				</td>
 			);
 		} );
@@ -288,12 +287,16 @@ class PlanGrid extends React.Component {
 	/**
 	 * Get the longest features list so we know how many rows to fill our table with
 	 * @return {array} longest features list
-	*/
+	 */
 	getLongestFeaturesList() {
-		return reduce( this.getPlans(), ( longest, properties ) => {
-			const currentFeatures = Object.keys( properties.features );
-			return currentFeatures.length > longest.length ? currentFeatures : longest;
-		}, [] );
+		return reduce(
+			this.getPlans(),
+			( longest, properties ) => {
+				const currentFeatures = Object.keys( properties.features );
+				return currentFeatures.length > longest.length ? currentFeatures : longest;
+			},
+			[]
+		);
 	}
 
 	/**
@@ -331,15 +334,19 @@ class PlanGrid extends React.Component {
 		const plan = this.getPlans()[ planType ];
 		const item = plan.features[ rowIndex ];
 		const key = planType + '-row-' + rowIndex;
+		const backupFeatureIds = [ 'backups', 'malware-scan', 'real-time-backups' ];
+		const hideBackupFeature =
+			! this.props.showBackups && item && includes( backupFeatureIds, item.id );
+
 		// empty?
-		if ( typeof item === 'undefined' ) {
-			return (
-				<td key={ key } className="plan-features__table-item" />
-			);
+		if ( typeof item === 'undefined' || hideBackupFeature ) {
+			return <td key={ key } className="plan-features__table-item" />;
 		}
 		return (
 			<td key={ key } className="plan-features__table-item has-partial-border">
-				<div className="plan-features__item">{ item.info ? this.renderFeatureLink( item ) : item.name }</div>
+				<div className="plan-features__item">
+					{ item.info ? this.renderFeatureLink( item ) : item.name }
+				</div>
 			</td>
 		);
 	}
@@ -350,21 +357,34 @@ class PlanGrid extends React.Component {
 				target: feature.id,
 				type: 'feature-discovery',
 				plan: this.props.sitePlan.product_slug,
-				page: 'Plans'
+				page: 'Plans',
 			} );
 		};
 		return (
-			<a onClick={ clickHandler } href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${ this.props.userId }` }>{ feature.name }</a>
+			<a
+				onClick={ clickHandler }
+				href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${
+					this.props.userId
+				}` }
+			>
+				{ feature.name }
+			</a>
 		);
 	}
-
 }
 
-export default connect( ( state ) => {
-	return {
-		plans: getAvailablePlans( state ),
-		siteRawUrl: getSiteRawUrl( state ),
-		sitePlan: getSitePlan( state ),
-		userId: getUserId( state ),
-	};
-}, null, )( PlanGrid );
+export default connect(
+	state => {
+		const userId = getUserId( state );
+		return {
+			plans: getAvailablePlans( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			sitePlan: getSitePlan( state ),
+			userId,
+			showBackups: showBackups( state ),
+			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+		};
+	},
+	null
+)( PlanGrid );

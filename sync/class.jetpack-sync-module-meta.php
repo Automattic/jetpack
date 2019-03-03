@@ -15,7 +15,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 	 * the meta key is, but we do know that we have missing meta for a given post or comment.
 	 *
 	 * @param string $object_type The type of object for which we retrieve meta. Either 'post' or 'comment'
-	 * @param array $config Must include 'meta_key' and 'ids' keys
+	 * @param array  $config Must include 'meta_key' and 'ids' keys
 	 *
 	 * @return array
 	 */
@@ -32,13 +32,13 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			return array();
 		}
 
-		$meta_key = $config['meta_key'];
-		$ids = $config['ids'];
-		$object_id_column = $object_type.'_id';
+		$meta_key         = $config['meta_key'];
+		$ids              = $config['ids'];
+		$object_id_column = $object_type . '_id';
 
 		// Sanitize so that the array only has integer values
 		$ids_string = implode( ', ', array_map( 'intval', $ids ) );
-		$metas = $wpdb->get_results(
+		$metas      = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$table} WHERE {$object_id_column} IN ( {$ids_string} ) AND meta_key = %s",
 				$meta_key
@@ -46,14 +46,14 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 		);
 
 		$meta_objects = array();
-		foreach( (array) $metas as $meta_object ) {
-			$meta_object = (array) $meta_object;
+		foreach ( (array) $metas as $meta_object ) {
+			$meta_object                                       = (array) $meta_object;
 			$meta_objects[ $meta_object[ $object_id_column ] ] = array(
-				'meta_type' => $object_type,
-				'meta_id' => $meta_object['meta_id'],
-				'meta_key' => $meta_key,
+				'meta_type'  => $object_type,
+				'meta_id'    => $meta_object['meta_id'],
+				'meta_key'   => $meta_key,
 				'meta_value' => $meta_object['meta_value'],
-				'object_id' => $meta_object[ $object_id_column ],
+				'object_id'  => $meta_object[ $object_id_column ],
 			);
 		}
 
