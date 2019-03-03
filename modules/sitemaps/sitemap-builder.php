@@ -1324,13 +1324,13 @@ class Jetpack_Sitemap_Builder {
 		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
 			$video_thumbnail_url = get_the_post_thumbnail_url( $post );
 		} else {
-		       /**
-			* Filter the thumbnail image used in the video sitemap for non-VideoPress videos.
-			*
-			* @since 7.2.0
-			*
-			* @param string $str Image URL.
-			*/
+			/**
+			 * Filter the thumbnail image used in the video sitemap for non-VideoPress videos.
+			 *
+			 * @since 7.2.0
+			 *
+			 * @param string $str Image URL.
+			 */
 			$video_thumbnail_url = apply_filters( 'jetpack_video_sitemap_default_thumbnail', 'https://s0.wp.com/i/blank.jpg' );
 		}
 
