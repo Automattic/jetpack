@@ -84,6 +84,10 @@ try {
 <?php
 	}
 
+	static function ui_url() {
+		return add_query_arg( 'action', self::UI_ACTION_ARG, admin_url( 'import.php' ) );
+	}
+
 	static function admin_notice() {
 		/**
 		 * TODO:
@@ -95,7 +99,7 @@ try {
 <div class="notice notice-info is-dismissible">
 	<h1>Try the Unified Importer</h1>
 	<p>Jetpack includes an import experience that's easy-to-use and supports....</p>
-	<a class="button primary" href="/wp-admin/import.php?action=<?php echo esc_attr( self::UI_ACTION_ARG ) ?>">Try it!</a>
+	<a class="button primary" href="<?php echo esc_url( self::ui_url() ) ?>">Try it!</a>
 </div>
 <?php
 	}
