@@ -1,28 +1,23 @@
 <?php
 
 class Jetpack_Unified_Importer_Module {
-	static function is_import_screen() {
+	const UI_ACTION_ARG = 'jetpack_import_ui';
+
+	static function admin_init() {
 		global $pagenow;
 
-		// $pagenow is probably enough for us
-		// We may want additional "screen" info at some point, so putting here for ref
-		// $screen = get_current_screen();
-		// error_log( print_r( $screen, 1 ) );
-
-		switch ( $pagenow ) {
-			case 'import.php':
-				return true;
-			case 'admin.php':
-				return isset( $_REQUEST['import'] ) && $_REQUEST['import'];
-		}
-	}
-
-	static function import_ui() {
-		if ( ! self::is_import_screen() ) {
-			// Do nothing except on the import screen
+		if ( 'import.php' !== $pagenow ) {
 			return;
 		}
 
+		/**
+		 * This action fires in wp-admin when query argument `action=jetpack_import_ui`
+		 * @see https://developer.wordpress.org/reference/hooks/admin_action__requestaction/
+		 */
+		add_action( 'admin_action_' . self::UI_ACTION_ARG, __CLASS__ . '::import_ui' );
+	}
+
+	static function import_ui() {
 		/**
 		 * Pre-hide the core UI so it doesn't jump around
 		 *
@@ -84,8 +79,4 @@ try {
 	}
 }
 
-/**
- * This action fires in wp-admin when query argument `action=jetpack_import_ui`
- * @see https://developer.wordpress.org/reference/hooks/admin_action__requestaction/
- */
-add_action( 'admin_action_jetpack_import_ui', array( 'Jetpack_Unified_Importer_Module', 'import_ui' ) );
+add_action( 'admin_init', array( 'Jetpack_Unified_Importer_Module', 'admin_init' ) );
