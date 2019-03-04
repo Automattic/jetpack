@@ -476,7 +476,7 @@ class Jetpack_Network {
 				'state'                 => $user_id,
 				'_ui'                   => $tracks_identity['_ui'],
 				'_ut'                   => $tracks_identity['_ut'],
-				'site_created'          => Jetpack::get_site_creation_date(),
+				'site_created'          => Jetpack::get_assumed_site_creation_date(),
 				'jetpack_version'       => JETPACK__VERSION
 			),
 			'headers' => array(

@@ -4818,7 +4818,7 @@ p {
 					'site_lang'     => get_locale(),
 					'_ui'           => $tracks_identity['_ui'],
 					'_ut'           => $tracks_identity['_ut'],
-					'site_created'  => Jetpack::get_site_creation_date(),
+					'site_created'  => Jetpack::get_assumed_site_creation_date(),
 				)
 			);
 
@@ -4846,21 +4846,40 @@ p {
 	}
 
 	/**
-	 * Get the site age, based on the earliest user registration date.
+	 * Get our assumed site creation date.
+	 * Calculated based on the earlier date of either:
+	 * - Earliest user registration date.
+	 * - Earliest date of post of any post type.
 	 *
-	 * @since 7.1.0
+	 * @since 7.2.0
 	 *
-	 * @return string Site creation date and time.
+	 * @return string Assumed site creation date and time.
 	 */
-	public static function get_site_creation_date() {
-		$oldest_user = get_users( array(
+	public static function get_assumed_site_creation_date() {
+		$earliest_registered_users = get_users( array(
 			'role'    => 'administrator',
 			'orderby' => 'user_registered',
 			'order'   => 'ASC',
 			'fields'  => array( 'user_registered' ),
 			'number'  => 1,
 		) );
-		return $oldest_user[0]->user_registered;
+		$earliest_registration_date = $earliest_registered_users[0]->user_registered;
+
+		$earliest_posts = get_posts( array(
+			'posts_per_page' => 1,
+			'post_type'      => 'any',
+			'post_status'    => 'any',
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+		) );
+
+		if ( $earliest_posts ) {
+			$earliest_post_date = $earliest_posts[0]->post_date;
+		} else {
+			$earliest_post_date = PHP_INT_MAX;
+		}
+		
+		return min( $earliest_registration_date, $earliest_post_date );
 	}
 
 	public static function apply_activation_source_to_args( &$args ) {
@@ -5482,7 +5501,7 @@ p {
 				'state'           => get_current_user_id(),
 				'_ui'             => $tracks_identity['_ui'],
 				'_ut'             => $tracks_identity['_ut'],
-				'site_created'    => Jetpack::get_site_creation_date(),
+				'site_created'    => Jetpack::get_assumed_site_creation_date(),
 				'jetpack_version' => JETPACK__VERSION
 			),
 			'headers' => array(
@@ -7494,3 +7513,5 @@ p {
 		return Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 }
+
+Jetpack::get_assumed_site_creation_date();
