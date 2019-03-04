@@ -15,9 +15,9 @@
     loader-utils "^0.2.2"
     object-assign "^4.0.1"
 
-"@automattic/jetpack-blocks@13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-13.0.0.tgz#2b4a6c124ce06948ae6fb48e7efa3879fa951b3c"
+"@automattic/jetpack-blocks@13.1.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-13.1.0.tgz#b25da8b79611c61cc6e260863d2d1888cdc2d6ad"
 
 "@babel/code-frame@7.0.0-beta.46":
   version "7.0.0-beta.46"
@@ -131,7 +131,6 @@
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.3.1":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.3.1.tgz#ba4ae5fa908f7d8b96b0ec8df0665aca2d8695a4"
-  integrity sha512-rgmZk5CrBGAMATk0HlHOFvo8V44/r+On6cKS80tqid0Eljd+fFBWBOXZp9H2/EB3faxdNdzXTx6QZIKLkbJ7mA==
   dependencies:
     type-detect "4.0.8"
 
@@ -150,7 +149,6 @@
 "@sinonjs/formatio@^3.2.1":
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/formatio/-/formatio-3.2.1.tgz#52310f2f9bcbc67bdac18c94ad4901b95fde267e"
-  integrity sha512-tsHvOB24rvyvV2+zKMmPkZ7dXX6LSLKZ7aOtXY6Edklp0uRcgGpOsQTTGTcWViFyx4uhWc6GV8QdnALbIbIdeQ==
   dependencies:
     "@sinonjs/commons" "^1"
     "@sinonjs/samsam" "^3.1.0"
@@ -166,7 +164,6 @@
 "@sinonjs/samsam@^3.1.0", "@sinonjs/samsam@^3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-3.2.0.tgz#58c62b5f1f42e46d039d073d0ae2753da676bf0c"
-  integrity sha512-j5F1rScewLtx6pbTK0UAjA3jJj4RYiSKOix53YWv+Jzy/AZ69qHxUpU8fwVLjyKbEEud9QrLpv6Ggs7WqTimYw==
   dependencies:
     "@sinonjs/commons" "^1.0.2"
     array-from "^2.1.1"
@@ -175,7 +172,6 @@
 "@sinonjs/text-encoding@^0.7.1":
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
-  integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
 "@types/node@*":
   version "10.12.12"
@@ -3873,7 +3869,6 @@ gulp-jshint@2.1.0:
 gulp-json-transform@0.4.6:
   version "0.4.6"
   resolved "https://registry.yarnpkg.com/gulp-json-transform/-/gulp-json-transform-0.4.6.tgz#37ab209463df62c9e779887d675fb6025eb07b89"
-  integrity sha512-laPoNiJP/+lAeiyb0lgY3cynOOi7R/QbPvKBEXJY6bm836nYg90pwY4mgwR7w8nFDlXiCToUeaoQCBIc2NudjA==
   dependencies:
     ansi-colors "^1.0.1"
     fancy-log "^1.3.2"
@@ -5396,7 +5391,6 @@ lolex@^2.3.2:
 lolex@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/lolex/-/lolex-3.1.0.tgz#1a7feb2fefd75b3e3a7f79f0e110d9476e294434"
-  integrity sha512-zFo5MgCJ0rZ7gQg69S4pqBsLURbFw11X68C18OcJjJQbqaXm2NoTrGl1IMM3TIz0/BnN1tIs2tzmmqvCsOMMjw==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
@@ -5808,7 +5802,6 @@ nice-try@^1.0.4:
 nise@^1.4.10:
   version "1.4.10"
   resolved "https://registry.yarnpkg.com/nise/-/nise-1.4.10.tgz#ae46a09a26436fae91a38a60919356ae6db143b6"
-  integrity sha512-sa0RRbj53dovjc7wombHmVli9ZihXbXCQ2uH3TNm03DyvOSIQbxg+pbqDKrk2oxMK1rtLGVlKxcB9rrc6X5YjA==
   dependencies:
     "@sinonjs/formatio" "^3.1.0"
     "@sinonjs/text-encoding" "^0.7.1"
@@ -5942,7 +5935,6 @@ node-sass@4.11.0, node-sass@^4.8.3:
 node-wp-i18n@1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/node-wp-i18n/-/node-wp-i18n-1.2.3.tgz#78c07fc3480693c0fa25c88a2d1e9c748700541b"
-  integrity sha512-YMzMcsjXbGYDB9vHyb289CYXAGmXhcNLbeTlOnWgPNkZd9xrovcbRd7cQyKd9BQHOjS7Nw8WCbJ7nvtR7rc0rg==
   dependencies:
     bluebird "^3.4.1"
     gettext-parser "^3.1.0"
@@ -7678,7 +7670,6 @@ sinon-chai@3.3.0:
 sinon@7.2.7:
   version "7.2.7"
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-7.2.7.tgz#ee90f83ce87d9a6bac42cf32a3103d8c8b1bfb68"
-  integrity sha512-rlrre9F80pIQr3M36gOdoCEWzFAMDgHYD8+tocqOw+Zw9OZ8F84a80Ds69eZfcjnzDqqG88ulFld0oin/6rG/g==
   dependencies:
     "@sinonjs/commons" "^1.3.1"
     "@sinonjs/formatio" "^3.2.1"
