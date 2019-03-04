@@ -2,9 +2,9 @@
 /*
  * Plugin Name: Logo Tool
  * Plugin URI: http://wordpress.com
- * Description: Add a logo to your WordPress site. Set it once, and all themes that support it will display it automatically.
+ * Description: Add a "Create Logo" button to the Customizer when the theme supports a logo. The button directs customers to LogoJoy.
  * Author: Automattic
- * Version: 1.0
+ * Version: 1.1
  * Author URI: http://wordpress.com
  * License: GPL2 or later
  * Text Domain: logo-tools
@@ -19,18 +19,27 @@
  */
 
 function add_logojoy_button( $wp_customize ) {
-	if ( ! current_theme_supports( 'custom-logo' ) || ! is_admin() ) {
+	if ( ! is_admin() ) {
 		return;
 	}
-	$logo_control = $wp_customize->get_control( 'custom_logo' );
 
-	// not what we want? ah well, bye.
-	if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
-		// try Jetpack
-		$logo_control = $wp_customize->get_control( 'site_logo' );
+	// WP Core logo integration
+	if ( current_theme_supports( 'custom-logo' ) ){
+		$logo_control = $wp_customize->get_control( 'custom_logo' );
+
 		if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
 			return;
 		}
+
+	// Jetpack logo integration
+	} else if ( current_theme_supports( 'site-logo' ) ){
+		$logo_control = $wp_customize->get_control( 'site_logo' );
+
+		if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
+			return;
+		}
+	} else {
+		return;
 	}
 
 	// using the 'jetpack' namespace because that's what Site Logo uses
@@ -45,5 +54,6 @@ function add_logojoy_button( $wp_customize ) {
 			'create' => __( 'Create logo', 'jetpack' ),
 		] );
 	});
+
 }
 add_action( 'customize_register', 'add_logojoy_button', 20 );
