@@ -159,6 +159,10 @@ var JetpackPSH = {};
 		 * Start suggesting.
 		 */
 		init: function() {
+			if ( JetpackPSH.$pluginFilter.length < 1 ) {
+				return;
+			}
+
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();
 
