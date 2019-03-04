@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Site_Importer_Module {
+class Jetpack_Unified_Importer_Module {
 	static function is_import_screen() {
 		global $pagenow;
 
@@ -88,4 +88,4 @@ try {
  * This action fires in wp-admin when query argument `action=jetpack_import_ui`
  * @see https://developer.wordpress.org/reference/hooks/admin_action__requestaction/
  */
-add_action( 'admin_action_jetpack_import_ui', array( 'Jetpack_Site_Importer_Module', 'import_ui' ) );
+add_action( 'admin_action_jetpack_import_ui', array( 'Jetpack_Unified_Importer_Module', 'import_ui' ) );
