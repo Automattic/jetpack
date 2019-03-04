@@ -15,9 +15,15 @@ class Jetpack_Unified_Importer_Module {
 		 * @see https://developer.wordpress.org/reference/hooks/admin_action__requestaction/
 		 */
 		add_action( 'admin_action_' . self::UI_ACTION_ARG, __CLASS__ . '::import_ui' );
+
+		// The `import_ui` class will remove this function when our UI shows
+		add_action( 'admin_notices', __CLASS__ . '::admin_notice' );
 	}
 
 	static function import_ui() {
+		// Don't print the admin notice when already on our UI
+		remove_action( 'admin_notices', __CLASS__ . '::admin_notice' );
+
 		/**
 		 * Pre-hide the core UI so it doesn't jump around
 		 *
@@ -75,6 +81,22 @@ try {
 	console.error( 'Jetpack Importer UI: Unable to locate importers table' );
 }
 </script>
+<?php
+	}
+
+	static function admin_notice() {
+		/**
+		 * TODO:
+		 * - [ ] Copy
+		 * - [ ] Styling
+		 * - [ ] Persist the opt-out for some period...?
+		 */
+?>
+<div class="notice notice-info is-dismissible">
+	<h1>Try the Unified Importer</h1>
+	<p>Jetpack includes an import experience that's easy-to-use and supports....</p>
+	<a class="button primary" href="/wp-admin/import.php?action=<?php echo esc_attr( self::UI_ACTION_ARG ) ?>">Try it!</a>
+</div>
 <?php
 	}
 }
