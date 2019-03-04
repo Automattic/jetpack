@@ -87,11 +87,12 @@ class Jetpack_WordAds_Gutenblock {
 		// section_id is mostly depricated at this point, but it helps us (devs) keep track of which ads end up where
 		// 6 is to keep track of gutenblock ads.
 		$section_id = $wordads->params->blog_id . '6';
-		$align      = 'center';
+
+		$classes = array();
 		if ( isset( $attr['align'] ) && in_array( $attr['align'], array( 'left', 'center', 'right' ), true ) ) {
-			$align = $attr['align'];
+			$align     = $attr['align'];
+			$classes[] = 'align' . $align;
 		}
-		$align = 'align' . $align;
 
 		$ad_tag_ids = $wordads->get_ad_tags();
 		$format     = 'mrec';
