@@ -283,7 +283,7 @@ class Jetpack_Plugin_Search {
 					'search',
 				) )
 			);
-			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
+			uasort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
 			// Record event when user searches for a term
 			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
@@ -301,7 +301,7 @@ class Jetpack_Plugin_Search {
 				}
 			}
 
-			if ( isset( $matching_module ) && $this->is_not_dismissed( $jetpack_modules_list[ $matching_module ]['module'] ) ) {
+			if ( isset( $matching_module ) && $this->is_not_dismissed( $matching_module ) ) {
 				// Record event when a matching feature is found
 				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
