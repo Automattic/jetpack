@@ -156,6 +156,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Related Posts: avoid display a dulplicated set of related posts when using the Related Posts block.
 * REST API: fix a bug causing Likes settings on a post to sometimes be flipped.
 * Security: avoid bypassing Protect's Math Fallback challenge.
+* Security: fix an XSS vulnerability in the "My Community" widget.
 * Site Stats: do not show the Jetpack logo in the Stats dashboard widget title in the Screen Options tab.
 * Theme Tools: support alternative Pinterest domain extensions in the Social Menus tool.
 * Widgets: support alternative Pinterest domain extensions in the Social Icons Widget.
