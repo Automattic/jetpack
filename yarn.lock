@@ -15,9 +15,9 @@
     loader-utils "^0.2.2"
     object-assign "^4.0.1"
 
-"@automattic/jetpack-blocks@13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-13.0.0.tgz#2b4a6c124ce06948ae6fb48e7efa3879fa951b3c"
+"@automattic/jetpack-blocks@13.1.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-13.1.0.tgz#b25da8b79611c61cc6e260863d2d1888cdc2d6ad"
 
 "@babel/code-frame@7.0.0-beta.46":
   version "7.0.0-beta.46"
