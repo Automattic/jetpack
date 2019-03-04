@@ -251,7 +251,8 @@ class Jetpack_Plugin_Search {
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
-				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/'
+				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/',
+				'configure_url' => admin_url( 'admin.php?page=akismet-key-config' ),
 			),
 		);
 	}
@@ -260,28 +261,13 @@ class Jetpack_Plugin_Search {
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-		$jetpack_modules_list = Jetpack_Admin::init()->get_modules();
 
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
-			$matching_module = null;
-
-			// Record event when user searches for a term
-			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
-
-			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
-			$normalized_term = $this->sanitize_search_term( $args->search );
-
-			$jetpack_modules_list = array_merge( $this->get_extra_features(), $jetpack_modules_list );
-
-			usort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
-
-			// Try to match a passed search term with module's search terms
-			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-
-				// Whitelist of features to look for
-				if ( ! in_array( $module_opts['module'], array(
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$jetpack_modules_list = array_intersect_key(
+				array_merge( $this->get_extra_features(), Jetpack_Admin::init()->get_modules() ),
+				array_flip( array(
 					'contact-form',
 					'lazy-images',
 					'monitor',
@@ -295,17 +281,27 @@ class Jetpack_Plugin_Search {
 					'vaultpress',
 					'videopress',
 					'search',
-				), true ) ) {
-					continue;
-				}
-				$terms_array = explode( ', ', strtolower( $module_opts['search_terms'] . ', ' . $module_opts['name'] ) );
-				if ( in_array( $normalized_term, $terms_array ) ) {
+				) )
+			);
+			uasort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
+
+			// Record event when user searches for a term
+			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+
+			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
+			$normalized_term = $this->sanitize_search_term( $args->search );
+
+			$matching_module = null;
+
+			// Try to match a passed search term with module's search terms
+			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
+				if ( false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term ) ) {
 					$matching_module = $module_slug;
 					break;
 				}
 			}
 
-			if ( isset( $matching_module ) && $this->is_not_dismissed( $jetpack_modules_list[ $matching_module ]['module'] ) ) {
+			if ( isset( $matching_module ) && $this->is_not_dismissed( $matching_module ) ) {
 				// Record event when a matching feature is found
 				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
@@ -332,10 +328,21 @@ class Jetpack_Plugin_Search {
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ], $overrides );
 
 				// Add it to the top of the list
-				array_unshift( $result->plugins, $inject );
+				$result->plugins = array( $inject ) + array_filter( $result->plugins, array( $this, 'filter_cards' ) );
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Remove cards for Akismet, Jetpack and VaultPress plugins since we don't want duplicates.
+	 *
+	 * @param array $plugin
+	 *
+	 * @return bool
+	 */
+	function filter_cards( $plugin = array() ) {
+		return ! in_array( $plugin['slug'], array( 'akismet', 'jetpack', 'vaultpress' ), true );
 	}
 
 	/**
@@ -387,30 +394,30 @@ class Jetpack_Plugin_Search {
 	 * we prefer to send users to Calypso.
 	 *
 	 * @param string $feature
-	 *
-	 * @since 7.1.0
+	 * @param string $configure_url
 	 *
 	 * @return string
+	 * @since 7.1.0
+	 *
 	 */
-	private function get_configure_url( $feature ) {
-		$url = Jetpack::module_configuration_url( $feature );
+	private function get_configure_url( $feature, $configure_url ) {
 		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$url = "https://wordpress.com/sharing/$siteFragment";
+				$configure_url = "https://wordpress.com/sharing/$siteFragment";
 				break;
 			case 'seo-tools':
-				$url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
+				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
 				break;
 			case 'google-analytics':
-				$url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
+				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
 				break;
 			case 'wordads':
-				$url = "https://wordpress.com/ads/settings/$siteFragment";
+				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
 				break;
 		}
-		return esc_url( $url );
+		return $configure_url;
 	}
 
 	/**
@@ -426,15 +433,16 @@ class Jetpack_Plugin_Search {
 
 		$links = array();
 
-		// Jetpack installed, active, feature not enabled; prompt to enable.
-		if (
-			(
-				Jetpack::is_active() ||
-				(
-					Jetpack::is_development_mode() &&
-					! $plugin[ 'requires_connection' ]
-				)
-			) &&
+		if ( 'akismet' === $plugin['module'] || 'vaultpress' === $plugin['module'] ) {
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
+				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="get_started"
+				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
+			// Jetpack installed, active, feature not enabled; prompt to enable.
+		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
@@ -443,11 +451,11 @@ class Jetpack_Plugin_Search {
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
-					data-configure-url="' . $this->get_configure_url( $plugin['module'] ) . '"
+					data-configure-url="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
 					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
 				: '<a
 					class="jetpack-plugin-search__primary button"
-					href="' . $this->get_upgrade_url( $plugin['module'] ) . '"
+					href="' . esc_url( $this->get_upgrade_url( $plugin['module'] ) ) . '"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
 					data-track="purchase"
 					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
@@ -463,7 +471,7 @@ class Jetpack_Plugin_Search {
 			$links[] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary button jetpack-plugin-search__configure"
-				href="' . esc_url( $plugin['configure_url'] ) . '"
+				href="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="configure"
 				>' . esc_html__( 'Configure', 'jetpack' ) . '</a>';
