@@ -53,9 +53,9 @@ class Jetpack_Site_Importer_Module {
 
 	static function import_ui_entry_element() {
 ?>
-<div class="jetpack-site-importer">
+<div class="jetpack-unified-importer">
 	<h1>Oh hi, hullo, Unified Importer!!!!</h1>
-	<p>So, this element (<code>.jetpack-site-importer</code>) is our entry point for our script.</p>
+	<p>So, this element (<code>.jetpack-unified-importer</code>) is our entry point for our script.</p>
 	<hr />
 	<p>
 		We can clone and mutate the core list (<code>table.importers</code>)<br />
@@ -63,7 +63,7 @@ class Jetpack_Site_Importer_Module {
 	</p>
 	<hr />
 	<p>And we can have a button which toggles visibility of this & the "regular" UI</p>
-	<p>e.g.&nbsp;&nbsp;<button class="jetpack-site-importer__exit">Exit</button></p>
+	<p>e.g.&nbsp;&nbsp;<button class="jetpack-unified-importer__exit">Exit</button></p>
 	<div style="width: 400px">
 		<marquee>For now, please enjoy this super-1337 throwback jQuery mockup ;P</marquee>
 	</div>

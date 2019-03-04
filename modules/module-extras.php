@@ -22,7 +22,7 @@ $tools = array(
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',
 	'seo-tools/jetpack-seo-posts.php',
-	'site-importer/site-importer.php',
+	'unified-importer/unified-importer.php',
 	'simple-payments/simple-payments.php',
 	'verification-tools/verification-tools-utils.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
