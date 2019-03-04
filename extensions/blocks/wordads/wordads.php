@@ -90,8 +90,7 @@ class Jetpack_WordAds_Gutenblock {
 
 		$classes = array();
 		if ( isset( $attr['align'] ) && in_array( $attr['align'], array( 'left', 'center', 'right' ), true ) ) {
-			$align     = $attr['align'];
-			$classes[] = 'align' . $align;
+			$classes[] = 'align' . $attr['align'];
 		}
 
 		$ad_tag_ids = $wordads->get_ad_tags();
@@ -103,7 +102,7 @@ class Jetpack_WordAds_Gutenblock {
 		$height  = $ad_tag_ids[ $format ]['height'];
 		$width   = $ad_tag_ids[ $format ]['width'];
 		$snippet = $wordads->get_ad_snippet( $section_id, $height, $width, 'inline', $wordads->get_solo_unit_css() );
-		return $wordads->get_ad_div( 'inline', $snippet, array( $align ) );
+		return $wordads->get_ad_div( 'inline', $snippet, $classes );
 	}
 }
 
