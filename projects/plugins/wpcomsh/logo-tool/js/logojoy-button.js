@@ -10,7 +10,6 @@
 				}
 			});
 
-			// only if it changes
 			if ( ! wp.customize( 'custom_logo' ) ) {
 				insertLogoButton( id );
 			}
@@ -23,15 +22,14 @@
 					insertLogoButton( id );
 				}
 			});
+
 			if ( ! wp.customize( 'site_logo' ) ) {
 				insertLogoButton( id );
 			}
 		}
-
 	});
 
 	function insertLogoButton( id ) {
-		console.log('adding button');
 		var button = $( '<a class="button" target="_blank" href="https://logojoy.grsm.io/WordPress" />' ).text( _Logojoy_l10n.create ).css({
 			height: 'auto',
 			marginRight: '8px',
@@ -43,5 +41,4 @@
 			$( id + ' .actions' ).prepend( button );
 		}, 10 );
 	}
-
 })( jQuery, wp );
