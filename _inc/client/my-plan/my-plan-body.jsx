@@ -519,7 +519,9 @@ class MyPlanBody extends React.Component {
 								<img
 									src={ imagePath + '/jetpack-site-activity.svg' }
 									className="jp-landing__plan-features-icon"
-									alt={ __( 'Interface showing a chronological list of changes and updates in a site' ) }
+									alt={ __(
+										'Interface showing a chronological list of changes and updates in a site'
+									) }
 								/>
 							</div>
 							<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
@@ -533,6 +535,34 @@ class MyPlanBody extends React.Component {
 								href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
 							>
 								{ __( 'View your site activity' ) }
+							</Button>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-support.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'Chat bubbles representing getting in touch with support' ) }
+								/>
+							</div>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Support documentation' ) }</h3>
+							<p>
+								{ __(
+									'Need help? Search our support site to find out about your site, your account, and how to make the most of WordPress.'
+								) }
+							</p>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
+								href="https://jetpack.com/support/"
+							>
+								{ __( 'Support documentation' ) }
+							</Button>
+							<Button
+								onClick={ this.handleButtonClickForTracking( 'free_ask_a_question' ) }
+								href="https://jetpack.com/contact-support/?rel=support"
+							>
+								{ __( 'Ask a question' ) }
 							</Button>
 						</div>
 
