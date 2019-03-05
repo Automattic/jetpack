@@ -27,7 +27,12 @@ if (
 	 * @return string
 	 */
 	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
-		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
+		$dependencies = array(
+			'lodash',
+			'wp-i18n',
+			'wp-token-list',
+		);
+		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery', $dependencies );
 
 		/**
 		 * Filter the output of the Tiled Galleries content.
