@@ -689,10 +689,13 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total']     = false;
-	if ( ! empty( $instance['show_subscribers_total'] ) && 'false' !== $instance['show_subscribers_total'] ) {
+
+	if ( empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ) {
+		$instance['show_subscribers_total'] = false;
+	} else {
 		$instance['show_subscribers_total'] = true;
 	}
+
 	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
