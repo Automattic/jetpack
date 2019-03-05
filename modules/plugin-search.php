@@ -6,11 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+
 if (
 	is_admin() &&
 	Jetpack::is_active() &&
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-	apply_filters( 'jetpack_show_promotions', true )
+	apply_filters( 'jetpack_show_promotions', true ) &&
+	jetpack_is_psh_active()
 ) {
 	Jetpack_Plugin_Search::init();
 }
@@ -506,5 +508,31 @@ class Jetpack_Plugin_Search {
 		return $links;
 	}
 
+}
 
+/**
+ * Master control that checks if Plugin search hints is active.
+ *
+ * @since 7.1.1
+ *
+ * @return bool True if PSH is active.
+ */
+function jetpack_is_psh_active() {
+	if ( false === ( $status = get_transient( 'jetpack_psh_status' ) ) ) {
+		$response = wp_remote_get( 'https://jetpack.com/psh-status/', array( 'sslverify' => false ) );
+		if ( is_wp_error( $response ) ) {
+			return true;
+		}
+		$body = wp_remote_retrieve_body( $response );
+		if ( empty( $body ) ) {
+			return true;
+		}
+		$json = json_decode( $body );
+		if ( ! isset( $json->active ) ) {
+			return true;
+		}
+		$status = (bool) $json->active;
+		set_transient( 'jetpack_psh_status', $status, 15 * MINUTE_IN_SECONDS );
+	}
+	return $status;
 }
