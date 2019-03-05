@@ -328,7 +328,8 @@ class Jetpack_Plugin_Search {
 				$inject = array_merge( $inject, $jetpack_modules_list[ $matching_module ], $overrides );
 
 				// Add it to the top of the list
-				$result->plugins = array( $inject ) + array_filter( $result->plugins, array( $this, 'filter_cards' ) );
+				$result->plugins = array_filter( $result->plugins, array( $this, 'filter_cards' ) );
+				array_unshift( $result->plugins, $inject );
 			}
 		}
 		return $result;
