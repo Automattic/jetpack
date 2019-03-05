@@ -573,30 +573,27 @@ class MyPlanBody extends React.Component {
 								>
 									{ __( 'Support documentation' ) }
 								</Button>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_ask_a_question' ) }
-									href="https://jetpack.com/contact-support/?rel=support"
-								>
-									{ __( 'Ask a question' ) }
-								</Button>
 							</div>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Jetpack offers so much more' ) }
-							</h3>
-							<p>
-								{ __(
-									'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
-								) }
-							</p>
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
-								href={ '#/plans' }
-							>
-								{ __( 'Explore Jetpack plans' ) }
-							</Button>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Jetpack offers so much more' ) }
+								</h3>
+								<p>
+									{ __(
+										'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
+									href={ '#/plans' }
+									className="is-primary"
+								>
+									{ __( 'Explore Jetpack plans' ) }
+								</Button>
+							</div>
 						</div>
 					</div>
 				);
