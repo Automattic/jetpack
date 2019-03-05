@@ -431,7 +431,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'free_security' ) }
 								href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-								className="is-primary"
 							>
 								{ __( 'Set up your site security' ) }
 							</Button>
@@ -447,7 +446,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
 								href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
-								className="is-primary"
 							>
 								{ __( 'Make your site faster' ) }
 							</Button>
@@ -465,7 +463,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
 								href={ 'https://wordpress.com/themes/' + this.props.siteRawUrl }
-								className="is-primary"
 							>
 								{ __( 'Explore free themes' ) }
 							</Button>
@@ -483,7 +480,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
 								href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
-								className="is-primary"
 							>
 								{ __( 'Start publicizing now' ) }
 							</Button>
@@ -499,7 +495,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
 								href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
-								className="is-primary"
 							>
 								{ __( 'View your site activity' ) }
 							</Button>
@@ -517,7 +512,6 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
 								href={ '#/plans' }
-								className="is-primary"
 							>
 								{ __( 'Explore Jetpack plans' ) }
 							</Button>
