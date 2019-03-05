@@ -147,7 +147,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		if ( ! $publicize ) {
 			return WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' )
+				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
 			);
 		}
 
