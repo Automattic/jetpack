@@ -14,6 +14,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants/urls';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,
@@ -422,6 +423,13 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-security.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+								/>
+							</div>
 							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
 							<p>
 								{ __(
@@ -437,6 +445,13 @@ class MyPlanBody extends React.Component {
 						</div>
 
 						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-speed-icon.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A fast and performant website' ) }
+								/>
+							</div>
 							<h3 className="jp-landing__plan-features-title">{ __( 'Built-in Performance' ) }</h3>
 							<p>
 								{ __(
@@ -452,6 +467,13 @@ class MyPlanBody extends React.Component {
 						</div>
 
 						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-themes.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A wide variety of themes and tools to customize a site' ) }
+								/>
+							</div>
 							<h3 className="jp-landing__plan-features-title">
 								{ __( 'Design the perfect website' ) }
 							</h3>
@@ -469,6 +491,13 @@ class MyPlanBody extends React.Component {
 						</div>
 
 						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-performance-icon.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'Site stats showing an evolution in traffic and engagement' ) }
+								/>
+							</div>
 							<h3 className="jp-landing__plan-features-title">
 								{ __( 'Increase traffic to your site' ) }
 							</h3>
@@ -486,6 +515,13 @@ class MyPlanBody extends React.Component {
 						</div>
 
 						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-site-activity.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'Interface showing a chronological list of changes and updates in a site' ) }
+								/>
+							</div>
 							<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
 							<p>
 								{ __(
