@@ -1754,11 +1754,10 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	// Do the dirty work.
 	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		// If bad, just return it, don't cache.
-		return $response;
+		$data = array();
+	} else {
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
 	}
-
-	$data = json_decode( wp_remote_retrieve_body( $response ) );
 
 	// Expire old keys.
 	foreach ( $stats_cache as $k => $cache ) {
