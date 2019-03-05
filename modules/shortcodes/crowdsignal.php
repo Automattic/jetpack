@@ -124,6 +124,32 @@ CONTAINER;
 		global $post;
 		global $content_width;
 
+		/**
+		 * Variables extracted from $atts.
+		 *
+		 * @var string $survey
+		 * @var string $link_text
+		 * @var string $poll
+		 * @var string $rating
+		 * @var string $unique_id
+		 * @var string $item_id
+		 * @var string $title
+		 * @var string $permalink
+		 * @var int $cb
+		 * @var string $type
+		 * @var string $body
+		 * @var string $button
+		 * @var string $text_color
+		 * @var string $back_color
+		 * @var string $align
+		 * @var string $style
+		 * @var int $width
+		 * @var int $height
+		 * @var int $delay
+		 * @var string $visit
+		 * @var string $domain
+		 * @var string $id
+		 */
 		extract( shortcode_atts( array(
 			'survey'     => null,
 			'link_text'  => 'Take Our Survey',
@@ -209,7 +235,9 @@ CONTAINER;
 
 			$item_id = esc_js( $item_id );
 
-			if ( $inline ) {
+			if ( Jetpack_AMP_Support::is_amp_request() ) {
+				return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $permalink ), esc_html( trim( $title ) ) );
+			} elseif ( $inline ) {
 				return <<<SCRIPT
 <div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
@@ -242,12 +270,16 @@ CONTAINER;
 			}
 		} elseif ( intval( $poll ) > 0 ) { //poll embed
 
+			if ( empty( $title ) ) {
+				$title = __( 'Take Our Poll', 'jetpack' );
+			}
+
 			$poll      = intval( $poll );
 			$poll_url  = sprintf( 'https://poll.fm/%d', $poll );
 			$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
-			$poll_link = sprintf( '<a href="%s" target="_blank">Take Our Poll</a>', $poll_url );
+			$poll_link = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $poll_url ), esc_html( $title ) );
 
-			if ( $no_script ) {
+			if ( $no_script || Jetpack_AMP_Support::is_amp_request() ) {
 				return $poll_link;
 			} else {
 				if ( $type == 'slider' && !$inline ) {
@@ -359,7 +391,7 @@ CONTAINER;
 				$settings = array();
 
 				// Do we want a full embed code or a link?
-				if ( $no_script || $inline || $infinite_scroll ) {
+				if ( $no_script || $inline || $infinite_scroll || Jetpack_AMP_Support::is_amp_request() ) {
 					return $survey_link;
 				}
 
@@ -554,6 +586,10 @@ new CrowdsignalShortcode();
 if ( ! function_exists( 'crowdsignal_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function crowdsignal_link( $content ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $content;
+		}
+
 		return preg_replace( '!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", $content );
 	}
 
@@ -565,5 +601,46 @@ if ( ! function_exists( 'crowdsignal_link' ) ) {
 wp_oembed_add_provider( '#https?://(.+\.)?polldaddy\.com/.*#i', 'https://api.crowdsignal.com/oembed', true );
 wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 wp_oembed_add_provider( '#https?://poll\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
+
+/**
+ * Filter oEmbed HTML for PollDaddy to for AMP output.
+ *
+ * @param string $cache Cache for oEmbed.
+ * @param string $url   Embed URL.
+ * @param array  $attr  Shortcode attributes.
+ * @return string Embed.
+ */
+function crowdsignal_filter_amp_embed_oembed_html( $cache, $url, $attr ) {
+	if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+		return $cache;
+	}
+
+	$parsed_url = wp_parse_url( $url );
+	if ( false === strpos( $parsed_url['host'], 'polldaddy.com' ) && false === strpos( $parsed_url['host'], 'crowdsignal.com' ) ) {
+		return $cache;
+	}
+
+	$output = '';
+
+	// Poll oEmbed responses include noscript which can be used as the AMP response.
+	if ( preg_match( '#<noscript>(.+?)</noscript>#s', $cache, $matches ) ) {
+		$output = $matches[1];
+	}
+
+	if ( empty( $output ) ) {
+		if ( ! empty( $attr['title'] ) ) {
+			$name = $attr['title'];
+		} elseif ( false !== strpos( $url, 'polldaddy.com/s' ) || false !== strpos( $url, 'survey.fm' ) ) {
+			$name = __( 'View Survey', 'amp' );
+		} else {
+			$name = __( 'View Poll', 'amp' );
+		}
+		$output = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $url ), esc_html( $name ) );
+	}
+
+	return $output;
+}
+
+add_filter( 'embed_oembed_html', 'crowdsignal_filter_amp_embed_oembed_html', 10, 3 );
 
 }
