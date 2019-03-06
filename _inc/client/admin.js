@@ -60,12 +60,9 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 render();
 
 async function loadUnifiedImporterBundle() {
-	const publicPathBackup = __webpack_public_path__;
-	__webpack_public_path__ = '/wp-content/plugins/jetpack/_inc/build/';
 	const {
 		default: UnifiedImporter,
 	} = await import( /* webpackChunkName: "unified-importer" */ 'unified-importer' );
-	__webpack_public_path__ = publicPathBackup;
 	return UnifiedImporter;
 }
 

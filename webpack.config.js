@@ -16,6 +16,7 @@ const webpackConfig = {
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
+		publicPath: '/wp-content/plugins/jetpack/_inc/build/',
 		filename: '[name].js'
 	},
 	module: {
