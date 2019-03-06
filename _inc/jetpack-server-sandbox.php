@@ -20,6 +20,7 @@ function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
 	switch ( $url_host ) {
 	case 'public-api.wordpress.com' :
 	case 'jetpack.wordpress.com' :
+	case 'jetpack.com' :
 	case 'dashboard.wordpress.com' :
 		$host = isset( $headers['Host'] ) ? $headers['Host'] : $url_host;
 		$url = preg_replace(
