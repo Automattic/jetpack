@@ -14,6 +14,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants/urls';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,
@@ -27,7 +28,7 @@ import {
 	getModuleOverride,
 } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 class MyPlanBody extends React.Component {
 	static propTypes = {
@@ -40,7 +41,7 @@ class MyPlanBody extends React.Component {
 
 	trackPlansClick = target => {
 		analytics.tracks.recordJetpackClick( {
-			page: 'plans',
+			page: 'my-plan',
 			target: target,
 			plan: this.props.plan,
 		} );
@@ -422,78 +423,178 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Design the perfect website' ) }
-							</h3>
-							<p>
-								{ __(
-									'Get unlimited access to hundreds of professional themes, a superior search experience for your users, and unlimited high-speed, and ad-free video hosting.'
-								) }
-							</p>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Increase traffic and revenue' ) }
-							</h3>
-							<p>
-								{ __(
-									'Reach more people and earn money with automated social media scheduling, better search results, SEO preview tools, PayPal payments, and an ad program.'
-								) }
-							</p>
-						</div>
-
-						{ this.props.showBackups && (
-							<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-security.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
 								<p>
 									{ __(
-										'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.'
+										'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
 									) }
 								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_security' ) }
+									href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+								>
+									{ __( 'Set up your site security' ) }
+								</Button>
 							</div>
-						) }
-
-						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Activity' ) }</h3>
-							<p>
-								{ __(
-									'View a chronological list of all the changes and updates to your site in an organized, readable way.'
-								) }
-							</p>
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-								href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
-								className="is-primary"
-							>
-								{ __( 'View your site activity' ) }
-							</Button>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Enjoy priority support' ) }
-							</h3>
-							<p>
-								{ __(
-									'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible.'
-								) }
-							</p>
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-speed-icon.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A fast and performant website' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Built-in Performance' ) }
+								</h3>
+								<p>
+									{ __(
+										'Load pages faster by serving your images from our global network of servers.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
+									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+								>
+									{ __( 'Make your site faster' ) }
+								</Button>
+							</div>
 						</div>
 
-						<p className="jp-landing__plan-features-link">
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'compare_plans' ) }
-								href={
-									'is-free-plan' === planClass
-										? this.props.plansMainBottomUpgradeUrl
-										: this.props.plansMainBottomDevModeUpgradeUrl
-								}
-								className="is-primary"
-							>
-								{ __( 'Compare plans' ) }
-							</Button>
-						</p>
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-themes.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A wide variety of themes and tools to customize a site' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Design the perfect website' ) }
+								</h3>
+								<p>
+									{ __(
+										'Get unlimited access to hundreds of professional themes, and customize your site exactly how you like it.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
+									href={ 'https://wordpress.com/themes/' + this.props.siteRawUrl }
+								>
+									{ __( 'Explore free themes' ) }
+								</Button>
+							</div>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-performance-icon.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'Site stats showing an evolution in traffic and engagement' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Increase traffic to your site' ) }
+								</h3>
+								<p>
+									{ __(
+										'Reach a wider audience by automatically sharing your posts on social media.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
+									href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
+								>
+									{ __( 'Start publicizing now' ) }
+								</Button>
+							</div>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-site-activity.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __(
+										'Interface showing a chronological list of changes and updates in a site'
+									) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+								<p>
+									{ __(
+										'View a chronological list of all the changes and updates to your site in an organized, readable way.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
+									href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+								>
+									{ __( 'View your site activity' ) }
+								</Button>
+							</div>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-support.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'Chat bubbles representing getting in touch with support' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Support documentation' ) }
+								</h3>
+								<p>
+									{ __(
+										'Need help? Search our support site to find out about your site, your account, and how to make the most of WordPress.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
+									href="https://jetpack.com/support/"
+								>
+									{ __( 'Support documentation' ) }
+								</Button>
+							</div>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Jetpack offers so much more' ) }
+								</h3>
+								<p>
+									{ __(
+										'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
+									href={ '#/plans' }
+									className="is-primary"
+								>
+									{ __( 'Explore Jetpack plans' ) }
+								</Button>
+							</div>
+						</div>
 					</div>
 				);
 				break;
@@ -537,10 +638,6 @@ export default connect(
 			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
 			getModuleOverride: module_slug => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
-			comparePlansUpgradeUrl: getUpgradeUrl( state, 'plans-compare-personal' ),
-			plansMainBottomUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom' ),
-			plansMainBottomDevModeUpgradeUrl: getUpgradeUrl( state, 'plans-main-bottom-dev-mode' ),
-			plansComparePremiumUpgradeUrl: getUpgradeUrl( state, 'plans-compare-premium' ),
 		};
 	},
 	dispatch => {

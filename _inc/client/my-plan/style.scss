@@ -125,6 +125,8 @@
 }
 
 .jp-landing__plan-features-card {
+	display: flex;
+	flex-wrap: nowrap;
 	flex-grow: 1;
 	box-sizing: border-box;
 	max-width: 49.5%;
@@ -156,6 +158,29 @@
 	@include breakpoint( "<480px" ) {
 		padding: rem( 16px );
 	}
+}
+
+.jp-landing__plan-features-img {
+	width: 90px;
+	margin-right: 8px;
+
+	@include breakpoint( ">960px" ) {
+		width: 120px;
+		margin-right: 18px;
+	}
+}
+
+.jp-landing__plan-features-icon {
+	display: block;
+	margin-left: -8px;
+
+	@include breakpoint( ">480px" ) {
+		margin-left: -16px;
+	}
+}
+
+.jp-landing__plan-features-text {
+	flex: 1;
 }
 
 .jp-landing__plan-features-title {
