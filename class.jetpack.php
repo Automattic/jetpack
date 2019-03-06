@@ -4873,6 +4873,7 @@ p {
 			'order'          => 'ASC',
 		) );
 
+		// If there are no posts at all, we'll count only on user registration date.
 		if ( $earliest_posts ) {
 			$earliest_post_date = $earliest_posts[0]->post_date;
 		} else {
