@@ -754,7 +754,8 @@ babel-core@6.26.3, babel-core@^6.26.0:
 
 babel-eslint@6.1.2:
   version "6.1.2"
-  resolved "http://registry.npmjs.org/babel-eslint/-/babel-eslint-6.1.2.tgz#5293419fe3672d66598d327da9694567ba6a5f2f"
+  resolved "https://registry.yarnpkg.com/babel-eslint/-/babel-eslint-6.1.2.tgz#5293419fe3672d66598d327da9694567ba6a5f2f"
+  integrity sha1-UpNBn+NnLWZZjTJ9qWlFZ7pqXy8=
   dependencies:
     babel-traverse "^6.0.20"
     babel-types "^6.0.19"
@@ -5264,6 +5265,7 @@ lodash.once@^4.0.0:
 lodash.pickby@^4.0.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.pickby/-/lodash.pickby-4.6.0.tgz#7dea21d8c18d7703a27c704c15d3b84a67e33aff"
+  integrity sha1-feoh2MGNdwOifHBMFdO4SmfjOv8=
 
 lodash.restparam@^3.0.0:
   version "3.6.1"

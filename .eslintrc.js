@@ -1,5 +1,9 @@
 module.exports = {
 	"parser": "babel-eslint",
+	"parserOptions": {
+		"allowImportExportEverywhere": true,
+		"sourceType": "module",
+	},
 	"extends": [
 		"wpcalypso/react-a11y",
 		"prettier",

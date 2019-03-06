@@ -59,7 +59,24 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 
 render();
 
+async function renderUnifiedImporter( unifiedImporterElement ) {
+	const {
+		default: UnifiedImporter,
+	} = await import( /* @TODO actually split into another bundle..? */
+	/* webpackChunkName: "unified-importer" */
+	/* webpackMode: "eager" */
+	'unified-importer' );
+
+	ReactDOM.render( <UnifiedImporter />, unifiedImporterElement );
+}
+
 function render() {
+	const unifiedImporterElement = document.querySelector( '.jetpack-unified-importer' );
+
+	if ( unifiedImporterElement ) {
+		return renderUnifiedImporter( unifiedImporterElement );
+	}
+
 	const container = document.getElementById( 'jp-plugin-container' );
 
 	if ( container === null ) {

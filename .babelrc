@@ -5,6 +5,7 @@
 		"react"
 	],
 	"plugins": [
+		"syntax-dynamic-import",
 		"transform-runtime",
 		"add-module-exports",
 		"transform-es3-member-expression-literals",
