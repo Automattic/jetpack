@@ -543,6 +543,7 @@ class Jetpack_Gutenberg {
 				'wp-i18n',
 				'wp-keycodes',
 				'wp-plugins',
+				'wp-polyfill',
 				'wp-rich-text',
 				'wp-token-list',
 				'wp-url',
