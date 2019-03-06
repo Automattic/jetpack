@@ -131,7 +131,7 @@ class MyPlanBody extends React.Component {
 							/>
 						</div>
 						<div className="jp-landing__plan-features-text">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Site Backups' ) }</h3>
 							<p>
 								{ __(
 									'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.'
@@ -192,39 +192,44 @@ class MyPlanBody extends React.Component {
 			case 'is-business-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
-						{ premiumThemesActive && (
-							<div className="jp-landing__plan-features-card">
-								<div className="jp-landing__plan-features-img">
-									<img
-										src={ imagePath + '/jetpack-security.svg' }
-										className="jp-landing__plan-features-icon"
-										alt={ __( 'A secure site, locked and protected by Jetpack' ) }
-									/>
-								</div>
-								<div className="jp-landing__plan-features-text">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Try a premium theme' ) }
-									</h3>
-									<p>
-										{ __(
-											'Access hundreds of beautifully designed premium themes at no extra cost.'
-										) }
-									</p>
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
-										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
-									>
-										{ __( 'Browse premium themes' ) }
-									</Button>
-								</div>
-							</div>
-						) }
+						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
+
+						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
+
+						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
+
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-security.svg' }
+									src={ imagePath + '/jetpack-speed-icon.svg' }
 									className="jp-landing__plan-features-icon"
-									alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+									alt={ __( 'A fast and performant website' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Built-in Performance' ) }
+								</h3>
+								<p>
+									{ __(
+										'Load pages faster by serving your images from our global network of servers.'
+									) }
+								</p>
+								<Button
+									onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
+									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+								>
+									{ __( 'Make your site faster' ) }
+								</Button>
+							</div>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + '/jetpack-spam.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A folder holding real comments' ) }
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
@@ -254,18 +259,49 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
-
-						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
-
-						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
+						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
+								<div className="jp-landing__plan-features-card">
+									<div className="jp-landing__plan-features-img">
+										<img
+											src={ imagePath + '/jetpack-video-hosting.svg' }
+											className="jp-landing__plan-features-icon"
+											alt={ __( 'A cloud with multiple types of content floating around it' ) }
+										/>
+									</div>
+									<div className="jp-landing__plan-features-text">
+										<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
+										<p>
+											{ __( 'High-speed, high-definition video hosting with no third-party ads.' ) }
+										</p>
+										{ this.props.isModuleActivated( 'videopress' ) ? (
+											<Button
+												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
+												href={ this.props.siteAdminUrl + 'upload.php' }
+											>
+												{ __( 'Upload videos' ) }
+											</Button>
+										) : (
+											<Button
+												onClick={ this.activateVideoPress }
+												className="is-primary"
+												disabled={ this.props.isActivatingModule( 'videopress' ) }
+											>
+												{ __( 'Activate video hosting' ) }
+											</Button>
+										) }
+									</div>
+								</div>
+							) }
 
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-security.svg' }
+									src={ imagePath + '/jetpack-site-activity.svg' }
 									className="jp-landing__plan-features-icon"
-									alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+									alt={ __(
+										'Interface showing a chronological list of changes and updates in a site'
+									) }
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
@@ -289,9 +325,9 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-security.svg' }
+											src={ imagePath + '/jetpack-wordads.svg' }
 											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+											alt={ __( 'A chart showing an healthy increase in earnings' ) }
 										/>
 									</div>
 									<div className="jp-landing__plan-features-text">
@@ -329,9 +365,9 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-security.svg' }
+											src={ imagePath + '/jetpack-search-icon.svg' }
 											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+											alt={ __( 'A hand holding a loupe' ) }
 										/>
 									</div>
 									<div className="jp-landing__plan-features-text">
@@ -362,87 +398,13 @@ class MyPlanBody extends React.Component {
 							) }
 
 						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
-							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-security.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Marketing Automation' ) }
-										</h3>
-										<p>
-											{ __(
-												'Schedule unlimited tweets, Facebook posts, and other social posts in advance.'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'publicize' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-												href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl }
-											>
-												{ __( 'Schedule posts' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activatePublicize }
-												className="is-primary"
-												disabled={ this.props.isActivatingModule( 'publicize' ) }
-											>
-												{ __( 'Activate Publicize' ) }
-											</Button>
-										) }
-									</div>
-								</div>
-							) }
-
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
-							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-security.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-										<p>
-											{ __( 'High-speed, high-definition video hosting with no third-party ads.' ) }
-										</p>
-										{ this.props.isModuleActivated( 'videopress' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
-												href={ this.props.siteAdminUrl + 'upload.php' }
-											>
-												{ __( 'Upload videos' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateVideoPress }
-												className="is-primary"
-												disabled={ this.props.isActivatingModule( 'videopress' ) }
-											>
-												{ __( 'Activate video hosting' ) }
-											</Button>
-										) }
-									</div>
-								</div>
-							) }
-
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
 							'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-security.svg' }
+											src={ imagePath + '/jetpack-performance-icon.svg' }
 											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+											alt={ __( 'Site stats showing an evolution in traffic and engagement' ) }
 										/>
 									</div>
 									<div className="jp-landing__plan-features-text">
@@ -477,9 +439,9 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-security.svg' }
+											src={ imagePath + '/jetpack-google-analytics.svg' }
 											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+											alt={ __( 'Site stats showing an evolution in traffic and engagement' ) }
 										/>
 									</div>
 									<div className="jp-landing__plan-features-text">
@@ -505,6 +467,73 @@ class MyPlanBody extends React.Component {
 												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
 											>
 												{ __( 'Activate Google Analytics' ) }
+											</Button>
+										) }
+									</div>
+								</div>
+							) }
+
+						{ premiumThemesActive && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + '/jetpack-themes.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Try a premium theme' ) }
+									</h3>
+									<p>
+										{ __(
+											'Access hundreds of beautifully designed premium themes at no extra cost.'
+										) }
+									</p>
+									<Button
+										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
+										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
+									>
+										{ __( 'Browse premium themes' ) }
+									</Button>
+								</div>
+							</div>
+						) }
+
+						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+								<div className="jp-landing__plan-features-card">
+									<div className="jp-landing__plan-features-img">
+										<img
+											src={ imagePath + '/jetpack-marketing.svg' }
+											className="jp-landing__plan-features-icon"
+											alt={ __( 'A secure site, locked and protected by Jetpack' ) }
+										/>
+									</div>
+									<div className="jp-landing__plan-features-text">
+										<h3 className="jp-landing__plan-features-title">
+											{ __( 'Marketing Automation' ) }
+										</h3>
+										<p>
+											{ __(
+												'Schedule unlimited tweets, Facebook posts, and other social posts in advance.'
+											) }
+										</p>
+										{ this.props.isModuleActivated( 'publicize' ) ? (
+											<Button
+												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
+												href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl }
+											>
+												{ __( 'Schedule posts' ) }
+											</Button>
+										) : (
+											<Button
+												onClick={ this.activatePublicize }
+												className="is-primary"
+												disabled={ this.props.isActivatingModule( 'publicize' ) }
+											>
+												{ __( 'Activate Publicize' ) }
 											</Button>
 										) }
 									</div>
