@@ -59,22 +59,24 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 
 render();
 
-async function renderUnifiedImporter( unifiedImporterElement ) {
+async function loadUnifiedImporterBundle() {
+	const publicPathBackup = __webpack_public_path__;
+	__webpack_public_path__ = '/wp-content/plugins/jetpack/_inc/build/';
 	const {
 		default: UnifiedImporter,
-	} = await import( /* @TODO actually split into another bundle..? */
-	/* webpackChunkName: "unified-importer" */
-	/* webpackMode: "eager" */
-	'unified-importer' );
-
-	ReactDOM.render( <UnifiedImporter />, unifiedImporterElement );
+	} = await import( /* webpackChunkName: "unified-importer" */ 'unified-importer' );
+	__webpack_public_path__ = publicPathBackup;
+	return UnifiedImporter;
 }
 
 function render() {
 	const unifiedImporterElement = document.querySelector( '.jetpack-unified-importer' );
 
 	if ( unifiedImporterElement ) {
-		return renderUnifiedImporter( unifiedImporterElement );
+		loadUnifiedImporterBundle().then( UnifiedImporter =>
+			ReactDOM.render( <UnifiedImporter />, unifiedImporterElement )
+		);
+		return;
 	}
 
 	const container = document.getElementById( 'jp-plugin-container' );
