@@ -64,6 +64,7 @@
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/jetpack-blocks": "13.0.0",
+    "@wordpress/data": "^4.3.0",
     "babel-core": "6.26.3",
     "babel-eslint": "6.1.2",
     "babel-loader": "7.1.5",

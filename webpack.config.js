@@ -12,7 +12,8 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: path.join( __dirname, './_inc/client/admin.js' ),
-		'static': path.join( __dirname, './_inc/client/static.jsx' )
+		'static': path.join( __dirname, './_inc/client/static.jsx' ),
+		'unified-importers': path.join( __dirname, './_inc/client/unified-importers.js' ),
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
