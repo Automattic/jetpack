@@ -5,6 +5,9 @@ import head from 'lodash/head';
 import React, { Fragment, PureComponent } from 'react';
 import { withRouter } from 'react-router';
 import debugModule from 'debug';
+import apiFetch from '@wordpress/api-fetch';
+import { Button, DropZoneProvider, DropZone, Icon, TextControl } from '@wordpress/components';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -12,11 +15,6 @@ import debugModule from 'debug';
 import FileInput from './file-input';
 
 const debug = debugModule( 'unfied-importer:input-screen' );
-
-const wp = window.wp;
-const { apiFetch, components, data } = wp;
-const { Button, DropZoneProvider, DropZone, Icon, TextControl } = components;
-const { withDispatch, withSelect } = data;
 
 const validFileTypes = Object.freeze( [ 'text/xml' ] );
 const isValidFileType = type => validFileTypes.includes( type );

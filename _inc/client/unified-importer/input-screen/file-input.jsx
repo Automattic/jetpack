@@ -2,10 +2,6 @@
  * External dependencies
  */
 import React, { Fragment, PureComponent } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 
 /**

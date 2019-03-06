@@ -4,6 +4,9 @@
 import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router';
 import debugModule from 'debug';
+import apiFetch from '@wordpress/api-fetch';
+import { Button, CheckboxControl } from '@wordpress/components';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -13,11 +16,6 @@ import './style.scss';
 import AuthorSelector from './author-selector';
 
 const debug = debugModule( 'unfied-importer:author-mapping' );
-
-const wp = window.wp;
-const { apiFetch, components, data } = wp;
-const { Button, CheckboxControl } = components;
-const { withSelect } = data;
 
 class AuthorMapping extends PureComponent {
 	state = {

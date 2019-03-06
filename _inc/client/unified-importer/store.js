@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-const wp = window.wp;
-const { registerStore } = wp.data;
+import { registerStore } from '@wordpress/data';
 
 const DEFAULT_STATE = {
 	nonce: null,

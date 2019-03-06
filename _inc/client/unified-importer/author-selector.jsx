@@ -2,10 +2,7 @@
  * External dependencies
  */
 import React, { PureComponent } from 'react';
-
-const wp = window.wp;
-const { components } = wp;
-const { SelectControl } = components;
+import { SelectControl } from '@wordpress/components';
 
 class AuthorSelector extends PureComponent {
 	constructor( props ) {
