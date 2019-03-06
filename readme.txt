@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: avoid errors when the feature is not active on a site.
 * Widgets: improve performance of the Top Posts and the Blog Stats widgets on high-traffic sites.
 * Subscriptions: fix an issue that prevented displaying subscribers count in the subscription forms.
-* Tiled Galleries: ensure they can be displayed properly in Internet Explorer 11.
+* Tiled Galleries / Slideshows: ensure they can be displayed properly in Internet Explorer 11.
 
 = 7.1 =
 
