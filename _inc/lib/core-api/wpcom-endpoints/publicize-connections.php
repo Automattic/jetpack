@@ -171,6 +171,14 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	public function get_items_permission_check() {
 		global $publicize;
 
+		if ( ! $publicize ) {
+			return new WP_Error(
+				'publicize_not_available',
+				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		if ( $publicize->current_user_can_access_publicize_data() ) {
 			return true;
 		}
