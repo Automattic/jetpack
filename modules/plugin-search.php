@@ -518,21 +518,52 @@ class Jetpack_Plugin_Search {
  * @return bool True if PSH is active.
  */
 function jetpack_is_psh_active() {
-	if ( false === ( $status = get_transient( 'jetpack_psh_status' ) ) ) {
-		$response = wp_remote_get( 'https://jetpack.com/psh-status/', array( 'sslverify' => false ) );
-		if ( is_wp_error( $response ) ) {
-			return true;
-		}
-		$body = wp_remote_retrieve_body( $response );
-		if ( empty( $body ) ) {
-			return true;
-		}
-		$json = json_decode( $body );
-		if ( ! isset( $json->active ) ) {
-			return true;
-		}
-		$status = (bool) $json->active;
-		set_transient( 'jetpack_psh_status', $status, 15 * MINUTE_IN_SECONDS );
+	// false means unset, 1 means active, 0 means inactive.
+	$status = get_transient( 'jetpack_psh_status' );
+
+	if ( false === $status ) {
+		$error = false;
+		$status = jetpack_get_remote_is_psh_active( $error );
+		set_transient(
+			'jetpack_psh_status',
+			// Cache as int
+			(int) $status,
+			// If there was an error, still cache but for a shorter time
+			( $error ? 5 : 15 ) * MINUTE_IN_SECONDS
+		);
 	}
-	return $status;
+
+	return (bool) $status;
+}
+
+/**
+ * Makes remote request to determine if Plugin search hints is active.
+ *
+ * @since 7.1.1
+ * @internal
+ *
+ * @param bool &$error Did the remote request result in an error?
+ * @return bool True if PSH is active.
+ */
+function jetpack_get_remote_is_psh_active( &$error ) {
+	$response = wp_remote_get( 'https://jetpack.com/psh-status/' );
+	if ( is_wp_error( $response ) ) {
+		$error = true;
+		return true;
+	}
+
+	$body = wp_remote_retrieve_body( $response );
+	if ( empty( $body ) ) {
+		$error = true;
+		return true;
+	}
+
+	$json = json_decode( $body );
+	if ( ! isset( $json->active ) ) {
+		$error = true;
+		return true;
+	}
+
+	$error = false;
+	return (bool) $json->active;
 }
