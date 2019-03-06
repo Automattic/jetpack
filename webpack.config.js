@@ -104,7 +104,11 @@ const webpackConfig = {
 		'react/addons': true,
 		'react/lib/ExecutionEnvironment': true,
 		'react/lib/ReactContext': true,
-		jsdom: 'window'
+		jsdom: 'window',
+		'@wordpress/api-fetch': 'wp.apiFetch',
+		'@wordpress/components': 'wp.components',
+		'@wordpress/core-data': 'wp.coreData',
+		'@wordpress/data': 'wp.data',
 	},
 	devtool: devMode ? 'source-map' : false,
 };

@@ -376,6 +376,20 @@
     "@wordpress/is-shallow-equal" "^1.2.0"
     lodash "^4.17.11"
 
+"@wordpress/core-data@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/core-data/-/core-data-2.1.0.tgz#b3f74473573914871ae6b1af23439128e062e480"
+  integrity sha512-erBR4KSHJYa/SJUbkkd8gpWQhvoqHrs7wHoMNyM3fXenYMlYJAIqJ740TvCTm6VDpB5Vbx1785biAIrQkGK69w==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@wordpress/api-fetch" "^3.0.0"
+    "@wordpress/data" "^4.3.0"
+    "@wordpress/deprecated" "^2.1.0"
+    "@wordpress/url" "^2.4.0"
+    equivalent-key-map "^0.2.2"
+    lodash "^4.17.11"
+    rememo "^3.0.0"
+
 "@wordpress/data@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@wordpress/data/-/data-4.3.0.tgz#e16eb3998979effeace774c5af263adfca4e7258"
@@ -392,6 +406,14 @@
     lodash "^4.17.11"
     redux "^4.0.0"
     turbo-combine-reducers "^1.0.2"
+
+"@wordpress/deprecated@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/deprecated/-/deprecated-2.1.0.tgz#81ab026e62a49927c0c3988505dce6ef92e916c2"
+  integrity sha512-kdwII/P3mZ2VgJWeVYIYTkYw/+sktxfJjVIll1fbs0RrT/sYgWaSzpYiQuOVFDXFZkTgFSgXZv13NaTnoD5MDw==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@wordpress/hooks" "^2.1.0"
 
 "@wordpress/dom-ready@^2.1.0":
   version "2.1.0"

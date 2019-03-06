@@ -42,7 +42,7 @@ class Jetpack_Unified_Importer_Module {
 		wp_enqueue_script(
 			'jetpack_import_ui',
 			plugins_url( '_inc/build/unified-importer.js', JETPACK__PLUGIN_FILE ),
-			array( 'react', 'wp-api-fetch', 'wp-components', 'wp-data' ),
+			array( 'react', 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-core-data' ),
 			JETPACK__VERSION,
 			true
 		);

@@ -66,6 +66,7 @@
     "@automattic/jetpack-blocks": "13.0.0",
     "@wordpress/api-fetch": "^3.0.0",
     "@wordpress/components": "^7.1.0",
+    "@wordpress/core-data": "^2.1.0",
     "@wordpress/data": "^4.3.0",
     "babel-core": "6.26.3",
     "babel-eslint": "6.1.2",
