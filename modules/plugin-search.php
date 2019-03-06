@@ -339,12 +339,15 @@ class Jetpack_Plugin_Search {
 	/**
 	 * Remove cards for Akismet, Jetpack and VaultPress plugins since we don't want duplicates.
 	 *
-	 * @param array $plugin
+	 * @param array|object $plugin
 	 *
 	 * @return bool
 	 */
-	function filter_cards( $plugin = array() ) {
-		return ! in_array( $plugin['slug'], array( 'akismet', 'jetpack', 'vaultpress' ), true );
+	function filter_cards( $plugin ) {
+		// Take in account that before WordPress 5.1, the list of plugins is an array of objects.
+		// With WordPress 5.1 the list of plugins is an array of arrays.
+		$slug = is_array( $plugin ) ? $plugin['slug'] : $plugin->slug;
+		return ! in_array( $slug, array( 'akismet', 'jetpack', 'vaultpress' ), true );
 	}
 
 	/**
