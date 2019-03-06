@@ -558,23 +558,83 @@ class Jetpack_Likes {
 }
 
 /**
+ * Callback to get the value for the jetpack_likes_enabled field.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_get_value( array $post ) {
+	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
+
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	// an empty string: post meta was not set, so go with the global setting
+	if ( "" === $post_likes_switched ) {
+		return $sitewide_likes_enabled;
+	}
+
+	// user overrode the global setting to disable likes
+	elseif ( "0" === $post_likes_switched ) {
+		return false;
+	}
+
+	// user overrode the global setting to enable likes
+	elseif ( "1" === $post_likes_switched ) {
+		return true;
+	}
+
+	// no default fallback, let's stay explicit
+}
+
+/**
+ * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
+
+	if ( $should_switch_status ) {
+		// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
+		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
+		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
+	} else {
+		// unset the meta otherwise
+		return delete_post_meta( $post_object->ID, 'switch_like_status' );
+	}
+}
+
+/**
  * Add Likes post_meta to the REST API Post response.
  *
  * @action rest_api_init
- * @uses register_meta
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
  */
-function jetpack_post_likes_register_meta() {
-	register_meta(
-		'post', 'switch_like_status',
+function jetpack_post_likes_register_rest_field() {
+	register_rest_field(
+		'post', 'jetpack_likes_enabled',
 		array(
-			'type'			=> 'boolean',
-			'single'		=> true,
-			'show_in_rest'	=> true,
+			'get_callback' => 'jetpack_post_likes_get_value',
+			'update_callback' => 'jetpack_post_likes_update_value',
+			'schema' => array(
+				'description' => __( 'Are Likes enabled?' ),
+				'type'        => 'boolean'
+			),
 		)
 	);
 }
 
 // Add Likes post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_likes_register_meta' );
+add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
 Jetpack_Likes::init();
