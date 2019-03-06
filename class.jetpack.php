@@ -7132,7 +7132,7 @@ p {
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
 				wp_kses(
-					/* Translators: Placeholder is a Jetpack logo. */
+					/* translators: Placeholder is a Jetpack logo. */
 					__( 'Stats <span>by %s</span>', 'jetpack' ),
 					array( 'span' => array() )
 				),
