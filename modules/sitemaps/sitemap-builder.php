@@ -1341,7 +1341,7 @@ class Jetpack_Sitemap_Builder {
 				'video:video' => array(
 					/** This filter is already documented in core/wp-includes/feed.php */
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
-					'video:thumbnail_loc' => $video_thumbnail_url,
+					'video:thumbnail_loc' => esc_url( $video_thumbnail_url ),
 					'video:description'   => $content,
 					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),
