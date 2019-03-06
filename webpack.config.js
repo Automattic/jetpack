@@ -13,7 +13,7 @@ const webpackConfig = {
 	entry: {
 		admin: path.join( __dirname, './_inc/client/admin.js' ),
 		'static': path.join( __dirname, './_inc/client/static.jsx' ),
-		'unified-importers': path.join( __dirname, './_inc/client/unified-importers.js' ),
+		'unified-importer': path.join( __dirname, './_inc/client/unified-importer/index.js' ),
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),

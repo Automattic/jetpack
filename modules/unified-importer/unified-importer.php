@@ -38,7 +38,14 @@ class Jetpack_Unified_Importer_Module {
 		 */
 ?><style>#wpbody-content .wrap { display: none; }</style><?php
 
-		wp_enqueue_script( 'jetpack_import_ui', plugin_dir_url( __FILE__ ) . '/index.js', array( 'jquery' /* @TODO react n stuff */ ), JETPACK__VERSION, true );
+//		wp_enqueue_script( 'unified_importer_ui', plugin_dir_url( __FILE__ ) . '/index.js', array( 'jquery' /* @TODO react n stuff */ ), JETPACK__VERSION, true );
+		wp_enqueue_script(
+			'jetpack_import_ui',
+			plugins_url( '_inc/build/unified-importer.js', JETPACK__PLUGIN_FILE ),
+			array( 'react', 'wp-api-fetch', 'wp-components', 'wp-data' ),
+			JETPACK__VERSION,
+			true
+		);
 
 		// @TODO is `admin_notices` our best hook for our entry element?
 		add_action( 'admin_notices', __CLASS__ . '::import_ui_entry_element' );
@@ -53,23 +60,7 @@ class Jetpack_Unified_Importer_Module {
 	}
 
 	static function import_ui_entry_element() {
-?>
-<div class="jetpack-unified-importer">
-	<h1>Oh hi, hullo, Unified Importer!!!!</h1>
-	<p>So, this element (<code>.jetpack-unified-importer</code>) is our entry point for our script.</p>
-	<hr />
-	<p>
-		We can clone and mutate the core list (<code>table.importers</code>)<br />
-		...then append it to the bottom of our UI as desired
-	</p>
-	<hr />
-	<p>And we can have a button which toggles visibility of this & the "regular" UI</p>
-	<p>e.g.&nbsp;&nbsp;<button class="jetpack-unified-importer__exit">Exit</button></p>
-	<div style="width: 400px">
-		<marquee>For now, please enjoy this super-1337 throwback jQuery mockup ;P</marquee>
-	</div>
-</div>
-<?php
+		?><div class="jetpack-unified-importer" /><?php
 	}
 
 	static function import_ui_ensure_core_ui_is_hidden_by_default() {
