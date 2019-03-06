@@ -380,9 +380,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			$additional_mock_methods
 		);
 
+		$klass = Jetpack_Geo_Location::class;
 		/* @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject */
-		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
-			->setMethods( $mock_methods );
+		$builder = $this->getMockBuilder( $klass )->setMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
@@ -394,8 +394,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_single() {
 		global $wp_query;
 
+		$klass = WP_Query::class;
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( WP_Query::class )
+		$wp_query = $this->getMockBuilder( $klass )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
@@ -407,8 +408,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_single() {
 		global $wp_query;
 
+		$klass = WP_Query::class;
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( WP_Query::class )
+		$wp_query = $this->getMockBuilder( $klass )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
@@ -420,8 +422,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_feed() {
 		global $wp_query;
 
+		$klass = WP_Query::class;
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( WP_Query::class )
+		$wp_query = $this->getMockBuilder( $klass )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
@@ -433,8 +436,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_feed() {
 		global $wp_query;
 
+		$klass = WP_Query::class;
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( WP_Query::class )
+		$wp_query = $this->getMockBuilder( $klass )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
