@@ -4848,7 +4848,7 @@ p {
 	/**
 	 * Get our assumed site creation date.
 	 * Calculated based on the earlier date of either:
-	 * - Earliest user registration date.
+	 * - Earliest admin user registration date.
 	 * - Earliest date of post of any post type.
 	 *
 	 * @since 7.2.0
