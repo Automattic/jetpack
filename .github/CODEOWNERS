@@ -14,7 +14,7 @@
 /class.jetpack-jitm.php @withinboredom
 
 # Jetpack CLI is used heavily by our partners
-/class.jetpack-cli.php @ebinnion
+/class.jetpack-cli.php @automattic/catalyst
 
 # Catch-all owners, the Jetpack Crew
 # Please leave this at the bottom of the list
