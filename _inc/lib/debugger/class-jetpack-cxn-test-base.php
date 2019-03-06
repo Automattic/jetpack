@@ -49,16 +49,21 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Adds a new test to the Jetpack Connection Testing suite.
 	 *
+	 * @since 7.1
+	 * @since 7.2 Added name arg.
+	 *
 	 * @param callable $callable Test to add to queue.
 	 * @param array    $groups Testing groups to add test to.
+	 * @param string   $name Common name for the test.
 	 *
 	 * @return bool True if successfully added. False for a failure.
 	 */
-	public function add_test( $callable, $groups = array( 'default' ) ) {
+	public function add_test( $callable, $groups = array( 'default' ), $name = '' ) {
 		if ( is_callable( $callable ) ) {
 			$this->tests[] = array(
 				'test'  => $callable,
 				'group' => $groups,
+				'name'  => $name,
 			);
 			return true;
 		}
@@ -70,7 +75,21 @@ class Jetpack_Cxn_Test_Base {
 	 * Runs the Jetpack connection suite.
 	 */
 	public function run_tests() {
-		foreach ( $this->tests as $test ) {
+		$tests = $this->tests;
+		/**
+		 * Filters the list of tests before they're processed by the local testing suite.
+		 *
+		 * @since 7.2.0
+		 *
+		 * @param array $tests {
+		 *  Array of tests in the local testing suite.
+		 * @type callable $test Callable function of a test.
+		 * @type array $groups Testing groups that use this test.
+		 * @type string $name Common name of test.
+		 * }
+		 */
+		$tests = apply_filters( 'jetpack_local_testing_tests', $tests );
+		foreach ( $tests as $test ) {
 			$result          = call_user_func( $test['test'] );
 			$result['group'] = $test['group'];
 			$this->results[] = $result;
