@@ -7513,5 +7513,3 @@ p {
 		return Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 }
-
-Jetpack::get_assumed_site_creation_date();
