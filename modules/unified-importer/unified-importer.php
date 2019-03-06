@@ -18,6 +18,8 @@ class Jetpack_Unified_Importer_Module {
 
 		// The `import_ui` class will remove this function when our UI shows
 		add_action( 'admin_notices', __CLASS__ . '::admin_notice' );
+
+		add_filter( 'jetpack_page_admin_scripts_dependencies', __CLASS__ . '::jetpack_page_admin_scripts_dependencies' );
 	}
 
 	static function import_ui() {
@@ -88,6 +90,14 @@ try {
 	<a class="button primary" href="<?php echo esc_url( self::ui_url() ) ?>">Try it!</a>
 </div>
 <?php
+	}
+
+	static function jetpack_page_admin_scripts_dependencies( $dependencies ) {
+		return array_merge( $dependencies, array(
+			'wp-api-fetch',
+			'wp-components',
+			'wp-core-data',
+		) );
 	}
 }
 

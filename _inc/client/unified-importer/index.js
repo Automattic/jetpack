@@ -1,35 +1,30 @@
 /**
  * External dependencies
  */
-import React, { Fragment } from 'react';
+import React from 'react';
+import { Route, Router, useRouterHistory } from 'react-router';
+import { createHashHistory } from 'history';
+// @TODO redux...
 
-function toggleElements() {
-	document.querySelector( '.jetpack-unified-importer' ).style.display = 'none';
-	document.querySelector( 'table.importers' ).parentElement.style.display = 'block';
-}
+/**
+ * Internal dependencies
+ */
+import './store';
+//import reduxStore from 'state/redux-store';
+import InputScreen from './input-screen';
+import AuthorMapping from './author-mapping';
+import ImportComplete from './import-complete';
+
+// @TODO I didn't figure out how to use this history... I just set window.location /shrug
+const hashHistory = useRouterHistory( createHashHistory )();
 
 function UnifiedImporter() {
 	return (
-		<Fragment>
-			<h1>Oh hi, hullo, Unified Importer!!!!</h1>
-			<h2>Now, with React!</h2>
-			<p>
-				So, this element (<code>.jetpack-unified-importer</code>) is our entry point for our script.
-			</p>
-			<hr />
-			<p>
-				We can clone and mutate the core list (<code>table.importers</code>)<br />
-				...then append it to the bottom of our UI as desired
-			</p>
-			<hr />
-			<p>And we can have a button which toggles visibility of this & the "regular" UI</p>
-			<p>
-				e.g.&nbsp;&nbsp;
-				<button className="jetpack-unified-importer__exit" onClick={ toggleElements }>
-					Exit
-				</button>
-			</p>
-		</Fragment>
+		<Router history={ hashHistory }>
+			<Route exact path="/" component={ InputScreen } />
+			<Route path="/map" component={ AuthorMapping } />
+			<Route path="/complete" component={ ImportComplete } />
+		</Router>
 	);
 }
 
