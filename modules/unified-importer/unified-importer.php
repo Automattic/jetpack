@@ -60,7 +60,7 @@ class Jetpack_Unified_Importer_Module {
 	}
 
 	static function import_ui_entry_element() {
-		?><div class="jetpack-unified-importer" /><?php
+		?><div class="jetpack-unified-importer"></div><?php
 	}
 
 	static function import_ui_ensure_core_ui_is_hidden_by_default() {
