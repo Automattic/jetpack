@@ -188,6 +188,10 @@ class MailChimp_Subscriber_Popup {
 		// Split config & js vars
 		$config_vars = $js_vars = array();
 		foreach ( $attrs as $key => $value ) {
+			if ( 'baseUrl' == $key && ( ! preg_match( '#mc\.us\d+\.list-manage\d?\.com#', $value, $matches ) || $value !== $matches[0] ) ) {
+				return '<!-- Invalid MailChimp baseUrl -->';
+			}
+
 			if ( in_array( $key, self::$allowed_js_vars ) ) {
 				$js_vars[ $key ] = $value;
 			} else {
