@@ -590,17 +590,20 @@ function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
  * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
  */
 function jetpack_post_sharing_register_rest_field() {
-	register_rest_field(
-		'post', 'jetpack_sharing_enabled',
-		array(
-			'get_callback' => 'jetpack_post_sharing_get_value',
-			'update_callback' => 'jetpack_post_sharing_update_value',
-			'schema' => array(
-				'description' => __( 'Are sharing buttons enabled?' ),
-				'type'        => 'boolean'
-			),
-		)
-	);
+	$post_types = get_post_types( array( 'public' => true ) );
+	foreach( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type, 'jetpack_sharing_enabled',
+			array(
+				'get_callback' => 'jetpack_post_sharing_get_value',
+				'update_callback' => 'jetpack_post_sharing_update_value',
+				'schema' => array(
+					'description' => __( 'Are sharing buttons enabled?' ),
+					'type'        => 'boolean'
+				),
+			)
+		);
+	}
 }
 
 // Add Sharing post_meta to the REST API Post response.
