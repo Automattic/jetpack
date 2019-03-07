@@ -256,7 +256,7 @@ function phpcsLinter( files ) {
 				process.exit( 1 );
 			}
 
-			console.log( chalk.yellow( 'PHPCS detected and fixed some automatically fibable errors.' ) );
+			console.log( chalk.yellow( 'PHPCS detected and fixed some automatically fixable errors.' ) );
 		}
 	}
 
