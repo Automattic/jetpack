@@ -8,6 +8,7 @@ import debugModule from 'debug';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, DropZoneProvider, DropZone, Icon, TextControl } from '@wordpress/components';
 import { withDispatch, withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -107,16 +108,19 @@ class InputScreen extends PureComponent {
 			<Fragment>
 				<div>
 					<button className="jetpack-unified-importer__exit" onClick={ toggleElements }>
-						Exit
+						{ __( 'Exit' ) }
 					</button>
 				</div>
-				<h2>Import WordPress</h2>
+				<h2>{ __( 'Import WordPress' ) }</h2>
 				<div>
-					Howdy! Upload your WordPress eXtended RSS (WXT) file and we'll import the posts, pages,
-					comments, custom fields, categories, and tags into this site.
+					{ __(
+						`Howdy! Upload your WordPress eXtended RSS (WXT) file and we'll import the posts, pages, comments, custom fields, categories, and tags into this site.`
+					) }
 				</div>
 				<div>
-					Choose a WXR (.xml) file to upload, or drop a file here, and your import will begin
+					{ __(
+						'Choose a WXR (.xml) file to upload, or drop a file here, and your import will begin'
+					) }
 				</div>
 				<div className="wordpress-importer__div-actions">
 					{ file ? (
@@ -139,7 +143,7 @@ class InputScreen extends PureComponent {
 							</div>
 							<div className="wordpress-importer__file-select-action">
 								<FileInput onFileSelected={ this.handleFileSelection }>
-									You can also drag a file here, or click to browse.
+									{ __( 'You can also drag a file here, or click to browse.' ) }
 								</FileInput>
 							</div>
 							<DropZone
@@ -157,7 +161,7 @@ class InputScreen extends PureComponent {
 						onClick={ this.beginImport }
 						isPrimary
 					>
-						Begin Import
+						{ __( 'Begin Import' ) }
 					</Button>
 				</div>
 			</Fragment>
