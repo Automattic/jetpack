@@ -629,7 +629,7 @@ function jetpack_post_likes_register_rest_field() {
 				'get_callback' => 'jetpack_post_likes_get_value',
 				'update_callback' => 'jetpack_post_likes_update_value',
 				'schema' => array(
-					'description' => __( 'Are Likes enabled?' ),
+					'description' => __( 'Are Likes enabled?', 'jetpack' ),
 					'type'        => 'boolean'
 				),
 			)
