@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			self::ENABLE_CONSTRUCTOR
 		);
 
-		$instance->method( 'current_theme_supports' )->willReturn( false );
+		$instance->expects( $this->any() )->method( 'current_theme_supports' )->willReturn( false );
 
 		$instance->expects( $this->never() )
 			->method( 'the_content_location_display' );
@@ -380,9 +380,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			$additional_mock_methods
 		);
 
-		$klass = 'Jetpack_Geo_Location';
 		/* @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject */
-		$builder = $this->getMockBuilder( $klass )->setMethods( $mock_methods );
+		$builder = $this->getMockBuilder( 'Jetpack_Geo_Location' )->setMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
@@ -394,9 +393,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_single() {
 		global $wp_query;
 
-		$klass = 'WP_Query';
+
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( $klass )
+		$wp_query = $this->getMockBuilder( 'WP_Query' )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
@@ -408,9 +407,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_single() {
 		global $wp_query;
 
-		$klass = 'WP_Query';
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( $klass )
+		$wp_query = $this->getMockBuilder( 'WP_Query' )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
@@ -422,9 +420,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_feed() {
 		global $wp_query;
 
-		$klass = 'WP_Query';
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( $klass )
+		$wp_query = $this->getMockBuilder( 'WP_Query' )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
@@ -436,9 +433,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_feed() {
 		global $wp_query;
 
-		$klass = 'WP_Query';
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( $klass )
+		$wp_query = $this->getMockBuilder( 'WP_Query' )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
