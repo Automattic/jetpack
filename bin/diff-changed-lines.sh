@@ -16,9 +16,6 @@ EXTCMD=(
 	'echo && :' # Newline after each file, and ignore the rest of the stuff difftool sends
 )
 
-
-# git difftool --no-prompt --extcmd '/bin/echo -n "$MERGED:" && diff --old-group-format="" --unchanged-group-format="" --new-group-format="%dF-%dL," --changed-group-format="%dF-%dL," "$LOCAL" "$REMOTE"; echo && :'
-
 EXTCMD="${EXTCMD[@]}"
 
 git difftool --no-prompt --extcmd "$EXTCMD" $@
