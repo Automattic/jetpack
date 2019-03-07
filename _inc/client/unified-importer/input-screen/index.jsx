@@ -96,6 +96,9 @@ class InputScreen extends PureComponent {
 		debug( file );
 	};
 
+	onClearFileClick = () => this.setState( { file: null } );
+	onUrlTextControlChange = url => this.setState( { url } );
+
 	render() {
 		const { isFetching, file, url } = this.state;
 
@@ -127,7 +130,7 @@ class InputScreen extends PureComponent {
 						<div className="wordpress-importer__file-select-action">
 							<span>
 								{ file.name }
-								<Button onClick={ () => this.setState( { file: null } ) } isLink>
+								<Button onClick={ this.onClearFileClick } isLink>
 									<Icon icon="no" />
 								</Button>
 							</span>
@@ -137,7 +140,7 @@ class InputScreen extends PureComponent {
 							<div className="wordpress-importer__url-input-action">
 								<TextControl
 									label="Import from url:"
-									onChange={ url => this.setState( { url } ) }
+									onChange={ this.onUrlTextControlChange }
 									value={ url }
 								/>
 							</div>
