@@ -1503,7 +1503,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *     @type string $date Date range to restrict results to.
 	 * }
 	 *
-	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response Stats information relayed from WordPress.com
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response Stats information relayed from WordPress.com.
 	 */
 	public function get_stats_data( WP_REST_Request $request ) {
 		// Get parameters to fetch Stats data.
