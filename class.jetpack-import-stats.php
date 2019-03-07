@@ -6,6 +6,7 @@ class Jetpack_Import_Stats {
 		'LJ_API_Import' => 'livejournal',
 		'MT_Import' => 'mt',
 		'RSS_Import' => 'rss',
+		'WC_Tax_Rate_Importer' => 'woo-tax-rate',
 		'WP_Import' => 'wordpress',
 	);
 
