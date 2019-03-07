@@ -591,15 +591,16 @@ function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
  */
 function jetpack_post_sharing_register_rest_field() {
 	$post_types = get_post_types( array( 'public' => true ) );
-	foreach( $post_types as $post_type ) {
+	foreach ( $post_types as $post_type ) {
 		register_rest_field(
-			$post_type, 'jetpack_sharing_enabled',
+			$post_type,
+			'jetpack_sharing_enabled',
 			array(
-				'get_callback' => 'jetpack_post_sharing_get_value',
+				'get_callback'    => 'jetpack_post_sharing_get_value',
 				'update_callback' => 'jetpack_post_sharing_update_value',
-				'schema' => array(
+				'schema'          => array(
 					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
-					'type'        => 'boolean'
+					'type'        => 'boolean',
 				),
 			)
 		);
