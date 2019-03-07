@@ -37,11 +37,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 	public function test_location_display_filter_skipped_when_lacking_theme_support() {
 		$instance = $this->create_mock_instance(
-			array( 'current_theme_supports', 'the_content_location_display' ),
+			[ 'current_theme_supports', 'the_content_location_display' ],
 			self::ENABLE_CONSTRUCTOR
 		);
 
-		$instance->expects( $this->any() )->method( 'current_theme_supports' )->willReturn( false );
+		$instance->method( 'current_theme_supports' )->willReturn( false );
 
 		$instance->expects( $this->never() )
 			->method( 'the_content_location_display' );
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		}
 
 		$instance = $this->create_mock_instance(
-			array( 'the_content_location_display' ),
+			[ 'the_content_location_display' ],
 			self::ENABLE_CONSTRUCTOR
 		);
 
@@ -381,7 +381,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		);
 
 		/* @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject */
-		$builder = $this->getMockBuilder( 'Jetpack_Geo_Location' )->setMethods( $mock_methods );
+		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
+			->setMethods( $mock_methods );
 
 		if ( $disable_constructor ) {
 			$builder->disableOriginalConstructor();
@@ -393,10 +394,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_single() {
 		global $wp_query;
 
-
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( 'WP_Query' )
-			->setMethods( array( 'is_feed', 'is_single' ) )
+		$wp_query = $this->getMockBuilder( WP_Query::class )
+			->setMethods( [ 'is_feed', 'is_single' ] )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -408,8 +408,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( 'WP_Query' )
-			->setMethods( array( 'is_feed', 'is_single' ) )
+		$wp_query = $this->getMockBuilder( WP_Query::class )
+			->setMethods( [ 'is_feed', 'is_single' ] )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -421,8 +421,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( 'WP_Query' )
-			->setMethods( array( 'is_feed' ) )
+		$wp_query = $this->getMockBuilder( WP_Query::class )
+			->setMethods( [ 'is_feed' ] )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -434,8 +434,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		global $wp_query;
 
 		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
-		$wp_query = $this->getMockBuilder( 'WP_Query' )
-			->setMethods( array( 'is_feed' ) )
+		$wp_query = $this->getMockBuilder( WP_Query::class )
+			->setMethods( [ 'is_feed' ] )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
