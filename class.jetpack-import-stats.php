@@ -25,6 +25,11 @@ class Jetpack_Import_Stats {
 	}
 
 	private static function get_calling_class() {
+		// If WP_Importer doesn't exist, neither will any importer that extends it
+		if ( ! class_exists( 'WP_Importer' ) ){
+			return 'unknown';
+		}
+
 		$action = current_filter();
 		$backtrace = wp_debug_backtrace_summary( null, 0, false );
 
@@ -44,9 +49,22 @@ class Jetpack_Import_Stats {
 			return 'unknown';
 		}
 
-		// The calling class is next in the stack, after $do_action_pos
-		list( $className ) = explode( '->', $backtrace[ $do_action_pos + 1 ] );
-		return $className;
+		// continue iterating the stack looking for a caller that extends WP_Import
+		for ( $i = $do_action_pos; $i < count( $backtrace ); $i++ ) {
+			// grab only class_name from the trace
+			list( $class_name ) = explode( '->', $backtrace[ $i ] );
+
+			// check if the class extends WP_Importer
+			if ( class_exists( $class_name ) ) {
+				$parents = class_parents( $class_name );
+				if ( $parents && in_array( 'WP_Importer', $parents ) ) {
+					return $class_name;
+				}
+			}
+		}
+
+		// If we've exhausted the stack without a match, the calling class is unknown
+		return 'unknown';
 	}
 
 	public static function log_import_progress( $importer ) {
