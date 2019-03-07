@@ -38,11 +38,10 @@ class Jetpack_Unified_Importer_Module {
 		 */
 ?><style>#wpbody-content .wrap { display: none; }</style><?php
 
-//		wp_enqueue_script( 'unified_importer_ui', plugin_dir_url( __FILE__ ) . '/index.js', array( 'jquery' /* @TODO react n stuff */ ), JETPACK__VERSION, true );
 		wp_enqueue_script(
 			'jetpack_import_ui',
 			plugins_url( '_inc/build/unified-importer.js', JETPACK__PLUGIN_FILE ),
-			array( 'react', 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-core-data' ),
+			array( 'react', 'wp-i18n', 'wp-api-fetch', 'wp-components', 'wp-data', 'wp-core-data' ),
 			JETPACK__VERSION,
 			true
 		);
@@ -88,9 +87,12 @@ try {
 		 */
 ?>
 <div class="notice notice-info is-dismissible">
-	<h1>Try the Unified Importer</h1>
-	<p>Jetpack includes an import experience that's easy-to-use and supports....</p>
-	<a class="button primary" href="<?php echo esc_url( self::ui_url() ) ?>">Try it!</a>
+	<h1><?php esc_html_e( 'Try the Unified Importer', 'jetpack' ) ?></h1>
+	<p><?php
+		// @TODO -- finalize these strings
+		esc_html_e( 'Jetpack includes an import experience that\'s easy-to-use and supports....', 'jetpack' )
+	?></p>
+	<a class="button primary" href="<?php echo esc_url( self::ui_url() ) ?>"><?php esc_html_e( 'Try it!', 'jetpack' ) ?></a>
 </div>
 <?php
 	}
