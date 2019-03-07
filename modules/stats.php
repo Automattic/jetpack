@@ -1745,6 +1745,9 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 		$time = key( $stats_cache[ $cache_key ] );
 		if ( time() - $time < ( 5 * MINUTE_IN_SECONDS ) ) {
 			$cached_stats = $stats_cache[ $cache_key ][ $time ];
+			if ( is_wp_error( $cached_stats ) ) {
+				return $cached_stats;
+			}
 			$cached_stats = (object) array_merge( array( 'cached_at' => $time ), (array) $cached_stats );
 			return $cached_stats;
 		}
@@ -1754,7 +1757,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	// Do the dirty work.
 	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		$data = array();
+		$data = $response;
 	} else {
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
 	}
