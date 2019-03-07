@@ -109,6 +109,7 @@ const webpackConfig = {
 		'@wordpress/components': 'wp.components',
 		'@wordpress/core-data': 'wp.coreData',
 		'@wordpress/data': 'wp.data',
+		'@wordpress/i18n': 'wp.i18n',
 	},
 	devtool: devMode ? 'source-map' : false,
 };
