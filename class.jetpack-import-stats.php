@@ -50,7 +50,7 @@ class Jetpack_Import_Stats {
 			return 'unknown';
 		}
 
-		// continue iterating the stack looking for a caller that extends WP_Import
+		// continue iterating the stack looking for a caller that extends WP_Importer
 		for ( $i = $do_action_pos + 1; $i < count( $backtrace ); $i++ ) {
 			// grab only class_name from the trace
 			list( $class_name ) = explode( '->', $backtrace[ $i ] );
