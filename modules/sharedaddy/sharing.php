@@ -598,7 +598,7 @@ function jetpack_post_sharing_register_rest_field() {
 				'get_callback' => 'jetpack_post_sharing_get_value',
 				'update_callback' => 'jetpack_post_sharing_update_value',
 				'schema' => array(
-					'description' => __( 'Are sharing buttons enabled?' ),
+					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
 					'type'        => 'boolean'
 				),
 			)
