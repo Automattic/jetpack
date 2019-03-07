@@ -164,4 +164,6 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Services' );
+if ( Jetpack::is_module_active( 'publicize' ) ) {
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Services' );
+}
