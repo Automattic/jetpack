@@ -553,24 +553,62 @@ class Sharing_Admin {
 }
 
 /**
+ * Callback to get the value for the jetpack_sharing_enabled field.
+ *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
+ */
+function jetpack_post_sharing_get_value( array $post ) {
+	// if sharing IS disabled on this post, enabled=false, so negate the meta
+	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+}
+
+/**
+ * Callback to set sharing_disabled post_meta when the
+ * jetpack_sharing_enabled field is updated.
+ *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
+ *
+ */
+function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
+	if ( $enable_sharing ) {
+		// delete the override if we want to enable sharing
+		return delete_post_meta( $post_object->ID, 'sharing_disabled' );
+	} else {
+		return update_post_meta( $post_object->ID, 'sharing_disabled', true );
+	}
+}
+
+/**
  * Add Sharing post_meta to the REST API Post response.
  *
  * @action rest_api_init
- * @uses register_meta
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
  */
-function jetpack_post_sharing_register_meta() {
-	register_meta(
-		'post', 'sharing_disabled',
-		array(
-			'type'			=> 'boolean',
-			'single'		=> true,
-			'show_in_rest'	=> true,
-		)
-	);
+function jetpack_post_sharing_register_rest_field() {
+	$post_types = get_post_types( array( 'public' => true ) );
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'jetpack_sharing_enabled',
+			array(
+				'get_callback'    => 'jetpack_post_sharing_get_value',
+				'update_callback' => 'jetpack_post_sharing_update_value',
+				'schema'          => array(
+					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
+					'type'        => 'boolean',
+				),
+			)
+		);
+	}
 }
 
 // Add Sharing post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_sharing_register_meta' );
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
 
 function sharing_admin_init() {
 	global $sharing_admin;
