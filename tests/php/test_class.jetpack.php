@@ -695,6 +695,64 @@ EXPECTED;
 	}
 
 	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_user_earliest() {
+		$user_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1990-01-01 00:00:00',
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_date' => '1995-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1990-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_post_earliest() {
+		$user_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1994-01-01 00:00:00',
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_date' => '1991-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1991-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_only_admins() {
+		$admin_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1994-01-01 00:00:00',
+		) );
+		$editor_id = $this->factory->user->create( array(
+			'role'            => 'editor',
+			'user_registered' => '1992-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1994-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $admin_id );
+		wp_delete_user( $editor_id );
+	}
+
+	/**
 	 * @author ebinnion
 	 * @dataProvider get_file_url_for_environment_data_provider
 	 */
