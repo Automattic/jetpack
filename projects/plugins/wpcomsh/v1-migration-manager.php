@@ -66,8 +66,8 @@ class V1_Migration_Manager {
 	public function is_query_ok_while_migrating( $query ) {
 		$q = ltrim($query, "\r\n\t (");
 
-		// Allow writes to wp_options when updating at_options => v1_migration_options.
-		if ( 1 === preg_match( '/^(?=.*\bwp_options\b)(?=.*\bat_options\b)(?=.*\bv1_migration_options\b).*$/', $q ) ) {
+		// Allow writes to wp_options when updating at_options.
+		if ( 1 === preg_match( '/^(?=.*\bat_options\b)(?=.*\bv1_migration_options\b).*$/', $q ) ) {
 			return true;
 		}
 
