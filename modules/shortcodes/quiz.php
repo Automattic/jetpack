@@ -148,7 +148,7 @@ class Quiz_Shortcode {
 	public static function shortcode( $atts, $content = null ) {
 
 		// There's nothing to do if there's nothing enclosed.
-		if ( null === $content ) {
+		if ( empty( $content ) ) {
 			return '';
 		}
 
