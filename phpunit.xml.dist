@@ -105,6 +105,9 @@
 		<testsuite name="search">
 			<directory prefix="test_" suffix=".php">tests/php/modules/search</directory>
 		</testsuite>
+		<testsuite name="geo-location">
+			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
