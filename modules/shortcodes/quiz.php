@@ -209,6 +209,7 @@ class Quiz_Shortcode {
 			$content,
 			array(
 				'tt'     => array(),
+				'a'      => array( 'href' => true ),
 				'pre'    => array(),
 				'strong' => array(),
 				'i'      => array(),
