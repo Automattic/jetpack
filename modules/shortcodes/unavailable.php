@@ -64,9 +64,15 @@ class Jetpack_Shortcode_Unavailable {
 	}
 }
 
-new Jetpack_Shortcode_Unavailable(
-	array(
-		'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
-		'lytro'   => __( 'Lytro has been shut down since March 2019.', 'jetpack' ),
-	)
-);
+/**
+ * Init class.
+ */
+function jetpack_init_shortcode_unavailable() {
+	new Jetpack_Shortcode_Unavailable(
+		array(
+			'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
+			'lytro'   => __( 'Lytro has been shut down since March 2019.', 'jetpack' ),
+		)
+	);
+}
+add_action( 'init', 'jetpack_init_shortcode_unavailable' );
