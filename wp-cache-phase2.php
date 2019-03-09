@@ -221,10 +221,11 @@ function wp_cache_serve_cache_file() {
 	} else {
 		$ungzip = false;
 	}
-	foreach ($meta[ 'headers' ] as $t => $header) {
+	foreach ( $meta['headers'] as $t => $header ) {
 		// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
-		if( strpos( $header, 'Last-Modified:' ) === false )
-			header($header);
+		if ( strpos( $header, 'Last-Modified:' ) === false ) {
+			header( $header );
+		}
 	}
 	if ( isset( $wpsc_served_header ) && $wpsc_served_header ) {
 		header( 'X-WP-Super-Cache: Served WPCache cache file' );
@@ -1451,8 +1452,15 @@ function wp_cache_get_response_headers() {
 		}
 
 		$hdr_key = rtrim( substr( $hdr, 0, $ptr ) );
+
 		if ( in_array( strtolower( $hdr_key ), $known_headers, true ) ) {
-			$headers[ $hdr_key ] = ltrim( substr( $hdr, $ptr + 1 ) );
+			$hdr_val = ltrim( substr( $hdr, $ptr + 1 ) );
+
+			if ( ! empty( $headers[ $hdr_key ] ) ) {
+				$hdr_val = $headers[ $hdr_key ] . ', ' . $hdr_val;
+			}
+
+			$headers[ $hdr_key ] = $hdr_val;
 		}
 	}
 
