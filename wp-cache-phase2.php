@@ -52,11 +52,6 @@ function wp_cache_serve_cache_file() {
 		return false;
 	}
 
-	if ( wp_cache_user_agent_is_rejected() ) {
-		wp_cache_debug( 'No wp-cache file served as user agent rejected.', 5 );
-		return false;
-	}
-
 	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) ) {
 		wp_cache_debug( 'Non empty GET request. Caching disabled on settings page. ' . wpsc_dump_get_request(), 1 );
 		return false;
@@ -1166,6 +1161,11 @@ function wp_cache_phase2() {
 
 	if ( $cache_enabled == false ) {
 		wp_cache_debug( 'Caching disabled! quiting!', 1 );
+		return false;
+	}
+
+	if ( wp_cache_user_agent_is_rejected() ) {
+		wp_cache_debug( 'wp_cache_phase2: No caching to do as user agent rejected.' );
 		return false;
 	}
 
