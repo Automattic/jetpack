@@ -3807,7 +3807,7 @@ function wpsc_admin_bar_render( $wp_admin_bar ) {
 					'parent' => '',
 					'id' => 'delete-cache',
 					'title' => __( 'Delete Cache', 'wp-super-cache' ),
-					'meta' => array( 'title' => __( 'Delete Super Cache cached files (opens in new window)', 'wp-super-cache' ), 'target' => '_blank' ),
+					'meta' => array( 'title' => __( 'Delete Super Cache cached files', 'wp-super-cache' ) ),
 					'href' => wp_nonce_url( admin_url( 'options-general.php?page=wpsupercache&tab=contents&wp_delete_cache=1' ), 'wp-cache' )
 					) );
 	}
