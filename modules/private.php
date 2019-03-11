@@ -102,7 +102,8 @@ class Jetpack_Private {
 		} elseif ( is_object( $blog ) ) {
 			$blog_id = $blog->blog_id;
 		} elseif ( is_string( $blog ) ) {
-			$blog    = get_blog_info( $blog, '/', 1 );
+			$fields  = array( 'domain' => $blog, 'path' => '/' );
+			$blog    = get_blog_details( $fields );
 			$blog_id = $blog->blog_id;
 		} else {
 			$blog_id = $wpdb->blogid;
