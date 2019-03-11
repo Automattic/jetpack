@@ -339,7 +339,7 @@ class Jetpack_Private {
 			return;
 		}
 		
-		return new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
+		wp_die( '', 403 );
 	}
 }
 
