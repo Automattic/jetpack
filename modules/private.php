@@ -229,7 +229,7 @@ class Jetpack_Private {
 		}
 
 		if ( ! Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) {
-			wp_die();
+			wp_die( '', 403 );
 		}
 	}
 
@@ -262,7 +262,7 @@ class Jetpack_Private {
 		}
 
 		if ( ! Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) {
-			wp_die( -1 );
+			wp_die( '', 403 );
 		}
 	}
 
@@ -338,10 +338,8 @@ class Jetpack_Private {
 		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) ) {
 			return;
 		}
-
-		include JETPACK__PLUGIN_DIR . '/modules/private/private.php';
 		
-		wp_die();
+		return new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
 	}
 }
 
