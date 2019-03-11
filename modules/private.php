@@ -13,6 +13,21 @@
  * @package Jetpack
  */
 
+add_action( 'jetpack_activate_module_private', 'jetpack_private_on_activate' );
+
+
+function jetpack_private_on_activate() {
+	make_blog_private();
+}
+
+/**
+ * Changes a blog to private
+ */
+function make_blog_private() {
+	update_option( 'blog_public_old_value', get_option( 'blog_public' ) );
+	update_option( 'blog_public', -1 );
+}
+
 class Jetpack_Private {
 	static function init() {
 		add_action( 'parse_request', array( __CLASS__, 'privatize_blog' ), 100 );
@@ -26,8 +41,7 @@ class Jetpack_Private {
 		add_action( 'rest_pre_dispatch', array( __CLASS__, 'disable_rest_api' ) );
 		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
-		add_action( 'init', array( __CLASS__, 'make_blog_private' ), 9 );
-		add_action( 'jetpack_deactivate_module_private', array( __CLASS__, 'make_blog_public' ) );
+		add_action( 'jetpack_deactivate_module_private', array( __CLASS__, 'restore_blog_public' ) );
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
 		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
@@ -309,17 +323,10 @@ class Jetpack_Private {
 	}
 
 	/**
-	 * Changes a blog to private
-	 */
-	static function make_blog_private() {
-		update_option( 'blog_public', -1 );
-	}
-
-	/**
 	 * Changes a blog to public
 	 */
-	static function make_blog_public() {
-		update_option( 'blog_public', 1 );
+	static function restore_blog_public() {
+		update_option( 'blog_public', get_option( 'blog_public_old_value' ) );
 	}
 
 	/**
