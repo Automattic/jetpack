@@ -7,7 +7,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Private
- * Feature: Traffic
+ * Feature: Security
  * Additional Search Queries: private, sandbox, launch, unlaunched, maintenance, coming soon
  *
  * @package Jetpack
@@ -81,7 +81,7 @@ class Jetpack_Private {
 
 	/**
 	 * Does not check whether the blog is private. Accepts blog and user in various types.
-	 * Returns true for super admins; if you don't want that, use is_really_private_blog_user.
+	 * Returns true for super admins.
 	 *
 	 * @param int   $blog Current WordPress blod id.
 	 * @param Mixed $user Current WordPress user or user_id.
@@ -180,7 +180,7 @@ class Jetpack_Private {
 		</style>
 		</fieldset>
 		<div class="jetpack-private__setting-disabled highlight">
-			<?php printf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/traffic?term=private' ); ?>
+			<?php printf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' ); ?>
 		</div>
 		<fieldset>
 		<?php
@@ -311,7 +311,7 @@ class Jetpack_Private {
 	 */
 	static function private_update_option_blog_public() {
 		if ( function_exists( 'add_settings_error') ) {
-			add_settings_error( 'general', 'setting_not_updated', sprintf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/traffic?term=private' ), 'error' );
+			add_settings_error( 'general', 'setting_not_updated', sprintf( __( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' ), 'error' );
 		}
 	}
 
