@@ -333,7 +333,7 @@ class Jetpack_Private {
 	/**
 	 * Returns the private page template for OPML.
 	 */
-	function hide_opml() {
+	static function hide_opml() {
 		$this_current_user = wp_get_current_user();
 
 		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) ) {
