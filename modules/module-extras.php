@@ -83,3 +83,21 @@ function jetpack_widgets_add_suffix( $widget_name ) {
 	);
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
+
+add_action( 'blog_privacy_selector', 'priv_notice_privacy_selector' );
+
+function priv_notice_privacy_selector() {
+ 	?>
+ 	<p>
+ 	<?php
+		printf(
+			__( 'You can also make your site completely private by allowing only registered users to see your site. 
+	 			Activate Jetpack\'s Private Site feature <a href="%s">here</a>.', 'jetpack' ),
+			admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private'
+		);
+	?>
+ 	</p>
+
+ 	<?php
+}
+
