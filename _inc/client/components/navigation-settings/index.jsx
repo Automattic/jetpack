@@ -119,6 +119,16 @@ export const NavigationSettings = createReactClass( {
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
+					{ ( this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
+						this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
+						<NavItem
+							path="#security"
+							onClick={ this.handleClickForTracking( 'security' ) }
+							selected={ this.props.route.path === '/security' }
+						>
+							{ __( 'Security', { context: 'Navigation item.' } ) }
+						</NavItem>
+					) }
 					{ this.hasAnyOfThese( [
 						'carousel',
 						'lazy-images',
@@ -193,16 +203,6 @@ export const NavigationSettings = createReactClass( {
 							selected={ this.props.route.path === '/traffic' }
 						>
 							{ __( 'Traffic', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ ( this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
-						this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
-						<NavItem
-							path="#security"
-							onClick={ this.handleClickForTracking( 'security' ) }
-							selected={ this.props.route.path === '/security' }
-						>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
 				</NavTabs>
