@@ -73,7 +73,7 @@ function sniff_diff( $argv ) {
 	$cache_file = tempnam( sys_get_temp_dir(), 'sniff-diff-cache' );
 	if ( ! $cache_file ) {
 		fwrite( STDERR, "SNIFF DIFF: Could not create temporary cache file.\n" );
-		return 1;
+		return 5;
 	}
 
 	// If we're examining the working tree (e.g., `git diff`), this isn't necessary.
@@ -83,7 +83,7 @@ function sniff_diff( $argv ) {
 	$cache_dir = "$cache_file.dir/";
 	if ( ! mkdir( $cache_dir ) ) {
 		fwrite( STDERR, "SNIFF DIFF: Could not create temporary cache directory.\n" );
-		return 1;
+		return 5;
 	}
 
 	// On shutdown, delete all files queued for deletion.
