@@ -360,7 +360,7 @@ function filter_cache_changed_lines( $cache, $changed_lines ) {
 		}
 		// Remove the unchanged lines from the cache.
 		foreach ( [ 'errors', 'warnings' ] as $group ) {
-			$cache[ $file ][ $group ] = array_intersect_key( $cache[ $file ][ $group ], array_flip( $changed_lines[ $file ] ) );
+			$cache[ $file ][ $group ] = array_intersect_key( $file_data[ $group ], array_flip( $changed_lines[ $file ] ) );
 		}
 	}
 
