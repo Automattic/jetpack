@@ -94,17 +94,24 @@ function sniff_diff( $argv ) {
 
 	$phpcs = dirname( __DIR__ ) . '/vendor/bin/phpcs';
 
+	// We'll use this later to compare to error counts in the old files.
+	$json_report_file = "$cache_file-report.json";
+
 	// Generate summary report for the whole files (looking at changed and unchanged lines) and cache the results.
 	$phpcs_status = 0;
 	$summary      = proc(
 		array_merge(
-			[ $phpcs, '--report=summary', "--cache=$cache_file", "--basepath=$base_dir" ],
+			[ $phpcs, '--report=summary', "--report-json=$json_report_file", "--cache=$cache_file", "--basepath=$base_dir" ],
 			$phpcs_cache_args,
 			[ '--' ],
 			$sniff_files
 		),
 		$phpcs_status
 	);
+
+	$errors_json_new = file_get_contents( $json_report_file );
+	$errors_new      = json_decode( $errors_json_new, true );
+	unlink( $json_report_file ); // Do this now - no need to keep it around for future runs.
 
 	print_summary( $summary, $changed_files );
 
@@ -114,8 +121,15 @@ function sniff_diff( $argv ) {
 	}
 
 	// Retrieve and filter PHPCS' cache data.
-	$cache          = json_decode( file_get_contents( $cache_file ), true );
-	$changed_lines  = get_changed_files_changed_lines( $changed_files, $base_dir );
+	$cache         = json_decode( file_get_contents( $cache_file ), true );
+	$changed_lines = get_changed_files_changed_lines( $changed_files, $base_dir );
+
+	// To get the filtered new errors, we look directly at the PHPCS cache so that
+	// we can generate any sort of custom report with the filtered data:
+	// `./sniff-diff.php --phpcs-- --report=diff`
+	// `./sniff-diff.php --phpcs-- --report-diff --report-json`
+	// etc.
+	// See below for how generating the filtered old errors is different.
 	$filtered_cache = filter_cache_changed_lines( $cache, $changed_lines );
 	file_put_contents( $cache_file, json_encode( $filtered_cache ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 
@@ -141,7 +155,8 @@ function sniff_diff( $argv ) {
 		return $phpcs_status;
 	}
 
-	// Otherwise, make sure no errors crept into the changed files
+	// Otherwise, we know there are no errors in the changed lines, but
+	// we need too make sure no errors crept into the changed files
 	// outside of the changed lines.
 	// Changing a line in a file can introduce an error on an unchanged
 	// line. For example, an unused or unititialized variable error.
@@ -154,55 +169,52 @@ function sniff_diff( $argv ) {
 	// Get the list of files we need to lint from the old version.
 	$sniff_files_old = prepare_files_for_sniff( $changed_files, $cache_dir_old, 'old' );
 
-	proc(
+	$errors_json_old = proc(
 		array_merge(
-			[ $phpcs, '--report=summary', "--cache=$cache_file", "--basepath=$cache_dir_old" ],
+			[ $phpcs, '--report=json', "--cache=$cache_file", "--basepath=$cache_dir_old" ],
 			$phpcs_cache_args,
 			[ '--' ],
 			$sniff_files_old
 		)
 	);
+	$errors_old      = json_decode( $errors_json_old, true );
 
 	// At this point, we know any errors in the old files that are in changed lines
 	// have been fixed in the new files: $phpcs_status above was 0, and we returned early.
 	// So we only care about errors in the old files from unchanged lines.
-	$cache_old          = json_decode( file_get_contents( $cache_file ), true );
-	$changed_lines_old  = get_changed_files_changed_lines( $changed_files, $cache_dir_old, 'old' );
-	$filtered_cache_old = filter_cache_unchanged_lines( $cache_old, $changed_lines_old, 'old' );
+	$changed_lines_old = get_changed_files_changed_lines( $changed_files, $cache_dir_old, 'old' );
 
-	// To determine the exit code, `phpcs` treats warnings and errors.
-	// To determine the exit code, `phpcs --runtime-set ignore_warnings_on_exit 1` ignores warnings.
-	// If we've been called like the former, look at errors and warnings. If like the latter,
-	// look only at errors.
-	// Warning! This is a lie :) ignore_warnings_on_exit can also be set in the PHPCS config. @todo.
-	$groups_warranting_action = [ 'errors' ];
-	$ignore_warnings_pos      = array_search( 'ignore_warnings_on_exit', $phpcs_cache_args, true );
-	if ( false === $ignore_warnings_pos || '1' !== $phpcs_cache_args[ $ignore_warnings_pos + 1 ] ) {
-		$groups_warranting_action[] = 'warnings';
-	}
+	// To get the filtered old errors, we just look at the PHPCS JSON Report directly
+	// since we don't need to offer custom error reports. We just need to know if the error
+	// count has increased.
+	// See above for how generating the filtered new errors is different.
+	$errors_old = filter_errors_unchanged_lines( $errors_old, $changed_lines_old );
 
-	// Since changed lines in the new file are clean, it suffices to compare
-	// *all* new lines ($cache) with unchangeed old lines ($filtered_cache_old).
-	$files_error_counts_new = get_error_counts_from_files( $cache, $base_dir, $groups_warranting_action );
-	$files_error_counts_old = get_error_counts_from_files( $filtered_cache_old, $cache_dir_old, $groups_warranting_action );
-
+	// @todo - Should we look at errors and warnings separately, or is combining them enough?
 	$exit_code = 0;
-	foreach ( $files_error_counts_new as $file_new => $error_count_new ) {
-		// @todo - should we look at errors and warnings separately, or is combining them enough?
+	foreach ( $errors_new['files'] as $file_new => $file_data_new ) {
 		$file_old = get_source_file( $file_new, $changed_files );
-
 		if ( ! $file_old ) {
 			continue;
 		}
 
-		if ( ! isset( $files_error_counts_old[ $file_old ] ) ) {
+		if ( ! isset( $errors_old['files'][ $file_old ] ) ) {
 			continue;
 		}
+		$file_data_old = $errors_old['files'][ $file_old ];
 
-		$error_count_old = $files_error_counts_old[ $file_old ];
+		$error_count_new   = $file_data_new['errors'];
+		$warning_count_new = $file_data_new['warnings'];
+		$error_count_old   = $file_data_old['errors'];
+		$warning_count_old = $file_data_old['warnings'];
 
 		if ( $error_count_old < $error_count_new ) {
 			printf( "\033[1;91mERROR\033[0m: %s - Number of errors has increased by %d\n", $file_new, $error_count_new - $error_count_old );
+			$exit_code = 4;
+		}
+
+		if ( $warning_count_old < $warning_count_new ) {
+			printf( "\033[1;91mERROR\033[0m: %s - Number of warnings has increased by %d\n", $file_new, $warning_count_new - $warning_count_old );
 			$exit_code = 4;
 		}
 	}
@@ -348,54 +360,34 @@ function filter_cache_changed_lines( $cache, $changed_lines ) {
 }
 
 /**
- * Filters PHPCS cache data to return only information about unchanged lines.
+ * Filters PHPCS JSON Error Report data to return only information about unchanged lines.
  *
- * @param array   $cache PHPCS cache data.
+ * @param array   $errors PHPCS JSON Error Report data.
  * @param array[] $changed_lines Keys are file paths. Values are arrays of line numbers.
- * @return array Filtered PHPCS cache data.
+ * @return array Filtered PHPCS JSON Error Report data.
  */
-function filter_cache_unchanged_lines( $cache, $changed_lines ) {
-	foreach ( array_intersect_key( $cache, $changed_lines ) as $file => $file_data ) {
+function filter_errors_unchanged_lines( $errors, $changed_lines ) {
+	foreach ( array_intersect_key( $errors['files'], $changed_lines ) as $file => $file_data ) {
 		// Remove the changed lines from the cache.
-		foreach ( [ 'errors', 'warnings' ] as $group ) {
-			$cache[ $file ][ $group ] = array_diff_key( $cache[ $file ][ $group ], array_flip( $changed_lines[ $file ] ) );
-		}
-	}
+		$errors   = 0;
+		$warnings = 0;
+		$messages = [];
 
-	return $cache;
-}
+		foreach ( $file_data['messages'] as $message ) {
 
-/**
- * For each file in the PHPCS cache, counts the number of errors.
- *
- * @param array    $cache PHPCS cache data.
- * @param string   $base_dir The base dir for the relative file paths.
- * @param string[] $groups_warranting_action The types of errors ("errors", "warnings")
- *                 that are considered errors.
- * @reeturn int[] Keys are relative file paths.
- */
-function get_error_counts_from_files( $cache, $base_dir, $groups_warranting_action ) {
-	$base_dir_length = strlen( $base_dir );
-
-	$errors = [];
-	foreach ( $cache as $file => $file_data ) {
-		if ( ! isset( $file_data['hash'] ) ) {
-			continue; // Not actually a file.
-		}
-
-		$file_relative            = substr( $file, $base_dir_length );
-		$errors[ $file_relative ] = 0;
-		foreach ( $groups_warranting_action as $group ) {
-			foreach ( $file_data[ $group ] as $line_errors ) {
-				foreach ( $line_errors as $column_errors ) {
-					foreach ( $column_errors as $error ) {
-						if ( $error['severity'] ) {
-							$errors[ $file_relative ]++;
-						}
-					}
-				}
+			if ( in_array( $message['line'], $changed_lines[ $file ], true ) ) {
+				continue;
 			}
+
+			if ( 'ERROR' === $message['type'] ) {
+				$errors++;
+			} else {
+				$warnings++;
+			}
+			$messages[] = $message;
 		}
+
+		$errors['files'][ $file ] = compact( 'errors', 'warnings', 'messages' );
 	}
 
 	return $errors;
