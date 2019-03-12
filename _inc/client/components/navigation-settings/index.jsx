@@ -124,7 +124,9 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#security"
 							onClick={ this.handleClickForTracking( 'security' ) }
-							selected={ this.props.route.path === '/security' }
+							selected={
+								this.props.route.path === '/security' || this.props.route.path === '/settings'
+							}
 						>
 							{ __( 'Security', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -140,9 +142,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#performance"
 							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={
-								this.props.route.path === '/performance' || this.props.route.path === '/settings'
-							}
+							selected={ this.props.route.path === '/performance' }
 						>
 							{ __( 'Performance', { context: 'Navigation item.' } ) }
 						</NavItem>
