@@ -500,7 +500,7 @@ function put_blob_contents( $file, $hash, $cache_dir ) {
 		// We know $file is somewhere in $cache_dir.
 		// This just avoids attempting to mkdir( $cache_dir ).
 		// How?: $file_dir is unslashed, $cache_dir is slashed.
-		mkdir( $file_dir, 0777, true );
+		@mkdir( $file_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	// Use the file's blob hash to get its contents at the version we're interested in.
