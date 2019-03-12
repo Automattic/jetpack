@@ -180,21 +180,26 @@ function is_change_in_working_tree( $changed_file ) {
  *
  * @param array[] $changed_files From `get_changed_files()`.
  * @param string  $base_dir The base dir for the relative file paths.
+ * @param string  $version Whether to look at the new version of the files (default) or old.
  * @return string[] Absolute paths of files to sniff,
  */
-function prepare_files_for_sniff( $changed_files, $base_dir ) {
+function prepare_files_for_sniff( $changed_files, $base_dir, $version = 'new' ) {
+	$version = 'old' === $version ? 'old' : 'new';
+
 	$sniff_files = [];
 	foreach ( $changed_files as $changed_file ) {
-		$new_file_path   = "{$base_dir}{$changed_file['new_file']}";
-		$is_working_tree = is_change_in_working_tree( $changed_file );
+		$file_path = "{$base_dir}{$changed_file[ $version . '_file' ]}";
+
+		// The old version is never in the working tree.
+		$is_working_tree = 'new' === $version && is_change_in_working_tree( $changed_file );
 
 		if ( ! $is_working_tree ) {
 			// We're looking at the index or database, so we need a copy
 			// of that version of the file.
-			put_blob_contents( $new_file_path, $changed_file['new_hash'], $base_dir );
+			put_blob_contents( $file_path, $changed_file[ $version . '_hash' ], $base_dir );
 		}
 
-		$sniff_files[] = $new_file_path;
+		$sniff_files[] = $file_path;
 	}
 
 	return $sniff_files;
@@ -206,12 +211,13 @@ function prepare_files_for_sniff( $changed_files, $base_dir ) {
  *
  * @param array[] $changed_files From `get_changed_files()`.
  * @param string  $base_dir The base dir for the relative file paths.
+ * @param string  $version Whether to look at the new version of the files (default) or old.
  * @return array[] Keys are absolute file paths and values are arrays of line numbers or an empty array for added files.
  */
-function get_changed_files_changed_lines( $changed_files, $base_dir ) {
+function get_changed_files_changed_lines( $changed_files, $base_dir, $version = 'new' ) {
 	$changed_lines = [];
 	foreach ( $changed_files as $changed_file ) {
-		$new_file_path   = "{$base_dir}{$changed_file['new_file']}";
+		$file_path       = "{$base_dir}{$changed_file[ $version . '_file' ]}";
 		$is_working_tree = is_change_in_working_tree( $changed_file );
 
 		switch ( $changed_file['status'] ) {
@@ -221,15 +227,18 @@ function get_changed_files_changed_lines( $changed_files, $base_dir ) {
 			case 'C': // Copied.
 				$lines = get_changed_lines(
 					$changed_file['old_hash'],
-					$is_working_tree ? $changed_file['new_file'] : $changed_file['new_hash']
+					$is_working_tree ? $changed_file['new_file'] : $changed_file['new_hash'],
+					$version
 				);
 
 				if ( $lines ) {
-					$changed_lines[ $new_file_path ] = $lines;
+					$changed_lines[ $file_path ] = $lines;
 				}
 				break;
 			case 'A': // Added.
-				$changed_lines[ $new_file_path ] = [];
+				if ( 'new' === $version ) {
+					$changed_lines[ $file_path ] = [];
+				}
 				break;
 			default:
 				// Other options are Unmerged (U), Type Changed (T), Unknown (X).
@@ -434,9 +443,10 @@ function get_changed_files( $args ) {
  *
  * @param string $src The blob hash of the source file.
  * @param string $dst The pathname or blob hash of the destination file.
+ * @param string $version Whether to look at the new version of the files (default) or old.
  * @return int[]
  */
-function get_changed_lines( $src, $dst ) {
+function get_changed_lines( $src, $dst, $version = 'new' ) {
 	// For comparing two version of the file in the repo:
 	// `git diff <blob> <blob>`
 	// For comparing a version of the file in the repo against the
@@ -453,27 +463,31 @@ function get_changed_lines( $src, $dst ) {
 	}
 
 	// Find the range markers for each chunk.
-	preg_match_all( '/^@@ -[0-9,]+ \\+([0-9,]+) @@/m', $diff, $matches );
+	preg_match_all( '/^@@ -([0-9,]+) \\+([0-9,]+) @@/m', $diff, $matches );
 	$lines = [];
-	foreach ( $matches[1] as $new_range ) {
-		// $new_range is either "123,456" or "123".
-		@list( $first, $length ) = explode( ',', $new_range ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		// @@ -123,10 +456,0 @@
-		// If the length is '0', there are only deleted lines for
-		// the destination in this chunk.
+	foreach ( $matches[ 'old' === $version ? 1 : 2 ] as $range ) {
+		// $range is either "123,456" or "123".
+		@list( $first, $length ) = explode( ',', $range ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		// NEW: @@ -123,10 +456,0 @@
+		// If the length is '0', there are only deleted lines for the destination in this chunk.
+		//
+		// OLD: @@ -123,0 +456,10 @@
+		// If the length is '0', there are only added lines for the source in this chunk.
 		if ( '0' === $length ) {
 			continue;
 		}
 
 		if ( $length ) {
 			// @@ -123,10 +456,10 @@
-			// There are multiple lines for the destination in
-			// this chunk.
+			// NEW: There are multiple lines for the destination in this chunk.
+			// OLD: There are multiple lines for the source in this chunk.
 			array_push( $lines, ...range( $first, $first + $length - 1 ) );
 		} else {
-			// @@ -123,10 +456 @@
-			// If the length is '', there is only one line for
-			// the destination in this chunk.
+			// NEW: @@ -123,10 +456 @@
+			// If the length is '', there is only one line for the destination in this chunk.
+			//
+			// OLD: @@ -123 +456,10 @@
+			// If the length is '', there is only one line for the source in this chunk.
 			$lines[] = (int) $first;
 		}
 	}
