@@ -124,39 +124,47 @@ function sniff_diff( $argv ) {
 	$cache         = json_decode( file_get_contents( $cache_file ), true );
 	$changed_lines = get_changed_files_changed_lines( $changed_files, $base_dir );
 
-	// To get the filtered new errors, we look directly at the PHPCS cache so that
-	// we can generate any sort of custom report with the filtered data:
-	// `./sniff-diff.php --phpcs-- --report=diff`
-	// `./sniff-diff.php --phpcs-- --report-diff --report-json`
-	// etc.
-	// See below for how generating the filtered old errors is different.
-	$filtered_cache = filter_cache_changed_lines( $cache, $changed_lines );
-	file_put_contents( $cache_file, json_encode( $filtered_cache ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+	// From our list of new files to lint, remove any new files that only have
+	// deleted lines.
+	$sniff_files = array_intersect( $sniff_files, array_keys( $changed_lines ) );
 
-	// Feed the cache back into PHPCS.
-	$phpcs_status = 0;
-	$report       = proc(
-		array_merge(
-			[ $phpcs, "--cache=$cache_file", "--basepath=$base_dir" ],
-			// If we can, set the report width based on the TTY width.
-			// PHPCS normally takes care of this for us, but can't if
-			// it's called via `proc_open()` (not a TTY).
-			add_width_argument( $phpcs_args ),
-			[ '--' ],
-			$sniff_files
-		),
-		$phpcs_status
-	);
+	if ( $sniff_files ) {
+		// To get the filtered new errors, we look directly at the PHPCS cache so that
+		// we can generate any sort of custom report with the filtered data:
+		// `./sniff-diff.php --phpcs-- --report=diff`
+		// `./sniff-diff.php --phpcs-- --report-diff --report-json`
+		// etc.
+		// See below for how generating the filtered old errors is different.
+		$filtered_cache = filter_cache_changed_lines( $cache, $changed_lines );
+		file_put_contents( $cache_file, json_encode( $filtered_cache ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 
-	print_report( $report, $changed_files );
+		// Feed the cache back into PHPCS.
+		$phpcs_status = 0;
+		$report       = proc(
+			array_merge(
+				[ $phpcs, "--cache=$cache_file", "--basepath=$base_dir" ],
+				// If we can, set the report width based on the TTY width.
+				// PHPCS normally takes care of this for us, but can't if
+				// it's called via `proc_open()` (not a TTY).
+				add_width_argument( $phpcs_args ),
+				[ '--' ],
+				$sniff_files
+			),
+			$phpcs_status
+		);
 
-	// If there are errors in the filtered report, we're done.
-	if ( $phpcs_status ) {
-		return $phpcs_status;
+		print_report( $report, $changed_files );
+
+		// If there are errors in the filtered report, we're done.
+		if ( $phpcs_status ) {
+			return $phpcs_status;
+		}
 	}
 
-	// Otherwise, we know there are no errors in the changed lines, but
-	// we need too make sure no errors crept into the changed files
+	// Either there are only deleted lines in changed files (empty $sniff_files)
+	// or there are no errors in the changed lines (0 === $phpcs_status).
+	//
+	// We still need to make sure no errors crept into the changed files
 	// outside of the changed lines.
 	// Changing a line in a file can introduce an error on an unchanged
 	// line. For example, an unused or unititialized variable error.
