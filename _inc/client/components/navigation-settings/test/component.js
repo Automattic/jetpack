@@ -18,6 +18,9 @@ describe( 'NavigationSettings', () => {
 
 	before( () => {
 		testProps = {
+			hasAnyOfTheseModules: modules => true,
+			hasAnyPerformanceFeature: true,
+			hasAnySecurityFeature: true,
 			userCanManageModules: false,
 			isSubscriber: true,
 			route: {
