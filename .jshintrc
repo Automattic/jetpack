@@ -6,6 +6,7 @@
 	"eqnull": true,
 	"expr": true,
 	"immed": true,
+	"laxbreak": true,
 	"noarg": true,
 	"onevar": true,
 	"quotmark": "single",
