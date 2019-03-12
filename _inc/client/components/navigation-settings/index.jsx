@@ -110,6 +110,24 @@ export const NavigationSettings = createReactClass( {
 		return 0 < intersection( moduleList, modules ).length;
 	},
 
+	hasAnyPerformanceFeature() {
+		return this.hasAnyOfThese( [
+			'carousel',
+			'lazy-images',
+			'photon',
+			'photon-cdn',
+			'search',
+			'videopress',
+		] );
+	},
+
+	hasAnySecurityFeature() {
+		return (
+			this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
+			this.props.isPluginActive( 'akismet/akismet.php' )
+		);
+	},
+
 	handleClickForTracking( target ) {
 		return () => this.trackNavClick( target );
 	},
@@ -119,8 +137,7 @@ export const NavigationSettings = createReactClass( {
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					{ ( this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
-						this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
+					{ this.hasAnySecurityFeature() && (
 						<NavItem
 							path="#security"
 							onClick={ this.handleClickForTracking( 'security' ) }
@@ -131,14 +148,7 @@ export const NavigationSettings = createReactClass( {
 							{ __( 'Security', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.hasAnyOfThese( [
-						'carousel',
-						'lazy-images',
-						'photon',
-						'photon-cdn',
-						'search',
-						'videopress',
-					] ) && (
+					{ this.hasAnyPerformanceFeature() && (
 						<NavItem
 							path="#performance"
 							onClick={ this.handleClickForTracking( 'performance' ) }
