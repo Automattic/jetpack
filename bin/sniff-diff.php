@@ -179,7 +179,7 @@ function sniff_diff( $argv ) {
 
 	$errors_json_old = proc(
 		array_merge(
-			[ $phpcs, '--report=json', "--cache=$cache_file", "--basepath=$cache_dir_old" ],
+			[ $phpcs, '--report=json', '--no-cache', "--basepath=$cache_dir_old" ],
 			$phpcs_cache_args,
 			[ '--' ],
 			$sniff_files_old
