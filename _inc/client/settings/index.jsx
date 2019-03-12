@@ -40,23 +40,18 @@ export default class extends React.Component {
 						  } )
 						: __( 'Enter a search term to find settings or close search.' ) }
 				</div>
+				<Security
+					siteAdminUrl={ this.props.siteAdminUrl }
+					siteRawUrl={ this.props.siteRawUrl }
+					active={ '/security' === this.props.route.path || '/settings' === this.props.route.path }
+					{ ...commonProps }
+				/>
 				<Discussion
 					siteRawUrl={ this.props.siteRawUrl }
 					active={ '/discussion' === this.props.route.path }
 					{ ...commonProps }
 				/>
-				<Performance
-					active={
-						'/performance' === this.props.route.path || '/settings' === this.props.route.path
-					}
-					{ ...commonProps }
-				/>
-				<Security
-					siteAdminUrl={ this.props.siteAdminUrl }
-					siteRawUrl={ this.props.siteRawUrl }
-					active={ '/security' === this.props.route.path }
-					{ ...commonProps }
-				/>
+				<Performance active={ '/performance' === this.props.route.path } { ...commonProps } />
 				<Traffic
 					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }

@@ -110,6 +110,24 @@ export const NavigationSettings = createReactClass( {
 		return 0 < intersection( moduleList, modules ).length;
 	},
 
+	hasAnyPerformanceFeature() {
+		return this.hasAnyOfThese( [
+			'carousel',
+			'lazy-images',
+			'photon',
+			'photon-cdn',
+			'search',
+			'videopress',
+		] );
+	},
+
+	hasAnySecurityFeature() {
+		return (
+			this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
+			this.props.isPluginActive( 'akismet/akismet.php' )
+		);
+	},
+
 	handleClickForTracking( target ) {
 		return () => this.trackNavClick( target );
 	},
@@ -119,20 +137,22 @@ export const NavigationSettings = createReactClass( {
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					{ this.hasAnyOfThese( [
-						'carousel',
-						'lazy-images',
-						'photon',
-						'photon-cdn',
-						'search',
-						'videopress',
-					] ) && (
+					{ this.hasAnySecurityFeature() && (
+						<NavItem
+							path="#security"
+							onClick={ this.handleClickForTracking( 'security' ) }
+							selected={
+								this.props.route.path === '/security' || this.props.route.path === '/settings'
+							}
+						>
+							{ __( 'Security', { context: 'Navigation item.' } ) }
+						</NavItem>
+					) }
+					{ this.hasAnyPerformanceFeature() && (
 						<NavItem
 							path="#performance"
 							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={
-								this.props.route.path === '/performance' || this.props.route.path === '/settings'
-							}
+							selected={ this.props.route.path === '/performance' }
 						>
 							{ __( 'Performance', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -193,16 +213,6 @@ export const NavigationSettings = createReactClass( {
 							selected={ this.props.route.path === '/traffic' }
 						>
 							{ __( 'Traffic', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ ( this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
-						this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
-						<NavItem
-							path="#security"
-							onClick={ this.handleClickForTracking( 'security' ) }
-							selected={ this.props.route.path === '/security' }
-						>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
 				</NavTabs>
