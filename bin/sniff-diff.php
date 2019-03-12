@@ -25,7 +25,7 @@
  */
 
 // This file is PHP 5.6+ only.
-// phpcs:disable PHPCompatibility.Syntax.NewShortArray.Found,PHPCompatibility.Keywords.NewKeywords.t_dirFound,PHPCompatibility.FunctionDeclarations.NewClosure.Found,PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ellipsisFound,PHPCompatibility.Syntax.NewFunctionArrayDereferencing.Found
+// phpcs:disable PHPCompatibility.Syntax.NewShortArray.Found,PHPCompatibility.Keywords.NewKeywords.t_dirFound,PHPCompatibility.FunctionDeclarations.NewClosure.Found,PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ellipsisFound,PHPCompatibility.Syntax.NewFunctionArrayDereferencing.Found,PHPCompatibility.ControlStructures.NewListInForeach.Found
 
 // This file does not generate HTML.
 // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -588,6 +588,14 @@ function get_changed_files( $args ) {
  * @return int[]
  */
 function get_changed_lines( $src, $dst, $version = 'new' ) {
+	static $files = [];
+
+	$file_key = "$src:$dst";
+
+	if ( isset( $files[ $file_key ] ) ) {
+		return $files[ $file_key ][ 'old' === $version ? 0 : 1 ];
+	}
+
 	// For comparing two version of the file in the repo:
 	// `git diff <blob> <blob>`
 	// For comparing a version of the file in the repo against the
@@ -604,36 +612,39 @@ function get_changed_lines( $src, $dst, $version = 'new' ) {
 	}
 
 	// Find the range markers for each chunk.
-	preg_match_all( '/^@@ -([0-9,]+) \\+([0-9,]+) @@/m', $diff, $matches );
-	$lines = [];
-	foreach ( $matches[ 'old' === $version ? 1 : 2 ] as $range ) {
-		// $range is either "123,456" or "123".
-		@list( $first, $length ) = explode( ',', $range ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		// NEW: @@ -123,10 +456,0 @@
-		// If the length is '0', there are only deleted lines for the destination in this chunk.
-		//
-		// OLD: @@ -123,0 +456,10 @@
-		// If the length is '0', there are only added lines for the source in this chunk.
-		if ( '0' === $length ) {
-			continue;
-		}
-
-		if ( $length ) {
-			// @@ -123,10 +456,10 @@
-			// NEW: There are multiple lines for the destination in this chunk.
-			// OLD: There are multiple lines for the source in this chunk.
-			array_push( $lines, ...range( $first, $first + $length - 1 ) );
-		} else {
-			// NEW: @@ -123,10 +456 @@
-			// If the length is '', there is only one line for the destination in this chunk.
+	preg_match_all( '/^@@ -([0-9,]+) \\+([0-9,]+) @@/m', $diff, $matches, PREG_SET_ORDER );
+	$lines = [ [], [] ];
+	foreach ( $matches as list( , $old_range, $new_range ) ) {
+		foreach ( [ $old_range, $new_range ] as $old_or_new => $range ) {
+			// $range is either "123,456" or "123".
+			@list( $first, $length ) = explode( ',', $range ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			// NEW: @@ -123,10 +456,0 @@
+			// If the length is '0', there are only deleted lines for the destination in this chunk.
 			//
-			// OLD: @@ -123 +456,10 @@
-			// If the length is '', there is only one line for the source in this chunk.
-			$lines[] = (int) $first;
+			// OLD: @@ -123,0 +456,10 @@
+			// If the length is '0', there are only added lines for the source in this chunk.
+			if ( '0' === $length ) {
+				continue;
+			}
+
+			if ( $length ) {
+				// @@ -123,10 +456,10 @@
+				// NEW: There are multiple lines for the destination in this chunk.
+				// OLD: There are multiple lines for the source in this chunk.
+				array_push( $lines[ $old_or_new ], ...range( $first, $first + $length - 1 ) );
+			} else {
+				// NEW: @@ -123,10 +456 @@
+				// If the length is '', there is only one line for the destination in this chunk.
+				//
+				// OLD: @@ -123 +456,10 @@
+				// If the length is '', there is only one line for the source in this chunk.
+				$lines[ $old_or_new ][] = (int) $first;
+			}
 		}
 	}
 
-	return $lines;
+	$files[ $file_key ] = $lines;
+	return $lines[ 'old' === $version ? 0 : 1 ];
 }
 
 /**
