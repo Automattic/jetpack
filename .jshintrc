@@ -9,7 +9,7 @@
 	"laxbreak": true,
 	"noarg": true,
 	"onevar": true,
-	"quotmark": "single",
+	"quotmark": false,
 	"undef": true,
 	"unused": true,
 
