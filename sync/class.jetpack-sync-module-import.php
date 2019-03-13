@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
+
 class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 	private $import_end = false;
@@ -49,19 +51,25 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		$this->import_end = true;
-		$importer         = 'unknown';
-		$backtrace        = wp_debug_backtrace_summary( null, 0, false );
-		if ( $this->is_importer( $backtrace, 'Blogger_Importer' ) ) {
-			$importer = 'blogger';
-		}
+		$importer_class   = Jetpack_Sync_Functions::get_calling_importer_class();
 
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WC_Tax_Rate_Importer' ) ) {
-			$importer = 'woo-tax-rate';
-		}
+		switch( $importer_class ) {
+			case 'Blogger_Importer':
+				$importer = 'blogger';
+				break;
 
-		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WP_Import' ) ) {
-			// phpcs:ignore WordPress.WP.CapitalPDangit
-			$importer = 'wordpress';
+			case 'WC_Tax_Rate_Importer':
+				$importer = 'woo-tax-rate';
+				break;
+
+			case 'WP_Import':
+				// phpcs:ignore WordPress.WP.CapitalPDangit
+				$importer = 'wordpress';
+				break;
+
+			default:
+				$importer = 'unknown';
+				break;
 		}
 
 		$importer_name = $this->get_importer_name( $importer );
@@ -75,13 +83,4 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
 	}
 
-	private function is_importer( $backtrace, $class_name ) {
-		foreach ( $backtrace as $trace ) {
-			if ( strpos( $trace, $class_name ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 }

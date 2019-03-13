@@ -1,7 +1,15 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-functions.php';
+
 class Jetpack_Import_Stats {
-	static $known_importers = array(
+	/**
+	 * A mapping of known importers to friendly names.
+	 * Keys are the class name of the known importer.
+	 * Values are the friendly name.
+	 * @var array
+	 */
+	private static $known_importers = array(
 		'Blogger_Importer' => 'blogger',
 		'LJ_API_Import' => 'livejournal',
 		'MT_Import' => 'mt',
@@ -10,7 +18,13 @@ class Jetpack_Import_Stats {
 		'WP_Import' => 'wordpress',
 	);
 
-	static $action_event_name_map = array(
+	/**
+	 * A mapping of action types to event name.
+	 * Keys are the name of the action.
+	 * Values are the event name recorded for that action.
+	 * @var array
+	 */
+	private static $action_event_name_map = array(
 		'import_start' => 'jetpack_import_start',
 		'import_done'  => 'jetpack_import_done',
 		'import_end'   => 'jetpack_import_done',
@@ -25,54 +39,11 @@ class Jetpack_Import_Stats {
 		}
 	}
 
-	private static function get_calling_class() {
-		// If WP_Importer doesn't exist, neither will any importer that extends it
-		if ( ! class_exists( 'WP_Importer' ) ){
-			return 'unknown';
-		}
-
-		$action = current_filter();
-		$backtrace = wp_debug_backtrace_summary( null, 0, false );
-
-		$do_action_pos = -1;
-		for ( $i = 0; $i < count( $backtrace ); $i++ ) {
-			// Find the location in the stack of the calling action
-			if ( preg_match( "/^do_action\\(\'([^\']+)/", $backtrace[ $i ], $matches ) ) {
-				if ( $matches[1] === $action ) {
-					$do_action_pos = $i;
-					break;
-				}
-			}
-		}
-
-		// if the action wasn't called, the calling class is unknown
-		if ( -1 === $do_action_pos ) {
-			return 'unknown';
-		}
-
-		// continue iterating the stack looking for a caller that extends WP_Importer
-		for ( $i = $do_action_pos + 1; $i < count( $backtrace ); $i++ ) {
-			// grab only class_name from the trace
-			list( $class_name ) = explode( '->', $backtrace[ $i ] );
-
-			// check if the class extends WP_Importer
-			if ( class_exists( $class_name ) ) {
-				$parents = class_parents( $class_name );
-				if ( $parents && in_array( 'WP_Importer', $parents ) ) {
-					return $class_name;
-				}
-			}
-		}
-
-		// If we've exhausted the stack without a match, the calling class is unknown
-		return 'unknown';
-	}
-
 	public static function log_import_progress( $importer ) {
 		// prefer self-reported importer-names
 		if ( ! $importer ) {
 			// fall back to inferring by calling class name
-			$importer = self::get_calling_class();
+			$importer = Jetpack_Sync_Functions::get_calling_importer_class();
 		}
 		
 		// Give known importers a "friendly" name
