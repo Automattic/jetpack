@@ -65,9 +65,7 @@ class Jetpack_RelatedPosts {
 		}
 
 		// Add Related Posts to the REST API Post response.
-		if ( function_exists( 'register_rest_field' ) ) {
-			add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
-		}
+		add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 
 		jetpack_register_block(
 			'jetpack/related-posts',
@@ -167,7 +165,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( function_exists( 'has_block' ) && has_block( 'jetpack/related-posts', $content ) ) {
+		if ( has_block( 'jetpack/related-posts', $content ) ) {
 			return $content;
 		}
 

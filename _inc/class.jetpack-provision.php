@@ -70,9 +70,7 @@ class Jetpack_Provision { //phpcs:ignore
 			wp_set_current_user( $master_user_id );
 		}
 
-		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
-			? get_site_icon_url()
-			: false;
+		$site_icon = get_site_icon_url();
 
 		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
 

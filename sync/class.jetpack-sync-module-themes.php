@@ -358,11 +358,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_theme_support( $new_name, $new_theme = null, $old_theme = null ) {
-		// Previous theme support got added in WP 4.5
-		$previous_theme = false;
-		if ( $old_theme instanceof WP_Theme ) {
-			$previous_theme = $this->get_theme_support_info( $old_theme );
-		}
+		$previous_theme = $this->get_theme_support_info( $old_theme );
+
 		/**
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist

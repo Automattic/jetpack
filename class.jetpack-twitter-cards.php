@@ -191,7 +191,7 @@ class Jetpack_Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon
-			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
 				$og_tags['twitter:image'] = get_site_icon_url( '240' );
 			}
 

@@ -239,9 +239,7 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		if ( Jetpack_Gutenberg::is_gutenberg_available() ) {
-			self::register_contact_form_blocks();
-		}
+		self::register_contact_form_blocks();
 	}
 
 	private static function register_contact_form_blocks() {

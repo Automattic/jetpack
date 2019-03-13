@@ -216,14 +216,9 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_comment( $comment ) {
-		global $wpdb, $wp_version;
+		global $wpdb;
 
-		if ( version_compare( $wp_version, '4.4', '<' ) ) {
-			$comment = (array) $comment;
-		} else {
-			// WP 4.4 introduced the WP_Comment Class
-			$comment = $comment->to_array();
-		}
+		$comment = $comment->to_array();
 
 		// filter by fields on comment table
 		$comment_fields_whitelist = array(

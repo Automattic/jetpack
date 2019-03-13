@@ -218,10 +218,7 @@ class Jetpack_Carousel {
 			return $content;
 		}
 
-		if (
-			function_exists( 'has_block' )
-			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
-		) {
+		if ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) ) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}

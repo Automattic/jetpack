@@ -144,7 +144,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 				'tracksEventData'    => array(
-					'is_customizer' => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+					'is_customizer' => (int) is_customize_preview(),
 				),
 				'i18n'               => array(
 					'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),

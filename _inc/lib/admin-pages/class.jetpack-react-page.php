@@ -25,8 +25,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
-		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
+		// Adding a redirect meta tag if the REST API is disabled
+		if ( ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
@@ -172,24 +172,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page.
 		}
 
-		// Enqueue jp.js and localize it.
-		$dependencies = array();
-
-		// WordPress 5.0 and later supports the new client side i18n mechanism.
-		if ( version_compare( $GLOBALS['wp_version'], '5.0', '>' ) ) {
-			$dependencies = array( 'wp-i18n' );
-		}
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$dependencies,
+			array( 'wp-i18n' ),
 			JETPACK__VERSION,
 			true
 		);
 
-		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
-		}
+		wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
 			// Required for Analytics.
@@ -273,7 +264,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
-			'is_gutenberg_available' => Jetpack_Gutenberg::is_gutenberg_available(),
+			'is_gutenberg_available' => true,
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),

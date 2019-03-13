@@ -19,9 +19,6 @@
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function jetpack_register_block( $slug, $args = array() ) {
-	if ( ! function_exists( 'register_block_type' ) ) {
-		return false;
-	}
 	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
@@ -205,10 +202,6 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::is_gutenberg_available() ) {
-			return;
-		}
-
 		if ( ! self::should_load() ) {
 			return;
 		}
@@ -333,10 +326,6 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
-		if ( ! self::is_gutenberg_available() ) {
-			return array();
-		}
-
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
@@ -403,7 +392,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function is_gutenberg_available() {
-		return function_exists( 'register_block_type' );
+		return true;
 	}
 
 	/**
@@ -581,7 +570,7 @@ class Jetpack_Gutenberg {
 	 * @since 7.1.0
 	 */
 	public static function load_independent_blocks() {
-		if ( self::should_load() && self::is_gutenberg_available() ) {
+		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.

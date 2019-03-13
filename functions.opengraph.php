@@ -334,8 +334,8 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 	}
 
-	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
-	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+	// Third fall back, Core Site Icon, if valid in size.
+	if ( empty( $image ) && has_site_icon() ) {
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (

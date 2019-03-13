@@ -772,7 +772,7 @@ class Jetpack_Widget_Conditions {
 			$taxonomy = 'post_tag';
 		}
 
-		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
+		if ( $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
 			$term_id = $new_term_id;
 		}
 

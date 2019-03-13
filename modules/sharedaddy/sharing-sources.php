@@ -1127,7 +1127,7 @@ class Share_PressThis extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		global $current_user, $wp_version;
+		global $current_user;
 
 		$primary_blog = (int) get_user_meta( $current_user->ID, 'primary_blog', true );
 		if ( $primary_blog ) {
@@ -1158,16 +1158,8 @@ class Share_PressThis extends Sharing_Source {
 			'u' => rawurlencode( $this->get_share_url( $post->ID ) ),
 			);
 
-		if ( version_compare( $wp_version, '4.9-RC1-42107', '>=' ) ) {
-			$args[ 'url-scan-submit' ] = 'Scan';
-			$args[ '_wpnonce' ]        = wp_create_nonce( 'scan-site' );
-
-		} else { // Remove once 4.9 is the minimum.
-			$args['t'] = rawurlencode( $this->get_share_title( $post->ID ) );
-			if ( isset( $_GET['sel'] ) ) {
-				$args['s'] = rawurlencode( $_GET['sel'] );
-			}
-		}
+		$args[ 'url-scan-submit' ] = 'Scan';
+		$args[ '_wpnonce' ]        = wp_create_nonce( 'scan-site' );
 
 		$url = $blog->siteurl . '/wp-admin/press-this.php';
 		$url = add_query_arg( $args, $url );

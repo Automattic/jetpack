@@ -573,7 +573,7 @@ jQuery( function() {
 	 */
 	public function transform( $text, $args = array() ) {
 		// If this contains Gutenberg content, let's keep it intact.
-		if ( function_exists( 'has_blocks' ) && has_blocks( $text ) ) {
+		if ( has_blocks( $text ) ) {
 			return $text;
 		}
 
