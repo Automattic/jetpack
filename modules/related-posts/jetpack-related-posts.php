@@ -796,7 +796,7 @@ EOT;
 			$options['size'] = $args['size'];
 		}
 
-		if ( 0 === (int) $post_id || empty( $options['size'] ) ) {
+		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) || get_post_status( $post_id) !== 'publish' ) {
 			return array();
 		}
 
