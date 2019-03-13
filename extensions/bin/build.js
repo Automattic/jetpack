@@ -11,8 +11,8 @@ const { compact, get } = require( 'lodash' );
 
 const watchMode = process.argv.includes( '--watch' ) | process.argv.includes( '-w' );
 
-const editorSetup = path.join( __dirname, '..', 'src', 'preset', 'setup', 'editor' );
-const viewSetup = path.join( __dirname, '..', 'src', 'preset', 'setup', 'view' );
+const editorSetup = path.join( __dirname, '..', 'preset', 'setup', 'editor' );
+const viewSetup = path.join( __dirname, '..', 'preset', 'setup', 'view' );
 
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -89,7 +89,7 @@ const makeConfig = () => {
 			...viewBlocksScripts,
 		},
 		output: {
-			path: path.join( __dirname, '..', 'dist' ),
+			path: path.join( __dirname, '..', '..', '_inc', 'blocks' ),
 			filename: '[name].js',
 			libraryTarget: 'window',
 		},
