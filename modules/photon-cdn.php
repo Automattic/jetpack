@@ -8,7 +8,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
- * Feature: Recommended, Appearance
+ * Feature: Recommended, Appearance, Jumpstart
  * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, seo, bandwidth, content delivery network, pagespeed, combine js, optimize css
  */
 

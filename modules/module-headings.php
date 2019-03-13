@@ -20,7 +20,6 @@ function jetpack_get_module_i18n( $key ) {
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'comment-likes' => array(
@@ -36,7 +35,6 @@ function jetpack_get_module_i18n( $key ) {
 			'contact-form' => array(
 				'name' => _x( 'Contact Form', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Add a customizable contact form to any post or page using the Jetpack Form Block.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'copy-post' => array(
@@ -68,7 +66,6 @@ function jetpack_get_module_i18n( $key ) {
 			'gravatar-hovercards' => array(
 				'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'infinite-scroll' => array(
@@ -163,7 +160,6 @@ function jetpack_get_module_i18n( $key ) {
 			'related-posts' => array(
 				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'search' => array(
@@ -179,7 +175,6 @@ function jetpack_get_module_i18n( $key ) {
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'shortcodes' => array(
@@ -211,13 +206,11 @@ function jetpack_get_module_i18n( $key ) {
 			'subscriptions' => array(
 				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow users to subscribe to your posts and comments and receive notifications via email', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'tiled-gallery' => array(
 				'name' => _x( 'Tiled Galleries', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'vaultpress' => array(
