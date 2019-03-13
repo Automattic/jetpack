@@ -350,7 +350,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$amp_iframe_html = sprintf( '<amp-iframe layout="fixed-height" width="auto" sandbox="allow-scripts allow-same-origin" %s>', $iframe_attributes );
 
 			// Add placeholder to avoid AMP error: <amp-iframe> elements must be positioned outside the first 75% of the viewport or 600px from the top (whichever is smaller).
-			$amp_iframe_html .= sprintf( '<span placeholder>%s</span>', __( 'Loading map&hellip;', 'jetpack' ) );
+			$amp_iframe_html .= sprintf( '<span placeholder>%s</span>', esc_html__( 'Loading map&hellip;', 'jetpack' ) );
 
 			// Add original iframe as fallback in case JavaScript is disabled.
 			$amp_iframe_html .= sprintf( '<noscript>%s</noscript>', $iframe_html );
