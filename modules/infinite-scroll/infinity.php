@@ -896,7 +896,9 @@ class The_Neverending_Home_Page {
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-		var infiniteScroll = <?php echo json_encode( array( 'settings' => $js_settings ) ); ?>;
+		var infiniteScroll = JSON.parse( decodeURIComponent( '<?php echo
+			rawurlencode( json_encode( array( 'settings' => $js_settings ) ) );
+		?>' ) );
 		//]]>
 		</script>
 		<?php
@@ -1209,8 +1211,6 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		global $wp_customize;
-		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1534,7 +1534,7 @@ class The_Neverending_Home_Page {
 	 *
 	 */
 	private function default_footer() {
-		if ( function_exists( 'get_privacy_policy_url' ) && ( '' !== get_privacy_policy_url() ) ) {
+		if ( '' !== get_privacy_policy_url() ) {
 			$credits = get_the_privacy_policy_link() . '<span role="separator" aria-hidden="true"> / </span>';
 		} else {
 			$credits = '';

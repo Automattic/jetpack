@@ -56,17 +56,17 @@ class Jetpack_PostImages {
 				foreach ( $post_images as $post_image ) {
 					if ( !$post_image_id = absint( $post_image->id ) )
 						continue;
-	
+
 					$meta = wp_get_attachment_metadata( $post_image_id );
-	
+
 					// Must be larger than 200x200 (or user-specified)
 					if ( !isset( $meta['width'] ) || $meta['width'] < $width )
 						continue;
 					if ( !isset( $meta['height'] ) || $meta['height'] < $height )
 						continue;
-	
+
 					$url = wp_get_attachment_url( $post_image_id );
-	
+
 					$images[] = array(
 						'type'       => 'image',
 						'from'       => 'slideshow',
@@ -187,23 +187,10 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post_id );
 
 		foreach ( $post_images as $post_image ) {
-			$meta = wp_get_attachment_metadata( $post_image->ID );
-			// Must be larger than 200x200
-			if ( !isset( $meta['width'] ) || $meta['width'] < $width )
-				continue;
-			if ( !isset( $meta['height'] ) || $meta['height'] < $height )
-				continue;
-
-			$url = wp_get_attachment_url( $post_image->ID );
-
-			$images[] = array(
-				'type'       => 'image',
-				'from'       => 'attachment',
-				'src'        => $url,
-				'src_width'  => $meta['width'],
-				'src_height' => $meta['height'],
-				'href'       => $permalink,
-			);
+			$current_image = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
+			if ( false !== $current_image ) {
+				$images[] = $current_image;
+			}
 		}
 
 		/*
@@ -248,11 +235,11 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
-			return $images;
+		if ( 'attachment' === get_post_type( $post ) && wp_attachment_is_image( $post ) ) {
+			$thumb = $post_id;
+		} else {
+			$thumb = get_post_thumbnail_id( $post );
 		}
-
-		$thumb = get_post_thumbnail_id( $post_id );
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
@@ -282,7 +269,7 @@ class Jetpack_PostImages {
 				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url = $img_src[0];
+			$url    = $img_src[0];
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
@@ -290,6 +277,7 @@ class Jetpack_PostImages {
 				'src_width'  => $img_src[1],
 				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
+				'alt_text'   => self::get_alt_text( $thumb ),
 			) );
 
 		}
@@ -312,11 +300,71 @@ class Jetpack_PostImages {
 					'src_width'  => $meta_thumbnail['width'],
 					'src_height' => $meta_thumbnail['height'],
 					'href'       => $meta_thumbnail['URL'],
+					'alt_text'   => self::get_alt_text( $thumb ),
 				) );
 			}
 		}
 
 		return $images;
+	}
+
+	/**
+	 * Get images from Gutenberg Image blocks.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
+	 * @param int   $width      Minimum Image width.
+	 * @param int   $height     Minimum Image height.
+	 */
+	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
+		$images = array();
+
+		$html_info = self::get_post_html( $html_or_id );
+
+		if ( empty( $html_info['html'] ) ) {
+			return $images;
+		}
+
+		// Look for block information in the HTML.
+		$blocks = parse_blocks( $html_info['html'] );
+		if ( empty( $blocks ) ) {
+			return $images;
+		}
+
+		foreach ( $blocks as $block ) {
+			/**
+			 * Parse content from Core Image blocks.
+			 * If it is an image block for an image hosted on our site, it will have an ID.
+			 * If it does not have an ID, let `from_html` parse that content later,
+			 * and extract an image if it has size parameters.
+			 */
+			if (
+				'core/image' === $block['blockName']
+				&& ! empty( $block['attrs']['id'] )
+			) {
+				$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
+			}
+
+			/**
+			 * Parse content from Core Gallery blocks and Jetpack's Tiled Gallery blocks.
+			 * Gallery blocks include the ID of each one of the images in the gallery.
+			 */
+			if (
+				( 'core/gallery' === $block['blockName'] || 'jetpack/tiled-gallery' === $block['blockName'] )
+				&& ! empty( $block['attrs']['ids'] )
+			) {
+				foreach ( $block['attrs']['ids'] as $img_id ) {
+					$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
+				}
+			}
+		}
+
+		/**
+		 * Returning a filtered array because get_attachment_data returns false
+		 * for unsuccessful attempts.
+		 */
+		return array_filter( $images );
 	}
 
 	/**
@@ -333,19 +381,9 @@ class Jetpack_PostImages {
 	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
 
-		if ( is_numeric( $html_or_id ) ) {
-			$post = get_post( $html_or_id );
+		$html_info = self::get_post_html( $html_or_id );
 
-			if ( empty( $post ) || ! empty( $post->post_password ) ) {
-				return $images;
-			}
-
-			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops.
-		} else {
-			$html = $html_or_id;
-		}
-
-		if ( ! $html ) {
+		if ( empty( $html_info['html'] ) ) {
 			return $images;
 		}
 
@@ -360,7 +398,7 @@ class Jetpack_PostImages {
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
 		libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( $html );
+		@$dom_doc->loadHTML( $html_info['html'] );
 		libxml_use_internal_errors( false );
 
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
@@ -379,8 +417,9 @@ class Jetpack_PostImages {
 			}
 
 			$meta = array(
-				'width'  => (int) $image_tag->getAttribute( 'width' ),
-				'height' => (int) $image_tag->getAttribute( 'height' ),
+				'width'    => (int) $image_tag->getAttribute( 'width' ),
+				'height'   => (int) $image_tag->getAttribute( 'height' ),
+				'alt_text' => $image_tag->getAttribute( 'alt' ),
 			);
 
 			/**
@@ -409,12 +448,13 @@ class Jetpack_PostImages {
 			}
 
 			$images[] = array(
-				'type'  => 'image',
-				'from'  => 'html',
-				'src'   => $img_src,
+				'type'       => 'image',
+				'from'       => 'html',
+				'src'        => $img_src,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
-				'href'  => '', // No link to apply to these. Might potentially parse for that as well, but not for now.
+				'href'       => $html_info['post_url'],
+				'alt_text'   => $meta['alt_text'],
 			);
 		}
 		return $images;
@@ -437,10 +477,11 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
-		} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
-			$url = get_site_icon_url( $size );
 		} else {
-			return array();
+			$url = get_site_icon_url( $size );
+			if ( ! $url ) {
+				return array();
+			}
 		}
 
 		return array( array(
@@ -450,6 +491,7 @@ class Jetpack_PostImages {
 			'src_width'  => $size,
 			'src_height' => $size,
 			'href'       => $permalink,
+			'alt_text'   => '',
 		) );
 	}
 
@@ -485,6 +527,7 @@ class Jetpack_PostImages {
 				'src_width'  => $size,
 				'src_height' => $size,
 				'href'       => $permalink,
+				'alt_text'   => '',
 			),
 		);
 	}
@@ -568,6 +611,7 @@ class Jetpack_PostImages {
 			'from_slideshow'      => true,
 			'from_gallery'        => true,
 			'from_attachment'     => true,
+			'from_blocks'         => true,
 			'from_html'           => true,
 
 			'html_content'        => '' // HTML string to pass to from_html()
@@ -583,6 +627,12 @@ class Jetpack_PostImages {
 			$media = self::from_gallery( $post_id );
 		if ( !$media && $args['from_attachment'] )
 			$media = self::from_attachment( $post_id, $args['width'], $args['height'] );
+		if ( ! $media && $args['from_blocks'] ) {
+			if ( empty( $args['html_content'] ) )
+				$media = self::from_blocks( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
+			else
+				$media = self::from_blocks( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
+		}
 		if ( !$media && $args['from_html'] ) {
 			if ( empty( $args['html_content'] ) )
 				$media = self::from_html( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
@@ -652,5 +702,89 @@ class Jetpack_PostImages {
 
 		// Arg... no way to resize image using WordPress.com infrastructure!
 		return $src;
+	}
+
+	/**
+	 * Get HTML from given post content.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
+	 *
+	 * @return array $html_info {
+	 * @type string $html     Post content.
+	 * @type string $post_url Post URL.
+	 * }
+	 */
+	static function get_post_html( $html_or_id ) {
+		if ( is_numeric( $html_or_id ) ) {
+			$post = get_post( $html_or_id );
+
+			if ( empty( $post ) || ! empty( $post->post_password ) ) {
+				return '';
+			}
+
+			$html_info = array(
+				'html'     => $post->post_content, // DO NOT apply the_content filters here, it will cause loops.
+				'post_url' => get_permalink( $post->ID ),
+			);
+		} else {
+			$html_info = array(
+				'html'     => $html_or_id,
+				'post_url' => '',
+			);
+		}
+		return $html_info;
+	}
+
+	/**
+	 * Get info about a WordPress attachment.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $post_url      URL of the post, if we have one.
+	 * @param int    $width         Minimum Image width.
+	 * @param int    $height        Minimum Image height.
+	 * @return array|bool           Image data or false if unavailable.
+	 */
+	public static function get_attachment_data( $attachment_id, $post_url = '', $width, $height ) {
+		if ( empty( $attachment_id ) ) {
+			return false;
+		}
+
+		$meta = wp_get_attachment_metadata( $attachment_id );
+
+		// The image must be larger than 200x200.
+		if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
+			return false;
+		}
+		if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+			return false;
+		}
+
+		$url = wp_get_attachment_url( $attachment_id );
+
+		return array(
+			'type'       => 'image',
+			'from'       => 'attachment',
+			'src'        => $url,
+			'src_width'  => $meta['width'],
+			'src_height' => $meta['height'],
+			'href'       => $post_url,
+			'alt_text'   => self::get_alt_text( $attachment_id ),
+		);
+	}
+
+	/**
+	 * Get the alt text for an image or other media from the Media Library.
+	 *
+	 * @since 7.1
+	 *
+	 * @param int $attachment_id The Post ID of the media.
+	 * @return string The alt text value or an emptry string.
+	 */
+	public static function get_alt_text( $attachment_id ) {
+		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 	}
 }

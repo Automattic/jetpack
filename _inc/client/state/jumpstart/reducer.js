@@ -12,14 +12,15 @@ import {
 	JUMPSTART_ACTIVATE,
 	JUMPSTART_ACTIVATE_FAIL,
 	JUMPSTART_ACTIVATE_SUCCESS,
-	JUMPSTART_SKIP
+	JUMPSTART_SKIP,
 } from 'state/action-types';
 
 const jumpstartState = {
-	showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object'
-		? window.Initial_State.showJumpstart
-		: {},
-	isJumpstarting: false
+	showJumpStart:
+		typeof window !== 'undefined' && typeof window.Initial_State === 'object'
+			? window.Initial_State.showJumpstart
+			: {},
+	isJumpstarting: false,
 };
 
 export const status = ( state = jumpstartState, action ) => {
@@ -42,7 +43,7 @@ export const status = ( state = jumpstartState, action ) => {
 };
 
 export const reducer = combineReducers( {
-	status
+	status,
 } );
 
 /**

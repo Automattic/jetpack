@@ -660,7 +660,7 @@ function grunion_ajax_spam() {
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
-		$blog_url             = parse_url( site_url() );
+		$blog_url             = wp_parse_url( site_url() );
 
 		// resend the original email
 		$email          = get_post_meta( $post_id, '_feedback_email', true );

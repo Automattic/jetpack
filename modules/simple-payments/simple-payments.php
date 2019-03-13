@@ -40,6 +40,7 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -57,6 +58,14 @@ class Jetpack_Simple_Payments {
 		$this->setup_cpts();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
+	}
+
+	function register_gutenberg_block() {
+		if ( $this->is_enabled_jetpack_simple_payments() ) {
+			jetpack_register_block( 'jetpack/simple-payments' );
+		} else {
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/simple-payments', 'missing_plan' );
+		}
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
@@ -93,9 +102,9 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For WPCOM sites
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_blog_sticker' ) ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 			$site_id = $this->get_blog_id();
-			return has_blog_sticker( 'premium-plan', $site_id ) || has_blog_sticker( 'business-plan', $site_id );
+			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
 		// For all Jetpack sites
@@ -110,7 +119,7 @@ class Jetpack_Simple_Payments {
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_product || 'trash' === $product->post_status ) {
+		if ( $product->post_type !== self::$post_type_product || 'publish' !== $product->post_status ) {
 			return;
 		}
 
@@ -132,7 +141,7 @@ class Jetpack_Simple_Payments {
 
 		$data['id'] = $attrs['id'];
 
-		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueue' ) ) {
+		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
 			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
 
@@ -279,7 +288,13 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
-		return "$price $currency";
+		// Fall back to unspecified currency symbol like `¤1,234.05`.
+		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
+		if ( ! $currency ) {
+			return '¤' . number_format_i18n( $price, 2 );
+		}
+
+		return number_format_i18n( $price, 2 ) . ' ' . $currency;
 	}
 
 	/**

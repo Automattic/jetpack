@@ -51,10 +51,10 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 			'comment_author_url',
 			'comment_content',
 		);
-		$changes = array();
+		$changes        = array();
 		foreach ( $content_fields as $field ) {
-			if ( $new_comment_with_slashes[$field] != $old_comment[$field] ) {
-				$changes[$field] = array( $new_comment[$field], $old_comment[$field] );
+			if ( $new_comment_with_slashes[ $field ] != $old_comment[ $field ] ) {
+				$changes[ $field ] = array( $new_comment[ $field ], $old_comment[ $field ] );
 			}
 		}
 
@@ -83,10 +83,13 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
-				add_filter( 'jetpack_sync_before_send_' . $comment_action_name, array(
-					$this,
-					'expand_wp_insert_comment',
-				) );
+				add_filter(
+					'jetpack_sync_before_send_' . $comment_action_name,
+					array(
+						$this,
+						'expand_wp_insert_comment',
+					)
+				);
 			}
 		}
 
@@ -146,6 +149,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		 * Instead we pass data that will still enable us to do a checksum against the
 		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
 		 * other services.
+		 *
 		 * @since 4.2.0
 		 *
 		 * @param boolean false prevent post data from bing synced to WordPress.com
@@ -175,10 +179,12 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	public function expand_comment_ids( $args ) {
 		$comment_ids = $args[0];
-		$comments    = get_comments( array(
-			'include_unapproved' => true,
-			'comment__in'        => $comment_ids,
-		) );
+		$comments    = get_comments(
+			array(
+				'include_unapproved' => true,
+				'comment__in'        => $comment_ids,
+			)
+		);
 
 		return array(
 			$comments,

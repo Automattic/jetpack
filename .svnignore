@@ -6,7 +6,6 @@
 .jshintrc
 .jshintignore
 .travis.yml
-.npmrc
 .nvmrc
 .eslines.json
 .eslintcache
@@ -14,6 +13,7 @@ readme.md
 .github
 phpunit.xml.dist
 dangerfile.js
+renovate.json
 docs
 tests
 tools
@@ -26,6 +26,8 @@ node_modules
 languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
+modules/calypsoify/*.css.map
+modules/calypsoify/*.scss
 to-test.md
 webpack.config.js
 .editorconfig

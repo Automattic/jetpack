@@ -60,6 +60,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WP_Import' ) ) {
+			// phpcs:ignore WordPress.WP.CapitalPDangit
 			$importer = 'wordpress';
 		}
 

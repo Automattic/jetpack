@@ -50,6 +50,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
+		'launch_status'     => '(string) A string describing the launch status of a site',
 	);
 
 	protected static $no_member_fields = array(
@@ -68,6 +69,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_private',
 		'is_following',
 		'meta',
+		'launch_status',
 	);
 
 	protected static $site_options_format = array(
@@ -125,7 +127,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
 		'design_type',
-		'site_goals'
+		'site_goals',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -353,9 +355,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
-				$jetpack_modules = $this->site->get_jetpack_modules();
-				if ( ! is_null( $jetpack_modules ) ) {
-					$response[ $key ] = $jetpack_modules;
+				if ( is_user_member_of_blog() ) {
+					$response[ $key ] = $this->site->get_jetpack_modules();
 				}
 				break;
 			case 'plan' :
@@ -363,6 +364,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
+				break;
+			case 'launch_status' : 
+				$response[ $key ] = $this->site->get_launch_status();
 				break;
 		}
 

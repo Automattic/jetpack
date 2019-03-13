@@ -63,6 +63,7 @@ const separate_list = [
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
+	'modules/theme-tools/compat/twentynineteen.css',
 ];
 
 const pathModifier = function( file, contents ) {
@@ -77,17 +78,8 @@ const pathModifier = function( file, contents ) {
 gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe( banner( '/*!\n' +
 			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
@@ -105,17 +97,8 @@ gulp.task( 'frontendcss', function() {
 gulp.task( 'frontendcss:separate', function() {
 	return gulp.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( function( file ) {
@@ -127,4 +110,3 @@ export default gulp.parallel(
 	'frontendcss',
 	'frontendcss:separate'
 );
-

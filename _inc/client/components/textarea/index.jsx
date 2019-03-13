@@ -12,7 +12,10 @@ export default class Textarea extends React.Component {
 
 	render() {
 		return (
-			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'dops-textarea' ) } >
+			<textarea
+				{ ...omit( this.props, 'className' ) }
+				className={ classnames( this.props.className, 'dops-textarea' ) }
+			>
 				{ this.props.children }
 			</textarea>
 		);

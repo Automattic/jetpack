@@ -38,7 +38,7 @@ class Jetpack_Comment_Likes {
 		$this->url_parts = parse_url( $this->url );
 		$this->domain    = $this->url_parts['host'];
 
-		add_action( 'init', array( $this, 'frontend_init' ) );
+		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
@@ -117,10 +117,6 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function frontend_init() {
-		if ( is_admin() ) {
-			return;
-		}
-
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}

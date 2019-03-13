@@ -35,6 +35,7 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function add_actions() {
+		global $pagenow;
 
 		// If user is not an admin and site is in Dev Mode, don't do anything
 		if ( ! current_user_can( 'manage_options' ) && Jetpack::is_development_mode() ) {
@@ -60,6 +61,18 @@ abstract class Jetpack_Admin_Page {
 
 		if ( ! self::$block_page_rendering_for_idc ) {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
+		}
+		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
+		if (
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
+			&& ! Jetpack::is_active()
+			&& current_user_can( 'jetpack_connect' )
+			&& ! Jetpack::is_development_mode()
+		) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
+			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
+			add_action( 'admin_notices', array( 'Jetpack_Connection_Banner', 'render_connect_prompt_full_screen' ) );
+			delete_transient( 'activated_jetpack' );
 		}
 
 		// Check if the site plan changed and deactivate modules accordingly.
@@ -127,18 +140,6 @@ abstract class Jetpack_Admin_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
-	}
-
-	/**
-	 * Checks if WordPress version is too old to have REST API.
-	 *
-	 * @since 4.3
-	 *
-	 * @return bool
-	 */
-	function is_wp_version_too_old() {
-		global $wp_version;
-		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
 	}
 
 	/**
@@ -231,9 +232,9 @@ abstract class Jetpack_Admin_Page {
 				padding-left: 0 !important;
 			}
 			#wpbody-content {
-				background-color: #f3f6f8;
+				background-color: #f6f6f6;
 			}
-			
+
 			#jp-plugin-container .wrap {
 				margin: 0 auto;
 				max-width:45rem;
@@ -241,6 +242,9 @@ abstract class Jetpack_Admin_Page {
 			}
 			#jp-plugin-container.is-wide .wrap {
 				max-width: 1040px;
+			}
+			#jp-plugin-container .wrap .jetpack-wrap-container {
+				margin-top: 1em;
 			}
 			.wp-admin #dolly {
 			    float: none;

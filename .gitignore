@@ -20,6 +20,7 @@ tests/php/files/jetpack-150x150.jpg
 yarn-error.log
 .phpcs.xml
 phpcs.xml
+/modules/**/*.min.css.map
 
 ## Things for docker-composer
 /docker/data/mysql/*

@@ -15,62 +15,71 @@ import {
 import restApi from 'rest-api';
 
 export const fetchSiteData = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JETPACK_SITE_DATA_FETCH
+			type: JETPACK_SITE_DATA_FETCH,
 		} );
-		return restApi.fetchSiteData().then( siteData => {
-			dispatch( {
-				type: JETPACK_SITE_DATA_FETCH_RECEIVE,
-				siteData: siteData
+		return restApi
+			.fetchSiteData()
+			.then( siteData => {
+				dispatch( {
+					type: JETPACK_SITE_DATA_FETCH_RECEIVE,
+					siteData: siteData,
+				} );
+				return siteData;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_DATA_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-			return siteData;
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_SITE_DATA_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchSiteFeatures = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JETPACK_SITE_FEATURES_FETCH
+			type: JETPACK_SITE_FEATURES_FETCH,
 		} );
-		return restApi.fetchSiteFeatures().then( siteFeatures => {
-			dispatch( {
-				type: JETPACK_SITE_FEATURES_FETCH_RECEIVE,
-				siteFeatures: siteFeatures
+		return restApi
+			.fetchSiteFeatures()
+			.then( siteFeatures => {
+				dispatch( {
+					type: JETPACK_SITE_FEATURES_FETCH_RECEIVE,
+					siteFeatures: siteFeatures,
+				} );
+				return siteFeatures;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_FEATURES_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-			return siteFeatures;
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_SITE_FEATURES_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchAvailablePlans = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JETPACK_SITE_PLANS_FETCH
+			type: JETPACK_SITE_PLANS_FETCH,
 		} );
-		return restApi.getPlans().then( sitePlans => {
-			const plans = JSON.parse( sitePlans );
-			dispatch( {
-				type: JETPACK_SITE_PLANS_FETCH_RECEIVE,
-				plans,
+		return restApi
+			.getPlans()
+			.then( sitePlans => {
+				const plans = JSON.parse( sitePlans );
+				dispatch( {
+					type: JETPACK_SITE_PLANS_FETCH_RECEIVE,
+					plans,
+				} );
+				return sitePlans;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_PLANS_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-			return sitePlans;
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_SITE_PLANS_FETCH_FAIL,
-				error: error,
-			} );
-		} );
 	};
 };

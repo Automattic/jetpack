@@ -36,24 +36,26 @@ class Modal extends React.Component {
 		className: PropTypes.string,
 		title: PropTypes.string,
 		initialFocus: PropTypes.string,
-		onRequestClose: PropTypes.func
+		onRequestClose: PropTypes.func,
 	};
 
 	static defaultProps = {
-		style: {}
+		style: {},
 	};
 
 	state = {
-		overlayMouseDown: false
+		overlayMouseDown: false,
 	};
 
 	componentDidMount() {
-		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
+		jQuery( 'body' )
+			.addClass( 'dops-modal-showing' )
+			.on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
 			focusTrap.activate( ReactDOM.findDOMNode( this ), {
 				// onDeactivate: this.maybeClose,
-				initialFocus: this.props.initialFocus
+				initialFocus: this.props.initialFocus,
 			} );
 		} catch ( e ) {
 			//noop
@@ -61,7 +63,9 @@ class Modal extends React.Component {
 	}
 
 	componentWillUnmount() {
-		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
+		jQuery( 'body' )
+			.removeClass( 'dops-modal-showing' )
+			.off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
 			focusTrap.deactivate();
@@ -70,8 +74,9 @@ class Modal extends React.Component {
 		}
 	}
 
-	handleEscapeKey = ( e ) => {
-		if ( e.keyCode === 27 ) { // escape key maps to keycode `27`
+	handleEscapeKey = e => {
+		if ( e.keyCode === 27 ) {
+			// escape key maps to keycode `27`
 			this.maybeClose();
 		}
 	};
@@ -84,13 +89,13 @@ class Modal extends React.Component {
 
 	// this exists so we can differentiate between click events on the background
 	// which initiated there vs. drags that ended there (most notably from the slider in a modal)
-	handleMouseDownOverlay = ( e ) => {
+	handleMouseDownOverlay = e => {
 		e.preventDefault();
 		e.stopPropagation();
 		this.setState( { overlayMouseDown: true } );
 	};
 
-	handleClickOverlay = ( e ) => {
+	handleClickOverlay = e => {
 		e.preventDefault();
 		e.stopPropagation();
 		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
@@ -100,7 +105,7 @@ class Modal extends React.Component {
 	};
 
 	// prevent clicks from propagating to background
-	handleMouseEventModal = ( e ) => {
+	handleMouseEventModal = e => {
 		e.stopPropagation();
 	};
 
@@ -122,16 +127,22 @@ class Modal extends React.Component {
 
 		const combinedStyle = assign( {}, style, containerStyle );
 		return (
-			<div className="dops-modal-wrapper" onClick={ this.handleClickOverlay } onMouseDown={ this.handleMouseDownOverlay }>
-				<div className={ classNames( 'dops-modal', className ) }
+			<div
+				className="dops-modal-wrapper"
+				onClick={ this.handleClickOverlay }
+				onMouseDown={ this.handleMouseDownOverlay }
+			>
+				<div
+					className={ classNames( 'dops-modal', className ) }
 					style={ combinedStyle }
 					onClick={ this.handleMouseEventModal }
 					onMouseDown={ this.handleMouseEventModal }
 					onMouseUp={ this.handleMouseEventModal }
 					role="dialog"
 					aria-label={ title }
-					{ ...forwardedProps }>
-					{this.props.children}
+					{ ...forwardedProps }
+				>
+					{ this.props.children }
 				</div>
 			</div>
 		);

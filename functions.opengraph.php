@@ -175,6 +175,9 @@ function jetpack_og_tags() {
 		if ( ! empty( $image_info['height'] ) ) {
 			$tags['og:image:height'] = (int) $image_info['height'];
 		}
+		if ( ! empty( $image_info['alt_text'] ) ) {
+			$tags['og:image:alt'] = esc_attr( $image_info['alt_text'] );
+		}
 	}
 
 	// Facebook whines if you give it an empty title
@@ -294,6 +297,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 						$image['width']  = $post_image['src_width'];
 						$image['height'] = $post_image['src_height'];
 					}
+					if ( ! empty( $post_image['alt_text'] ) ) {
+						$image['alt_text'] = $post_image['alt_text'];
+					}
 				}
 			}
 		}
@@ -328,8 +334,8 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 	}
 
-	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
-	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+	// Third fall back, Core Site Icon, if valid in size.
+	if ( empty( $image ) && has_site_icon() ) {
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (

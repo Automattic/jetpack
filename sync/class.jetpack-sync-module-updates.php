@@ -5,6 +5,11 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 
 	private $old_wp_version = null;
+	private $updates        = array();
+
+	public function set_defaults() {
+		$this->updates = array();
+	}
 
 	function name() {
 		return 'updates';
@@ -21,20 +26,29 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_action( 'jetpack_update_themes_change', $callable );
 		add_action( 'jetpack_update_core_change', $callable );
 
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_update_plugins_change', array(
-			$this,
-			'filter_update_keys',
-		), 10, 2 );
-		add_filter( 'jetpack_sync_before_enqueue_upgrader_process_complete', array(
-			$this,
-			'filter_upgrader_process_complete',
-		), 10, 2 );
+		add_filter(
+			'jetpack_sync_before_enqueue_jetpack_update_plugins_change',
+			array(
+				$this,
+				'filter_update_keys',
+			),
+			10,
+			2
+		);
+		add_filter(
+			'jetpack_sync_before_enqueue_upgrader_process_complete',
+			array(
+				$this,
+				'filter_upgrader_process_complete',
+			),
+			10,
+			2
+		);
 
 		add_action( 'automatic_updates_complete', $callable );
 
-
 		if ( is_multisite() ) {
-			add_filter( 'pre_update_site_option_wpmu_upgrade_site', array ( $this, 'update_core_network_event' ), 10, 2 );
+			add_filter( 'pre_update_site_option_wpmu_upgrade_site', array( $this, 'update_core_network_event' ), 10, 2 );
 			add_action( 'jetpack_sync_core_update_network', $callable, 10, 3 );
 		}
 
@@ -65,7 +79,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 * @param int $wp_db_version the latest wp_db_version
 		 * @param int $old_wp_db_version previous wp_db_version
 		 * @param string $wp_version the latest wp_version
-		 *
 		 */
 		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
 		return $wp_db_version;
@@ -74,7 +87,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
-		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' === $_GET[ 'action' ] ) {
+		if ( isset( $_GET['action'] ) && 'do-core-reinstall' === $_GET['action'] ) {
 			/**
 			 * Sync event that fires when core reinstall was successful
 			 *
@@ -115,9 +128,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	}
 
-
 	public function get_update_checksum( $update, $transient ) {
-		$updates = array();
+		$updates    = array();
 		$no_updated = array();
 		switch ( $transient ) {
 			case 'update_plugins':
@@ -132,7 +144,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 					$no_updated = array_keys( $update->no_update );
 				}
 
-				if ( ! isset( $no_updated[ 'jetpack/jetpack.php' ] ) && isset( $updates[ 'jetpack/jetpack.php' ] ) ) {
+				if ( ! isset( $no_updated['jetpack/jetpack.php'] ) && isset( $updates['jetpack/jetpack.php'] ) ) {
 					return false;
 				}
 
@@ -154,7 +166,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			case 'update_core':
 				if ( ! empty( $update->updates ) && is_array( $update->updates ) ) {
 					foreach ( $update->updates as $response ) {
-						if( ! empty( $response->response ) && $response->response === 'latest' ) {
+						if ( ! empty( $response->response ) && $response->response === 'latest' ) {
 							continue;
 						}
 						if ( ! empty( $response->response ) && isset( $response->packages->full ) ) {
@@ -163,7 +175,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 					}
 				}
 
-				if (  ! empty( $update->version_checked ) ) {
+				if ( ! empty( $update->version_checked ) ) {
 					$no_updated = $update->version_checked;
 				}
 
@@ -180,9 +192,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
-
 		$new_checksum = $this->get_update_checksum( $value, $transient );
-		if ( false === $new_checksum  ) {
+
+		if ( false === $new_checksum ) {
 			return;
 		}
 
@@ -195,18 +207,42 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-		/**
-		 * jetpack_{$transient}_change
-		 * jetpack_update_plugins_change
-		 * jetpack_update_themes_change
-		 * jetpack_update_core_change
-		 *
-		 * @since 5.1.0
-		 *
-		 * @param array containing info that tells us what needs updating
-		 *
-		 */
-		do_action( "jetpack_{$transient}_change", $value );
+		if ( 'update_core' === $transient ) {
+			/**
+			 * jetpack_update_core_change
+			 *
+			 * @since 5.1.0
+			 *
+			 * @param array containing info that tells us what needs updating
+			 */
+			do_action( 'jetpack_update_core_change', $value );
+			return;
+		}
+		if ( empty( $this->updates ) ) {
+			// lets add the shutdown method once and only when the updates move from empty to filled with something
+			add_action( 'shutdown', array( $this, 'sync_last_event' ), 9 );
+		}
+		if ( ! isset( $this->updates[ $transient ] ) ) {
+			$this->updates[ $transient ] = array();
+		}
+		$this->updates[ $transient ][] = $value;
+	}
+
+	public function sync_last_event() {
+		foreach ( $this->updates as $transient => $values ) {
+			$value = end( $values ); // only send over the last value
+			/**
+			 * jetpack_{$transient}_change
+			 * jetpack_update_plugins_change
+			 * jetpack_update_themes_change
+			 *
+			 * @since 5.1.0
+			 *
+			 * @param array containing info that tells us what needs updating
+			 */
+			do_action( "jetpack_{$transient}_change", $value );
+		}
+
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -273,7 +309,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			return $args;
 		}
 		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {
-			$theme = wp_get_theme( $stylesheet );
+			$theme              = wp_get_theme( $stylesheet );
 			$theme_data['name'] = $theme->name;
 		}
 		return $args;

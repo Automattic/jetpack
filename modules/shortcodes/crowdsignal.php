@@ -562,8 +562,13 @@ if ( ! function_exists( 'crowdsignal_link' ) ) {
 	add_filter( 'the_content_rss', 'crowdsignal_link', 1 );
 }
 
-wp_oembed_add_provider( '#https?://(.+\.)?polldaddy\.com/.*#i', 'https://api.crowdsignal.com/oembed', true );
+	/**
+	 * Note that Core has the oembed of '#https?://survey\.fm/.*#i' as of 5.1.
+	 * This should be removed after Core has the current regex is in our minimum version.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/46467
+	 * @todo Confirm patch landed and remove once 5.2 is the minimum version.
+	 */
 wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
-wp_oembed_add_provider( '#https?://poll\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 
 }

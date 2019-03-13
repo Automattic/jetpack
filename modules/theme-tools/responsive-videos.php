@@ -23,8 +23,14 @@ function jetpack_responsive_videos_init() {
 
 	/* Wrap Slideshare shortcodes */
 	add_filter( 'jetpack_slideshare_shortcode', 'jetpack_responsive_videos_embed_html' );
+
+	// Remove the Jetpack Responsive video wrapper in embed blocks on sites that support core Responsive embeds.
+	if ( current_theme_supports( 'responsive-embeds' ) ) {
+		add_filter( 'render_block', 'jetpack_responsive_videos_remove_wrap_oembed', 10, 2 );
+	}
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
+
 
 /**
  * Adds a wrapper to videos and enqueue script
@@ -62,6 +68,9 @@ function jetpack_responsive_videos_embed_html( $html ) {
 
 /**
  * Check if oEmbed is a `$video_patterns` provider video before wrapping.
+ *
+ * @param mixed  $html The cached HTML result, stored in post meta.
+ * @param string $url  he attempted embed URL.
  *
  * @return string
  */
@@ -119,4 +128,25 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	}
 
 	return $html;
+}
+
+/**
+ * Remove the Jetpack Responsive video wrapper in embed blocks.
+ *
+ * @since 7.0.0
+ *
+ * @param string $block_content The block content about to be appended.
+ * @param array  $block         The full block, including name and attributes.
+ *
+ * @return string $block_content String of rendered HTML.
+ */
+function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
+	if (
+		isset( $block['blockName'] )
+		&& false !== strpos( $block['blockName'], 'core-embed' )
+	) {
+		$block_content = preg_replace( '#<div class="jetpack-video-wrapper">(.*?)</div>#', '${1}', $block_content );
+	}
+
+	return $block_content;
 }

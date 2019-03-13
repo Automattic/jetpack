@@ -13,19 +13,19 @@ class Spinner extends React.Component {
 	static propTypes = {
 		className: PropTypes.string,
 		size: PropTypes.number,
-		duration: PropTypes.number
+		duration: PropTypes.number,
 	};
 
 	static instances = 0;
 
 	static defaultProps = {
 		size: 20,
-		duration: 3000
+		duration: 3000,
 	};
 
 	componentWillMount() {
 		this.setState( {
-			instanceId: ++Spinner.instances
+			instanceId: ++Spinner.instances,
 		} );
 	}
 
@@ -45,20 +45,20 @@ class Spinner extends React.Component {
 
 	getClassName = () => {
 		return classNames( 'dops-spinner', this.props.className, {
-			'is-fallback': ! this.isSVGCSSAnimationSupported()
+			'is-fallback': ! this.isSVGCSSAnimationSupported(),
 		} );
 	};
 
 	renderFallback = () => {
 		const style = {
 			width: this.props.size,
-			height: this.props.size
+			height: this.props.size,
 		};
 
 		return (
 			<div className={ this.getClassName() } style={ style }>
-				<span className="dops-spinner__progress is-left"></span>
-				<span className="dops-spinner__progress is-right"></span>
+				<span className="dops-spinner__progress is-left" />
+				<span className="dops-spinner__progress is-right" />
 			</div>
 		);
 	};
@@ -77,11 +77,13 @@ class Spinner extends React.Component {
 		/*eslint-disable react/no-danger*/
 		return (
 			<div className={ this.getClassName() }>
-				<svg className="dops-spinner__image"
+				<svg
+					className="dops-spinner__image"
 					width={ this.props.size }
 					height={ this.props.size }
 					viewBox="0 0 100 100"
-					dangerouslySetInnerHTML={ { __html: `
+					dangerouslySetInnerHTML={ {
+						__html: `
 					<defs>
 						<mask id="maskBorder${ instanceId }">
 							<rect x="0" y="0" width="100%" height="100%" fill="white" />
@@ -108,7 +110,9 @@ class Spinner extends React.Component {
 							<rect class="dops-spinner__progress is-right" x="50%" y="0" width="50%" height="100%" />
 						</g>
 					</g>
-				` } } />
+				`,
+					} }
+				/>
 			</div>
 		);
 		/*eslint-enable react/no-danger*/

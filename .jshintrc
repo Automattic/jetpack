@@ -1,15 +1,15 @@
 {
 	"boss": true,
 	"curly": true,
+	"esversion": 5,
 	"eqeqeq": true,
 	"eqnull": true,
-	"es3": true,
 	"expr": true,
 	"immed": true,
+	"laxbreak": true,
 	"noarg": true,
 	"onevar": true,
-	"quotmark": "single",
-	"trailing": true,
+	"quotmark": false,
 	"undef": true,
 	"unused": true,
 

@@ -21,16 +21,21 @@ class QueryConnectionStatus extends Component {
 }
 
 QueryConnectionStatus.defaultProps = {
-	fetchSiteConnectionStatus: () => {}
+	fetchSiteConnectionStatus: () => {},
 };
 
-export default connect( () => {
-	return {
-		fetchSiteConnectionStatus: fetchSiteConnectionStatus()
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchSiteConnectionStatus
-	}, dispatch );
-}
+export default connect(
+	() => {
+		return {
+			fetchSiteConnectionStatus: fetchSiteConnectionStatus(),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchSiteConnectionStatus,
+			},
+			dispatch
+		);
+	}
 )( QueryConnectionStatus );

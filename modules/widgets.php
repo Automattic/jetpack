@@ -41,6 +41,7 @@ add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
 function jetpack_widgets_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_widgets_configuration_load' );
+	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
 }
 
 function jetpack_widgets_configuration_load() {
@@ -48,7 +49,15 @@ function jetpack_widgets_configuration_load() {
 	exit;
 }
 
-
+/**
+ * Overrides default configuration url
+ *
+ * @uses admin_url
+ * @return string module settings URL
+ */
+function jetpack_widgets_configuration_url() {
+	return admin_url( 'customize.php?autofocus[panel]=widgets' );
+}
 
 jetpack_load_widgets();
 
@@ -71,3 +80,18 @@ function jetpack_widgets_customizer_assets_controls() {
 	wp_enqueue_style( 'jetpack-customizer-widget-controls', plugins_url( '/widgets/customizer-controls.css', __FILE__ ), array( 'customize-widgets' ) );
 }
 add_action( 'customize_controls_enqueue_scripts', 'jetpack_widgets_customizer_assets_controls' );
+
+function jetpack_widgets_remove_old_widgets() {
+	$old_widgets = array(
+		'googleplus-badge',
+	);
+
+	// Don't bother cleaning up the sidebars_widgets data.
+	// That will get cleaned up the next time a widget is
+	// added, removed, moved, etc.
+	foreach ( $old_widgets as $old_widget ) {
+		delete_option( "widget_{$old_widget}" );
+	}
+}
+
+add_action( 'updating_jetpack_version', 'jetpack_widgets_remove_old_widgets' );

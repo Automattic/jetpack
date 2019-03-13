@@ -51,6 +51,11 @@ class Sharing_Admin {
 		wp_enqueue_style( 'social-logos' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array(), 4 );
 		add_thickbox();
+
+		// On Jetpack sites, make sure we include CSS to style the admin page.
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	public function admin_init() {
@@ -148,11 +153,15 @@ class Sharing_Admin {
 	}
 
 	public function output_preview( $service ) {
+
 		$klasses = array( 'advanced', 'preview-item' );
 
 		if ( $service->button_style != 'text' || $service->has_custom_button_style() ) {
 			$klasses[] = 'preview-' . $service->get_class();
 			$klasses[] = 'share-' . $service->get_class();
+			if ( $service->is_deprecated() ) {
+				$klasses[] = 'share-deprecated';
+			}
 
 			if ( $service->get_class() != $service->get_id() ) {
 				$klasses[] = 'preview-' . $service->get_id();
@@ -165,8 +174,15 @@ class Sharing_Admin {
 	}
 
 	public function output_service( $id, $service, $show_dropdown = false ) {
+		$title = '';
+		$klasses = array( 'service', 'advanced', 'share-' . $service->get_class() );
+		if ( $service->is_deprecated() ) {
+			$title = sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $service->get_name() );
+			$klasses[] = 'share-deprecated';
+		}
+
 ?>
-	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0">
+	<li class="<?php echo implode( ' ', $klasses ); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0" title="<?php echo esc_attr( $title ); ?>">
 		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
 		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
 		<span class="close"><a href="#" class="remove">&times;</a></span>
@@ -535,6 +551,64 @@ class Sharing_Admin {
 <?php
 	}
 }
+
+/**
+ * Callback to get the value for the jetpack_sharing_enabled field.
+ *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
+ */
+function jetpack_post_sharing_get_value( array $post ) {
+	// if sharing IS disabled on this post, enabled=false, so negate the meta
+	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+}
+
+/**
+ * Callback to set sharing_disabled post_meta when the
+ * jetpack_sharing_enabled field is updated.
+ *
+ * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 1, we disable sharing on the post, regardless of the global setting.
+ * It is not possible to enable sharing on a post if it is disabled globally.
+ *
+ */
+function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
+	if ( $enable_sharing ) {
+		// delete the override if we want to enable sharing
+		return delete_post_meta( $post_object->ID, 'sharing_disabled' );
+	} else {
+		return update_post_meta( $post_object->ID, 'sharing_disabled', true );
+	}
+}
+
+/**
+ * Add Sharing post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ */
+function jetpack_post_sharing_register_rest_field() {
+	$post_types = get_post_types( array( 'public' => true ) );
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'jetpack_sharing_enabled',
+			array(
+				'get_callback'    => 'jetpack_post_sharing_get_value',
+				'update_callback' => 'jetpack_post_sharing_update_value',
+				'schema'          => array(
+					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
+					'type'        => 'boolean',
+				),
+			)
+		);
+	}
+}
+
+// Add Sharing post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
 
 function sharing_admin_init() {
 	global $sharing_admin;

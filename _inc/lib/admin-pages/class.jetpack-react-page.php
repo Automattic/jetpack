@@ -25,8 +25,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
-		// Adding a redirect meta tag for older WordPress versions or if the REST API is disabled
-		if ( $this->is_wp_version_too_old() || ! $this->is_rest_api_enabled() ) {
+		// Adding a redirect meta tag if the REST API is disabled
+		if ( ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
@@ -169,18 +169,25 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function page_admin_scripts() {
 		if ( $this->is_redirecting || isset( $_GET['configure'] ) ) {
-			return; // No need for scripts on a fallback page
+			return; // No need for scripts on a fallback page.
 		}
 
-		// Enqueue jp.js and localize it
-		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		wp_enqueue_script(
+			'react-plugin',
+			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
+			array( 'wp-i18n' ),
+			JETPACK__VERSION,
+			true
+		);
+
+		wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
-			// Required for Analytics
+			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		// Add objects to be passed to the initial state of the app
+		// Add objects to be passed to the initial state of the app.
 		wp_localize_script( 'react-plugin', 'Initial_State', $this->get_initial_state() );
 	}
 
@@ -231,6 +238,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
+		// Ensure that class to get the affiliate code is loaded
+		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
+		}
+
 		return array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
@@ -252,6 +264,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
+			'is_gutenberg_available' => true,
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
@@ -266,6 +279,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
+			'aff' => Jetpack_Affiliate::init()->get_affiliate_code(),
 			'settings' => $this->get_flattened_settings( $modules ),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),

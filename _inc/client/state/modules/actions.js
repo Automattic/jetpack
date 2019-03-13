@@ -23,49 +23,55 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
 import some from 'lodash/some';
 
 export const fetchModules = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JETPACK_MODULES_LIST_FETCH
+			type: JETPACK_MODULES_LIST_FETCH,
 		} );
-		return restApi.fetchModules().then( modules => {
-			dispatch( {
-				type: JETPACK_MODULES_LIST_RECEIVE,
-				modules: modules
+		return restApi
+			.fetchModules()
+			.then( modules => {
+				dispatch( {
+					type: JETPACK_MODULES_LIST_RECEIVE,
+					modules: modules,
+				} );
+				return modules;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULES_LIST_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-			return modules;
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULES_LIST_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
 export const fetchModule = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JETPACK_MODULE_FETCH
+			type: JETPACK_MODULE_FETCH,
 		} );
-		return restApi.fetchModule().then( data => {
-			dispatch( {
-				type: JETPACK_MODULE_RECEIVE,
-				module: data
+		return restApi
+			.fetchModule()
+			.then( data => {
+				dispatch( {
+					type: JETPACK_MODULE_RECEIVE,
+					module: data,
+				} );
+				return data;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULE_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-			return data;
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULE_FETCH_FAIL,
-				error: error
-			} );
-		} );
 	};
 };
 
@@ -73,56 +79,65 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
-			module: slug
+			module: slug,
 		} );
 		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Activating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
-		return restApi.activateModule( slug ).then( () => {
-			dispatch( {
-				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
-				module: slug,
-				success: true
-			} );
-			dispatch( removeNotice( 'module-toggle' ) );
-			dispatch( createNotice(
-				'is-success',
-				__( '%(slug)s has been activated.', {
-					args: {
-						slug: getModule( getState(), slug ).name
-					}
-				} ),
-				{ id: 'module-toggle', duration: 2000 }
-			) );
-			if ( reloadAfter ) {
-				window.location.reload();
-			}
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULE_ACTIVATE_FAIL,
-				module: slug,
-				success: false,
-				error: error
-			} );
-			dispatch( removeNotice( 'module-toggle' ) );
-			dispatch( createNotice(
-				'is-error',
-				__( '%(slug)s failed to activate. %(error)s', {
+		dispatch(
+			createNotice(
+				'is-info',
+				__( 'Activating %(slug)s…', {
 					args: {
 						slug: getModule( getState(), slug ).name,
-						error: error
-					}
+					},
 				} ),
 				{ id: 'module-toggle' }
-			) );
-		} );
+			)
+		);
+		return restApi
+			.activateModule( slug )
+			.then( () => {
+				dispatch( {
+					type: JETPACK_MODULE_ACTIVATE_SUCCESS,
+					module: slug,
+					success: true,
+				} );
+				dispatch( removeNotice( 'module-toggle' ) );
+				dispatch(
+					createNotice(
+						'is-success',
+						__( '%(slug)s has been activated.', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+							},
+						} ),
+						{ id: 'module-toggle', duration: 2000 }
+					)
+				);
+				if ( reloadAfter ) {
+					window.location.reload();
+				}
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULE_ACTIVATE_FAIL,
+					module: slug,
+					success: false,
+					error: error,
+				} );
+				dispatch( removeNotice( 'module-toggle' ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( '%(slug)s failed to activate. %(error)s', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+								error: error,
+							},
+						} ),
+						{ id: 'module-toggle' }
+					)
+				);
+			} );
 	};
 };
 
@@ -130,56 +145,65 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
-			module: slug
+			module: slug,
 		} );
 		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Deactivating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
-		return restApi.deactivateModule( slug ).then( () => {
-			dispatch( {
-				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
-				module: slug,
-				success: true
-			} );
-			dispatch( removeNotice( 'module-toggle' ) );
-			dispatch( createNotice(
-				'is-success',
-				__( '%(slug)s has been deactivated.', {
-					args: {
-						slug: getModule( getState(), slug ).name
-					}
-				} ),
-				{ id: 'module-toggle', duration: 2000 }
-			) );
-			if ( reloadAfter ) {
-				window.location.reload();
-			}
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULE_DEACTIVATE_FAIL,
-				module: slug,
-				success: false,
-				error: error
-			} );
-			dispatch( removeNotice( 'module-toggle' ) );
-			dispatch( createNotice(
-				'is-error',
-				__( '%(slug)s failed to deactivate. %(error)s', {
+		dispatch(
+			createNotice(
+				'is-info',
+				__( 'Deactivating %(slug)s…', {
 					args: {
 						slug: getModule( getState(), slug ).name,
-						error: error
-					}
+					},
 				} ),
 				{ id: 'module-toggle' }
-			) );
-		} );
+			)
+		);
+		return restApi
+			.deactivateModule( slug )
+			.then( () => {
+				dispatch( {
+					type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
+					module: slug,
+					success: true,
+				} );
+				dispatch( removeNotice( 'module-toggle' ) );
+				dispatch(
+					createNotice(
+						'is-success',
+						__( '%(slug)s has been deactivated.', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+							},
+						} ),
+						{ id: 'module-toggle', duration: 2000 }
+					)
+				);
+				if ( reloadAfter ) {
+					window.location.reload();
+				}
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULE_DEACTIVATE_FAIL,
+					module: slug,
+					success: false,
+					error: error,
+				} );
+				dispatch( removeNotice( 'module-toggle' ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( '%(slug)s failed to deactivate. %(error)s', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+								error: error,
+							},
+						} ),
+						{ id: 'module-toggle' }
+					)
+				);
+			} );
 	};
 };
 
@@ -190,128 +214,147 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
 			module: slug,
-			newOptionValues
+			newOptionValues,
 		} );
 		dispatch( removeNotice( `module-setting-${ slug }` ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Updating %(slug)s settings…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: `module-setting-${ slug }` }
-		) );
-		return restApi.updateModuleOptions( slug, newOptionValues ).then( success => {
-			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-				module: slug,
-				newOptionValues,
-				success: success
-			} );
-			maybeHideNavMenuItem( slug, newOptionValues );
-			dispatch( removeNotice( `module-setting-${ slug }` ) );
-			dispatch( createNotice(
-				'is-success',
-				__( 'Updated %(slug)s settings.', {
-					args: {
-						slug: getModule( getState(), slug ).name
-					}
-				} ),
-				{ id: `module-setting-${ slug }`, duration: 2000 }
-			) );
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-				module: slug,
-				success: false,
-				error: error,
-				newOptionValues
-			} );
-			dispatch( removeNotice( `module-setting-${ slug }` ) );
-			dispatch( createNotice(
-				'is-error',
-				__( 'Error updating %(slug)s settings. %(error)s', {
+		dispatch(
+			createNotice(
+				'is-info',
+				__( 'Updating %(slug)s settings…', {
 					args: {
 						slug: getModule( getState(), slug ).name,
-						error: error
-					}
+					},
 				} ),
 				{ id: `module-setting-${ slug }` }
-			) );
-		} );
+			)
+		);
+		return restApi
+			.updateModuleOptions( slug, newOptionValues )
+			.then( success => {
+				dispatch( {
+					type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+					module: slug,
+					newOptionValues,
+					success: success,
+				} );
+				maybeHideNavMenuItem( slug, newOptionValues );
+				dispatch( removeNotice( `module-setting-${ slug }` ) );
+				dispatch(
+					createNotice(
+						'is-success',
+						__( 'Updated %(slug)s settings.', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+							},
+						} ),
+						{ id: `module-setting-${ slug }`, duration: 2000 }
+					)
+				);
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+					module: slug,
+					success: false,
+					error: error,
+					newOptionValues,
+				} );
+				dispatch( removeNotice( `module-setting-${ slug }` ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( 'Error updating %(slug)s settings. %(error)s', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+								error: error,
+							},
+						} ),
+						{ id: `module-setting-${ slug }` }
+					)
+				);
+			} );
 	};
 };
 
 export const regeneratePostByEmailAddress = () => {
 	const slug = 'post-by-email';
 	const payload = {
-		post_by_email_address: 'regenerate'
+		post_by_email_address: 'regenerate',
 	};
 
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
 			module: slug,
-			newOptionValues: payload
+			newOptionValues: payload,
 		} );
 		dispatch( removeNotice( `module-setting-${ slug }` ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Updating %(slug)s address…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: `module-setting-${ slug }` }
-		) );
-		return restApi.updateModuleOptions( slug, payload ).then( success => {
-			const newOptionValues = {
-				post_by_email_address: success.post_by_email_address
-			};
-			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-				module: slug,
-				newOptionValues,
-				success: success
-			} );
-			dispatch( removeNotice( `module-setting-${ slug }` ) );
-			dispatch( createNotice(
-				'is-success',
-				__( 'Regenerated %(slug)s address .', {
-					args: {
-						slug: getModule( getState(), slug ).name
-					}
-				} ),
-				{ id: `module-setting-${ slug }`, duration: 2000 }
-			) );
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-				module: slug,
-				success: false,
-				error: error,
-				newOptionValues: payload
-			} );
-			dispatch( removeNotice( `module-setting-${ slug }` ) );
-			dispatch( createNotice(
-				'is-error',
-				__( 'Error regenerating %(slug)s address. %(error)s', {
+		dispatch(
+			createNotice(
+				'is-info',
+				__( 'Updating %(slug)s address…', {
 					args: {
 						slug: getModule( getState(), slug ).name,
-						error: error
-					}
+					},
 				} ),
 				{ id: `module-setting-${ slug }` }
-			) );
-		} );
+			)
+		);
+		return restApi
+			.updateModuleOptions( slug, payload )
+			.then( success => {
+				const newOptionValues = {
+					post_by_email_address: success.post_by_email_address,
+				};
+				dispatch( {
+					type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+					module: slug,
+					newOptionValues,
+					success: success,
+				} );
+				dispatch( removeNotice( `module-setting-${ slug }` ) );
+				dispatch(
+					createNotice(
+						'is-success',
+						__( 'Regenerated %(slug)s address .', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+							},
+						} ),
+						{ id: `module-setting-${ slug }`, duration: 2000 }
+					)
+				);
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+					module: slug,
+					success: false,
+					error: error,
+					newOptionValues: payload,
+				} );
+				dispatch( removeNotice( `module-setting-${ slug }` ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( 'Error regenerating %(slug)s address. %(error)s', {
+							args: {
+								slug: getModule( getState(), slug ).name,
+								error: error,
+							},
+						} ),
+						{ id: `module-setting-${ slug }` }
+					)
+				);
+			} );
 	};
 };
 
 export function maybeHideNavMenuItem( module, values ) {
 	switch ( module ) {
-		case 'custom-content-types' :
-			if ( ! values ) { // Means the module was deactivated
+		case 'custom-content-types':
+			if ( ! values ) {
+				// Means the module was deactivated
 				jQuery( '#menu-posts-jetpack-portfolio, #menu-posts-jetpack-testimonial' ).toggle();
 			}
 
@@ -325,15 +368,15 @@ export function maybeHideNavMenuItem( module, values ) {
 				}
 			} );
 			break;
-		default :
+		default:
 			return false;
 	}
 }
 
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio'	];
+	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
 
-	if ( some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValue ) ) {
+	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();
 	}
 }

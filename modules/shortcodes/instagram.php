@@ -21,17 +21,17 @@ function jetpack_instagram_embed_reversal( $content ) {
 
 	$regexes = array();
 
-	// new style js
-	$regexes[] = '#<blockquote[^>]+?class="instagram-media"[^>](.+?)>(.+?)</blockquote><script[^>]+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"></script>#ix';
+	// new style js.
+	$regexes[] = '#<blockquote[^>]+?class="instagram-media"[^>].+?>(.+?)</blockquote><script[^>]+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"></script>#ix';
 
 	// Let's play nice with the visual editor too.
-	$regexes[] = '#&lt;blockquote(?:[^&]|&(?!gt;))+?class="instagram-media"(?:[^&]|&(?!gt;))(.+?)&gt;(.+?)&lt;/blockquote&gt;&lt;script(?:[^&]|&(?!gt;))+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"(?:[^&]|&(?!gt;))*+&gt;&lt;/script&gt;#ix';
+	$regexes[] = '#&lt;blockquote(?:[^&]|&(?!gt;))+?class="instagram-media"(?:[^&]|&(?!gt;)).+?&gt;(.+?)&lt;/blockquote&gt;&lt;script(?:[^&]|&(?!gt;))+?src="(https?:)?//platform\.instagram\.com/(.+?)/embeds\.js"(?:[^&]|&(?!gt;))*+&gt;&lt;/script&gt;#ix';
 
-	// old style iframe
-	$regexes[] = '#<iframe[^>]+?src="(?:https?:)?//instagram\.com/p/([^"\'/]++)[^"\']*?"[^>]*+>\s*?</iframe>#i';
+	// old style iframe.
+	$regexes[] = '#<iframe[^>]+?src="((?:https?:)?//(?:www\.)?instagram\.com/p/([^"\'/]++)[^"\']*?)"[^>]*+>\s*?</iframe>#i';
 
 	// Let's play nice with the visual editor too.
-	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src="(?:https?:)?//instagram\.com/p/([^"\'/]++)[^"\']*?"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/iframe&gt;#i';
+	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src="((?:https?:)?//(?:www\.)instagram\.com/p/([^"\'/]++)[^"\']*?)"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/iframe&gt;#i';
 
 	foreach ( $regexes as $regex ) {
 		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
@@ -39,7 +39,7 @@ function jetpack_instagram_embed_reversal( $content ) {
 		}
 
 		foreach ( $matches as $match ) {
-			if ( ! preg_match( '#(https?:)?//instagr(\.am|am\.com)/p/([^/]*)#i', $match[2], $url_matches ) ) {
+			if ( ! preg_match( '#(https?:)?//(?:www\.)?instagr(\.am|am\.com)/p/([^/]*)#i', $match[1], $url_matches ) ) {
 				continue;
 			}
 
@@ -59,11 +59,28 @@ function jetpack_instagram_embed_reversal( $content ) {
 add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
 
 /**
- * Instagram
+ * Instagram's custom Embed provider.
+ * We first remove 2 different embed providers, both registered by Core.
+ * - The first is the original provider,that only supports images.
+ * - The second is tne new provider that replaced the first one in Core when Core added support for videos. https://core.trac.wordpress.org/changeset/44486
+ *
+ * Once the core embed provider is removed (one or the other, depending on your version of Core), we declare our own.
  */
-wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' ); // remove core's oEmbed support so we can override
-wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/]*)#i', 'jetpack_instagram_handler' );
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' );
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
+wp_embed_register_handler(
+	'jetpack_instagram',
+	'#http(s?)://(www\.)?instagr(\.am|am\.com)/(p|tv)/([^\/]*)#i',
+	'jetpack_instagram_handler'
+);
 
+/**
+ * Handle Instagram embeds (build embed from regex).
+ *
+ * @param array  $matches Array of matches from the regex.
+ * @param array  $atts    The original unmodified attributes.
+ * @param string $url     The original URL that was matched by the regex.
+ */
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
 
@@ -74,8 +91,24 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	$min_width = 320;
 
 	if ( is_feed() ) {
-		$media_url = sprintf( 'http://instagr.am/p/%s/media/?size=l', $matches[4] );
-		return sprintf( '<a href="%s" title="%s" target="_blank"><img src="%s" alt="Instagram Photo" /></a>', esc_url( $url ), esc_attr__( 'View on Instagram', 'jetpack' ), esc_url( $media_url ) );
+		// Instagram offers direct links to images, but not to videos.
+		if ( 'p' === $matches[1] ) {
+			$media_url = sprintf( 'http://instagr.am/p/%1$s/media/?size=l', $matches[2] );
+			return sprintf(
+				'<a href="%1$s" title="%2$s" target="_blank"><img src="%3$s" alt="%4$s" /></a>',
+				esc_url( $url ),
+				esc_attr__( 'View on Instagram', 'jetpack' ),
+				esc_url( $media_url ),
+				esc_html__( 'Instagram Photo', 'jetpack' )
+			);
+		} elseif ( 'tv' === $matches[1] ) {
+			return sprintf(
+				'<a href="%1$s" title="%2$s" target="_blank">%3$s</a>',
+				esc_url( $url ),
+				esc_attr__( 'View on Instagram', 'jetpack' ),
+				esc_html__( 'Instagram Video', 'jetpack' )
+			);
+		}
 	}
 
 	$atts = shortcode_atts(
@@ -166,13 +199,32 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	return '<!-- instagram error: no embed found -->';
 }
 
-// filters instagram's username format to the expected format that matches the embed handler
-wp_embed_register_handler( 'jetpack_instagram_alternate_format', '#http(s?)://instagr(\.am|am\.com)/([^/]*)/p/([^/]*)#i', 'jetpack_instagram_alternate_format_handler' );
+/**
+ * Handle an alternate Instagram URL format, where the username is also part of the URL.
+ * We do not actually need that username for the embed.
+ */
+wp_embed_register_handler(
+	'jetpack_instagram_alternate_format',
+	'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
+	'jetpack_instagram_alternate_format_handler'
+);
+
+/**
+ * Handle alternate Instagram embeds (build embed from regex).
+ *
+ * @param array  $matches Array of matches from the regex.
+ * @param array  $atts    The original unmodified attributes.
+ * @param string $url     The original URL that was matched by the regex.
+ */
 function jetpack_instagram_alternate_format_handler( $matches, $atts, $url ) {
-	$url        = esc_url_raw( 'https://instagram.com/p/' . $matches[4] );
-	$matches[0] = $url;
-	$matches[3] = $matches[4];
-	unset( $matches[4] );
+	// Replace URL saved by original Instagram URL (no username).
+	$matches[0] = esc_url_raw(
+		sprintf(
+			'https://www.instagram.com/%1$s/%2$s',
+			$matches[1],
+			$matches[2]
+		)
+	);
 
 	return jetpack_instagram_handler( $matches, $atts, $url );
 }

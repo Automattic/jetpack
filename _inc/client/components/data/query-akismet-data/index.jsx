@@ -23,17 +23,22 @@ class QueryAkismetData extends Component {
 }
 
 QueryAkismetData.defaultProps = {
-	fetchAkismetData: () => {}
+	fetchAkismetData: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchAkismetData: fetchAkismetData(),
-		fetchingAkismetData: isFetchingAkismetData( state )
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchAkismetData
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			fetchAkismetData: fetchAkismetData(),
+			fetchingAkismetData: isFetchingAkismetData( state ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchAkismetData,
+			},
+			dispatch
+		);
+	}
 )( QueryAkismetData );

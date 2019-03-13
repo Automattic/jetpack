@@ -1,6 +1,7 @@
 <?php
 /**
  * Sync architecture prototype
+ *
  * @author Dan Walmsley
  * To run tests: phpunit --testsuite sync --filter New_Sync
  */

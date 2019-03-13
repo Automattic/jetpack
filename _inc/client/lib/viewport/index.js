@@ -63,7 +63,10 @@ function isWithinBreakpoint( breakpoint ) {
 
 	if ( ! breakpoints.hasOwnProperty( breakpoint ) ) {
 		try {
-			global.window.console.warn( 'Undefined breakpoint used in `mobile-first-breakpoint`', breakpoint );
+			global.window.console.warn(
+				'Undefined breakpoint used in `mobile-first-breakpoint`',
+				breakpoint
+			);
 		} catch ( e ) {}
 		return undefined;
 	}

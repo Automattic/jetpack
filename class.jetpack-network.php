@@ -451,6 +451,15 @@ class Jetpack_Network {
 
 		$tracks_identity = jetpack_tracks_get_identity( $user_id );
 
+		/*
+		 * Use the subsite's registration date as the site creation date.
+		 *
+		 * This is in contrast to regular standalone sites, where we use the helper
+		 * `Jetpack::get_assumed_site_creation_date()` to assume the site's creation date.
+		 */
+		$blog_details = get_blog_details();
+		$site_creation_date = $blog_details['registered'];
+
 		/**
 		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
 		 * Connecting via the network admin combines `register()` and `authorize()` methods into one step,
@@ -476,6 +485,7 @@ class Jetpack_Network {
 				'state'                 => $user_id,
 				'_ui'                   => $tracks_identity['_ui'],
 				'_ut'                   => $tracks_identity['_ut'],
+				'site_created'          => $site_creation_date,
 				'jetpack_version'       => JETPACK__VERSION
 			),
 			'headers' => array(

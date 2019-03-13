@@ -20,14 +20,14 @@ export default class Button extends React.Component {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		borderless: PropTypes.bool,
-		className: PropTypes.string
+		className: PropTypes.string,
 	};
 
 	static defaultProps = {
 		disabled: false,
 		type: 'button',
 		onClick: noop,
-		borderless: false
+		borderless: false,
 	};
 
 	render() {
@@ -39,7 +39,7 @@ export default class Button extends React.Component {
 			'is-compact': compact,
 			'is-primary': primary,
 			'is-scary': scary,
-			'is-borderless': borderless
+			'is-borderless': borderless,
 		} );
 
 		props.className = classNames( className, buttonClasses );

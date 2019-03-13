@@ -11,14 +11,17 @@ import InlineModuleToggle from 'components/module-settings/inline-module-toggle'
 
 class VideoPressPrompt extends React.Component {
 	render() {
-		return <div>
-			<p>
-				{ __( 'VideoPress allows you to upload videos from your computer to be hosted on WordPress.com, ' +
-					'rather than on your host’s servers. You can then insert these on your self-hosted Jetpack site. '
-				) }
-			</p>
-			<InlineModuleToggle module_slug="videopress" />
-		</div>;
+		return (
+			<div>
+				<p>
+					{ __(
+						'VideoPress allows you to upload videos from your computer to be hosted on WordPress.com, ' +
+							'rather than on your host’s servers. You can then insert these on your self-hosted Jetpack site. '
+					) }
+				</p>
+				<InlineModuleToggle module_slug="videopress" />
+			</div>
+		);
 	}
 }
 

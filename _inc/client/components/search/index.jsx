@@ -61,7 +61,7 @@ class Search extends React.Component {
 		dir: PropTypes.oneOf( [ 'ltr', 'rtl' ] ),
 		fitsContainer: PropTypes.bool,
 		maxLength: PropTypes.number,
-		hideClose: PropTypes.bool
+		hideClose: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -83,18 +83,18 @@ class Search extends React.Component {
 		isOpen: false,
 		dir: undefined,
 		fitsContainer: false,
-		hideClose: false
+		hideClose: false,
 	};
 
 	state = {
 		keyword: this.props.initialValue || '',
 		isOpen: !! this.props.isOpen,
-		hasFocus: false
+		hasFocus: false,
 	};
 
 	componentWillMount() {
 		this.setState( {
-			instanceId: ++Search.instances
+			instanceId: ++Search.instances,
 		} );
 
 		this.closeListener = keyListener.bind( this, 'closeSearch' );
@@ -115,8 +115,10 @@ class Search extends React.Component {
 			this.setState( { isOpen: nextProps.isOpen } );
 		}
 
-		if ( nextProps.initialValue !== this.props.initialValue &&
-				( this.state.keyword === this.props.initialValue || this.state.keyword === '' ) ) {
+		if (
+			nextProps.initialValue !== this.props.initialValue &&
+			( this.state.keyword === this.props.initialValue || this.state.keyword === '' )
+		) {
 			this.setState( { keyword: nextProps.initialValue || '' } );
 		}
 	}
@@ -163,17 +165,18 @@ class Search extends React.Component {
 	}
 
 	scrollOverlay = () => {
-		this.refs.overlay && window.requestAnimationFrame( () => {
-			if ( this.refs.overlay && this.refs.searchInput ) {
-				this.refs.overlay.scrollLeft = this.getScrollLeft( this.refs.searchInput );
-			}
-		} );
+		this.refs.overlay &&
+			window.requestAnimationFrame( () => {
+				if ( this.refs.overlay && this.refs.searchInput ) {
+					this.refs.overlay.scrollLeft = this.getScrollLeft( this.refs.searchInput );
+				}
+			} );
 	};
 
 	//This is fix for IE11. Does not work on Edge.
 	//On IE11 scrollLeft value for input is always 0.
 	//We are calculating it manually using TextRange object.
-	getScrollLeft = ( inputElement ) => {
+	getScrollLeft = inputElement => {
 		//TextRange is IE11 specific so this checks if we are not on IE11.
 		if ( ! inputElement.createTextRange ) {
 			return inputElement.scrollLeft;
@@ -183,14 +186,21 @@ class Search extends React.Component {
 		const inputStyle = window.getComputedStyle( inputElement, undefined );
 		const paddingLeft = parseFloat( inputStyle.paddingLeft );
 		const rangeRect = range.getBoundingClientRect();
-		const scrollLeft = inputElement.getBoundingClientRect().left + inputElement.clientLeft + paddingLeft - rangeRect.left;
+		const scrollLeft =
+			inputElement.getBoundingClientRect().left +
+			inputElement.clientLeft +
+			paddingLeft -
+			rangeRect.left;
 		return scrollLeft;
 	};
 
 	focus = () => {
 		// if we call focus before the element has been entirely synced up with the DOM, we stand a decent chance of
 		// causing the browser to scroll somewhere odd. Instead, defer the focus until a future turn of the event loop.
-		setTimeout( () => this.refs.searchInput && ReactDom.findDOMNode( this.refs.searchInput ).focus(), 0 );
+		setTimeout(
+			() => this.refs.searchInput && ReactDom.findDOMNode( this.refs.searchInput ).focus(),
+			0
+		);
 	};
 
 	blur = () => {
@@ -205,7 +215,7 @@ class Search extends React.Component {
 		this.setState( { keyword: '' } );
 	};
 
-	onBlur = ( event ) => {
+	onBlur = event => {
 		if ( this.props.onBlur ) {
 			this.props.onBlur( event );
 		}
@@ -215,22 +225,22 @@ class Search extends React.Component {
 
 	onChange = () => {
 		this.setState( {
-			keyword: this.getCurrentSearchValue()
+			keyword: this.getCurrentSearchValue(),
 		} );
 	};
 
-	openSearch = ( event ) => {
+	openSearch = event => {
 		this.props.onClick();
 		event.preventDefault();
 		this.setState( {
 			keyword: '',
-			isOpen: true
+			isOpen: true,
 		} );
 
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Open Search' );
 	};
 
-	closeSearch = ( event ) => {
+	closeSearch = event => {
 		event.preventDefault();
 
 		if ( this.props.disabled ) {
@@ -241,7 +251,7 @@ class Search extends React.Component {
 
 		this.setState( {
 			keyword: '',
-			isOpen: this.props.isOpen || false
+			isOpen: this.props.isOpen || false,
 		} );
 
 		input.value = ''; // will not trigger onChange
@@ -256,7 +266,7 @@ class Search extends React.Component {
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Close Search' );
 	};
 
-	keyUp = ( event ) => {
+	keyUp = event => {
 		if ( event.key === 'Enter' && isMobile() ) {
 			//dismiss soft keyboards
 			this.blur();
@@ -272,7 +282,7 @@ class Search extends React.Component {
 		this.scrollOverlay();
 	};
 
-	keyDown = ( event ) => {
+	keyDown = event => {
 		this.scrollOverlay();
 		if ( event.key === 'Escape' && event.target.value === '' ) {
 			this.closeSearch( event );
@@ -293,7 +303,7 @@ class Search extends React.Component {
 		}
 
 		this.setState( { hasFocus: true } );
-		this.props.onSearchOpen( );
+		this.props.onSearchOpen();
 	};
 
 	render() {
@@ -301,14 +311,13 @@ class Search extends React.Component {
 		const placeholder = this.props.placeholder || 'Search…';
 
 		const enableOpenIcon = this.props.pinned && ! this.state.isOpen;
-		const isOpenUnpinnedOrQueried = this.state.isOpen ||
-				! this.props.pinned ||
-				this.props.initialValue;
+		const isOpenUnpinnedOrQueried =
+			this.state.isOpen || ! this.props.pinned || this.props.initialValue;
 
 		const autocorrect = this.props.disableAutocorrect && {
 			autoComplete: 'off',
 			autoCorrect: 'off',
-			spellCheck: 'false'
+			spellCheck: 'false',
 		};
 
 		const searchClass = classNames( this.props.additionalClasses, this.props.dir, {
@@ -316,7 +325,7 @@ class Search extends React.Component {
 			'is-open': isOpenUnpinnedOrQueried,
 			'is-searching': this.props.searching,
 			'has-focus': this.state.hasFocus,
-			'dops-search': true
+			'dops-search': true,
 		} );
 
 		const fadeDivClass = classNames( 'dops-search__input-fade', this.props.dir );
@@ -331,24 +340,22 @@ class Search extends React.Component {
 					ref="openIcon"
 					onClick={ enableOpenIcon ? this.openSearch : this.focus }
 					tabIndex={ enableOpenIcon ? '0' : null }
-					onKeyDown={ enableOpenIcon
-						? this.openListener
-						: null
-					}
+					onKeyDown={ enableOpenIcon ? this.openListener : null }
 					aria-controls={ 'dops-search-component-' + this.state.instanceId }
-					aria-label="Open Search">
+					aria-label="Open Search"
+				>
 					<Gridicon icon="search" className="dops-search__open-icon" />
 				</div>
 				<div className={ fadeDivClass }>
 					<input
 						type="search"
+						onChange={ this.onChange }
 						id={ 'dops-search-component-' + this.state.instanceId }
 						className={ inputClass }
 						placeholder={ placeholder }
 						role="search"
 						value={ searchValue }
 						ref="searchInput"
-						onInput={ this.onChange }
 						onKeyUp={ this.keyUp }
 						onKeyDown={ this.keyDown }
 						onMouseUp={ this.props.onClick }
@@ -386,7 +393,8 @@ class Search extends React.Component {
 					tabIndex="0"
 					onKeyDown={ this.closeListener }
 					aria-controls={ 'dops-search-component-' + this.state.instanceId }
-					aria-label="Close Search">
+					aria-label="Close Search"
+				>
 					<Gridicon icon="cross" className="dops-search__close-icon" />
 				</div>
 			);

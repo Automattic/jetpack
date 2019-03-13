@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
  */
 import {
 	userCanViewStats as _userCanViewStats,
-	userIsSubscriber as _userIsSubscriber
+	userIsSubscriber as _userIsSubscriber,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
@@ -21,8 +21,10 @@ import { getSiteConnectionStatus } from 'state/connection';
 
 class NonAdminView extends React.Component {
 	shouldComponentUpdate( nextProps ) {
-		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
-			nextProps.route.path !== this.props.route.path;
+		return (
+			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
+			nextProps.route.path !== this.props.route.path
+		);
 	}
 
 	renderMainContent = route => {
@@ -36,13 +38,17 @@ class NonAdminView extends React.Component {
 			case '/settings':
 			case '/writing':
 			case '/sharing':
+			case '/performance':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <SearchableSettings
-						route={ this.props.route }
-						siteAdminUrl={ this.props.siteAdminUrl }
-						siteRawUrl={ this.props.siteRawUrl }
-						searchTerm={ this.props.searchTerm } />;
+					pageComponent = (
+						<SearchableSettings
+							route={ this.props.route }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							siteRawUrl={ this.props.siteRawUrl }
+							searchTerm={ this.props.searchTerm }
+						/>
+					);
 				}
 				break;
 		}
@@ -58,25 +64,21 @@ class NonAdminView extends React.Component {
 	};
 
 	render() {
-		return (
-			this.renderMainContent( this.props.route.path )
-		);
+		return this.renderMainContent( this.props.route.path );
 	}
 }
 
 NonAdminView.propTypes = {
 	userCanViewStats: PropTypes.bool.isRequired,
 	isSubscriber: PropTypes.bool.isRequired,
-	siteConnectionStatus: PropTypes.any.isRequired
+	siteConnectionStatus: PropTypes.any.isRequired,
 };
 
-export default connect(
-	( state ) => {
-		return {
-			userCanViewStats: _userCanViewStats( state ),
-			siteConnectionStatus: getSiteConnectionStatus( state ),
-			isSubscriber: _userIsSubscriber( state ),
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
-		};
-	}
-)( NonAdminView );
+export default connect( state => {
+	return {
+		userCanViewStats: _userCanViewStats( state ),
+		siteConnectionStatus: getSiteConnectionStatus( state ),
+		isSubscriber: _userIsSubscriber( state ),
+		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+	};
+} )( NonAdminView );

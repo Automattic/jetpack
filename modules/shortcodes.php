@@ -84,10 +84,6 @@ function jetpack_load_shortcodes() {
  * @return string $content    Replaced post content.
  */
 function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
-	if ( ! function_exists( 'wp_html_split' ) ) {
-		return $content;
-	}
-
 	if ( $search && false === strpos( $content, $search ) ) {
 		return $content;
 	}
@@ -116,10 +112,6 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
  * @return string $content Replaced post content.
  */
 function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
-	if ( ! function_exists( 'wp_html_split' ) ) {
-		return $content;
-	}
-
 	if ( $search && false === strpos( $content, $search ) ) {
 		return $content;
 	}
@@ -191,6 +183,14 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( intval( $attrs['height'] ) ) : $defaults['height'];
 
 	return $attrs;
+}
+
+/**
+ * When an embed service goes away, we can use this handler
+ * to output a link for history's sake.
+ */
+function jetpack_deprecated_embed_handler( $matches, $attr, $url ) {
+	return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( esc_url( $url ) ) );
 }
 
 jetpack_load_shortcodes();

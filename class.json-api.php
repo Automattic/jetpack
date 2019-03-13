@@ -617,6 +617,85 @@ class WPCOM_JSON_API {
 	}
 
 	/**
+	 * Counts the number of comments on a site, excluding certain comment types.
+	 *
+	 * @param $post_id int Post ID.
+	 * @return array Array of counts, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
+	 */
+	public function wp_count_comments( $post_id ) {
+		global $wpdb;
+		if ( 0 !== $post_id ) {
+			return wp_count_comments( $post_id );
+		}
+
+		$counts = array(
+			'total_comments' => 0,
+			'all'            => 0,
+		);
+
+		/**
+		 * Exclude certain comment types from comment counts in the REST API.
+		 *
+		 * @since 6.9.0
+		 * @module json-api
+		 *
+		 * @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
+		 */
+		$exclude = apply_filters( 'jetpack_api_exclude_comment_types_count',
+			array( 'order_note', 'webhook_delivery', 'review', 'action_log' )
+		);
+
+		if ( empty( $exclude ) ) {
+			return wp_count_comments( $post_id );
+		}
+
+		array_walk( $exclude, 'esc_sql' );
+		$where = sprintf(
+			"WHERE comment_type NOT IN ( '%s' )",
+			implode( "','", $exclude )
+		);
+
+		$count = $wpdb->get_results(
+			"SELECT comment_approved, COUNT(*) AS num_comments
+				FROM $wpdb->comments
+				{$where}
+				GROUP BY comment_approved
+			"
+		);
+
+		$approved = array(
+			'0'            => 'moderated',
+			'1'            => 'approved',
+			'spam'         => 'spam',
+			'trash'        => 'trash',
+			'post-trashed' => 'post-trashed',
+		);
+
+		// https://developer.wordpress.org/reference/functions/get_comment_count/#source
+		foreach ( $count as $row ) {
+			if ( ! in_array( $row->comment_approved, array( 'post-trashed', 'trash', 'spam' ), true ) ) {
+				$counts['all']            += $row->num_comments;
+				$counts['total_comments'] += $row->num_comments;
+			} elseif ( ! in_array( $row->comment_approved, array( 'post-trashed', 'trash' ), true ) ) {
+				$counts['total_comments'] += $row->num_comments;
+			}
+			if ( isset( $approved[ $row->comment_approved ] ) ) {
+				$counts[ $approved[ $row->comment_approved ] ] = $row->num_comments;
+			}
+		}
+
+		foreach ( $approved as $key ) {
+			if ( empty( $counts[ $key ] ) ) {
+				$counts[ $key ] = 0;
+			}
+		}
+
+		$counts = (object) $counts;
+
+		return $counts;
+	}
+
+	/**
 	 * traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *

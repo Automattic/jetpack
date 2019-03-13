@@ -10,13 +10,11 @@ import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
-import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Monitor = moduleSettingsForm(
+export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
 			analytics.tracks.recordJetpackClick( 'configure-monitor' );
@@ -37,7 +35,9 @@ export const Monitor = moduleSettingsForm(
 						disableInDevMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
-							text: __( 'Keep tabs on your site and receive alerts the moment downtime is detected.' ),
+							text: __(
+								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.'
+							),
 							link: 'https://jetpack.com/support/monitor/',
 						} }
 					>

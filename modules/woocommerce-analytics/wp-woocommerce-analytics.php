@@ -38,6 +38,14 @@ class Jetpack_WooCommerce_Analytics {
 	 * @return bool
 	 */
 	public static function shouldTrackStore() {
+		/**
+		 * Make sure WooCommerce is installed and active
+		 *
+		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
+		 */
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
+			return false;
+		}
 		// Tracking only Site pages
 		if ( is_admin() ) {
 			return false;
@@ -50,15 +58,6 @@ class Jetpack_WooCommerce_Analytics {
 		if ( ! Jetpack::is_active() ) {
 			return false;
 		}
-		/**
-		 * Make sure WooCommerce is installed and active
-		 *
-		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
-		 */
-		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
-			return false;
-		}
-
 		// Ensure the WooCommerce class exists and is a valid version
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( ! $minimum_woocommerce_active ) {

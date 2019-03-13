@@ -3,6 +3,7 @@
  */
 const assert = require( 'assert' ),
 	React = require( 'react' ),
+	ReactDOM = require( 'react-dom' ),
 	TestUtils = React.addons.TestUtils,
 	unique = require( 'lodash/uniq' );
 
@@ -20,14 +21,17 @@ describe( 'CompactFormToggle', function() {
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 			assert( 0 < toggleInput.length, 'a form toggle was rendered' );
-			assert( toggleInput[ 0 ].getDOMNode().className.indexOf( 'is-compact' ) >= 0, 'is-compact class exists' );
+			assert(
+				toggleInput[ 0 ].getDOMNode().className.indexOf( 'is-compact' ) >= 0,
+				'is-compact class exists'
+			);
 		} );
 	} );
 } );
 
 describe( 'FormToggle', function() {
 	afterEach( function() {
-		React.unmountComponentAtNode( document.body );
+		ReactDOM.unmountComponentAtNode( document.body );
 	} );
 
 	describe( 'rendering', function() {
@@ -49,32 +53,46 @@ describe( 'FormToggle', function() {
 			[ true, false ].forEach( function( bool ) {
 				const toggle = TestUtils.renderIntoDocument(
 						<CompactFormToggle
-						checked={ bool }
-						onChange={ function() {
-							return;
-						}
-					} /> ),
+							checked={ bool }
+							onChange={ function() {
+								return;
+							} }
+						/>
+					),
 					toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 				assert( 0 < toggleInput.length, 'a form toggle was rendered' );
-				assert( bool === toggleInput[ 0 ].getDOMNode().checked, 'form toggle checked equals boolean' );
+				assert(
+					bool === toggleInput[ 0 ].getDOMNode().checked,
+					'form toggle checked equals boolean'
+				);
 			} );
 		} );
 
 		it( 'should not be disabled when disabled is false', function() {
-			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle checked={ false } disabled={ false } /> ),
+			const toggle = TestUtils.renderIntoDocument(
+					<CompactFormToggle checked={ false } disabled={ false } />
+				),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 			assert( 0 < toggleInput.length, 'a form toggle was rendered' );
-			assert( false === toggleInput[ 0 ].getDOMNode().disabled, 'form toggle disabled equals boolean' );
+			assert(
+				false === toggleInput[ 0 ].getDOMNode().disabled,
+				'form toggle disabled equals boolean'
+			);
 		} );
 
 		it( 'should be disabled when disabled is true', function() {
-			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle checked={ false } disabled={ true } /> ),
+			const toggle = TestUtils.renderIntoDocument(
+					<CompactFormToggle checked={ false } disabled={ true } />
+				),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 			assert( 0 < toggleInput.length, 'a form toggle was rendered' );
-			assert( true === toggleInput[ 0 ].getDOMNode().disabled, 'form toggle disabled equals boolean' );
+			assert(
+				true === toggleInput[ 0 ].getDOMNode().disabled,
+				'form toggle disabled equals boolean'
+			);
 		} );
 
 		it( 'should have a label whose htmlFor matches the checkbox id', function() {

@@ -165,7 +165,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		if ( !$comment_id ) {
 			// We can get comment counts for the whole site or for a single post, but only for certain queries
 			if ( 'any' === $args['type'] && !isset( $args['after'] ) && !isset( $args['before'] ) ) {
-				$count = wp_count_comments( $post_id );
+				$count = $this->api->wp_count_comments( $post_id );
 			}
 		}
 
@@ -194,10 +194,16 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			}
 		}
 
+		/** This filter is documented in class.json-api.php */
+		$exclude = apply_filters( 'jetpack_api_exclude_comment_types',
+			array( 'order_note', 'webhook_delivery', 'review', 'action_log' )
+		);
+
 		$query = array(
-			'order'  => $args['order'],
-			'type'   => 'any' === $args['type'] ? false : $args['type'],
-			'status' => $status,
+			'order'        => $args['order'],
+			'type'         => 'any' === $args['type'] ? false : $args['type'],
+			'status'       => $status,
+			'type__not_in' => $exclude,
 		);
 
 		if ( isset( $args['page'] ) ) {

@@ -5,7 +5,7 @@ set -e
 # These commands will be run each time the container is run.
 #
 # If you modify anything here, remember to build the image again by running:
-# yarn docker:build
+# yarn docker:build-image
 
 user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"

@@ -16,7 +16,6 @@ class Jetpack_Tiled_Gallery {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
-
 	}
 
 	public function tiles_enabled() {

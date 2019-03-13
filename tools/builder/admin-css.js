@@ -28,7 +28,6 @@ const admincss = [
 	'modules/custom-css/custom-css/css/css-editor.css',
 	'modules/custom-css/custom-css/css/use-codemirror.css',
 	'modules/post-by-email/post-by-email.css',
-	'modules/publicize/assets/publicize.css',
 	'modules/protect/protect-dashboard-widget.css',
 	'modules/sharedaddy/admin-sharing.css',
 	'modules/videopress/videopress-admin.css',
@@ -37,15 +36,13 @@ const admincss = [
 	'modules/widget-visibility/widget-conditions/widget-conditions.css',
 	'modules/widgets/gallery/css/admin.css',
 	'modules/sso/jetpack-sso-login.css', // Displayed when logging into the site.
-	'modules/calypsoify/style-gutenberg.css',
-	'modules/calypsoify/style.css'
 ];
 
 // Minimizes admin css for modules.  Outputs to same folder as min.css
 gulp.task( 'admincss', function() {
 	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( banner(
 			'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
@@ -59,14 +56,14 @@ gulp.task( 'admincss', function() {
 // Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
 gulp.task( 'admincss:rtl', function() {
 	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
+		.pipe( autoprefixer() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( banner(
 			'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 		) )
 		.pipe( gulp.dest( '.' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {

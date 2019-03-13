@@ -11,11 +11,8 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset,
-	FormLabel
-} from 'components/forms';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { FormFieldset, FormLabel } from 'components/forms';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import JetpackBanner from 'components/jetpack-banner';
@@ -75,8 +72,8 @@ class VerificationServicesComponent extends React.Component {
 					icon="cog"
 					description={ __( '%(moduleName)s has been disabled by a site administrator.', {
 						args: {
-							moduleName: verification.name
-						}
+							moduleName: verification.name,
+						},
 					} ) }
 				/>
 			);
@@ -104,10 +101,12 @@ class VerificationServicesComponent extends React.Component {
 				<SettingsGroup
 					module={ verification }
 					support={ {
-						text: __( 'Provides the necessary hidden tags needed to verify your WordPress site with various services.' ),
+						text: __(
+							'Provides the necessary hidden tags needed to verify your WordPress site with various services.'
+						),
 						link: 'https://jetpack.com/support/site-verification-tools',
 					} }
-					>
+				>
 					<p>
 						{ __(
 							'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',
@@ -118,32 +117,36 @@ class VerificationServicesComponent extends React.Component {
 									google: (
 										<ExternalLink
 											icon={ true }
-											target="_blank" rel="noopener noreferrer"
+											target="_blank"
+											rel="noopener noreferrer"
 											href="https://www.google.com/webmasters/tools/"
 										/>
 									),
 									bing: (
 										<ExternalLink
 											icon={ true }
-											target="_blank" rel="noopener noreferrer"
+											target="_blank"
+											rel="noopener noreferrer"
 											href="https://www.bing.com/webmaster/"
 										/>
 									),
 									pinterest: (
 										<ExternalLink
 											icon={ true }
-											target="_blank" rel="noopener noreferrer"
+											target="_blank"
+											rel="noopener noreferrer"
 											href="https://pinterest.com/website/verify/"
 										/>
 									),
 									yandex: (
 										<ExternalLink
 											icon={ true }
-											target="_blank" rel="noopener noreferrer"
+											target="_blank"
+											rel="noopener noreferrer"
 											href="https://webmaster.yandex.com/sites/"
 										/>
-									)
-								}
+									),
+								},
 							}
 						) }
 					</p>
@@ -153,9 +156,7 @@ class VerificationServicesComponent extends React.Component {
 							placeholder={ this.getMetaTag( 'google', '1234' ) }
 							{ ...this.props }
 						/>
-						<FormLabel
-							className="jp-form-input-with-prefix"
-							key="verification_service_bing">
+						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
 							<span>{ __( 'Bing' ) }</span>
 							<TextInput
 								name="bing"
@@ -163,11 +164,10 @@ class VerificationServicesComponent extends React.Component {
 								placeholder={ this.getMetaTag( 'bing', '1234' ) }
 								className="code"
 								disabled={ this.props.isUpdating( 'bing' ) }
-								onChange={ this.props.onOptionChange } />
+								onChange={ this.props.onOptionChange }
+							/>
 						</FormLabel>
-						<FormLabel
-							className="jp-form-input-with-prefix"
-							key="verification_service_pinterest">
+						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
 							<span>{ __( 'Pinterest' ) }</span>
 							<TextInput
 								name="pinterest"
@@ -175,11 +175,10 @@ class VerificationServicesComponent extends React.Component {
 								placeholder={ this.getMetaTag( 'pinterest', '1234' ) }
 								className="code"
 								disabled={ this.props.isUpdating( 'pinterest' ) }
-								onChange={ this.props.onOptionChange } />
+								onChange={ this.props.onOptionChange }
+							/>
 						</FormLabel>
-						<FormLabel
-							className="jp-form-input-with-prefix"
-							key="verification_service_yandex">
+						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
 							<span>{ __( 'Yandex' ) }</span>
 							<TextInput
 								name="yandex"
@@ -187,7 +186,8 @@ class VerificationServicesComponent extends React.Component {
 								placeholder={ this.getMetaTag( 'yandex', '1234' ) }
 								className="code"
 								disabled={ this.props.isUpdating( 'yandex' ) }
-								onChange={ this.props.onOptionChange } />
+								onChange={ this.props.onOptionChange }
+							/>
 						</FormLabel>
 					</FormFieldset>
 				</SettingsGroup>
@@ -196,4 +196,4 @@ class VerificationServicesComponent extends React.Component {
 	}
 }
 
-export const VerificationServices = moduleSettingsForm( VerificationServicesComponent );
+export const VerificationServices = withModuleSettingsFormHelpers( VerificationServicesComponent );

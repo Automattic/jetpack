@@ -30,16 +30,14 @@ const NavItem = createReactClass( {
 		onClick: PropTypes.func,
 		isExternalLink: PropTypes.bool,
 		disabled: PropTypes.bool,
-		count: PropTypes.number
+		count: PropTypes.number,
 	},
 
 	render: function() {
-		const itemClassPrefix = this.props.itemType
-			? this.props.itemType
-			: 'tab';
+		const itemClassPrefix = this.props.itemType ? this.props.itemType : 'tab';
 		const itemClasses = {
 			'is-selected': this.props.selected,
-			'is-external': this.props.isExternalLink
+			'is-external': this.props.isExternalLink,
 		};
 		itemClasses[ 'dops-section-nav-' + itemClassPrefix ] = true;
 		const itemClassName = classNames( itemClasses );
@@ -59,17 +57,15 @@ const NavItem = createReactClass( {
 					href={ this.props.path }
 					target={ target }
 					className={ 'dops-section-nav-' + itemClassPrefix + '__link' }
-					onTouchTap={ onClick }
+					onClick={ onClick }
 					tabIndex={ this.props.tabIndex || 0 }
 					disabled={ this.props.disabled }
 					role="menuitem"
-					rel={ this.props.isExternalLink ? 'external' : null }>
+					rel={ this.props.isExternalLink ? 'external' : null }
+				>
 					<span className={ 'dops-section-nav-' + itemClassPrefix + '__text' }>
 						{ this.props.children }
-						{
-							'number' === typeof this.props.count &&
-							<Count count={ this.props.count } />
-						}
+						{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
 					</span>
 				</a>
 			</li>

@@ -9,9 +9,9 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
  * It also binds the action to send data to WPCOM to Jetpack's XMLRPC client object.
  */
 class Jetpack_Sync_Actions {
-	static $sender = null;
-	static $listener = null;
-	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
+	static $sender                         = null;
+	static $listener                       = null;
+	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	static function init() {
@@ -23,7 +23,7 @@ class Jetpack_Sync_Actions {
 
 		if ( self::sync_via_cron_allowed() ) {
 			self::init_sync_cron_jobs();
-		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
+		} elseif ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}
 		// When importing via cron, do not sync
@@ -67,9 +67,10 @@ class Jetpack_Sync_Actions {
 		 *
 		 * @param bool should we load sync sender code for this request
 		 */
-		if ( apply_filters( 'jetpack_sync_sender_should_load',
+		if ( apply_filters(
+			'jetpack_sync_sender_should_load',
 			(
-				( isset( $_SERVER["REQUEST_METHOD"] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
+				( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
 				||
 				current_user_can( 'manage_options' )
 				||
@@ -87,9 +88,9 @@ class Jetpack_Sync_Actions {
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
-		         && ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
-		         && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-		       || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+				 && ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
+				 && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function sync_via_cron_allowed() {
@@ -122,8 +123,8 @@ class Jetpack_Sync_Actions {
 			'queue'     => $queue_id,       // sync or full_sync
 			'home'      => Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
 			'siteurl'   => Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
-			'cd'        => sprintf( '%.4f', $checkout_duration),   // Time spent retrieving queue items from the DB
-			'pd'        => sprintf( '%.4f', $preprocess_duration), // Time spent converting queue items into data to send
+			'cd'        => sprintf( '%.4f', $checkout_duration ),   // Time spent retrieving queue items from the DB
+			'pd'        => sprintf( '%.4f', $preprocess_duration ), // Time spent converting queue items into data to send
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -148,11 +149,13 @@ class Jetpack_Sync_Actions {
 
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
-		$rpc = new Jetpack_IXR_Client( array(
-			'url'     => $url,
-			'user_id' => JETPACK_MASTER_USER,
-			'timeout' => $query_args['timeout'],
-		) );
+		$rpc = new Jetpack_IXR_Client(
+			array(
+				'url'     => $url,
+				'user_id' => JETPACK_MASTER_USER,
+				'timeout' => $query_args['timeout'],
+			)
+		);
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
@@ -164,11 +167,11 @@ class Jetpack_Sync_Actions {
 
 		// Check if WordPress.com IDC mitigation blocked the sync request
 		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
-			$error_code = $response['error_code'];
+			$error_code              = $response['error_code'];
 			$allowed_idc_error_codes = array(
 				'jetpack_url_mismatch',
 				'jetpack_home_url_mismatch',
-				'jetpack_site_url_mismatch'
+				'jetpack_site_url_mismatch',
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
@@ -194,10 +197,10 @@ class Jetpack_Sync_Actions {
 		}
 
 		$initial_sync_config = array(
-			'options'         => true,
-			'functions'       => true,
-			'constants'       => true,
-			'users'           => array( get_current_user_id() ),
+			'options'   => true,
+			'functions' => true,
+			'constants' => true,
+			'users'     => array( get_current_user_id() ),
 		);
 
 		if ( is_multisite() ) {
@@ -229,10 +232,10 @@ class Jetpack_Sync_Actions {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
-				'display' => sprintf(
+				'display'  => sprintf(
 					esc_html( _n( 'Every minute', 'Every %d minutes', intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 ), 'jetpack' ) ),
 					intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 )
-				)
+				),
 			);
 		}
 		return $schedules;
@@ -319,7 +322,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
-		$schedule = sanitize_key( $schedule );
+		$schedule  = sanitize_key( $schedule );
 		$schedules = wp_get_schedules();
 
 		// Make sure that the schedule has actually been registered using the `cron_intervals` filter.
@@ -331,7 +334,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_start_time_offset( $schedule = '', $hook = '' ) {
-		$start_time_offset =  is_multisite()
+		$start_time_offset = is_multisite()
 			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
 			: 0;
 
@@ -345,12 +348,14 @@ class Jetpack_Sync_Actions {
 		 * @param string $hook
 		 * @param string $schedule
 		 */
-		return intval( apply_filters(
-			'jetpack_sync_cron_start_time_offset',
-			$start_time_offset,
-			$hook,
-			$schedule
-		) );
+		return intval(
+			apply_filters(
+				'jetpack_sync_cron_start_time_offset',
+				$start_time_offset,
+				$hook,
+				$schedule
+			)
+		);
 	}
 
 	static function maybe_schedule_sync_cron( $schedule, $hook ) {
@@ -363,7 +368,7 @@ class Jetpack_Sync_Actions {
 		if ( ! wp_next_scheduled( $hook ) ) {
 			// Schedule a job to send pending queue items once a minute
 			wp_schedule_event( $start_time, $schedule, $hook );
-		} else if ( $schedule != wp_get_schedule( $hook ) ) {
+		} elseif ( $schedule != wp_get_schedule( $hook ) ) {
 			// If the schedule has changed, update the schedule
 			wp_clear_scheduled_hook( $hook );
 			wp_schedule_event( $start_time, $schedule, $hook );
@@ -411,33 +416,35 @@ class Jetpack_Sync_Actions {
 		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 			self::clear_sync_cron_jobs();
-			Jetpack_Sync_Settings::update_settings( array(
-				'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content
-			) );
+			Jetpack_Sync_Settings::update_settings(
+				array(
+					'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content,
+				)
+			);
 		}
 	}
 
 	static function get_sync_status() {
 		self::initialize_sender();
 
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		$queue       = self::$sender->get_sync_queue();
-		$full_queue  = self::$sender->get_full_sync_queue();
+		$sync_module     = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$queue           = self::$sender->get_sync_queue();
+		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
-		$next_cron = $cron_timestamps[0] - time();
+		$next_cron       = $cron_timestamps[0] - time();
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 		return array_merge(
 			$full_sync_status,
 			array(
-				'cron_size'             => count( $cron_timestamps ),
-				'next_cron'             => $next_cron,
-				'queue_size'            => $queue->size(),
-				'queue_lag'             => $queue->lag(),
-				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-				'full_queue_size'       => $full_queue->size(),
-				'full_queue_lag'        => $full_queue->lag(),
-				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+				'cron_size'            => count( $cron_timestamps ),
+				'next_cron'            => $next_cron,
+				'queue_size'           => $queue->size(),
+				'queue_lag'            => $queue->lag(),
+				'queue_next_sync'      => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'      => $full_queue->size(),
+				'full_queue_lag'       => $full_queue->lag(),
+				'full_queue_next_sync' => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
 			)
 		);
 	}

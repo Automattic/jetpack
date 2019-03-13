@@ -13,17 +13,9 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import {
-	PLAN_JETPACK_PERSONAL
-} from 'lib/plans/constants';
-import {
-	getSiteRawUrl,
-	isAtomicSite,
-} from 'state/initial-state';
-import {
-	getSitePlan,
-	isFetchingSiteData
-} from 'state/site';
+import { PLAN_JETPACK_PERSONAL } from 'lib/plans/constants';
+import { isAtomicSite, getUpgradeUrl } from 'state/initial-state';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getSiteConnectionStatus } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
@@ -33,14 +25,14 @@ class SupportCard extends React.Component {
 
 	static defaultProps = {
 		className: '',
-		siteConnectionStatus: false
+		siteConnectionStatus: false,
 	};
 
 	trackBannerClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'banner-click',
 			feature: 'support',
-			page: this.props.path
+			page: this.props.path,
 		} );
 	};
 
@@ -52,7 +44,7 @@ class SupportCard extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
 			button: 'support-ask',
-			page: this.props.path
+			page: this.props.path,
 		} );
 	};
 
@@ -60,50 +52,50 @@ class SupportCard extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
 			button: 'support-search',
-			page: this.props.path
+			page: this.props.path,
 		} );
 	};
 
 	render() {
-		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
+		if (
+			'undefined' === typeof this.props.sitePlan.product_slug &&
+			this.props.isFetchingSiteData
+		) {
 			return <div />;
 		}
 
-		const classes = classNames(
-				this.props.className,
-				'jp-support-card'
-			),
-			noPrioritySupport = 'undefined' === typeof this.props.sitePlan.product_slug || 'jetpack_free' === this.props.sitePlan.product_slug;
+		const classes = classNames( this.props.className, 'jp-support-card' ),
+			noPrioritySupport =
+				'undefined' === typeof this.props.sitePlan.product_slug ||
+				'jetpack_free' === this.props.sitePlan.product_slug;
 
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
-						<h3 className="jp-support-card__header">
-							{ __( "We're here to help" ) }
-						</h3>
+						<h3 className="jp-support-card__header">{ __( "We're here to help" ) }</h3>
 						<p className="jp-support-card__description">
-							{
-								noPrioritySupport
-									? __( 'Jetpack comes with free, basic support for all users.' )
-									: __( 'Your paid plan gives you access to prioritized Jetpack support.' )
-							}
+							{ noPrioritySupport
+								? __( 'Jetpack comes with free, basic support for all users.' )
+								: __( 'Your paid plan gives you access to prioritized Jetpack support.' ) }
 						</p>
 						<p className="jp-support-card__description">
 							<Button
 								onClick={ this.trackAskQuestionClick }
-								href={ this.props.isAtomicSite
-									? 'https://wordpress.com/help/contact/'
-									: JETPACK_CONTACT_SUPPORT
+								href={
+									this.props.isAtomicSite
+										? 'https://wordpress.com/help/contact/'
+										: JETPACK_CONTACT_SUPPORT
 								}
 							>
 								{ __( 'Ask a question' ) }
 							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
-								href={ this.props.isAtomicSite
-									? 'https://wordpress.com/help/'
-									: 'https://jetpack.com/support/'
+								href={
+									this.props.isAtomicSite
+										? 'https://wordpress.com/help/'
+										: 'https://jetpack.com/support/'
 								}
 							>
 								{ __( 'Search our support site' ) }
@@ -111,17 +103,15 @@ class SupportCard extends React.Component {
 						</p>
 					</div>
 				</Card>
-				{
-					( this.props.siteConnectionStatus && noPrioritySupport ) && (
-						<JetpackBanner
-							title={ __( 'Get a faster resolution to your support questions.' ) }
-							plan={ PLAN_JETPACK_PERSONAL }
-							callToAction={ __( 'Upgrade' ) }
-							onClick={ this.trackBannerClick }
-							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
-						/>
-					)
-				}
+				{ this.props.siteConnectionStatus && noPrioritySupport && (
+					<JetpackBanner
+						title={ __( 'Get a faster resolution to your support questions.' ) }
+						plan={ PLAN_JETPACK_PERSONAL }
+						callToAction={ __( 'Upgrade' ) }
+						onClick={ this.trackBannerClick }
+						href={ this.props.supportUpgradeUrl }
+					/>
+				) }
 			</div>
 		);
 	}
@@ -129,17 +119,15 @@ class SupportCard extends React.Component {
 
 SupportCard.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
-	className: PropTypes.string
+	className: PropTypes.string,
 };
 
-export default connect(
-	state => {
-		return {
-			sitePlan: getSitePlan( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			siteConnectionStatus: getSiteConnectionStatus( state ),
-			isFetchingSiteData: isFetchingSiteData( state ),
-			isAtomicSite: isAtomicSite( state )
-		};
-	}
-)( SupportCard );
+export default connect( state => {
+	return {
+		sitePlan: getSitePlan( state ),
+		siteConnectionStatus: getSiteConnectionStatus( state ),
+		isFetchingSiteData: isFetchingSiteData( state ),
+		isAtomicSite: isAtomicSite( state ),
+		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
+	};
+} )( SupportCard );

@@ -1,0 +1,143 @@
+.components-button {
+	&.is-default {
+		color: $muriel-gray-700;
+		border-color: $muriel-gray-100;
+		background: $white;
+		box-shadow: none;
+		border-width: 1px 1px 2px;
+
+		&:hover {
+			background: $white;
+			border-color: $muriel-gray-200;
+			box-shadow: none;
+			color: $muriel-gray-700;
+		}
+
+		&:focus:enabled {
+			background: $white;
+			color: $muriel-gray-700;
+			border-color: $color-primary;
+			box-shadow: 0 0 0 2px $color-primary-light;
+		}
+
+		&:active:enabled {
+			background: $white;
+			border-color: $muriel-gray-100;
+			border-width: 2px 1px 1px;
+			box-shadow: none;
+		}
+
+		&:disabled,
+		&[aria-disabled='true'] {
+			color: $muriel-gray-50;
+			background-color: $white;
+			border-color: $muriel-gray-50;
+			text-shadow: none;
+		}
+	}
+
+	&.is-primary {
+		background: $color-accent;
+		border-color: $color-accent-dark;
+		box-shadow: none;
+		color: $white;
+		text-shadow: none;
+
+		&:focus:enabled {
+			background: $muriel-hot-pink-400;
+			border-color: $color-accent;
+			color: $white;
+			box-shadow: 0 0 0 2px $color-accent-light;
+		}
+
+		&:hover {
+			box-shadow: none;
+			background: $muriel-hot-pink-400;
+			border-color: $color-accent-dark;
+			color: $white;
+		}
+
+		&:focus:enabled {
+			box-shadow: 0 0 0 2px $color-accent-light;
+		}
+
+		&:active:enabled {
+			background: $muriel-hot-pink-400;
+			border-color: $color-accent-dark;
+			box-shadow: inset 0 1px 0 $color-accent-dark;
+		}
+
+		&:disabled,
+		&[aria-disabled='true'] {
+			color: $muriel-gray-50;
+			background: $white;
+			border-color: $muriel-gray-50;
+			text-shadow: none;
+
+			&:hover,
+			&:focus,
+			&:active {
+				color: $muriel-gray-50;
+				background-color: $white;
+				border-color: $muriel-gray-50;
+				box-shadow: none;
+			}
+		}
+
+		&.is-busy,
+		&.is-busy:disabled,
+		&.is-busy[aria-disabled='true'] {
+			background-image: linear-gradient(
+				-45deg,
+				$color-accent 28%,
+				$muriel-hot-pink-600 28%,
+				$muriel-hot-pink-600 72%,
+				$color-accent 72%
+			);
+			border-color: $color-accent-dark;
+		}
+	}
+
+	/* Buttons that look like links, for a cross of good semantics with the visual */
+	&.is-link {
+		color: $color-link;
+
+		&:hover,
+		&:active {
+			color: $color-link-dark;
+		}
+
+		&:focus {
+			color: $color-link-dark;
+			box-shadow: 0 0 0 2px $color-primary-light;
+		}
+	}
+
+	/* Link buttons that are red to indicate destructive behavior. */
+	&.is-link.is-destructive {
+		color: $alert-red;
+	}
+
+	&:focus:enabled {
+		// @include button-style__focus-active;
+	}
+
+	&.is-busy {
+		background-image: repeating-linear-gradient(
+			-45deg,
+			$muriel-gray-500,
+			$white 11px,
+			$white 10px,
+			$muriel-gray-500 20px
+		);
+	}
+
+	// Buttons that are text-based.
+	&.is-tertiary {
+		color: $color-link;
+
+		&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-default ):hover {
+			color: $color-link-dark;
+		}
+	}
+}

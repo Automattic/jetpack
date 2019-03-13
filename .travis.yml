@@ -11,6 +11,7 @@ php:
 - "5.6"
 - "7.0"
 - "7.2"
+- "7.3"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -43,7 +44,8 @@ matrix:
     dist: precise
   - language: node_js
     env: WP_TRAVISCI="yarn lint"
-  - language: node_js
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
 
 cache:

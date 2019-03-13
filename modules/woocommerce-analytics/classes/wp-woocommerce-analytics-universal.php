@@ -79,29 +79,32 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$blogid = Jetpack::get_option( 'id' );
 
 		// check for previous add-to-cart cart events
-		$data = WC()->session->get( 'wca_session_data' );
-		if ( ! empty( $data ) ) {
-			foreach ( $data as $data_instance ) {
-				$product = wc_get_product( $data_instance['product_id'] );
-				if ( ! $product ) {
-					continue;
+		if ( is_object( WC()->session ) ) {
+			$data = WC()->session->get( 'wca_session_data' );
+			if ( ! empty( $data ) ) {
+				foreach ( $data as $data_instance ) {
+					$product = wc_get_product( $data_instance['product_id'] );
+					if ( ! $product ) {
+						continue;
+					}
+					$product_details = $this->get_product_details( $product );
+					wc_enqueue_js(
+						"_wca.push( {
+								'_en': '" . esc_js( $data_instance['event'] ) . "',
+								'blog_id': '" . esc_js( $blogid ) . "',
+								'pi': '" . esc_js( $data_instance['product_id'] ) . "',
+								'pn': '" . esc_js( $product_details['name'] ) . "',
+								'pc': '" . esc_js( $product_details['category'] ) . "',
+								'pp': '" . esc_js( $product_details['price'] ) . "',
+								'pq': '" . esc_js( $data_instance['quantity'] ) . "',
+								'pt': '" . esc_js( $product_details['type'] ) . "',
+								'ui': '" . esc_js( $this->get_user_id() ) . "',
+							} );"
+					);
 				}
-				$product_details = $this->get_product_details( $product );
-				wc_enqueue_js(
-					"_wca.push( {
-							'_en': '" . esc_js( $data_instance['event'] ) . "',
-							'blog_id': '" . esc_js( $blogid ) . "',
-							'pi': '" . esc_js( $data_instance['product_id'] ) . "',
-							'pn': '" . esc_js( $product_details['name'] ) . "',
-							'pc': '" . esc_js( $product_details['category'] ) . "',
-							'pp': '" . esc_js( $product_details['price'] ) . "',
-							'pq': '" . esc_js( $data_instance['quantity'] ) . "',
-							'ui': '" . esc_js( $this->get_user_id() ) . "',
-						} );"
-				);
+				// clear data
+				WC()->session->set( 'wca_session_data', '' );
 			}
-			// clear data
-			WC()->session->set( 'wca_session_data', '' );
 		}
 	}
 
@@ -170,6 +173,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			'name'     => $product->get_title(),
 			'category' => $this->get_product_categories_concatenated( $product ),
 			'price'    => $product->get_price(),
+			'type'     => $product->get_type(),
 		);
 	}
 
@@ -190,6 +194,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pn': '" . esc_js( $product_details['name'] ) . "',
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );"
 		);
@@ -224,6 +229,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );";
 		}
@@ -255,6 +261,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pc': '" . esc_js( $product_details['category'] ) . "',
 				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $order_item->get_quantity() ) . "',
+				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'oi': '" . esc_js( $order->get_order_number() ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );";
@@ -339,8 +346,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$quantity = ( $quantity == 0 ) ? 1 : $quantity;
 
 		// check for existing data
-		$data = WC()->session->get( 'wca_session_data' );
-		if ( empty( $data ) || ! is_array( $data ) ) {
+		if ( is_object( WC()->session ) ) {
+			$data = WC()->session->get( 'wca_session_data' );
+			if ( empty( $data ) || ! is_array( $data ) ) {
+				$data = array();
+			}
+		} else {
 			$data = array();
 		}
 

@@ -1,6 +1,9 @@
 <?php
 require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 
+/**
+ * @group publicize
+ */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
 

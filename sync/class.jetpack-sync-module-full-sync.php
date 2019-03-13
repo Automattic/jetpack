@@ -14,7 +14,7 @@
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
-	const FULL_SYNC_TIMEOUT = 3600;
+	const FULL_SYNC_TIMEOUT    = 3600;
 
 	public function name() {
 		return 'full-sync';
@@ -50,7 +50,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_status_option( 'started', time() );
 		$this->update_status_option( 'params', $module_configs );
 
-		$enqueue_status = array();
+		$enqueue_status   = array();
 		$full_sync_config = array();
 
 		// default value is full sync
@@ -63,7 +63,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
+			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
 
 			if ( ! $module_config ) {
@@ -81,7 +81,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			// if there's information to process, configure this module
 			if ( ! is_null( $total_items ) && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
-				$enqueue_status[ $module_name ] = array(
+				$enqueue_status[ $module_name ]   = array(
 					$total_items,   // total
 					0,              // queued
 					false,          // current state
@@ -112,7 +112,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// if full sync queue is full, don't enqueue more items
 		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
-		$full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
+		$full_sync_queue          = new Jetpack_Sync_Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
 
@@ -140,18 +140,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				|| // no enqueue status
 					! $enqueue_status[ $module_name ]
 				|| // finished enqueuing this module
-					true === $enqueue_status[ $module_name ][ 2 ] ) {
+					true === $enqueue_status[ $module_name ][2] ) {
 				continue;
 			}
 
-			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][ 2 ] );
+			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
 
-			$enqueue_status[ $module_name ][ 2 ] = $next_enqueue_state;
+			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
 
 			// if items were processed, subtract them from the limit
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				$enqueue_status[ $module_name ][ 1 ] += $items_enqueued;
-				$remaining_items_to_enqueue -= $items_enqueued;
+				$enqueue_status[ $module_name ][1] += $items_enqueued;
+				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
 			// stop processing if we've reached our limit of items to enqueue
@@ -217,11 +217,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	public function is_started() {
-		return !! $this->get_status_option( 'started' );
+		return ! ! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( 'finished' );
+		return ! ! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
@@ -248,15 +248,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			list( $total, $queued, $state ) = $enqueue_status[ $name ];
 
 			if ( $total ) {
-				$status[ 'total' ][ $name ] = $total;
+				$status['total'][ $name ] = $total;
 			}
 
 			if ( $queued ) {
-				$status[ 'queue' ][ $name ] = $queued;
+				$status['queue'][ $name ] = $queued;
 			}
 
 			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
-				$status[ 'sent' ][ $name ] = $sent;
+				$status['sent'][ $name ] = $sent;
 			}
 		}
 

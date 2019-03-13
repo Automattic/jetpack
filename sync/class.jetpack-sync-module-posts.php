@@ -4,7 +4,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
-	private $just_published = array();
+	private $just_published  = array();
 	private $previous_status = array();
 	private $action_handler;
 	private $import_end = false;
@@ -26,11 +26,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
-		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
-		global $wp_version;
-		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
-
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
+		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
@@ -62,7 +58,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param array $feedback_ids feedback post IDs
 		 * @param string $meta_key to be deleted
 		 */
-		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values');
+		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values' );
 	}
 
 	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {
@@ -148,7 +144,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
-		if( $post->post_type ) {
+		if ( $post->post_type ) {
 			return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 		}
 		return false;
@@ -196,6 +192,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * Instead we pass data that will still enable us to do a checksum against the
 		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
 		 * other services.
+		 *
 		 * @since 4.2.0
 		 *
 		 * @param boolean false prevent post data from being synced to WordPress.com
@@ -232,13 +229,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @param array of shortcode tags to remove.
 			 */
-			$shortcodes_to_remove        = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array(
-				'gallery',
-				'slideshow'
-			) );
+			$shortcodes_to_remove        = apply_filters(
+				'jetpack_sync_do_not_expand_shortcodes',
+				array(
+					'gallery',
+					'slideshow',
+				)
+			);
 			$removed_shortcode_callbacks = array();
 			foreach ( $shortcodes_to_remove as $shortcode ) {
-				if ( isset ( $shortcode_tags[ $shortcode ] ) ) {
+				if ( isset( $shortcode_tags[ $shortcode ] ) ) {
 					$removed_shortcode_callbacks[ $shortcode ] = $shortcode_tags[ $shortcode ];
 				}
 			}
@@ -293,8 +293,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&
 			'1' === $_GET['classic-editor'] &&
-			'1' === $_GET['meta_box'] &&
-			Jetpack_Gutenberg::is_gutenberg_available()
+			'1' === $_GET['meta_box']
 		);
 	}
 
@@ -317,9 +316,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			false;
 
 		$state = array(
-			'is_auto_save' => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
-			'previous_status' => $previous_status,
-			'just_published' => $just_published,
+			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
+			'previous_status'              => $previous_status,
+			'just_published'               => $just_published,
 			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),
 		);
 		/**
@@ -350,7 +349,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		$post_flags = array(
-			'post_type' => $post->post_type
+			'post_type' => $post->post_type,
 		);
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
@@ -391,7 +390,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 'customize_changeset' == $post->post_type ) {
 			$post_content = json_decode( $post->post_content, true );
 			foreach ( $post_content as $key => $value ) {
-				//Skip if it isn't a widget
+				// Skip if it isn't a widget
 				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
 					continue;
 				}
@@ -403,9 +402,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 				global $wp_registered_widgets;
 				if ( isset( $wp_registered_widgets[ $key ] ) ) {
 					$widget_data = array(
-						'name'    => $wp_registered_widgets[ $key ]['name'],
-						'id'      => $key,
-						'title'   => $value['value']['title'],
+						'name'  => $wp_registered_widgets[ $key ]['name'],
+						'id'    => $key,
+						'title' => $value['value']['title'],
 					);
 					do_action( 'jetpack_widget_edited', $widget_data );
 				}

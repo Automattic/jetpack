@@ -22,19 +22,21 @@ class QueryStatsData extends Component {
 }
 
 QueryStatsData.defaultProps = {
-	fetchStatsData: () => {}
+	fetchStatsData: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchStatsData: ( range ) => fetchStatsData( state, range ),
-		fetchingStatsData: isFetchingStatsData( state )
-	};
-}, ( dispatch ) => {
-	return {
-		fetchStatsData: ( range ) => {
-			return dispatch( fetchStatsData( range ) );
-		}
-	};
-}
+export default connect(
+	state => {
+		return {
+			fetchStatsData: range => fetchStatsData( state, range ),
+			fetchingStatsData: isFetchingStatsData( state ),
+		};
+	},
+	dispatch => {
+		return {
+			fetchStatsData: range => {
+				return dispatch( fetchStatsData( range ) );
+			},
+		};
+	}
 )( QueryStatsData );

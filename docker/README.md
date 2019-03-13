@@ -22,7 +22,9 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 * [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
-Install prerequisites and clone the repository:
+Install prerequisites; you will need to open up Docker to install its dependencies.
+
+Start by cloning the Jetpack repository:
 
 ```sh
 git clone git@github.com:Automattic/jetpack.git && cd jetpack
@@ -130,7 +132,7 @@ Will stop all of the containers created by this docker-compose configuration and
 ### Rebuild images
 
 ```sh
-yarn docker:build
+yarn docker:build-image
 ```
 
 You need to rebuild the WordPress image with this command if you modified `Dockerfile`, `docker-composer.yml` or the provisioned files we use for configuring Apache and PHP.
@@ -224,12 +226,40 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 ## Using Ngrok with Jetpack
 
-[Ngrok.com](https://ngrok.com/) free tier gives you one-use random-hash domains for HTTP/HTTPS connections and random ports for other TCP connections. When using their paid plans you can re-use domains, reserve your custom domains and reserve TCP ports.
+To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 
-If you use one-off domains, you'll have to re-install WordPress and re-connect Jetpack each time you close Ngrok (thus losing your randomly assigned domain). That's perfectly fine for quick testing or lightweight development.
+If you use one-off domains, you'll have to re-install WordPress and re-connect Jetpack each time you close Ngrok (thus losing your randomly assigned domain). That's perfectly fine for quick testing or lightweight development. You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
 
-You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
+If you're developing Jetpack often you'll want to reserve a domain you can keep using.
 
+If you are an Automattician, sign up on Ngrok.com using your a8c Google account; you'll be automattically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
+
+[Go to this page to reserve a permanent domain](https://dashboard.ngrok.com/reserved).
+
+Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
+
+
+
+```
+authtoken: YOUR_AUTH_TOKEN # This should already be here
+region: eu # only needed for subdomains in Europe
+tunnels:
+  jetpack:
+    subdomain: YOUR_RESERVED_SUBDOMAIN # without the .ngrok.io
+    addr: 80
+    proto: http
+```
+
+You can start your ngrok tunnel like so:
+```bash
+./ngrok start jetpack
+```
+
+These two commands are all you need to run to get Docker running when you start your computer:
+```bash
+./ngrok start jetpack
+yarn docker:up -d
+```
 ### Docker Ngrok
 
 Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
@@ -258,13 +288,14 @@ All the other docker-compose commands can be invoked via `yarn docker:ngrok COMM
 
 If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
 
-In your configuration file, add:
+## Ngrok SFTP Tunnel with Jetpack
+A sample config for adding an sftp tunnel to your Ngrok setup would look like this:
 
-```yml
+```
 authtoken: YOUR_AUTH_TOKEN
 tunnels:
   jetpack:
-    subdomain: YOUR_PERMANTENT_SUBDOMAIN
+    subdomain: YOUR_PERMANENT_SUBDOMAIN
     addr: 80
     proto: http
   jetpack-sftp:
@@ -272,10 +303,6 @@ tunnels:
     proto: tcp
     remote_addr: 0.tcp.ngrok.io:YOUR_RESERVED_PORT
 ```
-
-You should reserve above domain and TCP address from [Ngrok Dashboard → Reserved](https://dashboard.ngrok.com/reserved). As of 03/2018 that requires Ngrok Business plan.
-
-For example your reserved domain could be `abcdefgh.ngrok.io` and reserved TCP address `0.tcp.ngrok.io:12345`.
 
 See more configuration options from [Ngrok documentation](https://ngrok.com/docs#tunnel-definitions).
 

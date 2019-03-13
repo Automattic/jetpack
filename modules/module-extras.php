@@ -26,7 +26,13 @@ $tools = array(
 	'verification-tools/verification-tools-utils.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'geo-location.php',
-	'class.jetpack-calypsoify.php',
+	'calypsoify/class.jetpack-calypsoify.php',
+
+	// Keep working the VideoPress videos in existing posts/pages when the module is deactivated
+	'videopress/utility-functions.php',
+	'videopress/class.videopress-gutenberg.php',
+
+	'plugin-search.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode
@@ -36,11 +42,6 @@ if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 		'seo-tools/jetpack-seo-titles.php',
 		'seo-tools/jetpack-seo-posts.php',
 	);
-}
-
-/* If Gutenberg blocks are enabled, register blocks that aren't associated with modules */
-if ( Jetpack_Gutenberg::should_load_blocks() ) {
-	$tools[] = 'blocks.php';
 }
 
 /**

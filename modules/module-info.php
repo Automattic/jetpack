@@ -102,7 +102,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
 function publicize_more_info() { ?>
 	<?php esc_html_e(
-		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr, Google+,
+		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr,
 		and LinkedIn. You can add connections for yourself or for all users on your site.'
 		, 'jetpack' );
 }
@@ -699,3 +699,16 @@ function jetpack_assetcdn_more_info() {
 	);
 }
 add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' );
+
+/**
+ * Copy Post
+ */
+function jetpack_copy_post_more_link() {
+	echo 'https://jetpack.com/support/copy-post-2/';
+}
+add_action( 'jetpack_learn_more_button_copy-post', 'jetpack_copy_post_more_link' );
+
+function jetpack_more_info_copy_post() {
+	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );

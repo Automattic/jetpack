@@ -14,15 +14,10 @@ import Banner from 'components/banner';
  * Internal dependencies
  */
 import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
-import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import {
-	getVaultPressData,
-	getVaultPressScanThreatCount,
-} from 'state/at-a-glance';
+import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import includes from 'lodash/includes';
 import { isModuleActivated } from 'state/modules';
@@ -40,13 +35,14 @@ class LoadingCard extends Component {
 					disableInDevMode
 					module={ { module: 'backups' } }
 					support={ {
-						text: __( 'Backs up your site to the global WordPress.com servers, ' +
-							'allowing you to restore your content in the event of an emergency or error.' ),
+						text: __(
+							'Backs up your site to the global WordPress.com servers, ' +
+								'allowing you to restore your content in the event of an emergency or error.'
+						),
 						link: 'https://help.vaultpress.com/get-to-know/',
-					} }>
-					{
-						__( 'Checking site status…' )
-					}
+					} }
+				>
+					{ __( 'Checking site status…' ) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
@@ -59,14 +55,18 @@ class BackupsScanRewind extends Component {
 			return __( 'Unavailable in Dev Mode.' );
 		}
 
-		return <Banner
-			title={ __( 'Connected' ) }
-			icon="checkmark-circle"
-			feature={ 'rewind' }
-			description={ __( 'Your site is being backed up in real time and regularly scanned for security threats.' ) }
-			className="is-upgrade-premium jp-banner__no-border"
-			href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
-		/>;
+		return (
+			<Banner
+				title={ __( 'Connected' ) }
+				icon="checkmark-circle"
+				feature={ 'rewind' }
+				description={ __(
+					'Your site is being backed up in real time and regularly scanned for security threats.'
+				) }
+				className="is-upgrade-premium jp-banner__no-border"
+				href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+			/>
+		);
 	};
 
 	render() {
@@ -76,14 +76,15 @@ class BackupsScanRewind extends Component {
 				{ ...this.props }
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				action={ 'rewind' }
-				hideButton>
+				hideButton
+			>
 				{ this.getCardText() }
 			</SettingsCard>
 		);
 	}
 }
 
-export const BackupsScan = moduleSettingsForm(
+export const BackupsScan = withModuleSettingsFormHelpers(
 	class extends Component {
 		toggleModule = ( name, value ) => {
 			this.props.updateFormStateOptionValue( name, ! value );
@@ -94,7 +95,11 @@ export const BackupsScan = moduleSettingsForm(
 		};
 
 		getCardText() {
-			const backupsEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'backups' ], false ),
+			const backupsEnabled = get(
+					this.props.vaultPressData,
+					[ 'data', 'features', 'backups' ],
+					false
+				),
 				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 			let cardText = '';
@@ -108,22 +113,27 @@ export const BackupsScan = moduleSettingsForm(
 			if ( backupsEnabled && scanEnabled ) {
 				const threats = this.props.hasThreats;
 				if ( threats ) {
-					return <div>
-						<strong>
-							{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
-								{
+					return (
+						<div>
+							<strong>
+								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 									count: threats,
 									args: {
-										number: numberFormat( threats )
-									}
-								}
-							) }
-						</strong>
-						<br /><br />
-						{ __( '{{a}}View details{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
-						<br />
-						{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } ) }
-					</div>;
+										number: numberFormat( threats ),
+									},
+								} ) }
+							</strong>
+							<br />
+							<br />
+							{ __( '{{a}}View details{{/a}}', {
+								components: { a: <a href="https://dashboard.vaultpress.com/" /> },
+							} ) }
+							<br />
+							{ __( '{{a}}Contact Support{{/a}}', {
+								components: { a: <a href="https://jetpack.com/support" /> },
+							} ) }
+						</div>
+					);
 				}
 				return __( 'Your site is backed up and threat-free.' );
 			}
@@ -142,7 +152,9 @@ export const BackupsScan = moduleSettingsForm(
 					break;
 				case 'is-premium-plan':
 				case 'is-business-plan':
-					cardText = __( 'You have paid for backups and security scanning but they’re not yet active.' );
+					cardText = __(
+						'You have paid for backups and security scanning but they’re not yet active.'
+					);
 					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
 					break;
 			}
@@ -155,10 +167,16 @@ export const BackupsScan = moduleSettingsForm(
 				return null;
 			}
 
-			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
+			const scanEnabled = get(
+				this.props.vaultPressData,
+				[ 'data', 'features', 'security' ],
+				false
+			);
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
 			const hasRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false );
-			const hasVpData = this.props.vaultPressData !== 'N/A' && false !== get( this.props.vaultPressData, [ 'data' ], false );
+			const hasVpData =
+				this.props.vaultPressData !== 'N/A' &&
+				false !== get( this.props.vaultPressData, [ 'data' ], false );
 
 			if ( ! hasRewindData || ( this.props.vaultPressActive && ! hasVpData ) ) {
 				return <LoadingCard />;
@@ -174,24 +192,31 @@ export const BackupsScan = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					action="scan"
-					hideButton>
+					hideButton
+				>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
 						support={ {
-							text: __( 'Backs up your site to the global WordPress.com servers, ' +
-								'allowing you to restore your content in the event of an emergency or error.' ),
+							text: __(
+								'Backs up your site to the global WordPress.com servers, ' +
+									'allowing you to restore your content in the event of an emergency or error.'
+							),
 							link: 'https://help.vaultpress.com/get-to-know/',
-						} }>
-						{
-							this.getCardText()
-						}
+						} }
+					>
+						{ this.getCardText() }
 					</SettingsGroup>
-					{
-						( ! this.props.isUnavailableInDevMode( 'backups' ) && scanEnabled ) && (
-							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href="https://dashboard.vaultpress.com/">{ __( 'Configure your Security Scans' ) }</Card>
-						)
-					}
+					{ ! this.props.isUnavailableInDevMode( 'backups' ) && scanEnabled && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackConfigureClick }
+							href="https://dashboard.vaultpress.com/"
+						>
+							{ __( 'Configure your Security Scans' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

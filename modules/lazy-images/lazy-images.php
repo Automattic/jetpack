@@ -40,6 +40,10 @@ class Jetpack_Lazy_Images {
 			return;
 		}
 
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
@@ -99,11 +103,6 @@ class Jetpack_Lazy_Images {
 
 		// Don't lazy-load if the content has already been run through previously
 		if ( false !== strpos( $content, 'data-lazy-src' ) ) {
-			return $content;
-		}
-
-		// Don't lazyload for amp-wp content
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -281,7 +280,8 @@ class Jetpack_Lazy_Images {
 	public function add_nojs_fallback() {
 		?>
 			<style type="text/css">
-				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
+				/* If html does not have either class, do not show lazy loaded images. */
+				html:not( .jetpack-lazy-images-js-enabled ):not( .js ) .jetpack-lazy-image {
 					display: none;
 				}
 			</style>
@@ -339,9 +339,6 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(

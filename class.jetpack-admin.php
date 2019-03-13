@@ -165,7 +165,7 @@ class Jetpack_Admin {
 					 */
 					apply_filters( 'jetpack_module_configurable_' . $module, false )
 				) {
-					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
+					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $module_array['configure_url'] ), __( 'Configure', 'jetpack' ) );
 				}
 
 				$modules[ $module ] = $module_array;
@@ -251,6 +251,7 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_debugger() {
+		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
 			null,
@@ -272,6 +273,7 @@ class Jetpack_Admin {
 	}
 
 	function debugger_page() {
+		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 }
