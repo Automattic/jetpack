@@ -124,6 +124,10 @@
 	margin: 0;
 }
 
+.jp-landing__plan-iconcard-current h3 {
+	font-size: 1.5em;
+}
+
 .jp-landing__plan-features-card {
 	display: flex;
 	flex-wrap: nowrap;
@@ -136,10 +140,6 @@
 
 	.is-loading & {
 		width: 49.5%;
-	}
-
-	&:nth-child(2n + 1):nth-last-of-type(1) {
-		min-width: 100%;
 	}
 
 	@include breakpoint( ">660px" ) {
