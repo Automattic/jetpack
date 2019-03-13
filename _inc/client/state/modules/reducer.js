@@ -5,6 +5,7 @@ import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
 import includes from 'lodash/includes';
+import intersection from 'lodash/intersection';
 
 /**
  * Internal dependencies
@@ -24,6 +25,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 } from 'state/action-types';
+import { isPluginActive } from 'state/site/plugins';
 
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -235,6 +237,50 @@ export function getModulesThatRequireConnection( state ) {
 	);
 }
 
+/**
+ * Check that the module list includes at least one of these modules.
+ *
+ * @param  {Object} state   Global state tree
+ * @param  {array}   modules Modules that are probably included in the module list.
+ *
+ * @return {boolean}         True if at least one of the modules is included in the list.
+ */
+export function hasAnyOfTheseModules( state, modules = [] ) {
+	const moduleList = Object.keys( getModules( state ) );
+	return 0 < intersection( moduleList, modules ).length;
+}
+
+/**
+ * Check that the site has any of the performance features available.
+ *
+ * @param  {Object} state   Global state tree
+ *
+ * @return {boolean}        True if at least one of the performance features is available
+ */
+export function hasAnyPerformanceFeature( state ) {
+	return hasAnyOfTheseModules( state, [
+		'carousel',
+		'lazy-images',
+		'photon',
+		'photon-cdn',
+		'search',
+		'videopress',
+	] );
+}
+
+/**
+ * Check that the site has any of the security features available.
+ *
+ * @param  {Object} state   Global state tree
+ *
+ * @return {boolean}        True if at least one of the security features is available.
+ */
+export function hasAnySecurityFeature( state ) {
+	return (
+		hasAnyOfTheseModules( state, [ 'protect', 'sso', 'vaultpress' ] ) ||
+		isPluginActive( state, 'akismet/akismet.php' )
+	);
+}
 /**
  * Returns true if the module is activated
  * @param  {Object}  state Global state tree
