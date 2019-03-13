@@ -2,7 +2,6 @@
 /**
  * Module Name: Sharing
  * Module Description: Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.
- * Jumpstart Description: Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.
  * Sort Order: 7
  * Recommendation Order: 6
  * First Introduced: 1.1
@@ -10,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Engagement, Jumpstart
+ * Feature: Engagement
  * Additional Search Queries: share, sharing, sharedaddy, social buttons, buttons, share facebook, share twitter, social media sharing, social media share, social share, icons, email, facebook, twitter, linkedin, pinterest, pocket, social widget, social media
  */
 
