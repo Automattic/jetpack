@@ -311,34 +311,24 @@ function prepare_files_for_sniff( $changed_files, $base_dir, $version = 'new' ) 
 function get_changed_files_changed_lines( $changed_files, $base_dir, $version = 'new' ) {
 	$changed_lines = [];
 	foreach ( $changed_files as $changed_file ) {
-		$file_path       = "{$base_dir}{$changed_file[ $version . '_file' ]}";
-		$is_working_tree = is_change_in_working_tree( $changed_file );
+		$file_path = "{$base_dir}{$changed_file[ $version . '_file' ]}";
 
 		switch ( $changed_file['status'] ) {
 			// Take note of the changed lines so we can filter out sniff information from unchanged lines later.
-			case 'M': // Modified.
-			case 'R': // Renamed.
-			case 'C': // Copied.
-				$lines = get_changed_lines(
-					$changed_file['old_hash'],
-					$is_working_tree ? $changed_file['new_file'] : $changed_file['new_hash'],
-					$version
-				);
+			case 'A': // Added.
+				if ( 'new' === $version ) {
+					// An empty array is the flag telling filter_cache_changed_lines()
+					// to look at all lines of added files.
+					$changed_lines[ $file_path ] = [];
+				}
+				break;
+			default: // M: Modified, R: Renamed, C: Copied.
+				$lines = get_changed_lines( $changed_file, $version );
 
 				if ( $lines ) {
 					$changed_lines[ $file_path ] = $lines;
 				}
 				break;
-			case 'A': // Added.
-				if ( 'new' === $version ) {
-					$changed_lines[ $file_path ] = [];
-				}
-				break;
-			default:
-				// Other options are Unmerged (U), Type Changed (T), Unknown (X).
-				// We already filtered out Deleted (D) with `--diff-filter=d`.
-				fwrite( STDERR, sprintf( "SNIFF DIFF: I don't know what to do with file '%s' of type '%s'.\n", $changed_file['new_file'], $changed_file['status'] ) );
-				exit( 5 );
 		}
 	}
 
@@ -501,6 +491,9 @@ function get_changed_files( $args ) {
 			'--raw',           // Special format that is easy to parse.
 			'--diff-filter=d', // We don't care about deleted files.
 			'--abbrev=40',     // Output the full blob hash, not an abbreviated form.
+
+			'-U0',             // Also output a unified diff (with no context) to determine line changes.
+			'--full-index',    // Output the full blob hash, not an abbreviated form.
 		],
 		$args
 	);
@@ -513,20 +506,20 @@ function get_changed_files( $args ) {
 		exit( 5 );
 	}
 
+	list( $raw, $u0 ) = explode( "\n\n", $diff_output );
+
 	// `trim()` to get rid of PHP_EOL inconsistencies between environments
-	$diff_lines = array_map(
-		function( $line ) {
-			return trim( $line );
-		},
-		explode( "\n", trim( $diff_output ) )
-	);
+	$raw_diffs = array_map( 'trim', explode( "\n", trim( $raw ) ) );
+	$u0_diffs  = preg_split( '/^(?=diff --git)/m', $u0, -1, PREG_SPLIT_NO_EMPTY );
 
-	$files = [];
-	foreach ( $diff_lines as $diff_line ) {
-		if ( ! $diff_line ) {
-			continue;
-		}
+	if ( count( $raw_diffs ) !== count( $u0_diffs ) ) {
+		fwrite( STDERR, sprintf( "SNIFF DIFF: `%s` output unexpected results\n", join( ' ', $git_args ) ) );
+		exit( 5 );
+	}
 
+	$files           = [];
+	$is_working_tree = null;
+	foreach ( $raw_diffs as $diff_index => $raw_diff ) {
 		// @see `git help diff` "RAW OUTPUT FORMAT"
 		// https://git-scm.com/docs/git-diff#_raw_output_format
 		//
@@ -534,11 +527,13 @@ function get_changed_files( $args ) {
 		// file at the revisions in question.
 		//
 		// ($dst only exists for Copied and Renamed files.)
-		@list( $head, $src, $dst )                                  = explode( "\t", $diff_line ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@list( $head, $src, $dst )                                  = explode( "\t", $raw_diff ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		list( $src_mode, $dst_mode, $src_hash, $dst_hash, $status ) = explode( ' ', $head ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Use only the first character: R and C come with extra characters.
-		switch ( $status{0} ) {
+		$status_char = $status{0};
+
+		switch ( $status_char ) {
 			case 'M': // Modifed: source -> destination.
 				$file = [
 					'old_file' => $src,
@@ -557,7 +552,6 @@ function get_changed_files( $args ) {
 				break;
 			case 'R': // Renamed: source -> destination.
 			case 'C': // Copied: source -> destination.
-			default: // Other options are Unmerged (U), Type Changed (T), Unknown (X).
 				$file = [
 					'old_file' => $src,
 					'old_hash' => $src_hash,
@@ -565,11 +559,36 @@ function get_changed_files( $args ) {
 					'new_hash' => $dst_hash,
 				];
 				break;
+			default:
+				// Other options are Unmerged (U), Type Changed (T), Unknown (X).
+				// We already filtered out Deleted (D) with `--diff-filter=d`.
+				fwrite( STDERR, sprintf( "SNIFF DIFF: I don't know what to do with file '%s' of type '%s'.\n", $dst ? $dst : $src, $status ) );
+				exit( 5 );
 		}
 
-		$file['status'] = $status{0};
+		$file['status'] = $status_char;
 
-		$files[] = $file;
+		// Bail if one side of the diff consists of some filees with changes in the
+		// working tree and other files with changes only in the db/index.
+		// git diff index: <-> working tree: OK!
+		// git diff --staged: db <-> index: OK!
+		// git diff branch1 branch2: db <-> db: OK!
+		// git diff master: db <-> working tree: Fails sometimes!
+		// The last example will fail if both of the following conditions are met:
+		// 1. There is at least one file that has changed since master but has no changes in the working tree.
+		// .. These files have changes, but only in the db.
+		// 2. There is at least one file that has changes in the working tree.
+		// There is no technical reason why we can't sniff this sort of diff.
+		// This script just doesn't know what to do with them.
+		// @todo remove this constraint by adjusting prepare_files_for_sniff() to copy the required working tree files to the $cache_dir.
+		if ( ! isset( $is_working_tree ) ) {
+			$is_working_tree = is_change_in_working_tree( $file );
+		} elseif ( is_change_in_working_tree( $file ) !== $is_working_tree ) {
+			fwrite( STDERR, "SNIFF DIFF: Diff contains mix of git database/index changes and working tree changes. I don't know what to do with that.\n" );
+			exit( 5 );
+		}
+
+		$files[] = add_changed_lines( $file, $u0_diffs[ $diff_index ] );
 	}
 
 	return $files;
@@ -582,38 +601,21 @@ function get_changed_files( $args ) {
  * Only cares about destination lines that are different than source
  * lines. That is, only modified or created lines, not deleted lines.
  *
- * @param string $src The blob hash of the source file.
- * @param string $dst The pathname or blob hash of the destination file.
- * @param string $version Whether to look at the new version of the files (default) or old.
- * @return int[]
+ * @param array  $file A file entry from `get_changed_files()`.
+ * @param string $u0_diff A `git diff -U0` string.
+ * @return array Modified $file.
  */
-function get_changed_lines( $src, $dst, $version = 'new' ) {
-	static $files = [];
+function add_changed_lines( $file, $u0_diff ) {
+	$file['changed_lines'] = [ [], [] ];
 
-	$file_key = "$src:$dst";
-
-	if ( isset( $files[ $file_key ] ) ) {
-		return $files[ $file_key ][ 'old' === $version ? 0 : 1 ];
-	}
-
-	// For comparing two version of the file in the repo:
-	// `git diff <blob> <blob>`
-	// For comparing a version of the file in the repo against the
-	// working copy of that file:
-	// `git diff <blob> <file>`
-	// <blob> is a blob hash, <file> is a file path.
-	$args        = [ 'git', 'diff', '-U0', '--no-color', $src, $dst ];
-	$diff_status = 0;
-	$diff        = proc( $args, $diff_status );
-
-	if ( $diff_status ) {
-		fwrite( STDERR, sprintf( "SNIFF DIFF: `%s` FAILED with exit code `%d`\n", join( ' ', $args ), $diff_status ) );
-		exit( 5 );
+	if ( 'A' === $file['status'] ) {
+		// We never need to care about newly-added files' changed lines.
+		return $file;
 	}
 
 	// Find the range markers for each chunk.
-	preg_match_all( '/^@@ -([0-9,]+) \\+([0-9,]+) @@/m', $diff, $matches, PREG_SET_ORDER );
-	$lines = [ [], [] ];
+	preg_match_all( '/^@@ -([0-9,]+) \\+([0-9,]+) @@/m', $u0_diff, $matches, PREG_SET_ORDER );
+
 	foreach ( $matches as list( , $old_range, $new_range ) ) {
 		foreach ( [ $old_range, $new_range ] as $old_or_new => $range ) {
 			// $range is either "123,456" or "123".
@@ -631,20 +633,32 @@ function get_changed_lines( $src, $dst, $version = 'new' ) {
 				// @@ -123,10 +456,10 @@
 				// NEW: There are multiple lines for the destination in this chunk.
 				// OLD: There are multiple lines for the source in this chunk.
-				array_push( $lines[ $old_or_new ], ...range( $first, $first + $length - 1 ) );
+				array_push( $file['changed_lines'][ $old_or_new ], ...range( $first, $first + $length - 1 ) );
 			} else {
 				// NEW: @@ -123,10 +456 @@
 				// If the length is '', there is only one line for the destination in this chunk.
 				//
 				// OLD: @@ -123 +456,10 @@
 				// If the length is '', there is only one line for the source in this chunk.
-				$lines[ $old_or_new ][] = (int) $first;
+				$file['changed_lines'][ $old_or_new ][] = (int) $first;
 			}
 		}
 	}
 
-	$files[ $file_key ] = $lines;
-	return $lines[ 'old' === $version ? 0 : 1 ];
+	return $file;
+}
+
+/**
+ * Returns previously cached changed lines.
+ *
+ * @see set_changed_lines()
+ *
+ * @param array  $file A file entry from `get_changed_files()`.
+ * @param string $version Whether to look at the new version of the files (default) or old.
+ * @return int[] Changed lines.
+ */
+function get_changed_lines( $file, $version = 'new' ) {
+	return $file['changed_lines'][ 'old' === $version ? 0 : 1 ];
 }
 
 /**
