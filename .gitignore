@@ -4,7 +4,8 @@
 /vendor/
 /wpcom-test-backup/
 /.vscode/
-
+/extensions/node_modules
+/build
 
 ## FILES
 .DS_Store
