@@ -85,12 +85,12 @@ abstract class Jetpack_Admin_Page {
 	function admin_head() {
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
 			/**
-			 * Fires in the <head> of a particular Jetpack configuation page.
+			 * Fires in the <head> of a particular Jetpack configuration page.
 			 *
 			 * The dynamic portion of the hook name, `$_GET['configure']`,
 			 * refers to the slug of module, such as 'stats', 'sso', etc.
 			 * A complete hook for the latter would be
-			 * 'jetpack_module_configuation_head_sso'.
+			 * 'jetpack_module_configuration_head_sso'.
 			 *
 			 * @since 3.0.0
 			 */

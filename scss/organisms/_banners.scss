@@ -52,8 +52,16 @@
 		background: rgb( 241, 241, 241 );
 		text-align: center;
 
+		@include breakpoint(large-phone) {
+			top: 42px;
+		};
+
+		@include minbreakpoint(tablet) {
+			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
+		};
+
 		.jp-connect-full__container-card {
-			padding: rem( 48px ) rem( 64px ) rem( 96px );
+			padding: rem( 64px ) rem( 64px ) rem( 96px );
 			background: white;
 			margin: 1em;
 
@@ -73,10 +81,6 @@
 			font-weight: normal;
 			margin: 1em 0;
 		}
-
-		@include minbreakpoint(tablet) {
-			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
-		};
 
 	}
 
@@ -120,10 +124,6 @@
 	padding: rem( 16px );
 	height: rem( 24px );
 	width: rem( 24px );
-
-	@include breakpoint(phablet) {
-		top: rem( 50px );
-	};
 }
 
 .jp-connect-full__step-header {
@@ -132,10 +132,14 @@
 	line-height: 1.5;
 
 	h2 {
-		margin: rem( 24px ) 0 0;
+		margin: rem( 24px ) 10% 0;
 		font-size: rem( 22px );
 		font-weight: bold;
 		color: black;
+
+		@include breakpoint(large-phone) {
+			margin: rem( 24px ) 0 0;
+		};
 	}
 
 	h3 {
@@ -149,21 +153,14 @@
 		margin-top: rem( 80px );
 	}
 }
-.jp-connect-full__tos-blurb {
-	font-size: rem( 11px );
-	margin: 0 auto rem( 24px );
-	color: $gray-text-min;
-	a{
-		text-decoration: none;
-		color: $green-primary;
-	}
-}
 
 .jp-connect-full__button-container {
 	margin: 0;
 	.dops-button.is-primary {
 		background: $green-primary;
 		border-color: $green-secondary;
+		padding-left: rem( 24px );
+		padding-right: rem( 24px );
 
 		&:hover, &:focus {
 			background: $green-secondary;
@@ -172,62 +169,51 @@
 	}
 }
 
+.jp-connect-full__tos-blurb {
+	font-size: rem( 11px );
+	margin: 0 auto rem( 16px );
+}
+
 .jp-connect-full__dismiss {
 	cursor: pointer;
 }
 
 .jp-connect-full__dismiss-paragraph {
 	font-size: .6875rem;
+}
 
-	a {
-		cursor: pointer;
-		color: $gray-text-min;
-		text-decoration: none;
-	}
+.jp-connect-full__tos-blurb a,
+.jp-connect-full__dismiss-paragraph a {
+	cursor: pointer;
+	color: inherit;
+	text-decoration: underline;
+}
 
-	a:hover {
-		text-decoration: underline;
-	}
+.jp-connect-full__row {
+  display: flex;
+  justify-content: space-evenly;
+  text-align: left;
+	align-items: baseline;
 }
 
 .jp-connect-full__slide {
-	max-width: 750px;
-	margin: 4em auto;
-	display: flex;
-	flex-direction: row;
-	justify-content: stretch;
+	max-width: 35%;
+	margin: rem(48px) 0;
 
 	@include breakpoint(tablet) {
-		flex-wrap: wrap;
-	};
+		margin: rem(30px) 0;
+	}
 
-	.jp-connect-full__slide-card {
-		flex: 1;
-		text-align: left;
-		order: 2;
-
-		@include minbreakpoint(tablet) {
-			order: unset;
-		};
+	p {
+		font-size: rem(14px);
 	}
 
 	.illustration {
-		order: 1;
+		padding: rem(12px);
 
-		@include minbreakpoint(tablet) {
-			order: unset;
+		@include minbreakpoint(phablet) {
+			margin-bottom: rem(42px);
 		};
-
-		img {
-			margin: 2.5em 1em;
-			display: block;
-			min-width: 200px;
-
-			@include minbreakpoint(phablet) {
-				margin: 2.5em auto;
-				width: 75%;
-			};
-		}
 	}
 }
 
@@ -249,6 +235,19 @@
 		font-weight: normal;
 		margin: rem( 10px ) 0 rem( 24px );
 	}
+}
+
+@media screen and (max-width: 480px) {
+  .jp-connect-full__row {
+	display: block;
+  }
+  .jp-connect-full__slide {
+	margin: 2em 0;
+	max-width: 100%;
+  }
+  .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
+	padding: rem(48px) rem(32px);
+  }
 }
 
 
