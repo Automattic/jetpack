@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.10
+// @version      1.11
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -16,9 +16,8 @@
 		const branch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = branch.includes( ':' );
 		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
-		const isGutenbergPr = $( ".discussion-sidebar .sidebar-labels .labels a[title='Gutenberg']" ).length;
 		const base = 'https://jurassic.ninja/create?';
-		const query = `jetpack-beta&branch=${ branch }&wp-debug-log${ isGutenbergPr ? '&gutenpack' : '' }`;
+		const query = `jetpack-beta&branch=${ branch }&wp-debug-log`;
 		let link = base + query;
 		const canLiveTestText =
 			`<div id="jetpack-live-branches">
@@ -28,7 +27,6 @@
 			<li class="task-list-item enabled"><input type="checkbox" name="shortlived" class="task-list-item-checkbox">Launch a shortlived site</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" class="task-list-item-checkbox">Launch with Gutenberg installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="gutenpack" ${ isGutenbergPr ? 'checked' : '' } class="task-list-item-checkbox">Launch with built blocks</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wordpress-4" class="task-list-item-checkbox">Launch with latest WordPress 4.9 instead</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="classic-editor" class="task-list-item-checkbox">Launch with Classic Editor plugin</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>
