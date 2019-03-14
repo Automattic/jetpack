@@ -435,12 +435,44 @@ class Jetpack_Gutenberg {
 		}
 
 		$type = sanitize_title_with_dashes( $type );
+		self::load_styles_as_required( $type );
+		self::load_scripts_as_required( $type, $script_dependencies );
+	}
+
+	/**
+	 * Only enqueue block sytles when needed.
+	 *
+	 * @param string $type slug of the block.
+	 *
+	 * @return void
+	 */
+	public static function load_styles_as_required( $type ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
 		// Enqueue styles.
 		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+		}
+
+	}
+	/**
+	 * Only enqueue block scripts when needed.
+	 *
+	 * @param string $type slug of the block.
+	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 *
+	 * @return void
+	 */
+	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
 		}
 
 		// Enqueue script.
