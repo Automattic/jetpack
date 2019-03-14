@@ -27,7 +27,6 @@
 			<li class="task-list-item enabled"><input type="checkbox" name="shortlived" class="task-list-item-checkbox">Launch a shortlived site</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" class="task-list-item-checkbox">Launch with Gutenberg installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="wordpress-4" class="task-list-item-checkbox">Launch with latest WordPress 4.9 instead</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="classic-editor" class="task-list-item-checkbox">Launch with Classic Editor plugin</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>
 			<li class="task-list-item enabled"><input type="checkbox" name="code-snippets" class="task-list-item-checkbox">Launch with Code Snippets installed</li>
