@@ -526,17 +526,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'goodreads.com',
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
-			),
-			array(
-				'url'   => 'google.com/+',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
-			array(
-				'url'   => 'plus.google.com',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
+			),			
 			array(
 				'url'   => 'google.com',
 				'icon'  => 'google',
