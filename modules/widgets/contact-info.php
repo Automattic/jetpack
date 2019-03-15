@@ -348,9 +348,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$address = strtolower( $address );
 			$address = preg_replace( '/\s+/', ' ', trim( $address ) ); // Get rid of any unwanted whitespace
 			$address = str_ireplace( ' ', '+', $address ); // Use + not %20
-			urlencode( $address );
-
-			return $address;
+			return urlencode( $address );
 		}
 
 		/**
