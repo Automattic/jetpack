@@ -287,8 +287,10 @@ class Jetpack_Plugin_Search {
 			);
 			uasort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
-			// Record event when user searches for a term
-			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+			// Record event when user searches for a term over 3 chars (less than 3 is not very useful.)
+			if ( strlen( $args->search ) >= 3 ) {
+				JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+			}
 
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
 			$normalized_term = $this->sanitize_search_term( $args->search );
