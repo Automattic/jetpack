@@ -67,9 +67,7 @@ class RelatedPostsComponent extends React.Component {
 					} }
 				>
 					<p className="jp-form-setting-explanation">
-						{ __(
-							"These settings won't apply to related posts added using the block editor."
-						) }
+						{ __( "These settings won't apply to related posts added using the block editor." ) }
 					</p>
 					<ModuleToggle
 						slug="related-posts"
