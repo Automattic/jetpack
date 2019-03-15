@@ -15,6 +15,64 @@ jetpack_register_block(
 );
 
 /**
+ * Filter oEmbed HTML for Giphy to to replace GIF image with iframe/amp-iframe.
+ *
+ * @param mixed  $return The shortcode callback function to call.
+ * @param string $url    The attempted embed URL.
+ * @param array  $attr   An array of shortcode attributes.
+ * @return string Embed.
+ */
+function jetpack_filter_giphy_oembed_html( $return, $url, $attr ) {
+	unset( $attr ); // @todo Consider any width/height in $attr?
+	if ( 'giphy.com' !== wp_parse_url( $url, PHP_URL_HOST ) ) {
+		return $return;
+	}
+	if ( ! preg_match( '#^/gifs/(.*-)?(.+?)$#', wp_parse_url( $url, PHP_URL_PATH ), $matches ) ) {
+		return $return;
+	}
+
+	$id = $matches[2];
+
+	$width  = null;
+	$height = null;
+	$alt    = '';
+	if ( preg_match( '/width="(\d+)"/', $return, $matches ) ) {
+		$width = intval( $matches[1] );
+	}
+	if ( preg_match( '/height="(\d+)"/', $return, $matches ) ) {
+		$height = intval( $matches[1] );
+	}
+	if ( preg_match( '/alt="(.*?)"/', $return, $matches ) ) {
+		$alt = $matches[1];
+	}
+	if ( ! $width && ! $height ) {
+		return $return;
+	}
+
+	$iframe = sprintf(
+		'<iframe src="%s" width="%s" height="%s" title="%s"></iframe>',
+		esc_url( "https://giphy.com/embed/$id" ),
+		esc_attr( $width ),
+		esc_attr( $height ),
+		esc_attr( $alt )
+	);
+
+	if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+		return $iframe;
+	}
+
+	return sprintf(
+		'<amp-iframe src="%s" width="%s" height="%s" sandbox="allow-scripts allow-same-origin" layout="responsive">%s<noscript>%s</noscript></amp-iframe>',
+		esc_url( "https://giphy.com/embed/$id" ),
+		esc_attr( $width ),
+		esc_attr( $height ),
+		sprintf( '<a href="%s" placeholder>%s</a>', esc_url( $url ), esc_html( $alt ) ),
+		$iframe
+	);
+}
+add_filter( 'embed_oembed_html', 'jetpack_filter_giphy_oembed_html', 10, 3 );
+
+/**
  * Gif block registration/dependency declaration.
  *
  * @param array $attr - Array containing the gif block attributes.
