@@ -993,7 +993,7 @@ jQuery(document).ready(function($) {
 			var imageLinkParser = document.createElement( 'a' );
 			imageLinkParser.href = args.large_file;
 
-			var isPhotonUrl = ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) != null );
+			var isPhotonUrl = /^i[0-2].wp.com$/i.test( imageLinkParser.hostname );
 
 			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
 			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
