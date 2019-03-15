@@ -42,10 +42,6 @@ There are two stages of testing wpcomsh:
 The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)).
 However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
-The second stage of testing your changes to wpcomsh is to [get it deployed](#deployment) on the AT staging server (currently Pressable `web12`) and test on a transferred site which was pointed to this staging server. If you don't have any, you can use [@lamosty's ones](https://mc.a8c.com/secret-store/?secret_id=2977).
-
-Only after you've tested your changes to wpcomsh on the AT staging server you can deploy it on the prod server.
-
 Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
 
 ## Deployment
