@@ -464,7 +464,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only enqueue block scripts when needed.
 	 *
-	 * @param string $type slug of the block.
+	 * @param string $type Slug of the block.
 	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
 	 *
 	 * @return void
