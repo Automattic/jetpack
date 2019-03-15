@@ -602,45 +602,4 @@ wp_oembed_add_provider( '#https?://(.+\.)?polldaddy\.com/.*#i', 'https://api.cro
 wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 wp_oembed_add_provider( '#https?://poll\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 
-/**
- * Filter oEmbed HTML for PollDaddy to for AMP output.
- *
- * @param string $cache Cache for oEmbed.
- * @param string $url   Embed URL.
- * @param array  $attr  Shortcode attributes.
- * @return string Embed.
- */
-function crowdsignal_filter_amp_embed_oembed_html( $cache, $url, $attr ) {
-	if ( ! Jetpack_AMP_Support::is_amp_request() ) {
-		return $cache;
-	}
-
-	$parsed_url = wp_parse_url( $url );
-	if ( false === strpos( $parsed_url['host'], 'polldaddy.com' ) && false === strpos( $parsed_url['host'], 'crowdsignal.com' ) ) {
-		return $cache;
-	}
-
-	$output = '';
-
-	// Poll oEmbed responses include noscript which can be used as the AMP response.
-	if ( preg_match( '#<noscript>(.+?)</noscript>#s', $cache, $matches ) ) {
-		$output = $matches[1];
-	}
-
-	if ( empty( $output ) ) {
-		if ( ! empty( $attr['title'] ) ) {
-			$name = $attr['title'];
-		} elseif ( false !== strpos( $url, 'polldaddy.com/s' ) || false !== strpos( $url, 'survey.fm' ) ) {
-			$name = __( 'View Survey', 'amp' );
-		} else {
-			$name = __( 'View Poll', 'amp' );
-		}
-		$output = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $url ), esc_html( $name ) );
-	}
-
-	return $output;
-}
-
-add_filter( 'embed_oembed_html', 'crowdsignal_filter_amp_embed_oembed_html', 10, 3 );
-
 }
