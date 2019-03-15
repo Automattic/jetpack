@@ -65,7 +65,7 @@
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/jetpack-blocks": "13.1.1",
     "babel-core": "6.26.3",
-    "babel-eslint": "6.1.2",
+    "babel-eslint": "10.0.1",
     "babel-loader": "7.1.5",
     "babel-plugin-add-module-exports": "0.2.1",
     "babel-plugin-transform-es3-member-expression-literals": "6.22.0",
