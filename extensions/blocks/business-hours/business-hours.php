@@ -12,6 +12,49 @@ jetpack_register_block(
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );
 
+function jetpack_business_hours_get_default_days() {
+	return array(
+		array(
+			'name' => 'Sun',
+			'hours' => array(),
+		),
+		array(
+			'name' => 'Mon',
+			'hours' => array(
+				array( 'opening' => '09:00', 'closing' => '17:00' )
+			),
+		),
+		array(
+			'name' => 'Tue',
+			'hours' => array(
+				array( 'opening' => '09:00', 'closing' => '17:00' )
+			),
+		),
+		array(
+			'name' => 'Wed',
+			'hours' => array(
+				array( 'opening' => '09:00', 'closing' => '17:00' )
+			),
+		),
+		array(
+			'name' => 'Thu',
+			'hours' => array(
+				array( 'opening' => '09:00', 'closing' => '17:00' )
+			),
+		),
+		array(
+			'name' => 'Fri',
+			'hours' => array(
+				array( 'opening' => '09:00', 'closing' => '17:00' )
+			),
+		),
+		array(
+			'name' => 'Sat',
+			'hours' => array(),
+		),
+	);
+}
+
 /**
  * Dynamic rendering of the block.
  *
@@ -20,11 +63,11 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_business_hours_render( $attributes, $content ) {
+function jetpack_business_hours_render( $attributes ) {
 	global $wp_locale;
 
 	if ( empty( $attributes['days'] ) || ! is_array( $attributes['days'] ) ) {
-		return $content;
+		$attributes['days'] = jetpack_business_hours_get_default_days();
 	}
 
 	$start_of_week = (int) get_option( 'start_of_week', 0 );
