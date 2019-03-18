@@ -1349,7 +1349,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( is_array( $results ) && isset( $results['plan'] ) ) {
 
 			// Set flag for newly purchased plan
-			$current_plan = Jetpack::get_active_plan();
+			$current_plan = Jetpack_Plan::get_active_plan();
 			if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] && 'jetpack_free' !== $results['plan']['product_slug'] ) {
 				update_option( 'show_welcome_for_new_plan', true ) ;
 			}

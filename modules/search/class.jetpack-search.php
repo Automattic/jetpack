@@ -150,7 +150,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+		if ( ! Jetpack::is_active() || ! Jetpack_Plan::active_plan_supports( 'search' ) ) {
 			return;
 		}
 

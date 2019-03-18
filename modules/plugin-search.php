@@ -454,7 +454,7 @@ class Jetpack_Plugin_Search {
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
-			$links[] = Jetpack::active_plan_supports( $plugin['module'] )
+			$links[] = Jetpack_Plan::active_plan_supports( $plugin['module'] )
 				? '<button
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
