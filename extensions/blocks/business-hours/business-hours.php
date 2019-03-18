@@ -12,6 +12,11 @@ jetpack_register_block(
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );
 
+/**
+ * Get's default days / hours to render a business hour block with no data provided.
+ *
+ * @return array
+ */
 function jetpack_business_hours_get_default_days() {
 	return array(
 		array(
