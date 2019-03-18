@@ -31,11 +31,11 @@ class Jetpack_Memberships {
 	 */
 	static public $post_type_plan = 'jp_mem_plan';
 	/**
-	 * Shortcode to use.
+	 * Button block type to use.
 	 *
 	 * @var string
 	 */
-	static private $shortcode = 'membership';
+	static private $button_block_name = 'membership-button';
 	/**
 	 * Classic singleton pattern
 	 *
@@ -111,22 +111,7 @@ class Jetpack_Memberships {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		$this->register_scripts();
 		$this->setup_cpts();
-		$this->register_shortcode();
-	}
-
-	/**
-	 * Registers JS scripts.
-	 */
-	private function register_scripts() {
-		// According to docs, Stripe should be loaded from their CDN.
-
-		wp_register_script(
-			'memberships', plugins_url( '/memberships.js', __FILE__ ), array(
-				'jquery',
-			), self::$version
-		);
 	}
 
 	/**
@@ -151,8 +136,8 @@ class Jetpack_Memberships {
 			'supports'            => array( 'title', 'custom-fields', 'content' ),
 			'hierarchical'        => false,
 			'public'              => false,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
+			'show_ui'             => false,
+			'show_in_menu'        => false,
 			'show_in_admin_bar'   => false,
 			'show_in_nav_menus'   => false,
 			'can_export'          => true,
@@ -161,7 +146,7 @@ class Jetpack_Memberships {
 			'publicly_queryable'  => false,
 			'rewrite'             => false,
 			'capabilities'        => $capabilities,
-			'show_in_rest'        => true,
+			'show_in_rest'        => false,
 		);
 		register_post_type( self::$post_type_plan, $order_args );
 	}
@@ -190,17 +175,10 @@ class Jetpack_Memberships {
 	public function allow_sync_post_meta( $post_meta ) {
 		$meta_keys = array_map(
 			function( $map ) {
-					return $map['meta'];
+				return $map['meta'];
 			}, $this->get_plan_property_mapping()
 		);
 		return array_merge( $post_meta, array_values( $meta_keys ) );
-	}
-
-	/**
-	 * Initializes the shortcode.
-	 */
-	private function register_shortcode() {
-		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
 	/**
@@ -211,7 +189,9 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function parse_shortcode( $attrs, $content = false ) {
+	public function render_button( $attrs ) {
+		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name);
+
 		if ( empty( $attrs['id'] ) ) {
 			return;
 		}
@@ -223,22 +203,36 @@ class Jetpack_Memberships {
 			return;
 		}
 		$plan = self::product_post_to_array( $product );
-		// We allow for overriding the presentation labels.
-		$data = shortcode_atts(
-			array_merge(
-				array(
-					'blog_id' => $this->get_blog_id(),
-					'dom_id'  => uniqid( self::$css_classname_prefix . '-' . $plan['id'] . '_', true ),
-					'class'   => self::$css_classname_prefix . '-' . $plan['id'],
-				), $plan
-			), $attrs
+		$data = array(
+			'blog_id' => $this->get_blog_id(),
+			'id'	  => $attrs['id'],
+			'button_label' => sprintf( __sprintf( '$s Contribution' ),$this->format_price( $plan ) ),
+			'powered_text' => sprintf( __( 'Powered by <a href="%s" target="_blank">WordPress.com</a>' ), 'https://wordpress.com' ),
 		);
 
-		$data['price'] = $this->format_price( $plan );
+		$classes = array(
+			'components-button',
+			'is-primary',
+			'is-button',
+			'wp-block-jetpack-' . self::$button_block_name,
+			self::$css_classname_prefix . '-' . $data['id'],
+		);
+		if ( isset( $attrs['className'] ) ) {
+			array_push( $classes, $attrs['className'] );
+		}
+		if ( isset( $attrs['submitButtonText'] ) ) {
+			$data['button_label'] = $attrs['submitButtonText'];
+		}
 
-		$data['id'] = $attrs['id'];
-
-		return $this->output_purchase_modal_button( $data );
+		return sprintf(
+			'<button data-blog-id="%i" data-powered-text="%s" data-plan-id="%i" class="%s">%s</button>',
+			$data['blog_id'],
+			$data['powered_text'],
+			$data['id'],
+			implode( $classes, ' ' ),
+			$data['button_label']
+		);
+		return "<a class='{$data['class']}' style='{$data['style']}' id='{$data['dom_id']}'>{$data['content']}</a>";
 	}
 
 	private function get_blog_id() {
@@ -249,50 +243,6 @@ class Jetpack_Memberships {
 		return Jetpack_Options::get_option( 'id' );
 	}
 
-	/**
-	 * Outputs the shortcode to the page.
-	 *
-	 * @param array $data - plan data array.
-	 *
-	 * @return string
-	 */
-	private function output_purchase_modal_button( $data ) {
-		$css_prefix = self::$css_classname_prefix;
-		if ( ! wp_script_is( 'memberships', 'enqueued' ) ) {
-			wp_enqueue_script( 'memberships' );
-		}
-		if ( ! wp_style_is( 'memberships', 'enqueued' ) ) {
-			wp_enqueue_style( 'memberships', plugins_url( 'memberships.css', __FILE__ ), array( 'dashicons' ), self::$version );
-		}
-
-		wp_add_inline_script(
-			'memberships', sprintf(
-				"try{JetpackMemberships.initPurchaseButton( '%d', '%d', '%s' );}catch(e){}",
-				esc_js( $this	->get_blog_id() ),
-				esc_js( $data['id'] ),
-				esc_js( $data['class'] )
-			)
-		);
-
-		add_thickbox();
-		return "
-<div class='{$data['class']} ${css_prefix}-wrapper'>
-	<div class='${css_prefix}-product'>
-		<div class='${css_prefix}-details'>
-			<div class='${css_prefix}-title'><p>{$data['title']}</p></div>
-			<div class='${css_prefix}-description'><p>{$data['description']}</p></div>
-			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
-			<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
-			<div class='${css_prefix}-purchase-box'>
-				<div class='${css_prefix}-button' id='{$data['dom_id']}_button'>
-					<input class='{$css_prefix}_purchase_button' type='button' value='Join plan' />  
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-		";
-	}
 
 	/**
 	 * Formats the price.
@@ -308,5 +258,3 @@ class Jetpack_Memberships {
 		return "{$plan['price']} {$plan['currency']}";
 	}
 }
-
-Jetpack_Memberships::get_instance();
