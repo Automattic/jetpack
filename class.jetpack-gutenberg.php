@@ -416,11 +416,10 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
 	 *
 	 * @return void
 	 */
-	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
+	public static function load_assets_as_required( $type ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -428,7 +427,7 @@ class Jetpack_Gutenberg {
 
 		$type = sanitize_title_with_dashes( $type );
 		self::load_styles_as_required( $type );
-		self::load_scripts_as_required( $type, $script_dependencies );
+		self::load_scripts_as_required( $type );
 	}
 
 	/**
@@ -459,13 +458,12 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block scripts when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
 	 *
 	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
-	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+	public static function load_scripts_as_required( $type ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -473,6 +471,13 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path     = self::get_blocks_directory() . $type . '/view.deps.json';
+
+		$script_dependencies   = file_exists( $script_deps_path )
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies[] = 'wp-polyfill';
+
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
@@ -529,6 +534,12 @@ class Jetpack_Gutenberg {
 		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
 		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
+		$editor_deps      = file_exists( $editor_deps_path )
+			? json_decode( file_get_contents( $editor_deps_path ) )
+			: array();
+		$editor_deps[]    = 'wp-polyfill';
+
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			: JETPACK__VERSION;
@@ -544,28 +555,7 @@ class Jetpack_Gutenberg {
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
 			$editor_script,
-			array(
-				'lodash',
-				'wp-api-fetch',
-				'wp-blob',
-				'wp-blocks',
-				'wp-components',
-				'wp-compose',
-				'wp-data',
-				'wp-date',
-				'wp-edit-post',
-				'wp-editor',
-				'wp-element',
-				'wp-escape-html',
-				'wp-hooks',
-				'wp-i18n',
-				'wp-keycodes',
-				'wp-plugins',
-				'wp-polyfill',
-				'wp-rich-text',
-				'wp-token-list',
-				'wp-url',
-			),
+			$editor_deps,
 			$version,
 			false
 		);

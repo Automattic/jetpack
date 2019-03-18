@@ -27,10 +27,7 @@ if (
 	 * @return string
 	 */
 	function jetpack_tiled_gallery_load_block_assets( $attr, $content ) {
-		Jetpack_Gutenberg::load_assets_as_required(
-			'tiled-gallery',
-			array( 'wp-polyfill' )
-		);
+		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
 
 		/**
 		 * Filter the output of the Tiled Galleries content.
