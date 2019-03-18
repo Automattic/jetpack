@@ -73,16 +73,20 @@ class Jetpack_Connection_Banner {
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
 	 *
+	 * @since 7.2   Event key format is now banner-connect-banner-72-dashboard or connect-banner-72-plugins.
+	 *              The param $slide_num was removed since we removed all slides but the first one.
+	 * @since 4.4.0
+	 *
 	 * @param string     $jp_version_banner_added A short version of when the banner was added. Ex. 44
-	 * @param string|int $slide_num               The index of the slide, 1-indexed.
+	 *
 	 * @return string
 	 */
-	function build_connect_url_for_slide( $jp_version_banner_added, $slide_num ) {
+	function build_connect_url_for_slide( $jp_version_banner_added ) {
 		global $current_screen;
 		$url = Jetpack::init()->build_connect_url(
 			true,
 			false,
-			sprintf( 'banner-%s-slide-%s-%s', $jp_version_banner_added, $slide_num, $current_screen->base )
+			sprintf( 'connect-banner-%s-%s', $jp_version_banner_added, $current_screen->base )
 		);
 		return add_query_arg( 'auth_approved', 'true', $url );
 	}
@@ -182,6 +186,7 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Renders the new connection banner as of 4.4.0.
 	 *
+	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
 	 * @since 4.4.0
 	 */
 	function render_banner() { ?>
@@ -240,7 +245,7 @@ class Jetpack_Connection_Banner {
 							<div class="jp-banner__button-container">
 								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
 								<a
-									href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 1 ) ); ?>"
+									href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
 									class="dops-button is-primary">
 									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 								</a>
