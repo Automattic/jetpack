@@ -14,8 +14,10 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
-import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
+import {
+	userCanManageModules as _userCanManageModules,
+	userCanViewStats as _userCanViewStats,
+} from 'state/initial-state';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {

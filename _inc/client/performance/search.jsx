@@ -9,16 +9,14 @@ import Card from 'components/card';
 /**
  * Internal dependencies
  */
-import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getSiteAdminUrl } from 'state/initial-state';
-import { getSitePlan } from 'state/site';
-import { isFetchingSiteData } from 'state/site';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { FormFieldset } from 'components/forms';
-import { getPlanClass } from 'lib/plans/constants';
 
 class Search extends React.Component {
 	render() {

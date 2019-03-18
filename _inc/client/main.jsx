@@ -26,6 +26,7 @@ import {
 	getApiRootUrl,
 	userCanManageModules,
 	userCanConnectSite,
+	getTracksUserData,
 } from 'state/initial-state';
 import {
 	areThereUnsavedSettings,
@@ -45,13 +46,12 @@ import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
-import { getTracksUserData } from 'state/initial-state';
 import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 class Main extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );

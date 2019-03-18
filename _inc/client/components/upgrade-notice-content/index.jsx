@@ -2,8 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';

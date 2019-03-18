@@ -2,9 +2,8 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Component } from 'react';
 import { getPlanClass } from 'lib/plans/constants';
 import analytics from 'lib/analytics';
 

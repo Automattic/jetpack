@@ -41,7 +41,7 @@ export const NavigationSettings = createReactClass( {
 	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		// We need to handle the search term not only on route update but also on page load in case of some external redirects
 		this.onRouteChange( this.context.router.getCurrentLocation() );
 		this.context.router.listen( this.onRouteChange );

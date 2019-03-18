@@ -17,7 +17,7 @@ const stopPropagation = event => event.stopPropagation();
 class SelectDropdownLabel extends Component {
 	render() {
 		return (
-			<li onClick={ stopPropagation } className="dops-select-dropdown__label">
+			<li role="menuitem" onClick={ stopPropagation } className="dops-select-dropdown__label">
 				<label>{ this.props.children }</label>
 			</li>
 		);

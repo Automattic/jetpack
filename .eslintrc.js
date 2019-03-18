@@ -1,7 +1,8 @@
 module.exports = {
 	"parser": "babel-eslint",
 	"extends": [
-		"wpcalypso/react-a11y",
+		"wpcalypso/react",
+		"plugin:jsx-a11y/recommended",
 		"prettier",
 		"prettier/react"
 	],
@@ -12,12 +13,14 @@ module.exports = {
 		"node": true,
 		"jquery": true
 	},
-	"ecmaFeatures": {
-		"jsx": true,
-		"modules": true
+	"parserOptions": {
+		"ecmaVersion": 2019,
+		"ecmaFeatures": {
+			"jsx": true
+		}
 	},
 	"plugins": [
-		"eslint-plugin-react",
+		"jsx-a11y",
 		"lodash"
 	],
 	"rules": {
@@ -81,6 +84,16 @@ module.exports = {
 		"wpcalypso/i18n-mismatched-placeholders": 2,
 		"wpcalypso/import-docblock": 2,
 		"wpcalypso/jsx-gridicon-size": 0, // Ignored for Jetpack
-		"wpcalypso/jsx-classname-namespace": 0 // Ignored for Jetpack
+		"wpcalypso/jsx-classname-namespace": 0, // Ignored for Jetpack
+		"jsx-a11y/label-has-for": [ 2, {
+			"required": {
+					"some": [ "nesting", "id" ]
+			},
+	}],
+		// Disabled rules for now. Ideally we should resolve all the errors these rules create.
+		"wpcalypso/redux-no-bound-selectors": 0,
+		"jsx-a11y/anchor-has-content": 0,
+		"react/no-string-refs": 0,
+		"jsx-a11y/anchor-is-valid": 0,
 	}
 }

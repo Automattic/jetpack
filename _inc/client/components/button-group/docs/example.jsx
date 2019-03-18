@@ -34,7 +34,12 @@ const Buttons = createReactClass( {
 	render: function() {
 		return (
 			<div>
-				<a className="docs__design-toggle button" onClick={ this.toggleButtons }>
+				<a
+					className="docs__design-toggle button"
+					role="button"
+					tabIndex={ 0 }
+					onClick={ this.toggleButtons }
+				>
 					{ this.state.compact ? 'Normal Buttons' : 'Compact Buttons' }
 				</a>
 				<Card>

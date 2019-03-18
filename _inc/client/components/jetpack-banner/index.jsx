@@ -10,8 +10,7 @@ import Banner from 'components/banner';
 /**
  * Internal dependencies
  */
-import { arePromotionsActive } from 'state/initial-state';
-import { userCanManageModules } from 'state/initial-state';
+import { arePromotionsActive, userCanManageModules } from 'state/initial-state';
 
 class JetpackBanner extends Banner {
 	static propTypes = {

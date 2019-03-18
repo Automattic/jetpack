@@ -10,7 +10,7 @@ import SimpleNotice from 'components/notice';
  * Internal dependencies
  */
 
-import { getCurrentVersion, isGutenbergAvailable } from 'state/initial-state';
+import { getCurrentVersion, isGutenbergAvailable, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -19,7 +19,6 @@ import {
 import { isUnavailableInDevMode } from 'state/connection';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
-import { getSiteAdminUrl } from 'state/initial-state';
 
 class JetpackStateNotices extends React.Component {
 	static displayName = 'JetpackStateNotices';

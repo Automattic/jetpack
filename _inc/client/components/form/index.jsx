@@ -72,7 +72,8 @@ const luhnChk = ( function( arr ) {
 
 		while ( len ) {
 			val = parseInt( ccNum.charAt( --len ), 10 );
-			sum += ( bit ^= 1 ) ? arr[ val ] : val;
+			bit ^= 1;
+			sum += bit ? arr[ val ] : val;
 		}
 
 		return sum && sum % 10 === 0;

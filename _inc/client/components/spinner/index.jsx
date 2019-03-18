@@ -23,7 +23,7 @@ class Spinner extends React.Component {
 		duration: 3000,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++Spinner.instances,
 		} );

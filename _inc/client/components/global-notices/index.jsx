@@ -32,7 +32,7 @@ class NoticesList extends React.Component {
 		notices: Object.freeze( [] ),
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		debug( 'Mounting Global Notices React component.' );
 	}
 

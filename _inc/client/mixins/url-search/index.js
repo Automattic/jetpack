@@ -16,7 +16,7 @@ module.exports = {
 		};
 	},
 
-	componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function( nextProps ) {
 		if ( ! nextProps.search ) {
 			this.setState( {
 				searchOpen: false,

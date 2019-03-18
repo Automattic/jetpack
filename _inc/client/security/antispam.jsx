@@ -34,7 +34,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 
 		keyChanged = false;
 
-		componentWillMount() {
+		UNSAFE_componentWillMount() {
 			this.debouncedCheckApiKeyTyped = debounce( this.checkApiKeyTyped, 500 );
 		}
 

@@ -177,6 +177,8 @@ const Popovers = createReactClass( {
 		for ( let i = 0; i < 9; i++ ) {
 			squares.push(
 				<div
+					role="button"
+					tabIndex={ 0 }
 					style={ {
 						cursor: 'pointer',
 						color: '#444',
