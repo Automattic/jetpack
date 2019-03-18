@@ -286,6 +286,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.fbcdn\.net$/',
 		'/\.paypalobjects\.com$/',
 		'/\.dropbox\.com$/',
+		'/\.cdninstagram\.com$/',
 	);
 
 	$host = jetpack_photon_parse_url( $image_url, PHP_URL_HOST );
