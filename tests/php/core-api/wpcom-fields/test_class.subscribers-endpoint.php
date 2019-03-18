@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__, 3 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( __FILE__ ) . '/../../../lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * @group publicize
