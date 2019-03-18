@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Tests that Attachments do have VideoPress data in REST API
