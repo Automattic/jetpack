@@ -2,10 +2,6 @@
 
 require_once dirname( __FILE__, 3 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
-if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-	require_once dirname( __FILE__, 3 ) . '/lib/class-wp-test-spy-rest-server.php';
-}
-
 /**
  * @group publicize
  * @group rest-api
