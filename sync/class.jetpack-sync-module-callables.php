@@ -217,7 +217,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 
 			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
-				//return;
+				return;
 			}
 		}
 
