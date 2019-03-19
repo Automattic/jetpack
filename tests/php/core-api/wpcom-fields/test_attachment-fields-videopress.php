@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+
 /**
  * Tests that Attachments do have VideoPress data in REST API
  * responses if the VideoPress Module is active.
