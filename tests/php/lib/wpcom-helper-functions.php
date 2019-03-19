@@ -21,9 +21,5 @@ function wp_rest_request( $method, $path ) {
 		$path = $namespace . 'sites/'  . get_current_blog_id() . $endpoint;
 	}
 
-	print_r( "!!!!!!!!!!\n" );
-	print_r( $path );
-	print_r( "!!!!!!!!!!\n" );
-
 	return new WP_REST_Request( $method, $path );
 }
