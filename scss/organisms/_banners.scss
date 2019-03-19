@@ -14,8 +14,7 @@
 	}
 
 	.jp-banner__button-container {
-		padding: rem( 12px ) 0 0;
-
+		padding: rem( 32px ) 0 0;
 		flex-direction: row-reverse;
 		align-items: center;
 		justify-content: flex-end;
@@ -392,6 +391,12 @@
 		width: 100%;
 		margin: rem( 36px ) 0 rem( 24px );
 		display: block;
+	}
+}
+
+.jp-wpcom-connect__slide-text {
+	@include minbreakpoint(desktop) {
+		padding-left: rem( 45px );
 	}
 }
 
