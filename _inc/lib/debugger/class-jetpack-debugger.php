@@ -18,7 +18,7 @@ class Jetpack_Debugger {
 	 * @return string The plan slug prepended with "JetpackPlan"
 	 */
 	private static function what_jetpack_plan() {
-		$plan = Jetpack_Plan::get_active_plan();
+		$plan = Jetpack_Plan::get();
 		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
 		return 'JetpackPlan' . $plan;
 	}

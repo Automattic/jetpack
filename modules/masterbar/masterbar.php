@@ -660,7 +660,7 @@ class A8C_WPCOM_Masterbar {
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
 			$label = esc_html__( 'Plan', 'jetpack' );
-			$plan = Jetpack_Plan::get_active_plan();
+			$plan = Jetpack_Plan::get();
 
 			$plan_title = $this->create_menu_item_pair(
 				array(

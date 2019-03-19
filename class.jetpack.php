@@ -689,7 +689,7 @@ class Jetpack {
 		}
 
 		// Update the Jetpack plan from API on heartbeats
-		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_active_plan_from_wpcom' ) );
+		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.
@@ -2923,7 +2923,7 @@ class Jetpack {
 			}
 		}
 
-		if ( ! Jetpack_Plan::active_plan_supports( $module ) ) {
+		if ( ! Jetpack_Plan::supports( $module ) ) {
 			return false;
 		}
 

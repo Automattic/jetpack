@@ -21,9 +21,9 @@ class Jetpack_Plan {
 	 *
 	 * @return bool True if plan is updated, false if no update
 	 */
-	public static function refresh_active_plan_from_wpcom() {
+	public static function refresh_from_wpcom() {
 		// Make the API request.
-		$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response.
@@ -44,7 +44,7 @@ class Jetpack_Plan {
 	}
 
 	/**
-	 * Get the plan that this Jetpack site is currently using
+	 * Get the plan that this Jetpack site is currently using.
 	 *
 	 * @uses get_option()
 	 *
@@ -53,7 +53,7 @@ class Jetpack_Plan {
 	 *
 	 * @return array Active Jetpack plan details
 	 */
-	public static function get_active_plan() {
+	public static function get() {
 		global $active_plan_cache;
 
 		// this can be expensive to compute so we cache for the duration of a request.
@@ -87,7 +87,7 @@ class Jetpack_Plan {
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
 			// special support value, not a module but a separate plugin.
-			$supports[] = 'akismet';
+			$supports[]    = 'akismet';
 			$plan['class'] = 'personal';
 		}
 
@@ -100,10 +100,10 @@ class Jetpack_Plan {
 		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
-			$supports[] = 'akismet';
-			$supports[] = 'simple-payments';
-			$supports[] = 'vaultpress';
-			$supports[] = 'videopress';
+			$supports[]    = 'akismet';
+			$supports[]    = 'simple-payments';
+			$supports[]    = 'vaultpress';
+			$supports[]    = 'videopress';
 			$plan['class'] = 'premium';
 		}
 
@@ -119,10 +119,10 @@ class Jetpack_Plan {
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
-			$supports[] = 'akismet';
-			$supports[] = 'simple-payments';
-			$supports[] = 'vaultpress';
-			$supports[] = 'videopress';
+			$supports[]    = 'akismet';
+			$supports[]    = 'simple-payments';
+			$supports[]    = 'vaultpress';
+			$supports[]    = 'videopress';
 			$plan['class'] = 'business';
 		}
 
@@ -147,7 +147,7 @@ class Jetpack_Plan {
 	/**
 	 * Determine whether the active plan supports a particular feature
 	 *
-	 * @uses Jetpack_Plan::get_active_plan()
+	 * @uses Jetpack_Plan::get()
 	 *
 	 * @access public
 	 * @static
@@ -156,8 +156,8 @@ class Jetpack_Plan {
 	 *
 	 * @return bool True if plan supports feature, false if not
 	 */
-	public static function active_plan_supports( $feature ) {
-		$plan = self::get_active_plan();
+	public static function supports( $feature ) {
+		$plan = self::get();
 
 		// Manually mapping WordPress.com features to Jetpack module slugs.
 		foreach ( $plan['features']['active'] as $wpcom_feature ) {
