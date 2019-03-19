@@ -20,16 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'private' ) ) {
+	return;
+}
+
 if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
-	global $wpdb;
-	$is_private_user = is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, wp_get_current_user() ) );
-	
-	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'private' ) ) {
-		if ( ! $is_private_user ) {
-			return;
-		}
-	}
-	
 	include_once 'sitemaps/sitemaps.php';
 }
 
