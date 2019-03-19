@@ -55,7 +55,7 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 function jetpack_require_lib_dir() {
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
-add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+
 
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
@@ -75,69 +75,88 @@ function jetpack_should_use_minified_assets() {
 	}
 	return true;
 }
-add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
-
-// @todo: Abstract out the admin functions, and only include them if is_admin()
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'     );
-require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
-require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.global.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
-require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
-require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
-require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
-
-if ( is_admin() ) {
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
-}
-
-// Play nice with http://wp-cli.org/
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
-}
-
-require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php' );
-
-register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
-register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
-add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
-add_action( 'init', array( 'Jetpack', 'init' ) );
-add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
-add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
-add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
-add_filter( 'is_jetpack_site', '__return_true' );
 
 /**
- * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
+ * Outputs for an admin notice about running Jetpack on outdated WordPress.
  *
- * See: http://jetpack.com/2013/07/11/photon-and-themes/
+ * @since 7.2.0
  */
-if ( Jetpack::is_module_active( 'photon' ) ) {
-	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+function admin_jetpack_unsupported_wp_notice() { ?>
+	<div class="notice notice-error is-dismissible">
+		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.'); ?></p>
+	</div>
+	<?php
 }
 
-if ( JETPACK__SANDBOX_DOMAIN ) {
-	require_once( JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php' );
-}
+if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+	add_action( 'admin_notices', 'admin_jetpack_unsupported_wp_notice' );
+} else {
 
-require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
+	add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+	add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
-Jetpack::init();
+	// @todo: Abstract out the admin functions, and only include them if is_admin()
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.photon.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'functions.global.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'require-lib.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php' );
+
+	if ( is_admin() ) {
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
+	}
+
+	// Play nice with http://wp-cli.org/
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php' );
+	}
+
+	require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php' );
+
+	register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
+	register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
+	add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
+	add_action( 'init', array( 'Jetpack', 'init' ) );
+	add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
+	add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
+	add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
+	add_filter( 'is_jetpack_site', '__return_true' );
+
+	/**
+	 * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
+	 *
+	 * See: http://jetpack.com/2013/07/11/photon-and-themes/
+	 */
+	if ( Jetpack::is_module_active( 'photon' ) ) {
+		add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+	}
+
+	if ( JETPACK__SANDBOX_DOMAIN ) {
+		require_once( JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php' );
+	}
+
+	require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
+
+	Jetpack::init();
+} // end minimum version check.
