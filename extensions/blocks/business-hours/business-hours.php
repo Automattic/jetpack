@@ -64,7 +64,6 @@ function jetpack_business_hours_get_default_days() {
  * Dynamic rendering of the block.
  *
  * @param array  $attributes Array containing the business hours block attributes.
- * @param string $content    String containing the business hours block content.
  *
  * @return string
  */
