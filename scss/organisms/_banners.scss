@@ -204,10 +204,12 @@
 }
 
 .jp-connect-full__row {
-  display: flex;
-  justify-content: space-evenly;
-  text-align: left;
+	display: flex;
+	justify-content: space-evenly;
+	text-align: left;
 	align-items: baseline;
+	max-width: 100px;
+	margin: 0 auto;
 }
 
 .jp-connect-full__slide {
