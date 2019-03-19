@@ -24,7 +24,7 @@ function jetpack_get_frame_nonce() {
 }
 
 function jetpack_framing_allowed() {
-	if ( defined( 'JETPACK__VERSION' ) && '7.1-alpha' === JETPACK__VERSION ) {
+	if ( defined( 'JETPACK__VERSION' ) && 0 === strpos( JETPACK__VERSION, '7.2-beta' ) ) {
 		return true;
 	}
 
