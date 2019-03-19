@@ -38,9 +38,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 
 		parent::setUp();
 
-		$this->src = is_ssl()
-			? 'https://secure.hulu.com/embed.html?eid='
-			: 'http://www.hulu.com/embed.html?eid=';
+		$this->src = 'https://www.hulu.com/embed.html?eid=';
 		$this->video_id = '771496';
 		$this->video_eid = '_hHzwnAcj3RrXMJFDDvkuw';
 
@@ -75,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_hulu_url() {
-		$content  = "[hulu http://www.hulu.com/watch/$this->video_id]";
+		$content  = "[hulu https://www.hulu.com/watch/$this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
