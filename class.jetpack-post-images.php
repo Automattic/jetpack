@@ -327,11 +327,9 @@ class Jetpack_PostImages {
 		}
 
 		// Look for block information in the HTML.
-		/*
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			return $images;
 		}
-		*/
 		$blocks = parse_blocks( $html_info['html'] );
 		if ( empty( $blocks ) ) {
 			return $images;
