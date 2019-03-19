@@ -85,7 +85,7 @@ class Jetpack_Plan {
 			'personal-bundle-2y',
 		);
 
-		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
+		if ( in_array( $plan['product_slug'], $personal_plans, true ) ) {
 			// special support value, not a module but a separate plugin.
 			$supports[]    = 'akismet';
 			$plan['class'] = 'personal';
@@ -99,7 +99,7 @@ class Jetpack_Plan {
 			'value_bundle-2y',
 		);
 
-		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
+		if ( in_array( $plan['product_slug'], $premium_plans, true ) ) {
 			$supports[]    = 'akismet';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
@@ -118,7 +118,7 @@ class Jetpack_Plan {
 			'vip',
 		);
 
-		if ( in_array( $plan['product_slug'], $business_plans ) ) {
+		if ( in_array( $plan['product_slug'], $business_plans, true ) ) {
 			$supports[]    = 'akismet';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
@@ -132,7 +132,7 @@ class Jetpack_Plan {
 			if ( ! isset( $module ) || ! is_array( $module ) ) {
 				continue;
 			}
-			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
+			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
 				$supports[] = $module_slug;
 			}
 		}
@@ -172,8 +172,8 @@ class Jetpack_Plan {
 		}
 
 		if (
-			in_array( $feature, $plan['supports'] )
-			|| in_array( $feature, $plan['features']['active'] )
+			in_array( $feature, $plan['supports'], true )
+			|| in_array( $feature, $plan['features']['active'], true )
 		) {
 			return true;
 		}
