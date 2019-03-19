@@ -25,7 +25,11 @@ function jetpack_register_block( $slug, $args = array() ) {
 	}
 
 	// Checking whether block is registered to ensure it isn't registered twice.
-	return Jetpack_Gutenberg::is_registered( $slug ) ? false : register_block_type( $slug, $args );
+	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
+		return false;
+	}
+
+	return register_block_type( $slug, $args );
 }
 
 /**
