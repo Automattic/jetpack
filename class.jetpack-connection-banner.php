@@ -179,7 +179,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Jetpack free protects your site against brute force attacks and unauthorized logins. Our premium security servives also include unlimited backups of your entire site, spam protection, malware scanning, and automated fixes.',
+									'Jetpack free protects your site against brute force attacks and unauthorized logins. Our premium security services also include unlimited backups of your entire site, spam protection, malware scanning, and automated fixes.',
 									'jetpack'
 								);
 								?>
