@@ -2,7 +2,7 @@
 /**
  * SEO Plugin.
  *
- * @since 7.1.0
+ * @since 7.2.0
  *
  * @package Jetpack
  */
