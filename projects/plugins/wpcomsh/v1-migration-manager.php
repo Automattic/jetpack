@@ -67,7 +67,7 @@ class V1_Migration_Manager {
 		$q = ltrim($query, "\r\n\t (");
 
 		// Allow writes to wp_options when updating at_options.
-		if ( 1 === preg_match( '/^(?=.*\bat_options\b)(?=.*\bv1_migration_options\b).*$/', $q ) ) {
+		if ( 1 === preg_match( '/at_options/', $q ) ) {
 			return true;
 		}
 
@@ -101,7 +101,7 @@ class V1_Migration_Manager {
 			! current_user_can( 'administrator' );
 
 		if ( $show_maintenance_page ) {
-			$msg = '<h1 style="color:red">Website under Maintenance</h1><p>We are performing scheduled maintenance. We will be back online shortly!</p>';
+			$msg = '<h1 style="color:red">Website Under Maintenance</h1><p>We are currently performing maintenance. We will be back online shortly!</p>';
 			wp_die($msg,'',200);
 		}
 	}
@@ -134,8 +134,8 @@ class V1_Migration_Manager {
 
 		?>
 		<div class="notice notice-warning">
-			<h1>Website under Maintenance</h1>
-			<p>We are performing scheduled maintenance. We will be back online shortly!<p>
+			<h1>Website Under Maintenance</h1>
+			<p>We are currently performing maintenance. We will be back online shortly!<p>
 		</div>
 		<?php
 	}
@@ -172,7 +172,8 @@ class V1_Migration_Manager {
 		<div class="notice notice-warning">
 			<h2>Scheduled Maintenance</h2>
 			<p>
-				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong>.<br />
+				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong> sometime between 9pm and 5am in the 
+<a href="https://en.support.wordpress.com/settings/time-settings/#change-timezone" >timezone</a> of your site.<br />
 				<?php if ( $show_migration_window ): ?>
 				The update will begin
 				<?php if ( $migration_window_start >= $migration_window_end ) :?>
