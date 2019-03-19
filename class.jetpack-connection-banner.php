@@ -145,7 +145,7 @@ class Jetpack_Connection_Banner {
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__container-top-text">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
-				<span><?php esc_html_e( 'You’re almost done. Set up Jetpack to boost your site performance and unlock powerful customization, marketing, and security tools.', 'jetpack' ); ?></span>
+				<span><?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?></span>
 			</div>
 			<div class="jp-wpcom-connect__inner-container">
 				<span
@@ -179,7 +179,9 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Jetpack free protects your site against brute force attacks and unauthorized logins. Our premium security services also include unlimited backups of your entire site, spam protection, malware scanning, and automated fixes.',
+									'Jetpack protects you against brute force attacks and unauthorized logins. Basic protection ' .
+									'is always free, while premium plans add unlimited backups of your whole site, spam protection, ' .
+									'malware scanning, and automated fixes.',
 									'jetpack'
 								);
 								?>
@@ -188,7 +190,9 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of WordPress.com servers. Speed up your site for mobile viewers and reduce bandwidth usage, which may lead to lower hosting costs.',
+									'Activate site accelerator tools and watch your page load times and hosting costs drop – we’ll ' .
+									'optimize your images and serve them from our own powerful global network of servers, ' .
+									'and speed up your mobile site to reduce bandwidth usage.',
 									'jetpack'
 								);
 								?>
