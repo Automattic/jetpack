@@ -18,7 +18,7 @@ class Jetpack_Debugger {
 	 * @return string The plan slug prepended with "JetpackPlan"
 	 */
 	private static function what_jetpack_plan() {
-		$plan = Jetpack::get_active_plan();
+		$plan = Jetpack_Plan::get();
 		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
 		return 'JetpackPlan' . $plan;
 	}
@@ -277,7 +277,7 @@ class Jetpack_Debugger {
 						?>
 						<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
 					</li>
-					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  
+					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>
 						<?php
 						echo sprintf(
 							wp_kses(
@@ -326,7 +326,7 @@ class Jetpack_Debugger {
 					<?php endif; ?>
 				</ol>
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
-				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>  
+				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
 				echo sprintf(
 					wp_kses(

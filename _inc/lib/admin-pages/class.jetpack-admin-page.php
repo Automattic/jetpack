@@ -185,7 +185,7 @@ abstract class Jetpack_Admin_Page {
 			return false;
 		}
 
-		$current = Jetpack::get_active_plan();
+		$current = Jetpack_Plan::get();
 
 		$to_deactivate = array();
 		if ( isset( $current['product_slug'] ) ) {
@@ -207,7 +207,7 @@ abstract class Jetpack_Admin_Page {
 
 			$to_leave_enabled = array();
 			foreach ( $to_deactivate as $feature ) {
-				if ( Jetpack::active_plan_supports( $feature ) ) {
+				if ( Jetpack_Plan::supports( $feature ) ) {
 					$to_leave_enabled []= $feature;
 				}
 			}

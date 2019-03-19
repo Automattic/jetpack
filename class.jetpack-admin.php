@@ -199,7 +199,7 @@ class Jetpack_Admin {
 				return false;
 			}
 
-			return Jetpack::active_plan_supports( $module['module'] );
+			return Jetpack_Plan::supports( $module['module'] );
 		}
 	}
 
