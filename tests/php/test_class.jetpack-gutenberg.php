@@ -60,6 +60,20 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
+	 */
+	function test_does_calling_get_availability_twice_result_in_notice() {
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		Jetpack_Gutenberg::get_availability();
+		Jetpack_Gutenberg::get_availability();
+		remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+	}
+
+	function register_block() {
+		jetpack_register_block( 'jetpack/apple' );
+	}
+
 	function test_registered_block_is_available() {
 		jetpack_register_block( 'jetpack/apple' );
 		$availability = Jetpack_Gutenberg::get_availability();
