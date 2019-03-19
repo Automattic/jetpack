@@ -174,13 +174,15 @@ class Jetpack_Memberships {
 	 */
 	public function allow_sync_post_meta( $post_meta ) {
 		$meta_keys = array_map(
-			function( $map ) {
-				return $map['meta'];
-			}, $this->get_plan_property_mapping()
+			array( $this, 'return_meta' ),
+			$this->get_plan_property_mapping()
 		);
 		return array_merge( $post_meta, array_values( $meta_keys ) );
 	}
 
+	public function return_meta( $map ) {
+		return $map['meta'];
+	}
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
@@ -232,7 +234,6 @@ class Jetpack_Memberships {
 			implode( $classes, ' ' ),
 			$data['button_label']
 		);
-		return "<a class='{$data['class']}' style='{$data['style']}' id='{$data['dom_id']}'>{$data['content']}</a>";
 	}
 
 	private function get_blog_id() {
