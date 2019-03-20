@@ -94,14 +94,14 @@ function wpcom_shortcodereverse_getty( $content ) {
 	}
 
 	$regexp     = '!<iframe\s+src=[\'"](https?:)?//embed\.gettyimages\.com/embed(/|/?\?assets=)([a-z0-9_-]+(,[a-z0-9_-]+)*)[^\'"]*?[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
-	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) ); // phpcs:ignore
+	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	// Markup pattern for 2017 embed syntax with significant differences from the prior pattern.
 	$regexp_2017     = '!<a.+?class=\'gie-(single|slideshow)\'.+?gie\.widgets\.load\({([^}]+)}\).+?embed-cdn\.gettyimages\.com/widgets\.js.+?</script>!';
-	$regexp_2017_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp_2017, ENT_NOQUOTES ) ); // phpcs:ignore
+	$regexp_2017_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp_2017, ENT_NOQUOTES ) );
 
-	foreach ( array( 'regexp_2017', 'regexp_2017_ent', 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
+	foreach ( compact( 'regexp_2017', 'regexp_2017_ent', 'regexp', 'regexp_ent' ) as $reg => $regexp ) {
+		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
@@ -169,8 +169,8 @@ function wpcom_shortcodereverse_getty( $content ) {
 	$regexp     = '%<div class="getty\s[^>]*+>.*?<div[^>]*+>(\[getty[^\]]*+\])\s*</div>.*?</div>%is';
 	$regexp_ent = str_replace( array( '&amp;#0*58;', '[^&gt;]' ), array( '&amp;#0*58;|&#0*58;', '[^&]' ), htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
-	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
+	foreach ( compact( 'regexp', 'regexp_ent' ) as $reg => $regexp ) {
+		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
