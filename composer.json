@@ -20,6 +20,7 @@
     "scripts": {
       "php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
       "php:lint": "composer install && vendor/bin/phpcs -p",
+      "php:autofix": "composer install && vendor/bin/phpcbf",
       "php:lint:errors": "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
     }
 }
