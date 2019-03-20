@@ -11,12 +11,24 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 		delete_option( 'show_welcome_for_new_plan' );
 	}
 
+	public function test_update_from_sites_response_failure_to_update() {
+		update_option( 'jetpack_active_plan', $this->get_free_plan(), true );
+
+		$option = get_option( 'jetpack_active_plan' );
+		$this->assertSame( 'jetpack_free', $option['product_slug'] );
+
+		// Set up an issue where the value in cache does not match the DB, so the DB update fails.
+		Jetpack_Options::update_raw_option( 'jetpack_active_plan', $this->get_personal_plan(), true );
+
+		$this->assertTrue( Jetpack_Plan::update_from_sites_response( $this->get_response_personal_plan() ) );
+	}
+
 	/**
 	 * @dataProvider get_update_from_sites_response_data
 	 */
 	public function test_update_from_sites_response( $response, $expected_plan_slug_after, $expected_return, $initial_option = null ) {
 		if ( ! is_null( $initial_option ) ) {
-			update_option( 'jetpack_active_plan', $initial_option );
+			update_option( 'jetpack_active_plan', $initial_option, true );
 		}
 
 		$this->assertSame( $expected_return, Jetpack_Plan::update_from_sites_response( $response ) );

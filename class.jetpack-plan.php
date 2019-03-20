@@ -56,6 +56,12 @@ class Jetpack_Plan {
 
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( 'jetpack_active_plan', $results['plan'], true );
+		if ( ! $result ) {
+			// If we got to this point, then we know we need to update. So, assume there is an issue
+			// with caching. To fix that issue, we can delete the current option and then update.
+			delete_option( 'jetpack_active_plan' );
+			$result = update_option( 'jetpack_active_plan', $results['plan'], true );
+		}
 
 		if ( $result ) {
 			// Reset the cache since we've just updated the plan.
