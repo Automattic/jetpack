@@ -1552,8 +1552,11 @@ jQuery( document ).ready( function( $ ) {
 					// attachment id might no longer match the current attachment id by the time we get the data back or a now
 					// registered infiniscroll event kicks in, so we don't ever display comments for the wrong image by mistake.
 					var current = $( '.jp-carousel div.selected' );
-					if ( current && current.data && current.data( 'attachment-id' ) != args.attachment_id ) {
-						// jshint ignore:line
+					if (
+						current &&
+						current.data &&
+						current.data( 'attachment-id' ) != args.attachment_id // jshint ignore:line
+					) {
 						comments.fadeOut( 'fast' );
 						comments.empty();
 						return;
