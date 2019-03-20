@@ -16,6 +16,10 @@
 # Jetpack CLI is used heavily by our partners
 /class.jetpack-cli.php @automattic/catalyst
 
+# Gutenberg editor integrations
+/class.jetpack-gutenberg.php @automattic/gutenpack
+/extensions/ @automattic/gutenpack
+
 # Catch-all owners, the Jetpack Crew
 # Please leave this at the bottom of the list
 * @automattic/jetpack-crew
