@@ -32,10 +32,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		);
 	}
 	public function get_status() {
-		if( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		$connected_account_id = Jetpack_Memberships::get_connected_account_id();
+		$connect_url = '';
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			$connect_url = get_memberships_connected_account_redirect( get_current_user_id() );
+			if ( ! $connected_account_id ) {
+				$connect_url = get_memberships_connected_account_redirect( get_current_user_id() );
+			}
 			$products = get_memberships_plans( $blog_id );
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
@@ -49,10 +53,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return new WP_Error( 'wpcom_connection_error', 'Could not connect to WP.com', 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			$connect_url = $data['connect_url'];
+			if ( ! $connected_account_id ) {
+				$connect_url = $data['connect_url'];
+			}
 			$products = $data['products'];
 		}
 		return array(
+			'connected_account_id' => $connected_account_id,
 			'connect_url' => $connect_url,
 			'products' => $products,
 		);
