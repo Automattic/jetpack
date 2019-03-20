@@ -6,6 +6,7 @@ abstract class WPCOM_JSON_API_Taxonomy_Endpoint extends WPCOM_JSON_API_Endpoint 
 		'slug'        => "(string) The slug of the category.",
 		'description' => '(string) The description of the category.',
 		'post_count'  => "(int) The number of posts using this category.",
+		'feed_url'    => '(string) The URL of the feed for this category.',
 		'parent'	  => "(int) The parent ID for the category.",
 		'meta'        => '(object) Meta data',
 	);

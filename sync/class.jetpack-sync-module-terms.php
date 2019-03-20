@@ -30,7 +30,6 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		// TODO: process state
-
 		$taxonomies           = get_taxonomies();
 		$total_chunks_counter = 0;
 		foreach ( $taxonomies as $taxonomy ) {
@@ -56,7 +55,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		$taxonomies           = get_taxonomies();
 		$total_chunks_counter = 0;
 		foreach ( $taxonomies as $taxonomy ) {
-			$total_ids = $wpdb->get_var( $wpdb->prepare( "SELECT count(term_id) FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) );
+			$total_ids             = $wpdb->get_var( $wpdb->prepare( "SELECT count(term_id) FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) );
 			$total_chunks_counter += (int) ceil( $total_ids / self::ARRAY_CHUNK_SIZE );
 		}
 
@@ -107,23 +106,15 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	}
 
 	public function expand_term_ids( $args ) {
-		global $wp_version;
 		$term_ids = $args[0];
 		$taxonomy = $args[1];
-		// version 4.5 or higher
-		if ( version_compare( $wp_version, 4.5, '>=' ) ) {
-			$terms = get_terms( array(
+
+		return get_terms(
+			array(
 				'taxonomy'   => $taxonomy,
 				'hide_empty' => false,
 				'include'    => $term_ids,
-			) );
-		} else {
-			$terms = get_terms( $taxonomy, array(
-				'hide_empty' => false,
-				'include'    => $term_ids,
-			) );
-		}
-
-		return $terms;
+			)
+		);
 	}
 }

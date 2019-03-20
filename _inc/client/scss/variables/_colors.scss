@@ -11,9 +11,11 @@ $blue-medium:            #00aadc;
 $blue-dark:              #005082;
 
 // Grays
-$gray:                   #87a6bc;
-$gray-light:             lighten( $gray, 33% ); //#f3f6f8
-$gray-dark:              darken( $gray, 38% ); //#2e4453
+$gray-original:          #87a6bc;
+$gray:                   desaturate( $gray-original, 100% ); // Intermediary transform to match dotcom's colors
+
+$gray-light:             lighten( $gray, 33% ); //#f6f6f6
+$gray-dark:              darken( $gray, 38% ); //#404040
 
 // Text blues
 $blue-heading:           #668eaa;
@@ -44,11 +46,13 @@ $alert-yellow:           #f0b849;
 $alert-red:              #d94f4f;
 $alert-green:            #4ab866;
 $alert-purple:           #855DA6;
+$alert-hot-red:          #eb0001; // 2019
 
 // Link hovers
 $link-highlight:         tint($blue-medium, 20%);
 
 // Essentials
+$black:                  #000000;
 $white:                  rgba(255,255,255,1);
 $transparent:            rgba(255,255,255,0);
 
@@ -61,6 +65,8 @@ $sidebar-bg-color:         lighten( $gray, 30% );
 $sidebar-text-color:       $gray-dark;
 $sidebar-selected-color:   $gray;
 
+// Dashboard
+$dashboard-number-border: #CBD7E1;
 
 //Social media colors
 $color-facebook: #39579a;
@@ -87,7 +93,8 @@ $color-whatsapp: #43d854;
 // ==========================================================================
 
 $green-primary: 		#00BE28;
-$green-secondary: 		#72af3a;
+$green-secondary: 		#00a523;
+$green-dark: 			#008b1d;
 
 // ==========================================================================
 // WP-ADMIN Specific Colors

@@ -30,7 +30,11 @@ class Jetpack_Media_Summary {
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
-			jetpack_require_lib( 'class.media-extractor' );
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				jetpack_require_lib( 'class.wpcom-media-meta-extractor' );
+			} else {
+				jetpack_require_lib( 'class.media-extractor' );
+			}
 		}
 
 		$post      = get_post( $post_id );
@@ -74,7 +78,7 @@ class Jetpack_Media_Summary {
 						if ( 0 == $return['count']['video'] ) {
 							// If there is no id on the video, then let's just skip this
 							if ( ! isset ( $data['id'][0] ) ) {
-								continue;
+								break;
 							}
 
 							$guid = $data['id'][0];
@@ -84,7 +88,7 @@ class Jetpack_Media_Summary {
 							if ( $video_info instanceof stdClass ) {
 								// Continue early if we can't find a Video slug.
 								if ( empty( $video_info->files->std->mp4 ) ) {
-									continue;
+									break;
 								}
 
 								$url = sprintf(
@@ -298,14 +302,28 @@ class Jetpack_Media_Summary {
 		);
 	}
 
+	/**
+	 * Retrieve an excerpt for the post summary.
+	 *
+	 * This function works around a suspected problem with Core. If resolved, this function should be simplified.
+	 * @link https://github.com/Automattic/jetpack/pull/8510
+	 * @link https://core.trac.wordpress.org/ticket/42814
+	 *
+	 * @param  string  $post_content The post's content.
+	 * @param  string  $post_excerpt The post's excerpt. Empty if none was explicitly set.
+	 * @param  int     $max_words Maximum number of words for the excerpt. Used on wp.com. Default 16.
+	 * @param  int     $max_chars Maximum characters in the excerpt. Used on wp.com. Default 256.
+	 * @param  WP_Post $post The post object.
+	 * @return string Post excerpt.
+	 **/
 	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $post = null ) {
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
-				'text'           => $post_content,
-				'excerpt_only'   => true,
-				'show_read_more' => false,
-				'max_words'      => $max_words,
-				'max_chars'      => $max_chars,
+				'text'                => $post_content,
+				'excerpt_only'        => true,
+				'show_read_more'      => false,
+				'max_words'           => $max_words,
+				'max_chars'           => $max_chars,
 				'read_more_threshold' => 25,
 			) ) );
 		} else if ( $post ) {
@@ -316,10 +334,34 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_word_count( $post_content ) {
+		/**
+		 * es_api_word_count is useful to count words in all languages.
+		 * It uses our ES custom analyzers to handle language detection.
+		 */
+		if ( function_exists( 'es_api_word_count' ) ) {
+			$word_count = es_api_word_count( self::clean_text( $post_content ) );
+			if ( false !== $word_count ) {
+				return $word_count;
+			}
+		}
+
+		// Keep str_word_count as fallback, even though it has limitations. See https://github.com/Automattic/jetpack/issues/1656 for example.
 		return str_word_count( self::clean_text( $post_content ) );
 	}
 
 	static function get_word_remaining_count( $post_content, $excerpt_content ) {
+		/**
+		 * es_api_word_count is useful to count words in all languages.
+		 * It uses our ES custom analyzers to handle language detection.
+		 */
+		if ( function_exists( 'es_api_word_count' ) ) {
+			$word_remaining_count = es_api_word_count( self::clean_text( $post_content ) ) - es_api_word_count( self::clean_text( $excerpt_content ) );
+			if ( false !== $word_remaining_count ) {
+				return $word_remaining_count;
+			}
+		}
+
+		// Keep str_word_count as fallback.
 		return str_word_count( self::clean_text( $post_content ) ) - str_word_count( self::clean_text( $excerpt_content ) );
 	}
 

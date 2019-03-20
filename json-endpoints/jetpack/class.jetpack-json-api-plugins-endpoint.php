@@ -136,7 +136,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['network']         = $plugin_data['Network'];
 		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
 		$plugin['next_autoupdate'] = date( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
-		$plugin['action_links']    = $this->get_plugin_action_links( $plugin_file );
+		$action_link = $this->get_plugin_action_links( $plugin_file );
+		if ( ! empty( $action_link ) ) {
+			$plugin['action_links'] = $action_link;
+		}
 
 		$autoupdate = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
 		$plugin['autoupdate']      = $autoupdate;
@@ -165,7 +168,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['author_url']      = $plugin_data['AuthorURI'];
 		$plugin['network']         = $plugin_data['Network'];
 		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
-		$plugin['action_links']    = $this->get_plugin_action_links( $plugin_file );
+		$action_link = $this->get_plugin_action_links( $plugin_file );
+		if ( ! empty( $action_link ) ) {
+			$plugin['action_links'] = $action_link;
+		}
 
 		$autoupdate = $this->plugin_has_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate']      = $autoupdate;

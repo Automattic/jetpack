@@ -47,10 +47,6 @@ class Jetpack_Comic {
 		// post type needs to be registered no matter what, but none of the UI needs to be
 		// available.
 
-		// Enable Omnisearch for Comic posts.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
-			new Jetpack_Omnisearch_Posts( self::POST_TYPE );
-
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		if ( function_exists( 'queue_publish_post' ) ) {

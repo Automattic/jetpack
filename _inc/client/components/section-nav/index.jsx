@@ -3,14 +3,17 @@
 /**
  * External Dependencies
  */
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal Dependencies
  */
-var NavTabs = require( './tabs' ),
+const NavTabs = require( './tabs' ),
 	NavItem = require( './item' ),
 	Search = require( 'components/search' );
 
@@ -19,33 +22,34 @@ require( './style.scss' );
 /**
  * Main
  */
-var SectionNav = React.createClass( {
+const SectionNav = createReactClass( {
+	displayName: 'SectionNav',
 
 	propTypes: {
-		children: React.PropTypes.node,
-		selectedText: React.PropTypes.node,
-		selectedCount: React.PropTypes.number,
-		hasPinnedItems: React.PropTypes.bool,
-		onMobileNavPanelOpen: React.PropTypes.func
+		children: PropTypes.node,
+		selectedText: PropTypes.node,
+		selectedCount: PropTypes.number,
+		hasPinnedItems: PropTypes.bool,
+		onMobileNavPanelOpen: PropTypes.func,
 	},
 
 	getInitialState: function() {
 		return {
-			mobileOpen: false
+			mobileOpen: false,
 		};
 	},
 
 	getDefaultProps: function() {
 		return {
-			onMobileNavPanelOpen: () => {}
+			onMobileNavPanelOpen: () => {},
 		};
 	},
 
-	componentWillMount: function() {
+	UNSAFE_componentWillMount: function() {
 		this.checkForSiblingControls( this.props.children );
 	},
 
-	componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function( nextProps ) {
 		if ( isEqual( this.props, nextProps ) ) {
 			return;
 		}
@@ -58,19 +62,19 @@ var SectionNav = React.createClass( {
 	},
 
 	render: function() {
-		var children = this.getChildren(),
-			className;
+		const children = this.getChildren();
+		let className;
 
 		if ( ! children ) {
 			className = classNames( {
 				'dops-section-nav': true,
-				'is-empty': true
+				'is-empty': true,
 			} );
 
 			return (
 				<div className={ className }>
 					<div className="dops-section-nav__panel">
-						<NavItem></NavItem>
+						<NavItem />
 					</div>
 				</div>
 			);
@@ -79,77 +83,79 @@ var SectionNav = React.createClass( {
 		className = classNames( {
 			'dops-section-nav': true,
 			'is-open': this.state.mobileOpen,
-			'has-pinned-items': this.hasPinnedSearch || this.props.hasPinnedItems
+			'has-pinned-items': this.hasPinnedSearch || this.props.hasPinnedItems,
 		} );
 
 		return (
 			<div className={ className }>
 				<div
 					className="dops-section-nav__mobile-header"
-					onTouchTap={ this.toggleMobileOpenState }
+					role="button"
+					onClick={ this.toggleMobileOpenState }
+					tabIndex={ 0 }
+					onKeyUp={ this.toggleMobileOpenState }
 				>
-					<span className="dops-section-nav__mobile-header-text">
-						{ this.props.selectedText }
-					</span>
+					<span className="dops-section-nav__mobile-header-text">{ this.props.selectedText }</span>
 				</div>
 
-				<div className="dops-section-nav__panel">
-					{ children }
-				</div>
+				<div className="dops-section-nav__panel">{ children }</div>
 			</div>
 		);
 	},
 
 	getChildren: function() {
-		return React.Children.map( this.props.children, function( child ) {
-			var extraProps = {
-				hasSiblingControls: this.hasSiblingControls,
-				closeSectionNavMobilePanel: this.closeMobilePanel
-			};
+		return React.Children.map(
+			this.props.children,
+			function( child ) {
+				const extraProps = {
+					hasSiblingControls: this.hasSiblingControls,
+					closeSectionNavMobilePanel: this.closeMobilePanel,
+				};
 
-			if ( ! child ) {
-				return null;
-			}
-
-			// Propagate 'selectedText' to NavItem component
-			if (
-				child.type === NavTabs &&
-				! child.props.selectedText &&
-				typeof this.props.selectedText === 'string'
-			) {
-				extraProps.selectedText = this.props.selectedText;
-			}
-
-			// Propagate 'selectedCount' to NavItem component
-			if ( child.type === NavTabs && this.props.selectedCount ) {
-				extraProps.selectedCount = this.props.selectedCount;
-			}
-
-			if ( child.type === Search ) {
-				if ( child.props.pinned ) {
-					this.hasPinnedSearch = true;
+				if ( ! child ) {
+					return null;
 				}
 
-				extraProps.onSearch = this.generateOnSearch( child.props.onSearch );
-			}
+				// Propagate 'selectedText' to NavItem component
+				if (
+					child.type === NavTabs &&
+					! child.props.selectedText &&
+					typeof this.props.selectedText === 'string'
+				) {
+					extraProps.selectedText = this.props.selectedText;
+				}
 
-			return React.cloneElement( child, extraProps );
-		}.bind( this ) );
+				// Propagate 'selectedCount' to NavItem component
+				if ( child.type === NavTabs && this.props.selectedCount ) {
+					extraProps.selectedCount = this.props.selectedCount;
+				}
+
+				if ( child.type === Search ) {
+					if ( child.props.pinned ) {
+						this.hasPinnedSearch = true;
+					}
+
+					extraProps.onSearch = this.generateOnSearch( child.props.onSearch );
+				}
+
+				return React.cloneElement( child, extraProps );
+			}.bind( this )
+		);
 	},
 
 	closeMobilePanel: function() {
 		if ( window.innerWidth < 480 && this.state.mobileOpen ) {
 			this.setState( {
-				mobileOpen: false
+				mobileOpen: false,
 			} );
 		}
 	},
 
 	toggleMobileOpenState: function() {
-		var mobileOpen = ! this.state.mobileOpen;
+		const mobileOpen = ! this.state.mobileOpen;
 
 		this.setState( {
-			mobileOpen: mobileOpen
+			mobileOpen: mobileOpen,
 		} );
 
 		if ( mobileOpen ) {
@@ -167,13 +173,16 @@ var SectionNav = React.createClass( {
 	checkForSiblingControls: function( children ) {
 		this.hasSiblingControls = false;
 
-		React.Children.forEach( children, function( child, index ) {
-			// Checking for at least 2 controls groups that are not search or null
-			if ( index && child && child.type !== Search ) {
-				this.hasSiblingControls = true;
-			}
-		}.bind( this ) );
-	}
+		React.Children.forEach(
+			children,
+			function( child, index ) {
+				// Checking for at least 2 controls groups that are not search or null
+				if ( index && child && child.type !== Search ) {
+					this.hasSiblingControls = true;
+				}
+			}.bind( this )
+		);
+	},
 } );
 
 module.exports = SectionNav;

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Receive immediate notifications if your site goes down, 24/7.
+ * Module Description: Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.
  * Jumpstart Description: Receive immediate notifications if your site goes down, 24/7.
  * Sort Order: 28
  * Recommendation Order: 10
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Security, Jumpstart
- * Additional Search Queries: monitor, uptime, downtime, monitoring
+ * Additional Search Queries: monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
  */
 
 class Jetpack_Monitor {
@@ -52,7 +52,7 @@ class Jetpack_Monitor {
 
 	public function jetpack_configuration_screen() {
 		?>
-		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Downtime Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
 		<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
 		<div class="narrow">
 		<?php if ( Jetpack::is_user_connected() && current_user_can( 'manage_options' ) ) : ?>

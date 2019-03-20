@@ -8,6 +8,7 @@ if ( isset( $fuzzy_image_meta['keywords'] ) ) {
 if ( defined( 'JSON_HEX_AMP' ) ) {
 	// see shortcodes/slideshow.php
 	// This is nice to have, but not strictly necessary since we use _wp_specialchars() below
+	// phpcs:ignore PHPCompatibility
 	$fuzzy_image_meta = json_encode( array_map( 'strval', $fuzzy_image_meta ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 } else {
 	$fuzzy_image_meta = json_encode( array_map( 'strval', $fuzzy_image_meta ) );

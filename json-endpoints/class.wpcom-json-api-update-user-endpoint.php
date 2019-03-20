@@ -66,6 +66,30 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Return the domain name of a subscription
+	 *
+	 * @param  Store_Subscription $subscription
+	 * @return string
+	 */
+	protected function get_subscription_domain_name( $subscription ) {
+		return $subscription->meta;
+	}
+
+	/**
+	 * Get a list of the domains owned by the given user.
+	 *
+	 * @param  int $user_id
+	 * @return array
+	 */
+	protected function domain_subscriptions_for_site_owned_by_user( $user_id ) {
+		$subscriptions = WPCOM_Store::get_subscriptions( get_current_blog_id(), $user_id, domains::get_domain_products() );
+
+		$domains = array_unique( array_map( array( $this, 'get_subscription_domain_name' ), $subscriptions ) );
+
+		return $domains;
+	}
+
+	/**
 	 * Validates user input and then decides whether to remove or delete a user.
 	 * @param  int $user_id
 	 * @return array|WP_Error
@@ -75,7 +99,14 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_input', 'A valid user ID must be specified.', 400 );
 		}
 
-		if ( get_current_user_id() == $user_id ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$domains = $this->domain_subscriptions_for_site_owned_by_user( $user_id );
+			if ( ! empty( $domains ) ) {
+				return new WP_Error( 'user_owns_domain_subscription', join( ', ', $domains ) );
+			}
+		}
+
+    	if ( get_current_user_id() == $user_id ) {
 			return new WP_Error( 'invalid_input', 'User can not remove or delete self through this endpoint.', 400 );
 		}
 

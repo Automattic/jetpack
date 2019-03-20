@@ -24,8 +24,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Goodreads', 'jetpack' ) ),
 			array(
-				'classname'   => 'widget_goodreads',
-				'description' => __( 'Display your books from Goodreads', 'jetpack' ),
+				'classname'                   => 'widget_goodreads',
+				'description'                 => __( 'Display your books from Goodreads', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -33,7 +33,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		$this->shelves = array(
 			'read'              => _x( 'Read', 'past participle: books I have read', 'jetpack' ),
 			'currently-reading' => __( 'Currently Reading', 'jetpack' ),
-			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' )
+			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' ),
 		);
 
 		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
@@ -54,7 +54,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 
 		if ( empty( $instance['user_id'] ) || 'invalid' === $instance['user_id'] ) {
-			if ( current_user_can('edit_theme_options') ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
 				echo '<p>' . sprintf(
 					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" target="_blank">Full instructions</a>.', 'jetpack' ),
@@ -66,30 +66,39 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			return;
 		}
 
-		if ( !array_key_exists( $instance['shelf'], $this->shelves ) )
+		if ( ! array_key_exists( $instance['shelf'], $this->shelves ) ) {
 			return;
+		}
 
 		$instance['user_id'] = absint( $instance['user_id'] );
 
 		// Set widget ID based on shelf.
 		$this->goodreads_widget_id = $instance['user_id'] . '_' . $instance['shelf'];
 
-		if ( empty( $title ) ) $title = esc_html__( 'Goodreads', 'jetpack' );
+		if ( empty( $title ) ) {
+			$title = esc_html__( 'Goodreads', 'jetpack' );
+		}
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . $title . $args['after_title'];
 
-		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . urlencode( $instance['user_id'] ) . '.' . urlencode( $instance['title'] ) . ':%20' . urlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . urlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . esc_attr( $this->goodreads_widget_id ) ;
+		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . urlencode( $instance['user_id'] ) . '.' . urlencode( $instance['title'] ) . ':%20' . urlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . urlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . esc_attr( $this->goodreads_widget_id );
 
-		echo '<div class="gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ). '"></div>' . "\n";
+		echo '<div class="gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
 		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n";
 
 		echo $args['after_widget'];
 	}
 
 	function goodreads_user_id_exists( $user_id ) {
-		$url = "https://www.goodreads.com/user/show/$user_id/";
-		$response = wp_remote_head( $url, array( 'httpversion' => '1.1', 'timeout' => 3, 'redirection' => 2 ) );
+		$url      = "https://www.goodreads.com/user/show/$user_id/";
+		$response = wp_remote_head(
+			$url, array(
+				'httpversion' => '1.1',
+				'timeout'     => 3,
+				'redirection' => 2,
+			)
+		);
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return true;
 		} else {
@@ -107,16 +116,23 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			}
 		}
 		$instance['title'] = wp_kses( stripslashes( $new_instance['title'] ), array() );
-		$shelf = wp_kses( stripslashes( $new_instance['shelf'] ), array() );
-		if ( array_key_exists( $shelf, $this->shelves ) )
+		$shelf             = wp_kses( stripslashes( $new_instance['shelf'] ), array() );
+		if ( array_key_exists( $shelf, $this->shelves ) ) {
 			$instance['shelf'] = $shelf;
+		}
 
 		return $instance;
 	}
 
 	function form( $instance ) {
 		//Defaults
-		$instance = wp_parse_args( (array) $instance, array( 'user_id' => '', 'title' => 'Goodreads', 'shelf' => 'read' ) );
+		$instance = wp_parse_args(
+			(array) $instance, array(
+				'user_id' => '',
+				'title'   => 'Goodreads',
+				'shelf'   => 'read',
+			)
+		);
 
 		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'jetpack' ) . '
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $instance['title'] ) . '" />
@@ -131,8 +147,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:', 'jetpack' ) . '
 		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '" name="' . esc_attr( $this->get_field_name( 'shelf' ) ) . '" >';
-		foreach( $this->shelves as $_shelf_value => $_shelf_display ) {
-			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . ">" . $_shelf_display . "</option>\n";
+		foreach ( $this->shelves as $_shelf_value => $_shelf_display ) {
+			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . '>' . $_shelf_display . "</option>\n";
 		}
 		echo '</select>
 		</label></p>

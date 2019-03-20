@@ -3,6 +3,7 @@
 /**
  * External Dependencies
  */
+import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
 import find from 'lodash/find';
@@ -25,8 +26,8 @@ require( './style.scss' );
 /**
  * Module variables
  */
-const { Component, PropTypes } = React;
-var noop = () => {};
+const { Component } = React;
+const noop = () => {};
 
 /**
  * SelectDropdown
@@ -43,7 +44,7 @@ class SelectDropdown extends Component {
 		this._onClick = this._onClick.bind( this );
 
 		// state
-		let initialState = { isOpen: false };
+		const initialState = { isOpen: false };
 
 		if ( props.options.length ) {
 			initialState.selected = this.getInitialSelectedItem( props );
@@ -52,13 +53,13 @@ class SelectDropdown extends Component {
 		this.state = initialState;
 	}
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
-			instanceId: ++SelectDropdown.instances
+			instanceId: ++SelectDropdown.instances,
 		} );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.state.isOpen ) {
 			this.closeDropdown();
 		}
@@ -85,7 +86,7 @@ class SelectDropdown extends Component {
 		if ( this.state.isOpen !== prevState.isOpen ) {
 			this.props.onToggle( {
 				target: this,
-				open: this.state.isOpen
+				open: this.state.isOpen,
 			} );
 		}
 	}
@@ -106,55 +107,55 @@ class SelectDropdown extends Component {
 	}
 
 	dropdownOptions() {
-		var refIndex = 0;
-		var self = this;
+		let refIndex = 0;
+		const self = this;
 
 		if ( this.props.children ) {
 			// add keys and refs to children
-			return React.Children.map( this.props.children, function( child, index ) {
-				if ( ! child ) {
-					return null;
-				}
-
-				let newChild = React.cloneElement( child, {
-					ref: ( child.type === DropdownItem ) ? 'item-' + refIndex : null,
-					key: 'item-' + index,
-					onClick: function( event ) {
-						self.refs.dropdownContainer.focus();
-						if ( typeof child.props.onClick === 'function' ) {
-							child.props.onClick( event );
-						}
+			return React.Children.map(
+				this.props.children,
+				function( child, index ) {
+					if ( ! child ) {
+						return null;
 					}
-				} );
 
-				if ( child.type === DropdownItem ) {
-					refIndex++;
-				}
+					const newChild = React.cloneElement( child, {
+						ref: child.type === DropdownItem ? 'item-' + refIndex : null,
+						key: 'item-' + index,
+						onClick: function( event ) {
+							self.refs.dropdownContainer.focus();
+							if ( typeof child.props.onClick === 'function' ) {
+								child.props.onClick( event );
+							}
+						},
+					} );
 
-				return newChild;
-			}, this );
+					if ( child.type === DropdownItem ) {
+						refIndex++;
+					}
+
+					return newChild;
+				},
+				this
+			);
 		}
 
 		return this.props.options.map( function( item, index ) {
 			if ( ! item ) {
 				return (
-					<DropdownSeparator
-						key={ 'dropdown-separator-' + this.state.instanceId + '-' + index }
-					/>
+					<DropdownSeparator key={ 'dropdown-separator-' + this.state.instanceId + '-' + index } />
 				);
 			}
 
 			if ( item.isLabel ) {
 				return (
-					<DropdownLabel
-						key={ 'dropdown-label-' + this.state.instanceId + '-' + index }
-					>
+					<DropdownLabel key={ 'dropdown-label-' + this.state.instanceId + '-' + index }>
 						{ item.label }
 					</DropdownLabel>
 				);
 			}
 
-			let dropdownItem = (
+			const dropdownItem = (
 				<DropdownItem
 					key={ 'dropdown-item-' + this.state.instanceId + '-' + item.value }
 					ref={ 'item-' + refIndex }
@@ -177,7 +178,7 @@ class SelectDropdown extends Component {
 			'dops-select-dropdown': true,
 			'is-compact': this.props.compact,
 			'is-open': this.state.isOpen,
-			'is-disabled': this.props.disabled
+			'is-disabled': this.props.disabled,
 		};
 
 		if ( this.props.className ) {
@@ -186,19 +187,16 @@ class SelectDropdown extends Component {
 			} );
 		}
 
-		let dropdownClassName = classNames( dropdownClasses );
-		let selectedText = this.props.selectedText
+		const dropdownClassName = classNames( dropdownClasses );
+		const selectedText = this.props.selectedText
 			? this.props.selectedText
-			: result( find(
-				this.props.options, { value: this.state.selected }
-			), 'label' );
+			: result( find( this.props.options, { value: this.state.selected } ), 'label' );
 
 		return (
 			<div style={ this.props.style } className={ dropdownClassName }>
 				<div
 					ref="dropdownContainer"
 					className="dops-select-dropdown__container"
-					valueLink={ this.props.valueLink }
 					tabIndex={ this.props.tabIndex || 0 }
 					role="listbox"
 					aria-labelledby={ 'select-dropdown-' + this.state.instanceId }
@@ -215,10 +213,9 @@ class SelectDropdown extends Component {
 					>
 						<span className="dops-select-dropdown__header-text">
 							{ selectedText }
-							{
-								'number' === typeof this.props.selectedCount &&
+							{ 'number' === typeof this.props.selectedCount && (
 								<Count count={ this.props.selectedCount } />
-							}
+							) }
 						</span>
 					</div>
 
@@ -241,13 +238,13 @@ class SelectDropdown extends Component {
 
 	toggleDropdown() {
 		this.setState( {
-			isOpen: ! this.state.isOpen
+			isOpen: ! this.state.isOpen,
 		} );
 	}
 
 	openDropdown() {
 		this.setState( {
-			isOpen: true
+			isOpen: true,
 		} );
 	}
 
@@ -255,7 +252,7 @@ class SelectDropdown extends Component {
 		if ( this.state.isOpen ) {
 			delete this.focused;
 			this.setState( {
-				isOpen: false
+				isOpen: false,
 			} );
 		}
 	}
@@ -274,7 +271,7 @@ class SelectDropdown extends Component {
 		}
 
 		this.setState( {
-			selected: option.value
+			selected: option.value,
 		} );
 
 		this.refs.dropdownContainer.focus();
@@ -309,12 +306,11 @@ class SelectDropdown extends Component {
 	}
 
 	navigateItemByTabKey( event ) {
-		var direction;
 		if ( ! this.state.isOpen ) {
 			return;
 		}
 		event.preventDefault();
-		direction = ( event.shiftKey ) ? 'previous' : 'next';
+		const direction = event.shiftKey ? 'previous' : 'next';
 		this.focusSibling( direction );
 	}
 
@@ -326,7 +322,7 @@ class SelectDropdown extends Component {
 	}
 
 	focusSibling( direction ) {
-		var increment, items, focusedIndex, newIndex;
+		let items, focusedIndex;
 
 		// the initial up-arrow/down-arrow should only open the menu
 		if ( ! this.state.isOpen ) {
@@ -334,27 +330,30 @@ class SelectDropdown extends Component {
 		}
 
 		if ( this.props.options.length ) {
-			items = map( filter( this.props.options, item => {
-				return item && ! item.isLabel;
-			} ), 'value' );
+			items = map(
+				filter( this.props.options, item => {
+					return item && ! item.isLabel;
+				} ),
+				'value'
+			);
 
-			focusedIndex = typeof this.focused === 'number'
-				? this.focused
-				: items.indexOf( this.state.selected );
+			focusedIndex =
+				typeof this.focused === 'number' ? this.focused : items.indexOf( this.state.selected );
 		} else {
 			items = filter( this.props.children, function( item ) {
 				return item.type === DropdownItem;
 			} );
 
-			focusedIndex = typeof this.focused === 'number'
-				? this.focused
-				: findIndex( items, function( item ) {
-					return item.props.selected;
-				} );
+			focusedIndex =
+				typeof this.focused === 'number'
+					? this.focused
+					: findIndex( items, function( item ) {
+							return item.props.selected;
+					  } );
 		}
 
-		increment = ( direction === 'previous' ) ? -1 : 1;
-		newIndex = focusedIndex + increment;
+		const increment = direction === 'previous' ? -1 : 1;
+		const newIndex = focusedIndex + increment;
 
 		if ( newIndex >= items.length || newIndex < 0 ) {
 			return;
@@ -369,14 +368,14 @@ class SelectDropdown extends Component {
 			this.closeDropdown();
 		}
 	}
-};
+}
 
 SelectDropdown.defaultProps = {
 	options: [],
 	onSelect: noop,
 	onToggle: noop,
 	disabled: false,
-	style: {}
+	style: {},
 };
 
 SelectDropdown.propTypes = {
@@ -394,9 +393,9 @@ SelectDropdown.propTypes = {
 		PropTypes.shape( {
 			value: PropTypes.string.isRequired,
 			label: PropTypes.string.isRequired,
-			path: PropTypes.string
+			path: PropTypes.string,
 		} )
-	)
+	),
 };
 
 // statics

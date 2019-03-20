@@ -6,24 +6,24 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes'       => true,
-		'upload_max_bytes'        => true,
-		'upload_max_rows'         => true,
-		'sync_wait_time'          => true,
-		'sync_wait_threshold'     => true,
-		'enqueue_wait_time'       => true,
-		'max_queue_size'          => true,
-		'max_queue_lag'           => true,
-		'queue_max_writes_sec'    => true,
-		'post_types_blacklist'    => true,
-		'disable'                 => true,
-		'render_filtered_content' => true,
-		'post_meta_whitelist'     => true,
-		'comment_meta_whitelist'  => true,
-		'max_enqueue_full_sync'   => true,
-		'max_queue_size_full_sync'=> true,
-		'sync_via_cron'           => true,
-		'cron_sync_time_limit'    => true,
+		'dequeue_max_bytes'        => true,
+		'upload_max_bytes'         => true,
+		'upload_max_rows'          => true,
+		'sync_wait_time'           => true,
+		'sync_wait_threshold'      => true,
+		'enqueue_wait_time'        => true,
+		'max_queue_size'           => true,
+		'max_queue_lag'            => true,
+		'queue_max_writes_sec'     => true,
+		'post_types_blacklist'     => true,
+		'disable'                  => true,
+		'render_filtered_content'  => true,
+		'post_meta_whitelist'      => true,
+		'comment_meta_whitelist'   => true,
+		'max_enqueue_full_sync'    => true,
+		'max_queue_size_full_sync' => true,
+		'sync_via_cron'            => true,
+		'cron_sync_time_limit'     => true,
 	);
 
 	static $is_importing;
@@ -65,7 +65,7 @@ class Jetpack_Sync_Settings {
 			$value = intval( $value );
 		}
 		$default_array_value = null;
-		switch( $setting ) {
+		switch ( $setting ) {
 			case 'post_types_blacklist':
 				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
 				break;
@@ -97,7 +97,7 @@ class Jetpack_Sync_Settings {
 			unset( self::$settings_cache[ $setting ] );
 
 			// if we set the disabled option to true, clear the queues
-			if ( 'disable' === $setting && !! $value ) {
+			if ( 'disable' === $setting && ! ! $value ) {
 				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
@@ -136,7 +136,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function set_importing( $is_importing ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_importing = $is_importing;
 	}
 
@@ -149,7 +149,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function set_doing_cron( $is_doing_cron ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_doing_cron = $is_doing_cron;
 	}
 

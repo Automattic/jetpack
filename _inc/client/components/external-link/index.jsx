@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 import classnames from 'classnames';
 import assign from 'lodash/assign';
@@ -14,23 +16,22 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default React.createClass( {
-
+export default createReactClass( {
 	displayName: 'ExternalLink',
 
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		className: React.PropTypes.string,
-		href: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		icon: React.PropTypes.bool,
-		iconSize: React.PropTypes.number
+		className: PropTypes.string,
+		href: PropTypes.string,
+		onClick: PropTypes.func,
+		icon: PropTypes.bool,
+		iconSize: PropTypes.number,
 	},
 
 	getDefaultProps() {
 		return {
-			iconSize: 18
+			iconSize: 18,
 		};
 	},
 
@@ -41,7 +42,7 @@ export default React.createClass( {
 
 		const props = assign( {}, omit( this.props, 'icon', 'iconSize' ), {
 			className: classes,
-			rel: 'external'
+			rel: 'external',
 		} );
 
 		return (
@@ -50,5 +51,5 @@ export default React.createClass( {
 				{ this.props.icon ? <Gridicon icon="external" size={ this.props.iconSize } /> : null }
 			</a>
 		);
-	}
+	},
 } );

@@ -9,14 +9,12 @@ import SimpleNotice from 'components/notice';
  * Internal dependencies
  */
 import {
-	getJetpackNotices as _getJetpackNotices
-} from 'state/jetpack-notices';
-import {
-	isNoticeDismissed as _isNoticeDismissed
+	getJetpackNotices as _getJetpackNotices,
+	isNoticeDismissed as _isNoticeDismissed,
 } from 'state/jetpack-notices';
 
-export const StaticWarning = React.createClass( {
-	displayName: 'StaticWarning',
+export class StaticWarning extends React.Component {
+	static displayName = 'StaticWarning';
 
 	render() {
 		return (
@@ -29,13 +27,11 @@ export const StaticWarning = React.createClass( {
 			</SimpleNotice>
 		);
 	}
-} );
+}
 
-export default connect(
-	state => {
-		return {
-			jetpackNotices: () => _getJetpackNotices( state ),
-			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
-		};
-	}
-)( StaticWarning );
+export default connect( state => {
+	return {
+		jetpackNotices: () => _getJetpackNotices( state ),
+		isDismissed: notice => _isNoticeDismissed( state, notice ),
+	};
+} )( StaticWarning );

@@ -15,6 +15,8 @@ module.exports = {
 	 */
 	hasTouch: function() {
 		/* global DocumentTouch:true */
-		return ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch );
-	}
+		return (
+			'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch )
+		);
+	},
 };

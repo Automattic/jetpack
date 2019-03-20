@@ -35,8 +35,7 @@ new WPCOM_JSON_API_Bulk_Delete_Post_Endpoint( array(
 
 class WPCOM_JSON_API_Bulk_Delete_Post_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 	// /sites/%s/posts/delete
-	// The unused $object parameter is for making the method signature compatible with its parent class method.
-	function callback( $path = '', $blog_id = 0, $object = null ) {
+	function callback( $path = '', $blog_id = 0, $post_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;

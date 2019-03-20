@@ -1,9 +1,5 @@
 # Git Workflow
 
-## Familiar with Git?
-
-If you're not familiar with Git, you can [follow these detailed steps to find out how to submit your first patch.](guides/submit-patch.md)
-
 ## Branch Naming Scheme
 
 All changes should be developed in a new branch created from the `master` branch.
@@ -19,8 +15,8 @@ For example, you can run: `git checkout master` and then `git checkout -b fix/wh
 
 ## Mind your commits
 
-- [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
-- Ensure that your commit messages are [meaningful.](http://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message)
+* [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
+* Ensure that your commit messages are [meaningful.](http://robots.thoughtbot.com/5-useful-tips-for-a-better-commit-message)
 
 ## Keeping Your Branch Up To Date
 
@@ -49,7 +45,7 @@ $ git checkout update/my-changes
 
 # Ask git to bring in the changes that are currently on original Jetpack repo's master branch and
 # put them in your local copy of the repo before your commits.
-$ git fetch
+$ git fetch jetpack
 $ git rebase jetpack/master
 
 # Make more changes and commit OR resolve conflicts.

@@ -7,11 +7,22 @@
 
 // Example URL: http://pinterest.com/pinterest/pin-pets/
 // Second Example URL: https://uk.pinterest.com/annsawesomepins/travel/
-wp_embed_register_handler( 'pinterest', '#https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.com/([^/]+)(/[^/]+)?#', 'pinterest_embed_handler' );
+wp_embed_register_handler(
+	'pinterest',
+	'#'
+	. 'https?://'
+	. '(?:www\.)?'
+	. '(?:[a-z]{2}\.)?'
+	. 'pinterest\.[a-z.]+/'
+	. '([^/]+)'
+	. '(/[^/]+)?'
+	. '#',
+	'pinterest_embed_handler'
+);
 
 function pinterest_embed_handler( $matches, $attr, $url ) {
 	// Pinterest's JS handles making the embed
-    $script_src = '//assets.pinterest.com/js/pinit.js';
+	$script_src = '//assets.pinterest.com/js/pinit.js';
 	wp_enqueue_script( 'pinterest-embed', $script_src, array(), false, true );
 
 	$path = parse_url( $url, PHP_URL_PATH );

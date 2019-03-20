@@ -2,14 +2,13 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Enable pop-up business cards over commenters’ Gravatars.
- * Jumpstart Description: Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.
  * Sort Order: 11
  * Recommendation Order: 13
  * First Introduced: 1.1
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
- * Feature: Appearance, Jumpstart
+ * Feature: Appearance
  * Additional Search Queries: gravatar, hovercards
  */
 
@@ -185,7 +184,7 @@ function grofiles_attach_cards() {
 		return;
 	}
 
-	wp_enqueue_script( 'grofiles-cards', ( is_ssl() ? 'https://secure' : 'http://s' ) . '.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER, true );
+	wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER, true );
 	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), false, true );
 	if ( is_user_logged_in() ) {
 		$cu = wp_get_current_user();
@@ -246,7 +245,7 @@ function grofiles_hovercards_data_html( $author ) {
 	} elseif ( is_a( $author, 'WP_User' ) ) {
 		$hash = md5( $author->user_email );
 	}
-	
+
 	if ( ! $hash ) {
 		return;
 	}

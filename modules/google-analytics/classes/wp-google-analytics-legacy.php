@@ -77,7 +77,10 @@ class Jetpack_Google_Analytics_Legacy {
 		if ( is_404() ) {
 			// This is a 404 and we are supposed to track them.
 			$custom_vars[] = "_gaq.push(['_trackEvent', '404', document.location.href, document.referrer]);";
-		} elseif ( is_search() ) {
+		} elseif (
+			is_search()
+			&& isset( $_REQUEST['s'] )
+		) {
 			// Set track for searches, if it's a search, and we are supposed to.
 			$track['data'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // Input var okay.
 			$track['code'] = 'search';

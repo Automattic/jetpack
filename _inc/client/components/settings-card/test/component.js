@@ -29,7 +29,10 @@ describe( 'SettingsCard', () => {
 		sitePlan: {
 			product_slug: 'jetpack_free'
 		},
-		userCanManageModules: true
+		userCanManageModules: true,
+		getModuleOverride: () => {
+			return false;
+		}
 	};
 
 	const allCardsNonAdminCantAccess = [
@@ -74,7 +77,7 @@ describe( 'SettingsCard', () => {
 			'post-by-email'
 		];
 
-	const wrapper = shallow( <SettingsCard { ...testProps } /> );
+	const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
 
 	it( 'renders a heading', () => {
 		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
@@ -95,7 +98,7 @@ describe( 'SettingsCard', () => {
 			support: 'https://jetpack.com/'
 		} );
 
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
+		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
 
 		it( 'the header has priority over module.name', () => {
 			expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'A custom header' );
@@ -109,7 +112,7 @@ describe( 'SettingsCard', () => {
 			saveDisabled: true
 		} );
 
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
+		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
 
 		it( "when saving, it's disabled", () => {
 			expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.true;
@@ -134,7 +137,7 @@ describe( 'SettingsCard', () => {
 			)
 		} );
 
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
+		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
 
 		it( 'the support icon is not rendered', () => {
 			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
@@ -151,7 +154,7 @@ describe( 'SettingsCard', () => {
 			saveDisabled: true
 		} );
 
-		const saveButton = shallow( <SettingsCard { ...testProps } /> ).find( 'SectionHeader' ).find( 'Button' );
+		const saveButton = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> ).find( 'SectionHeader' ).find( 'Button' );
 
 		saveButton.simulate( 'click' );
 		saveButton.simulate( 'click' );
@@ -171,13 +174,13 @@ describe( 'SettingsCard', () => {
 
 		it( 'does not render cards that are not Composing or Post by Email', () => {
 			allCardsNonAdminCantAccess.forEach( item => {
-				expect( shallow( <SettingsCard { ...testProps } module={ item } /> ).find( 'form' ) ).to.have.length( 0 );
+				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 0 );
 			} );
 		} );
 
 		it( 'renders Composing and Post by Email cards', () => {
 			allCardsForNonAdmin.forEach( item => {
-				expect( shallow( <SettingsCard { ...testProps } module={ item } /> ).find( 'form' ) ).to.have.length( 1 );
+				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 1 );
 			} );
 		} );
 

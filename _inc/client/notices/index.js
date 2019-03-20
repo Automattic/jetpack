@@ -1,15 +1,15 @@
 /**
  * External Dependencies
  */
-var debug = require( 'debug' )( 'calypso:notices' );
+const debug = require( 'debug' )( 'calypso:notices' );
 
-var Emitter = require( 'mixins/emitter' );
+const Emitter = require( 'mixins/emitter' );
 
 debug( 'initializing notices' );
 
-var list = { containerNames: {} };
+const list = { containerNames: {} };
 Emitter( list );
-var delayedNotices = [];
+let delayedNotices = [];
 
 require( './style.scss' );
 
@@ -17,12 +17,14 @@ const notices = {
 	/**
 	 * Creates a new notice
 	 * @private
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
+	 * @param {String} status   the classname to affect the notice color.
 	 * @return {object} notice
 	 */
 	new: function( text, options, status ) {
 		// Set container
-		var container = options.overlay ? 'overlay-notices' : 'notices';
+		const container = options.overlay ? 'overlay-notices' : 'notices';
 
 		// keep track of container
 		list.containerNames[ container ] = container;
@@ -30,7 +32,7 @@ const notices = {
 		debug( 'creating notice', text, options, status );
 
 		list[ container ] = [];
-		var noticeObject = {
+		const noticeObject = {
 			type: options.type || 'message',
 			status: status,
 			text: text,
@@ -38,7 +40,7 @@ const notices = {
 			container: container,
 			button: options.button,
 			href: options.href,
-			onClick: ( event ) => {
+			onClick: event => {
 				if ( typeof options.onClick === 'function' ) {
 					const closeFn = notices.removeNotice.bind( notices, noticeObject );
 					return options.onClick( event, closeFn );
@@ -48,7 +50,7 @@ const notices = {
 			arrow: options.arrow,
 			isCompact: options.isCompact,
 			showDismiss: options.showDismiss,
-			persistent: options.persistent
+			persistent: options.persistent,
 		};
 
 		// if requested, delay the notice until the next page load
@@ -66,7 +68,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Success" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	success: function( text, options ) {
@@ -77,7 +80,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Error" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	error: function( text, options ) {
@@ -88,7 +92,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	info: function( text, options ) {
@@ -99,7 +104,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	warning: function( text, options ) {
@@ -120,7 +126,7 @@ const notices = {
 		if ( ! notice.container ) {
 			return;
 		}
-		var containerList = list[ notice.container ],
+		const containerList = list[ notice.container ],
 			index = containerList.indexOf( notice );
 
 		if ( -1 === index ) {
@@ -133,14 +139,17 @@ const notices = {
 	/**
 	 * Callback handler to clear notices when a user leaves current page
 	 * @public
+	 * @param {*}        context  Not used ?
+	 * @param {Function} next     next callback to execute
 	 */
 	clearNoticesOnNavigation: function( context, next ) {
 		debug( 'clearNoticesOnNavigation' );
-		var length, container,
-			changed = false,
-			isNoticePersistent = function( notice ) {
-				return notice.persistent;
-			};
+		let length,
+			container,
+			changed = false;
+		const isNoticePersistent = function( notice ) {
+			return notice.persistent;
+		};
 
 		for ( container in list.containerNames ) {
 			length = list[ container ].length;
@@ -192,8 +201,7 @@ const notices = {
 		if ( noticeObject.success ) {
 			return 'is-success';
 		}
-	}
-
+	},
 };
 
 export default notices;

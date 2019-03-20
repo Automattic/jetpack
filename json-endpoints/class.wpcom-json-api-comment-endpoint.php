@@ -23,6 +23,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'comment'   => 'The comment is a regular comment.',
 			'trackback' => 'The comment is a trackback.',
 			'pingback'  => 'The comment is a pingback.',
+			'review'    => 'The comment is a product review.',
 		),
 		'like_count'   => '(int) The number of likes for this comment.',
 		'i_like'       => '(bool) Does the current user like this comment?',
@@ -47,7 +48,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
 		}
 
-		$types = array( '', 'comment', 'pingback', 'trackback' );
+		$types = array( '', 'comment', 'pingback', 'trackback', 'review' );
 		if ( !in_array( $comment->comment_type, $types ) ) {
 			return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
 		}

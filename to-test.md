@@ -1,98 +1,96 @@
-## 5.7
+## 7.1
 
-### Portfolio
+### Block Editor
 
-Portfolio posts are now revisioned.
+This release introduces some new blocks we'd like you to test.
 
-Follow the instructions below to test the feature:
+#### Ads
 
-1. Create a new Portfolio entry, don't publish it.
-2. Save the draft a few times.
-3. Confirm you can see revisions, just as you would see for posts or pages.
+the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages. To use it, you need to purchase a Premium or a Professional plan. Once you have one, you can turn on the Ads feature under Jetpack > Settings > Traffic in your dashboard. Once you've done so, try the following:
 
-### Markdown
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Make sure the ads are displayed properly on your site.
 
-There used to be a bug that didn't allow you to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
+#### Business Hours
 
-To test, try the following:
+The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site. To test it, try the following:
 
-1. Register a test shortcode. The callback doesn't matter (it just needs to be registered so it gets added to the regex).
-	```php
-	add_shortcode( 'test', '__return_empty_string' );
-	```
-2. Create a post with the following content:
-	```
-		[test]Text with `code` in it.[/test]
-	```
-3. Save the post, and visit it expecting to see the markdown converted to html.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add Opening Hours for some days, and not for others. Ensure that the block looks good in the editor and on the site's frontend.
+- Set the business to be closed on some days and open on hours. Does everything work?
+- Make sure the block works regardless of your site's language.
 
-### Comments
+#### Contact Info
 
-#### Hooking on comments
+The Contact Info block is a great block to go along the Business Hours block. You can use it to list your business' address, phone number, and email address, in a format recognizable by Google and other search engines. To test it, try the following:
 
-Now, other plugins hooking on `comment_form_after` for showing content will work seamlessly with Jetpack.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Add some information, use all the child blocks or only some of them. You can also reorder them around.
+- Make sure every information and every link works well in the editor and on your site.
+- Once you're happy with the result, make sure the page does not throw any warnings in [this Google Structured data tool](https://search.google.com/structured-data/testing-tool).
 
-To test:
+#### Mailchimp
 
-1. Add a plugin that hooks in after the comment form, such as Webmentions ( https://wordpress.org/plugins/webmention/ ).
-2. Visit any given post for which comments are enabled an expect to see the content that the other plugin outputs.
+The Mailchimp block allows you to insert Mailchimp subscription forms anywhere in your posts and pages. To test this, you will need [a Mailchimp account](https://mailchimp.com/), and an email list in that account. The block will be used by your readers to add themselves to that list, that you can later use to contact your subscribers.
 
-#### WordPress.com comments editor
+Once you have that, try the following:
 
-Edit links for comments will be redirected to WordPress.com comment editor if the Jetpack option `edit_links_calypso_redirect` is enabled.
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try modifying button text and description.
+- Try subscribing to a mailing list – can you see the email at your list over at Mailchimp.com?
+- Try inserting multiple instances of the block.
+- Try testing on a variety of screen sizes, and devices if possible, both in the editor and theme -side.
+- Try changing a theme (feel free to test a few different ones)
+- Try adding block as a contributor level user
+- Test how the block looks like from RSS feed or in Jetpack subscription emails
+- Test on mobile
+- Test how the block works as a “reusable block”.
 
-To test:
+#### Related Posts
 
-1. Ensure the option is enabled. One way is to run the following `wp` cli command:
-	```sh
-	wp jetpack options update edit_links_calypso_redirect 1
-	```
-2. Verify that the frontend Edit link for a comment points to WordPress.com.
+The Related Posts block isn't new, but we've made some changes to how it works and would appreciate your eyes on this. Try adding the block to one of your site, and try playing with the number of posts listed in the block. You can now add up to 6 related posts! Make sure that works well.
 
-### Search
+#### Slideshows
 
-We improved the UI for customizing the Search widget.
+Slideshows are often a nice alternative to galleries, and have long been part of Jetpack, alongside Tiled Galleries. We're now bringing that option to the block editor, with a brand new block! You can test it like so:
 
-To test the new customization UI for the widget:
+- Add the block using the block picker using only a cursor (don’t search for it). Was it where you expected? Does the icon fit?
+- Add the block by searching for it. Don’t just search for the name of it. Try other search terms you might use to find the block. Are we missing any?
+- Try adding images of different aspect ratios.
+- Try different options, both from the block toolbar, and the sidebar. Verify that each change works like it should. After modifying options, update the post and verify that the saved content on the frontend works and looks like expected.
+	- Change the transition effect
+	- Change the number of images
+	- Change captions (add links)
+- Add new images by uploading using the upload-button, dragging over the gallery and from the Media library using the pen-icon from the toolbar. Try removing images, too.
+- Try converting the block to a regular gallery and images.
+- Try inserting multiple instances of the block and resize the editor either by resizing the browser window, toggling Gutenberg sidebar on/off or changing the orientation of a mobile device.
 
-1. Start with a site that has Jetpack Professional Plan associated (nothing about search should show up otherwise).
-2. Turn on search from the Jetpack dashboard or from the Jetpack Traffic Settings page.
-3. Go customize your widgets (either in wp-admin or the customizer)
-4. Add the Jetpack Search widget and customize it. Things to try customizing:
-	* Add filtering by category/tags/custom-taxonomy
-	* Add filtering by post type
-	* Add filtering by date
-	* Use the widget search box, or a search box in the theme or in the Core search widget
-	* Try different themes. This is an interesting list: https://www.godaddy.com/garage/wordpress-hot-100/ Try to test with some themes that were not tested previously in https://github.com/Automattic/jetpack/pull/8412
-	* Try customizing search on a WooCommerce site.
+#### VideoPress
 
-The goal with all of the above is to enable a non-technical user to configure and customize search.
+We aim to port our existing [VideoPress](https://jetpack.com/features/design/video-hosting/) functionality into the video block. We're still working hard on this, but we've made some changes to the existing **Video Block** in WordPress to start supporting VideoPress videos. To test this, try the following:
 
-### Final Notes
+- On a site using a free Jetpack plan, go to Media > Library and upload a few small videos.
+- Purchase a Premium or a Professional plan.
+- Go to Jetpack > Settings and toggle the "Enable high-speed, ad-free video player" option.
+- Go to Media > Library and try uploading more videos. You should notice that they will be uploaded to VideoPress at this point.
+- Go to Posts > Add New and try to insert Video Blocks. In the media picker, try picking the videos you uploaded before you purchased a plan, and then try with a VideoPress video.
+- Try editing the blocks. Are you able to upload or select a different video?
+- Try opening an existing post that contains old video blocks. Are they migrated to the new VideoPress-enhanced video blocks?
+- Downgrade to a free plan or, in Jetpack, disable the VideoPress module. What happens when you insert video blocks? What happens to the existing posts containing VideoPress-enhanced video blocks?
 
-During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
+### Plugin Search Hints
 
-To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
+Jetpack offers many useful features, so many that it is sometimes hard to remember all of them. From now on, we'll remind you of features that may be useful to you when you search for new plugins under Plugins > Add New in your dashboard. When you look for plugins there, if we think that an existing Jetpack feature may be a good fit for what you are looking for, we'll suggest that you discover, enable, or configure that feature on your site.
 
-We would also recommend that you check your site's `debug.log` as you test.
+To test this, head over to Plugins > Add New and search for plugins similar to some of the things Jetpack offers. You should see a "Jetpack: feature" card appear among the search results. Try to interact with that card (dismiss it, activate the feature, configure it), and see that everything works as expected.
 
-To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
 
-```php
-define( 'WP_DEBUG', true );
+### Others
 
-if ( WP_DEBUG ) {
-
-	@error_reporting( E_ALL );
-	@ini_set( 'log_errors', true );
-	@ini_set( 'log_errors_max_len', '0' );
-
-	define( 'WP_DEBUG_LOG', true );
-	define( 'WP_DEBUG_DISPLAY', false );
-	define( 'CONCATENATE_SCRIPTS', false );
-	define( 'SAVEQUERIES', true );
-
-}
-```
+**At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 
 **Thank you for all your help!**

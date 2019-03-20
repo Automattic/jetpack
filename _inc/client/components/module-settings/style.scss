@@ -16,28 +16,13 @@
 	}
 }
 
-.jp-module-settings__learn-more {
-	position: absolute;
-	top: rem( 27px );
-	right: rem( 25px );
-	z-index: 1;
-
-	.jp-form-fieldset & {
-		top: 4px;
-	}
-
-	.dops-info-popover {
-		white-space: nowrap;
-	}
-}
-
 // Related Posts Preview styles
 .jp-related-posts-preview {
 	position: relative;
 	margin-top: rem( 8px );
 	padding: rem( 16px ) rem( 8px );
 	width: 100%;
-	background: #f3f6f8;
+	background: #f6f6f6;
 	box-sizing: border-box;
 	box-shadow: none;
 }

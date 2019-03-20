@@ -29,18 +29,18 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
 		headers = {
-			'X-WP-Nonce': nonce
+			'X-WP-Nonce': nonce,
 		},
 		getParams = {
 			credentials: 'same-origin',
-			headers: headers
+			headers: headers,
 		},
 		postParams = {
 			method: 'post',
 			credentials: 'same-origin',
 			headers: assign( {}, headers, {
-				'Content-type': 'application/json'
-			} )
+				'Content-type': 'application/json',
+			} ),
 		};
 
 	const methods = {
@@ -49,44 +49,64 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 		setApiNonce( newNonce ) {
 			headers = {
-				'X-WP-Nonce': newNonce
+				'X-WP-Nonce': newNonce,
 			};
 			getParams = {
 				credentials: 'same-origin',
-				headers: headers
+				headers: headers,
 			};
 			postParams = {
 				method: 'post',
 				credentials: 'same-origin',
 				headers: assign( {}, headers, {
-					'Content-type': 'application/json'
-				} )
+					'Content-type': 'application/json',
+				} ),
 			};
 		},
 
-		fetchSiteConnectionStatus: () => getRequest( `${ apiRoot }jetpack/v4/connection`, getParams )
-			.then( parseJsonResponse ),
+		fetchSiteConnectionStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection`, getParams ).then( parseJsonResponse ),
 
-		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
-			.then( parseJsonResponse ),
+		fetchSiteConnectionTest: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/test`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		disconnectSite: () => postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
-			body: JSON.stringify( { isActive: false } )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchUserConnectionData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams ).then( parseJsonResponse ),
 
-		fetchConnectUrl: () => getRequest( `${ apiRoot }jetpack/v4/connection/url`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchUserTrackingSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/tracking/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		unlinkUser: () => postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
-			body: JSON.stringify( { linked: false } )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		updateUserTrackingSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/tracking/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		jumpStart: ( action ) => {
+		disconnectSite: () =>
+			postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
+				body: JSON.stringify( { isActive: false } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchConnectUrl: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/url`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		unlinkUser: () =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
+				body: JSON.stringify( { linked: false } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		jumpStart: action => {
 			let active;
 			if ( action === 'activate' ) {
 				active = true;
@@ -95,150 +115,161 @@ function JetpackRestApiClient( root, nonce ) {
 				active = false;
 			}
 			return postRequest( `${ apiRoot }jetpack/v4/jumpstart`, postParams, {
-				body: JSON.stringify( { active } )
+				body: JSON.stringify( { active } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse );
 		},
 
-		fetchModules: () => getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchModules: () =>
+			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		fetchModule: ( slug ) => getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchModule: slug =>
+			getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		activateModule: ( slug ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
-			postParams,
-			{
-				body: JSON.stringify( { active: true } )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		activateModule: slug =>
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
+				body: JSON.stringify( { active: true } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		deactivateModule: ( slug ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
-			postParams,
-			{
-				body: JSON.stringify( { active: false } )
-			}
-		),
+		deactivateModule: slug =>
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
+				body: JSON.stringify( { active: false } ),
+			} ),
 
-		updateModuleOptions: ( slug, newOptionValues ) => postRequest(
-			`${ apiRoot }jetpack/v4/module/${ slug }`,
-			postParams,
-			{
-				body: JSON.stringify( newOptionValues )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		updateModuleOptions: ( slug, newOptionValues ) =>
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, postParams, {
+				body: JSON.stringify( newOptionValues ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		updateSettings: ( newOptionValues ) => postRequest(
-			`${ apiRoot }jetpack/v4/settings`,
-			postParams,
-			{
-				body: JSON.stringify( newOptionValues )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		updateSettings: newOptionValues =>
+			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
+				body: JSON.stringify( newOptionValues ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		getProtectCount: () => getRequest( `${ apiRoot }jetpack/v4/module/protect/data`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getProtectCount: () =>
+			getRequest( `${ apiRoot }jetpack/v4/module/protect/data`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		resetOptions: ( options ) => postRequest(
-			`${ apiRoot }jetpack/v4/options/${ options }`,
-			postParams,
-			{
-				body: JSON.stringify( { reset: true } )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		resetOptions: options =>
+			postRequest( `${ apiRoot }jetpack/v4/options/${ options }`, postParams, {
+				body: JSON.stringify( { reset: true } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		getVaultPressData: () => getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getVaultPressData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		getAkismetData: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getAkismetData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		checkAkismetKey: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		checkAkismetKey: () =>
+			getRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		checkAkismetKeyTyped: apiKey => postRequest(
-			`${ apiRoot }jetpack/v4/module/akismet/key/check`,
-			postParams,
-			{
-				body: JSON.stringify( { api_key: apiKey } )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		checkAkismetKeyTyped: apiKey =>
+			postRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, postParams, {
+				body: JSON.stringify( { api_key: apiKey } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ), getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchStatsData: range =>
+			getRequest( statsDataUrl( range ), getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( handleStatsResponseError ),
 
-		getPluginUpdates: () => getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getPluginUpdates: () =>
+			getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		fetchSettings: () => getRequest( `${ apiRoot }jetpack/v4/settings`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		getPlans: () =>
+			getRequest( `${ apiRoot }jetpack/v4/plans`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		updateSetting: ( updatedSetting ) => postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
-			body: JSON.stringify( updatedSetting )
-		} )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		fetchSiteData: () => getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse )
-			.then( body => JSON.parse( body.data ) ),
+		updateSetting: updatedSetting =>
+			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
+				body: JSON.stringify( updatedSetting ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
-		fetchSiteFeatures: () => getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse )
-			.then( body => JSON.parse( body.data ) ),
+		fetchSiteData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
 
-		fetchRewindStatus: () => getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse )
-			.then( body => JSON.parse( body.data ) ),
+		fetchSiteFeatures: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
 
-		dismissJetpackNotice: ( notice ) => postRequest(
-			`${ apiRoot }jetpack/v4/notice/${ notice }`,
-			postParams,
-			{
-				body: JSON.stringify( { dismissed: true } )
-			}
-		)
-			.then( checkStatus )
-			.then( parseJsonResponse ),
+		fetchRewindStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
 
-		fetchPluginsData: () => getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse )
+		dismissJetpackNotice: notice =>
+			postRequest( `${ apiRoot }jetpack/v4/notice/${ notice }`, postParams, {
+				body: JSON.stringify( { dismissed: true } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchPluginsData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchVerifySiteGoogleStatus: keyringId => {
+			const request =
+				keyringId !== null
+					? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }`, getParams )
+					: getRequest( `${ apiRoot }jetpack/v4/verify-site/google`, getParams );
+
+			return request.then( checkStatus ).then( parseJsonResponse );
+		},
+
+		verifySiteGoogle: keyringId =>
+			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
+				body: JSON.stringify( { keyring_id: keyringId } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	function addCacheBuster( route ) {
 		const parts = route.split( '?' ),
-			query = parts.length > 1
-				? parts[ 1 ]
-				: '',
-			args = query.length
-				? query.split( '&' )
-				: [];
+			query = parts.length > 1 ? parts[ 1 ] : '',
+			args = query.length ? query.split( '&' ) : [];
 
 		args.push( '_cacheBuster=' + new Date().getTime() );
 
@@ -261,6 +292,16 @@ function JetpackRestApiClient( root, nonce ) {
 			url = url + `?range=${ encodeURIComponent( range ) }`;
 		}
 		return url;
+	}
+
+	function handleStatsResponseError( statsData ) {
+		// If we get a .response property, it means that .com's response is errory.
+		// Probably because the site does not have stats yet.
+		const responseOk =
+			( statsData.general && statsData.general.response === undefined ) ||
+			( statsData.week && statsData.week.response === undefined ) ||
+			( statsData.month && statsData.month.response === undefined );
+		return responseOk ? statsData : {};
 	}
 
 	assign( this, methods );
@@ -297,9 +338,7 @@ function parseJsonResponse( response ) {
 }
 
 function catchJsonParseError( e, redirected, url ) {
-	const err = redirected
-		? new JsonParseAfterRedirectError( url )
-		: new JsonParseError();
+	const err = redirected ? new JsonParseAfterRedirectError( url ) : new JsonParseError();
 	throw err;
 }
 

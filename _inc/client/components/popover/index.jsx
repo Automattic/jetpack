@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React, { PropTypes, Component } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import debugFactory from 'debug';
 import classNames from 'classnames';
@@ -19,7 +20,7 @@ import {
 	suggested as suggestPosition,
 	constrainLeft,
 	isElement as isDOMElement,
-	offset
+	offset,
 } from './util';
 
 require( './style.scss' );
@@ -37,7 +38,7 @@ class Popover extends Component {
 		className: PropTypes.string,
 		closeOnEsc: PropTypes.bool,
 		id: PropTypes.string,
-		ignoreContext: PropTypes.shape( { getDOMNode: React.PropTypes.function } ),
+		ignoreContext: PropTypes.shape( { getDOMNode: PropTypes.function } ),
 		position: PropTypes.string,
 		rootClassName: PropTypes.string,
 		showDelay: PropTypes.number,
@@ -55,7 +56,7 @@ class Popover extends Component {
 		showDelay: 0,
 
 		onShow: noop,
-	}
+	};
 
 	constructor( props ) {
 		super( props );
@@ -73,7 +74,7 @@ class Popover extends Component {
 			show: props.isVisible,
 			left: -99999,
 			top: -99999,
-			positionClass: this.getPositionClass( props.position )
+			positionClass: this.getPositionClass( props.position ),
 		};
 	}
 
@@ -83,7 +84,7 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
 		if ( ! isDOMElement( nextProps.context ) ) {
 			this.domContext = ReactDom.findDOMNode( nextProps.context );
@@ -117,8 +118,9 @@ class Popover extends Component {
 			return null;
 		}
 
-		this.debug( 'Update position after inject DOM' );
-		this.setPosition();
+		this.debug( 'Update position after render completes' );
+
+		setTimeout( () => this.setPosition(), 0 );
 	}
 
 	componentWillUnmount() {
@@ -193,19 +195,14 @@ class Popover extends Component {
 	}
 
 	onClickout( event ) {
-		let shouldClose = (
-			this.domContext &&
-			this.domContext.contains &&
-			! this.domContext.contains( event.target )
-		);
+		let shouldClose =
+			this.domContext && this.domContext.contains && ! this.domContext.contains( event.target );
 
 		if ( this.props.ignoreContext && shouldClose ) {
 			const ignoreContext = ReactDom.findDOMNode( this.props.ignoreContext );
-			shouldClose = shouldClose && (
-				ignoreContext &&
-				ignoreContext.contains &&
-				! ignoreContext.contains( event.target )
-			);
+			shouldClose =
+				shouldClose &&
+				( ignoreContext && ignoreContext.contains && ! ignoreContext.contains( event.target ) );
 		}
 
 		if ( shouldClose ) {
@@ -292,10 +289,7 @@ class Popover extends Component {
 
 		const reposition = assign(
 			{},
-			constrainLeft(
-				offset( suggestedPosition, domContainer, domContext ),
-				domContainer
-			),
+			constrainLeft( offset( suggestedPosition, domContainer, domContext ), domContainer ),
 			{ positionClass: this.getPositionClass( suggestedPosition ) }
 		);
 
@@ -382,26 +376,16 @@ class Popover extends Component {
 			return null;
 		}
 
-		const classes = classNames(
-			'dops-popover',
-			this.props.className,
-			this.state.positionClass
-		);
+		const classes = classNames( 'dops-popover', this.props.className, this.state.positionClass );
 
 		this.debug( 'rendering ...' );
 
 		return (
 			<RootChild className={ this.props.rootClassName }>
-				<div
-					style={ this.getStylePosition() }
-					className={ classes }
-					ref={ this.setDOMBehavior }
-				>
+				<div style={ this.getStylePosition() } className={ classes } ref={ this.setDOMBehavior }>
 					<div className="dops-popover__arrow" />
 
-					<div className="dops-popover__inner">
-						{ this.props.children }
-					</div>
+					<div className="dops-popover__inner">{ this.props.children }</div>
 				</div>
 			</RootChild>
 		);

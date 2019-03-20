@@ -9,13 +9,13 @@
  */
 function AtD_http_post( $request, $host, $path, $port = 80 ) {
 	$http_args = array(
-		'body'                 => $request,
-		'headers'              => array(
+		'body'        => $request,
+		'headers'     => array(
 			'Content-Type' => 'application/x-www-form-urlencoded; charset=' . get_option( 'blog_charset' ),
 			'Host'         => $host,
-			'User-Agent'   => 'AtD/0.1'
+			'User-Agent'   => 'AtD/0.1',
 		),
-		'httpversion'          => '1.0',
+		'httpversion' => '1.0',
 		/**
 		* Change the timeout time for AtD post.
 		*
@@ -25,7 +25,7 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		*
 		* @param int $var Timeout time in seconds, default 15.
 		*/
-		'timeout'              => apply_filters( 'atd_http_post_timeout', 15 ),
+		'timeout'     => apply_filters( 'atd_http_post_timeout', 15 ),
 	);
 
 	// Handle non-standard ports being passed in.
@@ -65,8 +65,9 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
  *  This function is called as an action handler to admin-ajax.php
  */
 function AtD_redirect_call() {
-	if ( $_SERVER['REQUEST_METHOD'] === 'POST' )
-		$postText = trim(  file_get_contents( 'php://input' )  );
+	if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+		$postText = trim( file_get_contents( 'php://input' ) );
+	}
 
 	check_admin_referer( 'proxy_atd' );
 
@@ -84,32 +85,29 @@ function AtD_redirect_call() {
 
 	$user = wp_get_current_user();
 
-	$atd_lang = get_locale();
-
-	// If we're on WPCOM, this function should be available.
-	if ( function_exists( 'get_user_locale' ) ) {
-		$atd_lang = get_user_locale( $user->ID );
-	}
+	$atd_lang = get_user_locale( $user->ID );
 
 	if ( ! empty( $atd_lang ) ) {
-		if ( strpos($atd_lang, 'pt') !== false )
+		if ( strpos( $atd_lang, 'pt' ) !== false ) {
 			$service = 'pt.service.afterthedeadline.com';
-		else if ( strpos($atd_lang, 'de') !== false )
+		} elseif ( strpos( $atd_lang, 'de' ) !== false ) {
 			$service = 'de.service.afterthedeadline.com';
-		else if ( strpos($atd_lang, 'es') !== false )
+		} elseif ( strpos( $atd_lang, 'es' ) !== false ) {
 			$service = 'es.service.afterthedeadline.com';
-		else if ( strpos($atd_lang, 'fr') !== false )
+		} elseif ( strpos( $atd_lang, 'fr' ) !== false ) {
 			$service = 'fr.service.afterthedeadline.com';
+		}
 	}
 
-	$guess = strcmp( AtD_get_setting( $user->ID, 'AtD_guess_lang' ), "true" ) == 0 ? "true" : "false";
+	$guess = strcmp( AtD_get_setting( $user->ID, 'AtD_guess_lang' ), 'true' ) == 0 ? 'true' : 'false';
 
-    $data = AtD_http_post( $postText . "&guess=$guess", defined('ATD_HOST') ? ATD_HOST : $service, $url, defined('ATD_PORT') ? ATD_PORT : 80 );
+	$data = AtD_http_post( $postText . "&guess=$guess", defined( 'ATD_HOST' ) ? ATD_HOST : $service, $url, defined( 'ATD_PORT' ) ? ATD_PORT : 80 );
 
-    header( 'Content-Type: text/xml' );
+	header( 'Content-Type: text/xml' );
 
-	if ( ! empty( $data[1] ) )
+	if ( ! empty( $data[1] ) ) {
 		echo $data[1];
+	}
 
 	die();
 }

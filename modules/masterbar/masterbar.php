@@ -40,9 +40,10 @@ class A8C_WPCOM_Masterbar {
 			'//2.gravatar.com',
 		) );
 
-		// Atomic only - override user setting that hides masterbar from site's front.
-		// https://github.com/Automattic/jetpack/issues/7667
+		// Atomic only
 		if ( jetpack_is_atomic_site() ) {
+			// override user setting that hides masterbar from site's front.
+			// https://github.com/Automattic/jetpack/issues/7667
 			add_filter( 'show_admin_bar', '__return_true' );
 		}
 
@@ -84,7 +85,19 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function maybe_logout_user_from_wpcom() {
-		if ( isset( $_GET['context'] ) && 'masterbar' === $_GET['context'] ) {
+		/**
+		 * Whether we should sign out from wpcom too when signing out from the masterbar.
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool $masterbar_should_logout_from_wpcom True by default.
+		 */
+		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', true );
+		if (
+			isset( $_GET['context'] ) &&
+			'masterbar' === $_GET['context'] &&
+			$masterbar_should_logout_from_wpcom
+		) {
 			do_action( 'wp_masterbar_logout' );
 		}
 	}
@@ -497,16 +510,6 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
-		$wp_admin_bar->add_menu( array(
-			'parent' => $id,
-			'id'     => 'next-steps',
-			'title'  => esc_html__( 'Next Steps', 'jetpack' ),
-			'href'   => 'https://wordpress.com/me/next',
-			'meta'   => array(
-				'class' => 'mb-icon user-info-item',
-			),
-		) );
-
 		$help_link = 'https://jetpack.com/support/';
 
 		if ( jetpack_is_atomic_site() ) {
@@ -641,11 +644,23 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 
+		if ( current_user_can( 'manage_options' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'activity',
+				'title'  => esc_html__( 'Activity', 'jetpack' ),
+				'href'   => 'https://wordpress.com/activity-log/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
+		}
+
 		// Add Calypso plans link and plan type indicator
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
 			$label = esc_html__( 'Plan', 'jetpack' );
-			$plan = Jetpack::get_active_plan();
+			$plan = Jetpack_Plan::get();
 
 			$plan_title = $this->create_menu_item_pair(
 				array(
@@ -860,14 +875,14 @@ class A8C_WPCOM_Masterbar {
 
 			$theme_title = $this->create_menu_item_pair(
 				array(
-					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
-					'id'    => 'wp-admin-bar-themes',
-					'label' => esc_html__( 'Themes', 'jetpack' ),
-				),
-				array(
 					'url'   => $customizer_url,
 					'id'    => 'wp-admin-bar-cmz',
 					'label' => esc_html_x( 'Customize', 'admin bar customize item label', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-themes',
+					'label' => esc_html__( 'Themes', 'jetpack' ),
 				)
 			);
 			$meta = array( 'class' => 'mb-icon', 'class' => 'inline-action' );
@@ -1015,7 +1030,7 @@ class A8C_WPCOM_Masterbar {
 			/**
 			 * Fires when menu items are added to the masterbar "My Sites" menu.
 			 *
-			 * @since 5.4
+			 * @since 5.4.0
 			 */
 			do_action( 'jetpack_masterbar' );
 		}

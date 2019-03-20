@@ -102,7 +102,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
 function publicize_more_info() { ?>
 	<?php esc_html_e(
-		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr, Google+, Path,
+		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr,
 		and LinkedIn. You can add connections for yourself or for all users on your site.'
 		, 'jetpack' );
 }
@@ -404,11 +404,28 @@ add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
 function jetpack_photon_more_info() {
 	esc_html_e(
-		"Your images are automatically optimized for different display resolutions to serve the best
-		possible image quality. We also cache and serve them from our fast, global network (CDN)."
+		'Jetpack will optimize your images and serve them from the server location nearest
+		to your visitors. Using our global content delivery network will boost the loading speed of your site.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
+
+/**
+ * Lazy Images
+ */
+function jetpack_lazy_images_more_link() {
+	echo 'https://jetpack.com/support/lazy-images/';
+}
+add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
+
+function jetpack_lazy_images_more_info() {
+	esc_html_e(
+		'Improve your site\'s speed by only loading images visible on the screen.
+		New images will load just before they scroll into view. This prevents viewers
+		from having to download all the images on a page all at once, even ones they can\'t see.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_info' );
 
 /**
  * Tiled Galleries
@@ -650,3 +667,48 @@ function jetpack_google_analytics_more_info() {
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );
+
+/**
+ * WooCommerce Analytics
+ */
+function jetpack_woocommerce_analytics_more_link() {
+	echo 'https://jetpack.com/support/';
+}
+add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
+
+function jetpack_woocommerce_analytics_more_info() {
+	esc_html_e(
+		'Enhanced analytics for WooCommerce and Jetpack users.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_info' );
+
+/**
+ * Assets CDN
+ */
+function jetpack_assetcdn_more_link() {
+	echo 'https://jetpack.com/support/asset-cdn/';
+}
+add_action( 'jetpack_learn_more_button_photon-cdn', 'jetpack_assetcdn_more_link' );
+
+function jetpack_assetcdn_more_info() {
+	esc_html_e(
+		'Our asset CDN is a site acceleration service.
+		That means that we host static assets like JavaScript and CSS shipped with WordPress Core and Jetpack from our servers, alleviating the load on your server.',
+		'jetpack'
+	);
+}
+add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' );
+
+/**
+ * Copy Post
+ */
+function jetpack_copy_post_more_link() {
+	echo 'https://jetpack.com/support/copy-post-2/';
+}
+add_action( 'jetpack_learn_more_button_copy-post', 'jetpack_copy_post_more_link' );
+
+function jetpack_more_info_copy_post() {
+	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );

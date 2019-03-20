@@ -5,8 +5,14 @@
 /**
  * External dependencies
  */
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+
+/**
+ * Internal dependencies
+ */
+import Popover from 'components/popover';
 
 require( './style.scss' );
 
@@ -20,14 +26,21 @@ export default class FormToggle extends Component {
 		className: PropTypes.string,
 		toggling: PropTypes.bool,
 		'aria-label': PropTypes.string,
-		children: PropTypes.node
+		children: PropTypes.node,
+		disabledReason: PropTypes.node,
 	};
 
 	static defaultProps = {
 		checked: false,
 		disabled: false,
 		onKeyDown: () => {},
-		onChange: () => {}
+		onChange: () => {},
+		disabledPopoverPosition: 'bottom',
+		disabledReason: '',
+	};
+
+	state = {
+		showPopover: false,
 	};
 
 	static idNum = 0;
@@ -40,7 +53,15 @@ export default class FormToggle extends Component {
 		this.onLabelClick = this.onLabelClick.bind( this );
 	}
 
-	componentWillMount() {
+	togglePopover = () => {
+		this.setState( { showPopover: ! this.state.showPopover } );
+	};
+
+	_onPopoverClose = () => {
+		this.setState( { showPopover: false } );
+	};
+
+	UNSAFE_componentWillMount() {
 		this.id = this.constructor.idNum++;
 	}
 
@@ -60,6 +81,8 @@ export default class FormToggle extends Component {
 	onClick() {
 		if ( ! this.props.disabled ) {
 			this.props.onChange();
+		} else if ( this.props.disabledReason ) {
+			this.togglePopover();
 		}
 	}
 
@@ -75,10 +98,24 @@ export default class FormToggle extends Component {
 		}
 	}
 
+	renderPopover = () => {
+		return (
+			<Popover
+				isVisible={ this.state.showPopover }
+				context={ this.refs && this.refs.toggleSwitch }
+				position={ this.props.disabledPopoverPosition }
+				onClose={ this._onPopoverClose }
+				className="dops-info-popover__tooltip"
+			>
+				{ this.props.disabledReason }
+			</Popover>
+		);
+	};
+
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
 		const toggleClasses = classNames( 'form-toggle', this.props.className, {
-			'is-toggling': this.props.toggling
+			'is-toggling': this.props.toggling,
 		} );
 
 		return (
@@ -90,7 +127,7 @@ export default class FormToggle extends Component {
 					readOnly={ true }
 					disabled={ this.props.disabled }
 				/>
-				<label className="form-toggle__label" htmlFor={ id } >
+				<label className="form-toggle__label" htmlFor={ id }>
 					<span
 						className="form-toggle__switch"
 						disabled={ this.props.disabled }
@@ -101,11 +138,13 @@ export default class FormToggle extends Component {
 						aria-checked={ this.props.checked }
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
-					></span>
+						ref="toggleSwitch"
+					/>
 					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
 						{ this.props.children }
 					</span>
 				</label>
+				{ this.renderPopover() }
 			</span>
 		);
 	}

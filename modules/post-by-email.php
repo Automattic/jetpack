@@ -178,7 +178,7 @@ class Jetpack_Post_By_Email {
 	 * @param $endpoint
 	 * @param $error_message
 	 */
-	function __process_ajax_proxy_request( $endpoint, $error_message ) {
+	function __process_ajax_proxy_request( $endpoint, $error_message ) { // phpcs:ignore
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( $error_message );
 		}

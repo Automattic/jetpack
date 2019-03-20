@@ -4,7 +4,16 @@
 		initialScrollPosition,
 		scrollFunction;
 
-	if ( '' !== cookieValue ) {
+	if ( overlay.hasClass( 'top' ) ) {
+		$( '.widget_eu_cookie_law_widget' ).addClass( 'top' );
+	}
+
+	if ( overlay.hasClass( 'ads-active' ) ) {
+		var adsCookieValue = document.cookie.replace( /(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/, '$1' );
+		if ( '' !== cookieValue && '' !== adsCookieValue ) {
+			overlay.remove();
+		}
+	} else if ( '' !== cookieValue ) {
 		overlay.remove();
 	}
 
@@ -40,9 +49,12 @@
 		}
 
 		var expireTime = new Date();
-		expireTime.setTime( expireTime.getTime() + 2592000000 ); // 30 days
+		expireTime.setTime( expireTime.getTime() + ( overlay.data( 'consent-expiration' ) * 24 * 60 * 60 * 1000 ) );
 
 		document.cookie = 'eucookielaw=' + expireTime.getTime() + ';path=/;expires=' + expireTime.toGMTString();
+		if ( overlay.hasClass( 'ads-active' ) && overlay.hasClass( 'hide-on-button' ) ) {
+			document.cookie = 'personalized-ads-consent=' + expireTime.getTime() + ';path=/;expires=' + expireTime.toGMTString();
+		}
 
 		overlay.fadeOut( 400, function() {
 			overlay.remove();

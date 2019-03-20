@@ -16,41 +16,22 @@
 }
 
 .jp-apps-card__top {
-	padding: rem( 40px ) 0 0;
-	background: $gray-dark;
-
-	svg {
-		position: relative;
-		display: block;
-		max-width: 40%;
-		margin: 0 auto rem( -42px );
-		z-index: 3;
-	}
-}
-
-.jp-apps-card__clouds {
-	position: relative;
-	overflow: hidden;
-	padding-top: rem( 44px );
-	z-index: 2;
+	padding: rem( 60px ) 0 0;
+	background: #ffffff;
+	text-align: center;
 
 	img {
-		position: absolute;
-		bottom: -1px;
-		left: -2%;
-		right: -2%;
-		width: 104%;
-		height: auto;
+		max-width: 26%;
+		padding-top: 10px;
 	}
 }
 
 .jp-apps-card__description {
 	max-width: 80%;
 	margin: 0 auto;
-	padding: rem( 24px );
-	font-size: rem( 14px );
+	padding: rem( 10px ) rem( 24px ) rem( 24px );
 	line-height: 1.65;
-	color: $blue-text;
+	color: $black;
 	text-align: center;
 
 	.dops-button {
@@ -58,32 +39,21 @@
 	}
 }
 
+.jp-apps-card__paragraph {
+	font-size: rem( 15px );
+}
+
 .jp-apps-card__header {
 	margin-top: 0;
+	margin-bottom: rem( 5px );
 	font-weight: 500;
 }
 
 .jp-apps-card__promo_subhead {
+	margin-top: 0;
 	font-style: italic;
 }
 
 .jp-themes-card {
 	margin-bottom: rem( 20px );
-
-	.jp-apps-card__top {
-		padding: rem( 60px ) 0 0;
-	}
-
-	.jp-apps-card__description {
-		max-width: 81%;
-		padding-top: rem( 10px );
-	}
-
-	.jp-apps-card__header {
-		margin-bottom: rem( 5px );
-	}
-
-	.jp-apps-card__promo_subhead {
-		margin-top: 0;
-	}
 }

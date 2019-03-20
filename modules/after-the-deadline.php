@@ -223,7 +223,7 @@ function AtD_load_javascripts() {
 			array('jquery'),
 			ATD_VERSION
 		);
-		wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_settings', admin_url( 'admin-ajax.php?action=atd_settings' ), array('AtD_jquery'), ATD_VERSION );
 		wp_enqueue_script(
 			'AtD_autoproofread',
 			Jetpack::get_file_url_for_environment(

@@ -9,39 +9,76 @@
 function shortcode_handler_bandcamp( $atts ) {
 	// there are no default values, but specify here anyway
 	// to explicitly list supported atts
-	$attributes = shortcode_atts( array(
-		'album'       => null,     // integer album id
-		'track'       => null,     // integer track id
-		'video'       => null,     // integer track id for video player
-		'size'        => 'venti',  // one of the supported sizes
-		'bgcol'       => 'FFFFFF', // hex, no '#' prefix
-		'linkcol'     => null,     // hex, no '#' prefix
-		'layout'      => null,     // encoded layout url
-		'width'       => null,     // integer with optional "%"
-		'height'      => null,     // integer with optional "%"
-		'notracklist' => null,     // may be string "true" (defaults false)
-		'tracklist'   => null,     // may be string "false" (defaults true)
-		'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large)
-		'minimal'     => null,     // may be string "true" (defaults false)
-		'theme'       => null,     // may be theme identifier string ("light"|"dark" so far)
-		'package'     => null,     // integer package id
-		't'           => null,     // integer track number
-		'tracks'      => null,     // comma separated list of allowed tracks
-		'esig'        => null      // hex, no '#' prefix
-	), $atts, 'bandcamp' );
+	$attributes = shortcode_atts(
+		array(
+			'album'       => null,     // integer album id
+			'track'       => null,     // integer track id
+			'video'       => null,     // integer track id for video player
+			'size'        => 'venti',  // one of the supported sizes
+			'bgcol'       => 'FFFFFF', // hex, no '#' prefix
+			'linkcol'     => null,     // hex, no '#' prefix
+			'layout'      => null,     // encoded layout url
+			'width'       => null,     // integer with optional "%"
+			'height'      => null,     // integer with optional "%"
+			'notracklist' => null,     // may be string "true" (defaults false)
+			'tracklist'   => null,     // may be string "false" (defaults true)
+			'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large)
+			'minimal'     => null,     // may be string "true" (defaults false)
+			'theme'       => null,     // may be theme identifier string ("light"|"dark" so far)
+			'package'     => null,     // integer package id
+			't'           => null,     // integer track number
+			'tracks'      => null,     // comma separated list of allowed tracks
+			'esig'        => null,      // hex, no '#' prefix
+		),
+		$atts,
+		'bandcamp'
+	);
 
 	$sizes = array(
-		'venti'      => array( 'width' => 400, 'height' => 100 ),
-		'grande'     => array( 'width' => 300, 'height' => 100 ),
-		'grande2'    => array( 'width' => 300, 'height' => 355 ),
-		'grande3'    => array( 'width' => 300, 'height' => 415 ),
-		'tall_album' => array( 'width' => 150, 'height' => 295 ),
-		'tall_track' => array( 'width' => 150, 'height' => 270 ),
-		'tall2'      => array( 'width' => 150, 'height' => 450 ),
-		'short'      => array( 'width' => 46, 'height' => 23 ),
-		'large'      => array( 'width' => 350, 'height' => 470 ),
-		'medium'     => array( 'width' => 450, 'height' => 120 ),
-		'small'      => array( 'width' => 350, 'height' => 42 )
+		'venti'      => array(
+			'width'  => 400,
+			'height' => 100,
+		),
+		'grande'     => array(
+			'width'  => 300,
+			'height' => 100,
+		),
+		'grande2'    => array(
+			'width'  => 300,
+			'height' => 355,
+		),
+		'grande3'    => array(
+			'width'  => 300,
+			'height' => 415,
+		),
+		'tall_album' => array(
+			'width'  => 150,
+			'height' => 295,
+		),
+		'tall_track' => array(
+			'width'  => 150,
+			'height' => 270,
+		),
+		'tall2'      => array(
+			'width'  => 150,
+			'height' => 450,
+		),
+		'short'      => array(
+			'width'  => 46,
+			'height' => 23,
+		),
+		'large'      => array(
+			'width'  => 350,
+			'height' => 470,
+		),
+		'medium'     => array(
+			'width'  => 450,
+			'height' => 120,
+		),
+		'small'      => array(
+			'width'  => 350,
+			'height' => 42,
+		),
 	);
 
 	$sizekey = $attributes['size'];
@@ -66,8 +103,8 @@ function shortcode_handler_bandcamp( $atts ) {
 		$track = esc_attr( $attributes['track'] );
 		array_push( $argparts, "track={$track}" );
 	} elseif ( isset( $attributes['video'] ) && is_numeric( $attributes['video'] ) ) {
-		$track = esc_attr( $attributes['video'] ); // videos are referenced by track id
-		$urlbase = "//bandcamp.com/EmbeddedPlayer/v=2";
+		$track   = esc_attr( $attributes['video'] ); // videos are referenced by track id
+		$urlbase = '//bandcamp.com/EmbeddedPlayer/v=2';
 		$isVideo = true;
 		array_push( $argparts, "track={$track}" );
 	}
@@ -93,97 +130,100 @@ function shortcode_handler_bandcamp( $atts ) {
 	// use strict regex for digits + optional % instead of absint for height/width
 	// 'width' and 'height' params in the iframe url get the exact string from the shortcode
 	// args, whereas the inline style attribute must have "px" added to it if it has no "%"
-	if ( isset( $attributes['width'] ) && preg_match( "|^([0-9]+)(%)?$|", $attributes['width'], $matches ) ) {
+	if ( isset( $attributes['width'] ) && preg_match( '|^([0-9]+)(%)?$|', $attributes['width'], $matches ) ) {
 		$width = $csswidth = $attributes['width'];
 		if ( sizeof( $matches ) < 3 ) {
-			$csswidth .= "px";
+			$csswidth .= 'px';
 		}
 	}
-	if ( isset( $attributes['height'] ) && preg_match( "|^([0-9]+)(%)?$|", $attributes['height'], $matches ) ) {
+	if ( isset( $attributes['height'] ) && preg_match( '|^([0-9]+)(%)?$|', $attributes['height'], $matches ) ) {
 		$height = $cssheight = $attributes['height'];
 		if ( sizeof( $matches ) < 3 ) {
-			$cssheight .= "px";
+			$cssheight .= 'px';
 		}
 	}
 
 	if ( ! $height ) {
 		$height    = $sizes[ $sizekey ]['height'];
-		$cssheight = $height . "px";
+		$cssheight = $height . 'px';
 	}
 
 	if ( ! $width ) {
 		$width    = $sizes[ $sizekey ]['width'];
-		$csswidth = $width . "px";
+		$csswidth = $width . 'px';
 	}
 
 	if ( isset( $attributes['layout'] ) ) {
 		array_push( $argparts, "layout={$attributes['layout']}" );
-	} elseif ( isset( $attributes['size'] ) && preg_match( "|^[a-zA-Z0-9]+$|", $attributes['size'] ) ) {
+	} elseif ( isset( $attributes['size'] ) && preg_match( '|^[a-zA-Z0-9]+$|', $attributes['size'] ) ) {
 		array_push( $argparts, "size={$attributes['size']}" );
 	}
 
-	if ( isset( $attributes['bgcol'] ) && preg_match( "|^[0-9A-Fa-f]+$|", $attributes['bgcol'] ) ) {
+	if ( isset( $attributes['bgcol'] ) && preg_match( '|^[0-9A-Fa-f]+$|', $attributes['bgcol'] ) ) {
 		array_push( $argparts, "bgcol={$attributes['bgcol']}" );
 	}
 
-	if ( isset( $attributes['linkcol'] ) && preg_match( "|^[0-9A-Fa-f]+$|", $attributes['linkcol'] ) ) {
+	if ( isset( $attributes['linkcol'] ) && preg_match( '|^[0-9A-Fa-f]+$|', $attributes['linkcol'] ) ) {
 		array_push( $argparts, "linkcol={$attributes['linkcol']}" );
 	}
 
-	if ( isset( $attributes['package'] ) && preg_match( "|^[0-9]+$|", $attributes['package'] ) ) {
+	if ( isset( $attributes['package'] ) && preg_match( '|^[0-9]+$|', $attributes['package'] ) ) {
 		array_push( $argparts, "package={$attributes['package']}" );
 	}
 
-	if ( isset( $attributes['t'] ) && preg_match( "|^[0-9]+$|", $attributes['t'] ) ) {
+	if ( isset( $attributes['t'] ) && preg_match( '|^[0-9]+$|', $attributes['t'] ) ) {
 		array_push( $argparts, "t={$attributes['t']}" );
 	}
 
-	if ( $attributes['notracklist'] == "true" ) {
-		array_push( $argparts, "notracklist=true" );
+	if ( $attributes['notracklist'] == 'true' ) {
+		array_push( $argparts, 'notracklist=true' );
 	}
 
 	// 'tracklist' arg deprecates 'notracklist=true' to be less weird.  note, behavior
 	// if both are specified is undefined
 	switch ( $attributes['tracklist'] ) {
-		case "false":
-		case "none":
-			array_push( $argparts, "tracklist=false" );
+		case 'false':
+		case 'none':
+			array_push( $argparts, 'tracklist=false' );
 			break;
 	}
 
 	switch ( $attributes['artwork'] ) {
-		case "false":
-		case "none":
-		case "small":
-			array_push( $argparts, "artwork=" . $attributes['artwork'] );
+		case 'false':
+		case 'none':
+		case 'small':
+			array_push( $argparts, 'artwork=' . $attributes['artwork'] );
 			break;
 	}
 
-	if ( $attributes['minimal'] == "true" ) {
-		array_push( $argparts, "minimal=true" );
+	if ( $attributes['minimal'] == 'true' ) {
+		array_push( $argparts, 'minimal=true' );
 	}
 
-	if ( isset( $attributes['theme'] ) && preg_match( "|^[a-zA-Z_]+$|", $attributes['theme'] ) ) {
+	if ( isset( $attributes['theme'] ) && preg_match( '|^[a-zA-Z_]+$|', $attributes['theme'] ) ) {
 		array_push( $argparts, "theme={$attributes['theme']}" );
 	}
 
 	// param 'tracks' is signed digest param 'esig'
-	if ( isset( $attributes['tracks'] ) && preg_match( "|^[0-9\,]+$|", $attributes['tracks'] ) ) {
-		if ( isset( $attributes['esig'] ) && preg_match( "|^[0-9A-Fa-f]+$|", $attributes['esig'] ) ) {
+	if ( isset( $attributes['tracks'] ) && preg_match( '|^[0-9\,]+$|', $attributes['tracks'] ) ) {
+		if ( isset( $attributes['esig'] ) && preg_match( '|^[0-9A-Fa-f]+$|', $attributes['esig'] ) ) {
 			array_push( $argparts, "tracks={$attributes['tracks']}" );
 			array_push( $argparts, "esig={$attributes['esig']}" );
 		}
 	}
 
 	if ( $isVideo ) {
-		$url        = "//bandcamp.com/VideoEmbed?" . join( '&', $argparts );
+		$url        = '//bandcamp.com/VideoEmbed?' . join( '&', $argparts );
 		$extraAttrs = " mozallowfullscreen='1' webkitallowfullscreen='1' allowfullscreen='1'";
 	} else {
-		$url        = "//bandcamp.com/EmbeddedPlayer/v=2/" . join( '/', $argparts ) . '/';
+		$url        = '//bandcamp.com/EmbeddedPlayer/v=2/' . join( '/', $argparts ) . '/';
 		$extraAttrs = '';
 	}
 
-	return "<iframe width='" . esc_attr( $width ) . "' height='" . esc_attr( $height ) . "' style='position: relative; display: block; width: " . esc_attr( $csswidth ) . "; height: " . esc_attr( $cssheight ) . ";' src='" . esc_url( $url ) . "' allowtransparency='true' frameborder='0'" . $extraAttrs . "></iframe>";
+	$iframe = '<iframe width="%s" height="%s" style="position: relative; display: block; width: %s; height: %s;" src="%s" allowtransparency="true" frameborder="0"%s></iframe>';
+	$iframe = sprintf( $iframe, esc_attr( $width ), esc_attr( $height ), esc_attr( $csswidth ), esc_attr( $cssheight ), esc_url( $url ), $extraAttrs );
+
+	return $iframe;
 }
 
 add_shortcode( 'bandcamp', 'shortcode_handler_bandcamp' );

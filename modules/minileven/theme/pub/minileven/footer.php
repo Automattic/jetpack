@@ -27,12 +27,7 @@
 
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator">
-
-<?php
-	global $wp;
-	$current_url =  trailingslashit( home_url( add_query_arg( array(), $wp->request ) ) );
-?>
-		<a href="<?php echo $current_url . '?ak_action=reject_mobile'; ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
+		<a href="<?php echo esc_url( home_url( add_query_arg('ak_action', 'reject_mobile') ) ); ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
 
 		<?php
 			/**
@@ -56,7 +51,7 @@
 			do_action( 'minileven_credits' );
 		?>
 
-		<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'jetpack' ) ); ?>" target="_blank" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
+		<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'jetpack' ) ); ?>" rel="noopener noreferrer" target="_blank" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
 	</div>
 </footer><!-- #colophon -->
 

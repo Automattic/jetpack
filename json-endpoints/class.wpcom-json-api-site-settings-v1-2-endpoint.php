@@ -42,6 +42,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_search_enabled'               => '(bool) Enable Jetpack Search',
+		'jetpack_search_supported'             => '(bool) Jetpack Search supported',
 		'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
 		'infinite_scroll'                      => '(bool) Support infinite scroll of posts?',
 		'default_category'                     => '(int) Default post category',
@@ -79,7 +81,6 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'twitter_via'                          => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag'       => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'                 => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
-		'holidaysnow'                          => '(bool) Enable snowfall on front end of site?',
 		'timezone_string'                      => '(string) PHP-compatible timezone string like \'UTC-5\'',
 		'gmt_offset'                           => '(int) Site offset from UTC in hours',
 		'date_format'                          => '(string) PHP Date-compatible date format',
@@ -97,6 +98,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
+		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
+		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
 	),
 
 	'response_format' => array(

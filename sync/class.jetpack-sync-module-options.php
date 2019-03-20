@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
-	private $options_whitelist;
+	private $options_whitelist, $options_contentless;
 
 	public function name() {
 		return 'options';
@@ -35,6 +35,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		$this->update_options_whitelist();
+		$this->update_options_contentless();
 	}
 
 	public function set_late_default() {
@@ -70,7 +71,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 
 	// Is public so that we don't have to store so much data all the options twice.
 	function get_all_options() {
-		$options = array();
+		$options       = array();
 		$random_string = wp_generate_password();
 		foreach ( $this->options_whitelist as $option ) {
 			$option_value = get_option( $option, $random_string );
@@ -80,7 +81,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		}
 
 		// add theme mods
-		$theme_mods_option = 'theme_mods_'.get_option( 'stylesheet' );
+		$theme_mods_option = 'theme_mods_' . get_option( 'stylesheet' );
 		$theme_mods_value  = get_option( $theme_mods_option, $random_string );
 		if ( $theme_mods_value === $random_string ) {
 			return $options;
@@ -102,8 +103,16 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		return $this->options_whitelist;
 	}
 
-	// reject non-whitelisted options
+	function update_options_contentless() {
+		$this->options_contentless = Jetpack_Sync_Defaults::get_options_contentless();
+	}
+
+	function get_options_contentless() {
+		return $this->options_contentless;
+	}
+
 	function whitelist_options( $args ) {
+		// Reject non-whitelisted options
 		if ( ! $this->is_whitelisted_option( $args[0] ) ) {
 			return false;
 		}
@@ -111,10 +120,19 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		// filter our weird array( false ) value for theme_mods_*
 		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
 			$this->filter_theme_mods( $args[1] );
-			if ( isset( $args[2] ) ) { 
+			if ( isset( $args[2] ) ) {
 				$this->filter_theme_mods( $args[2] );
 			}
 		}
+
+		// Set value(s) of contentless option to empty string(s)
+		if ( $this->is_contentless_option( $args[0] ) ) {
+			// Create a new array matching length of $args, containing empty strings
+			$empty    = array_fill( 0, count( $args ), '' );
+			$empty[0] = $args[0];
+			return $empty;
+		}
+
 		return $args;
 	}
 
@@ -122,25 +140,25 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		return in_array( $option, $this->options_whitelist ) || 'theme_mods_' === substr( $option, 0, 11 );
 	}
 
+	private function is_contentless_option( $option ) {
+		return in_array( $option, $this->options_contentless );
+	}
+
 	private function filter_theme_mods( &$value ) {
 		if ( is_array( $value ) && isset( $value[0] ) ) {
-			unset( $value[0] ); 
+			unset( $value[0] );
 		}
 	}
 
 	function jetpack_sync_core_icon() {
-		if ( function_exists( 'get_site_icon_url' ) ) {
-			$url = get_site_icon_url();
-		} else {
-			return;
-		}
+		$url = get_site_icon_url();
 
-		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		require_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
 			Jetpack_Options::update_option( 'site_icon_url', $url );
-		} else if ( empty( $url ) ) {
+		} elseif ( empty( $url ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}

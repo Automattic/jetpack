@@ -39,13 +39,13 @@ class Jetpack_Sitemap_Buffer_Video extends Jetpack_Sitemap_Buffer_Fallback {
 			);
 
 			$video_sitemap_xsl_url = $this->finder->construct_sitemap_url( 'video-sitemap.xsl' );
-			$jetpack_version = JETPACK__VERSION;
+			$jetpack_version       = JETPACK__VERSION;
 
 			$this->root = array(
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
 				. "<?xml-stylesheet type='text/xsl' href='{$video_sitemap_xsl_url}'?>" . PHP_EOL
 				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>',
-				'</urlset>'
+				'</urlset>',
 			);
 
 			$this->byte_capacity -= strlen( join( '', $this->root ) );

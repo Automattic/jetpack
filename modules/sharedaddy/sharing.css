@@ -55,6 +55,14 @@ body.highlander-dark h3.sd-title:before {
 	display: inline-block;
 }
 
+.sd-content ul li.share-deprecated {
+	opacity: 0.5;
+}
+
+.sd-content ul li.share-deprecated a span {
+	text-decoration: line-through;
+}
+
 .sd-block.sd-gplus {
 	margin: 0 0 .5em 0;
 }
@@ -286,12 +294,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-pinterest a:before {
 	content: '\f210';
 }
-.sd-social-icon .sd-content ul li.share-google-plus-1 a:before,
-.sd-social-text .sd-content ul li.share-google-plus-1 a:before,
-.sd-content ul li.share-google-plus-1 div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-google-plus-1 a:before {
-	content: '\f218';
-}
 .sd-social-icon .sd-content ul li.share-facebook a:before,
 .sd-social-text .sd-content ul li.share-facebook a:before,
 .sd-content ul li.share-facebook div.option.option-smart-off a:before,
@@ -350,6 +352,16 @@ body .sd-content ul li.share-custom.no-icon a span {
 	color: #fff !important;
 }
 
+
+.sd-social-icon .sd-content ul li.share-deprecated a:before,
+.sd-social-icon-text .sd-content li.share-deprecated a:before,
+.sd-social-official .sd-content li.share-deprecated a:before,
+.sd-content ul li.share-deprecated div.option.option-smart-off a:before {
+	width: 1em;
+	height: 1em;
+	content: "\1F6AB";
+}
+
 /* Share count */
 .sd-social .sd-button .share-count {
 	background: #2ea2cc;
@@ -402,15 +414,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.googleplus1_button .g-plus {
-	vertical-align: top !important;
-}
-
 .reddit_button iframe {
 	margin-top: 1px;
 }
 
-.pocket_button iframe, .googleplus1_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
+.pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
 	margin: 0 !important;
 }
 
@@ -617,11 +625,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-linkedin a.sd-button {
 	background: #0077b5;
-	color: #fff !important;
-}
-
-.sd-social-icon .sd-content ul li[class*='share-'].share-google-plus-1 a.sd-button {
-	background: #dd4b39;
 	color: #fff !important;
 }
 

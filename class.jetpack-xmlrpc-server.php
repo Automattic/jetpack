@@ -21,8 +21,10 @@ class Jetpack_XMLRPC_Server {
 	 */
 	function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.jsonAPI'      => array( $this, 'json_api' ),
-			'jetpack.verifyAction' => array( $this, 'verify_action' ),
+			'jetpack.jsonAPI'           => array( $this, 'json_api' ),
+			'jetpack.verifyAction'      => array( $this, 'verify_action' ),
+			'jetpack.remoteRegister'    => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 		);
 
 		$this->user = $this->login();
@@ -74,12 +76,21 @@ class Jetpack_XMLRPC_Server {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteRegister' => array( $this, 'remote_register' ),
 		);
 	}
 
 	function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+		);
+	}
+
+	function provision_xmlrpc_methods() {
+		return array(
+			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
+			'jetpack.remoteConnect'   => array( $this, 'remote_connect' ),
 		);
 	}
 
@@ -118,10 +129,255 @@ class Jetpack_XMLRPC_Server {
 
 		JetpackTracking::record_user_event( 'jpc_remote_authorize_success' );
 
-		$response = array(
+		return array(
 			'result' => $result,
 		);
+	}
+
+	/**
+	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
+	 * register this site so that a plan can be provisioned.
+	 *
+	 * @param array $request An array containing at minimum nonce and local_user keys.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_register( $request ) {
+		JetpackTracking::record_user_event( 'jpc_remote_register_begin', array() );
+
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user ) {
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_register_fail' );
+		}
+
+		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error( $user, 'jpc_remote_register_fail' );
+		}
+
+		if ( empty( $request['nonce'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'nonce_missing',
+					__( 'The required "nonce" parameter is missing.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_register_fail'
+			);
+		}
+
+		$nonce = sanitize_text_field( $request['nonce'] );
+		unset( $request['nonce'] );
+
+		$api_url  = Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) );
+		$response = Jetpack_Client::_wp_remote_request(
+			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
+			array( 'method' => 'GET' ),
+			true
+		);
+
+		if (
+			200 !== wp_remote_retrieve_response_code( $response ) ||
+			'OK' !== trim( wp_remote_retrieve_body( $response ) )
+		) {
+			return $this->error(
+				new Jetpack_Error(
+					'invalid_nonce',
+					__( 'There was an issue validating this request.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_register_fail'
+			);
+		}
+
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Options::get_option( 'blog_token' ) || ! empty( $request['force'] ) ) {
+			wp_set_current_user( $user->ID );
+
+			// This code mostly copied from Jetpack::admin_page_load.
+			Jetpack::maybe_set_version_option();
+			$registered = Jetpack::try_registration();
+			if ( is_wp_error( $registered ) ) {
+				return $this->error( $registered, 'jpc_remote_register_fail' );
+			} elseif ( ! $registered ) {
+				return $this->error(
+					new Jetpack_Error(
+						'registration_error',
+						__( 'There was an unspecified error registering the site', 'jetpack' ),
+						400
+					),
+					'jpc_remote_register_fail'
+				);
+			}
+		}
+
+		JetpackTracking::record_user_event( 'jpc_remote_register_success' );
+
+		return array(
+			'client_id' => Jetpack_Options::get_option( 'id' )
+		);
+	}
+
+	/**
+	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
+	 * register this site so that a plan can be provisioned.
+	 *
+	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_provision( $request ) {
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user ) {
+			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_provision_fail' );
+		}
+
+		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error( $user, 'jpc_remote_provision_fail' );
+		}
+
+		$site_icon = get_site_icon_url();
+
+		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
+
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
+			$redirect_uri = add_query_arg(
+				array(
+					'action'      => 'jetpack-sso',
+					'redirect_to' => rawurlencode( admin_url() ),
+				),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		} else {
+			$redirect_uri = admin_url();
+		}
+
+		// Generate secrets.
+		$role    = Jetpack::translate_user_to_role( $user );
+		$secrets = Jetpack::init()->generate_secrets( 'authorize', $user->ID );
+
+		$response = array(
+			'jp_version'   => JETPACK__VERSION,
+			'redirect_uri' => $redirect_uri,
+			'user_id'      => $user->ID,
+			'user_email'   => $user->user_email,
+			'user_login'   => $user->user_login,
+			'scope'        => Jetpack::sign_role( $role, $user->ID ),
+			'secret'       => $secrets['secret_1'],
+			'is_active'    => Jetpack::is_active(),
+		);
+
+		if ( $site_icon ) {
+			$response['site_icon'] = $site_icon;
+		}
+
+		if ( ! empty( $request['onboarding'] ) ) {
+			Jetpack::create_onboarding_token();
+			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
+		}
+
 		return $response;
+	}
+
+	/**
+	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
+	 * an access token for the given user.
+	 *
+	 * @param array $request An array containing local_user and nonce keys at minimum.
+	 * @return mixed
+	 */
+	public function remote_connect( $request, $ixr_client = false ) {
+		if ( Jetpack::is_active() ) {
+			return $this->error(
+				new WP_Error(
+					'already_connected',
+					__( 'Jetpack is already connected.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		$user = $this->fetch_and_verify_local_user( $request );
+
+		if ( ! $user || is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
+			return $this->error(
+				new WP_Error(
+					'input_error',
+					__( 'Valid user is required.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		if ( empty( $request['nonce'] ) ) {
+			return $this->error(
+				new WP_Error(
+					'input_error',
+					__( 'A non-empty nonce must be supplied.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+
+		if ( ! $ixr_client ) {
+			Jetpack::load_xml_rpc_client();
+			$ixr_client = new Jetpack_IXR_Client();
+		}
+		$ixr_client->query( 'jetpack.getUserAccessToken', array(
+			'nonce'            => sanitize_text_field( $request['nonce'] ),
+			'external_user_id' => $user->ID,
+		) );
+
+		$token = $ixr_client->isError() ? false : $ixr_client->getResponse();
+		if ( empty( $token ) ) {
+			return $this->error(
+				new WP_Error(
+					'token_fetch_failed',
+					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_connect_fail'
+			);
+		}
+		$token = sanitize_text_field( $token );
+
+		Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+
+		$this->do_post_authorization();
+
+		return Jetpack::is_active();
+	}
+
+	private function fetch_and_verify_local_user( $request ) {
+		if ( empty( $request['local_user'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'local_user_missing',
+					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
+		}
+
+		// local user is used to look up by login, email or ID
+		$local_user_info = $request['local_user'];
+
+		$user = get_user_by( 'login', $local_user_info );
+
+		if ( ! $user ) {
+			$user = get_user_by( 'email', $local_user_info );
+		}
+
+		if ( ! $user ) {
+			$user = get_user_by( 'ID', $local_user_info );
+		}
+
+		return $user;
 	}
 
 	private function tracks_record_error( $name, $error, $user = null ) {
@@ -212,7 +468,7 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::delete_secrets( $action, $state );
 
 		JetpackTracking::record_user_event( 'jpc_verify_' . $action . '_success', array(), $user );
-		
+
 		return $secrets['secret_2'];
 	}
 
@@ -512,5 +768,19 @@ class Jetpack_XMLRPC_Server {
 			(string) $nonce,
 			(string) $hmac,
 		);
+	}
+
+	/**
+	 * Handles authorization actions after connecting a site, such as enabling modules.
+	 *
+	 * This do_post_authorization() is used in this class, as opposed to calling
+	 * Jetpack::handle_post_authorization_actions() directly so that we can mock this method as necessary.
+	 *
+	 * @return void
+	 */
+	public function do_post_authorization() {
+		/** This filter is documented in class.jetpack-cli.php */
+		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
+		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
 	}
 }

@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 	function test_spreadsheet_widget_variation_4() {
 		$embed     = '<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQOnHvMNvmHbXUCDAyzUedmA8UWctJqSkUwS8cC7KHF1XASTzRdVYu09tYvDl5xAPwCsaNRNODADmzm/pubhtml?widget=true&amp;headers=false"></iframe>';
 		$shortcode = googleapps_embed_to_shortcode( $embed );
-		
+
 		$expected_shortcode = '[googleapps domain="docs" dir="spreadsheets/d/e/2PACX-1vQOnHvMNvmHbXUCDAyzUedmA8UWctJqSkUwS8cC7KHF1XASTzRdVYu09tYvDl5xAPwCsaNRNODADmzm/pubhtml" query="widget=true&amp;headers=false" /]';
 
 		$this->assertEquals( $expected_shortcode, $shortcode );
@@ -203,6 +203,17 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		$expected_shortcode = '[googleapps domain="drive" dir="file/d/0B0SIdZW7iu-zX1RWREJpMXVHZVU/preview" query="" width="640" height="480" /]';
 
 		$this->assertEquals( $expected_shortcode, $shortcode );
+	}
+
+	function test_embed_can_fullscreen() {
+		$embed           = '<iframe src="https://docs.google.com/document/d/1wy2kzRYYSQV0ZHe58DOvQwRQ8syrY5AhgUnKkKXk9N8/pub?embedded=true"></iframe>';
+		$expected_output = 'allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"';
+
+		$shortcode = googleapps_embed_to_shortcode( $embed );
+		add_shortcode( 'googleapps', 'googleapps_shortcode' );
+		$to_embed = do_shortcode( $shortcode );
+
+		$this->assertContains( $expected_output, $to_embed );
 	}
 
 }

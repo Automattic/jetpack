@@ -1,14 +1,15 @@
 /**
-* External dependencies
-*/
+ * External dependencies
+ */
+import PropTypes from 'prop-types';
 import React from 'react';
 
-const Hider = React.createClass( {
-	displayName: 'Hider',
+class Hider extends React.Component {
+	static displayName = 'Hider';
 
-	propTypes: {
-		hide: React.PropTypes.bool,
-	},
+	static propTypes = {
+		hide: PropTypes.bool,
+	};
 
 	render() {
 		return (
@@ -20,40 +21,36 @@ const Hider = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
-const FilterSummary = React.createClass( {
-	getDefaultProps: function() {
-		return {
-			noResultsText: 'No Results Found'
-		};
-	},
+class FilterSummary extends React.Component {
+	static defaultProps = {
+		noResultsText: 'No Results Found',
+	};
 
-	propTypes: {
-		noResultsText: React.PropTypes.string
-	},
+	static propTypes = {
+		noResultsText: PropTypes.string,
+	};
 
 	render() {
 		if ( this.props.items.length === 0 ) {
-			return ( <p>{ this.props.noResultsText }</p> );
-		} else {
-			return null;
+			return <p>{ this.props.noResultsText }</p>;
 		}
+		return null;
 	}
-} );
+}
 
-export default React.createClass( {
-	displayName: 'Collection',
+export default class Collection extends React.Component {
+	static displayName = 'Collection';
 
-	shouldWeHide: function( example ) {
-		let filter, searchString;
-
-		filter = this.props.filter || '';
-
-		searchString = example.props.searchTerms;
+	shouldWeHide = example => {
+		const filter = this.props.filter || '';
+		let searchString = example.props.searchTerms;
 
 		if ( this.props.component ) {
-			return example.type.displayName.toLowerCase() !== this.props.component.replace( /-([a-z])/g, '$1' );
+			return (
+				example.type.displayName.toLowerCase() !== this.props.component.replace( /-([a-z])/g, '$1' )
+			);
 		}
 
 		if ( example.props.searchKeywords ) {
@@ -61,24 +58,23 @@ export default React.createClass( {
 		}
 
 		return ! ( ! filter || searchString.toLowerCase().indexOf( filter ) > -1 );
-	},
+	};
 
-	visibleExamples: function( examples ) {
-		return examples.filter( ( child ) => {
-			return !child.props.hide;
+	visibleExamples = examples => {
+		return examples.filter( child => {
+			return ! child.props.hide;
 		} );
-	},
+	};
 
-	render: function() {
-		let summary, examples;
-
-		examples = React.Children.map( this.props.children, ( example ) => {
+	render() {
+		const examples = React.Children.map( this.props.children, example => {
 			return (
 				<Hider hide={ this.shouldWeHide( example ) } key={ 'example-' + example.type.displayName }>
 					{ example }
 				</Hider>
 			);
 		} );
+		let summary;
 
 		if ( ! this.props.component ) {
 			summary = (
@@ -97,4 +93,4 @@ export default React.createClass( {
 			</div>
 		);
 	}
-} );
+}

@@ -1,5 +1,5 @@
 <?php
-require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
 /**
  * Just some defaults that we share with the server
@@ -100,9 +100,11 @@ class Jetpack_Sync_Defaults {
 		'wp_mobile_app_promos',
 		'monitor_receive_notifications',
 		'post_by_email_address',
+		'jetpack_mailchimp',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'jetpack_sso_require_two_step',
+		'jetpack_sso_match_by_email',
 		'jetpack_relatedposts',
 		'verification_services_codes',
 		'users_can_register',
@@ -111,6 +113,35 @@ class Jetpack_Sync_Defaults {
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 		'jetpack_api_cache_enabled',
+		'start_of_week',
+		'blacklist_keys',
+		'posts_per_page',
+		'posts_per_rss',
+		'show_on_front',
+		'ping_sites',
+		'uploads_use_yearmonth_folders',
+		'date_format',
+		'time_format',
+		'admin_email',
+		'new_admin_email',
+		'default_email_category',
+		'default_role',
+		'page_for_posts',
+		'mailserver_url',
+		'mailserver_login', // Not syncing contents, only the option name
+		'mailserver_pass', // Not syncing contents, only the option name
+		'mailserver_port',
+		'wp_page_for_privacy_policy',
+		'enable_header_ad',
+		'wordads_second_belowpost',
+		'wordads_display_front_page',
+		'wordads_display_post',
+		'wordads_display_page',
+		'wordads_display_archive',
+		'wordads_custom_adstxt',
+		'site_segment',
+		'site_user_type',
+		'site_vertical',
 	);
 
 	public static function get_options_whitelist() {
@@ -121,11 +152,30 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of options.
 		 */
 		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+	}
+
+	// Do not sync contents for these events, only the option name
+	static $default_options_contentless = array(
+		'mailserver_login',
+		'mailserver_pass',
+	);
+
+	public static function get_options_contentless() {
+		/**
+		 * Filter the list of WordPress options that should be synced without content
+		 *
+		 * @module sync
+		 *
+		 * @since 6.1.0
+		 *
+		 * @param array The list of options synced without content.
+		 */
+		return apply_filters( 'jetpack_sync_options_contentless', self::$default_options_contentless );
 	}
 
 	static $default_constants_whitelist = array(
@@ -147,7 +197,7 @@ class Jetpack_Sync_Defaults {
 		'WP_CRON_LOCK_TIMEOUT',
 		'PHP_VERSION',
 		'WP_MEMORY_LIMIT',
-		'WP_MAX_MEMORY_LIMIT'
+		'WP_MAX_MEMORY_LIMIT',
 	);
 
 	public static function get_constants_whitelist() {
@@ -156,7 +206,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of constants options.
 		 */
@@ -187,12 +237,16 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
-		'get_plugins_action_links'		   => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
+		'get_plugins_action_links'         => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
+		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
+		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
+		'paused_themes'                    => array( 'Jetpack_Sync_Functions', 'get_paused_themes' ),
+		'paused_plugins'                   => array( 'Jetpack_Sync_Functions', 'get_paused_plugins' ),
 	);
 
 
@@ -234,7 +288,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of callables.
 		 */
@@ -259,6 +313,13 @@ class Jetpack_Sync_Defaults {
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
 		'wp_automatic',
+		'jp_sitemap_master',
+		'jp_sitemap',
+		'jp_sitemap_index',
+		'jp_img_sitemap',
+		'jp_img_sitemap_index',
+		'jp_vid_sitemap',
+		'jp_vid_sitemap_index',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -268,7 +329,7 @@ class Jetpack_Sync_Defaults {
 
 	static $default_post_meta_checksum_columns = array(
 		'meta_id',
-		'meta_value'
+		'meta_value',
 	);
 
 	static $default_comment_checksum_columns = array(
@@ -278,7 +339,7 @@ class Jetpack_Sync_Defaults {
 
 	static $default_comment_meta_checksum_columns = array(
 		'meta_id',
-		'meta_value'
+		'meta_value',
 	);
 
 	static $default_option_checksum_columns = array(
@@ -301,7 +362,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of multisite callables.
 		 */
@@ -354,7 +415,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param array The default list of meta data keys.
 		 */
@@ -365,7 +426,7 @@ class Jetpack_Sync_Defaults {
 		'hc_avatar',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
-		'hc_foreign_user_id'
+		'hc_foreign_user_id',
 	);
 
 	public static function get_comment_meta_whitelist() {
@@ -402,7 +463,8 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static function is_whitelisted_option( $option ) {
-		foreach ( self::$default_options_whitelist as $whitelisted_option ) {
+		$whitelisted_options = self::get_options_whitelist();
+		foreach ( $whitelisted_options as $whitelisted_option ) {
 			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
 				return true;
 			} elseif ( $whitelisted_option === $option ) {
@@ -501,26 +563,26 @@ class Jetpack_Sync_Defaults {
 		'active_sitewide_plugins',
 	);
 
-	static $default_taxonomy_whitelist = array();
-	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
-	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
-	static $default_upload_max_rows = 500;
-	static $default_sync_wait_time = 10; // seconds, between syncs
-	static $default_sync_wait_threshold = 5; // only wait before next send if the current send took more than X seconds
-	static $default_enqueue_wait_time = 10; // wait between attempting to continue a full sync, via requests
-	static $default_max_queue_size = 1000;
-	static $default_max_queue_lag = 900; // 15 minutes
-	static $default_queue_max_writes_sec = 100; // 100 rows a second
-	static $default_post_types_blacklist = array();
-	static $default_post_meta_whitelist = array();
-	static $default_comment_meta_whitelist = array();
-	static $default_disable = 0; // completely disable sending data to wpcom
-	static $default_sync_via_cron = 1; // use cron to sync
-	static $default_render_filtered_content = 0; // render post_filtered_content
-	static $default_max_enqueue_full_sync = 100; // max number of items to enqueue at a time when running full sync
+	static $default_taxonomy_whitelist       = array();
+	static $default_dequeue_max_bytes        = 500000; // very conservative value, 1/2 MB
+	static $default_upload_max_bytes         = 600000; // a little bigger than the upload limit to account for serialization
+	static $default_upload_max_rows          = 500;
+	static $default_sync_wait_time           = 10; // seconds, between syncs
+	static $default_sync_wait_threshold      = 5; // only wait before next send if the current send took more than X seconds
+	static $default_enqueue_wait_time        = 10; // wait between attempting to continue a full sync, via requests
+	static $default_max_queue_size           = 1000;
+	static $default_max_queue_lag            = 900; // 15 minutes
+	static $default_queue_max_writes_sec     = 100; // 100 rows a second
+	static $default_post_types_blacklist     = array();
+	static $default_post_meta_whitelist      = array();
+	static $default_comment_meta_whitelist   = array();
+	static $default_disable                  = 0; // completely disable sending data to wpcom
+	static $default_sync_via_cron            = 1; // use cron to sync
+	static $default_render_filtered_content  = 0; // render post_filtered_content
+	static $default_max_enqueue_full_sync    = 100; // max number of items to enqueue at a time when running full sync
 	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
-	static $default_sync_queue_lock_timeout = 120; // 2 minutes
-	static $default_cron_sync_time_limit = 30; // 30 seconds
+	static $default_sync_queue_lock_timeout  = 120; // 2 minutes
+	static $default_cron_sync_time_limit     = 30; // 30 seconds
 }

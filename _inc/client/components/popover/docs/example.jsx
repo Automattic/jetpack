@@ -5,6 +5,7 @@
  * External dependencies
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 
 /**
@@ -14,7 +15,8 @@ import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
 
-const Popovers = React.createClass( {
+const Popovers = createReactClass( {
+	displayName: 'Popovers',
 	mixins: [ PureRenderMixin ],
 
 	getInitialState: function() {
@@ -26,7 +28,7 @@ const Popovers = React.createClass( {
 			showMultiplePopover: false,
 			showRubicPopover: false,
 
-			rubicPosition: 'top'
+			rubicPosition: 'top',
 		};
 	},
 
@@ -45,7 +47,7 @@ const Popovers = React.createClass( {
 
 	showPopoverMenu() {
 		this.setState( {
-			showPopoverMenu: ! this.state.showPopoverMenu
+			showPopoverMenu: ! this.state.showPopoverMenu,
 		} );
 	},
 
@@ -60,14 +62,14 @@ const Popovers = React.createClass( {
 	updateMultiplePopover( event ) {
 		this.setState( {
 			currentTarget: event.currentTarget,
-			showMultiplePopover: true
+			showMultiplePopover: true,
 		} );
 	},
 
 	closeMultiplePopover() {
 		this.setState( {
 			showMultiplePopover: false,
-			currentTarget: null
+			currentTarget: null,
 		} );
 	},
 
@@ -81,18 +83,14 @@ const Popovers = React.createClass( {
 
 		this.setState( {
 			showMultiplePopover: true,
-			currentTarget: ref
+			currentTarget: ref,
 		} );
 	},
 
 	renderPopover() {
 		return (
 			<div>
-				<button
-					className="button"
-					ref="popoverButton"
-					onClick={ this.swapPopoverVisibility }
-				>
+				<button className="button" ref="popoverButton" onClick={ this.swapPopoverVisibility }>
 					Show Popover
 				</button>
 
@@ -103,9 +101,11 @@ const Popovers = React.createClass( {
 					position={ this.state.popoverPosition }
 					context={ this.refs && this.refs.popoverButton }
 				>
-					<div style={ {
-						padding: '10px'
-					} }>
+					<div
+						style={ {
+							padding: '10px',
+						} }
+					>
 						Simple Popover Instance
 					</div>
 				</Popover>
@@ -116,11 +116,7 @@ const Popovers = React.createClass( {
 	renderMenuPopover() {
 		return (
 			<div>
-				<button
-						className="button"
-						ref="popoverMenuButton"
-						onClick={ this.showPopoverMenu }
-					>
+				<button className="button" ref="popoverMenuButton" onClick={ this.showPopoverMenu }>
 					Show Popover Menu
 				</button>
 
@@ -134,11 +130,31 @@ const Popovers = React.createClass( {
 					context={ this.refs && this.refs.popoverMenuButton }
 				>
 					<PopoverMenuItem action="A">Item A</PopoverMenuItem>
-					<PopoverMenuItem action="B" onClick={ this.onPopoverMenuItemBClick }>Item B</PopoverMenuItem>
+					<PopoverMenuItem action="B" onClick={ this.onPopoverMenuItemBClick }>
+						Item B
+					</PopoverMenuItem>
 					<PopoverMenuItem action="C">Item C</PopoverMenuItem>
 				</PopoverMenu>
 			</div>
 		);
+	},
+
+	handleClick( i, positions ) {
+		return event => {
+			const index = parseInt( event.currentTarget.innerText );
+			if ( i === 4 ) {
+				return null;
+			}
+
+			this.setState( {
+				showRubicPopover: ! this.state.showRubicPopover,
+				rubicPosition: positions[ index ],
+			} );
+		};
+	},
+
+	handleClose() {
+		this.setState( { showRubicPopover: false } );
 	},
 
 	renderPopoverRubic() {
@@ -161,30 +177,22 @@ const Popovers = React.createClass( {
 		for ( let i = 0; i < 9; i++ ) {
 			squares.push(
 				<div
+					role="button"
+					tabIndex={ 0 }
 					style={ {
 						cursor: 'pointer',
 						color: '#444',
-						width: ( width / 3 ),
-						height: ( width / 3 ),
+						width: width / 3,
+						height: width / 3,
 						lineHeight: `${ width / 3 }px`,
 						textAlign: 'center',
-						'float': 'left',
+						float: 'left',
 						backgroundColor: '#eee',
 						border: '1px solid #ddd',
-						boxSixing: 'border-box'
+						boxSixing: 'border-box',
 					} }
 					key={ `rubic-${ i }` }
-					onClick={ event => {
-						const index = parseInt( event.currentTarget.innerText );
-						if ( i === 4 ) {
-							return null;
-						}
-
-						this.setState( {
-							showRubicPopover: ! this.state.showRubicPopover,
-							rubicPosition: positions[ index ]
-						} );
-					} }
+					onClick={ this.handleClick( i, positions ) }
 				>
 					{ i === 4 ? null : i }
 				</div>
@@ -197,8 +205,8 @@ const Popovers = React.createClass( {
 					ref="popover-rubic-reference"
 					style={ {
 						backgroundColor: '#888',
-						width: ( width + 6 ),
-						height: ( width + 6 )
+						width: width + 6,
+						height: width + 6,
 					} }
 				>
 					{ squares }
@@ -206,19 +214,18 @@ const Popovers = React.createClass( {
 
 				<Popover
 					id="popover__rubic"
-					onClose={ () => {
-						this.setState( { showRubicPopover: false } );
-					} }
+					onClose={ this.handleClose }
 					isVisible={ this.state.showRubicPopover }
 					position={ this.state.rubicPosition }
 					context={ this.refs && this.refs[ 'popover-rubic-reference' ] }
 				>
 					<div
-						style= { {
-							padding: '10px'
+						style={ {
+							padding: '10px',
 						} }
 					>
-						<div>position:
+						<div>
+							position:
 							<strong>{ this.state.rubicPosition }</strong>
 						</div>
 					</div>
@@ -244,25 +251,21 @@ const Popovers = React.createClass( {
 			);
 		}
 
-		const context = this.state.currentTarget ||
-			this.refs && this.refs[ `target-${ parseInt( targetsCount / 2 ) }` ];
+		const context =
+			this.state.currentTarget ||
+			( this.refs && this.refs[ `target-${ parseInt( targetsCount / 2 ) }` ] );
 
 		return (
 			<div className="docs__popover-hover-example">
 				<div>
-					<button
-						className="button"
-						onClick={ this.movePopovertoRandomTarget }
-					>
+					<button className="button" onClick={ this.movePopovertoRandomTarget }>
 						Move to random target
 					</button>
 				</div>
 
 				<br />
 
-				<ul onMouseLeave={ this.closeMultiplePopover }>
-					{ targets }
-				</ul>
+				<ul onMouseLeave={ this.closeMultiplePopover }>{ targets }</ul>
 
 				<Popover
 					showDelay={ 500 }
@@ -283,14 +286,9 @@ const Popovers = React.createClass( {
 		const targetId = currentTarget ? currentTarget.innerText : null;
 
 		return (
-			<div
-				style={ { padding: '10px' } }
-				className="docs__popover-hover-example__content"
-			>
+			<div style={ { padding: '10px' } } className="docs__popover-hover-example__content">
 				Lorem ipsum&nbsp;
-					<strong style={ { color: 'green' } }>
-						{ targetId }
-					</strong>
+				<strong style={ { color: 'green' } }>{ targetId }</strong>
 				&nbsp;dolor sit amet.
 			</div>
 		);
@@ -303,8 +301,10 @@ const Popovers = React.createClass( {
 				<h2>
 					<a href="/devdocs/design/popovers">Popovers</a>
 				</h2>
-				<label htmlFor={ id } >Position
-					<select id={ id }
+				<label htmlFor={ id }>
+					Position
+					<select
+						id={ id }
 						value={ this.state.popoverPosition }
 						onChange={ this.changePopoverPosition }
 					>
@@ -338,7 +338,7 @@ const Popovers = React.createClass( {
 				{ this.renderMultipleTargetsPopover() }
 			</div>
 		);
-	}
+	},
 } );
 
 export default Popovers;

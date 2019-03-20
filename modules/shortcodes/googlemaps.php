@@ -7,7 +7,7 @@
  */
 function jetpack_googlemaps_embed_to_short_code( $content ) {
 
-	if ( ! is_string( $content ) || ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps?@', $content ) ) ){
+	if ( ! is_string( $content ) || ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps?@', $content ) ) ) {
 		return $content;
 	}
 
@@ -29,14 +29,14 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 
 	if ( preg_match( '/\bwidth=[\'"](\d+)(%)?/', $match[0], $width ) ) {
 		$percent = ! empty( $width[2] ) ? '%' : '';
-		$width = absint( $width[1] ) . $percent;
+		$width   = absint( $width[1] ) . $percent;
 	} else {
 		$width = 425;
 	}
 
 	if ( preg_match( '/\bheight=[\'"](\d+)(%)?/', $match[0], $height ) ) {
 		$percent = ! empty( $height[2] ) ? '%' : '';
-		$height = absint( $height[1] ) . $percent;
+		$height  = absint( $height[1] ) . $percent;
 	} else {
 		$height = 350;
 	}
@@ -59,12 +59,13 @@ add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
  *   [googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&w=640&h=480]
  */
 function jetpack_googlemaps_shortcode( $atts ) {
-	if ( !isset($atts[0]) )
+	if ( ! isset( $atts[0] ) ) {
 		return '';
+	}
 
 	$params = ltrim( $atts[0], '=' );
 
-	$width = 425;
+	$width  = 425;
 	$height = 350;
 
 	if ( preg_match( '!^https?://(www|maps|mapsengine)\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
@@ -72,25 +73,27 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		$params = str_replace( '&amp;', '&', $params );
 		parse_str( $params, $arg );
 
-		if ( isset( $arg['hq'] ) )
+		if ( isset( $arg['hq'] ) ) {
 			unset( $arg['hq'] );
+		}
 
 		$url = '';
 		foreach ( (array) $arg as $key => $value ) {
 			if ( 'w' == $key ) {
 				$percent = ( '%' == substr( $value, -1 ) ) ? '%' : '';
-				$width = (int) $value . $percent;
+				$width   = (int) $value . $percent;
 			} elseif ( 'h' == $key ) {
 				$height = (int) $value;
 			} else {
-				$key = str_replace( '_', '.', $key );
+				$key  = str_replace( '_', '.', $key );
 				$url .= esc_attr( "$key=$value&amp;" );
 			}
 		}
 		$url = substr( $url, 0, -5 );
 
-		if( is_ssl() )
+		if ( is_ssl() ) {
 			$url = str_replace( 'http://', 'https://', $url );
+		}
 
 		$css_class = 'googlemaps';
 

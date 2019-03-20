@@ -22,9 +22,15 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 		$this->heartbeat_action = false;
 		add_action( 'jetpack_heartbeat', array( $this, 'jetpack_heartbeat' ) );
 
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		Jetpack_Heartbeat::init()->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
 		$this->assertTrue( $this->heartbeat_action );
+	}
+
+	function pre_http_request_success() {
+		return array( 'body' => json_encode( array( 'success' => true ) ) );
 	}
 
 	/**

@@ -2,13 +2,12 @@
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
- * Jumpstart Description: Give visitors an easy way to show they appreciate your content.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Feature: Engagement, Jumpstart
+ * Feature: Engagement
  * Additional Search Queries: like, likes, wordpress.com
  */
 
@@ -38,7 +37,10 @@ class Jetpack_Likes {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
 
-		add_action( 'init', array( &$this, 'action_init' ) );
+		// We need to run on wp hook rather than init because we check is_amp_endpoint()
+		// when bootstrapping hooks
+		add_action( 'wp', array( &$this, 'action_init' ), 99 );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
@@ -47,6 +49,7 @@ class Jetpack_Likes {
 
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
+			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
 
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
@@ -123,6 +126,16 @@ class Jetpack_Likes {
 	}
 
 	/**
+	 * Overrides default configuration url
+	 *
+	 * @uses admin_url
+	 * @return string module settings URL
+	 */
+	function jetpack_likes_configuration_url() {
+		return admin_url( 'options-general.php?page=sharing#likes' );
+	}
+
+	/**
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
 	 */
 	function load_jp_css() {
@@ -139,6 +152,20 @@ class Jetpack_Likes {
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}
+	}
+
+
+	/**
+     * Stub for is_post_likeable, since some wpcom functions call this directly on the class
+	 * Are likes enabled for this post?
+     *
+     * @param int $post_id
+     * @return bool
+	 */
+	static function is_post_likeable( $post_id = 0 ) {
+		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
+		$settings = new Jetpack_Likes_Settings();
+		return $settings->is_post_likeable();
 	}
 
 	/**
@@ -162,21 +189,6 @@ class Jetpack_Likes {
 	function configuration_target_area( $html = '' ) {
 		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
 		return $html;
-	}
-
-	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
-	 */
-	function sharing_meta_box_content( $post ) {
-		$post_id = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
-		$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
-		<p>
-			<label for="wpl_enable_post_sharing">
-				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
-			</label>
-			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> <?php
 	}
 
 	/**
@@ -257,6 +269,10 @@ class Jetpack_Likes {
 			 ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
 			 ( defined( 'COOKIE_AUTH_REQUEST' ) && COOKIE_AUTH_REQUEST ) ||
 			 ( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) ) {
+			return;
+		}
+
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 
@@ -416,7 +432,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /><span class="screen-reader-text">' . __( 'Likes', 'jetpack' ) . '</span></span>';
 		$columns['date'] = $date;
 
 		return $columns;
@@ -435,7 +451,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
@@ -520,7 +536,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
@@ -540,5 +556,89 @@ class Jetpack_Likes {
 		$wp_admin_bar->add_node( $node );
 	}
 }
+
+/**
+ * Callback to get the value for the jetpack_likes_enabled field.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_get_value( array $post ) {
+	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
+
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	// an empty string: post meta was not set, so go with the global setting
+	if ( "" === $post_likes_switched ) {
+		return $sitewide_likes_enabled;
+	}
+
+	// user overrode the global setting to disable likes
+	elseif ( "0" === $post_likes_switched ) {
+		return false;
+	}
+
+	// user overrode the global setting to enable likes
+	elseif ( "1" === $post_likes_switched ) {
+		return true;
+	}
+
+	// no default fallback, let's stay explicit
+}
+
+/**
+ * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
+
+	if ( $should_switch_status ) {
+		// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
+		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
+		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
+	} else {
+		// unset the meta otherwise
+		return delete_post_meta( $post_object->ID, 'switch_like_status' );
+	}
+}
+
+/**
+ * Add Likes post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ */
+function jetpack_post_likes_register_rest_field() {
+	$post_types = get_post_types( array( 'public' => true ) );
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'jetpack_likes_enabled',
+			array(
+				'get_callback'    => 'jetpack_post_likes_get_value',
+				'update_callback' => 'jetpack_post_likes_update_value',
+				'schema'          => array(
+					'description' => __( 'Are Likes enabled?', 'jetpack' ),
+					'type'        => 'boolean',
+				),
+			)
+		);
+	}
+}
+
+// Add Likes post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
 Jetpack_Likes::init();

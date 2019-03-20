@@ -24,24 +24,26 @@ wp_register_script(
 	JETPACK__VERSION
 );
 
-wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
-	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
-	'emailLabel' => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
-	'urlLabel' => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
-	'commentLabel' => esc_attr( _x( 'Comment', 'noun', 'jetpack' ) ),
-	'newLabel' => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
-	'optionsLabel' => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'optionsLabel' => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'firstOptionLabel' => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
-	'moveInstructions' => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
-	'moveLabel' => esc_attr( _x( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
-	'editLabel' => esc_attr( _x( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
-	'savedMessage' => esc_attr__( 'Saved successfully', 'jetpack' ),
-	'requiredLabel' => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
-	'exitConfirmMessage' => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
-	'maxNewFields' => intval( $max_new_fields ),
-) );
+wp_localize_script(
+	'grunion', 'GrunionFB_i18n', array(
+		'nameLabel'             => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
+		'emailLabel'            => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
+		'urlLabel'              => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
+		'commentLabel'          => esc_attr( _x( 'Comment', 'noun', 'jetpack' ) ),
+		'newLabel'              => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
+		'optionsLabel'          => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+		'optionsLabel'          => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+		'firstOptionLabel'      => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+		'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
+		'moveInstructions'      => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
+		'moveLabel'             => esc_attr( _x( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
+		'editLabel'             => esc_attr( _x( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
+		'savedMessage'          => esc_attr__( 'Saved successfully', 'jetpack' ),
+		'requiredLabel'         => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
+		'exitConfirmMessage'    => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
+		'maxNewFields'          => intval( $max_new_fields ),
+	)
+);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -50,7 +52,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php esc_html_e( 'Contact Form', 'jetpack' ); ?></title>
 <script type="text/javascript">
-	var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+	var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
 	var postId = <?php echo absint( $_GET['post_id'] ); ?>;
 	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); ?>';
 	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); ?>';
@@ -62,7 +64,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 		FB.ContactForm.resizePop();
 	});
 	jQuery(window).resize(function() {
-	  	setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
+		  setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
 	});
 </script>
 <style>
@@ -152,7 +154,12 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 </style>
 </head>
 
-<body <?php if ( is_rtl() ) { echo 'class="rtl"'; }?>>
+<body 
+<?php
+if ( is_rtl() ) {
+	echo 'class="rtl"'; }
+?>
+>
 	<div id="media-upload-header">
 		<div id="fb-success" class="fb-success" style="display: none;"><?php esc_html_e( 'Your new field was saved successfully', 'jetpack' ); ?></div>
 		<ul id="sidemenu">
@@ -165,15 +172,23 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 			<h3><?php esc_html_e( 'How does this work?', 'jetpack' ); ?></h3>
 			<p><?php esc_html_e( 'By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you.', 'jetpack' ); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I add more fields?', 'jetpack' ); ?></h3>
-			<p><?php printf(
+			<p>
+			<?php
+			printf(
 				esc_html( _x( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
 				'<a href="#" class="fb-add-field" style="padding-left: 0;">' . esc_html__( 'Click here', 'jetpack' ) . '</a>'
-			); ?></p>
+			);
+			?>
+			</p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I view my feedback within WordPress?', 'jetpack' ); ?></h3>
-			<p><?php printf(
+			<p>
+			<?php
+			printf(
 				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedback" in an HTML link', 'jetpack' ) ),
 				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
-			); ?></p>
+			);
+			?>
+			</p>
 			<div class="clear"></div>
 		</div>
 		<div id="fb-email-desc" class="fb-desc" style="display: none;">

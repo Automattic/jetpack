@@ -30,6 +30,10 @@ abstract class Sharing_Source {
 		}
 	}
 
+	public function is_deprecated() {
+		return false;
+	}
+
 	public function http() {
 		return is_ssl() ? 'https' : 'http';
 	}
@@ -201,7 +205,8 @@ abstract class Sharing_Source {
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
 		return sprintf(
-			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			( true == $this->open_link_in_new ) ? ' noopener noreferrer' : '',
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
@@ -262,11 +267,21 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 		}
 
+		$is_deprecated = $this->is_deprecated();
+
 		$link = sprintf(
 			'<a rel="nofollow" class="%s" href="javascript:void(0)" title="%s"><span>%s</span></a>',
 			implode( ' ', $klasses ),
-			$this->get_name(),
-			$text
+			esc_attr(
+				$is_deprecated
+					? sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+					: $this->get_name()
+			),
+			esc_html(
+				$is_deprecated
+					? sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() )
+					: $text
+			)
 		);
 
 		$smart = ( $this->smart || $force_smart ) ? 'on' : 'off';
@@ -357,6 +372,62 @@ abstract class Sharing_Source {
 	}
 }
 
+abstract class Deprecated_Sharing_Source extends Sharing_Source {
+	public	  $button_style = 'text';
+	public	  $smart = false;
+	protected $open_link_in_new = false;
+	protected $id;
+	protected $deprecated = true;
+
+	final public function __construct( $id, array $settings ) {
+		$this->id = $id;
+
+		if ( isset( $settings['button_style'] ) ) {
+			$this->button_style = $settings['button_style'];
+		}
+	}
+
+	final public function is_deprecated() {
+		return true;
+	}
+
+	final public function get_share_url( $post_id ) {
+		return get_permalink( $post_id );
+	}
+
+	final public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
+		return parent::display_preview( $echo, false, $button_style );
+	}
+
+	final public function get_total( $post = false ) {
+		return 0;
+	}
+
+	final public function get_posts_total() {
+		return 0;
+	}
+
+	final public function process_request( $post, array $post_data ) {
+		parent::process_request( $post, $post_data );
+	}
+
+	final public function get_display( $post ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $this->display_deprecated( $post );
+		}
+
+		return '';
+	}
+
+	public function display_deprecated( $post ) {
+		return $this->get_link(
+			$this->get_share_url( $post->ID ),
+			sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() ),
+			sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+		);
+	}
+}
+
 abstract class Sharing_Advanced_Source extends Sharing_Source {
 	public function has_advanced_options() {
 		return true;
@@ -367,10 +438,9 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
 	abstract public function get_options();
 }
 
-
 class Share_Email extends Sharing_Source {
 	public $shortname = 'email';
-	public $genericon = '\f410';
+	public $icon = '\f410';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -533,7 +603,7 @@ class Share_Email extends Sharing_Source {
 			/** This filter is documented in modules/stats.php */
 			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
-			<a rel="nofollow" href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
+			<a rel="nofollow" href="#cancel" class="sharing_cancel" role="button"><?php _e( 'Cancel', 'jetpack' ); ?></a>
 
 			<div class="errors errors-1" style="display: none;">
 				<?php _e( 'Post was not sent - check your email addresses!', 'jetpack' ); ?>
@@ -554,7 +624,7 @@ class Share_Email extends Sharing_Source {
 
 class Share_Twitter extends Sharing_Source {
 	public $shortname = 'twitter';
-	public $genericon = '\f202';
+	public $icon = '\f202';
 	// 'https://dev.twitter.com/rest/reference/get/help/configuration' ( 2015/02/06 ) short_url_length is 22, short_url_length_https is 23
 	public $short_url_length = 24;
 
@@ -572,7 +642,14 @@ class Share_Twitter extends Sharing_Source {
 		return __( 'Twitter', 'jetpack' );
 	}
 
-	function sharing_twitter_via( $post ) {
+	/**
+	 * Determine the Twitter 'via' value for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string Twitter handle without the preceding @.
+	 **/
+	public static function sharing_twitter_via( $post ) {
+		$post = get_post( $post );
 		/**
 		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
 		 *
@@ -583,7 +660,12 @@ class Share_Twitter extends Sharing_Source {
 		 * @param string $string Twitter Username.
 		 * @param array $args Array of Open Graph Meta Tags and Twitter Cards tags.
 		 */
-		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '', array() );
+		$twitter_site_tag_value = apply_filters(
+			'jetpack_twitter_cards_site_tag',
+			'',
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
+		);
 
 		/*
 		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
@@ -611,7 +693,14 @@ class Share_Twitter extends Sharing_Source {
 		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
 	}
 
-	public function get_related_accounts( $post ) {
+	/**
+	 * Determine the 'related' Twitter accounts for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string Comma-separated list of Twitter handles.
+	 **/
+	public static function get_related_accounts( $post ) {
+		$post = get_post( $post );
 		/**
 		 * Filter the list of related Twitter accounts added to the Twitter sharing button.
 		 *
@@ -752,7 +841,7 @@ class Share_Twitter extends Sharing_Source {
 
 class Share_Reddit extends Sharing_Source {
 	public $shortname = 'reddit';
-	public $genericon = '\f222';
+	public $icon = '\f222';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -789,7 +878,7 @@ class Share_Reddit extends Sharing_Source {
 
 class Share_LinkedIn extends Sharing_Source {
 	public $shortname = 'linkedin';
-	public $genericon = '\f207';
+	public $icon = '\f207';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -865,7 +954,7 @@ class Share_LinkedIn extends Sharing_Source {
 
 class Share_Facebook extends Sharing_Source {
 	public $shortname = 'facebook';
-	public $genericon = '\f204';
+	public $icon = '\f204';
 	private $share_type = 'default';
 
 	public function __construct( $id, array $settings ) {
@@ -1000,7 +1089,7 @@ class Share_Facebook extends Sharing_Source {
 
 class Share_Print extends Sharing_Source {
 	public $shortname = 'print';
-	public $genericon = '\f469';
+	public $icon = '\f469';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -1022,7 +1111,7 @@ class Share_Print extends Sharing_Source {
 
 class Share_PressThis extends Sharing_Source {
 	public $shortname = 'pressthis';
-	public $genericon = '\f205';
+	public $icon = '\f205';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -1038,7 +1127,7 @@ class Share_PressThis extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		global $current_user, $wp_version;
+		global $current_user;
 
 		$primary_blog = (int) get_user_meta( $current_user->ID, 'primary_blog', true );
 		if ( $primary_blog ) {
@@ -1069,16 +1158,8 @@ class Share_PressThis extends Sharing_Source {
 			'u' => rawurlencode( $this->get_share_url( $post->ID ) ),
 			);
 
-		if ( version_compare( $wp_version, '4.9-RC1-42107', '>=' ) ) {
-			$args[ 'url-scan-submit' ] = 'Scan';
-			$args[ '_wpnonce' ]        = wp_create_nonce( 'scan-site' );
-
-		} else { // Remove once 4.9 is the minimum.
-			$args['t'] = rawurlencode( $this->get_share_title( $post->ID ) );
-			if ( isset( $_GET['sel'] ) ) {
-				$args['s'] = rawurlencode( $_GET['sel'] );
-			}
-		}
+		$args[ 'url-scan-submit' ] = 'Scan';
+		$args[ '_wpnonce' ]        = wp_create_nonce( 'scan-site' );
 
 		$url = $blog->siteurl . '/wp-admin/press-this.php';
 		$url = add_query_arg( $args, $url );
@@ -1096,110 +1177,11 @@ class Share_PressThis extends Sharing_Source {
 	}
 }
 
-class Share_GooglePlus1 extends Sharing_Source {
+class Share_GooglePlus1 extends Deprecated_Sharing_Source {
 	public $shortname = 'googleplus1';
-	public $genericon = '\f218';
-	private $state = false;
-
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' == $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
 
 	public function get_name() {
-		return __( 'Google', 'jetpack' );
-	}
-
-	public function has_custom_button_style() {
-		return $this->smart;
-	}
-
-	public function get_display( $post ) {
-
-		if ( $this->smart ) {
-			$share_url = $this->get_share_url( $post->ID );
-			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
-		} else {
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Google', 'share to', 'jetpack' ), __( 'Click to share on Google+', 'jetpack' ), 'share=google-plus-1', 'sharing-google-' . $post->ID );
-		}
-	}
-
-	public function get_state() {
-		return $this->state;
-	}
-
-	public function process_request( $post, array $post_data ) {
-
-		if ( isset( $post_data['state'] ) ) {
-			$this->state = $post_data['state'];
-		}
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		// Redirect to Google +'s sharing endpoint
-		$url = 'https://plus.google.com/share?url=' . rawurlencode( $this->get_share_url( $post->ID ) );
-		wp_redirect( $url );
-		die();
-	}
-
-	public function display_footer() {
-		global $post;
-
-		if ( $this->smart ) { ?>
-			<script>
-			function renderGooglePlus1() {
-				if ( 'undefined' === typeof gapi ) {
-					return;
-				}
-
-				jQuery( '.g-plus' ).each(function() {
-					var $button = jQuery( this );
-
-					if ( ! $button.data( 'gplus-rendered' ) ) {
-						gapi.plusone.render( this, {
-							href: $button.attr( 'data-href' ),
-							size: $button.attr( 'data-size' ),
-							annotation: $button.attr( 'data-annotation' )
-						});
-
-						$button.data( 'gplus-rendered', true );
-					}
-				});
-			}
-
-			(function() {
-				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-				po.src = 'https://apis.google.com/js/platform.js';
-				po.innerHTML = '{"parsetags": "explicit"}';
-				po.onload = renderGooglePlus1;
-				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-			})();
-
-			jQuery( document.body ).on( 'post-load', renderGooglePlus1 );
-			</script>
-			<?php
-		} else {
-			$this->js_dialog( 'google-plus-1', array( 'width' => 480, 'height' => 550 ) );
-		}
-	}
-
-	public function get_total( $post = false ) {
-		global $wpdb, $blog_id;
-
-		$name = strtolower( $this->get_id() );
-
-		if ( $post == false ) {
-			// get total number of shares for service
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s', $blog_id, $name ) );
-		}
-
-		// get total shares for a post
-		return $wpdb->get_var( $wpdb->prepare( 'SELECT count FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s', $blog_id, $post->ID, $name ) );
+		return __( 'Google+', 'jetpack' );
 	}
 }
 
@@ -1269,11 +1251,12 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$tagged = '';
 
 			if ( $tags ) {
+				$tagged_raw = array();
 				foreach ( $tags as $tag ) {
-					$tagged[] = rawurlencode( $tag->name );
+					$tagged_raw[] = rawurlencode( $tag->name );
 				}
 
-				$tagged = implode( ',', $tagged );
+				$tagged = implode( ',', $tagged_raw );
 			}
 
 			$url = str_replace( '%post_tags%', $tagged, $url );
@@ -1399,7 +1382,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 
 class Share_Tumblr extends Sharing_Source {
 	public $shortname = 'tumblr';
-	public $genericon = '\f214';
+	public $icon = '\f214';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 		if ( 'official' == $this->button_style ) {
@@ -1420,7 +1403,28 @@ class Share_Tumblr extends Sharing_Source {
 				$target = '_blank';
 			}
 
-			return '<a target="' . $target . '" href="https://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'https://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
+			/**
+			 * If we are looking at a single post, let Tumblr figure out the post type (text, photo, link, quote, chat, or video)
+			 * based on the content available on the page.
+			 * If we are not looking at a single post, content from other posts can appear on the page and Tumblr will pick that up.
+			 * In this case, we want Tumblr to focus on our current post, so we will limit the post type to link, where we can give Tumblr a link to our post.
+			 */
+			if ( ! is_single() ) {
+				$posttype = 'data-posttype="link"';
+			} else {
+				$posttype = '';
+			}
+
+			// Documentation: https://www.tumblr.com/docs/en/share_button
+			return sprintf(
+				'<a class="tumblr-share-button" target="%1$s" href="%2$s" data-title="%3$s" data-content="%4$s" title="%5$s"%6$s>%5$s</a>',
+				$target,
+				'https://www.tumblr.com/share',
+				$this->get_share_title( $post->ID ),
+				$this->get_share_url( $post->ID ),
+				__( 'Share on Tumblr', 'jetpack' ),
+				$posttype
+			);
 		 } else {
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Click to share on Tumblr', 'jetpack' ), 'share=tumblr' );
 		}
@@ -1435,10 +1439,10 @@ class Share_Tumblr extends Sharing_Source {
 		wp_redirect( $url );
 		die();
 	}
-	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
+
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="https://platform.tumblr.com/v1/share.js"></script><?php
+			?><script id="tumblr-js" type="text/javascript" src="https://assets.tumblr.com/share-button.js"></script><?php
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
@@ -1447,7 +1451,7 @@ class Share_Tumblr extends Sharing_Source {
 
 class Share_Pinterest extends Sharing_Source {
 	public $shortname = 'pinterest';
-	public $genericon = '\f209';
+	public $icon = '\f209';
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1599,7 +1603,7 @@ class Share_Pinterest extends Sharing_Source {
 
 class Share_Pocket extends Sharing_Source {
 	public $shortname = 'pocket';
-	public $genericon = '\f224';
+	public $icon = '\f224';
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1699,13 +1703,13 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( 'https://api.whatsapp.com/send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+		return $this->get_link( 'https://api.whatsapp.com/send?text=' . rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
 	}
 }
 
 class Share_Skype extends Sharing_Source {
 	public $shortname = 'skype';
-	public $genericon = '\f220';
+	public $icon = '\f220';
 	private $share_type = 'default';
 
 	public function __construct( $id, array $settings ) {
@@ -1720,6 +1724,7 @@ class Share_Skype extends Sharing_Source {
 		} else {
 			$this->smart = false;
 		}
+
 	}
 
 	public function get_name() {
@@ -1741,7 +1746,7 @@ class Share_Skype extends Sharing_Source {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
 		return $this->get_link(
-			$this->get_process_request_url( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
+			$this->get_process_request_url( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Click to share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -1761,26 +1766,26 @@ class Share_Skype extends Sharing_Source {
 
 	public function display_footer() {
 		if ( $this->smart ) :
-		?>
-		<script>
-		(function(r, d, s) {
-			r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
-				var js, sjs = d.getElementsByTagName(s)[0];
-				if (d.getElementById(p.id)) { return; }
-				js = d.createElement(s);
-				js.id = p.id;
-				js.src = p.scriptToLoad;
-				js.onload = p.callback
-				sjs.parentNode.insertBefore(js, sjs);
-			};
-			var p = {
-				scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
-				id: 'skype_web_sdk'
-			};
-			r.loadSkypeWebSdkAsync(p);
-		})(window, document, 'script');
-		</script>
-		<?php
+			?>
+			<script>
+				(function(r, d, s) {
+					r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
+							var js, sjs = d.getElementsByTagName(s)[0];
+							if (d.getElementById(p.id)) { return; }
+							js = d.createElement(s);
+							js.id = p.id;
+							js.src = p.scriptToLoad;
+							js.onload = p.callback
+							sjs.parentNode.insertBefore(js, sjs);
+						};
+					var p = {
+						scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
+						id: 'skype_web_sdk'
+					};
+					r.loadSkypeWebSdkAsync(p);
+				})(window, document, 'script');
+			</script>
+			<?php
 		else :
 			$this->js_dialog( $this->shortname, array( 'width' => 305, 'height' => 665 ) );
 		endif;

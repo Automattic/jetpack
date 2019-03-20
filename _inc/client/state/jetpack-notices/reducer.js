@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -16,7 +15,6 @@ import {
 	RESET_OPTIONS_SUCCESS,
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP,
-
 } from 'state/action-types';
 
 const notice = ( state = false, action ) => {
@@ -53,7 +51,7 @@ const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 
 export const reducer = combineReducers( {
 	notice,
-	dismissed
+	dismissed,
 } );
 
 /**
@@ -73,7 +71,7 @@ export function getJetpackNotices( state ) {
  * @return {number}  An error code.
  */
 export function getJetpackStateNoticesErrorCode( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorCode' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorCode' ] );
 }
 
 /**
@@ -83,7 +81,7 @@ export function getJetpackStateNoticesErrorCode( state ) {
  * @return {number}  A message code.
  */
 export function getJetpackStateNoticesMessageCode( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'messageCode' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageCode' ] );
 }
 
 /**
@@ -93,7 +91,7 @@ export function getJetpackStateNoticesMessageCode( state ) {
  * @return {string}  An error description.
  */
 export function getJetpackStateNoticesErrorDescription( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorDescription' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorDescription' ] );
 }
 
 /**

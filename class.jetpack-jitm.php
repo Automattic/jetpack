@@ -67,7 +67,6 @@ class Jetpack_JITM {
 	 */
 	function prepare_jitms( $screen ) {
 		if ( ! in_array( $screen->id, array(
-			'toplevel_page_jetpack',
 			'jetpack_page_stats',
 			'jetpack_page_akismet-key-config',
 			'admin_page_jetpack_modules'
@@ -138,12 +137,13 @@ class Jetpack_JITM {
 	function ajax_message() {
 		$message_path = $this->get_message_path();
 		$query_string = _http_build_query( $_GET, '', ',' );
-
+		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
 		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
 		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
 		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
+		     data-redirect="<?php echo urlencode_deep( $current_screen ) ?>"
 		></div>
 		<?php
 	}
@@ -183,7 +183,10 @@ class Jetpack_JITM {
 			true
 		);
 		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
-			'api_root' => esc_url_raw( rest_url() ),
+			'api_root'               => esc_url_raw( rest_url() ),
+			'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
+			'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
+			'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
 		) );
 	}
 
@@ -256,6 +259,7 @@ class Jetpack_JITM {
 		$path = add_query_arg( array(
 			'external_user_id' => urlencode_deep( $user->ID ),
 			'query_string'     => urlencode_deep( $query ),
+			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
@@ -313,6 +317,15 @@ class Jetpack_JITM {
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
 		unset( $envelopes['last_response_time'] );
 
+		/**
+		 * Allow adding your own custom JITMs after a set of JITMs has been received.
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param array $envelopes array of existing JITMs.
+		 */
+		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes );
+
 		foreach ( $envelopes as $idx => &$envelope ) {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
@@ -327,8 +340,24 @@ class Jetpack_JITM {
 				'jitm_id' => $envelope->id,
 			) );
 
-			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
-			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url . '&u=' . $user->ID;
+			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+
+			$url_params = array(
+				'source' => "jitm-$envelope->id",
+				'site' => $normalized_site_url,
+				'u' => $user->ID,
+			);
+
+			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
+			}
+			// Get affiliate code and add it to the array of URL parameters
+			if ( '' !== ( $aff = Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
+				$url_params['aff'] = $aff;
+			}
+
+			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
+
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->CTA->hook ) {
@@ -343,7 +372,8 @@ class Jetpack_JITM {
 
 			// no point in showing an empty message
 			if ( empty( $envelope->content->message ) ) {
-				return array();
+				unset( $envelopes[ $idx ] );
+				continue;
 			}
 
 			switch ( $envelope->content->icon ) {

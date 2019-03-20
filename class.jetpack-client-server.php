@@ -130,6 +130,9 @@ class Jetpack_Client_Server {
 			return 'linked';
 		}
 
+		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token
+		Jetpack::invalidate_onboarding_token();
+
 		// If redirect_uri is SSO, ensure SSO module is enabled
 		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
@@ -141,28 +144,11 @@ class Jetpack_Client_Server {
 			'jetpack-sso' === $redirect_options['action'] &&
 			$jetpack_start_enable_sso
 		);
-		$other_modules = $activate_sso
-			? array( 'sso' )
-			: array();
 
-		$redirect_on_activation_error = ( 'client' === $data['auth_type'] ) ? true : false;
-		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-			Jetpack::delete_active_modules();
+		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
 
-			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, false );
-		} else {
-			Jetpack::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, false );
-		}
+		Jetpack::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
 
-		// Since this is a fresh connection, be sure to clear out IDC options
-		Jetpack_IDC::clear_all_idc_options();
-		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
-
-		// Start nonce cleaner
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-
-		Jetpack::state( 'message', 'authorized' );
 		return 'authorized';
 	}
 

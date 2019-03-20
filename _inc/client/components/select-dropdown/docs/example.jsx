@@ -3,18 +3,20 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-var SelectDropdown = require( 'components/select-dropdown' ),
+const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	DropdownLabel = require( 'components/select-dropdown/label' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
-var SelectDropdownDemo = React.createClass( {
+const SelectDropdownDemo = createReactClass( {
 	displayName: 'SelectDropdown',
 
 	mixins: [ PureRenderMixin ],
@@ -23,7 +25,7 @@ var SelectDropdownDemo = React.createClass( {
 		return {
 			childSelected: 'Published',
 			selectedCount: 10,
-			compactButtons: false
+			compactButtons: false,
 		};
 	},
 
@@ -35,8 +37,15 @@ var SelectDropdownDemo = React.createClass( {
 				{ value: 'scheduled', label: 'Scheduled' },
 				{ value: 'drafts', label: 'Drafts' },
 				null,
-				{ value: 'trashed', label: 'Trashed' }
-			]
+				{ value: 'trashed', label: 'Trashed' },
+			],
+		};
+	},
+
+	handleSelectItem: function( childSelected, count ) {
+		return event => {
+			event.preventDefault();
+			this.selectItem( childSelected, count );
 		};
 	},
 
@@ -45,20 +54,28 @@ var SelectDropdownDemo = React.createClass( {
 	},
 
 	render: function() {
-		var toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
+		const toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
 
 		return (
 			<div className="design-assets__group">
 				<h2>
 					<a href="/devdocs/design/select-dropdown">Select Dropdown</a>
-					<a className="design-assets__toggle button" onClick={ this.toggleButtons }>{ toggleButtonsText }</a>
+					<a
+						className="design-assets__toggle button"
+						role="button"
+						tabIndex={ 0 }
+						onClick={ this.toggleButtons }
+					>
+						{ toggleButtonsText }
+					</a>
 				</h2>
 
 				<h3>Items passed as options prop</h3>
 				<SelectDropdown
 					compact={ this.state.compactButtons }
 					options={ this.props.options }
-					onSelect={ this.onDropdownSelect } />
+					onSelect={ this.onDropdownSelect }
+				/>
 
 				<h3 style={ { marginTop: 20 } }>Items passed as children</h3>
 				<SelectDropdown
@@ -67,13 +84,14 @@ var SelectDropdownDemo = React.createClass( {
 					selectedText={ this.state.childSelected }
 					selectedCount={ this.state.selectedCount }
 				>
-
-					<DropdownLabel><strong>Statuses</strong></DropdownLabel>
+					<DropdownLabel>
+						<strong>Statuses</strong>
+					</DropdownLabel>
 
 					<DropdownItem
 						count={ 10 }
 						selected={ this.state.childSelected === 'Published' }
-						onClick={ this.selectItem.bind( this, 'Published', 10 ) }
+						onClick={ this.handleSelectItem( 'Published', 10 ) }
 					>
 						Published
 					</DropdownItem>
@@ -81,14 +99,14 @@ var SelectDropdownDemo = React.createClass( {
 					<DropdownItem
 						count={ 4 }
 						selected={ this.state.childSelected === 'Scheduled' }
-						onClick={ this.selectItem.bind( this, 'Scheduled', 4 ) }
+						onClick={ this.handleSelectItem( 'Scheduled', 4 ) }
 					>
 						Scheduled
 					</DropdownItem>
 
 					<DropdownItem
 						selected={ this.state.childSelected === 'Drafts' }
-						onClick={ this.selectItem.bind( this, 'Drafts', null ) }
+						onClick={ this.handleSelectItem( 'Drafts', null ) }
 					>
 						Drafts
 					</DropdownItem>
@@ -98,7 +116,7 @@ var SelectDropdownDemo = React.createClass( {
 					<DropdownItem
 						count={ 3 }
 						selected={ this.state.childSelected === 'Trashed' }
-						onClick={ this.selectItem.bind( this, 'Trashed', 3 ) }
+						onClick={ this.handleSelectItem( 'Trashed', 3 ) }
 					>
 						Trashed
 					</DropdownItem>
@@ -107,16 +125,14 @@ var SelectDropdownDemo = React.createClass( {
 		);
 	},
 
-	selectItem: function( childSelected, count, event ) {
-		event.preventDefault();
-
+	selectItem: function( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
-			selectedCount: count
+			selectedCount: count,
 		} );
 	},
 
-	onDropdownSelect: function() {}
+	onDropdownSelect: function() {},
 } );
 
 module.exports = SelectDropdownDemo;

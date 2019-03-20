@@ -18,7 +18,7 @@ $description = __( 'Well that was easy. You can now manage all of your sites in 
 
 switch( $section ) {
 	case 'plugins':
-		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
+		$link = 'https://wordpress.com/plugins/manage/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Plugins', 'jetpack' );
 		break;
 

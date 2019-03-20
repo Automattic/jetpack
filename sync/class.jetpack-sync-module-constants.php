@@ -112,7 +112,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function expand_constants( $args ) {
 		if ( $args[0] ) {
-			$constants = $this->get_all_constants();
+			$constants           = $this->get_all_constants();
 			$constants_checksums = array();
 			foreach ( $constants as $name => $value ) {
 				$constants_checksums[ $name ] = $this->get_check_sum( $value );

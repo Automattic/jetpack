@@ -1004,8 +1004,8 @@ class Jetpack_Custom_CSS {
 						 *
 						 * @param string $str Intro text appearing above the Custom CSS editor.
 						 */
-						echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/" target="_blank">beginner tutorial</a>. Questions?
-		Ask in the <a href="https://wordpress.org/support/forum/themes-and-templates" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
+						echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/" rel="noopener noreferrer" target="_blank">beginner tutorial</a>. Questions?
+		Ask in the <a href="https://wordpress.org/support/forum/themes-and-templates" rel="noopener noreferrer" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
 					?></p>
 					<p class="css-support"><?php echo __( 'Note: Custom CSS will be reset when changing themes.', 'jetpack' ); ?></p>
 
@@ -1053,7 +1053,7 @@ class Jetpack_Custom_CSS {
 					<?php
 
 					printf( /* translators: %1$s is replaced with an input field for numbers. */
-						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" target="_blank">More info</a>.)', 'jetpack' ),
+						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" rel="noopener noreferrer" target="_blank">More info</a>.)', 'jetpack' ),
 						'<input type="text" id="custom_content_width_visible" value="' . esc_attr( $custom_content_width ) . '" size="4" />',
 						/**
 						 * Filter the Custom CSS limited width's support doc URL.
@@ -1751,7 +1751,7 @@ function safecss_post_title( $title, $post_id ) {
 function safe_css_enqueue_scripts() {
 	_deprecated_function( __FUNCTION__, '2.1', 'Jetpack_Custom_CSS::enqueue_scripts()' );
 
-	return Jetpack_Custom_CSS::enqueue_scripts();
+	return Jetpack_Custom_CSS::enqueue_scripts( null );
 }
 
 function safecss_admin_head() {

@@ -28,7 +28,7 @@ import {
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
 	PLUGIN_UPDATES_FETCH_SUCCESS,
-	MOCK_SWITCH_THREATS
+	MOCK_SWITCH_THREATS,
 } from 'state/action-types';
 
 const requests = ( state = {}, action ) => {
@@ -79,7 +79,7 @@ const activeStatsTab = ( state = 'day', action ) => {
 	}
 };
 
-const statsData = ( state = 'N/A', action ) => {
+const statsData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case STATS_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.statsData );
@@ -97,7 +97,10 @@ const akismetData = ( state = 'N/A', action ) => {
 	}
 };
 
-const akismet = ( state = { validKey: null, invalidKeyCode: '', invalidKeyMessage: '' }, action ) => {
+const akismet = (
+	state = { validKey: null, invalidKeyCode: '', invalidKeyMessage: '' },
+	action
+) => {
 	switch ( action.type ) {
 		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
 			return assign( {}, state, action.akismet );
@@ -126,12 +129,12 @@ const vaultPressData = ( state = 'N/A', action ) => {
 				data: {
 					active: true,
 					features: {
-						security: true
+						security: true,
 					},
 					security: {
-						notice_count: action.mockCount
-					}
-				}
+						notice_count: action.mockCount,
+					},
+				},
 			} );
 
 		default:
@@ -157,7 +160,7 @@ export const dashboard = combineReducers( {
 	statsData,
 	akismetData,
 	akismet,
-	pluginUpdates
+	pluginUpdates,
 } );
 
 /**
@@ -279,11 +282,7 @@ export function getVaultPressData( state ) {
  * @return {int} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
-	return get(
-		state.jetpack.dashboard.vaultPressData,
-		'data.security.notice_count',
-		0
-	);
+	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
 }
 
 /**

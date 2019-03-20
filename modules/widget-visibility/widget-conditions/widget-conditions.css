@@ -71,6 +71,7 @@
 .widget-conditional .condition-control a:before {
 	position: absolute;
 	text-indent: 0;
+	top: 0;
 	left: 0;
 }
 .widget-conditional .condition-control .delete-condition {

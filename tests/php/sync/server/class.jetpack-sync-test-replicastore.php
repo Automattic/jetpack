@@ -313,6 +313,24 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 	}
 
+	public function delete_batch_metadata( $type, $object_ids, $meta_key ) {
+		$meta_ids = array();
+		foreach ( $this->meta[ get_current_blog_id() ][ $type ] as $meta_id => $meta_data ) {
+			if (
+				$meta_data->meta_key === $meta_key &&
+				in_array( $meta_data->object_id, $object_ids )
+			) {
+			$meta_ids[] = $meta_id;
+			}
+		}
+
+		foreach ( $meta_ids as $meta_id ) {
+			unset( $this->meta[ get_current_blog_id() ][ $type ][ $meta_id ] );
+		}
+	}
+
+
+
 	// constants
 	public function get_constant( $constant ) {
 		if ( ! isset( $this->constants[ get_current_blog_id() ][ $constant ] ) ) {

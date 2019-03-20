@@ -496,6 +496,12 @@ EXPECTED;
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
+	function test_is_development_mode_bool() {
+		add_filter( 'jetpack_development_mode', '__return_zero' );
+		$this->assertFalse( Jetpack::is_development_mode() );
+		remove_filter( 'jetpack_development_mode', '__return_zero' );
+	}
+
 	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
 		$original_home    = get_option( 'home' );
 		$original_siteurl = get_option( 'siteurl' );
@@ -686,6 +692,64 @@ EXPECTED;
 		$this->assertEquals( array( 'search-author', 'foo' ), Jetpack::get_activation_source( $plugin_install_url . '?s=foo&tab=search&type=author' ) );
 		$this->assertEquals( array( 'search-tag', 'social' ), Jetpack::get_activation_source( $plugin_install_url . '?s=social&tab=search&type=tag' ) );
 		$this->assertEquals( array( 'unknown', null ), Jetpack::get_activation_source( $unknown_url ) );
+	}
+
+	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_user_earliest() {
+		$user_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1990-01-01 00:00:00',
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_date' => '1995-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1990-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_post_earliest() {
+		$user_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1994-01-01 00:00:00',
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_date' => '1991-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1991-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	function test_get_assumed_site_creation_date_only_admins() {
+		$admin_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1994-01-01 00:00:00',
+		) );
+		$editor_id = $this->factory->user->create( array(
+			'role'            => 'editor',
+			'user_registered' => '1992-01-01 00:00:00',
+		) );
+
+		$this->assertEquals( '1994-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+
+		wp_delete_user( $admin_id );
+		wp_delete_user( $editor_id );
 	}
 
 	/**

@@ -77,7 +77,7 @@ jQuery( function ( $ ) {
 		e.preventDefault();
 
 		$( '#css-mode-select' ).slideUp();
-		$( '#css-mode-display' ).text( $( 'input[name=add_to_existing_display]:checked' ).val() == 'true' ? 'Add-on' : 'Replacement' ); // jshint ignore:line
+		$( '#css-mode-display' ).text( $( 'input[name=add_to_existing_display]:checked' ).val() === 'true' ? 'Add-on' : 'Replacement' );
 		$( '#add_to_existing' ).val( $( 'input[name=add_to_existing_display]:checked' ).val() );
 		$( '.edit-css-mode' ).show();
 	} );
