@@ -63,7 +63,7 @@ function setReleaseDates() {
 			}
 			jetpackReleaseDate = firstTuesdayOfMonth.format( 'LL' );
 			// Calculate next code freeze date
-			codeFreezeDate = firstTuesdayOfMonth.subtract( 7, 'd' ).format( 'LL' );
+			codeFreezeDate = firstTuesdayOfMonth.subtract( 8, 'd' ).format( 'LL' );
 		}
 
 		markdown( `
