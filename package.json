@@ -11,11 +11,7 @@
     "url": "https://github.com/Automattic/jetpack.git"
   },
   "browserslist": [
-    "last 2 versions",
-    "Safari >= 10",
-    "iOS >= 10",
-    "not ie <= 10",
-    "> 1%"
+    "extends @wordpress/browserslist-config"
   ],
   "bugs": {
     "url": "https://github.com/Automattic/jetpack/issues"
@@ -64,6 +60,7 @@
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/jetpack-blocks": "13.1.1",
+    "@wordpress/browserslist-config": "2.3.0",
     "babel-core": "6.26.3",
     "babel-eslint": "10.0.1",
     "babel-loader": "7.1.5",

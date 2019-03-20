@@ -31,6 +31,7 @@ function phpcsFilesToFilter( file ) {
 		'_inc/lib/debugger/',
 		'extensions/',
 		'class.jetpack-gutenberg.php',
+		'class.jetpack-plan.php',
 	];
 
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {

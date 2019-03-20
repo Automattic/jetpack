@@ -42,7 +42,7 @@ class Jetpack_VideoPress {
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
 
-		if ( Jetpack::active_plan_supports( 'videopress' ) ) {
+		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
 		}
 

@@ -4,6 +4,8 @@
  *
  * Usage:
  * [kickstarter url="https://www.kickstarter.com/projects/peaktoplateau/yak-wool-baselayers-from-tibet-to-the-world" width="480" height=""]
+ *
+ * @package Jetpack
  */
 
 add_shortcode( 'kickstarter', 'jetpack_kickstarter_shortcode' );
@@ -24,7 +26,7 @@ function jetpack_kickstarter_shortcode( $atts ) {
 	}
 
 	$url = esc_url_raw( $atts['url'] );
-	if ( ! preg_match( '#^(www\.)?kickstarter\.com$#i', parse_url( $url, PHP_URL_HOST ) ) ) {
+	if ( ! preg_match( '#^(www\.)?kickstarter\.com$#i', wp_parse_url( $url, PHP_URL_HOST ) ) ) {
 		return '<!-- Invalid Kickstarter URL -->';
 	}
 
@@ -49,7 +51,7 @@ function jetpack_kickstarter_embed_to_shortcode( $content ) {
 	}
 
 	$regexp     = '!<iframe((?:\s+\w+=[\'"][^\'"]*[\'"])*)\s+src=[\'"](http://www\.kickstarter\.com/projects/[^/]+/[^/]+)/[^\'"]+[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)>[\s]*</iframe>!i';
-	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
+	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) ); // phpcs:ignore
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
 		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
@@ -61,7 +63,7 @@ function jetpack_kickstarter_embed_to_shortcode( $content ) {
 
 			$params = $match[1] . $match[3];
 
-			if ( 'regexp_ent' == $reg ) {
+			if ( 'regexp_ent' === $reg ) {
 				$params = html_entity_decode( $params );
 			}
 

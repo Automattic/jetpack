@@ -689,7 +689,7 @@ class Jetpack {
 		}
 
 		// Update the Jetpack plan from API on heartbeats
-		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
+		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.
@@ -1521,169 +1521,35 @@ class Jetpack {
 	/**
 	 * Make an API call to WordPress.com for plan status
 	 *
-	 * @uses Jetpack_Options::get_option()
-	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
-	 * @uses update_option()
-	 *
-	 * @access public
-	 * @static
+	 * @deprecated 7.2.0 Use Jetpack_Plan::refresh_from_wpcom.
 	 *
 	 * @return bool True if plan is updated, false if no update
 	 */
 	public static function refresh_active_plan_from_wpcom() {
-		// Make the API request
-		$request = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
-
-		// Bail if there was an error or malformed response
-		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return false;
-		}
-
-		// Decode the results
-		$results = json_decode( $response['body'], true );
-
-		// Bail if there were no results or plan details returned
-		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
-			return false;
-		}
-
-		// Store the option and return true if updated
-		return update_option( 'jetpack_active_plan', $results['plan'], true );
+		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::refresh_from_wpcom' );
+		return Jetpack_Plan::refresh_from_wpcom();
 	}
 
 	/**
 	 * Get the plan that this Jetpack site is currently using
 	 *
-	 * @uses get_option()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return array Active Jetpack plan details
+	 * @deprecated 7.2.0 Use Jetpack_Plan::get.
+	 * @return array Active Jetpack plan details.
 	 */
 	public static function get_active_plan() {
-		global $active_plan_cache;
-
-		// this can be expensive to compute so we cache for the duration of a request
-		if ( is_array( $active_plan_cache ) && ! empty( $active_plan_cache ) ) {
-			return $active_plan_cache;
-		}
-
-		$plan = get_option( 'jetpack_active_plan', array() );
-
-		// Set the default options
-		$plan = wp_parse_args( $plan, array(
-			'product_slug' => 'jetpack_free',
-			'class'        => 'free',
-			'features'     => array(
-				'active' => array()
-			),
-		) );
-
-		$supports = array();
-
-		// Define what paid modules are supported by personal plans
-		$personal_plans = array(
-			'jetpack_personal',
-			'jetpack_personal_monthly',
-			'personal-bundle',
-			'personal-bundle-2y',
-		);
-
-		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
-			// special support value, not a module but a separate plugin
-			$supports[] = 'akismet';
-			$plan['class'] = 'personal';
-		}
-
-		// Define what paid modules are supported by premium plans
-		$premium_plans = array(
-			'jetpack_premium',
-			'jetpack_premium_monthly',
-			'value_bundle',
-			'value_bundle-2y',
-		);
-
-		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
-			$supports[] = 'akismet';
-			$supports[] = 'simple-payments';
-			$supports[] = 'vaultpress';
-			$supports[] = 'videopress';
-			$plan['class'] = 'premium';
-		}
-
-		// Define what paid modules are supported by professional plans
-		$business_plans = array(
-			'jetpack_business',
-			'jetpack_business_monthly',
-			'business-bundle',
-			'business-bundle-2y',
-			'ecommerce-bundle',
-			'ecommerce-bundle-2y',
-			'vip',
-		);
-
-		if ( in_array( $plan['product_slug'], $business_plans ) ) {
-			$supports[] = 'akismet';
-			$supports[] = 'simple-payments';
-			$supports[] = 'vaultpress';
-			$supports[] = 'videopress';
-			$plan['class'] = 'business';
-		}
-
-		// get available features
-		foreach ( self::get_available_modules() as $module_slug ) {
-			$module = self::get_module( $module_slug );
-			if ( ! isset( $module ) || ! is_array( $module ) ) {
-				continue;
-			}
-			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
-				$supports[] = $module_slug;
-			}
-		}
-
-		$plan['supports'] = $supports;
-
-		$active_plan_cache = $plan;
-
-		return $plan;
+		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::get' );
+		return Jetpack_Plan::get();
 	}
 
 	/**
 	 * Determine whether the active plan supports a particular feature
 	 *
-	 * @uses Jetpack::get_active_plan()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool True if plan supports feature, false if not
+	 * @deprecated 7.2.0 Use Jetpack_Plan::supports.
+	 * @return bool True if plan supports feature, false if not.
 	 */
 	public static function active_plan_supports( $feature ) {
-		$plan = Jetpack::get_active_plan();
-
-		// Manually mapping WordPress.com features to Jetpack module slugs
-		foreach ( $plan['features']['active'] as $wpcom_feature ) {
-			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack';
-
-				// WordAds are supported for this site
-				if ( 'wordads' === $feature ) {
-					return true;
-				}
-				break;
-			}
-		}
-
-		if (
-			in_array( $feature, $plan['supports'] )
-			|| in_array( $feature, $plan['features']['active'] )
-		) {
-			return true;
-		}
-
-		return false;
+		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::supports' );
+		return Jetpack_Plan::supports( $feature );
 	}
 
 	/**
@@ -3091,7 +2957,7 @@ class Jetpack {
 			}
 		}
 
-		if ( ! Jetpack::active_plan_supports( $module ) ) {
+		if ( ! Jetpack_Plan::supports( $module ) ) {
 			return false;
 		}
 
@@ -4875,7 +4741,7 @@ p {
 		} else {
 			$earliest_post_date = PHP_INT_MAX;
 		}
-		
+
 		return min( $earliest_registration_date, $earliest_post_date );
 	}
 

@@ -211,6 +211,91 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Renders the full-screen connection prompt.  Only shown once and on plugin activation.
+	 */
+	public static function render_connect_prompt_full_screen() {
+		$current_screen = get_current_screen();
+		if ( 'plugins' === $current_screen->base ) {
+			$bottom_connect_url_from = 'full-screen-prompt';
+		} else {
+			$bottom_connect_url_from = 'landing-page-bottom';
+		}
+		?>
+		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
+
+				<?php if ( 'plugins' === $current_screen->base ) : ?>
+					<?php echo self::get_jetpack_logo(); ?>
+
+					<div class="jp-connect-full__dismiss">
+						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
+					</div>
+				<?php endif; ?>
+
+				<div class="jp-connect-full__step-header">
+					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ) ?></h2>
+				</div>
+
+				<div class="jp-connect-full__row">
+					<div class="jp-connect-full__slide">
+						<div class="jp-connect-full__slide-card illustration">
+							<img
+									src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>"
+									alt="<?php esc_attr_e( 'Security & Backups', 'jetpack' ); ?>"
+							/>
+						</div>
+						<div class="jp-connect-full__slide-card">
+							<p><?php
+								esc_html_e(
+									'Jetpack protects you against brute force attacks and unauthorized logins. ' .
+									'Basic protection is always free, while premium plans add unlimited backups of your whole site, ' .
+									'spam protection, malware scanning, and automated fixes.',
+									'jetpack'
+								);
+								?></p>
+						</div>
+					</div>
+					<div class="jp-connect-full__slide">
+						<div class="jp-connect-full__slide-card illustration">
+							<img
+									src="<?php echo plugins_url( 'images/jetpack-speed.svg', JETPACK__PLUGIN_FILE ); ?>"
+									alt="<?php esc_attr_e( 'Built-in Performance', 'jetpack' ); ?>"
+							/>
+						</div>
+						<div class="jp-connect-full__slide-card">
+							<p><?php
+								esc_html_e(
+									"Activate site accelerator tools and watch your page load times and hosting costs drop—" .
+									"we'll optimize your images and serve them from our own powerful global network of servers, " .
+									"and speed up your mobile site to reduce bandwidth usage.",
+									'jetpack'
+								);
+								?></p>
+						</div>
+					</div>
+				</div>
+
+				<p class="jp-connect-full__tos-blurb">
+					<?php jetpack_render_tos_blurb(); ?>
+				</p>
+				<p class="jp-connect-full__button-container">
+					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>" class="dops-button is-primary">
+						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+					</a>
+				</p>
+				<?php if ( 'plugins' === $current_screen->base ) : ?>
+					<p class="jp-connect-full__dismiss-paragraph">
+						<a>
+							<?php echo esc_html_x(
+								'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
+							); ?>
+						</a>
+					</p>
+				<?php endif; ?>
+			</div></div>
+		<?php
+	}
+
+	/**
 	 * Renders the legacy network connection banner.
 	 */
 	function network_connect_notice() {
