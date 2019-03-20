@@ -120,7 +120,7 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php' );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php' );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php' );
-  require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php' );
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php' );
 
 	if ( is_admin() ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
