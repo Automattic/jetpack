@@ -10,6 +10,44 @@
  */
 class Jetpack_Plan {
 	/**
+	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
+	 * plan from the response.
+	 *
+	 * @param array $response The response from `/sites/%d`.
+	 * @return bool Was the plan successfully updated?
+	 */
+	public static function update_from_sites_response( $response ) {
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return false;
+		}
+
+		// Decode the results.
+		$results = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// Bail if there were no results or plan details returned.
+		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
+			return false;
+		}
+
+		$current_plan    = self::get();
+		$do_plans_differ = ( $current_plan['product_slug'] !== $results['plan']['product_slug'] );
+
+		// If the plans don't differ, then there's nothing to do.
+		if ( ! $do_plans_differ ) {
+			return false;
+		}
+
+		// Set flag for newly purchased plan.
+		if ( 'jetpack_free' !== $results['plan']['product_slug'] ) {
+			update_option( 'show_welcome_for_new_plan', true );
+		}
+
+		// Store the new plan in an option and return true if updated.
+		return update_option( 'jetpack_active_plan', $results['plan'], true );
+	}
+
+	/**
 	 * Make an API call to WordPress.com for plan status
 	 *
 	 * @uses Jetpack_Options::get_option()
@@ -26,21 +64,7 @@ class Jetpack_Plan {
 		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
-		// Bail if there was an error or malformed response.
-		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return false;
-		}
-
-		// Decode the results.
-		$results = json_decode( $response['body'], true );
-
-		// Bail if there were no results or plan details returned.
-		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
-			return false;
-		}
-
-		// Store the option and return true if updated.
-		return update_option( 'jetpack_active_plan', $results['plan'], true );
+		return self::update_from_sites_response( $response );
 	}
 
 	/**
