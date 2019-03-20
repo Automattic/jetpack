@@ -16,6 +16,8 @@ class Jetpack_Plan {
 	 */
 	private static $active_plan_cache;
 
+	const PLAN_OPTION = 'jetpack_active_plan';
+
 	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
 	 * plan from the response.
@@ -42,7 +44,7 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		$current_plan = get_option( 'jetpack_active_plan', array() );
+		$current_plan = get_option( self::PLAN_OPTION, array() );
 
 		// If the plans don't differ, then there's nothing to do.
 		if ( ! empty( $current_plan ) && $current_plan['product_slug'] === $results['plan']['product_slug'] ) {
@@ -55,12 +57,12 @@ class Jetpack_Plan {
 		}
 
 		// Store the new plan in an option and return true if updated.
-		$result = update_option( 'jetpack_active_plan', $results['plan'], true );
+		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		if ( ! $result ) {
 			// If we got to this point, then we know we need to update. So, assume there is an issue
 			// with caching. To fix that issue, we can delete the current option and then update.
-			delete_option( 'jetpack_active_plan' );
-			$result = update_option( 'jetpack_active_plan', $results['plan'], true );
+			delete_option( self::PLAN_OPTION );
+			$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		}
 
 		if ( $result ) {
@@ -107,7 +109,7 @@ class Jetpack_Plan {
 			return self::$active_plan_cache;
 		}
 
-		$plan = get_option( 'jetpack_active_plan', array() );
+		$plan = get_option( self::PLAN_OPTION, array() );
 
 		// Set the default options.
 		$plan = wp_parse_args(
