@@ -14,8 +14,7 @@
 	}
 
 	.jp-banner__button-container {
-		padding: rem( 12px ) 0 0;
-
+		padding: rem( 32px ) 0 0;
 		flex-direction: row-reverse;
 		align-items: center;
 		justify-content: flex-end;
@@ -205,10 +204,12 @@
 }
 
 .jp-connect-full__row {
-  display: flex;
-  justify-content: space-evenly;
-  text-align: left;
+	display: flex;
+	justify-content: space-evenly;
+	text-align: left;
 	align-items: baseline;
+	margin: 0 auto;
+	max-width: 1000px;
 }
 
 .jp-connect-full__slide {
@@ -390,8 +391,14 @@
 
 	@include breakpoint(tablet) {
 		width: 100%;
-		margin: rem( 36px ) 0 rem( 24px );
+		margin: rem( 8px ) 0;
 		display: block;
+	}
+}
+
+.jp-wpcom-connect__slide-text {
+	@include minbreakpoint(desktop) {
+		padding-left: rem( 45px );
 	}
 }
 

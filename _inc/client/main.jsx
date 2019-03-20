@@ -285,7 +285,7 @@ class Main extends React.Component {
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.props.isSiteConnected && <SupportCard path={ this.props.route.path } /> }
-					{ <AppsCard /> }
+					{ this.props.isSiteConnected && <AppsCard /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
