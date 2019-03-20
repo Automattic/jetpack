@@ -104,153 +104,153 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 	}
 
 	private function get_free_plan() {
-		return [
+		return array(
 			'product_id' => 2002,
 			'product_slug' => 'jetpack_free',
 			'product_name_short' => 'Free',
 			'expired' => false,
 			'user_is_owner' => false,
 			'is_free' => true,
-			'features' => [
-				'active' => [
+			'features' => array(
+				'active' => array(
 					'akismet',
 					'support',
-				],
-				'available' => [
-					'akismet' => [
+				),
+				'available' => array(
+					'akismet' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-backups' => [
+					),
+					'vaultpress-backups' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-backup-archive' => [
+					),
+					'vaultpress-backup-archive' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-storage-space' => [
+					),
+					'vaultpress-storage-space' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-automated-restores' => [
+					),
+					'vaultpress-automated-restores' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'simple-payments' => [
+					),
+					'simple-payments' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'support' => [
+					),
+					'support' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_personal',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 						'jetpack_personal_monthly',
-					],
-					'premium-themes' => [
+					),
+					'premium-themes' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-security-scanning' => [
+					),
+					'vaultpress-security-scanning' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-					'polldaddy' => [
+					),
+					'polldaddy' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-				],
-			],
-		];
+					),
+				),
+			),
+		);
 	}
 
 	private function get_personal_plan() {
-		return [
+		return array(
 			'product_id' => 2005,
 			'product_slug' => 'jetpack_personal',
 			'product_name_short' => 'Personal',
 			'expired' => false,
 			'user_is_owner' => false,
 			'is_free' => false,
-			'features' => [
-				'active' => [
+			'features' => array(
+				'active' => array(
 					'support',
-				],
-				'available' => [
-					'akismet' => [
+				),
+				'available' => array(
+					'akismet' => array(
 						'jetpack_free',
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'support' => [
+					),
+					'support' => array(
 						'jetpack_free',
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
 						'jetpack_personal_monthly',
-					],
-					'vaultpress-backups' => [
+					),
+					'vaultpress-backups' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-backup-archive' => [
+					),
+					'vaultpress-backup-archive' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-storage-space' => [
+					),
+					'vaultpress-storage-space' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-automated-restores' => [
+					),
+					'vaultpress-automated-restores' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'simple-payments' => [
+					),
+					'simple-payments' => array(
 						'jetpack_premium',
 						'jetpack_business',
 						'jetpack_premium_monthly',
 						'jetpack_business_monthly',
-					],
-					'premium-themes' => [
+					),
+					'premium-themes' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-					'vaultpress-security-scanning' => [
+					),
+					'vaultpress-security-scanning' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-					'polldaddy' => [
+					),
+					'polldaddy' => array(
 						'jetpack_business',
 						'jetpack_business_monthly',
-					],
-				],
-			],
-		];
+					),
+				),
+			),
+		);
 	}
 }
 
