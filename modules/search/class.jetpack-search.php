@@ -476,7 +476,7 @@ class Jetpack_Search {
 		$posts_query = new WP_Query( $args );
 
 		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
-		$query->found_posts   = $this->found_posts;
+		$query->found_posts   = $posts_query->post_count;
 		$query->max_num_pages = ceil( $this->found_posts / $query->get( 'posts_per_page' ) );
 
 		return $posts_query->posts;
