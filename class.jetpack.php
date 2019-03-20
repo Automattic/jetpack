@@ -30,6 +30,8 @@ class Jetpack {
 	private $xmlrpc_verification = null;
 	private $rest_authentication_status = null;
 
+	private $module_registration;
+
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
@@ -299,6 +301,14 @@ class Jetpack {
 	);
 
 	/**
+     * Return the Module registry
+	 * @return Jetpack_Registry
+	 */
+    public function get_module_registry() {
+        return $this->module_registration;
+    }
+
+	/**
 	 * Message to display in admin_notice
 	 * @var string
 	 */
@@ -352,7 +362,6 @@ class Jetpack {
 	public static function init() {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack;
-
 			self::$instance->plugin_upgrade();
 		}
 
@@ -508,6 +517,7 @@ class Jetpack {
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function __construct() {
+		$this->module_registration = new Jetpack_Registry( 'Jetpack_Module' );
 		/*
 		 * Check for and alert any deprecated hooks
 		 */

@@ -1,10 +1,12 @@
-<?php
-
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * @package Jetpack
+ */
+require_once dirname( __FILE__ ) . '/interface.jetpack-item.php';
 /**
  * Class Jetpack_Module
- *
  */
-class Jetpack_Module {
+class Jetpack_Module implements iJetpack_Item {
 	public $slug;
 
 	public $name;                       // Module Name
@@ -23,23 +25,26 @@ class Jetpack_Module {
 	public $additional_search_queries;  // Additional Search Queries
 	public $plan_classes;               // Plans
 
-	public function __construct( $module, $args = array() ) {
-		$this->slug = $module;
-
+	public function __construct( $key, $args = array() ) {
+		$this->slug = $key;
 		$this->set_props( $args );
+	}
+
+	public function name() {
+		return $this->slug;
 	}
 
 	private function set_props( $args ) {
 		$default_args = array(
-			'jumpstart_desc' => '',
-			'changed' => '',
-			'deactivate' => true,
+			'jumpstart_desc'       => '',
+			'changed'              => '',
+			'deactivate'           => true,
 			'recommendation_order' => 20,
-			'auto_activate' => 'No',
-			'free' => true,
-			'plan_classes' => array( 'free' ),
-			'feature' => array( _x( 'Other', 'Feature', 'jetpack' ) ),
-			'module_tags' => array( _x( 'Other', 'Module Tag', 'jetpack' ) )
+			'auto_activate'        => 'No',
+			'free'                 => true,
+			'plan_classes'         => array( 'free' ),
+			'feature'              => array( _x( 'Other', 'Feature', 'jetpack' ) ),
+			'module_tags'          => array( _x( 'Other', 'Module Tag', 'jetpack' ) ),
 		);
 
 		$args = wp_parse_args(
@@ -51,9 +56,9 @@ class Jetpack_Module {
 		}
 	}
 
-	public function _get_array() {
+	public function get() {
 		$module_array = get_object_vars( $this );
-		$slug =  $module_array['slug'];
+		$slug         = $module_array['slug'];
 		unset( $module_array['slug'] ); // this is not something that is expected.
 
 		/**
@@ -86,10 +91,10 @@ class Jetpack_Module {
 		 * @param string  $file   The path to the module source file.
 		 */
 		return apply_filters( 'jetpack_get_module', $module_array, $slug, $this->file_path() );
-		return $module_array;
 	}
 
 	private function file_path() {
 		return JETPACK__PLUGIN_DIR . "modules/{$this->slug}.php";
 	}
+
 }
