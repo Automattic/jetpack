@@ -6,6 +6,7 @@
 .jshintrc
 .jshintignore
 .travis.yml
+.npmrc
 .nvmrc
 .eslines.json
 .eslintcache
