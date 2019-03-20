@@ -10,6 +10,13 @@
  */
 class Jetpack_Plan {
 	/**
+	 * A cache variable to hold the active plan for the current request.
+	 *
+	 * @var array
+	 */
+	private static $active_plan_cache;
+
+	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
 	 * plan from the response.
 	 *
@@ -22,19 +29,23 @@ class Jetpack_Plan {
 			return false;
 		}
 
+		$body = wp_remote_retrieve_body( $response );
+		if ( is_wp_error( $body ) ) {
+			return false;
+		}
+
 		// Decode the results.
-		$results = json_decode( wp_remote_retrieve_body( $response ), true );
+		$results = json_decode( $body, true );
 
 		// Bail if there were no results or plan details returned.
 		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
 			return false;
 		}
 
-		$current_plan    = self::get();
-		$do_plans_differ = ( $current_plan['product_slug'] !== $results['plan']['product_slug'] );
+		$current_plan = get_option( 'jetpack_active_plan', array() );
 
 		// If the plans don't differ, then there's nothing to do.
-		if ( ! $do_plans_differ ) {
+		if ( ! empty( $current_plan ) && $current_plan['product_slug'] === $results['plan']['product_slug'] ) {
 			return false;
 		}
 
@@ -44,7 +55,14 @@ class Jetpack_Plan {
 		}
 
 		// Store the new plan in an option and return true if updated.
-		return update_option( 'jetpack_active_plan', $results['plan'], true );
+		$result = update_option( 'jetpack_active_plan', $results['plan'], true );
+
+		if ( $result ) {
+			// Reset the cache since we've just updated the plan.
+			self::$active_plan_cache = null;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -78,11 +96,9 @@ class Jetpack_Plan {
 	 * @return array Active Jetpack plan details
 	 */
 	public static function get() {
-		global $active_plan_cache;
-
 		// this can be expensive to compute so we cache for the duration of a request.
-		if ( is_array( $active_plan_cache ) && ! empty( $active_plan_cache ) ) {
-			return $active_plan_cache;
+		if ( is_array( self::$active_plan_cache ) && ! empty( self::$active_plan_cache ) ) {
+			return self::$active_plan_cache;
 		}
 
 		$plan = get_option( 'jetpack_active_plan', array() );
@@ -163,7 +179,7 @@ class Jetpack_Plan {
 
 		$plan['supports'] = $supports;
 
-		$active_plan_cache = $plan;
+		self::$active_plan_cache = $plan;
 
 		return $plan;
 	}

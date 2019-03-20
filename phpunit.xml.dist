@@ -14,6 +14,7 @@
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
+			<file>tests/php/test_class.jetpack-plan.php</file>
 		</testsuite>
 		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>
