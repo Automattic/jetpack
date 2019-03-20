@@ -159,7 +159,7 @@
     "node-wp-i18n": "1.2.3",
     "prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.16.4/wp-prettier-1.16.4.tgz",
     "react-test-renderer": "16.8.4",
-    "sinon": "7.2.7",
+    "sinon": "7.3.0",
     "sinon-chai": "3.3.0"
   },
   "engines": {
