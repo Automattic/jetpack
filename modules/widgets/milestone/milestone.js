@@ -1,7 +1,7 @@
 /* global MilestoneConfig */
 
 var Milestone = ( function( $ ) {
-	var Milestone = function ( args ) {
+	var Milestone = function( args ) {
 		var $widget = $( '#' + args.id ),
 			id = args.id,
 			refresh = args.refresh * 1000;
@@ -19,34 +19,31 @@ var Milestone = ( function( $ ) {
 						return;
 					}
 
-					setTimeout(
-						function() {
-							instance.timer();
-						},
-						refresh
-					);
-				}
+					setTimeout( function() {
+						instance.timer();
+					}, refresh );
+				},
 			} );
-
 		};
 
 		if ( refresh > 0 ) {
 			this.timer();
 		}
 	};
-	return function ( args ) {
+	return function( args ) {
 		return new Milestone( args );
 	};
 } )( jQuery );
 
 ( function() {
-	var i, MilestoneInstances = {};
+	var i,
+		MilestoneInstances = {};
 
-	if ( typeof( MilestoneConfig ) === 'undefined' ) {
+	if ( typeof MilestoneConfig === 'undefined' ) {
 		return;
 	}
 
 	for ( i = 0; i < MilestoneConfig.instances.length; i++ ) {
-		MilestoneInstances[i] = new Milestone( MilestoneConfig.instances[i] );
+		MilestoneInstances[ i ] = new Milestone( MilestoneConfig.instances[ i ] );
 	}
 } )();

@@ -92,10 +92,12 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp
 			.src( '_inc/build/admin.js' )
-			.pipe( minify( {
-				noSource: true,
-				ext: { min: '.js' },
-			} ) )
+			.pipe(
+				minify( {
+					noSource: true,
+					ext: { min: '.js' },
+				} )
+			)
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
