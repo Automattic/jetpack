@@ -7,7 +7,7 @@
  * First Introduced: 1.1
  * Major Changes In: 1.2
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social, Recommended
  * Feature: Engagement
  * Additional Search Queries: share, sharing, sharedaddy, social buttons, buttons, share facebook, share twitter, social media sharing, social media share, social share, icons, email, facebook, twitter, linkedin, pinterest, pocket, social widget, social media
