@@ -395,12 +395,12 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 7.2
 	 *
-	 * @param string $extension Name of extension to check.
+	 * @param string $slug Name of extension/block to check.
 	 *
 	 * @return bool
 	 */
-	public static function is_registered( $extension ) {
-		return WP_Block_Type_Registry::get_instance()->is_registered( $extension );
+	public static function is_registered( $slug ) {
+		return WP_Block_Type_Registry::get_instance()->is_registered( $slug );
 	}
 
 	/**
