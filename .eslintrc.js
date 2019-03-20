@@ -65,7 +65,6 @@ module.exports = {
 		semi: 2,
 		'semi-spacing': 2,
 		'space-before-blocks': [ 2, 'always' ],
-		'space-before-function-paren': [ 2, 'never' ],
 		'space-in-parens': [ 2, 'always' ],
 		'space-infix-ops': [ 2, { int32Hint: false } ],
 		'space-unary-ops': [
