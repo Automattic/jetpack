@@ -1,5 +1,4 @@
 *
 !.gitignore
-!avoid-plugin-deletion.php
 !debug.php
-!no-robots.php
+!avoid-plugin-deletion.php
