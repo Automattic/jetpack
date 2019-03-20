@@ -32,7 +32,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 22,
 		'recommendation_order' => 12,
 		'introduced' => '1.5',
@@ -43,7 +42,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Appearance', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image',
 	) 
@@ -90,7 +88,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Contact Form', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Add a customizable contact form to any post or page using the Jetpack Form Block.', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 15,
 		'recommendation_order' => 14,
 		'introduced' => '1.3',
@@ -101,7 +98,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Writing', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free',
 	) 
@@ -209,7 +205,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 11,
 		'recommendation_order' => 13,
 		'introduced' => '1.1',
@@ -221,7 +216,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Appearance', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'gravatar, hovercards',
 	) 
@@ -466,6 +460,7 @@ jetpack_register_module(
 		'feature' => array(
 			_x( 'Recommended', 'Feature', 'jetpack' ),
 			_x( 'Appearance', 'Feature', 'jetpack' ),
+			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'site accelerator, accelerate, static, assets, javascript, css, files, performance, seo, bandwidth, content delivery network, pagespeed, combine js, optimize css',
 	) 
@@ -474,7 +469,7 @@ jetpack_register_module(
 jetpack_register_module( 
 	'photon', 
 	array(
-		'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
+		'name' => _x( 'Image CDN', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
 		'jumpstart_desc' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 25,
@@ -581,7 +576,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 29,
 		'recommendation_order' => 9,
 		'introduced' => '2.9',
@@ -592,7 +586,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin',
 	) 
@@ -648,7 +641,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Twitter, Facebook and many other buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 7,
 		'recommendation_order' => 6,
 		'introduced' => '1.1',
@@ -661,7 +653,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'share, sharing, sharedaddy, social buttons, buttons, share facebook, share twitter, social media sharing, social media share, social share, icons, email, facebook, twitter, linkedin, pinterest, pocket, social widget, social media',
 	) 
@@ -722,6 +713,10 @@ jetpack_register_module(
 			_x( 'Recommended', 'Module Tags', 'jetpack' ),
 			_x( 'Traffic', 'Module Tags', 'jetpack' ),
 		),
+		'feature' => array(
+			_x( 'Recommended', 'Feature', 'jetpack' ),
+			_x( 'Jumpstart', 'Feature', 'jetpack' ),
+		),
 		'additional_search_queries' => 'sitemap, traffic, search, site map, seo',
 	) 
 );
@@ -774,7 +769,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Allow users to subscribe to your posts and comments and receive notifications via email', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 9,
 		'recommendation_order' => 8,
 		'introduced' => '1.2',
@@ -785,7 +779,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Engagement', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup',
 	) 
@@ -796,7 +789,6 @@ jetpack_register_module(
 	array(
 		'name' => _x( 'Tiled Galleries', 'Module Name', 'jetpack' ),
 		'description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Module Description', 'jetpack' ),
-		'jumpstart_desc' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Jumpstart Description', 'jetpack' ),
 		'sort' => 24,
 		'introduced' => '2.1',
 		'requires_connection' => false,
@@ -806,7 +798,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Appearance', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'gallery, tiles, tiled, grid, mosaic, images',
 	) 
