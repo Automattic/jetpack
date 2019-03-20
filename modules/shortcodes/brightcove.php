@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * Brightcove shortcode.
@@ -18,7 +18,12 @@
  * to the legacy code.
  */
 class Jetpack_Brightcove_Shortcode {
-	static $shortcode = 'brightcove';
+	/**
+	 * Shortcode name.
+	 *
+	 * @var string
+	 */
+	public static $shortcode = 'brightcove';
 
 	/**
 	 * Parse shortcode arguments and render its output.
@@ -55,10 +60,20 @@ class Jetpack_Brightcove_Shortcode {
 	 * @return array
 	 */
 	public static function normalize_attributes( $atts ) {
-		if ( is_array( $atts ) && 1 == count( $atts ) ) { // this is the case we need to take care of.
+		if ( is_array( $atts ) && 1 === count( $atts ) ) { // this is the case we need to take care of.
 			$parsed_atts = array();
 			$params      = shortcode_new_to_old_params( $atts );
-			$params      = apply_filters( 'brightcove_dimensions', $params );
+
+			/**
+			 * Filter the Brightcove shortcode parameters.
+			 *
+			 * @module shortcodes
+			 *
+			 * @since 4.5.0
+			 *
+			 * @param string $params String of shortcode parameters.
+			 */
+			$params = apply_filters( 'brightcove_dimensions', $params );
 			parse_str( $params, $parsed_atts );
 
 			return $parsed_atts;
@@ -213,7 +228,9 @@ class Jetpack_Brightcove_Shortcode {
 
 		$flashvars = trim( add_query_arg( array_map( 'urlencode', $fv ), '' ), '?' );
 
-		$width = $height = null;
+		$width  = null;
+		$height = null;
+
 		if ( ! empty( $attr['w'] ) && ! empty( $attr['h'] ) ) {
 			$w = abs( (int) $attr['w'] );
 			$h = abs( (int) $attr['h'] );
