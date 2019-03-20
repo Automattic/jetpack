@@ -208,8 +208,8 @@
 	justify-content: space-evenly;
 	text-align: left;
 	align-items: baseline;
-	max-width: 100px;
 	margin: 0 auto;
+	max-width: 1000px;
 }
 
 .jp-connect-full__slide {
@@ -391,7 +391,7 @@
 
 	@include breakpoint(tablet) {
 		width: 100%;
-		margin: rem( 36px ) 0 rem( 24px );
+		margin: rem( 8px ) 0;
 		display: block;
 	}
 }
