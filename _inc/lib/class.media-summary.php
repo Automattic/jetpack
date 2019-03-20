@@ -306,6 +306,7 @@ class Jetpack_Media_Summary {
 	 * Retrieve an excerpt for the post summary.
 	 *
 	 * This function works around a suspected problem with Core. If resolved, this function should be simplified.
+	 *
 	 * @link https://github.com/Automattic/jetpack/pull/8510
 	 * @link https://core.trac.wordpress.org/ticket/42814
 	 *
@@ -316,17 +317,21 @@ class Jetpack_Media_Summary {
 	 * @param  WP_Post $post The post object.
 	 * @return string Post excerpt.
 	 **/
-	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $post = null ) {
+	public static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $post = null ) {
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
-			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
-				'text'                => $post_content,
-				'excerpt_only'        => true,
-				'show_read_more'      => false,
-				'max_words'           => $max_words,
-				'max_chars'           => $max_chars,
-				'read_more_threshold' => 25,
-			) ) );
-		} else if ( $post ) {
+			return self::clean_text(
+				wpcom_enhanced_excerpt_extract_excerpt(
+					array(
+						'text'                => $post_content,
+						'excerpt_only'        => true,
+						'show_read_more'      => false,
+						'max_words'           => $max_words,
+						'max_chars'           => $max_chars,
+						'read_more_threshold' => 25,
+					)
+				)
+			);
+		} elseif ( $post ) {
 			$post_excerpt = get_the_excerpt( $post );
 			return self::clean_text( $post_excerpt );
 		}
