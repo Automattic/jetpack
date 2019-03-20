@@ -24,16 +24,22 @@ function jetpack_get_frame_nonce() {
 }
 
 function jetpack_framing_allowed() {
-	if ( empty( $_GET['frame-nonce'] ) ) {
-		return false;
+	if ( ! empty( $_GET['frame-nonce'] ) && false !== strpos( $_GET['frame-nonce'], '.' ) ) {
+		list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
+		$_GET['token']     = $token;
+		$_GET['signature'] = $signature;
+
+		$verified = Jetpack::init()->verify_xml_rpc_signature();
+
+		if ( $verified ) {
+			if ( ! defined( 'IFRAME_REQUEST' ) ) {
+				define( 'IFRAME_REQUEST', true );
+			}
+
+			return true;
+		}
 	}
 
-	$verified = wp_verify_nonce( $_GET['frame-nonce'], 'frame-' . Jetpack_Options::get_option( 'id' ) );
-
-	if ( $verified ) {
-		define( 'IFRAME_REQUEST', true );
-		return true;
-	}
 	return false;
 }
 
@@ -42,7 +48,7 @@ function jetpack_framing_allowed() {
  */
 function jetpack_auto_frame_nonce( $url ) {
 	if ( jetpack_framing_allowed() ) {
-		$url = add_query_arg( array( 'frame-nonce' => jetpack_get_frame_nonce() ), $url );
+	//	$url = add_query_arg( array( 'frame-nonce' => jetpack_get_frame_nonce() ), $url );
 	}
 	return $url;
 }
