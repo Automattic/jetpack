@@ -259,3 +259,4 @@ class Jetpack_Memberships {
 		return "{$plan['price']} {$plan['currency']}";
 	}
 }
+Jetpack_Memberships::get_instance();
