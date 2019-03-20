@@ -340,7 +340,10 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Remove cards for Akismet, Jetpack and VaultPress plugins since we don't want duplicates.
+	 * Remove cards for Jetpack plugins since we don't want duplicates.
+	 *
+	 * @since 7.1.0
+	 * @since 7.2.0 Only remove Jetpack.
 	 *
 	 * @param array|object $plugin
 	 *
@@ -350,7 +353,7 @@ class Jetpack_Plugin_Search {
 		// Take in account that before WordPress 5.1, the list of plugins is an array of objects.
 		// With WordPress 5.1 the list of plugins is an array of arrays.
 		$slug = is_array( $plugin ) ? $plugin['slug'] : $plugin->slug;
-		return ! in_array( $slug, array( 'akismet', 'jetpack', 'vaultpress' ), true );
+		return ! in_array( $slug, array( 'jetpack' ), true );
 	}
 
 	/**
