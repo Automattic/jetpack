@@ -120,7 +120,7 @@ class RelatedPostsComponent extends React.Component {
 									) }
 									{ [
 										{
-											url: '1-wpios-ipad-3-1-viewsite.png',
+											url: 'cat-blog.png',
 											text: __( 'Big iPhone/iPad Update Now Available' ),
 											context: __( 'In "Mobile"', {
 												comment:
@@ -128,7 +128,7 @@ class RelatedPostsComponent extends React.Component {
 											} ),
 										},
 										{
-											url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+											url: 'devices.jpg',
 											text: __( 'The WordPress for Android App Gets a Big Facelift' ),
 											context: __( 'In "Mobile"', {
 												comment:
@@ -136,7 +136,7 @@ class RelatedPostsComponent extends React.Component {
 											} ),
 										},
 										{
-											url: 'videopresswedding.jpg',
+											url: 'mobile-wedding.jpg',
 											text: __( 'Upgrade Focus: VideoPress For Weddings' ),
 											context: __( 'In "Upgrade"', {
 												comment:
@@ -147,9 +147,7 @@ class RelatedPostsComponent extends React.Component {
 										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
 											{ this.state.show_thumbnails && (
 												<img
-													src={ `https://jetpackme.files.wordpress.com/2014/08/${
-														item.url
-													}?w=350&h=200&crop=1` }
+													src={ `https://jetpackme.files.wordpress.com/2019/03/${ item.url }` }
 													alt={ item.text }
 												/>
 											) }
