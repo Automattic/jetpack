@@ -123,7 +123,7 @@ if ( file_exists( $test_root . '/includes/listener-loader.php' ) ) {
 	require $test_root . '/includes/listener-loader.php';
 } else {
 	if ( file_exists( require $test_root . '/includes/speed-trap-listener.php' ) ) {
-		echo'UPDATE YOUR WP CORE TESTS HELPERS!';
+		echo 'UPDATE YOUR WP CORE TESTS HELPERS!';
 		require $test_root . '/includes/speed-trap-listener.php';
 	}
 }
