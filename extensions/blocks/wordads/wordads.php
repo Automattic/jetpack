@@ -80,6 +80,10 @@ class Jetpack_WordAds_Gutenblock {
 			return '';
 		}
 
+		if ( ! empty( $attr['hideMobile'] ) && $wordads->params->is_mobile() ) {
+			return '';
+		}
+
 		if ( ! self::is_wpcom() && $wordads->option( 'wordads_house' ) ) {
 			return $wordads->get_ad( 'inline', 'house' );
 		}
