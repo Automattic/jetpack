@@ -10,3 +10,6 @@
 /modules/custom-css/custom-css/js/core-customizer-css.js
 /modules/lazy-images/js/lazy-images.js
 /modules/widgets/search/js/search-widget-admin.js
+
+# Temporary ignore until Jest is set up
+/extensions/**/test/
