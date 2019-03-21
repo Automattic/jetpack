@@ -748,8 +748,17 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = false;
 	}
 
-	// Allow to be used on P2 ajax requests for latest posts.
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && apply_filters('sharing_ajax_action', 'get_latest_posts') == $_REQUEST['action'] ) {
+	/**
+	 * Filter the default ajax action name
+	 *
+	 * @module sharedaddy
+	 *
+	 * @since 5.1.1
+	 */
+	$ajax_action = apply_filters( 'sharing_ajax_action', 'get_latest_posts' );
+
+	// Allow to be used in ajax requests for latest posts.
+	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && $ajax_action == $_REQUEST['action'] ) {
 		$show = true;
 	}
 
