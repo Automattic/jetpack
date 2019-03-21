@@ -52,6 +52,12 @@ function create_release_gitignore {
 
     # Add custom stuff to .gitignore release
     echo "/_inc/client" >> .gitignore
+    # Needs to stay in sync with .svnignore
+    # The quoting is important here so the shell expands the contents producing multiple strings.
+    # .gitignore will not respect the {brace,variations} so we'll produce multiple lines.
+    #
+    #                       ↓ this brace is unquoted. Important!
+    printf "%s\n" "/extensions/**/*."{"js","jsx","json","gif","png","css","jpg","jpeg","sass","scss","svg"} >> .gitignore
 
     # Remove old .gitignore
     rm .gitignore-tmp
@@ -114,6 +120,10 @@ function create_new_release_branches {
 
             # Remove stuff from svnignore
             modify_svnignore
+
+            git rm -r --cached .
+            git add .
+            git commit -m ".gitignore cleanup"
 
             git checkout $NEW_UNBUILT_BRANCH
 

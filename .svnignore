@@ -42,3 +42,14 @@ docker
 bin/pre-commit-hook.js
 bin/travis_install.sh
 yarn-error.log
+extensions/**/*.js
+extensions/**/*.jsx
+extensions/**/*.json
+extensions/**/*.gif
+extensions/**/*.png
+extensions/**/*.css
+extensions/**/*.jpg
+extensions/**/*.jpeg
+extensions/**/*.sass
+extensions/**/*.scss
+extensions/**/*.svg
