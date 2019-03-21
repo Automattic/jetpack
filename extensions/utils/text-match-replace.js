@@ -57,7 +57,9 @@ function replaceString( text, match, fn ) {
 }
 
 const textMatchReplace = ( source, match, fn ) => {
-	if ( ! Array.isArray( source ) ) source = [ source ];
+	if ( ! Array.isArray( source ) ) {
+		source = [ source ];
+	}
 
 	return flatten(
 		source.map( x => {

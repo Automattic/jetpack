@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+/* jshint ignore:start */
 /* eslint-disable no-console, no-process-exit */
 
 const execSync = require( 'child_process' ).execSync;
@@ -47,20 +48,16 @@ function phpcsFilesToFilter( file ) {
  * @param {String} file File name of js file modified.
  * @return {boolean}        If the file matches the whitelist.
  */
-function jsFilesToFilter( file ) {
-	if (
-		file.startsWith( '_inc/client/' ) &&
-		/\.jsx?$/.test( file )
-	) {
-		return true;
-	}
-
-	return false;
+function filterJsFiles( file ) {
+	return (
+		( file.startsWith( '_inc/client/' ) || file.startsWith( 'extensions/' ) ) &&
+		( file.endsWith( '.js' ) || file.endsWith( '.jsx' ) )
+	);
 }
 
 const gitFiles = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter( Boolean );
-const jsFiles = gitFiles.filter( jsFilesToFilter );
+const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 

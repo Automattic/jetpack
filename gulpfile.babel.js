@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 /**
  * External dependencies
  */
@@ -307,15 +308,6 @@ gulp.task( 'languages:phpize', function( done ) {
 	} );
 } );
 
-/*
- * Gutenberg Blocks for Jetpack
- */
-gulp.task( 'gutenberg:blocks', function() {
-	return gulp
-		.src( [ 'node_modules/@automattic/jetpack-blocks/build/**/*' ] )
-		.pipe( gulp.dest( '_inc/blocks' ) );
-} );
-
 gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
 gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 
@@ -323,13 +315,7 @@ gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 gulp.task(
 	'default',
 	gulp.series(
-		gulp.parallel(
-			react_build,
-			'old-styles',
-			'js:hint',
-			'php:module-headings',
-			'gutenberg:blocks'
-		),
+		gulp.parallel( react_build, 'old-styles', 'js:hint', 'php:module-headings' ),
 		sass_build
 	)
 );

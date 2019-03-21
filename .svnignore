@@ -1,3 +1,4 @@
+.babelrc*
 .eslintrc.js
 .eslintignore
 .git
@@ -12,6 +13,7 @@
 .eslintcache
 readme.md
 .github
+babel.config*
 phpunit.xml.dist
 dangerfile.js
 renovate.json
@@ -30,7 +32,7 @@ modules/widgets/follow-button.php
 modules/calypsoify/*.css.map
 modules/calypsoify/*.scss
 to-test.md
-webpack.config.js
+webpack.config*
 .editorconfig
 _inc/client
 _inc/build/*.js.map
