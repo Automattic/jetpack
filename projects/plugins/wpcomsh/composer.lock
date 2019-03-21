@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce26d424d7df009cf231d2d32a5ff380",
+    "content-hash": "eea3f840630c414a001afda94ac71924",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -263,16 +263,16 @@
         },
         {
             "name": "woocommerce/wc-api-dev",
-            "version": "v0.9.9",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "22aab27a438d6d0efd56f4cad3ac81dde5413316"
+                "reference": "53cc7fd298f6109332fc749a5c50387b00827f14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/22aab27a438d6d0efd56f4cad3ac81dde5413316",
-                "reference": "22aab27a438d6d0efd56f4cad3ac81dde5413316",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/53cc7fd298f6109332fc749a5c50387b00827f14",
+                "reference": "53cc7fd298f6109332fc749a5c50387b00827f14",
                 "shasum": ""
             },
             "type": "library",
@@ -281,7 +281,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2018-10-16T18:54:56+00:00"
+            "time": "2019-03-21T16:49:17+00:00"
         }
     ],
     "packages-dev": [],
