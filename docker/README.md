@@ -256,11 +256,37 @@ You can start your ngrok tunnel like so:
 ```
 
 These two commands are all you need to run to get Docker running when you start your computer:
-
 ```bash
 ./ngrok start jetpack
 yarn docker:up -d
 ```
+### Docker Ngrok
+
+Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
+
+**1. Configure environment**
+
+Add these variables to your `docker/.env` file:
+
+This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
+Possible values for `NGROK_REGION` are:  (United States, default), eu (Europe), ap (Asia/Pacific) or au (Australia).
+[Read more about ngrok regions](https://ngrok.com/docs#global-locations)
+```
+NGROK_AUTH=<your auth key>
+NGROK_SUBDOMAIN=example
+NGROK_REGION=us
+```
+
+**2. Start docker with Ngrok**
+
+Start container with `yarn docker:ngrok-up -d`
+Stop container with `yarn docker:ngrok-down -d`
+
+All the other docker-compose commands can be invoked via `yarn docker:ngrok COMMAND`
+
+### Configuration file
+
+If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
 
 ## Ngrok SFTP Tunnel with Jetpack
 A sample config for adding an sftp tunnel to your Ngrok setup would look like this:
