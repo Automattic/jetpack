@@ -80,7 +80,7 @@ class Jetpack_WordAds_Gutenblock {
 			return '';
 		}
 
-		if ( isset( $attr['hideMobile'] ) && $attr['hideMobile'] && $wordads->params->is_mobile() ) {
+		if ( ! empty( $attr['hideMobile'] ) && $wordads->params->is_mobile() ) {
 			return '';
 		}
 
