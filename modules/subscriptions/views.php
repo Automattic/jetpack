@@ -308,6 +308,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	                    );
 	                    ?>
                     </button>
+					<?php if ( Jetpack_AMP_Support::is_amp_request() ) : ?>
+						<!-- Add workaround for https://github.com/ampproject/amphtml/issues/21498 -->
+						<input type="hidden" name="jetpack_subscriptions_widget" value="">
+					<?php endif; ?>
                 </p>
             </form>
 			<?php
