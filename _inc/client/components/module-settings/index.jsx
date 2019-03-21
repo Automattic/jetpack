@@ -69,18 +69,15 @@ export class RelatedPostsSettings extends React.Component {
 		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
 		const previews = [
 			{
-				url:
-					'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+				url: 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
 				text: __( 'Big iPhone/iPad Update Now Available' ),
 			},
 			{
-				url:
-					'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+				url: 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
 				text: __( 'The WordPress for Android App Gets a Big Facelift' ),
 			},
 			{
-				url:
-					'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+				url: 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
 				text: __( 'Upgrade Focus: VideoPress For Weddings' ),
 			},
 		];

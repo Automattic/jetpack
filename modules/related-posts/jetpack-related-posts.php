@@ -655,7 +655,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/cat-blog.png" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -665,7 +665,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/devices.jpg" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -675,7 +675,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -1036,7 +1036,7 @@ EOT;
 			$related_posts = array(
 				array(
 					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
 					'url_meta' => array(
 						'origin'   => 0,
 						'position' => 0
@@ -1048,7 +1048,7 @@ EOT;
 					'rel'      => 'nofollow',
 					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
 						'width'  => 350,
 						'height' => 200
 					),
@@ -1056,7 +1056,7 @@ EOT;
 				),
 				array(
 					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
 					'url_meta' => array(
 						'origin'   => 0,
 						'position' => 0
@@ -1068,7 +1068,7 @@ EOT;
 					'rel'      => 'nofollow',
 					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
 						'width'  => 350,
 						'height' => 200
 					),
@@ -1076,7 +1076,7 @@ EOT;
 				),
 				array(
 					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
 					'url_meta' => array(
 						'origin'   => 0,
 						'position' => 0
@@ -1088,7 +1088,7 @@ EOT;
 					'rel'      => 'nofollow',
 					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
 					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
 						'width'  => 350,
 						'height' => 200
 					),
