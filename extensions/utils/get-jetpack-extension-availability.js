@@ -6,7 +6,7 @@ import { get, includes } from 'lodash';
 /**
  * Internal dependencies
  */
-import extensionSlugsJson from '../preset/index.json';
+import extensionSlugsJson from '../setup/index.json';
 import getJetpackData from './get-jetpack-data';
 
 /**

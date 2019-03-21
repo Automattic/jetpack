@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import escapeHTML from '@wordpress/escape-html';
 import { forEach } from 'lodash';
 
 const SIXTEEN_BY_NINE = 16 / 9;
