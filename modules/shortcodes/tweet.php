@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Tweet shortcode.
  * Params map to key value pairs, and all but tweet are optional:
@@ -14,13 +14,23 @@
  *
  * More parameters and another tweet syntax admitted:
  * [tweet tweet="https://twitter.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]
+ *
+ * @package Jetpack
  */
 
 add_shortcode( 'tweet', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode' ) );
 
+/**
+ * Tweet Shortcode class.
+ */
 class Jetpack_Tweet {
 
-	static $provider_args;
+	/**
+	 * Shortcode attributes.
+	 *
+	 * @var array
+	 */
+	public static $provider_args;
 
 	/**
 	 * Parse shortcode arguments and render its output.
@@ -46,9 +56,11 @@ class Jetpack_Tweet {
 
 		self::$provider_args = $attr;
 
-		// figure out the tweet id for the requested tweet
-		// supporting both omitted attributes and tweet="tweet_id"
-		// and supporting both an id and a URL
+		/*
+		 * figure out the tweet id for the requested tweet
+		 * supporting both omitted attributes and tweet="tweet_id"
+		 * and supporting both an id and a URL
+		 */
 		if ( empty( $attr['tweet'] ) && ! empty( $atts[0] ) ) {
 			$attr['tweet'] = $atts[0];
 		}
@@ -65,13 +77,13 @@ class Jetpack_Tweet {
 			}
 		}
 
-		// Add shortcode arguments to provider URL
+		// Add shortcode arguments to provider URL.
 		add_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10, 3 );
 
-		// Fetch tweet
+		// Fetch tweet.
 		$output = $wp_embed->shortcode( $atts, $id );
 
-		// Clean up filter
+		// Clean up filter.
 		remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
 
 		// Add Twitter widgets.js script to the footer.
@@ -90,11 +102,11 @@ class Jetpack_Tweet {
 	 *
 	 * @param string $provider URL of provider that supplies the tweet we're requesting.
 	 * @param string $url      URL of tweet to embed.
-	 * @param array  $args     Parameters supplied to shortcode and passed to wp_oembed_get
+	 * @param array  $args     Parameters supplied to shortcode and passed to wp_oembed_get.
 	 *
 	 * @return string
 	 */
-	public static function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) {
+	public static function jetpack_tweet_url_extra_args( $provider, $url, $args = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		foreach ( self::$provider_args as $key => $value ) {
 			switch ( $key ) {
 				case 'align':
@@ -106,10 +118,10 @@ class Jetpack_Tweet {
 			}
 		}
 
-		// Disable script since we're enqueing it in our own way in the footer
+		// Disable script since we're enqueing it in our own way in the footer.
 		$provider = add_query_arg( 'omit_script', 'true', $provider );
 
-		// Twitter doesn't support maxheight so don't send it
+		// Twitter doesn't support maxheight so don't send it.
 		$provider = remove_query_arg( 'maxheight', $provider );
 
 		/**
@@ -123,7 +135,7 @@ class Jetpack_Tweet {
 		 */
 		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
 
-		// Add Twitter partner ID to track embeds from Jetpack
+		// Add Twitter partner ID to track embeds from Jetpack.
 		if ( ! empty( $partner ) ) {
 			$provider = add_query_arg( 'partner', $partner, $provider );
 		}
