@@ -17,7 +17,7 @@ class Jetpack_Private {
 	static function init() {
 		add_action( 'parse_request', array( __CLASS__, 'privatize_blog' ), 100 );
 		add_action( 'login_init', array( __CLASS__, 'privatize_blog_maybe_mask_blog_name' ) );
-		add_filter( 'preprocess_comment', array( __CLASS__, 'privatize_blog_comments' ) );
+		add_filter( 'preprocess_comment', array( __CLASS__, 'privatize_blog_comments' ), 0 );
 		add_action( 'blog_privacy_selector', array( __CLASS__, 'privatize_blog_priv_selector' ) );
 		add_filter( 'robots_txt', array( __CLASS__, 'private_robots_txt' ) );
 		add_action( 'wp_head', array( __CLASS__, 'private_no_pinning' ) );
