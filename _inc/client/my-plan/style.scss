@@ -217,10 +217,6 @@
 	.jp-landing__plan-features-title,
 	.jp-landing__plan-features-text {
 		padding: 0;
-
-		@include breakpoint( ">660px" ) {
-			margin-left: rem( 32px );
-		}
 	}
 
 	.jp-landing__plan-features-title {
@@ -229,9 +225,15 @@
 }
 
 .jp-landing__plan-card-img {
+	float: left;
+	margin-right: rem( 42px );
+
+	@include breakpoint( "<960px" ) {
+		margin-right: rem( 16px );
+	}
 
 	@include breakpoint( "<660px" ) {
-		margin: 0 0 rem( 32px ) 0;
+		margin: 0 rem( 16px ) rem( 32px ) 0;
 	}
 
 	@include breakpoint( "<480px" ) {
@@ -242,7 +244,14 @@
 }
 
 .jp-landing__plan-icon {
-	width: rem( 200px );
+	width: 82px;
+	position: relative;
+	left: -3px;
+
+	@include breakpoint( ">960px" ) {
+		width: 96px;
+		left: 2px;
+	}
 }
 
 .jp-landing__plan-card-img.is-placeholder {
