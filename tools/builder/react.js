@@ -169,6 +169,9 @@ function buildStatic( done ) {
 	global.window = window;
 	global.document = document;
 	global.navigator = window.navigator;
+	global.React = require( 'react' );
+	global.ReactDOM = require( 'react-dom' );
+	global.lodash = require( 'lodash' );
 
 	window.Initial_State = {
 		dismissedNotices: [],
