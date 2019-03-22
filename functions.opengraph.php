@@ -67,7 +67,7 @@ function jetpack_og_tags() {
 		$tags['og:description'] = get_bloginfo( 'description' );
 
 		$front_page_id = get_option( 'page_for_posts' );
-		if ( 'page' == get_option( 'show_on_front' ) && $front_page_id && is_home() ) {
+		if ( 'page' === get_option( 'show_on_front' ) && $front_page_id && is_home() ) {
 			$tags['og:url'] = get_permalink( $front_page_id );
 		} else {
 			$tags['og:url'] = home_url( '/' );
@@ -230,7 +230,8 @@ function jetpack_og_tags() {
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here.
-	$secure = $tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
+	$tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
+	$secure                      = $tags['og:image:secure_url'];
 	unset( $tags['og:image:secure_url'] );
 	$secure_image_num = 0;
 
@@ -256,7 +257,7 @@ function jetpack_og_tags() {
 			$og_output .= apply_filters( 'jetpack_open_graph_output', $og_tag );
 			$og_output .= "\n";
 
-			if ( 'og:image' == $tag_property ) {
+			if ( 'og:image' === $tag_property ) {
 				if ( is_array( $secure ) && ! empty( $secure[ $secure_image_num ] ) ) {
 					$og_tag = sprintf( '<meta property="og:image:secure_url" content="%s" />', esc_url( $secure[ $secure_image_num ] ) );
 					/** This filter is documented in functions.opengraph.php */
@@ -273,7 +274,8 @@ function jetpack_og_tags() {
 		}
 	}
 	$og_output .= "\n<!-- End Jetpack Open Graph Tags -->\n";
-	echo $og_output;
+	// This is trusted output or added by a filter.
+	echo $og_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
 /**
