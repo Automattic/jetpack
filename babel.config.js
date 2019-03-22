@@ -4,7 +4,6 @@ const config = {
 			'@babel/env',
 			{
 				modules: 'commonjs',
-				targets: { browsers: [ 'last 2 versions', 'Safari >= 10', 'iOS >= 10', 'ie >= 11' ] },
 				useBuiltIns: 'entry',
 				shippedProposals: true, // allows es7 features like Promise.prototype.finally
 			},
@@ -40,4 +39,3 @@ const config = {
 };
 
 module.exports = config;
-
