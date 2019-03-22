@@ -72,9 +72,6 @@ const webpackConfig = {
 	},
 	resolve: {
 		extensions: [ '.js', '.jsx' ],
-		alias: {
-			react: path.join( __dirname, '/node_modules/react' )
-		},
 		modules: [
 			path.resolve( __dirname, 'node_modules' ),
 			path.resolve( __dirname, '_inc/client' ),
@@ -100,6 +97,9 @@ const webpackConfig = {
 		} )
 	],
 	externals: {
+		lodash: 'lodash',
+		react: 'React',
+		'react-dom': 'ReactDOM',
 		'react/addons': true,
 		'react/lib/ExecutionEnvironment': true,
 		'react/lib/ReactContext': true,
