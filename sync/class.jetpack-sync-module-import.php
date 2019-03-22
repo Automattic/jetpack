@@ -30,6 +30,11 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 * A mapping of action types to sync action name.
 	 * Keys are the name of the import action.
 	 * Values are the resulting sync action.
+	 *
+	 * Note: import_done and import_end both intentionally map to
+	 * jetpack_sync_import_end, as they both track the same type of action,
+	 * the successful completion of an import. Different import plugins use
+	 * differently named actions, and this is an attempt to consolidate.
 	 * @var array
 	 */
 	private static $import_sync_action_map = array(
