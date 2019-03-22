@@ -243,6 +243,13 @@ class Jetpack_Search {
 				intval( $this->last_query_info['elapsed_time'] ),
 				esc_html( $this->last_query_info['es_time'] )
 			);
+
+			if ( isset( $_GET['searchdebug'] ) ) {
+				printf(
+					'<!-- Query response data: %s -->',
+					esc_html( print_r( $this->last_query_info, 1 ) )
+				);
+			}
 		}
 	}
 
