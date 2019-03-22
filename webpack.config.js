@@ -96,15 +96,25 @@ const webpackConfig = {
 			filename: '[name].dops-style.css',
 		} )
 	],
-	externals: {
-		lodash: 'lodash',
-		react: 'React',
-		'react-dom': 'ReactDOM',
-		'react/addons': true,
-		'react/lib/ExecutionEnvironment': true,
-		'react/lib/ReactContext': true,
-		jsdom: 'window'
-	},
+	externals: [
+		{
+			lodash: 'lodash',
+			react: 'React',
+			'react-dom': 'ReactDOM',
+			'react/addons': true,
+			'react/lib/ExecutionEnvironment': true,
+			'react/lib/ReactContext': true,
+			jsdom: 'window',
+		},
+		( _, request, callback ) => {
+			const match = request.match( /^lodash\/([a-zA-Z]+)$/ );
+			if ( match && match[ 1 ] ) {
+				const lodashFn = match[ 1 ];
+				return callback( null, `root lodash.${ lodashFn }` );
+			}
+			return callback();
+		},
+	],
 	devtool: devMode ? 'source-map' : false,
 };
 
