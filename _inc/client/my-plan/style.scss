@@ -163,6 +163,7 @@
 .jp-landing__plan-features-img {
 	width: 90px;
 	margin-right: 8px;
+	line-height: 1;
 
 	@include breakpoint( ">960px" ) {
 		width: 120px;
@@ -200,38 +201,38 @@
 }
 
 .jp-landing__plan-card {
+	padding: rem( 32px );
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( "<480px" ) {
+		text-align: center;
+	}
+
+	@include breakpoint( ">480px" ) {
 		display: flex;
+		align-items: center;
 		flex-wrap: nowrap;
-	}
-
-	@include breakpoint( ">660px" ) {
-		padding: rem( 32px );
-	}
-
-	@include breakpoint( "<660px" ) {
-		padding: rem( 32px ) rem( 32px ) rem( 16px );
 	}
 
 	.jp-landing__plan-features-title,
 	.jp-landing__plan-features-text {
 		padding: 0;
-
-		@include breakpoint( ">660px" ) {
-			margin-left: rem( 32px );
-		}
 	}
 
 	.jp-landing__plan-features-title {
 		margin-bottom: rem( 16px );
 	}
+
+	.jp-landing__plan-features-text:last-child {
+		margin-bottom: 0;
+	}
 }
 
 .jp-landing__plan-card-img {
+	float: left;
+	margin-right: rem( 42px );
 
-	@include breakpoint( "<660px" ) {
-		margin: 0 0 rem( 32px ) 0;
+	@include breakpoint( "<960px" ) {
+		margin-right: rem( 16px );
 	}
 
 	@include breakpoint( "<480px" ) {
@@ -242,7 +243,14 @@
 }
 
 .jp-landing__plan-icon {
-	width: rem( 200px );
+	width: 82px;
+	position: relative;
+	left: -3px;
+
+	@include breakpoint( ">960px" ) {
+		width: 96px;
+		left: 2px;
+	}
 }
 
 .jp-landing__plan-card-img.is-placeholder {
