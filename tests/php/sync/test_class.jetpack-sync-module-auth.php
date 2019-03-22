@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sync_Module_Auth extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'authenticate' );
 
-		$this->assertIsObject( $action );
+		$this->assertInstanceOf( 'stdClass', $action );
 		$this->assertEquals( $this->user->ID, $action->args[0]['external_user_id'] );
 		$this->assertArrayHasKey( 'warning', $action->args[0] );
 	}
