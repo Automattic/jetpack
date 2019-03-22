@@ -9,7 +9,7 @@ The ideal plugin for stats, related posts, search engine optimization, social sh
 
 == Description ==
 
-Security, performance, and hassle-free design: the best way to WordPress is with Jetpack.
+Security, performance, and site management: the best way to WordPress is with Jetpack.
 
 = 24/7 Site Security =
 Jetpack is your site's security detail, guarding you against brute-force attacks and unauthorized logins. Basic protection is always free, while premium plans add expanded backup and automated fixes. Jetpack's full suite of site security tools include:
@@ -29,7 +29,7 @@ Activate site accelerator tools and watch your page load times and hosting costs
 * Lazy image loading for a faster mobile experience.
 * Unlimited and high-speed video via our content delivery network.
 
-= Code-free Customization =
+= Effortless Site Management =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Built it, share it, and watch it grow with:
 
 * Advanced site stats and analytics for understanding your audience.
