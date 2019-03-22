@@ -66,29 +66,30 @@ function jetpack_og_tags() {
 		else
 			$tags['og:url'] = home_url( '/' );
 
-		// Associate a blog's root path with one or more Facebook accounts
+		// Associate a blog's root path with one or more Facebook accounts.
 		$facebook_admins = Jetpack_Options::get_option_and_ensure_autoload( 'facebook_admins', array() );
 		if ( ! empty( $facebook_admins ) )
 			$tags['fb:admins'] = $facebook_admins;
 
-	} else if ( is_author() ) {
+	} elseif ( is_author() ) {
 		$tags['og:type'] = 'profile';
 
 		$author = get_queried_object();
 
-		$tags['og:title']           = $author->display_name;
-		if ( ! empty( $author->user_url ) ) {
-			$tags['og:url']     = $author->user_url;
-		} else {
-			$tags['og:url']     = get_author_posts_url( $author->ID );
+		if ( is_a( 'WP_User', $author ) ) {
+			$tags['og:title'] = $author->display_name;
+			if ( ! empty( $author->user_url ) ) {
+				$tags['og:url'] = $author->user_url;
+			} else {
+				$tags['og:url'] = get_author_posts_url( $author->ID );
+			}
+			$tags['og:description']     = $author->description;
+			$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
+			$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
 		}
-		$tags['og:description']     = $author->description;
-		$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
-		$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
-
-	} else if ( is_singular() ) {
+	} elseif ( is_singular() ) {
 		global $post;
-		$data = $post; // so that we don't accidentally explode the global
+		$data = $post; // so that we don't accidentally explode the global.
 
 		$tags['og:type'] = 'article';
 		if ( empty( $data->post_title ) ) {
@@ -304,10 +305,15 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			}
 		}
 	} elseif ( is_author() ) {
-		$author       = get_queried_object();
-		$image['src'] = get_avatar_url( $author->user_email, array(
-			'size' => $width,
-		) );
+		$author = get_queried_object();
+		if ( is_a( 'WP_User', $author ) ) {
+			$image['src'] = get_avatar_url(
+				$author->user_email,
+				array(
+					'size' => $width,
+				)
+			);
+		}
 	}
 
 	// First fall back, blavatar.
