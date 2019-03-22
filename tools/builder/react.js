@@ -138,7 +138,7 @@ function onBuild( done, err, stats ) {
 	// Don't process minified JS in _inc or modules directories
 	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
 	gulp
-		.src( Array.concat( sources, sourceNegations ) )
+		.src( [ ...sources, ...sourceNegations ] )
 		.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 		.pipe(
