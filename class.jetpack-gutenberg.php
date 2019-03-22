@@ -444,6 +444,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block.
 	 *
+	 * @since 7.2.0
+	 *
 	 * @return void
 	 */
 	public static function load_styles_as_required( $type ) {
@@ -466,6 +468,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block.
 	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 *
+	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
