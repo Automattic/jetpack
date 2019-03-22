@@ -3,9 +3,10 @@ const config = {
 		[
 			'@babel/env',
 			{
+				corejs: 2,
 				modules: 'commonjs',
-				useBuiltIns: 'entry',
 				shippedProposals: true, // allows es7 features like Promise.prototype.finally
+				useBuiltIns: 'entry',
 			},
 		],
 		'@babel/preset-react'
