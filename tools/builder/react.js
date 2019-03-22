@@ -172,6 +172,7 @@ function buildStatic( done ) {
 	global.React = require( 'react' );
 	global.ReactDOM = require( 'react-dom' );
 	global.lodash = require( 'lodash' );
+	global.moment = require( 'moment' );
 
 	window.Initial_State = {
 		dismissedNotices: [],

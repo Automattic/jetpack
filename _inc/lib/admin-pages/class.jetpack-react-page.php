@@ -177,6 +177,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
 			array(
 				'lodash',
+				'moment',
 				'react',
 				'react-dom',
 				'wp-i18n',

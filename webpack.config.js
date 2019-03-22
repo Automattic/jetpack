@@ -98,6 +98,7 @@ const webpackConfig = {
 	],
 	externals: [
 		{
+			moment: 'moment',
 			lodash: 'lodash',
 			react: 'React',
 			'react-dom': 'ReactDOM',
