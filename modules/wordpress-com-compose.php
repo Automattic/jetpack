@@ -26,10 +26,8 @@ function jetpack_get_frame_nonce() {
 function jetpack_framing_allowed() {
 	if ( ! empty( $_GET['frame-nonce'] ) && false !== strpos( $_GET['frame-nonce'], '.' ) ) {
 		list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
-		$_GET['token']     = $token;
-		$_GET['signature'] = $signature;
 
-		$verified = Jetpack::init()->verify_xml_rpc_signature();
+		$verified = Jetpack::init()->verify_xml_rpc_signature( $token, $signature );
 
 		if ( $verified ) {
 			if ( ! defined( 'IFRAME_REQUEST' ) ) {
