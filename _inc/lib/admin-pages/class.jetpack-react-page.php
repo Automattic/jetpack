@@ -175,7 +175,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			array( 'wp-i18n' ),
+			array(
+				'lodash',
+				'react',
+				'react-dom',
+				'wp-i18n',
+			),
 			JETPACK__VERSION,
 			true
 		);
