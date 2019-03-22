@@ -5165,17 +5165,20 @@ p {
 		$this->rest_authentication_status = null;
 	}
 
-	function verify_xml_rpc_signature() {
+	function verify_xml_rpc_signature( $token = null, $param_signature = null ) {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
 		}
 
+		$token = ( is_null( $token ) && ! empty( $_GET['token'] ) ) ? $_GET['token'] : $token;
+		$param_signature = ( is_null( $param_signature ) && ! empty( $_GET['signature'] ) ) ? $_GET['signature'] : $param_signature;
+
 		// It's not for us
-		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
+		if ( ! $token || ! $param_signature ) {
 			return false;
 		}
 
-		@list( $token_key, $version, $user_id ) = explode( ':', $_GET['token'] );
+		@list( $token_key, $version, $user_id ) = explode( ':', $token );
 		if (
 			empty( $token_key )
 		||
@@ -5246,7 +5249,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $param_signature ) ) {
 			return false;
 		}
 
