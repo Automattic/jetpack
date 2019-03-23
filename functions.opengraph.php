@@ -325,7 +325,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 	} elseif ( is_author() ) {
 		$author = get_queried_object();
-		if ( is_a( 'WP_User', $author ) ) {
+		if ( is_a( $author, 'WP_User' ) ) {
 			$image['src'] = get_avatar_url(
 				$author->user_email,
 				array(
