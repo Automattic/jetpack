@@ -83,7 +83,7 @@ function jetpack_og_tags() {
 
 		$author = get_queried_object();
 
-		if ( is_a( 'WP_User', $author ) ) {
+		if ( is_a( $author, 'WP_User' ) ) {
 			$tags['og:title'] = $author->display_name;
 			if ( ! empty( $author->user_url ) ) {
 				$tags['og:url'] = $author->user_url;
