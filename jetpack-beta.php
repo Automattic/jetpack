@@ -944,7 +944,7 @@ class Jetpack_Beta {
 					);
 				"\n\n";
 			}
-			if ( $commit_data->files ) {
+			if ( ! empty( $commit_data->files ) ) {
 				$html .= "\n\n";
 				$html .= sprintf( _n( 'One file changed ', '%d files changed',  count( $commit_data->files ), 'jetpack-beta' ), count( $commit_data->files ) );
 				$html .= "\n";
