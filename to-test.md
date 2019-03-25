@@ -1,6 +1,7 @@
 ## 7.2
 
 - Return Visitor block. Add the new Return Visitor block in the block editor and try various options. The visitor count is stored in as the cookie value for `jp-visit-counter`.
+- Post Images: When requesting the post image (used by Related Posts and other functionality), try getting the image for non-post/page CPTs, like attachments. Image attachments should now return a thumbnail.
 
 
 
