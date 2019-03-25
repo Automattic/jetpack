@@ -110,6 +110,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Dashboard: Various text and design improvements to make your administration experience all the better, including:
+** My Plan page is now more useful and actionable for free plans.
 * Post Images: Provide the image itself when requesting an attachment's post image.
 * Widgets: Improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
