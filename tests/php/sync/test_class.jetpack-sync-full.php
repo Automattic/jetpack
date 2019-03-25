@@ -882,7 +882,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );
 	}
 
-	function test_full_sync_TBD() {
+	function test_full_sync_takes_deleted_posts_into_account() {
 		$posts = array();
 		$num_posts = 5;
 		$deleted_post = 2;
@@ -910,6 +910,29 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $post );
 	}
+
+	function test_get_deleted_post_ids() {
+		$posts = array();
+		$num_posts = 5;
+		$deleted_post = 2;
+		for( $i = 0; $i < $num_posts; $i++ ) {
+			$posts[] = $this->factory->post->create();
+		}
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		// Since we don't call regular sync, deleted post never makes it to the replica store
+		wp_delete_post( $posts[2], true );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$deleted_ranges = Jetpack_Sync_Server_Replicator::get_garbage_cached_post_ids(  );
+var_dump( $deleted_ranges );
+		//$this->assertEquals( $expected, $deleted_ranges );
+	}
+
 
 	function test_full_sync_can_sync_individual_comments() {
 		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {

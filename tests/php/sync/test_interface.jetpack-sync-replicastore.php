@@ -1014,37 +1014,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 0, $terms[0]->count );
 	}
 
-	function test_ids_to_deleted_ranges() {
-		/*
-		$ids = array( 1, 4, 5, 7, 8, 11, 12, 20 );
-		$expected = array(
-			array( 2, 3 ),
-			array( 6, 6 ),
-			array( 9, 10 ),
-			array( 13, 19 ),
-		);
-		*/
-		$posts = array();
-		$num_posts = 5;
-		$deleted_post = 2;
-		for( $i = 0; $i < $num_posts; $i++ ) {
-			$posts[] = $this->factory->post->create();
-		}
-
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-
-		// Since we don't call regular sync, deleted post never makes it to the replica store
-		wp_delete_post( $posts[2], true );
-
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-
-		$deleted_ranges = Jetpack_Sync_Server_Replicator::ids_to_deleted_ranges( $ids );
-
-		$this->assertEquals( $expected, $deleted_ranges );
-	}
-
 	public function store_provider( $name ) {
 		if ( ! self::$all_replicastores ) {
 			// detect classes that implement iJetpack_Sync_Replicastore

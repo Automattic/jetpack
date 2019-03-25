@@ -165,7 +165,7 @@ class Jetpack_Sync_Server_Replicator {
 				echo "FROM SERVER REPLICATOR: ";
 				var_dump( $posts );
 
-				$deleted_ids = $this->deletermine_deleted_ids( $posts, 'post' );
+				$deleted_post_ids = $this->get_garbage_cached_post_ids( $posts );
 				foreach ( $posts as $post ) {
 					$this->store->upsert_post( $post, true ); // upsert silently
 				}
@@ -288,11 +288,17 @@ class Jetpack_Sync_Server_Replicator {
 		}
 	}
 
-	static function ids_to_deleted_ranges( $ids ) {
+	static function get_garbage_cached_post_ids( $posts ) {
 		global $wpdb;
+
+		$ids = array();
+		foreach( $posts as $post ) {
+			$ids[] = $post->ID;
+		}
+
 		$first_id = $ids[0];
 		$last_id = $ids[sizeof($ids) - 1];
-
+var_dump( $ids );
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 		"SELECT post_id FROM $wpdb->posts WHERE post_id NOT IN (" . implode( ',', $ids ) . ") AND id >= %d AND id <= %d",
@@ -300,9 +306,6 @@ class Jetpack_Sync_Server_Replicator {
 				$last_id
 			)
 		);
-
-		var_dump( $rows );
-
 	}
 }
 
