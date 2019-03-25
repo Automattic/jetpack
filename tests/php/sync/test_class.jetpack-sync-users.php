@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $user->allcaps['subscriber'] );
 		unset( $user->allcaps['level_0'] );
-		$this->assertEqualsObject( $user, $server_user );
+		$this->assertEqualsObject( $user, $server_user, 'The replicastore user must equal the initial user.' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
 
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
 
-		$this->assertEquals( $synced_user, $retrieved_user );
+		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
 
 	}
 
