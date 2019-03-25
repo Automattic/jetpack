@@ -80,6 +80,13 @@ class Jetpack_Gutenberg {
 	private static $extensions = array();
 
 	/**
+	 * Extensions that are marked as beta in `_inc/blocks/index.json`.
+	 *
+	 * @var array List of beta extensions
+	 */
+	private static $beta_extensions = array();
+
+	/**
 	 * Keeps track of the reasons why a given extension is unavailable.
 	 *
 	 * @var array Extensions availability information
@@ -320,6 +327,7 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
+			self::$beta_extensions = $beta_extensions;
 			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
 		}
 
@@ -358,10 +366,22 @@ class Jetpack_Gutenberg {
 				$reason = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ] : 'missing_module';
 				$available_extensions[ $extension ]['unavailable_reason'] = $reason;
 			}
+
+			if (
+				Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) &&
+				in_array( $extension, self::$beta_extensions ) &&
+				( ! isset( self::$availability[ $extension ] ) || self::$availability[ $extension ] === true )
+			) {
+				// beta extensions should always be available, unless we've explicity marked that extension as unavailable.
+				$available_extensions[ $extension ] = array(
+					'available' => true,
+				);
+			}
 		}
 
 		$unwhitelisted_blocks  = array();
 		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
+
 		foreach ( $all_registered_blocks as $block_name => $block_type ) {
 			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
 				continue;
