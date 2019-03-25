@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Publicize: Remove unused assets, like images and JavaScript that aren't needed anymore.
 * Shortcodes: Remove Lytro service, which closed in March.
+* Stats: Properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
 
 --------
 
