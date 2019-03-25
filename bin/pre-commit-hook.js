@@ -51,10 +51,7 @@ function phpcsFilesToFilter( file ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function filterJsFiles( file ) {
-	return (
-		( file.startsWith( '_inc/client/' ) || file.startsWith( 'extensions/' ) ) &&
-		( file.endsWith( '.js' ) || file.endsWith( '.jsx' ) )
-	);
+	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
 const gitFiles = parseGitDiffToPathArray(
@@ -94,7 +91,7 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const toLint = jsFiles;
+const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
 if ( toLint.length ) {
 	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
 		shell: true,
