@@ -1,5 +1,7 @@
 ## 7.2
 
+- Return Visitor block. Add the new Return Visitor block in the block editor and try various options. The visitor count is stored in as the cookie value for `jp-visit-counter`.
+
 
 
 ### Others
