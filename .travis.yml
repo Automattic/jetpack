@@ -8,9 +8,6 @@ language: php
 
 # Run Matrix for these PHP versions
 php:
-- "5.6"
-- "7.0"
-- "7.2"
 - "7.3"
 
 env:
@@ -20,9 +17,6 @@ env:
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_MODE=single WP_BRANCH=master
-  - WP_MODE=single WP_BRANCH=latest
-  - WP_MODE=single WP_BRANCH=previous
-  - WP_MODE=multi  WP_BRANCH=master
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
