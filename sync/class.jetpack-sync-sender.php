@@ -195,7 +195,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_sync_for_queue( $queue ) {
-
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
 			return new WP_Error( 'empty_queue_' . $queue->id );

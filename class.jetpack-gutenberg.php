@@ -23,6 +23,12 @@ function jetpack_register_block( $slug, $args = array() ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
 	}
+
+	// Checking whether block is registered to ensure it isn't registered twice.
+	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
+		return false;
+	}
+
 	return register_block_type( $slug, $args );
 }
 
@@ -341,7 +347,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
+			$is_available = self::is_registered( 'jetpack/' . $extension ) ||
 			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
 
 			$available_extensions[ $extension ] = array(
@@ -382,6 +388,19 @@ class Jetpack_Gutenberg {
 			)
 		);
 		return array_merge( $available_extensions, $unwhitelisted_blocks, $unwhitelisted_extensions );
+	}
+
+	/**
+	 * Check if an extension/block is already registered
+	 *
+	 * @since 7.2
+	 *
+	 * @param string $slug Name of extension/block to check.
+	 *
+	 * @return bool
+	 */
+	public static function is_registered( $slug ) {
+		return WP_Block_Type_Registry::get_instance()->is_registered( $slug );
 	}
 
 	/**
