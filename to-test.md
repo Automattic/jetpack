@@ -4,6 +4,7 @@
 - Post Images: When requesting the post image (used by Related Posts and other functionality), try getting the image for non-post/page CPTs, like attachments. Image attachments should now return a thumbnail.
 - Sitemaps: With a video hosting plan (e.g. Professional), upload videos and then review the video sitemap. Ensure thumbnails are displayed once VideoPress has processed the video.
 - Ads block: There is now a toggle to hide on mobile devices. With a paid plan with ads enabled, add some blocks, hide some from mobile and give it a spin.
+- All blocks: The block development and building process has moved from Calypso to the Jetpack repo. Add various Jetpack blocks to ensure no hiccups.
 
 
 
