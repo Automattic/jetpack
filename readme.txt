@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Publicize: Remove unused assets, like images and JavaScript that aren't needed anymore.
+* Shortcodes: Update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
 
 --------
 
