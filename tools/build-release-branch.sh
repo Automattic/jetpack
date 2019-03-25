@@ -144,7 +144,11 @@ function create_new_release_branches {
 				"$DIR"/extensions/**/*.scss \
 				"$DIR"/extensions/**/*.svg
 
-			git commit -m ".gitignore cleanup"
+			git commit -m 'Remove undesired files from new release branch
+
+Some files from "working" branches will not be included in the released
+version of the plugin. This commit ignores and removes known files from
+the release branch.'
 
 			git checkout $NEW_UNBUILT_BRANCH
 
