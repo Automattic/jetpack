@@ -25,6 +25,7 @@ jetpack_register_block(
 function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	$dependencies = array(
 		'lodash',
+		'wp-escape-html',
 		'wp-polyfill',
 	);
 

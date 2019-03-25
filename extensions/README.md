@@ -1,40 +1,38 @@
 # Jetpack Block Editor Extensions
 
-This directory lists extensions for the Block Editor, also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
+This directory lists extensions for the Block Editor, also known as Gutenberg,
+[that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
 
 ## Extension Type
 
 We define different types of block editor extensions:
 
-- Blocks are available in the editor itself, and live in the `blocks` directory.
-- Plugins are available in the Jetpack sidebar that appears on the right side of the block editor. Those live in the `plugins` directory.
-
-When adding a new extension, add a new directory for your extension the matching directory.
+- Blocks are available in the editor itself.
+- Plugins are available in the Jetpack sidebar that appears on the right side of the block editor.
 
 ## Extension Structure
 
-Your extension should follow this structure:
+Extensions loosely follow this structure:
 
 ```
 .
-└── blockname/
-	└── blockname.php ← PHP file where the block and its assets are registered.
+└── block-or-plugin-name/
+	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
+	├── editor.js                ← script loaded only in the editor
+	├── editor.scss              ← styles loaded only in the editor
+	├── view.js                  ← script loaded in the editor and theme
+	└── view.scss                ← styles loaded in the editor and theme
 ```
 
 If your block depends on another block, place them all in extensions folder:
 
 ```
 .
-├── blockname/
+├── block-name/
 └── sub-blockname/
 ```
 
-**Note that this directory is still being populated. For now, you can find the blocks [here](https://github.com/Automattic/wp-calypso/tree/master/client/gutenberg/extensions).
-
 ## Develop new blocks
 
-You can follow [the instructions here](../docs/guides/gutenberg-blocks.md) to add your own block to Jetpack.
+Coming when [#11640](https://github.com/Automattic/jetpack/pull/11640) lands.
 
-## Block naming conventions
-
-Blocks should use the `jetpack/` prefix, e.g. `jetpack/markdown`.
