@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* General: Jetpack now requires WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
 * Shortcodes: Update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
 * Sitemaps: Added thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
 
