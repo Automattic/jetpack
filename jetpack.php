@@ -81,7 +81,7 @@ function jetpack_should_use_minified_assets() {
  *
  * @since 7.2.0
  */
-function admin_jetpack_unsupported_wp_notice() { ?>
+function jetpack_admin_unsupported_wp_notice() { ?>
 	<div class="notice notice-error is-dismissible">
 		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.'); ?></p>
 	</div>
@@ -89,7 +89,7 @@ function admin_jetpack_unsupported_wp_notice() { ?>
 }
 
 if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
-	add_action( 'admin_notices', 'admin_jetpack_unsupported_wp_notice' );
+	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
 	return;
 }
 
