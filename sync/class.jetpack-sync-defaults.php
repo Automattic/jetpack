@@ -74,6 +74,7 @@ class Jetpack_Sync_Defaults {
 		'disabled_reblogs',
 		'jetpack_comment_likes_enabled',
 		'twitter_via',
+		'jetpack-memberships-connected-account-id',
 		'jetpack-twitter-cards-site-tag',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
