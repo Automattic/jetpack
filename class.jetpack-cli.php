@@ -1166,6 +1166,72 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Allows uploading SSH Credentials to the current site for backups, restores, and security scanning.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--host=<host>]
+	 * : The SSH server's address.
+	 *
+	 * [--user=<user>]
+	 * : The username to use to log in to the SSH server.
+	 *
+	 * [--pass=<pass>]
+	 * : The password used to log in, if using a password. (optional)
+	 * ---
+	 * default:
+	 * ---
+	 *
+	 * [--kpri=<kpri>]
+	 * : The private key used to log in, if using a private key. (optional)
+	 * ---
+	 * default:
+	 * ---
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call.
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack call_api --resource='/sites/%d'
+	 */
+	public function upload_ssh_creds( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		if ( empty( $named_args['pass'] ) && empty( $named_args['kpri'] ) ) {
+			WP_CLI::error( __( 'Both `pass` and `kpri` fields cannot be blank.', 'jetpack' ) );
+		}
+
+		$values = array(
+			'credentials' => array(
+				'site_url' => '',
+				'abspath'  => ABSPATH,
+				'protocol' => 'ssh',
+				'port'     => 22,
+				'role'     => 'main',
+				'host'     => $named_args['host'],
+				'user'     => $named_args['user'],
+				'pass'     => empty( $named_args['pass'] ) ? null : $named_args['pass'],
+				'kpri'     => empty( $named_args['kpri'] ) ? null : $named_args['kpri'],
+			),
+		);
+
+		$named_args = wp_parse_args( array(
+			'resource'    => '/activity-log/%d/update-credentials',
+			'method'      => 'POST',
+			'api_version' => '1.1',
+			'body'        => json_encode( $values ),
+		), $named_args );
+
+		self::call_api( $args, $named_args );
+	}
+
+	/**
 	 * API wrapper for getting stats from the WordPress.com API for the current site.
 	 *
 	 * ## OPTIONS
