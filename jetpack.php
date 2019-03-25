@@ -55,7 +55,7 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 function jetpack_require_lib_dir() {
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
-add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+
 
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
@@ -75,6 +75,25 @@ function jetpack_should_use_minified_assets() {
 	}
 	return true;
 }
+
+/**
+ * Outputs for an admin notice about running Jetpack on outdated WordPress.
+ *
+ * @since 7.2.0
+ */
+function jetpack_admin_unsupported_wp_notice() { ?>
+	<div class="notice notice-error is-dismissible">
+		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+	</div>
+	<?php
+}
+
+if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
+	return;
+}
+
+add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
