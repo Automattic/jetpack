@@ -23,20 +23,7 @@ const webpackConfig = {
 		rules: [
 			{
 				test: /\.jsx?$/,
-				use: [
-					{
-						loader: 'babel-loader',
-						options: {
-							presets: [ 'es2015', 'stage-1', 'react' ],
-							plugins: [
-								'transform-runtime',
-								'add-module-exports',
-								'transform-es3-member-expression-literals',
-								'transform-export-extensions'
-							]
-						}
-					},
-				],
+				loader: 'babel-loader',
 				// include both typical npm-linked locations and default module
 				// locations to handle both cases
 				include: [
