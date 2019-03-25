@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require( '@babel/register' )( {
-	ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
+	ignore: [ /\/node_modules\/(?!@automattic\/dops-components\/)/ ],
 } );
 
 const program = require( 'commander' ),
