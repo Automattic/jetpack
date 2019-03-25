@@ -88,7 +88,7 @@ abstract class Jetpack_Sync_Module {
 			}
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids );
-
+var_dump( $chunked_ids);
 			$chunk_count    += count( $chunked_ids );
 			$page           += 1;
 			$previous_max_id = end( $ids );

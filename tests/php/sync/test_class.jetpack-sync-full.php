@@ -882,6 +882,35 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );
 	}
 
+	function test_full_sync_TBD() {
+		$posts = array();
+		$num_posts = 5;
+		$deleted_post = 2;
+		for( $i = 0; $i < $num_posts; $i++ ) {
+			$posts[] = $this->factory->post->create();
+		}
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		// Since we don't call regular sync, deleted post never makes it to the replica store
+		wp_delete_post( $posts[2], true );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		for( $i = 0; $i < $num_posts; $i++) {
+			$post = $this->server_replica_storage->get_post( $posts[$i] );
+			if ( $i == $deleted_post ) {
+				$this->assertFalse( $post, 'Post at index ' . $deleted_post . ' should be deleted' );
+			} else {
+				$this->assertNotFalse( $post );
+			}
+		}
+
+		$this->assertFalse( $post );
+	}
+
 	function test_full_sync_can_sync_individual_comments() {
 		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
 			$this->markTestSkipped( 'This test fails in PHP 5.2.' );

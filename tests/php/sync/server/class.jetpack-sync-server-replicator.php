@@ -162,6 +162,10 @@ class Jetpack_Sync_Server_Replicator {
 
 			case 'jetpack_full_sync_posts':
 				list( $posts, $post_metas, $terms ) = $args;
+				echo "FROM SERVER REPLICATOR: ";
+				var_dump( $posts );
+
+				$deleted_ids = $this->deletermine_deleted_ids( $posts, 'post' );
 				foreach ( $posts as $post ) {
 					$this->store->upsert_post( $post, true ); // upsert silently
 				}
@@ -283,4 +287,22 @@ class Jetpack_Sync_Server_Replicator {
 				}
 		}
 	}
+
+	static function ids_to_deleted_ranges( $ids ) {
+		global $wpdb;
+		$first_id = $ids[0];
+		$last_id = $ids[sizeof($ids) - 1];
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+		"SELECT post_id FROM $wpdb->posts WHERE post_id NOT IN (" . implode( ',', $ids ) . ") AND id >= %d AND id <= %d",
+				$first_id,
+				$last_id
+			)
+		);
+
+		var_dump( $rows );
+
+	}
 }
+
