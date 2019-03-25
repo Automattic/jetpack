@@ -110,7 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Post Images: Provide the image itself when requesting an attachment's post image.
 
 **Improved compatibility**
 
