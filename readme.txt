@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Blocks: Fixed an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
 * Publicize: Remove unused assets, like images and JavaScript that aren't needed anymore.
 * Shortcodes: Remove Lytro service, which closed in March.
 * Stats: Properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
