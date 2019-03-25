@@ -52,11 +52,18 @@ function create_release_gitignore {
 	# Add custom stuff to .gitignore release
 	echo "/_inc/client" >> .gitignore
 	# Needs to stay in sync with .svnignore
-	# The quoting is important here so the shell expands the contents producing multiple strings.
-	# .gitignore will not respect the {brace,variations} so we'll produce multiple lines.
-	#
-	#                       ↓ this brace is unquoted. Important!
-	printf "%s\n" "/extensions/**/*."{"css","gif","jpeg","jpg","js","json","jsx","md","png","sass","scss","svg"} >> .gitignore
+	echo "/extensions/**/*.css" >> .gitignore
+	echo "/extensions/**/*.gif" >> .gitignore
+	echo "/extensions/**/*.jpeg" >> .gitignore
+	echo "/extensions/**/*.jpg" >> .gitignore
+	echo "/extensions/**/*.js" >> .gitignore
+	echo "/extensions/**/*.json" >> .gitignore
+	echo "/extensions/**/*.jsx" >> .gitignore
+	echo "/extensions/**/*.md" >> .gitignore
+	echo "/extensions/**/*.png" >> .gitignore
+	echo "/extensions/**/*.sass" >> .gitignore
+	echo "/extensions/**/*.scss" >> .gitignore
+	echo "/extensions/**/*.svg" >> .gitignore
 
 	# Remove old .gitignore
 	rm .gitignore-tmp
