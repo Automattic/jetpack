@@ -31,6 +31,10 @@ class Jetpack_Memberships {
 	 */
 	static public $post_type_plan = 'jp_mem_plan';
 	/**
+	 * @var string Option that will store currently set up account (Stripe etc) id for memberships
+	 */
+	static public $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+	/**
 	 * Button block type to use.
 	 *
 	 * @var string
@@ -244,6 +248,9 @@ class Jetpack_Memberships {
 		return Jetpack_Options::get_option( 'id' );
 	}
 
+	static function get_connected_account_id() {
+		return get_option( self::$connected_account_id_option_name );
+	}
 
 	/**
 	 * Formats the price.
