@@ -341,34 +341,10 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_word_count( $post_content ) {
-		/**
-		 * es_api_word_count is useful to count words in all languages.
-		 * It uses our ES custom analyzers to handle language detection.
-		 */
-		if ( function_exists( 'es_api_word_count' ) ) {
-			$word_count = es_api_word_count( self::clean_text( $post_content ) );
-			if ( false !== $word_count ) {
-				return $word_count;
-			}
-		}
-
-		// Keep str_word_count as fallback, even though it has limitations. See https://github.com/Automattic/jetpack/issues/1656 for example.
 		return str_word_count( self::clean_text( $post_content ) );
 	}
 
 	static function get_word_remaining_count( $post_content, $excerpt_content ) {
-		/**
-		 * es_api_word_count is useful to count words in all languages.
-		 * It uses our ES custom analyzers to handle language detection.
-		 */
-		if ( function_exists( 'es_api_word_count' ) ) {
-			$word_remaining_count = es_api_word_count( self::clean_text( $post_content ) ) - es_api_word_count( self::clean_text( $excerpt_content ) );
-			if ( false !== $word_remaining_count ) {
-				return $word_remaining_count;
-			}
-		}
-
-		// Keep str_word_count as fallback.
 		return str_word_count( self::clean_text( $post_content ) ) - str_word_count( self::clean_text( $excerpt_content ) );
 	}
 
