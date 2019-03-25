@@ -20,39 +20,44 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup() {
-		add_action( 'admin_init', array( $this, 'check_param' ) );
+		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
+
 		if ( 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true ) ) {
-
-			// Masterbar is currently required for this to work properly. Mock the instance of it
-			if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-				$this->mock_masterbar_activation();
-			}
-
-			if ( $this->is_page_gutenberg() ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
-				return;
-			}
-			add_action( 'admin_init', array( $this, 'check_page' ) );
-			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
-			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
-			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
-
-
-			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
-
-			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
-			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
-			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
-
-			if ( 'plugins.php' === basename( $_SERVER['PHP_SELF'] ) ) {
-				add_action( 'admin_notices', array( $this, 'plugins_admin_notices' ) );
-			}
+			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
 		}
+
 		// Make this always available -- in case calypsoify gets toggled off.
 		add_action( 'wp_ajax_jetpack_toggle_autoupdate', array( $this, 'jetpack_toggle_autoupdate' ) );
 		add_filter( 'handle_bulk_actions-plugins', array( $this, 'handle_bulk_actions_plugins' ), 10, 3 );
+	}
+
+	public function setup_admin() {
+		// Masterbar is currently required for this to work properly. Mock the instance of it
+		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
+			$this->mock_masterbar_activation();
+		}
+
+		if ( $this->is_page_gutenberg() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
+			return;
+		}
+
+		add_action( 'admin_init', array( $this, 'check_page' ) );
+		add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
+		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
+		add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
+
+		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
+
+		add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+		add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+
+		if ( 'plugins.php' === basename( $_SERVER['PHP_SELF'] ) ) {
+			add_action( 'admin_notices', array( $this, 'plugins_admin_notices' ) );
+		}
 	}
 
 	public function manage_plugins_columns_header( $columns ) {
