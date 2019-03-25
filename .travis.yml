@@ -23,19 +23,6 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=latest
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=previous
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
   - language: node_js
     env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
