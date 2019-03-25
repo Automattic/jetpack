@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Publicize: Remove unused assets, like images and JavaScript that aren't needed anymore.
+* Shortcodes: Remove Lytro service, which closed in March.
 
 --------
 
