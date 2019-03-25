@@ -53,7 +53,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'deleted_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
 
 		// user authentication
-		add_action( 'wp_login', $callable, 10, 2 );
+		add_filter( 'authenticate', array( $this, 'authenticate_handler' ), 1000, 3 );
+		add_action( 'wp_login', array( $this, 'wp_login_handler' ), 10, 2 );
+
+		add_action( 'jetpack_wp_login', $callable, 10, 3 );
+		add_action( 'jetpack_wp_login', array( $this, 'clear_flags' ), 11 );
+
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 
@@ -69,7 +74,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 
-		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
+		add_filter( 'jetpack_sync_before_send_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
 		// full sync
@@ -141,12 +146,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		return false;
 	}
-
+    
 	public function expand_login_username( $args ) {
-		list( $login, $user ) = $args;
-		$user                 = $this->sanitize_user( $user );
+		list( $login, $user, $flags ) = $args;
+		$user                         = $this->sanitize_user( $user );
 
-		return array( $login, $user );
+		return array( $login, $user, $flags );
 	}
 
 	public function expand_logout_username( $args, $user_id ) {
@@ -163,6 +168,66 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		return array( $login, $user );
+	}
+
+    /**
+     * Additional processing is needed for wp_login so we introduce this wrapper
+     * handler.
+     *
+     * @param String  $user_login the user login.
+     * @param WP_User $user       the user object.
+     */
+     function wp_login_handler( $user_login, $user ) {
+		/**
+		 * Fires when a user is logged into a site.
+		 *
+		 * @since 7.2.0
+		 *
+		 * @param Numeric $user_id The user ID.
+         * @param Array   $params  Additional event parameters.
+		 */
+        do_action( 'jetpack_wp_login', $user->ID, $user, $this->get_flags( $user->ID ) );
+	}
+
+	/**
+	 * A hook for the authenticate event that checks the password strength.
+	 *
+	 * @param WP_Error|WP_User $user     the user object, or an error.
+	 * @param String           $username the username.
+	 * @param Sting            $password the password used to authenticate.
+	 * @return WP_Error|WP_User the same object that was passed into the function.
+	 */
+	public function authenticate_handler( $user, $username, $password ) {
+		jetpack_require_lib( 'class.jetpack-password-checker' );
+
+        // In case of cookie authentication we don't do anything here.
+        if ( empty( $password ) ) {
+            return $user;
+        }
+
+		// We are only interested in successful authentication events.
+		if ( is_wp_error( $user ) || ! ( $user instanceof WP_User ) ) {
+			return $user;
+		}
+
+		$password_checker = new Jetpack_Password_Checker( $user->ID );
+
+		$test_results = $password_checker->test( $password, true );
+
+		// If the password passes tests, we don't do anything.
+		if ( empty( $test_results['test_results']['failed'] ) ) {
+			return $user;
+		}
+
+        $this->add_flags(
+            $user->ID,
+            array(
+                'warning'          => 'The password failed at least one strength test.',
+                'failures'         => $test_results['test_results']['failed'],
+            )
+        );
+
+		return $user;
 	}
 
 	public function deleted_user_handler( $deleted_user_id, $reassigned_user_id = '' ) {

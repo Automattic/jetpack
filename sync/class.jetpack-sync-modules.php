@@ -15,7 +15,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-network-options.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-auth.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-menus.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-attachments.php';
@@ -37,7 +36,6 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Themes',
 		'Jetpack_Sync_Module_Menus',
 		'Jetpack_Sync_Module_Users',
-		'Jetpack_Sync_Module_Auth',
 		'Jetpack_Sync_Module_Posts',
 		'Jetpack_Sync_Module_Import',
 		'Jetpack_Sync_Module_Protect',
