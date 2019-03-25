@@ -53,7 +53,8 @@ function create_release_gitignore {
 	echo "/_inc/client" >> .gitignore
 	echo "/docker/" >> .gitignore
 
-	# Needs to stay in sync with .svnignore
+	# Needs to stay in sync with .svnignore and `create_new_release_branches` in this file.
+	echo "__snapshots__/" >> .gitignore
 	echo "/extensions/**/*.css" >> .gitignore
 	echo "/extensions/**/*.gif" >> .gitignore
 	echo "/extensions/**/*.jpeg" >> .gitignore
@@ -66,7 +67,6 @@ function create_release_gitignore {
 	echo "/extensions/**/*.sass" >> .gitignore
 	echo "/extensions/**/*.scss" >> .gitignore
 	echo "/extensions/**/*.svg" >> .gitignore
-	echo "__snapshots__/" >> .gitignore
 
 	# Remove old .gitignore
 	rm .gitignore-tmp
@@ -128,8 +128,22 @@ function create_new_release_branches {
 			# Remove stuff from svnignore
 			modify_svnignore
 
-			git rm -r --cached .
-			git add .
+			# Should stay in sync with .svnignore and `create_release_gitignore` in this file.
+			git rm -fr --ignore-unmatch         \
+				"$DIR"/**/__snapshots__     \
+				"$DIR"/extensions/**/*.css  \
+				"$DIR"/extensions/**/*.gif  \
+				"$DIR"/extensions/**/*.jpeg \
+				"$DIR"/extensions/**/*.jpg  \
+				"$DIR"/extensions/**/*.js   \
+				"$DIR"/extensions/**/*.json \
+				"$DIR"/extensions/**/*.jsx  \
+				"$DIR"/extensions/**/*.md   \
+				"$DIR"/extensions/**/*.png  \
+				"$DIR"/extensions/**/*.sass \
+				"$DIR"/extensions/**/*.scss \
+				"$DIR"/extensions/**/*.svg
+
 			git commit -m ".gitignore cleanup"
 
 			git checkout $NEW_UNBUILT_BRANCH
