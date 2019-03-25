@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require( 'babel-register' )( {
+require( '@babel/register' )( {
 	ignore: /\/node_modules\/(?!@automattic\/dops-components\/)/
 } );
 
