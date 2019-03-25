@@ -64,6 +64,7 @@ function create_release_gitignore {
 	echo "/extensions/**/*.sass" >> .gitignore
 	echo "/extensions/**/*.scss" >> .gitignore
 	echo "/extensions/**/*.svg" >> .gitignore
+	echo "__snapshots__/" >> .gitignore
 
 	# Remove old .gitignore
 	rm .gitignore-tmp
