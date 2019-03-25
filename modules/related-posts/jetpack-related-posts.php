@@ -1318,7 +1318,7 @@ EOT;
 			}
 
 			if ( ! empty( $img_url ) ) {
-				if ( isset( $image_params['alt_text'] ) ) {
+				if ( ! empty( $post_image['alt_text'] ) ) {
 					$image_params['alt_text'] = $post_image['alt_text'];
 				} else {
 					$image_params['alt_text'] = '';
