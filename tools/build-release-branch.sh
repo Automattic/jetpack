@@ -57,7 +57,7 @@ function create_release_gitignore {
     # .gitignore will not respect the {brace,variations} so we'll produce multiple lines.
     #
     #                       ↓ this brace is unquoted. Important!
-    printf "%s\n" "/extensions/**/*."{"js","jsx","json","gif","png","css","jpg","jpeg","sass","scss","svg"} >> .gitignore
+    printf "%s\n" "/extensions/**/*."{"css","gif","jpeg","jpg","js","json","jsx","md","png","sass","scss","svg"} >> .gitignore
 
     # Remove old .gitignore
     rm .gitignore-tmp
