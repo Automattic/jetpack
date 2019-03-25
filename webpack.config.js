@@ -26,15 +26,6 @@ const webpackConfig = {
 				use: [
 					{
 						loader: 'babel-loader',
-						options: {
-							presets: [ 'es2015', 'stage-1', 'react' ],
-							plugins: [
-								'transform-runtime',
-								'add-module-exports',
-								'transform-es3-member-expression-literals',
-								'transform-export-extensions'
-							]
-						}
 					},
 				],
 				// include both typical npm-linked locations and default module

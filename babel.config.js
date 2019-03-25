@@ -8,14 +8,14 @@ const config = {
 				useBuiltIns: 'entry',
 			},
 		],
-		'@babel/preset-react'
+		'@babel/react'
 	],
 	plugins: [
-		'@babel/plugin-proposal-class-properties',
-		'@babel/plugin-transform-reserved-words',
+		'@babel/proposal-class-properties',
 		'@babel/transform-runtime',
-		'transform-member-expression-literals',
-		'transform-property-literals',
+		'@babel/transform-member-expression-literals',
+		'@babel/transform-property-literals',
+		'@babel/transform-reserved-words',
 	]
 };
 
