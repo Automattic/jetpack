@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.3.1
+ * Version: 2.3.2
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -944,7 +944,7 @@ class Jetpack_Beta {
 					);
 				"\n\n";
 			}
-			if ( $commit_data->files ) {
+			if ( ! empty( $commit_data->files ) ) {
 				$html .= "\n\n";
 				$html .= sprintf( _n( 'One file changed ', '%d files changed',  count( $commit_data->files ), 'jetpack-beta' ), count( $commit_data->files ) );
 				$html .= "\n";
