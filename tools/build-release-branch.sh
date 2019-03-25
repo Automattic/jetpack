@@ -128,28 +128,6 @@ function create_new_release_branches {
 			# Remove stuff from svnignore
 			modify_svnignore
 
-			# Should stay in sync with .svnignore and `create_release_gitignore` in this file.
-			git rm -fr --ignore-unmatch         \
-				"$DIR"/**/__snapshots__     \
-				"$DIR"/extensions/**/*.css  \
-				"$DIR"/extensions/**/*.gif  \
-				"$DIR"/extensions/**/*.jpeg \
-				"$DIR"/extensions/**/*.jpg  \
-				"$DIR"/extensions/**/*.js   \
-				"$DIR"/extensions/**/*.json \
-				"$DIR"/extensions/**/*.jsx  \
-				"$DIR"/extensions/**/*.md   \
-				"$DIR"/extensions/**/*.png  \
-				"$DIR"/extensions/**/*.sass \
-				"$DIR"/extensions/**/*.scss \
-				"$DIR"/extensions/**/*.svg
-
-			git commit -m 'Remove undesired files from new release branch
-
-Some files from "working" branches will not be included in the released
-version of the plugin. This commit ignores and removes known files from
-the release branch.'
-
 			git checkout $NEW_UNBUILT_BRANCH
 
 			git push -u origin $NEW_BUILT_BRANCH
