@@ -11,11 +11,11 @@ const config = {
 		'@babel/react'
 	],
 	plugins: [
-		'@babel/plugin-proposal-class-properties',
+		'@babel/proposal-class-properties',
 		'@babel/transform-runtime',
-		'transform-member-expression-literals',
-		'transform-property-literals',
-		'transform-reserved-words',
+		'@babel/transform-member-expression-literals',
+		'@babel/transform-property-literals',
+		'@babel/transform-reserved-words',
 	]
 };
 
