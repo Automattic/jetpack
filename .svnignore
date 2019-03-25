@@ -40,7 +40,6 @@ _inc/build/maps
 yarn.lock
 docker
 bin/pre-commit-hook.js
-bin/travis_install.sh
 yarn-error.log
 extensions/**/*.css
 extensions/**/*.gif
