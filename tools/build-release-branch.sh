@@ -51,6 +51,8 @@ function create_release_gitignore {
 
 	# Add custom stuff to .gitignore release
 	echo "/_inc/client" >> .gitignore
+	echo "/docker/" >> .gitignore
+
 	# Needs to stay in sync with .svnignore
 	echo "/extensions/**/*.css" >> .gitignore
 	echo "/extensions/**/*.gif" >> .gitignore
