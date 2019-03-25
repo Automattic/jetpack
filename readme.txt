@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Post Images: Provide the image itself when requesting an attachment's post image.
+* Widgets: Improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
 **Improved compatibility**
 
