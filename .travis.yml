@@ -23,8 +23,6 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  - language: node_js
-    env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
