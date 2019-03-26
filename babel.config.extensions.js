@@ -4,8 +4,7 @@ const config = {
 			'@babel/env',
 			{
 				useBuiltIns: 'entry',
-				// allows es7 features like Promise.prototype.finally
-				shippedProposals: true,
+				corejs: 2,
 				// Exclude transforms that make all code slower, see https://github.com/facebook/create-react-app/pull/5278
 				exclude: [ 'transform-typeof-symbol' ],
 			},
