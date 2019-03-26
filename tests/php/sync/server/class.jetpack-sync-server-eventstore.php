@@ -1,5 +1,7 @@
 <?php
 
+$dir_modules = dirname( __FILE__ ) . '/../../../modules/';
+
 /**
  * Just stores a buffer of received events
  */
