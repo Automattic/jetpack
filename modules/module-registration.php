@@ -715,7 +715,6 @@ jetpack_register_module(
 		),
 		'feature' => array(
 			_x( 'Recommended', 'Feature', 'jetpack' ),
-			_x( 'Jumpstart', 'Feature', 'jetpack' ),
 		),
 		'additional_search_queries' => 'sitemap, traffic, search, site map, seo',
 	) 
