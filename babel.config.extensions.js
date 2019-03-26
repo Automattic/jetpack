@@ -25,27 +25,20 @@ const config = {
 				useESModules: false,
 			},
 		],
-	],
-	overrides: [
-		{
-			test: './src',
-			plugins: [
-				[
-					'@wordpress/import-jsx-pragma',
-					{
-						scopeVariable: 'createElement',
-						source: '@wordpress/element',
-						isDefault: false,
-					},
-				],
-				[
-					'@babel/transform-react-jsx',
-					{
-						pragma: 'createElement',
-					},
-				],
-			],
-		},
+		[
+			'@wordpress/import-jsx-pragma',
+			{
+				scopeVariable: 'createElement',
+				source: '@wordpress/element',
+				isDefault: false,
+			},
+		],
+		[
+			'@babel/transform-react-jsx',
+			{
+				pragma: 'createElement',
+			},
+		],
 	],
 	env: {
 		test: {
