@@ -1232,7 +1232,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );
 	}
 
-	function test_full_sync_sends_previous_min_id_on_posts() {
+	function test_full_sync_sends_previous_interval_endpoint_on_posts() {
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		$this->factory->post->create_many( 25 );
@@ -1252,7 +1252,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $previous_interval_endpoint, '~0' );
 
 		// Since posts are order by id and the ids are in decending order
-		// the very last post should be the id with the smallest ID. (Previous_Min_ID)
+		// the very last post should be the id with the smallest ID. ( previous_interval_endpoint )
 		$last_post = end( $posts );
 
 		$this->full_sync->continue_enqueuing();
@@ -1273,7 +1273,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
-	function test_full_sync_sends_previous_min_id_on_comments() {
+	function test_full_sync_sends_previous_interval_endpoint_on_comments() {
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 		$this->post_id = $this->factory->post->create();
 		for( $i = 0; $i < 25; $i++ ) {

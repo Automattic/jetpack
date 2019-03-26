@@ -122,8 +122,7 @@ class Jetpack_Sync_Listener {
 	 * Bulk add action to the queue.
 	 *
 	 * @param $action_name String the name the full sync action.
-	 * @param $args_array Array of Ids
-	 * @param $previous_interval_endpoint String
+	 * @param $args_array Array of chunked arguments
 	 */
 	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
 		$queue = $this->get_full_sync_queue();

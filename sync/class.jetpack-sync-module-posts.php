@@ -413,7 +413,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function expand_post_ids( $args ) {
-		list( $post_ids, $previous_min_id ) = $args;
+		list( $post_ids, $previous_interval_endpoint ) = $args;
 
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
@@ -423,7 +423,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$posts,
 			$this->get_metadata( $post_ids, 'post', Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ),
 			$this->get_term_relationships( $post_ids ),
-			$previous_min_id
+			$previous_interval_endpoint
 		);
 	}
 }
