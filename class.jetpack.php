@@ -517,6 +517,7 @@ class Jetpack {
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function __construct() {
+	    jetpack_require_lib( 'class.jetpack-registry' );
 		$this->module_registration = new Jetpack_Registry( 'Jetpack_Module' );
 		/*
 		 * Check for and alert any deprecated hooks

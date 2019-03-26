@@ -2,8 +2,8 @@
 
 $jetpack_dir = dirname( __FILE__ ) . '/../../';
 
-require_once $jetpack_dir . 'class.jetpack-registry.php';
-require_once $jetpack_dir . 'class.jetpack-module.php';
+require_once $jetpack_dir . '_inc/lib/class.jetpack-registry.php';
+require_once $jetpack_dir . '_inc/lib/class.jetpack-module.php';
 require_once $jetpack_dir . 'modules/module-registration.php';
 
 class WP_Test_Jetpack_Module_Registration extends WP_UnitTestCase {
@@ -13,7 +13,6 @@ class WP_Test_Jetpack_Module_Registration extends WP_UnitTestCase {
 	public function setUp() {
 		$this->registry = Jetpack::init()->get_module_registry();
 	}
-
 
 	function test_jetpack_get_available_modules_same_as_get_all() {
 		$jetpack_modules = Jetpack::get_available_modules();

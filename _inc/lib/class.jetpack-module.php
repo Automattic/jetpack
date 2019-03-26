@@ -25,8 +25,8 @@ class Jetpack_Module implements iJetpack_Item {
 	public $additional_search_queries;  // Additional Search Queries
 	public $plan_classes;               // Plans
 
-	public function __construct( $key, $args = array() ) {
-		$this->slug = $key;
+	public function __construct( $name, $args ) {
+		$this->slug = $name;
 		$this->set_props( $args );
 	}
 
