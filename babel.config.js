@@ -8,7 +8,7 @@ const config = {
 				useBuiltIns: 'entry',
 			},
 		],
-		'@babel/react'
+		'@babel/react',
 	],
 	plugins: [
 		'@babel/proposal-class-properties',
@@ -16,7 +16,8 @@ const config = {
 		'@babel/transform-member-expression-literals',
 		'@babel/transform-property-literals',
 		'@babel/transform-reserved-words',
-	]
+		'add-module-exports',
+	],
 };
 
 module.exports = config;
