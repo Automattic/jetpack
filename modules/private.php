@@ -237,6 +237,8 @@ class Jetpack_Private {
 			return;
 		}
 
+		// These two ajax actions relate to wp_ajax_wp_link_ajax() and wp_ajax_find_posts()
+		// They are needed for users with admin capabilities in in wp-admin.
 		if ( 'find-posts' !== $action && 'internal-linking' !== $action ) {
 			return;
 		}
