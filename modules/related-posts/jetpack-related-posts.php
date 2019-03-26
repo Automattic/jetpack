@@ -784,7 +784,7 @@ EOT;
 	/**
 	 * Gets an array of related posts that match the given post_id.
 	 *
-	 * @param int $post_id
+	 * @param int   $post_id Post which we want to find related posts for.
 	 * @param array $args - params to use when building Elasticsearch filters to narrow down the search domain.
 	 * @uses self::get_options, get_post_type, wp_parse_args, apply_filters
 	 * @return array
@@ -796,19 +796,23 @@ EOT;
 			$options['size'] = $args['size'];
 		}
 
-		if ( 0 === (int) $post_id || empty( $options['size'] ) ) {
+		if (
+			! $options['enabled']
+			|| 0 === (int) $post_id
+			|| empty( $options['size'] )
+		) {
 			return array();
 		}
 
 		$defaults = array(
-			'size' => (int)$options['size'],
-			'post_type' => get_post_type( $post_id ),
-			'post_formats' => array(),
-			'has_terms' => array(),
-			'date_range' => array(),
+			'size'             => (int) $options['size'],
+			'post_type'        => get_post_type( $post_id ),
+			'post_formats'     => array(),
+			'has_terms'        => array(),
+			'date_range'       => array(),
 			'exclude_post_ids' => array(),
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 		/**
 		 * Filter the arguments used to retrieve a list of Related Posts.
 		 *
