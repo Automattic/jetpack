@@ -1242,8 +1242,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+		list( $posts, $meta, $taxonomy, $previous_min_id) = $event->args;
+		$this->assertEquals( $previous_min_id, '~0' );
+		$last_post = end( $posts );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
 
-		$this->assetEquals( $event->args[3], '~0');
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+		list( $second_batch_posts, $meta, $taxonomy, $previous_min_id) = $event->args;
+
+		$this->assertEquals( intval( $previous_min_id ), $last_post->ID );
 	}
 
 	function test_full_sync_sends_previous_min_id_on_comments() {
