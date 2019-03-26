@@ -16,10 +16,10 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
-"@automattic/jetpack-blocks@14.0.0":
-  version "14.0.0"
-  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-14.0.0.tgz#80bb9091fae2935a35e479cf557ee2b4f635eb89"
-  integrity sha512-dJVqJa8+BXTA3Gm1uwew8fmlQycFwb8vaxG3Uld0Hviabedv1VcHivGN+deTnsANl3dtYe1b3yJBmCSta92U6A==
+"@automattic/jetpack-blocks@15.0.0":
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/jetpack-blocks/-/jetpack-blocks-15.0.0.tgz#ac74ee8f883a9e6fab6a608893ce1a15cb075c82"
+  integrity sha512-Nx9Uzr/YNhSM96hxi6NWSOrrioxodjVCik1joVg8LpFl+/fdy4TAwJWlC14syjzGjdHoT+KEfLwj6374nCiyCQ==
   dependencies:
     "@automattic/format-currency" "1.0.0-alpha.0"
     "@wordpress/api-fetch" "2.2.8"
