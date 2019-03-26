@@ -1,6 +1,7 @@
 /** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 export default class Section extends React.Component {
 	static displayName = 'Section';

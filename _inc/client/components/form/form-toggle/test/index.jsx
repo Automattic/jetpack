@@ -1,16 +1,20 @@
 /**
  * External dependencies
  */
-const assert = require( 'assert' ),
-	React = require( 'react' ),
-	ReactDOM = require( 'react-dom' ),
-	TestUtils = ReactDOM.TestUtils,
-	unique = require( 'lodash/uniq' );
+import assert from 'assert';
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import unique from 'lodash/uniq';
+/**
+ * External dependencies
+ */
+const TestUtils = ReactDOM.TestUtils;
 
 /**
  * Internal dependencies
  */
-const CompactFormToggle = require( 'components/forms/form-toggle/compact' );
+import CompactFormToggle from 'components/forms/form-toggle/compact';
 
 require( 'lib/react-test-env-setup' )();
 

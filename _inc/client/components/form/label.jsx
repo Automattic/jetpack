@@ -1,7 +1,8 @@
 /** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 export default class Label extends React.Component {
 	static displayName = 'Label';

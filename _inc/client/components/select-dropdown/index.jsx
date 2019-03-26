@@ -21,7 +21,7 @@ import DropdownSeparator from 'components/select-dropdown/separator';
 import DropdownLabel from 'components/select-dropdown/label';
 import Count from 'components/count';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables

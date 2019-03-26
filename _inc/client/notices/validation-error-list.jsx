@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	map = require( 'lodash/map' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import map from 'lodash/map';
 import { translate as __ } from 'i18n-calypso';
 
 export default class ValidationErrorList extends React.Component {

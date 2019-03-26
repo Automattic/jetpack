@@ -1,5 +1,5 @@
 /** External Dependencies **/
-const React = require( 'react' );
+import React from 'react';
 
 export default class Row extends React.Component {
 	static displayName = 'Row';

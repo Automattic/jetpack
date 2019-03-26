@@ -11,7 +11,7 @@ import classnames from 'classnames';
 import Popover from 'components/popover';
 import viewport from 'lib/viewport';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables

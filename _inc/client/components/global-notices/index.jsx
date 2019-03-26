@@ -17,7 +17,7 @@ import { removeNotice } from './state/notices/actions';
 
 const debug = debugModule( 'calypso:notices' );
 
-require( './style.scss' );
+import './style.scss';
 
 class NoticesList extends React.Component {
 	static displayName = 'NoticesList';

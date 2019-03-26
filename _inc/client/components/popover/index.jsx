@@ -23,7 +23,7 @@ import {
 	offset,
 } from './util';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables

@@ -14,7 +14,7 @@ import classNames from 'classnames';
  */
 import Popover from 'components/popover';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class FormToggle extends Component {
 	static propTypes = {

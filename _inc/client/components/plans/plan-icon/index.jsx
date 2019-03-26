@@ -27,7 +27,7 @@ import {
 	getPlanClass,
 } from 'lib/plans/constants';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class PlanIcon extends Component {
 	getIconClassNames( iconClass = '' ) {

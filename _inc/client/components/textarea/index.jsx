@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	classnames = require( 'classnames' ),
-	omit = require( 'lodash/omit' );
+import React from 'react';
 
-require( './style.scss' );
+import classnames from 'classnames';
+import omit from 'lodash/omit';
+import './style.scss';
 
 export default class Textarea extends React.Component {
 	static displayName = 'Textarea';

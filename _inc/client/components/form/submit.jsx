@@ -1,8 +1,8 @@
 /** External Dependencies **/
-const React = require( 'react' );
+import React from 'react';
 
 /** Internal Dependencies **/
-const Button = require( '../button' );
+import Button from '../button';
 
 export default class Submit extends React.Component {
 	static displayName = 'Submit';

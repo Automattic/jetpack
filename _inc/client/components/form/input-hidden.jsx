@@ -1,9 +1,9 @@
 /** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	Formsy = require( 'formsy-react' );
+import PropTypes from 'prop-types';
 
-const createReactClass = require( 'create-react-class' );
+import React from 'react';
+import Formsy from 'formsy-react';
+import createReactClass from 'create-react-class';
 
 module.exports = createReactClass( {
 	displayName: 'HiddenInput',

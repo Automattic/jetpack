@@ -3,14 +3,15 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-const Count = require( 'components/count' );
+import Count from 'components/count';
 
 class SelectDropdownItem extends React.Component {
 	static propTypes = {

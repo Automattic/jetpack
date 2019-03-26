@@ -17,7 +17,7 @@ import Spinner from 'components/spinner';
 import Gridicon from 'components/gridicon';
 import { isMobile } from 'lib/viewport';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Internal variables

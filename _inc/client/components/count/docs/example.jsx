@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' );
+import React from 'react';
 
-const createReactClass = require( 'create-react-class' );
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
  */
-const Count = require( 'components/count' );
+import Count from 'components/count';
 
 module.exports = createReactClass( {
 	displayName: 'Count',

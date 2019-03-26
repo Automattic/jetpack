@@ -1,17 +1,19 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' );
-const classnames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classnames from 'classnames';
 import assign from 'lodash/assign';
 import omit from 'lodash/omit';
+
 /**
  * Internal dependencies
  */
-const Gridicon = require( '../gridicon' );
+import Gridicon from '../gridicon';
 
-require( './style.scss' );
+import './style.scss';
 
 class CardSection extends React.Component {
 	static propTypes = {

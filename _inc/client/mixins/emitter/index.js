@@ -6,8 +6,9 @@
 // load the module from `node_modules/` instead of the core’s `events.js`
 // file. Webpack uses the same module on the client side, too, which
 // makes for a nice consistency.
-const EventEmitter = require( 'events/' ).EventEmitter,
-	assign = require( 'lodash/assign' );
+import { EventEmitter } from 'events/';
+
+import assign from 'lodash/assign';
 
 module.exports = function( prototype ) {
 	assign( prototype, EventEmitter.prototype );
