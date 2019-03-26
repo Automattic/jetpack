@@ -1266,6 +1266,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
 		list( $third_batch_posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
 		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
+
+		$this->full_sync->reset_data();
 	}
 
 	function test_full_sync_sends_previous_min_id_on_comments() {
@@ -1302,6 +1304,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
 		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
 
+		$this->full_sync->reset_data(); 
 	}
 
 	function _do_cron() {
