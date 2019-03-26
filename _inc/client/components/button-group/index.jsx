@@ -4,7 +4,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class ButtonGroup extends React.Component {
 	static displayName = 'ButtonGroup';

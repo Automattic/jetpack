@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-const debug = require( 'debug' )( 'dops:analytics' ),
-	assign = require( 'lodash/assign' );
+import debugFactory from 'debug';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
  */
-const config = require( 'config' );
+import config from 'config';
+
+const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
 
 // Load tracking scripts

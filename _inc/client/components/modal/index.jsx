@@ -3,14 +3,16 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	ReactDOM = require( 'react-dom' ),
-	classNames = require( 'classnames' ),
-	assign = require( 'lodash/assign' ),
-	omit = require( 'lodash/omit' );
-
-const focusTrap = require( 'focus-trap' );
+/**
+ * External Dependencies
+ */
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import classNames from 'classnames';
+import assign from 'lodash/assign';
+import omit from 'lodash/omit';
+import focusTrap from 'focus-trap';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -19,7 +21,7 @@ const focusTrap = require( 'focus-trap' );
 // this is for important processes that must not be interrupted, e.g. payments
 let preventCloseFlag = false;
 
-require( './style.scss' );
+import './style.scss';
 
 function preventClose() {
 	preventCloseFlag = true;

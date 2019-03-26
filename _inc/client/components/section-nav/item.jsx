@@ -3,17 +3,17 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
 
-const createReactClass = require( 'create-react-class' );
+import React from 'react';
+import PureRenderMixin from 'react-pure-render/mixin';
+import classNames from 'classnames';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal Dependencies
  */
-const Count = require( 'components/count' );
+import Count from 'components/count';
 
 /**
  * Main

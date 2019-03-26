@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const ReactDom = require( 'react-dom' ),
-	React = require( 'react' );
+import PropTypes from 'prop-types';
+
+import ReactDom from 'react-dom';
+import React from 'react';
 
 /**
  * Internal dependencies
  */
-const Popover = require( 'components/popover' );
+import Popover from 'components/popover';
 
 class PopoverMenu extends React.Component {
 	static propTypes = {

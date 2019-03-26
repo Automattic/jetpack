@@ -1,24 +1,27 @@
-/** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	isArray = require( 'lodash/isArray' ),
-	Formsy = require( 'formsy-react' );
+/**
+ * External Dependencies
+ */
+import PropTypes from 'prop-types';
+import React from 'react';
+import isArray from 'lodash/isArray';
+import Formsy from 'formsy-react';
 
-/** Internal Dependencies **/
-const ActionBar = require( './action-bar' ),
-	Section = require( './section' ),
-	Row = require( './row' ),
-	Label = require( './label' ),
-	TextInput = require( './input-text' ),
-	RadioInput = require( './input-radio' ),
-	CheckboxInput = require( './input-checkbox' ),
-	MultiCheckboxInput = require( './input-checkbox-multiple' ),
-	SelectInput = require( './input-select' ),
-	CountrySelect = require( './input-select-country' ),
-	HiddenInput = require( './input-hidden' ),
-	Submit = require( './submit' );
-
-require( './style.scss' );
+/**
+ * Internal Dependencies
+ */
+import ActionBar from './action-bar';
+import Section from './section';
+import Row from './row';
+import Label from './label';
+import TextInput from './input-text';
+import RadioInput from './input-radio';
+import CheckboxInput from './input-checkbox';
+import MultiCheckboxInput from './input-checkbox-multiple';
+import SelectInput from './input-select';
+import CountrySelect from './input-select-country';
+import HiddenInput from './input-hidden';
+import Submit from './submit';
+import './style.scss';
 
 // very thin wrapper for Formsy.Form
 class Form extends React.Component {

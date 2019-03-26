@@ -12,7 +12,7 @@ import omit from 'lodash/omit';
 import ClipboardButton from 'components/form/clipboard-button';
 import TextInput from 'components/text-input';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class ClipboardButtonInput extends React.Component {
 	static displayName = 'ClipboardButtonInput';

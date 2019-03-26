@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const ReactDom = require( 'react-dom' ),
-	React = require( 'react' ),
-	Clipboard = require( 'clipboard' ),
-	omit = require( 'lodash/omit' ),
-	noop = require( 'lodash/noop' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import ReactDom from 'react-dom';
+import React from 'react';
+import Clipboard from 'clipboard';
+import omit from 'lodash/omit';
+import noop from 'lodash/noop';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies

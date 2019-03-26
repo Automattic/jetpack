@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 export default class ModuleChartLabel extends React.Component {
 	static displayName = 'ModuleChartLabel';

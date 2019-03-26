@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-const debug = require( 'debug' )( 'calypso:url-search' ),
-	page = require( 'page' );
+import debugFactory from 'debug';
+import page from 'page';
 
 /**
  * Internal dependencies
  */
-const buildUrl = require( './build-url' );
+import buildUrl from './build-url';
+
+const debug = debugFactory( 'calypso:url-search' );
 
 module.exports = {
 	getInitialState: function() {

@@ -8,7 +8,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 
-require( './style.scss' );
+import './style.scss';
 
 export default createReactClass( {
 	displayName: 'Count',

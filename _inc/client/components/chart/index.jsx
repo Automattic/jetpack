@@ -1,18 +1,19 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PropTypes = require( 'prop-types' ),
-	noop = require( 'lodash/noop' ),
-	throttle = require( 'lodash/throttle' );
+import React from 'react';
+
+import PropTypes from 'prop-types';
+import noop from 'lodash/noop';
+import throttle from 'lodash/throttle';
 
 /**
  * Internal dependencies
  */
-const BarContainer = require( './bar-container' ),
-	touchDetect = require( 'lib/touch-detect' );
+import BarContainer from './bar-container';
 
-require( './style.scss' );
+import touchDetect from 'lib/touch-detect';
+import './style.scss';
 
 export default class ModuleChart extends React.Component {
 	static displayName = 'ModuleChart';

@@ -3,18 +3,19 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' );
+import React from 'react';
 
-const createReactClass = require( 'create-react-class' );
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
  */
-const ButtonGroup = require( 'components/button-group' ),
-	Button = require( 'components/button' ),
-	Card = require( 'components/card' ),
-	Gridicon = require( 'components/gridicon' );
+import ButtonGroup from 'components/button-group';
+
+import Button from 'components/button';
+import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 
 const Buttons = createReactClass( {
 	displayName: 'ButtonGroup',

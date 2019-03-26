@@ -6,7 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import noop from 'lodash/noop';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class Button extends React.Component {
 	static displayName = 'Button';

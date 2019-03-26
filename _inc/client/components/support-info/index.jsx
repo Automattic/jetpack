@@ -12,7 +12,7 @@ import analytics from 'lib/analytics';
 import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class SupportInfo extends Component {
 	static propTypes = {

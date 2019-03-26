@@ -3,15 +3,17 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-const Tooltip = require( 'components/tooltip' ),
-	Gridicon = require( 'components/gridicon' );
+import Tooltip from 'components/tooltip';
+
+import Gridicon from 'components/gridicon';
 
 export default class ModuleChartBar extends React.Component {
 	static displayName = 'ModuleChartBar';

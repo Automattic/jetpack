@@ -1,18 +1,21 @@
-/** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	ReactDOM = require( 'react-dom' ),
-	isArray = require( 'lodash/isArray' ),
-	map = require( 'lodash/map' ),
-	Formsy = require( 'formsy-react' );
+/**
+ * External Dependencies
+ */
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import isArray from 'lodash/isArray';
+import map from 'lodash/map';
+import Formsy from 'formsy-react';
+import createReactClass from 'create-react-class';
 
-const createReactClass = require( 'create-react-class' );
-
-/** Internal Dependencies **/
-const Label = require( './label' ),
-	getUniqueId = require( './counter' ),
-	FormInputValidation = require( '../form-input-validation' ),
-	requiredFieldErrorFormatter = require( './required-error-label' );
+/**
+ * Internal Dependencies
+ */
+import Label from './label';
+import getUniqueId from './counter';
+import FormInputValidation from '../form-input-validation';
+import requiredFieldErrorFormatter from './required-error-label';
 
 module.exports = createReactClass( {
 	displayName: 'MultiCheckboxInput',

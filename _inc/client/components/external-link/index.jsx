@@ -14,7 +14,7 @@ import omit from 'lodash/omit';
  */
 import Gridicon from 'components/gridicon';
 
-require( './style.scss' );
+import './style.scss';
 
 export default createReactClass( {
 	displayName: 'ExternalLink',

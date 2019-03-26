@@ -10,7 +10,7 @@ import classNames from 'classnames';
  */
 import Card from 'components/card';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class SectionHeader extends React.Component {
 	static displayName = 'SectionHeader';

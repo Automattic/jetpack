@@ -14,7 +14,7 @@ import Gridicon from 'components/gridicon';
 import classNames from 'classnames';
 import analytics from 'lib/analytics';
 
-require( './style.scss' );
+import './style.scss';
 
 export default createReactClass( {
 	displayName: 'InfoPopover',

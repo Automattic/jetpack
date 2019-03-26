@@ -1,16 +1,21 @@
-/** External Dependencies **/
-const React = require( 'react' ),
-	ReactDOM = require( 'react-dom' ),
-	Formsy = require( 'formsy-react' ),
-	classNames = require( 'classnames' ),
-	Payment = require( 'payment' ),
-	createReactClass = require( 'create-react-class' ),
-	PropTypes = require( 'prop-types' );
-/** Internal Dependencies **/
-const Label = require( './label' ),
-	getUniqueId = require( './counter' ),
-	FormInputValidation = require( '../form-input-validation' ),
-	requiredFieldErrorFormatter = require( './required-error-label' );
+/**
+ * External Dependencies
+ */
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Formsy from 'formsy-react';
+import classNames from 'classnames';
+import Payment from 'payment';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
+
+/**
+ * Internal Dependencies
+ */
+import Label from './label';
+import getUniqueId from './counter';
+import FormInputValidation from '../form-input-validation';
+import requiredFieldErrorFormatter from './required-error-label';
 
 module.exports = createReactClass( {
 	displayName: 'TextInput',

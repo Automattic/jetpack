@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' ),
-	Gridicon = require( 'components/gridicon' );
+import PropTypes from 'prop-types';
 
-require( './style.scss' );
+import React from 'react';
+import classNames from 'classnames';
+import Gridicon from 'components/gridicon';
+import './style.scss';
 
 export default class FormInputValidation extends React.Component {
 	static displayName = 'FormInputValidation';

@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	noop = require( 'lodash/noop' ),
-	classnames = require( 'classnames' );
+import React from 'react';
+
+import noop from 'lodash/noop';
+import classnames from 'classnames';
 
 class MenuItem extends React.Component {
 	static defaultProps = {

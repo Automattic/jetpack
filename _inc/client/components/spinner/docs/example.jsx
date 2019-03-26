@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' );
+import React from 'react';
 
-const createReactClass = require( 'create-react-class' );
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
  */
-const Spinner = require( 'components/spinner' );
+import Spinner from 'components/spinner';
 
 module.exports = createReactClass( {
 	displayName: 'Spinner',
