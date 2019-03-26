@@ -80,14 +80,15 @@ abstract class Jetpack_Sync_Module {
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
 				$remaining_items       = array_slice( $chunked_ids, 0, $remaining_items_count );
-
-				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items, $previous_interval_endpoint );
+				$remaining_items_with_previous_interval_endpoints = $this->get_chunks_with_preceding_endpoint( $remaining_items, $previous_interval_endpoint );
+				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_endpoints );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
+			$chunked_ids_with_previous_interval_endpoints = $this->get_chunks_with_preceding_endpoint( $chunked_ids, $previous_interval_endpoint );
 
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids, $previous_interval_endpoint );
+			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_interval_endpoints );
 
 			$chunk_count    += count( $chunked_ids );
 			$page           += 1;
@@ -95,6 +96,17 @@ abstract class Jetpack_Sync_Module {
 		}
 
 		return array( $chunk_count, true );
+	}
+
+	private function get_chunks_with_preceding_endpoint( $chunks, $previous_interval_endpoints ) {
+		foreach( $chunks as $chunk ) {
+			$chunks_with_endpoints[] = array(
+				'ids' => $chunk,
+				'previous_endpoint' => $previous_interval_endpoints
+			);
+			$previous_interval_endpoints = min( $chunk );
+		}
+		return $chunks_with_endpoints;
 	}
 
 	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {

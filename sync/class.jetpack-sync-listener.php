@@ -125,7 +125,7 @@ class Jetpack_Sync_Listener {
 	 * @param $args_array Array of Ids
 	 * @param $previous_interval_endpoint String
 	 */
-	function bulk_enqueue_full_sync_actions( $action_name, $args_array, $previous_interval_endpoint = null ) {
+	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
 		$queue = $this->get_full_sync_queue();
 
 		// periodically check the size of the queue, and disable adding to it if
@@ -146,6 +146,9 @@ class Jetpack_Sync_Listener {
 		$is_importing    = Jetpack_Sync_Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
+			$previous_endpoint = isset( $args['previous_endpoint'] ) ? $args['previous_endpoint'] : null;
+			$args = isset( $args['ids'] )? $args['ids']: $args;
+
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -157,14 +160,13 @@ class Jetpack_Sync_Listener {
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
-
+			$action_data = array( $args );
+			if ( ! is_null( $previous_endpoint ) ) {
+				$action_data[] = $previous_endpoint;
+			}
 			// allow listeners to abort
 			if ( $args === false ) {
 				continue;
-			}
-			$action_data = array( $args );
-			if ( ! is_null( $previous_interval_endpoint ) ) {
-				$action_data[] = $previous_interval_endpoint;
 			}
 
 			$data_to_enqueue[] = array(

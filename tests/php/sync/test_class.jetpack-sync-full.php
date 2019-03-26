@@ -1232,10 +1232,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_previous_min_id_on_posts() {
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 2, 'max_enqueue_full_sync' => 10 ) );
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		$this->factory->post->create_many( 25 );
 		$this->full_sync->start( array( 'posts' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
@@ -1254,6 +1257,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
 		list( $second_batch_posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
+		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
+
+		$last_post = end( $second_batch_posts );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+		list( $third_batch_posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
 		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
 	}
 
