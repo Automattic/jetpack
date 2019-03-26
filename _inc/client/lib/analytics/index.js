@@ -3,7 +3,7 @@
  */
 import debugFactory from 'debug';
 
-const debug = debugFactory('dops:analytics');
+const debug = debugFactory( 'dops:analytics' );
 import assign from 'lodash/assign';
 
 /**
