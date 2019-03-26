@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: WordPress.com Compose
+ * Module Name: WordPress.com Block Editor
  * Module Description: Allow new block editor posts to be composed on WordPress.com.
  * Jumpstart Description: Allow new block editor posts to be composed on WordPress.com.
  * Sort Order: 15
@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Writing
  * Feature: Writing
- * Additional Search Queries: iframes, allow, compose, WordPress.com, block
+ * Additional Search Queries: iframes, allow, compose, WordPress.com, block, editor, post
  */
 
 function jetpack_disable_send_frame_options_header() {
