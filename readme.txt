@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * REST API: Enable Likes and Sharing meta field for all post types.
 * Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
 * Search: add an easy way to see the raw Jetpack Search query results in the search page's source code.
+* Shortcodes: allow links in Quiz shortcode explanations.
 * Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
 **Improved compatibility**
