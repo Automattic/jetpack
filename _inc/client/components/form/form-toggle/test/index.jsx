@@ -13,8 +13,6 @@ import CompactFormToggle from 'components/forms/form-toggle/compact';
 
 const TestUtils = ReactDOM.TestUtils;
 
-require( 'lib/react-test-env-setup' )();
-
 describe( 'CompactFormToggle', function() {
 	describe( 'rendering', function() {
 		it( 'should have is-compact class', function() {
