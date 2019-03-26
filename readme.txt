@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: update various parts of Jetpack to fully align with WordPress coding standards to make developing Jetpack easier!
 * Connection: notify site owners when a plugin or theme is double-encoding URL redirects.
 * Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
+* Shortcodes: add AMP support for Crowdsignal polls and shortcodes.
 * Sitemaps: add thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
 * Sync: improve performance when using the VIP Legacy Redirect plugin.
 * Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
