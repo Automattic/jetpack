@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Dashboard: improve text and design to make your administration experience all the better, including:
 ** My Plan page is now more useful and actionable for free plans and has new illustrations.
+* Password Checker: adds a password checker class that will help Jetpack let you know if you're using a weak password. More about this coming in a future release!
 * Post Images: provide the image itself when requesting an attachment's post image.
 * Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
