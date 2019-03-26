@@ -939,6 +939,6 @@ function jetpack_wordpress_com_compose_more_link() {
 add_action( 'jetpack_learn_more_button_wordpress-com-compose', 'jetpack_wordpress_com_compose_more_link' );
 
 function jetpack_more_info_wordpress_com_compose() {
-	esc_html_e( 'WordPress.com Compose', 'jetpack' );
+	esc_html_e( 'WordPress.com Block Editor', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_wordpress-com-compose', 'jetpack_more_info_wordpress_com_compose' );
