@@ -583,7 +583,6 @@ class Jetpack_Gutenberg {
 				'wp-edit-post',
 				'wp-editor',
 				'wp-element',
-				'wp-escape-html',
 				'wp-hooks',
 				'wp-i18n',
 				'wp-keycodes',
