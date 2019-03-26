@@ -169,7 +169,6 @@
     "@babel/plugin-proposal-export-default-from": "7.2.0",
     "@babel/plugin-proposal-export-namespace-from": "7.2.0",
     "@babel/plugin-syntax-dynamic-import": "7.2.0",
-    "@babel/plugin-syntax-jsx": "7.2.0",
     "@babel/plugin-transform-react-jsx": "7.3.0",
     "@babel/plugin-transform-member-expression-literals": "7.2.0",
     "@babel/plugin-transform-property-literals": "7.2.0",
