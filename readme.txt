@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Plans: refactor how Jetpack Plans within Jetpack to improve performance and help prevent any future bugs.
 * Post Images: provide the image itself when requesting an attachment's post image.
 * REST API: Change likes and sharing post meta keys to jetpack_likes_enabled and jetpack_sharing_enabled REST keys.
+* Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
 * Search: add an easy way to see the raw Jetpack Search query results in the search page's source code.
 * Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
