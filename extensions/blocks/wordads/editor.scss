@@ -6,21 +6,6 @@
 	margin: 0 auto;
 }
 
-.jetpack-wordads__header,
-.jetpack-wordads__footer {
-	font-size: 10px;
-	font-family: sans-serif;
-}
-
-.jetpack-wordads__header {
-	text-align: left;
-}
-
-.jetpack-wordads__footer {
-	text-transform: uppercase;
-	text-align: right;
-}
-
 .jetpack-wordads__ad {
 	display: flex;
 	overflow: hidden;
@@ -29,6 +14,14 @@
 
 	.components-placeholder {
 		flex-grow: 2;
+	}
+
+	.components-toggle-control__label {
+		line-height: 1.4em;
+	}
+
+	.components-base-control__field {
+		padding: 7px;
 	}
 }
 
