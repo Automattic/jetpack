@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: improve performance when using the VIP Legacy Redirect plugin.
 * Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
 * VideoPress: update right-to-left language CSS to remove extra styles only used on browsers no longer supported.
+* Widgets: improve rendering of Contact Info widget map in when using the AMP plugin.
 
 **Bug fixes**
 
