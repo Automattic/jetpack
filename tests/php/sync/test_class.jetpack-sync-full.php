@@ -1034,6 +1034,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
+		$this->sender->do_full_sync(); // juuuust in case
 		$this->sender->do_full_sync(); // juuuust in case - otherwise we use too many bytes for multisite
 
 		$full_sync_status = $this->full_sync->get_status();
