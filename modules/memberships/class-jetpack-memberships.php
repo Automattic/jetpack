@@ -198,10 +198,11 @@ class Jetpack_Memberships {
 	public function render_button( $attrs ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name);
 
-		if ( empty( $attrs['id'] ) ) {
+		if ( empty( $attrs['planId'] ) ) {
 			return;
 		}
-		$product = get_post( $attrs['id'] );
+		$id = $attrs['planId'];
+		$product = get_post( $id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
@@ -211,9 +212,9 @@ class Jetpack_Memberships {
 		$plan = self::product_post_to_array( $product );
 		$data = array(
 			'blog_id' => $this->get_blog_id(),
-			'id'	  => $attrs['id'],
-			'button_label' => sprintf( __sprintf( '$s Contribution' ),$this->format_price( $plan ) ),
-			'powered_text' => sprintf( __( 'Powered by <a href="%s" target="_blank">WordPress.com</a>' ), 'https://wordpress.com' ),
+			'id'	  => $id,
+			'button_label' => sprintf( __( '$%s Contribution' ),$this->format_price( $plan ) ),
+			'powered_text' => __( 'Powered by WordPress.com' ),
 		);
 
 		$classes = array(
@@ -229,9 +230,9 @@ class Jetpack_Memberships {
 		if ( isset( $attrs['submitButtonText'] ) ) {
 			$data['button_label'] = $attrs['submitButtonText'];
 		}
-
+		add_thickbox();
 		return sprintf(
-			'<button data-blog-id="%i" data-powered-text="%s" data-plan-id="%i" class="%s">%s</button>',
+			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" class="%s">%s</button>',
 			$data['blog_id'],
 			$data['powered_text'],
 			$data['id'],
