@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Dashboard: improve text and design to make your administration experience all the better.
+* Jumpstart: streamline what features are suggested to be activated when setting up Jetpack for the first time.
 * Password Checker: adds a password checker class that will help Jetpack let you know if you're using a weak password. More about this coming in a future release!
 * Plans: refactor how Jetpack Plans within Jetpack to improve performance and help prevent any future bugs.
 * Post Images: provide the image itself when requesting an attachment's post image.
