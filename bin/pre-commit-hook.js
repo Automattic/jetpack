@@ -29,7 +29,9 @@ function phpcsFilesToFilter( file ) {
 	// If the file path starts with anything like in the array below, it should be linted.
 	const whitelist = [
 		'_inc/lib/debugger/',
+		'_inc/lib/class.jetpack-password-checker.php',
 		'extensions/',
+		'sync/class.jetpack-sync-module-auth.php',
 		'class.jetpack-gutenberg.php',
 		'class.jetpack-plan.php',
 	];
