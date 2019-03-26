@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
+* General: update various parts of Jetpack to fully align with WordPress coding standards to make developing Jetpack easier!
 * Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
 * Sitemaps: add thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
 * Sync: improve performance when using the VIP Legacy Redirect plugin.
