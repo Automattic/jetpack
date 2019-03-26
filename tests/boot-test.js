@@ -1,4 +1,3 @@
-require( 'babel-core/register' );
 const Chai = require( 'chai' ),
 	sinonChai = require( 'sinon-chai' ),
 	sinon = require( 'sinon' ),
