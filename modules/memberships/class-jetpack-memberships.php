@@ -230,13 +230,34 @@ class Jetpack_Memberships {
 		if ( isset( $attrs['submitButtonText'] ) ) {
 			$data['button_label'] = $attrs['submitButtonText'];
 		}
+		$button_styles = array();
+		if ( ! empty( $attrs['customBackgroundButtonColor'] ) ) {
+			array_push(
+				$button_styles,
+				sprintf(
+					'background-color: %s',
+					sanitize_hex_color( $attrs['customBackgroundButtonColor'] )
+				)
+			);
+		}
+		if ( ! empty( $attrs['customTextButtonColor'] ) ) {
+			array_push(
+				$button_styles,
+				sprintf(
+					'color: %s',
+					sanitize_hex_color( $attr['customTextButtonColor'] )
+				)
+			);
+		}
+		$button_styles = implode( $button_styles, ';' );
 		add_thickbox();
 		return sprintf(
-			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" class="%s">%s</button>',
+			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" class="%s" style="%s">%s</button>',
 			$data['blog_id'],
 			$data['powered_text'],
 			$data['id'],
 			implode( $classes, ' ' ),
+			$button_styles,
 			$data['button_label']
 		);
 	}
