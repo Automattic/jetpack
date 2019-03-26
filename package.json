@@ -180,7 +180,6 @@
     "@babel/runtime": "7.4.2",
     "babel-eslint": "^9.0.0",
     "babel-loader": "8.0.4",
-    "babel-register": "6.26.0",
     "chai": "4.2.0",
     "commander": "2.19.0",
     "copy-webpack-plugin": "4.6.0",
