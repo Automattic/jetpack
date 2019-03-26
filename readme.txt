@@ -139,7 +139,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: update WhatsApp to be more constant with the other sharing buttons.
 * Shortcodes: remove Lytro service, which closed in March.
 * Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
-* Widgets: display all characters in an address correctly when sometimes we encoded those that we'd expect in an URL.
+* Widgets: display all characters in an address from Contact Info correctly when sometimes we encoded those that we'd expect in an URL.
+* Widgets: improve the performance of the Contact Info widget by eliminating unused JavaScript.
 
 --------
 
