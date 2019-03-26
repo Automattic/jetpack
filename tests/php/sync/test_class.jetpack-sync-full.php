@@ -1268,6 +1268,42 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
 	}
 
+	function test_full_sync_sends_previous_min_id_on_comments() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+		$this->post_id = $this->factory->post->create();
+		for( $i = 0; $i < 25; $i++ ) {
+			$this->factory->comment->create_post_comments( $this->post_id );
+		}
+		// The first event is for sync start...
+		$this->full_sync->start( array( 'comments' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
+		$last_comment = end( $comments );
+
+		// The first batch has the previous_min_is not set.
+		// We user ~0 to denote that the previous min id unknown.
+		$this->assertEquals( $previous_interval_endpoint, '~0' );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
+		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
+		$last_comment = end( $comments );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
+		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
+
+	}
+
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
 		require( ABSPATH . '/wp-cron.php' );
