@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
 * Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
 * Sitemaps: add thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
+* Sync: improve performance when using the VIP Legacy Redirect plugin.
 * Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
 * VideoPress: update right-to-left language CSS to remove extra styles only used on browsers no longer supported.
 
