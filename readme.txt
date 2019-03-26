@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * Adds a Repeat Visitor block that controls block visibility based on how often a visitor has viewed the page.
-* New option to disable Ads blocks on mobile devices.
+* New option to disable Ads blocks for visitors on mobile devices.
 
 
 **Enhancements**
