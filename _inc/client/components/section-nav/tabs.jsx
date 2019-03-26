@@ -164,4 +164,4 @@ class NavTabs extends React.Component {
 	};
 }
 
-module.exports = NavTabs;
+export default NavTabs;

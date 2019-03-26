@@ -11,7 +11,7 @@ import createReactClass from 'create-react-class';
  */
 import Count from 'components/count';
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'Count',
 
 	mixins: [ PureRenderMixin ],

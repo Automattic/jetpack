@@ -10,4 +10,4 @@ function config( key ) {
 	}
 	throw new Error( 'config key `' + key + '` does not exist' );
 }
-module.exports = config;
+export default config;

@@ -11,7 +11,7 @@ import createReactClass from 'create-react-class';
  */
 import Spinner from 'components/spinner';
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'Spinner',
 
 	mixins: [ PureRenderMixin ],
