@@ -312,7 +312,7 @@ gulp.task( 'languages:phpize', function( done ) {
  */
 gulp.task( 'gutenberg:blocks', function() {
 	return gulp
-		.src( [ 'node_modules/@automattic/jetpack-blocks/build/**/*' ] )
+		.src( [ 'node_modules/@automattic/jetpack-blocks/dist/**/*' ] )
 		.pipe( gulp.dest( '_inc/blocks' ) );
 } );
 
