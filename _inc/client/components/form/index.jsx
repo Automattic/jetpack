@@ -1,13 +1,15 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import isArray from 'lodash/isArray';
 import Formsy from 'formsy-react';
 
-/** Internal Dependencies **/
+/**
+ * Internal Dependencies
+ */
 import ActionBar from './action-bar';
-
 import Section from './section';
 import Row from './row';
 import Label from './label';

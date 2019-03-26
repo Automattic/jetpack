@@ -1,4 +1,6 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import React from 'react';
 
 export default class Row extends React.Component {

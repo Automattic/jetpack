@@ -3,8 +3,10 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
+/**
+ * External Dependencies
+ */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';

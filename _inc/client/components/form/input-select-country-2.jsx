@@ -1,7 +1,11 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import React from 'react';
 
-/** Internal Dependencies **/
+/**
+ * Internal Dependencies
+ */
 import SelectInput from './input-select';
 
 export default class CountrySelectInput2 extends React.Component {

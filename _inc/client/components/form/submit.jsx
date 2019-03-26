@@ -1,7 +1,11 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import React from 'react';
 
-/** Internal Dependencies **/
+/**
+ * Internal Dependencies
+ */
 import Button from '../button';
 
 export default class Submit extends React.Component {

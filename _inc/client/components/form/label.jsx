@@ -1,6 +1,7 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import classNames from 'classnames';
 

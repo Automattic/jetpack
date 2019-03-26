@@ -1,6 +1,7 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import React from 'react';
-
 import ReactDOM from 'react-dom';
 import Formsy from 'formsy-react';
 import classNames from 'classnames';
@@ -8,9 +9,10 @@ import Payment from 'payment';
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
-/** Internal Dependencies **/
+/**
+ * Internal Dependencies
+ */
 import Label from './label';
-
 import getUniqueId from './counter';
 import FormInputValidation from '../form-input-validation';
 import requiredFieldErrorFormatter from './required-error-label';

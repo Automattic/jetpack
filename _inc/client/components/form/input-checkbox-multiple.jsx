@@ -1,6 +1,7 @@
-/** External Dependencies **/
+/**
+ * External Dependencies
+ */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import isArray from 'lodash/isArray';
@@ -8,9 +9,10 @@ import map from 'lodash/map';
 import Formsy from 'formsy-react';
 import createReactClass from 'create-react-class';
 
-/** Internal Dependencies **/
+/**
+ * Internal Dependencies
+ */
 import Label from './label';
-
 import getUniqueId from './counter';
 import FormInputValidation from '../form-input-validation';
 import requiredFieldErrorFormatter from './required-error-label';
