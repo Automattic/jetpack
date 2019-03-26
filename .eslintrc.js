@@ -4,7 +4,7 @@ module.exports = {
 		"wpcalypso/react",
 		"plugin:jsx-a11y/recommended",
 		"prettier",
-		"prettier/react"
+		"prettier/react",
 	],
 	"env": {
 		"browser": true,
@@ -95,5 +95,34 @@ module.exports = {
 		"jsx-a11y/anchor-has-content": 0,
 		"react/no-string-refs": 0,
 		"jsx-a11y/anchor-is-valid": 0,
-	}
+	},
+	overrides: [
+		{
+			files: [ "extensions/**/*", "webpack.config.extensions.js" ],
+			rules: {
+				"lodash/import-scope": 0,
+				"react/forbid-elements": [
+					"error",
+					{
+						forbid: [
+							[ "circle", "Circle" ],
+							[ "g", "G" ],
+							[ "path", "Path" ],
+							[ "polygon", "Polygon" ],
+							[ "rect", "Rect" ],
+							[ "svg", "SVG" ],
+						].map( ( [ element, componentName ] ) => ( {
+							element,
+							message: `use <${ componentName }> from @wordpress/components`,
+						} ) ),
+					},
+				],
+				"react/jsx-no-bind": 0,
+				"react/react-in-jsx-scope": 0,
+				"space-unary-ops": 0,
+				"space-before-function-paren": 0,
+				"wpcalypso/jsx-classname-namespace": 0,
+			},
+		},
+	]
 }

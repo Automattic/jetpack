@@ -32,6 +32,7 @@ export class MapThemePicker extends Component {
 		} );
 		return (
 			<div className="component__map-theme-picker components-base-control">
+				{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
 				<label className="components-base-control__label">{ label }</label>
 				<ButtonGroup>{ buttons }</ButtonGroup>
 			</div>
