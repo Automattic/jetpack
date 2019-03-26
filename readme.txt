@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Dashboard: fix an error that you'd see in the console when changing your Carousel settings.
 * Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
+* Blocks: display all Business Hours details, even if they're the default set.
 * General: ensure the proper Jetpack plan is reflected throughout Jetpack and the administrative dashboard.
 * Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
