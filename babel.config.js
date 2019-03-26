@@ -3,7 +3,7 @@ const config = {
 		[
 			'@babel/env',
 			{
-				corejs: 2,
+				//corejs: 2,
 				modules: 'commonjs',
 				useBuiltIns: 'entry',
 			},
