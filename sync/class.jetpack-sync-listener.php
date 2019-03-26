@@ -117,7 +117,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	// add many actions to the queue directly, without invoking them
-	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
+	function bulk_enqueue_full_sync_actions( $action_name, $args_array, $previous_max_id ) {
 		$queue = $this->get_full_sync_queue();
 
 		// periodically check the size of the queue, and disable adding to it if
@@ -157,7 +157,7 @@ class Jetpack_Sync_Listener {
 
 			$data_to_enqueue[] = array(
 				$action_name,
-				array( $args ),
+				array( $args, $previous_max_id ),
 				$user_id,
 				$currtime,
 				$is_importing,
