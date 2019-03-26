@@ -41,17 +41,6 @@ function jetpack_framing_allowed() {
 	return false;
 }
 
-/**
- * Automatically add frame-nonce to any admin_url() calls when the current page is framed.
- */
-function jetpack_auto_frame_nonce( $url ) {
-	if ( jetpack_framing_allowed() ) {
-	//	$url = add_query_arg( array( 'frame-nonce' => jetpack_get_frame_nonce() ), $url );
-	}
-	return $url;
-}
-add_filter( 'admin_url', 'jetpack_auto_frame_nonce' );
-
 function jetpack_add_iframed_body_class( $classes ) {
 	if ( jetpack_framing_allowed() ) {
 		$classes .= ' is-iframed ';
