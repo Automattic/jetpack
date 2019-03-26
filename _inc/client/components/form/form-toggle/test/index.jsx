@@ -3,15 +3,13 @@
  */
 import assert from 'assert';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM, { TestUtils } from 'react-dom';
 import unique from 'lodash/uniq';
 
 /**
  * Internal dependencies
  */
 import CompactFormToggle from 'components/forms/form-toggle/compact';
-
-const TestUtils = ReactDOM.TestUtils;
 
 describe( 'CompactFormToggle', function() {
 	describe( 'rendering', function() {
