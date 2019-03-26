@@ -26,13 +26,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		add_action( 'add_user_to_blog', array( $this, 'add_user_to_blog_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_add_user', array( $this, 'clear_flags' ), 11 );
 
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_register_user', array( $this, 'clear_flags' ), 11 );
-
 		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_save_user', array( $this, 'clear_flags' ), 11 );
 
 		add_action( 'jetpack_sync_user_locale', $callable, 10, 2 );
 		add_action( 'jetpack_sync_user_locale_delete', $callable, 10, 1 );
@@ -57,7 +53,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_login', array( $this, 'wp_login_handler' ), 10, 2 );
 
 		add_action( 'jetpack_wp_login', $callable, 10, 3 );
-		add_action( 'jetpack_wp_login', array( $this, 'clear_flags' ), 11 );
 
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
@@ -184,9 +179,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @since 7.2.0
 		 *
 		 * @param Numeric $user_id The user ID.
-         * @param Array   $params  Additional event parameters.
+         * @param WP_User $user  The User Object  of the user that currently logged in
+		 * @param Array   $params Any Flags that have been added during login
 		 */
         do_action( 'jetpack_wp_login', $user->ID, $user, $this->get_flags( $user->ID ) );
+        $this->clear_flags( $user->ID );
 	}
 
 	/**
@@ -198,8 +195,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	 * @return WP_Error|WP_User the same object that was passed into the function.
 	 */
 	public function authenticate_handler( $user, $username, $password ) {
-		jetpack_require_lib( 'class.jetpack-password-checker' );
-
+		l( '***** authenticate_handler' );
         // In case of cookie authentication we don't do anything here.
         if ( empty( $password ) ) {
             return $user;
@@ -210,6 +206,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return $user;
 		}
 
+		jetpack_require_lib( 'class.jetpack-password-checker' );
 		$password_checker = new Jetpack_Password_Checker( $user->ID );
 
 		$test_results = $password_checker->test( $password, true );
@@ -261,6 +258,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @param object The WP_User object
 		 */
 		do_action( 'jetpack_sync_register_user', $user_id, $this->get_flags( $user_id ) );
+		$this->clear_flags( $user_id );
 
 	}
 
@@ -281,6 +279,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @param object The WP_User object
 		 */
 		do_action( 'jetpack_sync_add_user', $user_id, $this->get_flags( $user_id ) );
+		$this->clear_flags( $user_id );
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
@@ -319,6 +318,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @param array state - New since 5.8.0
 		 */
 		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
+		$this->clear_flags( $user_id );
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
@@ -338,6 +338,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * This action is documented already in this file
 		 */
 		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
+		$this->clear_flags( $user_id );
 	}
 
 	function get_flags( $user_id ) {
