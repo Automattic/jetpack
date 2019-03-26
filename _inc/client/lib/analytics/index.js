@@ -2,8 +2,6 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-
-const debug = debugFactory( 'dops:analytics' );
 import assign from 'lodash/assign';
 
 /**
@@ -11,6 +9,7 @@ import assign from 'lodash/assign';
  */
 import config from 'config';
 
+const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
 
 // Load tracking scripts

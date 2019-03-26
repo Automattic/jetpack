@@ -10,8 +10,8 @@
 /**
  * External Dependencies
  */
-import { EventEmitter } from 'events/';
 import assign from 'lodash/assign';
+import { EventEmitter } from 'events';
 
 module.exports = function( prototype ) {
 	assign( prototype, EventEmitter.prototype );
