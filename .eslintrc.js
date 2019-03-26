@@ -127,5 +127,5 @@ module.exports = {
 				'wpcalypso/jsx-classname-namespace': 0,
 			},
 		},
-	]
-}
+	],
+};
