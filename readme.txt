@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Dashboard: fix an error that you'd see in the console when changing your Carousel settings.
 * Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
+* Sharing: update WhatsApp to be more constant with the other sharing buttons.
 * Shortcodes: remove Lytro service, which closed in March.
 * Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
 
