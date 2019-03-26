@@ -65,7 +65,6 @@
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/jetpack-blocks": "15.0.0",
     "@wordpress/browserslist-config": "2.3.0",
-    "babel-plugin-add-module-exports": "1.0.0",
     "bounding-client-rect": "1.0.5",
     "classnames": "2.2.6",
     "click-outside": "2.0.2",
