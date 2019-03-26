@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Dashboard: fix an error that you'd see in the console when changing your Carousel settings.
 * Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
 * Shortcodes: remove Lytro service, which closed in March.
