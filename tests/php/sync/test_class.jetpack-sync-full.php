@@ -1235,6 +1235,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		$this->factory->post->create_many( 25 );
+
+		// The first event is for full sync start.
 		$this->full_sync->start( array( 'posts' => true ) );
 		$this->sender->do_full_sync();
 
@@ -1276,7 +1278,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		for( $i = 0; $i < 25; $i++ ) {
 			$this->factory->comment->create_post_comments( $this->post_id );
 		}
-		// The first event is for sync start...
+		// The first event is for full sync start.
 		$this->full_sync->start( array( 'comments' => true ) );
 		$this->sender->do_full_sync();
 
@@ -1304,7 +1306,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
 		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
 
-		$this->full_sync->reset_data(); 
+		$this->full_sync->reset_data();
 	}
 
 	function _do_cron() {
