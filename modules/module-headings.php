@@ -238,7 +238,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'wordpress-com-compose' => array(
-				'name' => _x( 'WordPress.com Compose', 'Module Name', 'jetpack' ),
+				'name' => _x( 'WordPress.com Block Editor', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow new block editor posts to be composed on WordPress.com.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Allow new block editor posts to be composed on WordPress.com.', 'Jumpstart Description', 'jetpack' ),
 			),
