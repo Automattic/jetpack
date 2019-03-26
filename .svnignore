@@ -41,3 +41,16 @@ yarn.lock
 docker
 bin/pre-commit-hook.js
 yarn-error.log
+extensions/**/*.css
+extensions/**/*.gif
+extensions/**/*.jpeg
+extensions/**/*.jpg
+extensions/**/*.js
+extensions/**/*.json
+extensions/**/*.jsx
+extensions/**/*.md
+extensions/**/*.png
+extensions/**/*.sass
+extensions/**/*.scss
+extensions/**/*.svg
+**/__snapshots__
