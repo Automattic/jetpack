@@ -155,7 +155,7 @@ foreach ( $available_sets as $id => $set ) {
 
 	$output_file = "{$temp_file_path}/jetpack-{$map[$full_locale]}.po";
 	$input_url   = sprintf( '%s/%s/%s/export-translations/?format=po', $source_url, $set->locale, $set->slug );
-	$exec        = sprintf( 'curl -sL -o %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
+	$exec        = sprintf( 'curl --silent --location --output %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
 	echo "Downloading $input_url to" . PHP_EOL . $output_file . PHP_EOL;
 	exec( $exec );
 
