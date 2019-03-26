@@ -107,29 +107,29 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * Adds a Repeat Visitor block that controls block visibility based on how often a visitor has viewed the page.
-* Selectively disable Ads blocks for mobile devices.
+* New option to disable Ads blocks on mobile devices.
 
 
 **Enhancements**
 
-* Admin Dashboard: Various text and design improvements to make your administration experience all the better, including:
+* Admin Dashboard: improve text and design to make your administration experience all the better, including:
 ** My Plan page is now more useful and actionable for free plans.
-* Post Images: Provide the image itself when requesting an attachment's post image.
-* Widgets: Improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
+* Post Images: provide the image itself when requesting an attachment's post image.
+* Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
 **Improved compatibility**
 
-* General: Jetpack now requires WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
-* Shortcodes: Update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
-* Sitemaps: Added thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
-* Twenty Nineteen Compatibility: Prevent sharing buttons overlapping with the Like button. Props Torres!
+* General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
+* Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
+* Sitemaps: add thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
+* Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
 
 **Bug fixes**
 
-* Blocks: Fixed an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
-* Publicize: Remove unused assets, like images and JavaScript that aren't needed anymore.
-* Shortcodes: Remove Lytro service, which closed in March.
-* Stats: Properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
+* Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
+* Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
+* Shortcodes: remove Lytro service, which closed in March.
+* Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
 
 --------
 
