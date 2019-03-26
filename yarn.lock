@@ -622,7 +622,7 @@
     "@babel/helper-plugin-utils" "^7.0.0"
     "@babel/plugin-syntax-jsx" "^7.2.0"
 
-"@babel/plugin-transform-react-jsx@^7.0.0":
+"@babel/plugin-transform-react-jsx@7.3.0", "@babel/plugin-transform-react-jsx@^7.0.0":
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-jsx/-/plugin-transform-react-jsx-7.3.0.tgz#f2cab99026631c767e2745a5368b331cfe8f5290"
   integrity sha512-a/+aRb7R06WcKvQLOu4/TpjKOdvVEKRLWFpKcNuHhiREPgGRB4TQJxq07+EZLS8LFVYpfq1a5lDUnuMdcCpBKg==
@@ -1261,6 +1261,11 @@
   integrity sha512-jO7c2IQmMhaS57wxKfPRMWE/3r1Fwo2wBFUh0gsN4C7AtVHDMgsHfiR73zgnJ2MxslMoRX+uw4TM56lfxdByVw==
   dependencies:
     "@babel/runtime" "^7.3.1"
+
+"@wordpress/babel-plugin-import-jsx-pragma@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/babel-plugin-import-jsx-pragma/-/babel-plugin-import-jsx-pragma-2.1.0.tgz#694971911e96940da2af1d904bde4d0e375cb5d4"
+  integrity sha512-EuEX/wyR+26Z2GTcaK9kMbBBmN1oIgGj5Q2zjp4O5lWFCKNJS0pHEstRI9nlzTjsr+RCUOYKg6Sge9b0DETr7w==
 
 "@wordpress/blob@2.1.0":
   version "2.1.0"
