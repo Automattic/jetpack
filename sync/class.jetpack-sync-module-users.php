@@ -141,7 +141,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		return false;
 	}
-    
+
 	public function expand_login_username( $args ) {
 		list( $login, $user, $flags ) = $args;
 		$user                         = $this->sanitize_user( $user );
@@ -165,25 +165,25 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return array( $login, $user );
 	}
 
-    /**
-     * Additional processing is needed for wp_login so we introduce this wrapper
-     * handler.
-     *
-     * @param String  $user_login the user login.
-     * @param WP_User $user       the user object.
-     */
-     function wp_login_handler( $user_login, $user ) {
+	/**
+	 * Additional processing is needed for wp_login so we introduce this wrapper
+	 * handler.
+	 *
+	 * @param String  $user_login the user login.
+	 * @param WP_User $user       the user object.
+	 */
+	 function wp_login_handler( $user_login, $user ) {
 		/**
 		 * Fires when a user is logged into a site.
 		 *
 		 * @since 7.2.0
 		 *
 		 * @param Numeric $user_id The user ID.
-         * @param WP_User $user  The User Object  of the user that currently logged in
+		 * @param WP_User $user  The User Object  of the user that currently logged in
 		 * @param Array   $params Any Flags that have been added during login
 		 */
-        do_action( 'jetpack_wp_login', $user->ID, $user, $this->get_flags( $user->ID ) );
-        $this->clear_flags( $user->ID );
+		do_action( 'jetpack_wp_login', $user->ID, $user, $this->get_flags( $user->ID ) );
+		$this->clear_flags( $user->ID );
 	}
 
 	/**
@@ -195,10 +195,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	 * @return WP_Error|WP_User the same object that was passed into the function.
 	 */
 	public function authenticate_handler( $user, $username, $password ) {
-        // In case of cookie authentication we don't do anything here.
-        if ( empty( $password ) ) {
-            return $user;
-        }
+		// In case of cookie authentication we don't do anything here.
+		if ( empty( $password ) ) {
+			return $user;
+		}
 
 		// We are only interested in successful authentication events.
 		if ( is_wp_error( $user ) || ! ( $user instanceof WP_User ) ) {
@@ -215,13 +215,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return $user;
 		}
 
-        $this->add_flags(
-            $user->ID,
-            array(
-                'warning'          => 'The password failed at least one strength test.',
-                'failures'         => $test_results['test_results']['failed'],
-            )
-        );
+		$this->add_flags(
+			$user->ID,
+			array(
+				'warning'          => 'The password failed at least one strength test.',
+				'failures'         => $test_results['test_results']['failed'],
+			)
+		);
 
 		return $user;
 	}

@@ -745,10 +745,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sends_insecure_password_flag() {
-        $user = get_user_by( 'ID', $this->user_id );
+		$user = get_user_by( 'ID', $this->user_id );
 
-        do_action( 'authenticate', $user, $user->user_login, 'admin' );
-        do_action( 'wp_login', $user->user_login, $user );
+		do_action( 'authenticate', $user, $user->user_login, 'admin' );
+		do_action( 'wp_login', $user->user_login, $user );
 
 		$this->sender->do_sync();
 
@@ -759,21 +759,21 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_does_not_send_insecure_password_flags_on_secure_password() {
-        $user = get_user_by( 'ID', $this->user_id );
+		$user = get_user_by( 'ID', $this->user_id );
 
-        do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );
-        do_action( 'wp_login', $user->user_login, $user );
+		do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );
+		do_action( 'wp_login', $user->user_login, $user );
 
-        $this->sender->do_sync();
+		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
 
-        foreach( $action->args as $value ) {
-            if ( ! is_array( $value ) ) {
-                continue;
-            }
-            $this->assertArrayNotHasKey( 'warning', $value );
-        }
+		foreach( $action->args as $value ) {
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
+			$this->assertArrayNotHasKey( 'warning', $value );
+		}
 	}
 
 
