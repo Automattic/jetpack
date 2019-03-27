@@ -19,10 +19,6 @@ function jetpack_disable_send_frame_options_header() {
 }
 add_action( 'admin_init', 'jetpack_disable_send_frame_options_header', 1 ); // High priority to get ahead of send_frame_options_header
 
-function jetpack_get_frame_nonce() {
-	return wp_create_nonce( 'frame-' . Jetpack_Options::get_option( 'id' ) );
-}
-
 function jetpack_framing_allowed() {
 	if ( ! empty( $_GET['frame-nonce'] ) && false !== strpos( $_GET['frame-nonce'], '.' ) ) {
 		list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
