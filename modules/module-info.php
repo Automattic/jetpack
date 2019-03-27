@@ -934,7 +934,7 @@ function jetpack_more_info_copy_post() {
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
 
 function jetpack_wordpress_com_compose_more_link() {
-	echo 'https://jetpack.com/support/copy-post-2/';
+	echo 'https://jetpack.com/support/wordpress-com-block-editor/';
 }
 add_action( 'jetpack_learn_more_button_wordpress-com-compose', 'jetpack_wordpress_com_compose_more_link' );
 
