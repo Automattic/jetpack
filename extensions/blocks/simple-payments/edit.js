@@ -412,7 +412,7 @@ class SimplePaymentsEdit extends Component {
 		 * The only disabled state that concerns us is when we expect a product but don't have it in
 		 * local state.
 		 */
-		const isDisabled = productId && ! simplePayment;
+		const isDisabled = productId && isEmpty( simplePayment );
 
 		if ( ! isSelected && isDisabled ) {
 			return (
