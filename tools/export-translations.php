@@ -154,12 +154,13 @@ foreach ( $available_sets as $id => $set ) {
 	}
 
 	$output_file = "{$temp_file_path}/jetpack-{$map[$full_locale]}.po";
-	$input_url   = sprintf( '%s/%s/%s/export-translations?format=po', $source_url, $set->locale, $set->slug );
-	$exec        = sprintf( 'curl -s -o %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
+	$input_url   = sprintf( '%s/%s/%s/export-translations/?format=po', $source_url, $set->locale, $set->slug );
+	$exec        = sprintf( 'curl --silent --location --output %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
 	echo "Downloading $input_url to" . PHP_EOL . $output_file . PHP_EOL;
 	exec( $exec );
-}
 
+	echo "\nSuccessfully downloaded " . $output_file . " with size of " . filesize( $output_file ) . "\n";
+}
 echo "\n";
 
 // Convert PO files to MO files
