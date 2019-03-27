@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Dashboard: improve text and design to make your administration experience all the better.
 * Jumpstart: streamline what features are suggested to be activated when setting up Jetpack for the first time.
 * Password Checker: adds a password checker class that will help Jetpack let you know if you're using a weak password. More about this coming in a future release!
-* Plans: refactor how Jetpack Plans within Jetpack to improve performance and help prevent any future bugs.
+* Plans: refactor how Jetpack Plans are coded within Jetpack to improve performance and help prevent any future bugs.
 * Post Images: provide the image itself when requesting an attachment's post image.
 * REST API: Enable Likes and Sharing meta field for all post types.
 * Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
@@ -130,11 +130,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection: notify site owners when a plugin or theme is double-encoding URL redirects.
 * Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
 * Shortcodes: add AMP support for Crowdsignal polls and shortcodes.
-* Sitemaps: add thumbnails to video sitemaps to improve compatability with by Google Search Console. Props Adam Heckler!
+* Sitemaps: add thumbnails to video sitemaps to improve compatibility with Google Search Console. Props Adam Heckler!
 * Sync: improve performance when using the VIP Legacy Redirect plugin.
 * Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
 * VideoPress: update right-to-left language CSS to remove extra styles only used on browsers no longer supported.
-* Widgets: improve rendering of Contact Info widget map in when using the AMP plugin.
+* Widgets: improve rendering of Contact Info widget map when using the AMP plugin.
 
 **Bug fixes**
 
@@ -145,7 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
 * Related Posts: restore use of the jetpack_relatedposts_filter_options filter.
-* Sharing: update WhatsApp to be more constant with the other sharing buttons.
+* Sharing: update WhatsApp to be more consistent with the other sharing buttons.
 * Shortcodes: remove Lytro service, which closed in March.
 * Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
 * Widgets: display all characters in an address from Contact Info correctly when sometimes we encoded those that we'd expect in an URL.
