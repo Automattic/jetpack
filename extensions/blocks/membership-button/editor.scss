@@ -1,0 +1,24 @@
+@import './view.scss';
+
+.wp-block-jetpack-membership-button {
+
+	.wp-block-jetpack-membership-button_notification {
+		display: block;
+	}
+
+	.editor-rich-text__inline-toolbar {
+		pointer-events: none;
+		.components-toolbar {
+			pointer-events: all;
+		}
+	}
+
+	.wp-block-jetpack-membership-button_text-input, .jetpack-submit-button {
+		margin-bottom: 1.5rem;
+	}
+
+	.wp-block-button .wp-block-button__link {
+		margin-top: 0;
+	}
+
+}
