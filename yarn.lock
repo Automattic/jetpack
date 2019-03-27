@@ -1726,7 +1726,7 @@
     react "^16.8.4"
     react-dom "^16.8.4"
 
-"@wordpress/escape-html@^1.0.1", "@wordpress/escape-html@^1.1.0", "@wordpress/escape-html@^1.2.0":
+"@wordpress/escape-html@1.2.0", "@wordpress/escape-html@^1.0.1", "@wordpress/escape-html@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@wordpress/escape-html/-/escape-html-1.2.0.tgz#551864c9003127a1157c538c86e234a3451989ff"
   integrity sha512-IILebUBTFADag62cwxYcLFYoKeHRpDZiKwwhabiWd2sGoSdci1cqLxmLbE8iMcMQru7ALptQgQmhZcuX87DEwg==
@@ -2434,7 +2434,7 @@ axobject-query@^2.0.1:
   dependencies:
     ast-types-flow "0.0.7"
 
-babel-eslint@^9.0.0:
+babel-eslint@9.0.0:
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/babel-eslint/-/babel-eslint-9.0.0.tgz#7d9445f81ed9f60aff38115f838970df9f2b6220"
   integrity sha512-itv1MwE3TMbY0QtNfeL7wzak1mV47Uy+n6HtSOO4Xd7rvmO+tsGQSgyOEEgo6Y2vHZKZphaoelNeSVj4vkLA1g==
