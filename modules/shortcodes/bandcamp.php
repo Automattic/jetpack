@@ -1,34 +1,42 @@
 <?php
-// shortcode handler for [bandcamp], which inserts a bandcamp.com
-// music player (iframe, html5)
-//
-// [bandcamp album=119385304]
-// [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
-// [bandcamp track=2446959313]
-//
+/**
+ * Shortcode handler for [bandcamp], which inserts a bandcamp.com
+ * music player (iframe, html5)
+ *
+ * [bandcamp album=119385304]
+ * [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
+ * [bandcamp track=2446959313]
+ *
+ * @package Jetpack
+ */
+
+/**
+ * Display the Bandcamp shortcode.
+ *
+ * @param array $atts Shortcode attributes.
+ */
 function shortcode_handler_bandcamp( $atts ) {
-	// there are no default values, but specify here anyway
-	// to explicitly list supported atts
+	// there are no default values, but specify here anyway to explicitly list supported atts.
 	$attributes = shortcode_atts(
 		array(
-			'album'       => null,     // integer album id
-			'track'       => null,     // integer track id
-			'video'       => null,     // integer track id for video player
-			'size'        => 'venti',  // one of the supported sizes
-			'bgcol'       => 'FFFFFF', // hex, no '#' prefix
-			'linkcol'     => null,     // hex, no '#' prefix
-			'layout'      => null,     // encoded layout url
-			'width'       => null,     // integer with optional "%"
-			'height'      => null,     // integer with optional "%"
-			'notracklist' => null,     // may be string "true" (defaults false)
-			'tracklist'   => null,     // may be string "false" (defaults true)
-			'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large)
-			'minimal'     => null,     // may be string "true" (defaults false)
-			'theme'       => null,     // may be theme identifier string ("light"|"dark" so far)
-			'package'     => null,     // integer package id
-			't'           => null,     // integer track number
-			'tracks'      => null,     // comma separated list of allowed tracks
-			'esig'        => null,      // hex, no '#' prefix
+			'album'       => null,     // integer album id.
+			'track'       => null,     // integer track id.
+			'video'       => null,     // integer track id for video player.
+			'size'        => 'venti',  // one of the supported sizes.
+			'bgcol'       => 'FFFFFF', // hex, no '#' prefix.
+			'linkcol'     => null,     // hex, no '#' prefix.
+			'layout'      => null,     // encoded layout url.
+			'width'       => null,     // integer with optional "%".
+			'height'      => null,     // integer with optional "%".
+			'notracklist' => null,     // may be string "true" (defaults false).
+			'tracklist'   => null,     // may be string "false" (defaults true).
+			'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large).
+			'minimal'     => null,     // may be string "true" (defaults false).
+			'theme'       => null,     // may be theme identifier string ("light"|"dark" so far).
+			'package'     => null,     // integer package id.
+			't'           => null,     // integer track number.
+			'tracks'      => null,     // comma separated list of allowed tracks.
+			'esig'        => null,      // hex, no '#' prefix.
 		),
 		$atts,
 		'bandcamp'
@@ -85,14 +93,16 @@ function shortcode_handler_bandcamp( $atts ) {
 	$height  = null;
 	$width   = null;
 
-	$isVideo = false;
+	$is_video = false;
 
-	// Build iframe url.  For audio players, args are appended as
-	// extra path segments for historical reasons having to
-	// do with an IE-only flash bug which required this URL
-	// to contain no querystring.  Delay the actual joining
-	// of args into a string until after we decide if it's
-	// a video player or an audio player
+	/*
+	 * Build iframe url.  For audio players, args are appended as
+	 * extra path segments for historical reasons having to
+	 * do with an IE-only flash bug which required this URL
+	 * to contain no querystring.  Delay the actual joining
+	 * of args into a string until after we decide if it's
+	 * a video player or an audio player
+	 */
 	$argparts = array();
 
 	if ( ! isset( $attributes['album'] ) && ! isset( $attributes['track'] ) && ! isset( $attributes['video'] ) ) {
@@ -103,9 +113,9 @@ function shortcode_handler_bandcamp( $atts ) {
 		$track = esc_attr( $attributes['track'] );
 		array_push( $argparts, "track={$track}" );
 	} elseif ( isset( $attributes['video'] ) && is_numeric( $attributes['video'] ) ) {
-		$track   = esc_attr( $attributes['video'] ); // videos are referenced by track id
-		$urlbase = '//bandcamp.com/EmbeddedPlayer/v=2';
-		$isVideo = true;
+		$track    = esc_attr( $attributes['video'] ); // videos are referenced by track id.
+		$url      = '//bandcamp.com/EmbeddedPlayer/v=2';
+		$is_video = true;
 		array_push( $argparts, "track={$track}" );
 	}
 	if ( isset( $attributes['album'] ) && is_numeric( $attributes['album'] ) ) {
@@ -113,7 +123,7 @@ function shortcode_handler_bandcamp( $atts ) {
 		array_push( $argparts, "album={$album}" );
 	}
 
-	if ( $sizekey == 'tall' ) {
+	if ( 'tall' === $sizekey ) {
 		if ( isset( $attributes['album'] ) ) {
 			$sizekey .= '_album';
 		} else {
@@ -121,24 +131,28 @@ function shortcode_handler_bandcamp( $atts ) {
 		}
 	}
 
-	// if size specified that we don't recognize, fall back on venti
+	// if size specified that we don't recognize, fall back on venti.
 	if ( empty( $sizes[ $sizekey ] ) ) {
 		$sizekey            = 'venti';
 		$attributes['size'] = 'venti';
 	}
 
-	// use strict regex for digits + optional % instead of absint for height/width
-	// 'width' and 'height' params in the iframe url get the exact string from the shortcode
-	// args, whereas the inline style attribute must have "px" added to it if it has no "%"
+	/*
+	 * use strict regex for digits + optional % instead of absint for height/width
+	 * 'width' and 'height' params in the iframe url get the exact string from the shortcode
+	 * args, whereas the inline style attribute must have "px" added to it if it has no "%"
+	 */
 	if ( isset( $attributes['width'] ) && preg_match( '|^([0-9]+)(%)?$|', $attributes['width'], $matches ) ) {
-		$width = $csswidth = $attributes['width'];
-		if ( sizeof( $matches ) < 3 ) {
+		$width    = $attributes['width'];
+		$csswidth = $attributes['width'];
+		if ( count( $matches ) < 3 ) {
 			$csswidth .= 'px';
 		}
 	}
 	if ( isset( $attributes['height'] ) && preg_match( '|^([0-9]+)(%)?$|', $attributes['height'], $matches ) ) {
-		$height = $cssheight = $attributes['height'];
-		if ( sizeof( $matches ) < 3 ) {
+		$height    = $attributes['height'];
+		$cssheight = $attributes['height'];
+		if ( count( $matches ) < 3 ) {
 			$cssheight .= 'px';
 		}
 	}
@@ -175,7 +189,7 @@ function shortcode_handler_bandcamp( $atts ) {
 		array_push( $argparts, "t={$attributes['t']}" );
 	}
 
-	if ( $attributes['notracklist'] == 'true' ) {
+	if ( 'true' === $attributes['notracklist'] ) {
 		array_push( $argparts, 'notracklist=true' );
 	}
 
@@ -196,7 +210,7 @@ function shortcode_handler_bandcamp( $atts ) {
 			break;
 	}
 
-	if ( $attributes['minimal'] == 'true' ) {
+	if ( 'true' === $attributes['minimal'] ) {
 		array_push( $argparts, 'minimal=true' );
 	}
 
@@ -204,7 +218,7 @@ function shortcode_handler_bandcamp( $atts ) {
 		array_push( $argparts, "theme={$attributes['theme']}" );
 	}
 
-	// param 'tracks' is signed digest param 'esig'
+	// param 'tracks' is signed digest param 'esig'.
 	if ( isset( $attributes['tracks'] ) && preg_match( '|^[0-9\,]+$|', $attributes['tracks'] ) ) {
 		if ( isset( $attributes['esig'] ) && preg_match( '|^[0-9A-Fa-f]+$|', $attributes['esig'] ) ) {
 			array_push( $argparts, "tracks={$attributes['tracks']}" );
@@ -212,16 +226,16 @@ function shortcode_handler_bandcamp( $atts ) {
 		}
 	}
 
-	if ( $isVideo ) {
-		$url        = '//bandcamp.com/VideoEmbed?' . join( '&', $argparts );
-		$extraAttrs = " mozallowfullscreen='1' webkitallowfullscreen='1' allowfullscreen='1'";
+	if ( $is_video ) {
+		$url         = '//bandcamp.com/VideoEmbed?' . join( '&', $argparts );
+		$extra_attrs = " mozallowfullscreen='1' webkitallowfullscreen='1' allowfullscreen='1'";
 	} else {
-		$url        = '//bandcamp.com/EmbeddedPlayer/v=2/' . join( '/', $argparts ) . '/';
-		$extraAttrs = '';
+		$url         = '//bandcamp.com/EmbeddedPlayer/v=2/' . join( '/', $argparts ) . '/';
+		$extra_attrs = '';
 	}
 
 	$iframe = '<iframe width="%s" height="%s" style="position: relative; display: block; width: %s; height: %s;" src="%s" allowtransparency="true" frameborder="0"%s></iframe>';
-	$iframe = sprintf( $iframe, esc_attr( $width ), esc_attr( $height ), esc_attr( $csswidth ), esc_attr( $cssheight ), esc_url( $url ), $extraAttrs );
+	$iframe = sprintf( $iframe, esc_attr( $width ), esc_attr( $height ), esc_attr( $csswidth ), esc_attr( $cssheight ), esc_url( $url ), $extra_attrs );
 
 	return $iframe;
 }
