@@ -62,8 +62,7 @@ hash yarn 2>/dev/null || {
     exit 1;
 }
 
-yarn --modules-folder=$TARGET_DIR/node_modules
-NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
+yarn --cwd $TARGET_DIR build
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore
