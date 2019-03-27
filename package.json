@@ -100,7 +100,7 @@
     "eslint-config-prettier": "4.1.0",
     "eslint-config-wpcalypso": "4.0.1",
     "eslint-loader": "2.1.2",
-    "eslint-plugin-jsx-a11y": "6.1.2",
+    "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-lodash": "5.1.0",
     "eslint-plugin-react": "7.11.1",
     "eslint-plugin-wpcalypso": "4.0.2",
