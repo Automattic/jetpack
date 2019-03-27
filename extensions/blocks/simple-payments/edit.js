@@ -96,29 +96,19 @@ class SimplePaymentsEdit extends Component {
 		}
 
 		const { attributes, setAttributes } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
+		const { content, currency, email, featuredMediaId, multiple, price, title } = attributes;
 
-		if ( productId && simplePayment ) {
-			setAttributes( {
-				content: get( simplePayment, [ 'content', 'raw' ], content ),
-				currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
-				email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
-				featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
-				multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
-				price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
-				title: get( simplePayment, [ 'title', 'raw' ], title ),
-			} );
-			this.shouldInjectPaymentAttributes = ! this.shouldInjectPaymentAttributes;
-		}
+		setAttributes( {
+			content: get( simplePayment, [ 'content', 'raw' ], content ),
+			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
+			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
+			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
+			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
+			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
+			title: get( simplePayment, [ 'title', 'raw' ], title ),
+		} );
+
+		this.shouldInjectPaymentAttributes = ! this.shouldInjectPaymentAttributes;
 	}
 
 	toApi() {
