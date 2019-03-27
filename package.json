@@ -96,7 +96,7 @@
     "duplicate-package-checker-webpack-plugin": "3.0.0",
     "email-validator": "2.0.4",
     "es6-promise": "4.2.6",
-    "eslint": "5.12.0",
+    "eslint": "5.15.3",
     "eslint-config-prettier": "4.1.0",
     "eslint-config-wpcalypso": "4.0.1",
     "eslint-loader": "2.1.2",
