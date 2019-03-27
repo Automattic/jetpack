@@ -1,9 +1,8 @@
 <?php
 
-require_jetpack_file( 'class.json-api.php' );
 require_jetpack_file( 'class.json-api-endpoints.php' );
 
-class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
+class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 
 	/**
 	 * Inserts globals needed to initialize the endpoint.
