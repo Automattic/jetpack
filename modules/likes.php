@@ -641,4 +641,13 @@ function jetpack_post_likes_register_rest_field() {
 // Add Likes post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
+/**
+ * Set the Likes and Sharing Gutenberg extension as available.
+ */
+function jetpack_post_likes_set_extension_available() {
+	Jetpack_Gutenberg::set_extension_available( 'likes-and-sharing' );
+}
+
+add_action( 'init', 'jetpack_post_likes_set_extension_available' );
+
 Jetpack_Likes::init();
