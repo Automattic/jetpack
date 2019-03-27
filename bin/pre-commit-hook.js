@@ -35,6 +35,7 @@ function phpcsFilesToFilter( file ) {
 		'sync/class.jetpack-sync-module-auth.php',
 		'class.jetpack-gutenberg.php',
 		'class.jetpack-plan.php',
+		'functions.opengraph.php',
 	];
 
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
