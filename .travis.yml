@@ -42,7 +42,8 @@ matrix:
   - php: "5.2"
     env: WP_MODE=multi  WP_BRANCH=master
     dist: precise
-  - language: node_js
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
     env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
