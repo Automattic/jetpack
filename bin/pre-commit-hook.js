@@ -36,6 +36,7 @@ function phpcsFilesToFilter( file ) {
 		'class.jetpack-gutenberg.php',
 		'class.jetpack-plan.php',
 		'modules/module-info.php',
+		'functions.opengraph.php',
 	];
 
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
