@@ -31,13 +31,17 @@ const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
 const API_STATE_NOTCONNECTED = 2;
 
+const PRODUCT_NOT_ADDING = 0;
+const PRODUCT_FORM = 1;
+const PRODUCT_FORM_SUBMITTED = 2;
+
 class MembershipsButtonEdit extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
 			connected: API_STATE_LOADING,
 			connectURL: null,
-			addingMembershipAmount: false,
+			addingMembershipAmount: PRODUCT_NOT_ADDING,
 			products: [],
 			editedProductCurrency: 'USD',
 			editedProductPrice: 5,
@@ -69,13 +73,13 @@ class MembershipsButtonEdit extends Component {
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
 				this.setState( { connected, connectURL, products } );
+			},
+			result => {
+				const connectURL = null;
+				const connected = API_STATE_NOTCONNECTED;
+				this.setState( { connected, connectURL } );
+				this.onError( result.message );
 			}
-			// result => {
-			// 	const connectURL = null;
-			// 	const connected = API_STATE_NOTCONNECTED;
-			// 	this.setState( { connected, connectURL } );
-			// 	this.onError( result.message );
-			// }
 		);
 	};
 	getCurrencyList = SUPPORTED_CURRENCY_LIST.map( value => {
@@ -102,6 +106,7 @@ class MembershipsButtonEdit extends Component {
 	handleTitleChange = editedProductTitle => this.setState( { editedProductTitle } );
 	// eslint-disable-next-line
 	saveProduct = () => {
+		this.setState( { addingMembershipAmount: PRODUCT_FORM_SUBMITTED } );
 		const path = '/wpcom/v2/memberships/product';
 		const method = 'POST';
 		const data = {
@@ -114,6 +119,7 @@ class MembershipsButtonEdit extends Component {
 		apiFetch( fetch ).then(
 			result => {
 				this.setState( {
+					addingMembershipAmount: PRODUCT_NOT_ADDING,
 					products: this.state.products.concat( [
 						{
 							id: result.id,
@@ -123,79 +129,90 @@ class MembershipsButtonEdit extends Component {
 						},
 					] ),
 				} );
+			},
+			result => {
+				this.setState( { addingMembershipAmount: PRODUCT_FORM } );
+				this.onError( result.message );
 			}
-			// result => {
-			// 	const connectURL = null;
-			// 	const connected = API_STATE_NOTCONNECTED;
-			// 	this.setState( { connected, connectURL } );
-			// 	this.onError( result.message );
-			// }
 		);
 	};
 
 	renderAddMembershipAmount = () => {
-		if ( ! this.state.addingMembershipAmount ) {
+		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING ) {
 			return (
 				<Button
 					isDefault
 					isLarge
-					onClick={ () => this.setState( { addingMembershipAmount: true } ) }
+					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
 					{ __( 'Add Memberships Amounts' ) }
 				</Button>
 			);
 		}
 
+		if ( this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) {
+			return <Spinner />;
+		}
 		return (
-			<div className="wp-block-jetpack-simple-payments">
-				<div>
-					<div className="simple-payments__price-container">
-						<SelectControl
-							className="simple-payments__field simple-payments__field-currency"
-							label={ __( 'Currency' ) }
-							onChange={ this.handleCurrencyChange }
-							options={ this.getCurrencyList }
-							value={ this.state.editedProductCurrency }
-						/>
-						<TextControl
-							label={ __( 'Price' ) }
-							onChange={ this.handlePriceChange }
-							placeholder={ formatPrice( 0, this.state.editedProductCurrency, false ) }
-							required
-							step="1"
-							type="number"
-							value={ this.state.editedProductPrice || '' }
-						/>
-					</div>
-					<TextControl
-						className="simple-payments__field simple-payments__field-content"
-						label={ __( 'Describe your item in a few words' ) }
-						onChange={ this.handleTitleChange }
-						placeholder={ __( 'Describe your item in a few words' ) }
-						value={ this.state.editedProductTitle }
-					/>
+			<div>
+				<div className="membership-button__price-container">
 					<SelectControl
-						label={ __( 'Renew interval' ) }
-						onChange={ this.handleRenewIntervalChange }
-						options={ [
-							{
-								label: __( 'Monthly' ),
-								value: '1 month',
-							},
-							{
-								label: __( 'Yearly' ),
-								value: '1 year',
-							},
-						] }
-						value={ this.state.editedProductRenewInterval }
+						className="membership-button__field membership-button__field-currency"
+						label={ __( 'Currency' ) }
+						onChange={ this.handleCurrencyChange }
+						options={ this.getCurrencyList }
+						value={ this.state.editedProductCurrency }
+					/>
+					<TextControl
+						label={ __( 'Price' ) }
+						className="membership-button__field membership-button__field-price"
+						onChange={ this.handlePriceChange }
+						placeholder={ formatPrice( 0, this.state.editedProductCurrency, false ) }
+						required
+						step="1"
+						type="number"
+						value={ this.state.editedProductPrice || '' }
 					/>
 				</div>
-				<Button isDefault isLarge onClick={ this.saveProduct }>
-					{ __( 'Add Amount' ) }
-				</Button>
-				<Button isLarge onClick={ () => this.setState( { addingMembershipAmount: false } ) }>
-					{ __( 'Cancel' ) }
-				</Button>
+				<TextControl
+					className="membership-button__field"
+					label={ __( 'Describe your item in a few words' ) }
+					onChange={ this.handleTitleChange }
+					placeholder={ __( 'Describe your item in a few words' ) }
+					value={ this.state.editedProductTitle }
+				/>
+				<SelectControl
+					label={ __( 'Renew interval' ) }
+					onChange={ this.handleRenewIntervalChange }
+					options={ [
+						{
+							label: __( 'Monthly' ),
+							value: '1 month',
+						},
+						{
+							label: __( 'Yearly' ),
+							value: '1 year',
+						},
+					] }
+					value={ this.state.editedProductRenewInterval }
+				/>
+				<div>
+					<Button
+						isDefault
+						isLarge
+						className="membership-button__field-button"
+						onClick={ this.saveProduct }
+					>
+						{ __( 'Add Amount' ) }
+					</Button>
+					<Button
+						isLarge
+						className="membership-button__field-button"
+						onClick={ () => this.setState( { addingMembershipAmount: false } ) }
+					>
+						{ __( 'Cancel' ) }
+					</Button>
+				</div>
 			</div>
 		);
 	};
@@ -214,7 +231,12 @@ class MembershipsButtonEdit extends Component {
 		<div>
 			{' '}
 			{ this.state.products.map( product => (
-				<Button isLarge key={ product.id } onClick={ () => this.setMembershipAmount( product.id ) }>
+				<Button
+					className="membership-button__field-button"
+					isLarge
+					key={ product.id }
+					onClick={ () => this.setMembershipAmount( product.id ) }
+				>
 					{ formatPrice( parseFloat( product.price ), product.currency ) }
 				</Button>
 			) ) }{' '}
@@ -256,14 +278,15 @@ class MembershipsButtonEdit extends Component {
 		);
 		return (
 			<Fragment>
-				{ connected === API_STATE_LOADING && (
+				{ this.props.noticeUI }
+				{ connected === API_STATE_LOADING && ! this.props.attributes.planId && (
 					<Placeholder icon={ icon } notices={ notices }>
 						<Spinner />
 					</Placeholder>
 				) }
 				{ ! this.props.attributes.planId && connected === API_STATE_NOTCONNECTED && (
 					<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
-						<div className="components-placeholder__instructions">
+						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 							{ __( 'In order to start selling Membership plans, you have to connect to Stripe:' ) }
 							<br />
 							<br />
@@ -282,7 +305,7 @@ class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
-							<div className="components-placeholder__instructions">
+							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __( 'Add your first Membership amount:' ) }
 								<br />
 								<br />
@@ -294,7 +317,7 @@ class MembershipsButtonEdit extends Component {
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
-							<div className="components-placeholder__instructions">
+							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __( 'Select payment amount:' ) }
 								{ this.renderMembershipAmounts() }
 								{ __( 'Or add another membership amount:' ) }
@@ -303,8 +326,8 @@ class MembershipsButtonEdit extends Component {
 							</div>
 						</Placeholder>
 					) }
-				{ connected !== API_STATE_LOADING && this.props.attributes.planId && inspectorControls }
-				{ connected !== API_STATE_LOADING && this.props.attributes.planId && blockContent }
+				{ this.state.products && inspectorControls }
+				{ this.props.attributes.planId && blockContent }
 			</Fragment>
 		);
 	};
