@@ -150,9 +150,6 @@ class MembershipsButtonEdit extends Component {
 			);
 		}
 
-		if ( this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) {
-			return <Spinner />;
-		}
 		return (
 			<div>
 				<div className="membership-button__price-container">
@@ -217,7 +214,9 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 	getFormattedPriceByProductId = id => {
-		const product = this.state.products.filter( prod => prod.id === id ).pop();
+		const product = this.state.products
+			.filter( prod => parseInt( prod.id ) === parseInt( id ) )
+			.pop();
 		return formatPrice( parseFloat( product.price ), product.currency );
 	};
 
@@ -279,11 +278,13 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ connected === API_STATE_LOADING && ! this.props.attributes.planId && (
-					<Placeholder icon={ icon } notices={ notices }>
-						<Spinner />
-					</Placeholder>
-				) }
+				{ ( connected === API_STATE_LOADING ||
+					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
+					! this.props.attributes.planId && (
+						<Placeholder icon={ icon } notices={ notices }>
+							<Spinner />
+						</Placeholder>
+					) }
 				{ ! this.props.attributes.planId && connected === API_STATE_NOTCONNECTED && (
 					<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
