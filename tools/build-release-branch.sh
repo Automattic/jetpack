@@ -211,7 +211,7 @@ hash yarn 2>/dev/null || {
 	exit 1;
 }
 
-# Start clean by removing previously installed dependencies and built files
+# Start cleaning the cache.
 yarn cache clean
 yarn run build-production
 echo "Done"
