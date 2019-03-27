@@ -17,7 +17,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	static private $css_classname_prefix = 'jetpack-memberships';
+	static public $css_classname_prefix = 'jetpack-memberships';
 	/**
 	 * Increase this number each time there's a change in CSS or JS to bust cache.
 	 *
@@ -245,7 +245,7 @@ class Jetpack_Memberships {
 				$button_styles,
 				sprintf(
 					'color: %s',
-					sanitize_hex_color( $attr['customTextButtonColor'] )
+					sanitize_hex_color( $attrs['customTextButtonColor'] )
 				)
 			);
 		}

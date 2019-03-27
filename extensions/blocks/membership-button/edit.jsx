@@ -63,16 +63,12 @@ class MembershipsButtonEdit extends Component {
 		const fetch = { path, method };
 		apiFetch( fetch ).then(
 			result => {
-				this.setState( {
-					products: this.state.products.concat( [
-						{
-							id: result.id,
-							title: result.title,
-							interval: result.interval,
-							price: result.price,
-						},
-					] ),
-				} );
+				const connectURL = result.connect_url;
+				const products = result.products;
+				const connected = result.connected_account_id
+					? API_STATE_CONNECTED
+					: API_STATE_NOTCONNECTED;
+				this.setState( { connected, connectURL, products } );
 			}
 			// result => {
 			// 	const connectURL = null;
@@ -117,12 +113,16 @@ class MembershipsButtonEdit extends Component {
 		const fetch = { path, method, data };
 		apiFetch( fetch ).then(
 			result => {
-				const connectURL = result.connect_url;
-				const products = result.products;
-				const connected = result.connected_account_id
-					? API_STATE_CONNECTED
-					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products } );
+				this.setState( {
+					products: this.state.products.concat( [
+						{
+							id: result.id,
+							title: result.title,
+							interval: result.interval,
+							price: result.price,
+						},
+					] ),
+				} );
 			}
 			// result => {
 			// 	const connectURL = null;
