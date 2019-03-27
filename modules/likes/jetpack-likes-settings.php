@@ -43,7 +43,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default' );
+			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 
