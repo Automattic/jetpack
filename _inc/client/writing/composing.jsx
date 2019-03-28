@@ -242,7 +242,7 @@ export class Composing extends React.Component {
 					module={ wordPressComCompose }
 					support={ {
 						text: __( 'Allow new block editor posts to be composed on WordPress.com.' ),
-						link: 'https://jetpack.com/support/wordpress-com-block-editor/',
+						link: 'https://jetpack.com/support/copy-post-2/',
 					} }
 				>
 					<FormFieldset>
