@@ -6,7 +6,7 @@
  * Sort Order: 15
  * First Introduced: 7.3
  * Requires Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: iframes, allow, compose, WordPress.com, block, editor, post
