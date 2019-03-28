@@ -2604,12 +2604,7 @@ class Jetpack {
 		}
 
 		// Return valid empty Jed locale
-		return json_encode( array(
-			'' => array(
-				'domain' => 'jetpack',
-				'lang'   => is_admin() ? get_user_locale() : get_locale(),
-			),
-		) );
+		return '{ "locale_data": { "messages": { "": {} } } }';
 	}
 
 	/**
