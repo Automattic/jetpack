@@ -157,4 +157,4 @@ class PopoverMenu extends React.Component {
 	};
 }
 
-module.exports = PopoverMenu;
+export default PopoverMenu;

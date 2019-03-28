@@ -213,7 +213,6 @@ hash yarn 2>/dev/null || {
 
 # Start clean by removing previously installed dependencies and built files
 yarn run distclean
-yarn run clean-client
 # Clean yarn's cache
 yarn cache clean
 # Install dependencies

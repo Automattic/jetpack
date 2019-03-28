@@ -246,4 +246,4 @@ const analytics = {
 	},
 };
 
-module.exports = analytics;
+export default analytics;

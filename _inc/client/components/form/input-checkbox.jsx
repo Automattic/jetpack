@@ -15,7 +15,7 @@ import getUniqueId from './counter';
 import FormInputValidation from '../form-input-validation';
 import requiredFieldErrorFormatter from './required-error-label';
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'CheckboxInput',
 
 	mixins: [ Formsy.Mixin ],

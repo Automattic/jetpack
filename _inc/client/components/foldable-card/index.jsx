@@ -173,4 +173,4 @@ class FoldableCard extends React.Component {
 	}
 }
 
-module.exports = FoldableCard;
+export default FoldableCard;

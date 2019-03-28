@@ -91,4 +91,4 @@ const Buttons = createReactClass( {
 	},
 } );
 
-module.exports = Buttons;
+export default Buttons;

@@ -19,7 +19,8 @@ import { alwaysIgnoredPaths } from './util';
 gulp.task( 'sass:dashboard', function( done ) {
 	log( 'Building Dashboard CSS bundle...' );
 
-	return gulp.src( './_inc/client/scss/style.scss' )
+	return gulp
+		.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
 		.pipe( autoprefixer() )
@@ -34,7 +35,8 @@ gulp.task( 'sass:dashboard', function( done ) {
 gulp.task( 'sass:calypsoify', function( done ) {
 	log( 'Building Calypsoify CSS bundle...' );
 
-	return gulp.src( './modules/calypsoify/*.scss' )
+	return gulp
+		.src( './modules/calypsoify/*.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
 		.pipe( autoprefixer() )
@@ -49,7 +51,8 @@ gulp.task( 'sass:calypsoify', function( done ) {
 gulp.task( 'sass:dops', function( done ) {
 	log( 'Building dops-components CSS bundle...' );
 
-	return gulp.src( './_inc/build/*dops-style.css' )
+	return gulp
+		.src( './_inc/build/*dops-style.css' )
 		.pipe( autoprefixer() )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
@@ -61,7 +64,8 @@ gulp.task( 'sass:dops', function( done ) {
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
-		path, success;
+		path,
+		success;
 
 	switch ( files ) {
 		case 'main':
@@ -86,7 +90,8 @@ function doRTL( files, done ) {
 			return;
 	}
 
-	gulp.src( path )
+	gulp
+		.src( path )
 		.pipe( rtlcss() )
 		.pipe( rename( renameArgs ) )
 		.pipe( sourcemaps.init() )
@@ -99,52 +104,63 @@ function doRTL( files, done ) {
 }
 
 gulp.task( 'sass:old:rtl', function() {
-	return gulp.src( 'scss/*.scss' )
-		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is compiled SASS code.\n' +
-			'*/\n'
-		) )
-		.pipe( autoprefixer() )
-		// Build *-rtl.css & sourcemaps
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( rename( { dirname: 'css' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Build *-rtl.min.css
-		.pipe( cleanCSS() )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Finished
-		.on( 'end', function() {
-			log( 'Global admin RTL CSS finished.' );
-		} );
+	return (
+		gulp
+			.src( 'scss/*.scss' )
+			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+			.pipe(
+				banner(
+					'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
+				)
+			)
+			.pipe( autoprefixer() )
+			// Build *-rtl.css & sourcemaps
+			.pipe( rtlcss() )
+			.pipe( rename( { suffix: '-rtl' } ) )
+			.pipe( sourcemaps.init() )
+			.pipe( sourcemaps.write( './' ) )
+			.pipe( rename( { dirname: 'css' } ) )
+			.pipe( gulp.dest( './' ) )
+			// Build *-rtl.min.css
+			.pipe( cleanCSS() )
+			.pipe( rename( { suffix: '.min' } ) )
+			.pipe( gulp.dest( './' ) )
+			// Finished
+			.on( 'end', function() {
+				log( 'Global admin RTL CSS finished.' );
+			} )
+	);
 } );
 
-gulp.task( 'sass:old', gulp.series( 'sass:old:rtl', function() {
-	return gulp.src( 'scss/**/*.scss' )
-		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is compiled SASS code.\n' +
-			'*/\n'
-		) )
-		.pipe( autoprefixer() )
-		// Build *.css & sourcemaps
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( rename( { dirname: 'css' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Build *.min.css & sourcemaps
-		.pipe( cleanCSS() )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './' ) )
-		.pipe( sourcemaps.write( '.' ) )
-		.on( 'end', function() {
-			log( 'Global admin CSS finished.' );
-		} );
-} ) );
+gulp.task(
+	'sass:old',
+	gulp.series( 'sass:old:rtl', function() {
+		return (
+			gulp
+				.src( 'scss/**/*.scss' )
+				.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+				.pipe(
+					banner(
+						'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
+					)
+				)
+				.pipe( autoprefixer() )
+				// Build *.css & sourcemaps
+				.pipe( sourcemaps.init() )
+				.pipe( sourcemaps.write( './' ) )
+				.pipe( rename( { dirname: 'css' } ) )
+				.pipe( gulp.dest( './' ) )
+				// Build *.min.css & sourcemaps
+				.pipe( cleanCSS() )
+				.pipe( rename( { suffix: '.min' } ) )
+				.pipe( gulp.dest( './' ) )
+				.pipe( sourcemaps.write( '.' ) )
+				.on( 'end', function() {
+					log( 'Global admin CSS finished.' );
+				} )
+		);
+	} )
+);
 
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:dops', 'sass:calypsoify' ),
@@ -152,5 +168,8 @@ export const build = gulp.parallel(
 );
 
 export const watch = function() {
-	return gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:dops', 'sass:old' ) );
+	return gulp.watch(
+		[ './**/*.scss', ...alwaysIgnoredPaths ],
+		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:dops', 'sass:old' )
+	);
 };

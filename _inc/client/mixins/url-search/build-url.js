@@ -13,7 +13,7 @@ import pick from 'lodash/pick';
  * @param  {string} search Search terms
  * @return {string}        Path including search terms
  */
-module.exports = function( uri, search ) {
+export default function( uri, search ) {
 	let parsedUrl = url.parse( uri, true );
 
 	if ( search ) {
@@ -24,4 +24,4 @@ module.exports = function( uri, search ) {
 
 	parsedUrl = pick( parsedUrl, 'pathname', 'hash', 'query' );
 	return url.format( parsedUrl ).replace( /\%20/g, '+' );
-};
+}

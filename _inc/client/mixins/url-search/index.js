@@ -11,7 +11,7 @@ import buildUrl from './build-url';
 
 const debug = debugFactory( 'calypso:url-search' );
 
-module.exports = {
+export default {
 	getInitialState: function() {
 		return {
 			searchOpen: false,

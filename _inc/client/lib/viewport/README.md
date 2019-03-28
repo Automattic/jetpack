@@ -6,7 +6,7 @@ This module contains functions to identify the current viewport. This can be use
 ### Usage
 
 ```
-var viewport = require( 'viewport' );
+import * as viewport from 'lib/viewport';
 
 if ( viewport.isDesktop() ) {
 	// Render a component optimized for desktop view
