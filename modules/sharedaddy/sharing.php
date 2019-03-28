@@ -617,45 +617,10 @@ function sharing_admin_init() {
 }
 
 /**
- * Check if the Likes and Sharing Gutenberg extension should be available
- */
-function jetpack_sharing_check_sidebar_availability() {
-	// always available on WPCOM
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return array( 'available' => true );
-	}
-
-	// It is available on Jetpack Sites having the module active.
-	if (
-		method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active()
-		&& method_exists( 'Jetpack', 'is_module_active' )
-	) {
-		if ( Jetpack::is_module_active( 'sharedaddy' ) ) {
-			return array( 'available' => true );
-		} else {
-			return array(
-				'available'          => false,
-				'unavailable_reason' => 'missing_module',
-			);
-		}
-	}
-
-	return array(
-		'available'          => false,
-		'unavailable_reason' => 'unknown',
-	);
-}
-
-/**
- * Set the Likes and Sharing Gutenberg extension availability
+ * Set the Likes and Sharing Gutenberg extension as available
  */
 function jetpack_sharing_set_extension_availability() {
-	$availability = jetpack_sharing_check_sidebar_availability();
-	if ( $availability['available'] ) {
-		Jetpack_Gutenberg::set_extension_available( 'likes-and-sharing' );
-	} else {
-		Jetpack_Gutenberg::set_extension_unavailable( 'likes-and-sharing', $availability['unavailable_reason'] );
-	}
+	Jetpack_Gutenberg::set_extension_available( 'likes-and-sharing' );
 }
 
 add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_sharing_set_extension_availability' );
