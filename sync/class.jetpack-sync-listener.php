@@ -146,7 +146,7 @@ class Jetpack_Sync_Listener {
 
 		foreach ( $args_array as $args ) {
 			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
-			$args = isset( $args['ids'] ) ? $args['ids']: $args;
+			$args = isset( $args['ids'] ) ? $args['ids'] : $args;
 
 
 			/**
