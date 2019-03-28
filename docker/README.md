@@ -238,11 +238,9 @@ If you are an Automattician, sign up on Ngrok.com using your a8c Google account;
 
 Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
-
-
 ```
 authtoken: YOUR_AUTH_TOKEN # This should already be here
-region: eu # only needed for subdomains in Europe
+region: eu # only needed for subdomains in Europe (eu), Asia/Pacific (ap) or Australia (au)
 tunnels:
   jetpack:
     subdomain: YOUR_RESERVED_SUBDOMAIN # without the .ngrok.io
