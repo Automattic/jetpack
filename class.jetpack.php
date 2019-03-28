@@ -5142,13 +5142,15 @@ p {
 		$this->rest_authentication_status = null;
 	}
 
-	function verify_xml_rpc_signature( $token = null, $param_signature = null ) {
+	function verify_xml_rpc_signature( $token = null, $param_signature = null, $timestamp = null, $nonce = null ) {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
 		}
 
 		$token = ( is_null( $token ) && ! empty( $_GET['token'] ) ) ? $_GET['token'] : $token;
 		$param_signature = ( is_null( $param_signature ) && ! empty( $_GET['signature'] ) ) ? $_GET['signature'] : $param_signature;
+		$timestamp = ( is_null( $timestamp ) && ! empty( $_GET['timestamp'] ) ) ? (int) $_GET['timestamp'] : $timestamp;
+		$nonce = ( is_null( $nonce ) && ! empty( $_GET['nonce'] ) ) ? stripslashes( (string) $_GET['nonce'] ) : $nonce;
 
 		// It's not for us
 		if ( ! $token || ! $param_signature ) {
@@ -5229,9 +5231,6 @@ p {
 		} else if ( ! hash_equals( $signature, $param_signature ) ) {
 			return false;
 		}
-
-		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return false;
