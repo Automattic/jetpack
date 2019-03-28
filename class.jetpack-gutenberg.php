@@ -610,6 +610,8 @@ class Jetpack_Gutenberg {
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
+				'hasLikes'         => Jetpack::is_module_active( 'likes' ),
+				'hasSharing'       => Jetpack::is_module_active( 'sharedaddy' ),
 			)
 		);
 

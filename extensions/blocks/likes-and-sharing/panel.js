@@ -1,33 +1,43 @@
 /**
  * Internal dependencies
  */
+import getJetpackData from '../../utils/get-jetpack-data';
 import { __ } from '../../utils/i18n';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { CheckboxControl, PanelBody } from '@wordpress/components';
+import { get } from 'lodash';
 import { withDispatch, withSelect } from '@wordpress/data';
 
 class LikesAndSharingPanel extends Component {
 	render() {
 		const { areLikesEnabled, isSharingEnabled, toggleLikes, toggleSharing } = this.props;
 
+		const data = getJetpackData();
+		const postHasLikes = get( data, 'hasLikes', false );
+		const postHasSharing = get( data, 'hasSharing', false );
+
 		return (
 			<PanelBody title={ __( 'Likes and Sharing' ) }>
-				<CheckboxControl
-					label={ __( 'Show likes.' ) }
-					checked={ areLikesEnabled }
-					onChange={ value => {
-						toggleLikes( value );
-					} }
-				/>
+				{ postHasLikes && (
+					<CheckboxControl
+						label={ __( 'Show likes.' ) }
+						checked={ areLikesEnabled }
+						onChange={ value => {
+							toggleLikes( value );
+						} }
+					/>
+				) }
 
-				<CheckboxControl
-					label={ __( 'Show sharing buttons.' ) }
-					checked={ isSharingEnabled }
-					onChange={ value => {
-						toggleSharing( value );
-					} }
-				/>
+				{ postHasSharing && (
+					<CheckboxControl
+						label={ __( 'Show sharing buttons.' ) }
+						checked={ isSharingEnabled }
+						onChange={ value => {
+							toggleSharing( value );
+						} }
+					/>
+				) }
 			</PanelBody>
 		);
 	}
