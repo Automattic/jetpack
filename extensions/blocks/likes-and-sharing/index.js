@@ -1,5 +1,3 @@
-/** @format */
-
 /**
  * A Gutenberg sidebar extension that allows enabling/disabling
  * likes and sharing buttons.
