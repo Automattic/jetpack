@@ -1,10 +1,10 @@
 <?php
 /**
- * Module Name: WordPress.com Block Editor
+ * Module Name: WordPress.com Block Editor Iframe
  * Module Description: Allow new block editor posts to be composed on WordPress.com.
  * Jumpstart Description: Allow new block editor posts to be composed on WordPress.com.
  * Sort Order: 15
- * First Introduced: 7.2
+ * First Introduced: 7.3
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Writing
