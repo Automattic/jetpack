@@ -360,34 +360,7 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		$unwhitelisted_blocks  = array();
-		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
-		foreach ( $all_registered_blocks as $block_name => $block_type ) {
-			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
-				continue;
-			}
-
-			$unprefixed_block_name = self::remove_extension_prefix( $block_name );
-
-			if ( in_array( $unprefixed_block_name, self::$extensions, true ) ) {
-				continue;
-			}
-
-			$unwhitelisted_blocks[ $unprefixed_block_name ] = array(
-				'available'          => false,
-				'unavailable_reason' => 'not_whitelisted',
-			);
-		}
-
-		// Finally: Unwhitelisted non-block extensions. These are in $availability.
-		$unwhitelisted_extensions = array_fill_keys(
-			array_diff( array_keys( self::$availability ), self::$extensions ),
-			array(
-				'available'          => false,
-				'unavailable_reason' => 'not_whitelisted',
-			)
-		);
-		return array_merge( $available_extensions, $unwhitelisted_blocks, $unwhitelisted_extensions );
+		return $available_extensions;
 	}
 
 	/**
