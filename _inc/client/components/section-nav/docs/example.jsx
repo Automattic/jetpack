@@ -179,4 +179,4 @@ const SectionNavigation = createReactClass( {
 	demoSearch: function() {},
 } );
 
-module.exports = SectionNavigation;
+export default SectionNavigation;

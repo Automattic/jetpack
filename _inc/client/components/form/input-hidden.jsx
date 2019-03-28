@@ -6,7 +6,7 @@ import React from 'react';
 import Formsy from 'formsy-react';
 import createReactClass from 'create-react-class';
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'HiddenInput',
 
 	mixins: [ Formsy.Mixin ],

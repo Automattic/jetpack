@@ -11,8 +11,7 @@ import throttle from 'lodash/throttle';
  * Internal dependencies
  */
 import BarContainer from './bar-container';
-
-import touchDetect from 'lib/touch-detect';
+import { hasTouch } from 'lib/touch-detect';
 import './style.scss';
 
 export default class ModuleChart extends React.Component {
@@ -60,7 +59,7 @@ export default class ModuleChart extends React.Component {
 		let width = node.clientWidth - 82,
 			maxBars;
 
-		if ( touchDetect.hasTouch() ) {
+		if ( hasTouch() ) {
 			width = width <= 0 ? 350 : width; // mobile safari bug with zero width
 			maxBars = Math.floor( width / this.props.minTouchBarWidth );
 		} else {
@@ -152,7 +151,7 @@ export default class ModuleChart extends React.Component {
 					data={ data }
 					yAxisMax={ yAxisMax }
 					chartWidth={ this.state.width }
-					isTouch={ touchDetect.hasTouch() }
+					isTouch={ hasTouch() }
 				/>
 				{ emptyChart }
 			</div>

@@ -55,4 +55,4 @@ class SelectDropdownItem extends React.Component {
 	}
 }
 
-module.exports = SelectDropdownItem;
+export default SelectDropdownItem;

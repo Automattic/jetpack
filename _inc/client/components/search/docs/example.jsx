@@ -37,4 +37,4 @@ const SearchDemo = createReactClass( {
 	},
 } );
 
-module.exports = SearchDemo;
+export default SearchDemo;

@@ -185,4 +185,4 @@ const SectionNav = createReactClass( {
 	},
 } );
 
-module.exports = SectionNav;
+export default SectionNav;

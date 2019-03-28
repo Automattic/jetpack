@@ -66,4 +66,4 @@ class NavSegmented extends React.Component {
 	};
 }
 
-module.exports = NavSegmented;
+export default NavSegmented;

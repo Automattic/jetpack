@@ -154,4 +154,4 @@ class Modal extends React.Component {
 Modal.preventClose = preventClose;
 Modal.allowClose = allowClose;
 
-module.exports = Modal;
+export default Modal;

@@ -119,4 +119,4 @@ class Spinner extends React.Component {
 	}
 }
 
-module.exports = Spinner;
+export default Spinner;

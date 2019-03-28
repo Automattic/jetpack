@@ -12,10 +12,9 @@ import classNames from 'classnames';
 /**
  * Internal Dependencies
  */
-import SelectDropdown from 'components/select-dropdown';
-
 import DropdownItem from 'components/select-dropdown/item';
-import viewport from 'lib/viewport';
+import SelectDropdown from 'components/select-dropdown';
+import { getWindowInnerWidth } from 'lib/viewport';
 
 /**
  * Internal Variables
@@ -65,7 +64,7 @@ class NavTabs extends React.Component {
 			'has-siblings': this.props.hasSiblingControls,
 		} );
 
-		const innerWidth = viewport.getWindowInnerWidth();
+		const innerWidth = getWindowInnerWidth();
 
 		return (
 			<div className="dops-section-nav-group" ref="navGroup">
@@ -164,4 +163,4 @@ class NavTabs extends React.Component {
 	};
 }
 
-module.exports = NavTabs;
+export default NavTabs;
