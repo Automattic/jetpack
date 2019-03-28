@@ -65,14 +65,14 @@ abstract class Jetpack_Sync_Module {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page  = 1000;
-		$page            = 1;
-		$chunk_count     = 0;
-		$previous_interval_endpoint = $state ? $state : '~0';
-		$listener        = Jetpack_Sync_Listener::get_instance();
+		$items_per_page        = 1000;
+		$page                  = 1;
+		$chunk_count           = 0;
+		$previous_interval_end = $state ? $state : '~0';
+		$listener              = Jetpack_Sync_Listener::get_instance();
 
 		// count down from max_id to min_id so we get newest posts/comments/etc first
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_endpoint} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
@@ -80,31 +80,33 @@ abstract class Jetpack_Sync_Module {
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
 				$remaining_items       = array_slice( $chunked_ids, 0, $remaining_items_count );
-				$remaining_items_with_previous_interval_endpoints = $this->get_chunks_with_preceding_endpoint( $remaining_items, $previous_interval_endpoint );
-				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_endpoints );
+				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_endpoint( $remaining_items, $previous_interval_end );
+				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
-			$chunked_ids_with_previous_interval_endpoints = $this->get_chunks_with_preceding_endpoint( $chunked_ids, $previous_interval_endpoint );
+			$chunked_ids_with_previous_endpoints = $this->get_chunks_with_preceding_endpoints( $chunked_ids, $previous_interval_end );
 
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_interval_endpoints );
+			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_endpoints );
 
 			$chunk_count    += count( $chunked_ids );
 			$page           += 1;
-			$previous_interval_endpoint = end( $ids );
+			// $ids are ordered in descending order
+			$previous_interval_end = end( $ids );
 		}
 
 		return array( $chunk_count, true );
 	}
 
-	private function get_chunks_with_preceding_endpoint( $chunks, $previous_interval_endpoints ) {
+	private function get_chunks_with_preceding_endpoints( $chunks, $previous_interval_end ) {
 		foreach( $chunks as $chunk ) {
 			$chunks_with_endpoints[] = array(
 				'ids' => $chunk,
-				'previous_endpoint' => $previous_interval_endpoints
+				'previous_end' => $previous_interval_end
 			);
-			$previous_interval_endpoints = min( $chunk );
+			// Chunks are ordered in descending order
+			$previous_interval_end = end( $chunk );
 		}
 		return $chunks_with_endpoints;
 	}

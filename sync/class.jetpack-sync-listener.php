@@ -145,8 +145,8 @@ class Jetpack_Sync_Listener {
 		$is_importing    = Jetpack_Sync_Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
-			$previous_endpoint = isset( $args['previous_endpoint'] ) ? $args['previous_endpoint'] : null;
-			$args = isset( $args['ids'] )? $args['ids']: $args;
+			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
+			$args = isset( $args['ids'] ) ? $args['ids']: $args;
 
 
 			/**
@@ -160,8 +160,8 @@ class Jetpack_Sync_Listener {
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
 			$action_data = array( $args );
-			if ( ! is_null( $previous_endpoint ) ) {
-				$action_data[] = $previous_endpoint;
+			if ( ! is_null( $previous_end ) ) {
+				$action_data[] = $previous_end;
 			}
 			// allow listeners to abort
 			if ( $args === false ) {
