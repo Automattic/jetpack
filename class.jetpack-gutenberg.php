@@ -603,6 +603,16 @@ class Jetpack_Gutenberg {
 			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
 		);
 
+		// default: both settings are always active on WPCOM.
+		$has_likes   = true;
+		$has_sharing = true;
+
+		$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
+		if ( $in_jetpack && method_exists( 'Jetpack', 'is_module_active' ) ) {
+			$has_likes   = Jetpack::is_module_active( 'likes' );
+			$has_sharing = Jetpack::is_module_active( 'sharedaddy' );
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
@@ -610,8 +620,8 @@ class Jetpack_Gutenberg {
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
-				'hasLikes'         => Jetpack::is_module_active( 'likes' ),
-				'hasSharing'       => Jetpack::is_module_active( 'sharedaddy' ),
+				'hasLikes'         => $has_likes,
+				'hasSharing'       => $has_sharing,
 			)
 		);
 
