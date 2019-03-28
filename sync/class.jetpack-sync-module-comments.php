@@ -177,7 +177,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	}
 
 	public function expand_comment_ids( $args ) {
-		list( $comment_ids, $previous_interval_endpoint ) = $args;
+		list( $comment_ids, $previous_interval_end ) = $args;
 		$comments    = get_comments(
 			array(
 				'include_unapproved' => true,
@@ -190,7 +190,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return array(
 			$comments,
 			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
-			$previous_interval_endpoint,
+			$previous_interval_end,
 		);
 	}
 }
