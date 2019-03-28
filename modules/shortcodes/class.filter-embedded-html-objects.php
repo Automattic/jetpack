@@ -119,11 +119,11 @@ class Filter_Embedded_HTML_Objects {
 			 * Replace any "code" shortcode blocks with a token that we'll later replace with its original text.
 			 * This will keep the contents of the shortcode from being filtered.
 			 */
-			global $syntax_highlighter;
+			global $SyntaxHighlighter; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Check to see if the $syntax_highlighter object has been created and is ready for use.
-			if ( isset( $syntax_highlighter ) && is_array( $syntax_highlighter->shortcodes ) ) {
-				$shortcode_regex           = implode( '|', array_map( 'preg_quote', $syntax_highlighter->shortcodes ) );
+			if ( isset( $SyntaxHighlighter ) && is_array( $SyntaxHighlighter->shortcodes ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$shortcode_regex           = implode( '|', array_map( 'preg_quote', $SyntaxHighlighter->shortcodes ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				$html                      = preg_replace_callback(
 					'/\[(' . $shortcode_regex . ')(\s[^\]]*)?\][\s\S]*?\[\/\1\]/m',
 					array( __CLASS__, 'sh_regexp_callback' ),
