@@ -86,9 +86,9 @@ abstract class Jetpack_Sync_Module {
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
-			$chunked_ids_with_previous_endpoints = $this->get_chunks_with_preceding_endpoints( $chunked_ids, $previous_interval_end );
+			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_endpoints( $chunked_ids, $previous_interval_end );
 
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_endpoints );
+			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
 			$chunk_count    += count( $chunked_ids );
 			$page           += 1;
