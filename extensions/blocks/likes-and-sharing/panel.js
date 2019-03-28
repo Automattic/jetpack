@@ -1,13 +1,17 @@
 /**
+ * External dependencies
+ */
+import { CheckboxControl, PanelBody } from '@wordpress/components';
+import { Component } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
+import { get } from 'lodash';
+import { withDispatch, withSelect } from '@wordpress/data';
+
+/**
  * Internal dependencies
  */
 import getJetpackData from '../../utils/get-jetpack-data';
 import { __ } from '../../utils/i18n';
-import { Component } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
-import { CheckboxControl, PanelBody } from '@wordpress/components';
-import { get } from 'lodash';
-import { withDispatch, withSelect } from '@wordpress/data';
 
 class LikesAndSharingPanel extends Component {
 	render() {
