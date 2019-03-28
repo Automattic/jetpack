@@ -27,12 +27,3 @@ function sharedaddy_configuration_load() {
 	wp_safe_redirect( menu_page_url( 'sharing', false ) . "#sharing-buttons" );
 	exit;
 }
-
-/**
- * Set the Likes and Sharing Gutenberg extension as available.
- */
-function jetpack_post_share_set_extension_available() {
-	Jetpack_Gutenberg::set_extension_available( 'likes-and-sharing' );
-}
-
-add_action( 'init', 'jetpack_post_share_set_extension_available' );
