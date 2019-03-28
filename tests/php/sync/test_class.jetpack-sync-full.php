@@ -1232,7 +1232,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->sender->get_full_sync_queue()->size() );
 	}
 
-	function test_full_sync_sends_previous_interval_endpoint_on_posts() {
+	function test_full_sync_sends_previous_interval_end_on_posts() {
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		$this->factory->post->create_many( 25 );
@@ -1245,35 +1245,35 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
-		list( $posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
+		list( $posts, $meta, $taxonomy, $previous_interval_end ) = $event->args;
 
 		// The first batch has the previous_min_is not set.
 		// We user ~0 to denote that the previous min id unknown.
-		$this->assertEquals( $previous_interval_endpoint, '~0' );
+		$this->assertEquals( $previous_interval_end, '~0' );
 
 		// Since posts are order by id and the ids are in decending order
-		// the very last post should be the id with the smallest ID. ( previous_interval_endpoint )
+		// the very last post should be the id with the smallest ID. ( previous_interval_end )
 		$last_post = end( $posts );
 
 		$this->full_sync->continue_enqueuing();
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
-		list( $second_batch_posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
-		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
+		list( $second_batch_posts, $meta, $taxonomy, $previous_interval_end ) = $event->args;
+		$this->assertEquals( intval( $previous_interval_end ), $last_post->ID );
 
 		$last_post = end( $second_batch_posts );
 		$this->full_sync->continue_enqueuing();
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
-		list( $third_batch_posts, $meta, $taxonomy, $previous_interval_endpoint ) = $event->args;
-		$this->assertEquals( intval( $previous_interval_endpoint ), $last_post->ID );
+		list( $third_batch_posts, $meta, $taxonomy, $previous_interval_end ) = $event->args;
+		$this->assertEquals( intval( $previous_interval_end ), $last_post->ID );
 
 		$this->full_sync->reset_data();
 	}
 
-	function test_full_sync_sends_previous_interval_endpoint_on_comments() {
+	function test_full_sync_sends_previous_interval_end_on_comments() {
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 		$this->post_id = $this->factory->post->create();
 		for( $i = 0; $i < 25; $i++ ) {
@@ -1287,25 +1287,25 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
-		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
+		list( $comments, $meta,  $previous_interval_end ) = $event->args;
 		$last_comment = end( $comments );
 
 		// The first batch has the previous_min_is not set.
 		// We user ~0 to denote that the previous min id unknown.
-		$this->assertEquals( $previous_interval_endpoint, '~0' );
+		$this->assertEquals( $previous_interval_end, '~0' );
 
 		$this->full_sync->continue_enqueuing();
 		$this->sender->do_full_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
-		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
-		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
+		list( $comments, $meta,  $previous_interval_end ) = $event->args;
+		$this->assertEquals( $previous_interval_end, $last_comment->comment_ID );
 		$last_comment = end( $comments );
 
 		$this->full_sync->continue_enqueuing();
 		$this->sender->do_full_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
-		list( $comments, $meta,  $previous_interval_endpoint ) = $event->args;
-		$this->assertEquals( $previous_interval_endpoint, $last_comment->comment_ID );
+		list( $comments, $meta,  $previous_interval_end ) = $event->args;
+		$this->assertEquals( $previous_interval_end, $last_comment->comment_ID );
 
 		$this->full_sync->reset_data();
 	}

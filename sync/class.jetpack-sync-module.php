@@ -101,14 +101,14 @@ abstract class Jetpack_Sync_Module {
 
 	private function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
 		foreach( $chunks as $chunk ) {
-			$chunks_with_endpoints[] = array(
+			$chunks_with_ends[] = array(
 				'ids' => $chunk,
 				'previous_end' => $previous_interval_end
 			);
 			// Chunks are ordered in descending order
 			$previous_interval_end = end( $chunk );
 		}
-		return $chunks_with_endpoints;
+		return $chunks_with_ends;
 	}
 
 	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
