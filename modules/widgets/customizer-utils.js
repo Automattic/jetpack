@@ -9,7 +9,13 @@
  * @returns {boolean}
  */
 wp.customizerHasPartialWidgetRefresh = function() {
-	return 'object' === typeof wp && 'function' === typeof wp.customize	&& 'object' === typeof wp.customize.selectiveRefresh && 'object' === typeof wp.customize.widgetsPreview && 'function' === typeof wp.customize.widgetsPreview.WidgetPartial;
+	return (
+		'object' === typeof wp &&
+		'function' === typeof wp.customize &&
+		'object' === typeof wp.customize.selectiveRefresh &&
+		'object' === typeof wp.customize.widgetsPreview &&
+		'function' === typeof wp.customize.widgetsPreview.WidgetPartial
+	);
 };
 
 /**
@@ -25,37 +31,50 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 /**
  * Bind events for selective refresh in Customizer.
  */
-(function($){
-
+( function( $ ) {
 	$( document ).ready( function() {
-
 		if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
-
 			// Refresh widget contents when a partial is rendered.
-			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function ( placement ) {
+			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
 				if ( placement.container ) {
-
 					// Refresh Google+
-					if ( wp.isJetpackWidgetPlaced( placement, 'googleplus-badge' ) && 'object' === typeof gapi && gapi.person && 'function' === typeof gapi.person.go ) {
-						gapi.person.go( placement.container[0] );
+					if (
+						wp.isJetpackWidgetPlaced( placement, 'googleplus-badge' ) &&
+						'object' === typeof gapi &&
+						gapi.person &&
+						'function' === typeof gapi.person.go
+					) {
+						gapi.person.go( placement.container[ 0 ] );
 					}
 
 					// Refresh Facebook XFBML
-					else if ( wp.isJetpackWidgetPlaced( placement, 'facebook-likebox' ) && 'object' === typeof FB && 'object' === typeof FB.XFBML && 'function' === typeof FB.XFBML.parse ) {
-						FB.XFBML.parse( placement.container[0], function() {
-							var $fbContainer = $( placement.container[0] ).find( '.fb_iframe_widget' ),
+					else if (
+						wp.isJetpackWidgetPlaced( placement, 'facebook-likebox' ) &&
+						'object' === typeof FB &&
+						'object' === typeof FB.XFBML &&
+						'function' === typeof FB.XFBML.parse
+					) {
+						FB.XFBML.parse( placement.container[ 0 ], function() {
+							var $fbContainer = $( placement.container[ 0 ] ).find( '.fb_iframe_widget' ),
 								fbWidth = $fbContainer.data( 'width' ),
 								fbHeight = $fbContainer.data( 'height' );
-							$fbContainer.find( 'span' ).css( { 'width': fbWidth, 'height': fbHeight } );
+							$fbContainer.find( 'span' ).css( { width: fbWidth, height: fbHeight } );
 							setTimeout( function() {
-								$fbContainer.find( 'iframe' ).css( { 'width': fbWidth, 'height': fbHeight, 'position': 'relative' } );
+								$fbContainer
+									.find( 'iframe' )
+									.css( { width: fbWidth, height: fbHeight, position: 'relative' } );
 							}, 1 );
 						} );
 					}
 
 					// Refresh Twitter
-					else if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
-						twttr.widgets.load( placement.container[0] );
+					else if (
+						wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) &&
+						'object' === typeof twttr &&
+						'object' === typeof twttr.widgets &&
+						'function' === typeof twttr.widgets.load
+					) {
+						twttr.widgets.load( placement.container[ 0 ] );
 					} else if ( wp.isJetpackWidgetPlaced( placement, 'eu_cookie_law_widget' ) ) {
 						// Refresh EU Cookie Law
 						if ( $( '#eu-cookie-law' ).hasClass( 'top' ) ) {
@@ -67,7 +86,9 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
 						// Refresh Simple Payments Widget
 						try {
-							var buttonId = $( '.jetpack-simple-payments-button', placement.container ).attr( 'id' ).replace( '_button', '' );
+							var buttonId = $( '.jetpack-simple-payments-button', placement.container )
+								.attr( 'id' )
+								.replace( '_button', '' );
 							PaypalExpressCheckout.renderButton( null, null, buttonId, null );
 						} catch ( e ) {
 							// PaypalExpressCheckout may fail.
@@ -82,7 +103,10 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 			wp.customize.selectiveRefresh.bind( 'partial-content-moved', function( placement ) {
 				if ( placement.container ) {
 					// Refresh Twitter timeline iframe, since it has to be re-built.
-					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length ) {
+					if (
+						wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) &&
+						placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length
+					) {
 						placement.partial.refresh();
 					} else if ( wp.isJetpackWidgetPlaced( placement, 'jetpack_simple_payments_widget' ) ) {
 						// Refresh Simple Payments Widget

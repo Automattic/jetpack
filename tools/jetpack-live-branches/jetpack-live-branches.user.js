@@ -15,12 +15,14 @@
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
 		const branch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = branch.includes( ':' );
-		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
+		const branchIsMerged =
+			$( '.gh-header-meta .State' )
+				.text()
+				.trim() === 'Merged';
 		const base = 'https://jurassic.ninja/create?';
 		const query = `jetpack-beta&branch=${ branch }&wp-debug-log`;
 		let link = base + query;
-		const canLiveTestText =
-			`<div id="jetpack-live-branches">
+		const canLiveTestText = `<div id="jetpack-live-branches">
 			<h2>Jetpack Live Branches</h2>
 			<p style="height:3em;" ><a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="${ link }">${ link }</a></p>
 			<ul>
@@ -37,7 +39,7 @@
 		const branchIsForkedText =
 			'<div id="jetpack-live-branches">' +
 			'<h2>Jetpack Live Branches</h2>' +
-			'<p><strong>This branch can\'t be tested live because it comes from a forked version of this repo.</p>' +
+			"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</p>" +
 			'</div>';
 		const branchIsMergedText =
 			'<div id="jetpack-live-branches">' +
@@ -56,7 +58,11 @@
 			const div = document.createElement( 'div' );
 			const $el = $( el );
 			$( div ).append( str );
-			$el.append( $( div ).children().get( 0 ) );
+			$el.append(
+				$( div )
+					.children()
+					.get( 0 )
+			);
 
 			$el.find( 'input[type=checkbox]' ).change( toggle );
 		}
@@ -69,15 +75,22 @@
 			const name = $this.attr( 'name' );
 			const checked = $this.is( ':checked' );
 
-			const query_array = $link.attr( 'href' ).split( '?' )[ 1 ].split( '&' );
+			const query_array = $link
+				.attr( 'href' )
+				.split( '?' )[ 1 ]
+				.split( '&' );
 
 			if ( checked ) {
 				query_array.push( name );
 				link = base + query_array.join( '&' );
 			} else {
-				link = base + query_array.filter( function( item ) {
-					return item !== name;
-				} ).join( '&' );
+				link =
+					base +
+					query_array
+						.filter( function( item ) {
+							return item !== name;
+						} )
+						.join( '&' );
 			}
 			$link.attr( 'href', link );
 			$link.text( link );

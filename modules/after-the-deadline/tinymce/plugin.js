@@ -18,12 +18,14 @@
  *	Moxiecode Spell Checker plugin released under the LGPL with TinyMCE
  */
 tinymce.PluginManager.add( 'AtD', function( editor ) {
-	var suggestionsMenu, started, atdCore, dom,
+	var suggestionsMenu,
+		started,
+		atdCore,
+		dom,
 		each = tinymce.each;
 
 	/* initializes the functions used by the AtD Core UI Module */
 	function initAtDCore() {
-
 		atdCore = new window.AtDCore();
 		atdCore.map = each;
 		atdCore._isTinyMCE = true;
@@ -34,7 +36,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 
 		atdCore.findSpans = function( parent ) {
 			if ( parent === undefined ) {
-				return dom.select('span');
+				return dom.select( 'span' );
 			} else {
 				return dom.select( 'span', parent );
 			}
@@ -53,7 +55,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		};
 
 		atdCore.create = function( node_html ) {
-			return dom.create( 'span', { 'class': 'mceItemHidden', 'data-mce-bogus': 1 }, node_html );
+			return dom.create( 'span', { class: 'mceItemHidden', 'data-mce-bogus': 1 }, node_html );
 		};
 
 		atdCore.removeParent = function( node ) {
@@ -65,16 +67,18 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			dom.remove( node );
 		};
 
-		atdCore.setIgnoreStrings( editor.getParam( 'atd_ignore_strings', [] ).join(',') );
+		atdCore.setIgnoreStrings( editor.getParam( 'atd_ignore_strings', [] ).join( ',' ) );
 		atdCore.showTypes( editor.getParam( 'atd_show_types', '' ) );
 	}
 
 	function getLang( key, defaultStr ) {
-		return ( window.AtD_l10n_r0ar && window.AtD_l10n_r0ar[key] ) || defaultStr;
+		return ( window.AtD_l10n_r0ar && window.AtD_l10n_r0ar[ key ] ) || defaultStr;
 	}
 
 	function isMarkedNode( node ) {
-		return ( node.className && /\bhidden(GrammarError|SpellError|Suggestion)\b/.test( node.className ) );
+		return (
+			node.className && /\bhidden(GrammarError|SpellError|Suggestion)\b/.test( node.className )
+		);
 	}
 
 	function markMyWords( errors ) {
@@ -83,7 +87,10 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 
 	// If no more suggestions, finish.
 	function checkIfFinished() {
-		if ( ! editor.dom.select('span.hiddenSpellError, span.hiddenGrammarError, span.hiddenSuggestion').length ) {
+		if (
+			! editor.dom.select( 'span.hiddenSpellError, span.hiddenGrammarError, span.hiddenSuggestion' )
+				.length
+		) {
 			if ( suggestionsMenu ) {
 				suggestionsMenu.hide();
 			}
@@ -96,13 +103,18 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		var dom = editor.dom;
 
 		if ( all ) {
-			each( editor.dom.select( 'span.hiddenSpellError, span.hiddenGrammarError, span.hiddenSuggestion' ), function( node ) {
-				var text = node.innerText || node.textContent;
+			each(
+				editor.dom.select(
+					'span.hiddenSpellError, span.hiddenGrammarError, span.hiddenSuggestion'
+				),
+				function( node ) {
+					var text = node.innerText || node.textContent;
 
-				if ( text === word ) {
-					dom.remove( node, true );
+					if ( text === word ) {
+						dom.remove( node, true );
+					}
 				}
-			});
+			);
 		} else {
 			dom.remove( target, true );
 		}
@@ -116,11 +128,12 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		var node,
 			dom = editor.dom,
 			regex = new RegExp( 'mceItemHidden|hidden(((Grammar|Spell)Error)|Suggestion)' ),
-			nodes = dom.select('span'),
+			nodes = dom.select( 'span' ),
 			i = nodes.length;
 
-		while ( i-- ) { // reversed
-			node = nodes[i];
+		while ( i-- ) {
+			// reversed
+			node = nodes[ i ];
 
 			if ( node.className && regex.test( node.className ) ) {
 				dom.remove( node, true );
@@ -128,11 +141,11 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		}
 
 		// Rebuild the DOM so AtD core can find the text nodes
-		editor.setContent( editor.getContent({ format: 'raw' }), { format: 'raw' } );
+		editor.setContent( editor.getContent( { format: 'raw' } ), { format: 'raw' } );
 
 		started = false;
 		editor.nodeChanged();
-		editor.fire('SpellcheckEnd');
+		editor.fire( 'SpellcheckEnd' );
 	}
 
 	function sendRequest( file, data, success ) {
@@ -147,7 +160,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		// create the nifty spinny thing that says "hizzo, I'm doing something fo realz"
 		editor.setProgressState( true );
 
-		tinymce.util.XHR.send({
+		tinymce.util.XHR.send( {
 			url: url + '/' + file,
 			content_type: 'text/xml',
 			type: 'POST',
@@ -156,11 +169,11 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			error: function( type, req, o ) {
 				editor.setProgressState();
 				window.alert( type + '\n' + req.status + '\nAt: ' + o.url );
-			}
-		});
+			},
+		} );
 	}
 
-	function storeIgnoredStrings( /*text*/ ) {
+	function storeIgnoredStrings(/*text*/) {
 		// Store in sessionStorage?
 	}
 
@@ -172,14 +185,15 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			storeIgnoredStrings( text );
 		} else {
 			// Plugin is configured to send ignore preferences to server, do that
-			tinymce.util.XHR.send({
-				url: url + encodeURIComponent( text ) + '&key=' + editor.getParam( 'atd_rpc_id', '12345678' ),
+			tinymce.util.XHR.send( {
+				url:
+					url + encodeURIComponent( text ) + '&key=' + editor.getParam( 'atd_rpc_id', '12345678' ),
 				content_type: 'text/xml',
 				type: 'GET',
 				error: function() {
 					storeIgnoredStrings( text );
-				}
-			});
+				},
+			} );
 		}
 
 		// Update atd_ignore_strings with the new value
@@ -188,83 +202,88 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 
 	// Create the suggestions menu
 	function showSuggestions( target ) {
-		var pos, root, targetPos,
+		var pos,
+			root,
+			targetPos,
 			items = [],
 			text = target.innerText || target.textContent,
 			errorDescription = atdCore.findSuggestion( target );
 
 		if ( ! errorDescription ) {
-			items.push({
+			items.push( {
 				text: getLang( 'menu_title_no_suggestions', 'No suggestions' ),
 				classes: 'atd-menu-title',
-				disabled: true
-			});
+				disabled: true,
+			} );
 		} else {
-			items.push({
+			items.push( {
 				text: errorDescription.description,
 				classes: 'atd-menu-title',
-				disabled: true
-			});
+				disabled: true,
+			} );
 
 			if ( errorDescription.suggestions.length ) {
-				items.push({ text: '-' }); // separator
+				items.push( { text: '-' } ); // separator
 
 				each( errorDescription.suggestions, function( suggestion ) {
-					items.push({
+					items.push( {
 						text: suggestion,
 						onclick: function() {
 							atdCore.applySuggestion( target, suggestion );
 							checkIfFinished();
-						}
-					});
-				});
+						},
+					} );
+				} );
 			}
 		}
 
 		if ( errorDescription && errorDescription.moreinfo ) {
-			items.push({ text: '-' }); // separator
+			items.push( { text: '-' } ); // separator
 
-			items.push({
+			items.push( {
 				text: getLang( 'menu_option_explain', 'Explain...' ),
-				onclick : function() {
-					editor.windowManager.open({
+				onclick: function() {
+					editor.windowManager.open( {
 						title: getLang( 'menu_option_explain', 'Explain...' ),
 						url: errorDescription.moreinfo,
 						width: 480,
 						height: 380,
-						inline: true
-					});
-				}
-			});
+						inline: true,
+					} );
+				},
+			} );
 		}
 
 		items.push.apply( items, [
 			{ text: '-' }, // separator
 
-			{ text: getLang( 'menu_option_ignore_once', 'Ignore suggestion' ), onclick: function() {
-				ignoreWord( target, text );
-			}}
-		]);
+			{
+				text: getLang( 'menu_option_ignore_once', 'Ignore suggestion' ),
+				onclick: function() {
+					ignoreWord( target, text );
+				},
+			},
+		] );
 
 		if ( editor.getParam( 'atd_ignore_enable' ) ) {
-			items.push({
+			items.push( {
 				text: getLang( 'menu_option_ignore_always', 'Ignore always' ),
 				onclick: function() {
 					setAlwaysIgnore( text );
 					ignoreWord( target, text, true );
-				}
-			});
+				},
+			} );
 		} else {
-			items.push({
+			items.push( {
 				text: getLang( 'menu_option_ignore_all', 'Ignore all' ),
 				onclick: function() {
 					ignoreWord( target, text, true );
-				}
-			});
+				},
+			} );
 		}
 
 		// Render menu
-		suggestionsMenu = new tinymce.ui.Menu({
+		suggestionsMenu = new tinymce.ui.Menu( {
 			items: items,
 			context: 'contextmenu',
 			onautohide: function( event ) {
@@ -275,8 +294,8 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			onhide: function() {
 				suggestionsMenu.remove();
 				suggestionsMenu = null;
-			}
-		});
+			},
+		} );
 
 		suggestionsMenu.renderTo( document.body );
 
@@ -316,7 +335,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 				errorCount = 0;
 
 			if ( typeof callback !== 'function' ) {
-				callback = function(){};
+				callback = function() {};
 			}
 
 			// checks if a global var for click stats exists and increments it if it does...
@@ -331,25 +350,35 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			}
 
 			// send request to our service
-			sendRequest( 'checkDocument', editor.getContent({ format: 'raw' }), function( data, request ) {
+			sendRequest( 'checkDocument', editor.getContent( { format: 'raw' } ), function(
+				data,
+				request
+			) {
 				// turn off the spinning thingie
 				editor.setProgressState();
 
 				// if the server is not accepting requests, let the user know
-				if ( request.status !== 200 || request.responseText.substr( 1, 4 ) === 'html' || ! request.responseXML ) {
+				if (
+					request.status !== 200 ||
+					request.responseText.substr( 1, 4 ) === 'html' ||
+					! request.responseXML
+				) {
 					editor.windowManager.alert(
-						getLang( 'message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.' ),
-						callback(0)
+						getLang(
+							'message_server_error',
+							'There was a problem communicating with the Proofreading service. Try again in one minute.'
+						),
+						callback( 0 )
 					);
 
 					return;
 				}
 
 				// check to see if things are broken first and foremost
-				if ( request.responseXML.getElementsByTagName('message').item(0) !== null ) {
+				if ( request.responseXML.getElementsByTagName( 'message' ).item( 0 ) !== null ) {
 					editor.windowManager.alert(
-						request.responseXML.getElementsByTagName('message').item(0).firstChild.data,
-						callback(0)
+						request.responseXML.getElementsByTagName( 'message' ).item( 0 ).firstChild.data,
+						callback( 0 )
 					);
 
 					return;
@@ -362,21 +391,25 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 				}
 
 				if ( ! errorCount ) {
-					editor.windowManager.alert( getLang( 'message_no_errors_found', 'No writing errors were found.' ) );
+					editor.windowManager.alert(
+						getLang( 'message_no_errors_found', 'No writing errors were found.' )
+					);
 				} else {
 					started = true;
-					editor.fire('SpellcheckStart');
+					editor.fire( 'SpellcheckStart' );
 				}
 
 				callback( errorCount );
-			});
-		});
+			} );
+		} );
 
 		if ( editor.settings.content_css !== false ) {
 			// CSS for underlining suggestions
-			dom.addStyle( '.hiddenSpellError{border-bottom:2px solid red;cursor:default;}' +
-				'.hiddenGrammarError{border-bottom:2px solid green;cursor:default;}' +
-				'.hiddenSuggestion{border-bottom:2px solid blue;cursor:default;}' );
+			dom.addStyle(
+				'.hiddenSpellError{border-bottom:2px solid red;cursor:default;}' +
+					'.hiddenGrammarError{border-bottom:2px solid green;cursor:default;}' +
+					'.hiddenSuggestion{border-bottom:2px solid blue;cursor:default;}'
+			);
 		}
 
 		// Menu z-index > DFW
@@ -390,8 +423,8 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 				// Create the suggestions menu
 				showSuggestions( event.target );
 			}
-		});
-	});
+		} );
+	} );
 
 	editor.addMenuItem( 'spellchecker', {
 		text: getLang( 'button_proofread_tooltip', 'Proofread Writing' ),
@@ -400,11 +433,11 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		onPostRender: function() {
 			var self = this;
 
-			editor.on('SpellcheckStart SpellcheckEnd', function() {
+			editor.on( 'SpellcheckStart SpellcheckEnd', function() {
 				self.active( started );
-			});
-		}
-	});
+			} );
+		},
+	} );
 
 	editor.addButton( 'spellchecker', {
 		tooltip: getLang( 'button_proofread_tooltip', 'Proofread Writing' ),
@@ -414,14 +447,14 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 
 			editor.on( 'SpellcheckStart SpellcheckEnd', function() {
 				self.active( started );
-			});
-		}
-	});
+			} );
+		},
+	} );
 
 	editor.on( 'remove', function() {
 		if ( suggestionsMenu ) {
 			suggestionsMenu.remove();
 			suggestionsMenu = null;
 		}
-	});
-});
+	} );
+} );

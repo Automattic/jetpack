@@ -55,7 +55,7 @@
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
     "test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js modules",
     "test-dangerci-and-adminpage": "yarn danger ci && yarn test-adminpage",
-    "reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"{_inc/client,extensions}/**/*.{js,jsx}\""
+    "reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"{_inc,bin,extensions,modules,tools,tests}/**/*.{js,jsx,json}\" ./*.js"
   },
   "husky": {
     "hooks": {

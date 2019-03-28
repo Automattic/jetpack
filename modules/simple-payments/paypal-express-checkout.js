@@ -16,18 +16,36 @@ var PaypalExpressCheckout = {
 	wpRestAPIVersion: '/wpcom/v2',
 
 	getEnvironment: function() {
-		if ( localStorage && localStorage.getItem && localStorage.getItem( 'simple-payments-env' ) === 'sandbox' ) {
+		if (
+			localStorage &&
+			localStorage.getItem &&
+			localStorage.getItem( 'simple-payments-env' ) === 'sandbox'
+		) {
 			return 'sandbox';
 		}
 		return 'production';
 	},
 
 	getCreatePaymentEndpoint: function( blogId ) {
-		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
+		return (
+			PaypalExpressCheckout.wpRestAPIHost +
+			PaypalExpressCheckout.wpRestAPIVersion +
+			'/sites/' +
+			blogId +
+			'/simple-payments/paypal/payment'
+		);
 	},
 
 	getExecutePaymentEndpoint: function( blogId, paymentId ) {
-		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
+		return (
+			PaypalExpressCheckout.wpRestAPIHost +
+			PaypalExpressCheckout.wpRestAPIVersion +
+			'/sites/' +
+			blogId +
+			'/simple-payments/paypal/' +
+			paymentId +
+			'/execute'
+		);
 	},
 
 	getNumberOfItems: function( field, enableMultiple ) {
@@ -102,7 +120,7 @@ var PaypalExpressCheckout = {
 					messages.push( '<p>' + additionalError.message.toString() + '</p>' );
 				}
 			} );
-			return messages.join('');
+			return messages.join( '' );
 		}
 
 		return '<p>' + ( error.message || defaultMessage ) + '</p>';
@@ -134,79 +152,97 @@ var PaypalExpressCheckout = {
 
 		var buttonDomId = domId + '_button';
 
-		paypal.Button.render( {
-			env: env,
-			commit: true,
+		paypal.Button.render(
+			{
+				env: env,
+				commit: true,
 
-			style: {
-				label: 'pay',
-				shape: 'rect',
-				color: 'silver',
-				fundingicons: true,
+				style: {
+					label: 'pay',
+					shape: 'rect',
+					color: 'silver',
+					fundingicons: true,
+				},
+
+				payment: function() {
+					PaypalExpressCheckout.cleanAndHideMessage( domId );
+
+					var payload = {
+						number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
+						buttonId: buttonId,
+						env: env,
+					};
+
+					return new paypal.Promise( function( resolve, reject ) {
+						jQuery
+							.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
+							.done( function( paymentResponse ) {
+								if ( ! paymentResponse ) {
+									PaypalExpressCheckout.showError(
+										PaypalExpressCheckout.processErrorMessage(),
+										domId
+									);
+									return reject( new Error( 'server_error' ) );
+								}
+
+								resolve( paymentResponse.id );
+							} )
+							.fail( function( paymentError ) {
+								var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
+								PaypalExpressCheckout.showError( paymentErrorMessage, domId );
+
+								var code =
+									paymentError.responseJSON && paymentError.responseJSON.code
+										? paymentError.responseJSON.code
+										: 'server_error';
+
+								reject( new Error( code ) );
+							} );
+					} );
+				},
+
+				onAuthorize: function( onAuthData ) {
+					var payload = {
+						buttonId: buttonId,
+						payerId: onAuthData.payerID,
+						env: env,
+					};
+					return new paypal.Promise( function( resolve, reject ) {
+						jQuery
+							.post(
+								PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ),
+								payload
+							)
+							.done( function( authResponse ) {
+								if ( ! authResponse ) {
+									PaypalExpressCheckout.showError(
+										PaypalExpressCheckout.processErrorMessage(),
+										domId
+									);
+									return reject( new Error( 'server_error' ) );
+								}
+
+								PaypalExpressCheckout.showMessage(
+									PaypalExpressCheckout.processSuccessMessage( authResponse ),
+									domId
+								);
+								resolve();
+							} )
+							.fail( function( authError ) {
+								var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
+								PaypalExpressCheckout.showError( authErrorMessage, domId );
+
+								var code =
+									authError.responseJSON && authError.responseJSON.code
+										? authError.responseJSON.code
+										: 'server_error';
+
+								reject( new Error( code ) );
+							} );
+					} );
+				},
 			},
-
-			payment: function() {
-				PaypalExpressCheckout.cleanAndHideMessage( domId );
-
-				var payload = {
-					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
-					buttonId: buttonId,
-					env: env
-				};
-
-				return new paypal.Promise( function( resolve, reject ) {
-					jQuery.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
-						.done( function( paymentResponse ) {
-							if ( ! paymentResponse ) {
-								PaypalExpressCheckout.showError( PaypalExpressCheckout.processErrorMessage(), domId );
-								return reject( new Error( 'server_error' ) );
-							}
-
-							resolve( paymentResponse.id );
-						} )
-						.fail( function( paymentError ) {
-							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
-							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
-
-							var code = paymentError.responseJSON && paymentError.responseJSON.code ?
-								paymentError.responseJSON.code : 'server_error';
-
-							reject( new Error( code ) );
-						} );
-				} );
-			},
-
-			onAuthorize: function( onAuthData ) {
-				var payload = {
-					buttonId: buttonId,
-					payerId: onAuthData.payerID,
-					env: env
-				};
-				return new paypal.Promise( function( resolve, reject ) {
-					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
-						.done( function( authResponse ) {
-							if ( ! authResponse ) {
-								PaypalExpressCheckout.showError( PaypalExpressCheckout.processErrorMessage(), domId );
-								return reject( new Error( 'server_error' ) );
-							}
-
-							PaypalExpressCheckout.showMessage(
-								PaypalExpressCheckout.processSuccessMessage( authResponse ),
-								domId
-							);
-							resolve();
-						} )
-						.fail( function( authError ) {
-							var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
-							PaypalExpressCheckout.showError( authErrorMessage, domId );
-
-							var code = authError.responseJSON && authError.responseJSON.code ?
-								authError.responseJSON.code : 'server_error';
-
-							reject( new Error( code ) );
-						} );
-				} );
-			}
-		}, buttonDomId );
-	}
+			buttonDomId
+		);
+	},
 };

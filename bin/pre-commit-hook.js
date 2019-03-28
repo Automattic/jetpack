@@ -52,14 +52,15 @@ function phpcsFilesToFilter( file ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function filterJsFiles( file ) {
-	return (
-		( file.startsWith( '_inc/client/' ) || file.startsWith( 'extensions/' ) ) &&
-		( file.endsWith( '.js' ) || file.endsWith( '.jsx' ) )
-	);
+	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-const gitFiles = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' ).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter( Boolean );
+const gitFiles = parseGitDiffToPathArray(
+	'git diff --cached --name-only --diff-filter=ACM'
+).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
+	Boolean
+);
 const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
@@ -91,7 +92,7 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const toLint = jsFiles;
+const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
 if ( toLint.length ) {
 	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
 		shell: true,
@@ -148,10 +149,13 @@ if ( phpcbfResult && phpcbfResult.status ) {
 }
 
 if ( phpcsResult && phpcsResult.status ) {
-	const phpcsStatus = ( 2 === phpcsResult.status ? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n' : 'PHPCS reported some problems and cannot automatically fix them.\n' );
+	const phpcsStatus =
+		2 === phpcsResult.status
+			? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
+			: 'PHPCS reported some problems and cannot automatically fix them.\n';
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
-			phpcsStatus +
+		phpcsStatus +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.\n' +
 			"But please don't. Code is poetry."
