@@ -8,6 +8,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
@@ -16,7 +17,6 @@ import { includes } from 'lodash';
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import PublicizeServiceIcon from './service-icon';
 import getSiteFragment from '../../shared/get-site-fragment';
 

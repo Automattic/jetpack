@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
-import { __ } from '../../utils/i18n';
 
 /**
  * Internal dependencies

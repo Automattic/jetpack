@@ -1,15 +1,10 @@
 /**
  * External dependencies
  */
+import { _x, sprintf } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { date } from '@wordpress/date';
 import { isEmpty } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { _x } from '../../../utils/i18n';
 
 class DayPreview extends Component {
 	formatTime( time ) {

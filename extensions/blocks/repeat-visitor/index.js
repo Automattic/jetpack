@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __, _x } from '../../utils/i18n';
 import renderMaterialIcon from '../../utils/render-material-icon';
 import edit from './components/edit';
 import save from './components/save';

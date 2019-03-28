@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -10,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import edit from './edit';
 import save from './save';
 import { DEFAULT_CURRENCY } from './constants';
-import { __, _x } from '../../utils/i18n';
 
 /**
  * Styles

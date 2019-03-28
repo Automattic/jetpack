@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import { __, _x } from '../../utils/i18n';
-import { isBlobURL } from '@wordpress/blob';
-import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { __, _x } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
+import { filter, pick } from 'lodash';
+import { isBlobURL } from '@wordpress/blob';
+import { withDispatch } from '@wordpress/data';
 import {
 	BlockControls,
-	MediaUpload,
-	MediaPlaceholder,
 	InspectorControls,
+	MediaPlaceholder,
+	MediaUpload,
 	mediaUpload,
 } from '@wordpress/editor';
-
 import {
 	DropZone,
 	FormFileUpload,
@@ -25,7 +25,6 @@ import {
 	Toolbar,
 	withNotices,
 } from '@wordpress/components';
-import { filter, pick } from 'lodash';
 
 /**
  * Internal dependencies

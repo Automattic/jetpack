@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { TextControl, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import SubmitButton from '../../utils/submit-button';
-import apiFetch from '@wordpress/api-fetch';
-import { sprintf, _n } from '@wordpress/i18n';
 
 class SubscriptionEdit extends Component {
 	state = {

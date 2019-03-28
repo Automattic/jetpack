@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -10,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import './editor.scss';
 import edit from './edit';
 import save from './save';
-import { __ } from '../../utils/i18n';
 
 export const name = 'markdown';
 

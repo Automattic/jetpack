@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import edit from './edit';
-import save from './save';
 import renderMaterialIcon from '../../../utils/render-material-icon';
-import { __, _x } from '../../../utils/i18n';
+import save from './save';
 
 const attributes = {
 	email: {

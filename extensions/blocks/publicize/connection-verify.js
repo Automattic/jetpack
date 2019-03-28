@@ -11,15 +11,11 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../utils/i18n';
 
 class PublicizeConnectionVerify extends Component {
 	componentDidMount() {

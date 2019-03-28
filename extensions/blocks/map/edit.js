@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import {
 	Button,
@@ -30,7 +31,6 @@ import AddPoint from './add-point';
 import Locations from './locations';
 import Map from './component.js';
 import MapThemePicker from './map-theme-picker';
-import { __ } from '../../utils/i18n';
 import { settings } from './settings.js';
 
 const API_STATE_LOADING = 0;

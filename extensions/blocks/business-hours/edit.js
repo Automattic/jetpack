@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
+import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
+import { __experimentalGetSettings } from '@wordpress/date';
 import { BlockIcon } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
-import classNames from 'classnames';
-import { __experimentalGetSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import { __experimentalGetSettings } from '@wordpress/date';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';
-import { __ } from '../../utils/i18n';
 
 const defaultLocalization = {
 	days: {

@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { BaseControl, PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { withInstanceId } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/editor';
+import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
-import { __ } from '../../../utils/i18n';
 
 const JetpackFieldCheckbox = ( {
 	instanceId,

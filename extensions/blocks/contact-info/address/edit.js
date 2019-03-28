@@ -2,15 +2,15 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { PlainText } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
+import { PlainText } from '@wordpress/editor';
 import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../../utils/i18n';
-import { default as save } from './save';
+import save from './save';
 
 class AddressEdit extends Component {
 	constructor( ...args ) {

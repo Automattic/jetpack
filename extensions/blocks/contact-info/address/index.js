@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Path, Circle } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { Path, Circle } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import edit from './edit';
 import save from './save';
 import renderMaterialIcon from '../../../utils/render-material-icon';
-import { __, _x } from '../../../utils/i18n';
 
 const attributes = {
 	address: {

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 import { filter } from 'lodash';
 import { Path, SVG } from '@wordpress/components';
@@ -8,7 +9,6 @@ import { Path, SVG } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { __, _x } from '../../utils/i18n';
 import edit from './edit';
 import save from './save';
 import {

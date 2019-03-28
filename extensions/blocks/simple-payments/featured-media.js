@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import { Fragment } from '@wordpress/element';
-import { IconButton, Toolbar, ToolbarButton } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/editor';
+import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../utils/i18n';
+import { IconButton, Toolbar, ToolbarButton } from '@wordpress/components';
 
 const onSelectMedia = setAttributes => media =>
 	setAttributes( {

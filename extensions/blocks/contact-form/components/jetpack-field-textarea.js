@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { TextareaControl, TextControl, PanelBody } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/editor';
+import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
-import { __ } from '../../../utils/i18n';
 
 function JetpackFieldTextarea( {
 	required,

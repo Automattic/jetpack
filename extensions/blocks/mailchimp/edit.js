@@ -2,9 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '../../utils/i18n';
 import classnames from 'classnames';
 import SubmitButton from '../../utils/submit-button';
+import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	ExternalLink,

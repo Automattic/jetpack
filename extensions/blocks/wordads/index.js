@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
 

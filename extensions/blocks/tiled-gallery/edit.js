@@ -1,6 +1,7 @@
 /**
  * External Dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { filter, get, pick } from 'lodash';
 import {
@@ -26,7 +27,6 @@ import {
  */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { __ } from '../../utils/i18n';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../utils';
 import { icon } from '.';

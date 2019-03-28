@@ -1,13 +1,9 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { IconButton } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
 
 class JetpackOption extends Component {
 	constructor( ...args ) {

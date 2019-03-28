@@ -1,8 +1,12 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import save from './save';
-import { __ } from '../../../utils/i18n';
 import simpleInput from '../../../utils/simple-input';
 
 const PhoneEdit = props => {

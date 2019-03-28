@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { IconButton, TextControl, ToggleControl } from '@wordpress/components';
-import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
+import { isEmpty } from 'lodash';
 
 const defaultOpen = '09:00';
 const defaultClose = '17:00';

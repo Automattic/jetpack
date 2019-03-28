@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
 import edit from './edit';
-import { __, _x } from '../../utils/i18n';
+import './style.scss';
 
 export const name = 'related-posts';
 

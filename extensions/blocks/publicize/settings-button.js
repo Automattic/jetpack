@@ -9,6 +9,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
@@ -16,7 +17,6 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import getSiteFragment from '../../shared/get-site-fragment';
 
 class PublicizeSettingsButton extends Component {

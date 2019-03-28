@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
-import ResizeObserver from 'resize-observer-polyfill';
 import classnames from 'classnames';
+import ResizeObserver from 'resize-observer-polyfill';
+import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { isEqual } from 'lodash';

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { BlockControls, PlainText } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
@@ -10,7 +11,6 @@ import { withDispatch, withSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import MarkdownRenderer from './renderer';
-import { __ } from '../../utils/i18n';
 
 /**
  * Module variables

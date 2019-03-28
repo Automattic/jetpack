@@ -1,13 +1,17 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { isEmpty } from 'lodash';
+import { Path } from '@wordpress/components';
+import { RawHTML } from '@wordpress/element';
+
+/**
  * Internal dependencies
  */
 import edit from './edit';
 import save from './save';
-import { __ } from '../../utils/i18n';
 import renderMaterialIcon from '../../utils/render-material-icon';
-import { Path } from '@wordpress/components';
-import { isEmpty } from 'lodash';
-import { RawHTML } from '@wordpress/element';
 
 export const name = 'subscriptions';
 export const settings = {

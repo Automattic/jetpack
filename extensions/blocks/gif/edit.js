@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
 import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { Button, PanelBody, Path, Placeholder, SVG, TextControl } from '@wordpress/components';
 import { InspectorControls, RichText } from '@wordpress/editor';
 
+/**
+ * Internal dependencies
+ */
 import { icon, title } from './';
 
 const GIPHY_API_KEY = 't1PkR1Vq0mzHueIFBvZSZErgFs9NBmYW';

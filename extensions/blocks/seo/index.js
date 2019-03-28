@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
@@ -11,7 +12,6 @@ import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import './editor.scss';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoPanel from './panel';
-import { __ } from '../../utils/i18n';
 
 export const name = 'seo';
 

@@ -3,11 +3,12 @@
  */
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 import { get, isEqual, pick, trimEnd } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
+import { getCurrencyDefaults } from '@automattic/format-currency';
 import {
 	Disabled,
 	ExternalLink,
@@ -16,7 +17,6 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { getCurrencyDefaults } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -24,7 +24,6 @@ import { getCurrencyDefaults } from '@automattic/format-currency';
 import HelpMessage from './help-message';
 import ProductPlaceholder from './product-placeholder';
 import FeaturedMedia from './featured-media';
-import { __, _n } from '../../utils/i18n';
 import { decimalPlaces, formatPrice } from './utils';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 

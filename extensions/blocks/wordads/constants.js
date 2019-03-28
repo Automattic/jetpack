@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../utils/i18n';
 
 export const DEFAULT_FORMAT = 'mrec';
 export const AD_FORMATS = [

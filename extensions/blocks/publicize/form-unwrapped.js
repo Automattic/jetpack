@@ -10,7 +10,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { uniqueId } from 'lodash';
 
@@ -19,7 +19,6 @@ import { uniqueId } from 'lodash';
  */
 import PublicizeConnection from './connection';
 import PublicizeSettingsButton from './settings-button';
-import { __, _n } from '../../utils/i18n';
 
 export const MAXIMUM_MESSAGE_LENGTH = 256;
 

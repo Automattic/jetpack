@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
@@ -13,11 +14,6 @@ import {
 	withColors,
 } from '@wordpress/editor';
 import { isEqual, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { __ } from './i18n';
 
 const { getComputedStyle } = window;
 

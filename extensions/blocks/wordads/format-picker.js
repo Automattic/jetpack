@@ -1,12 +1,12 @@
 /**
  * External Dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Dropdown, MenuItem, NavigableMenu, Path, SVG, Toolbar } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import { AD_FORMATS } from './constants';
 
 const label = __( 'Pick an ad format' );

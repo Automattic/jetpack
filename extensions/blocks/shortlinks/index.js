@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { get } from 'lodash';
 import { PanelBody } from '@wordpress/components';
@@ -11,7 +12,6 @@ import { withSelect } from '@wordpress/data';
  */
 import ClipboardInput from '../../utils/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import { __ } from '../../utils/i18n';
 
 export const name = 'shortlinks';
 

@@ -1,16 +1,11 @@
 /**
  * External dependencies
  */
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { get } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { __, _n } from '../../utils/i18n';
 
 class SeoPanel extends Component {
 	onMessageChange = event => {

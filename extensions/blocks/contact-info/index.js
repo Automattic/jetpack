@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/editor';
 import { Path } from '@wordpress/components';
 
@@ -9,7 +10,6 @@ import { Path } from '@wordpress/components';
  */
 import edit from './edit';
 import renderMaterialIcon from '../../utils/render-material-icon';
-import { __, _x } from '../../utils/i18n';
 import './editor.scss';
 import './style.scss';
 import { name as addressName, settings as addressSettings } from './address/';

@@ -2,20 +2,20 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { Button, PanelBody, Placeholder, TextControl, Path } from '@wordpress/components';
-import { InnerBlocks, InspectorControls } from '@wordpress/editor';
-import { Component, Fragment } from '@wordpress/element';
-import { sprintf } from '@wordpress/i18n';
 import emailValidator from 'email-validator';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, PanelBody, Path, Placeholder, TextControl } from '@wordpress/components';
+import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
+import { InnerBlocks, InspectorControls } from '@wordpress/editor';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../../utils/i18n';
+import HelpMessage from '../../../shared/help-message';
 import renderMaterialIcon from '../../../utils/render-material-icon';
 import SubmitButton from '../../../utils/submit-button';
-import HelpMessage from '../../../shared/help-message';
+
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
 	'core/paragraph',

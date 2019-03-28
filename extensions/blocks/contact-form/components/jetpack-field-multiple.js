@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { BaseControl, IconButton, TextControl, PanelBody } from '@wordpress/components';
-import { withInstanceId } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
+import { BaseControl, IconButton, PanelBody, TextControl } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/editor';
+import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
-import { __ } from '../../../utils/i18n';
 
 class JetpackFieldMultiple extends Component {
 	constructor( ...args ) {

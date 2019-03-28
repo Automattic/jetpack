@@ -2,19 +2,19 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { isBlobURL } from '@wordpress/blob';
-import { compose, createHigherOrderComponent } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { Disabled, IconButton, SandBox, Toolbar } from '@wordpress/components';
+import classnames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { BlockControls, RichText } from '@wordpress/editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import classnames from 'classnames';
+import { compose, createHigherOrderComponent } from '@wordpress/compose';
+import { Disabled, IconButton, SandBox, Toolbar } from '@wordpress/components';
 import { get } from 'lodash';
+import { isBlobURL } from '@wordpress/blob';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import Loading from './loading';
 
 const VideoPressEdit = CoreVideoEdit =>
