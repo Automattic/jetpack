@@ -80,13 +80,13 @@ abstract class Jetpack_Sync_Module {
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
 				$remaining_items       = array_slice( $chunked_ids, 0, $remaining_items_count );
-				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_endpoint( $remaining_items, $previous_interval_end );
+				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
 				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
-			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_endpoints( $chunked_ids, $previous_interval_end );
+			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
@@ -99,7 +99,7 @@ abstract class Jetpack_Sync_Module {
 		return array( $chunk_count, true );
 	}
 
-	private function get_chunks_with_preceding_endpoints( $chunks, $previous_interval_end ) {
+	private function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
 		foreach( $chunks as $chunk ) {
 			$chunks_with_endpoints[] = array(
 				'ids' => $chunk,
