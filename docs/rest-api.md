@@ -154,7 +154,6 @@ Fetch a list of Jetpack settings.
 	"Redundant Expression":true,
 	"guess_lang":false,
 	"ignored_phrases":"billy,asdf,lola,y,l,asd,jsd",
-	"after-the-deadline":true,
 	"carousel_background_color":"white",
 	"carousel_display_exif":true
 }

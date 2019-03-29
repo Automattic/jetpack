@@ -79,7 +79,6 @@ class Jetpack {
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
 		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),

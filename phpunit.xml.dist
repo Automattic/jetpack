@@ -52,9 +52,6 @@
 		<testsuite name="shortcodes">
 			<directory prefix="test" suffix=".php">tests/php/modules/shortcodes</directory>
 		</testsuite>
-		<testsuite name="after-the-deadline">
-			<file>tests/php/modules/test_class.after_the_deadline.php</file>
-		</testsuite>
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
