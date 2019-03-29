@@ -59,7 +59,9 @@
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
-		"lint": "yarn lint-file .",
+		"lint": "npm-run-all --parallel lint:*",
+		"lint:js": "yarn lint-file .",
+		"lint:scss": "stylelint \"**/*.scss\" --syntax scss",
 		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
 		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# tools/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('tools/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && yarn lint --max-warnings=0 --ignore-path .eslintignore-required",
@@ -94,6 +96,7 @@
 	},
 	"devDependencies": {
 		"@wordpress/eslint-plugin": "7.4.0",
+		"@wordpress/stylelint-config": "18.0.0",
 		"babel-eslint": "10.1.0",
 		"commander": "6.2.1",
 		"concurrently": "5.3.0",
@@ -114,7 +117,8 @@
 		"husky": "4.3.8",
 		"moment": "2.29.1",
 		"parse-diff": "0.7.1",
-		"prettier": "npm:wp-prettier@2.0.5"
+		"prettier": "npm:wp-prettier@2.0.5",
+		"stylelint": "13.8.0"
 	},
 	"optionalDependencies": {
 		"react": "16.13.1",
