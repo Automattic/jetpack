@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
 * Blocks: display all Business Hours details, even if they're the default set.
 * Blocks: fix an error that occurred when loading some translations in the Block Editor.
+* Blocks: resolve a conflict between the Ads block and infinite scroll that would cause new posts to sometimes not load.
 * General: ensure the proper Jetpack plan is reflected throughout Jetpack and the administrative dashboard.
 * Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
