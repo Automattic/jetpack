@@ -19,12 +19,15 @@ function PlaceholderPostEdit( props ) {
 			aria-labelledby={ props.id + '-heading' }
 		>
 			<strong id={ props.id + '-heading' } className="jp-related-posts-i2__post-link">
-				{ __( "Preview unavailable: you haven't published enough posts with similar content." ) }
+				{ __(
+					"Preview unavailable: you haven't published enough posts with similar content.",
+					'jetpack'
+				) }
 			</strong>
 			{ props.displayThumbnails && (
 				<figure
 					className="jp-related-posts-i2__post-image-placeholder"
-					aria-label={ __( 'Placeholder image' ) }
+					aria-label={ __( 'Placeholder image', 'jetpack' ) }
 				>
 					<SVG
 						className="jp-related-posts-i2__post-image-placeholder-square"
@@ -33,7 +36,7 @@ function PlaceholderPostEdit( props ) {
 						height="100%"
 						viewBox="0 0 350 200"
 					>
-						<title>{ __( 'Grey square' ) }</title>
+						<title>{ __( 'Grey square', 'jetpack' ) }</title>
 						<Path d="M0 0h350v200H0z" fill="#8B8B96" fill-opacity=".1" />
 					</SVG>
 					<SVG
@@ -43,7 +46,7 @@ function PlaceholderPostEdit( props ) {
 						height="24"
 						viewBox="0 0 24 24"
 					>
-						<title>{ __( 'Icon for image' ) }</title>
+						<title>{ __( 'Icon for image', 'jetpack' ) }</title>
 						<Path fill="none" d="M0 0h24v24H0V0z" />
 						<Path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z" />
 					</SVG>
@@ -52,12 +55,12 @@ function PlaceholderPostEdit( props ) {
 
 			{ props.displayDate && (
 				<div className="jp-related-posts-i2__post-date has-small-font-size">
-					{ __( 'August 3, 2018' ) }
+					{ __( 'August 3, 2018', 'jetpack' ) }
 				</div>
 			) }
 			{ props.displayContext && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
-					{ __( 'In “Uncategorized”' ) }
+					{ __( 'In “Uncategorized”', 'jetpack' ) }
 				</div>
 			) }
 		</div>
@@ -144,13 +147,13 @@ class RelatedPostsEdit extends Component {
 		const layoutControls = [
 			{
 				icon: 'grid-view',
-				title: __( 'Grid View' ),
+				title: __( 'Grid View', 'jetpack' ),
 				onClick: () => setAttributes( { postLayout: 'grid' } ),
 				isActive: postLayout === 'grid',
 			},
 			{
 				icon: 'list-view',
-				title: __( 'List View' ),
+				title: __( 'List View', 'jetpack' ),
 				onClick: () => setAttributes( { postLayout: 'list' } ),
 				isActive: postLayout === 'list',
 			},
@@ -194,24 +197,24 @@ class RelatedPostsEdit extends Component {
 		return (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Related Posts Settings' ) }>
+					<PanelBody title={ __( 'Related Posts Settings', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Display thumbnails' ) }
+							label={ __( 'Display thumbnails', 'jetpack' ) }
 							checked={ displayThumbnails }
 							onChange={ value => setAttributes( { displayThumbnails: value } ) }
 						/>
 						<ToggleControl
-							label={ __( 'Display date' ) }
+							label={ __( 'Display date', 'jetpack' ) }
 							checked={ displayDate }
 							onChange={ value => setAttributes( { displayDate: value } ) }
 						/>
 						<ToggleControl
-							label={ __( 'Display context (category or tag)' ) }
+							label={ __( 'Display context (category or tag)', 'jetpack' ) }
 							checked={ displayContext }
 							onChange={ value => setAttributes( { displayContext: value } ) }
 						/>
 						<RangeControl
-							label={ __( 'Number of posts' ) }
+							label={ __( 'Number of posts', 'jetpack' ) }
 							value={ postsToShow }
 							onChange={ value =>
 								setAttributes( { postsToShow: Math.min( value, MAX_POSTS_TO_SHOW ) } )

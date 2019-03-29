@@ -64,12 +64,13 @@ class JetpackContactForm extends Component {
 
 	getIntroMessage() {
 		return __(
-			'You’ll receive an email notification each time someone fills out the form. Where should it go, and what should the subject line be?'
+			'You’ll receive an email notification each time someone fills out the form. Where should it go, and what should the subject line be?',
+			'jetpack'
 		);
 	}
 
 	getEmailHelpMessage() {
-		return __( 'You can enter multiple email addresses separated by commas.' );
+		return __( 'You can enter multiple email addresses separated by commas.', 'jetpack' );
 	}
 
 	onChangeSubject( subject ) {
@@ -127,20 +128,23 @@ class JetpackContactForm extends Component {
 		if ( errors ) {
 			if ( errors.length === 1 ) {
 				if ( errors[ 0 ] && errors[ 0 ].email ) {
-					return sprintf( __( '%s is not a valid email address.' ), errors[ 0 ].email );
+					return sprintf( __( '%s is not a valid email address.', 'jetpack' ), errors[ 0 ].email );
 				}
 				return errors[ 0 ];
 			}
 
 			if ( errors.length === 2 ) {
 				return sprintf(
-					__( '%s and %s are not a valid email address.' ),
+					__( '%s and %s are not a valid email address.', 'jetpack' ),
 					errors[ 0 ].email,
 					errors[ 1 ].email
 				);
 			}
 			const inValidEmails = errors.map( error => error.email );
-			return sprintf( __( '%s are not a valid email address.' ), inValidEmails.join( ', ' ) );
+			return sprintf(
+				__( '%s are not a valid email address.', 'jetpack' ),
+				inValidEmails.join( ', ' )
+			);
 		}
 		return null;
 	}
@@ -162,8 +166,8 @@ class JetpackContactForm extends Component {
 					aria-describedby={ `contact-form-${ instanceId }-email-${
 						this.hasEmailError() ? 'error' : 'help'
 					}` }
-					label={ __( 'Email address' ) }
-					placeholder={ __( 'name@example.com' ) }
+					label={ __( 'Email address', 'jetpack' ) }
+					placeholder={ __( 'name@example.com', 'jetpack' ) }
 					onKeyDown={ this.preventEnterSubmittion }
 					value={ to }
 					onBlur={ this.onBlurTo }
@@ -177,9 +181,9 @@ class JetpackContactForm extends Component {
 				</HelpMessage>
 
 				<TextControl
-					label={ __( 'Email subject line' ) }
+					label={ __( 'Email subject line', 'jetpack' ) }
 					value={ subject }
-					placeholder={ __( "Let's work together" ) }
+					placeholder={ __( "Let's work together", 'jetpack' ) }
 					onChange={ this.onChangeSubject }
 				/>
 			</Fragment>
@@ -201,14 +205,14 @@ class JetpackContactForm extends Component {
 		return (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Email feedback settings' ) }>
+					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>
 					{ ! hasFormSettingsSet && (
 						<Placeholder
-							label={ __( 'Form' ) }
+							label={ __( 'Form', 'jetpack' ) }
 							icon={ renderMaterialIcon(
 								<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
 							) }
@@ -218,12 +222,13 @@ class JetpackContactForm extends Component {
 								{ this.renderToAndSubjectFields() }
 								<p className="jetpack-contact-form__intro-message">
 									{ __(
-										'(If you leave these blank, notifications will go to the author with the post or page title as the subject line.)'
+										'(If you leave these blank, notifications will go to the author with the post or page title as the subject line.)',
+										'jetpack'
 									) }
 								</p>
 								<div className="jetpack-contact-form__create">
 									<Button isPrimary type="submit" disabled={ this.hasEmailError() }>
-										{ __( 'Add form' ) }
+										{ __( 'Add form', 'jetpack' ) }
 									</Button>
 								</div>
 							</form>

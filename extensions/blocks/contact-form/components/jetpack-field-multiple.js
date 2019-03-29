@@ -97,18 +97,18 @@ class JetpackFieldMultiple extends Component {
 						<IconButton
 							className="jetpack-field-multiple__add-option"
 							icon="insert"
-							label={ __( 'Insert option' ) }
+							label={ __( 'Insert option', 'jetpack' ) }
 							onClick={ this.addNewOption }
 						>
-							{ __( 'Add option' ) }
+							{ __( 'Add option', 'jetpack' ) }
 						</IconButton>
 					) }
 				</BaseControl>
 
 				<InspectorControls>
-					<PanelBody title={ __( 'Field Settings' ) }>
+					<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 						<TextControl
-							label={ __( 'ID' ) }
+							label={ __( 'ID', 'jetpack' ) }
 							value={ id }
 							onChange={ value => setAttributes( { id: value } ) }
 						/>

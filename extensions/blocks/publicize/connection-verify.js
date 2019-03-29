@@ -53,7 +53,8 @@ class PublicizeConnectionVerify extends Component {
 				<Notice className="jetpack-publicize-notice" isDismissible={ false } status="error">
 					<p>
 						{ __(
-							'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:'
+							'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:',
+							'jetpack'
 						) }
 					</p>
 					{ refreshableConnections.map( connection => (

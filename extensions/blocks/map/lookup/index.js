@@ -167,6 +167,7 @@ export class Lookup extends Component {
 						'%d result found, use up and down arrow keys to navigate.',
 						'%d results found, use up and down arrow keys to navigate.',
 						filteredOptions.length,
+						'jetpack',
 						'jetpack'
 					),
 					filteredOptions.length
@@ -174,7 +175,7 @@ export class Lookup extends Component {
 				'assertive'
 			);
 		} else {
-			debouncedSpeak( __( 'No results.' ), 'assertive' );
+			debouncedSpeak( __( 'No results.', 'jetpack' ), 'assertive' );
 		}
 	}
 	render() {

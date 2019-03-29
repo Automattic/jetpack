@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 export const settings = {
 	name: 'map',
 	prefix: 'jetpack',
-	title: __( 'Map' ),
+	title: __( 'Map', 'jetpack' ),
 	icon: (
 		/* Do not use SVG components from @wordpress/component to avoid frontend bloat */
 		<svg
@@ -25,8 +25,8 @@ export const settings = {
 		</svg>
 	),
 	category: 'jetpack',
-	keywords: [ __( 'map' ), __( 'location' ) ],
-	description: __( 'Add an interactive map showing one or more locations.' ),
+	keywords: [ __( 'map', 'jetpack' ), __( 'location', 'jetpack' ) ],
+	description: __( 'Add an interactive map showing one or more locations.', 'jetpack' ),
 	attributes: {
 		align: {
 			type: 'string',
@@ -65,19 +65,19 @@ export const settings = {
 	mapStyleOptions: [
 		{
 			value: 'default',
-			label: __( 'Basic' ),
+			label: __( 'Basic', 'jetpack' ),
 		},
 		{
 			value: 'black_and_white',
-			label: __( 'Black and white' ),
+			label: __( 'Black and white', 'jetpack' ),
 		},
 		{
 			value: 'satellite',
-			label: __( 'Satellite' ),
+			label: __( 'Satellite', 'jetpack' ),
 		},
 		{
 			value: 'terrain',
-			label: __( 'Terrain' ),
+			label: __( 'Terrain', 'jetpack' ),
 		},
 	],
 	validAlignments: [ 'center', 'wide', 'full' ],

@@ -35,18 +35,18 @@ function JetpackFieldTextarea( {
 					placeholder={ placeholder }
 					value={ placeholder }
 					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text' ) }
+					title={ __( 'Set the placeholder text', 'jetpack' ) }
 				/>
 			</div>
 			<InspectorControls>
-				<PanelBody title={ __( 'Field Settings' ) }>
+				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<TextControl
-						label={ __( 'Default Value' ) }
+						label={ __( 'Default Value', 'jetpack' ) }
 						value={ defaultValue }
 						onChange={ value => setAttributes( { defaultValue: value } ) }
 					/>
 					<TextControl
-						label={ __( 'ID' ) }
+						label={ __( 'ID', 'jetpack' ) }
 						value={ id }
 						onChange={ value => setAttributes( { id: value } ) }
 					/>

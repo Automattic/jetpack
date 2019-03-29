@@ -20,23 +20,23 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Mailchimp' ),
+	title: __( 'Mailchimp', 'jetpack' ),
 	icon,
-	description: __( 'A form enabling readers to join a Mailchimp list.' ),
+	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
 	category: 'jetpack',
 	keywords: [
-		_x( 'email', 'block search term' ),
-		_x( 'subscription', 'block search term' ),
-		_x( 'newsletter', 'block search term' ),
+		_x( 'email', 'block search term', 'jetpack' ),
+		_x( 'subscription', 'block search term', 'jetpack' ),
+		_x( 'newsletter', 'block search term', 'jetpack' ),
 	],
 	attributes: {
 		emailPlaceholder: {
 			type: 'string',
-			default: __( 'Enter your email' ),
+			default: __( 'Enter your email', 'jetpack' ),
 		},
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Join my email list' ),
+			default: __( 'Join my email list', 'jetpack' ),
 		},
 		customBackgroundButtonColor: {
 			type: 'string',
@@ -47,21 +47,23 @@ export const settings = {
 		consentText: {
 			type: 'string',
 			default: __(
-				'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.'
+				'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.',
+				'jetpack'
 			),
 		},
 		processingLabel: {
 			type: 'string',
-			default: __( 'Processing…' ),
+			default: __( 'Processing…', 'jetpack' ),
 		},
 		successLabel: {
 			type: 'string',
-			default: __( "Success! You're on the list." ),
+			default: __( "Success! You're on the list.", 'jetpack' ),
 		},
 		errorLabel: {
 			type: 'string',
 			default: __(
-				"Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again."
+				"Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again.",
+				'jetpack'
 			),
 		},
 	},

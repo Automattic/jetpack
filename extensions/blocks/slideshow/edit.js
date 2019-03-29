@@ -35,8 +35,8 @@ import './editor.scss';
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 const effectOptions = [
-	{ label: _x( 'Slide', 'Slideshow transition effect' ), value: 'slide' },
-	{ label: _x( 'Fade', 'Slideshow transition effect' ), value: 'fade' },
+	{ label: _x( 'Slide', 'Slideshow transition effect', 'jetpack' ), value: 'slide' },
+	{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
 ];
 
 export const pickRelevantMediaFiles = image =>
@@ -100,10 +100,10 @@ class SlideshowEdit extends Component {
 		const controls = (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Autoplay' ) }>
+					<PanelBody title={ __( 'Autoplay', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Autoplay' ) }
-							help={ __( 'Autoplay between slides' ) }
+							label={ __( 'Autoplay', 'jetpack' ) }
+							help={ __( 'Autoplay between slides', 'jetpack' ) }
 							checked={ autoplay }
 							onChange={ value => {
 								setAttributes( { autoplay: value } );
@@ -111,7 +111,7 @@ class SlideshowEdit extends Component {
 						/>
 						{ autoplay && (
 							<RangeControl
-								label={ __( 'Delay between transitions (in seconds)' ) }
+								label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
 								value={ delay }
 								onChange={ value => {
 									setAttributes( { delay: value } );
@@ -123,14 +123,15 @@ class SlideshowEdit extends Component {
 						{ autoplay && prefersReducedMotion && (
 							<span>
 								{ __(
-									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.'
+									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.',
+									'jetpack'
 								) }
 							</span>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Effects' ) }>
+					<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 						<SelectControl
-							label={ __( 'Transition effect' ) }
+							label={ __( 'Transition effect', 'jetpack' ) }
 							value={ effect }
 							onChange={ value => {
 								setAttributes( { effect: value } );
@@ -151,7 +152,7 @@ class SlideshowEdit extends Component {
 								render={ ( { open } ) => (
 									<IconButton
 										className="components-toolbar__control"
-										label={ __( 'Edit Slideshow' ) }
+										label={ __( 'Edit Slideshow', 'jetpack' ) }
 										icon="edit"
 										onClick={ open }
 									/>
@@ -171,8 +172,11 @@ class SlideshowEdit extends Component {
 						icon="format-gallery"
 						className={ className }
 						labels={ {
-							title: __( 'Slideshow' ),
-							instructions: __( 'Drag images, upload new ones or select files from your library.' ),
+							title: __( 'Slideshow', 'jetpack' ),
+							instructions: __(
+								'Drag images, upload new ones or select files from your library.',
+								'jetpack'
+							),
 						} }
 						onSelect={ this.onSelectImages }
 						accept="image/*"
@@ -208,7 +212,7 @@ class SlideshowEdit extends Component {
 							accept="image/*"
 							icon="insert"
 						>
-							{ __( 'Upload an image' ) }
+							{ __( 'Upload an image', 'jetpack' ) }
 						</FormFileUpload>
 					</div>
 				) }

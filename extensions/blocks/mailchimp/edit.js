@@ -138,52 +138,53 @@ class MailchimpSubscribeEdit extends Component {
 			</Placeholder>
 		);
 		const placeholder = (
-			<Placeholder icon={ icon } label={ __( 'Mailchimp' ) } notices={ notices }>
+			<Placeholder icon={ icon } label={ __( 'Mailchimp', 'jetpack' ) } notices={ notices }>
 				<div className="components-placeholder__instructions">
 					{ __(
-						'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.'
+						'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+						'jetpack'
 					) }
 					<br />
 					<br />
 					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form' ) }
+						{ __( 'Set up Mailchimp form', 'jetpack' ) }
 					</Button>
 					<br />
 					<br />
 					<Button isLink onClick={ this.apiCall }>
-						{ __( 'Re-check Connection' ) }
+						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
 			</Placeholder>
 		);
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Text Elements' ) }>
+				<PanelBody title={ __( 'Text Elements', 'jetpack' ) }>
 					<TextControl
-						label={ __( 'Email Placeholder' ) }
+						label={ __( 'Email Placeholder', 'jetpack' ) }
 						value={ emailPlaceholder }
 						onChange={ this.updateEmailPlaceholder }
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Notifications' ) }>
+				<PanelBody title={ __( 'Notifications', 'jetpack' ) }>
 					<TextControl
-						label={ __( 'Processing text' ) }
+						label={ __( 'Processing text', 'jetpack' ) }
 						value={ processingLabel }
 						onChange={ this.updateProcessingText }
 					/>
 					<TextControl
-						label={ __( 'Success text' ) }
+						label={ __( 'Success text', 'jetpack' ) }
 						value={ successLabel }
 						onChange={ this.updateSuccessText }
 					/>
 					<TextControl
-						label={ __( 'Error text' ) }
+						label={ __( 'Error text', 'jetpack' ) }
 						value={ errorLabel }
 						onChange={ this.updateErrorText }
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Mailchimp Connection' ) }>
-					<ExternalLink href={ connectURL }>{ __( 'Manage Connection' ) }</ExternalLink>
+				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
+					<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
 		);
@@ -198,13 +199,13 @@ class MailchimpSubscribeEdit extends Component {
 					disabled
 					onChange={ () => false }
 					placeholder={ emailPlaceholder }
-					title={ __( 'You can edit the email placeholder in the sidebar.' ) }
+					title={ __( 'You can edit the email placeholder in the sidebar.', 'jetpack' ) }
 					type="email"
 				/>
 				<SubmitButton { ...this.props } />
 				<RichText
 					tagName="p"
-					placeholder={ __( 'Write consent text' ) }
+					placeholder={ __( 'Write consent text', 'jetpack' ) }
 					value={ consentText }
 					onChange={ value => setAttributes( { consentText: value } ) }
 					inlineToolbar

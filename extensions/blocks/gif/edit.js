@@ -13,7 +13,7 @@ import { InspectorControls, RichText } from '@wordpress/editor';
 import { icon, title } from './';
 
 const GIPHY_API_KEY = 't1PkR1Vq0mzHueIFBvZSZErgFs9NBmYW';
-const INPUT_PROMPT = __( 'Search for a term or paste a Giphy URL' );
+const INPUT_PROMPT = __( 'Search for a term or paste a Giphy URL', 'jetpack' );
 
 class GifEdit extends Component {
 	textControlRef = createRef();
@@ -144,7 +144,7 @@ class GifEdit extends Component {
 					value={ searchText }
 				/>
 				<Button isLarge onClick={ this.onSubmit }>
-					{ __( 'Search' ) }
+					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>
 		);
@@ -203,7 +203,7 @@ class GifEdit extends Component {
 									this.setState( { captionFocus: true } );
 								} }
 								onChange={ value => setAttributes( { caption: value } ) }
-								placeholder={ __( 'Write caption…' ) }
+								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								tagName="figcaption"
 								value={ caption }
 							/>

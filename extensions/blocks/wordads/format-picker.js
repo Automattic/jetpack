@@ -9,7 +9,7 @@ import { Dropdown, MenuItem, NavigableMenu, Path, SVG, Toolbar } from '@wordpres
  */
 import { AD_FORMATS } from './constants';
 
-const label = __( 'Pick an ad format' );
+const label = __( 'Pick an ad format', 'jetpack' );
 
 export default function FormatPicker( { value, onChange } ) {
 	return (

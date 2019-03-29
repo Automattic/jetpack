@@ -15,12 +15,13 @@ import renderMaterialIcon from '../../utils/render-material-icon';
 
 export const name = 'subscriptions';
 export const settings = {
-	title: __( 'Subscription Form' ),
+	title: __( 'Subscription Form', 'jetpack' ),
 
 	description: (
 		<p>
 			{ __(
-				'A form enabling readers to get notifications when new posts are published from this site.'
+				'A form enabling readers to get notifications when new posts are published from this site.',
+				'jetpack'
 			) }
 		</p>
 	),
@@ -29,15 +30,15 @@ export const settings = {
 	),
 	category: 'jetpack',
 
-	keywords: [ __( 'subscribe' ), __( 'join' ), __( 'follow' ) ],
+	keywords: [ __( 'subscribe', 'jetpack' ), __( 'join', 'jetpack' ), __( 'follow', 'jetpack' ) ],
 
 	attributes: {
-		subscribePlaceholder: { type: 'string', default: __( 'Email Address' ) },
-		subscribeButton: { type: 'string', default: __( 'Subscribe' ) },
+		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },
+		subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 		showSubscribersTotal: { type: 'boolean', default: false },
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Subscribe' ),
+			default: __( 'Subscribe', 'jetpack' ),
 		},
 		customBackgroundButtonColor: { type: 'string' },
 		customTextButtonColor: { type: 'string' },
@@ -48,7 +49,7 @@ export const settings = {
 	deprecated: [
 		{
 			attributes: {
-				subscribeButton: { type: 'string', default: __( 'Subscribe' ) },
+				subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 				showSubscribersTotal: { type: 'boolean', default: false },
 			},
 			migrate: attr => {

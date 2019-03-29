@@ -20,7 +20,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 			<MediaPlaceholder
 				icon="format-image"
 				labels={ {
-					title: __( 'Product Image' ),
+					title: __( 'Product Image', 'jetpack' ),
 				} }
 				accept="image/*"
 				allowedTypes={ [ 'image' ] }
@@ -41,7 +41,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 							render={ ( { open } ) => (
 								<IconButton
 									className="components-toolbar__control"
-									label={ __( 'Edit Image' ) }
+									label={ __( 'Edit Image', 'jetpack' ) }
 									icon="edit"
 									onClick={ open }
 								/>
@@ -49,7 +49,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 						/>
 						<ToolbarButton
 							icon={ 'trash' }
-							title={ __( 'Remove Image' ) }
+							title={ __( 'Remove Image', 'jetpack' ) }
 							onClick={ () =>
 								setAttributes( {
 									featuredMediaId: null,

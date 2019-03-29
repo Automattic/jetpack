@@ -38,7 +38,7 @@ class ClipboardInput extends Component {
 					onFinishCopy={ this.onFinishCopy }
 					text={ link }
 				>
-					{ hasCopied ? __( 'Copied!' ) : _x( 'Copy', 'verb' ) }
+					{ hasCopied ? __( 'Copied!', 'jetpack' ) : _x( 'Copy', 'verb', 'jetpack' ) }
 				</ClipboardButton>
 			</div>
 		);

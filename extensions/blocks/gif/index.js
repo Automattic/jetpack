@@ -14,7 +14,7 @@ import './style.scss';
 import './editor.scss';
 
 export const name = 'gif';
-export const title = __( 'GIF' );
+export const title = __( 'GIF', 'jetpack' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -27,8 +27,8 @@ export const settings = {
 	title,
 	icon,
 	category: 'jetpack',
-	keywords: [ __( 'animated' ), __( 'giphy' ), __( 'image' ) ],
-	description: __( 'Search for and insert an animated image.' ),
+	keywords: [ __( 'animated', 'jetpack' ), __( 'giphy', 'jetpack' ), __( 'image', 'jetpack' ) ],
+	description: __( 'Search for and insert an animated image.', 'jetpack' ),
 	attributes: {
 		align: {
 			type: 'string',

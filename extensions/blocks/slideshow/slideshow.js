@@ -45,7 +45,7 @@ class Slideshow extends Component {
 				this.initializeResizeObserver( swiper );
 			} )
 			.catch( () => {
-				onError( __( 'The Swiper library could not be loaded.' ) );
+				onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
 			} );
 	}
 
@@ -83,7 +83,7 @@ class Slideshow extends Component {
 					this.initializeResizeObserver( swiper );
 				} )
 				.catch( () => {
-					onError( __( 'The Swiper library could not be loaded.' ) );
+					onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
 				} );
 		}
 	}

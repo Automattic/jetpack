@@ -40,14 +40,14 @@ const JetpackFieldCheckbox = ( {
 						isSelected={ isSelected }
 					/>
 					<InspectorControls>
-						<PanelBody title={ __( 'Field Settings' ) }>
+						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Default Checked State' ) }
+								label={ __( 'Default Checked State', 'jetpack' ) }
 								checked={ defaultValue }
 								onChange={ value => setAttributes( { defaultValue: value } ) }
 							/>
 							<TextControl
-								label={ __( 'ID' ) }
+								label={ __( 'ID', 'jetpack' ) }
 								value={ id }
 								onChange={ value => setAttributes( { id: value } ) }
 							/>

@@ -31,10 +31,10 @@ import * as deprecatedV1 from './deprecated/v1';
 //
 // Map style names to labels and merge them together.
 const styleNames = {
-	[ LAYOUT_DEFAULT ]: _x( 'Tiled mosaic', 'Tiled gallery layout' ),
-	[ LAYOUT_CIRCLE ]: _x( 'Circles', 'Tiled gallery layout' ),
-	[ LAYOUT_COLUMN ]: _x( 'Tiled columns', 'Tiled gallery layout' ),
-	[ LAYOUT_SQUARE ]: _x( 'Square tiles', 'Tiled gallery layout' ),
+	[ LAYOUT_DEFAULT ]: _x( 'Tiled mosaic', 'Tiled gallery layout', 'jetpack' ),
+	[ LAYOUT_CIRCLE ]: _x( 'Circles', 'Tiled gallery layout', 'jetpack' ),
+	[ LAYOUT_COLUMN ]: _x( 'Tiled columns', 'Tiled gallery layout', 'jetpack' ),
+	[ LAYOUT_SQUARE ]: _x( 'Square tiles', 'Tiled gallery layout', 'jetpack' ),
 };
 const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
 	...style,
@@ -128,12 +128,12 @@ export const icon = (
 export const settings = {
 	attributes: blockAttributes,
 	category: 'jetpack',
-	description: __( 'Display multiple images in an elegantly organized tiled layout.' ),
+	description: __( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ),
 	icon,
 	keywords: [
-		_x( 'images', 'block search term' ),
-		_x( 'photos', 'block search term' ),
-		_x( 'masonry', 'block search term' ),
+		_x( 'images', 'block search term', 'jetpack' ),
+		_x( 'photos', 'block search term', 'jetpack' ),
+		_x( 'masonry', 'block search term', 'jetpack' ),
 	],
 	styles: layoutStylesWithLabels,
 	supports: {
@@ -141,7 +141,7 @@ export const settings = {
 		customClassName: false,
 		html: false,
 	},
-	title: __( 'Tiled Gallery' ),
+	title: __( 'Tiled Gallery', 'jetpack' ),
 	transforms: {
 		from: [
 			{

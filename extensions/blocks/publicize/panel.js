@@ -26,7 +26,9 @@ const PublicizePanel = ( { connections, refreshConnections } ) => (
 		{ connections && connections.some( connection => connection.enabled ) && (
 			<PublicizeConnectionVerify />
 		) }
-		<div>{ __( "Connect and select the accounts where you'd like to share your post." ) }</div>
+		<div>
+			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+		</div>
 		{ connections && connections.length > 0 && (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }

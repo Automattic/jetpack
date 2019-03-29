@@ -19,7 +19,7 @@ export const settings = {
 	render: () => (
 		<Fragment>
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'SEO Description' ) }>
+				<PanelBody title={ __( 'SEO Description', 'jetpack' ) }>
 					<SeoPanel />
 				</PanelBody>
 			</JetpackPluginSidebar>
@@ -28,7 +28,7 @@ export const settings = {
 				id="seo-title"
 				title={
 					<span id="seo-defaults" key="seo-title-span">
-						{ __( 'SEO Description' ) }
+						{ __( 'SEO Description', 'jetpack' ) }
 					</span>
 				}
 			>

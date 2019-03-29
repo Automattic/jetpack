@@ -62,7 +62,9 @@ class PublicizeSettingsButton extends Component {
 
 		return (
 			<div className={ className }>
-				<ExternalLink onClick={ this.settingsClick }>{ __( 'Connect an account' ) }</ExternalLink>
+				<ExternalLink onClick={ this.settingsClick }>
+					{ __( 'Connect an account', 'jetpack' ) }
+				</ExternalLink>
 			</div>
 		);
 	}

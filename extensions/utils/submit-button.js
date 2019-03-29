@@ -93,7 +93,7 @@ class SubmitButton extends Component {
 			<Fragment>
 				<div className="wp-block-button jetpack-submit-button">
 					<RichText
-						placeholder={ __( 'Add text…' ) }
+						placeholder={ __( 'Add text…', 'jetpack' ) }
 						value={ attributes.submitButtonText }
 						onChange={ nextValue => setAttributes( { submitButtonText: nextValue } ) }
 						className={ buttonClasses }
@@ -104,7 +104,7 @@ class SubmitButton extends Component {
 				</div>
 				<InspectorControls>
 					<PanelColorSettings
-						title={ __( 'Button Color Settings' ) }
+						title={ __( 'Button Color Settings', 'jetpack' ) }
 						colorSettings={ [
 							{
 								value: backgroundColor,
@@ -112,7 +112,7 @@ class SubmitButton extends Component {
 									setBackgroundButtonColor( nextColour );
 									setAttributes( { customBackgroundButtonColor: nextColour } );
 								},
-								label: __( 'Background Color' ),
+								label: __( 'Background Color', 'jetpack' ),
 							},
 							{
 								value: color,
@@ -120,7 +120,7 @@ class SubmitButton extends Component {
 									setTextButtonColor( nextColour );
 									setAttributes( { customTextButtonColor: nextColour } );
 								},
-								label: __( 'Text Color' ),
+								label: __( 'Text Color', 'jetpack' ),
 							},
 						] }
 					/>

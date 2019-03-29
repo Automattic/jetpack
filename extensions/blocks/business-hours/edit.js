@@ -18,13 +18,13 @@ import { icon } from '.';
 
 const defaultLocalization = {
 	days: {
-		Sun: __( 'Sunday' ),
-		Mon: __( 'Monday' ),
-		Tue: __( 'Tuesday' ),
-		Wed: __( 'Wednesday' ),
-		Thu: __( 'Thursday' ),
-		Fri: __( 'Friday' ),
-		Sat: __( 'Saturday' ),
+		Sun: __( 'Sunday', 'jetpack' ),
+		Mon: __( 'Monday', 'jetpack' ),
+		Tue: __( 'Tuesday', 'jetpack' ),
+		Wed: __( 'Wednesday', 'jetpack' ),
+		Thu: __( 'Thursday', 'jetpack' ),
+		Fri: __( 'Friday', 'jetpack' ),
+		Sat: __( 'Saturday', 'jetpack' ),
 	},
 	startOfWeek: 0,
 };
@@ -63,7 +63,7 @@ class BusinessHours extends Component {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ icon } /> }
-					label={ __( 'Loading business hours' ) }
+					label={ __( 'Loading business hours', 'jetpack' ) }
 				/>
 			);
 		}

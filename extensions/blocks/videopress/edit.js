@@ -110,11 +110,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			const { fallback, isFetchingMedia } = this.state;
 
 			if ( isUploading ) {
-				return <Loading text={ __( 'Uploading…' ) } />;
+				return <Loading text={ __( 'Uploading…', 'jetpack' ) } />;
 			}
 
 			if ( isFetchingMedia || isFetchingPreview ) {
-				return <Loading text={ __( 'Embedding…' ) } />;
+				return <Loading text={ __( 'Embedding…', 'jetpack' ) } />;
 			}
 
 			if ( fallback || ! preview ) {
@@ -130,7 +130,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						<Toolbar>
 							<IconButton
 								className="components-icon-button components-toolbar__control"
-								label={ __( 'Edit video' ) }
+								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
 								icon="edit"
 							/>
@@ -149,7 +149,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 							<RichText
 								tagName="figcaption"
-								placeholder={ __( 'Write caption…' ) }
+								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								value={ caption }
 								onChange={ value => setAttributes( { caption: value } ) }
 								inlineToolbar

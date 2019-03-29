@@ -52,7 +52,7 @@ class AddressEdit extends Component {
 
 		const externalLink = (
 			<ToggleControl
-				label={ __( 'Link address to Google Maps' ) }
+				label={ __( 'Link address to Google Maps', 'jetpack' ) }
 				checked={ linkToGoogleMaps }
 				onChange={ newlinkToGoogleMaps =>
 					setAttributes( { linkToGoogleMaps: newlinkToGoogleMaps } )
@@ -67,50 +67,50 @@ class AddressEdit extends Component {
 					<Fragment>
 						<PlainText
 							value={ address }
-							placeholder={ __( 'Street Address' ) }
-							aria-label={ __( 'Street Address' ) }
+							placeholder={ __( 'Street Address', 'jetpack' ) }
+							aria-label={ __( 'Street Address', 'jetpack' ) }
 							onChange={ newAddress => setAttributes( { address: newAddress } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ addressLine2 }
-							placeholder={ __( 'Address Line 2' ) }
-							aria-label={ __( 'Address Line 2' ) }
+							placeholder={ __( 'Address Line 2', 'jetpack' ) }
+							aria-label={ __( 'Address Line 2', 'jetpack' ) }
 							onChange={ newAddressLine2 => setAttributes( { addressLine2: newAddressLine2 } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ addressLine3 }
-							placeholder={ __( 'Address Line 3' ) }
-							aria-label={ __( 'Address Line 3' ) }
+							placeholder={ __( 'Address Line 3', 'jetpack' ) }
+							aria-label={ __( 'Address Line 3', 'jetpack' ) }
 							onChange={ newAddressLine3 => setAttributes( { addressLine3: newAddressLine3 } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ city }
-							placeholder={ __( 'City' ) }
-							aria-label={ __( 'City' ) }
+							placeholder={ __( 'City', 'jetpack' ) }
+							aria-label={ __( 'City', 'jetpack' ) }
 							onChange={ newCity => setAttributes( { city: newCity } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ region }
-							placeholder={ __( 'State/Province/Region' ) }
-							aria-label={ __( 'State/Province/Region' ) }
+							placeholder={ __( 'State/Province/Region', 'jetpack' ) }
+							aria-label={ __( 'State/Province/Region', 'jetpack' ) }
 							onChange={ newRegion => setAttributes( { region: newRegion } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ postal }
-							placeholder={ __( 'Postal/Zip Code' ) }
-							aria-label={ __( 'Postal/Zip Code' ) }
+							placeholder={ __( 'Postal/Zip Code', 'jetpack' ) }
+							aria-label={ __( 'Postal/Zip Code', 'jetpack' ) }
 							onChange={ newPostal => setAttributes( { postal: newPostal } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>
 						<PlainText
 							value={ country }
-							placeholder={ __( 'Country' ) }
-							aria-label={ __( 'Country' ) }
+							placeholder={ __( 'Country', 'jetpack' ) }
+							aria-label={ __( 'Country', 'jetpack' ) }
 							onChange={ newCountry => setAttributes( { country: newCountry } ) }
 							onKeyDown={ this.preventEnterKey }
 						/>

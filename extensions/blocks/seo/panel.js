@@ -20,12 +20,12 @@ class SeoPanel extends Component {
 				<textarea
 					value={ seoDescription }
 					onChange={ this.onMessageChange }
-					placeholder={ __( 'Write a description…' ) }
+					placeholder={ __( 'Write a description…', 'jetpack' ) }
 					rows={ 4 }
 				/>
 				<div className="jetpack-seo-character-count">
 					{ sprintf(
-						_n( '%d character', '%d characters', seoDescription.length ),
+						_n( '%d character', '%d characters', seoDescription.length, 'jetpack' ),
 						seoDescription.length
 					) }
 				</div>

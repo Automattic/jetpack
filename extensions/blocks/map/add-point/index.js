@@ -16,14 +16,14 @@ export class AddPoint extends Component {
 		const { onClose, onAddPoint, onError, apiKey } = this.props;
 		return (
 			<Button className="component__add-point">
-				{ __( 'Add marker' ) }
+				{ __( 'Add marker', 'jetpack' ) }
 				<Popover className="component__add-point__popover">
 					<Button className="component__add-point__close" onClick={ onClose }>
 						<Dashicon icon="no" />
 					</Button>
 					<LocationSearch
 						onAddPoint={ onAddPoint }
-						label={ __( 'Add a location' ) }
+						label={ __( 'Add a location', 'jetpack' ) }
 						apiKey={ apiKey }
 						onError={ onError }
 					/>

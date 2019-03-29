@@ -73,7 +73,7 @@ const save = props =>
 					href={ googleMapsUrl( props ) }
 					target="_blank"
 					rel="noopener noreferrer"
-					title={ __( 'Open address in Google Maps' ) }
+					title={ __( 'Open address in Google Maps', 'jetpack' ) }
 				>
 					<Address { ...props } />
 				</a>

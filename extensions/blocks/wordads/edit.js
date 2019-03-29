@@ -44,7 +44,7 @@ class WordAdsEdit extends Component {
 						<Placeholder icon={ icon } label={ title } />
 						<ToggleControl
 							checked={ Boolean( hideMobile ) }
-							label={ __( 'Hide ad on mobile views' ) }
+							label={ __( 'Hide ad on mobile views', 'jetpack' ) }
 							onChange={ this.handleHideMobileChange }
 						/>
 					</div>

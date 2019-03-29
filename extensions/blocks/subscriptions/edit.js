@@ -29,7 +29,7 @@ class SubscriptionEdit extends Component {
 			return (
 				<div className={ className } role="form">
 					<ToggleControl
-						label={ __( 'Show total subscribers' ) }
+						label={ __( 'Show total subscribers', 'jetpack' ) }
 						checked={ showSubscribersTotal }
 						onChange={ () => {
 							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
@@ -60,12 +60,12 @@ class SubscriptionEdit extends Component {
 			// Handle error condition
 			if ( ! count.hasOwnProperty( 'count' ) ) {
 				this.setState( {
-					subscriberCountString: __( 'Subscriber count unavailable' ),
+					subscriberCountString: __( 'Subscriber count unavailable', 'jetpack' ),
 				} );
 			} else {
 				this.setState( {
 					subscriberCountString: sprintf(
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count ),
+						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count, 'jetpack' ),
 						count.count
 					),
 				} );

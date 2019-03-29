@@ -32,9 +32,9 @@ import { getActiveStyleName } from '../../utils';
 import { icon } from '.';
 
 const linkOptions = [
-	{ value: 'attachment', label: __( 'Attachment Page' ) },
-	{ value: 'media', label: __( 'Media File' ) },
-	{ value: 'none', label: __( 'None' ) },
+	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
+	{ value: 'media', label: __( 'Media File', 'jetpack' ) },
+	{ value: 'none', label: __( 'None', 'jetpack' ) },
 ];
 
 // @TODO keep here or move to ./layout ?
@@ -188,7 +188,7 @@ class TiledGalleryEdit extends Component {
 								render={ ( { open } ) => (
 									<IconButton
 										className="components-toolbar__control"
-										label={ __( 'Edit Gallery' ) }
+										label={ __( 'Edit Gallery', 'jetpack' ) }
 										icon="edit"
 										onClick={ open }
 									/>
@@ -215,8 +215,8 @@ class TiledGalleryEdit extends Component {
 						icon={ <div className="tiled-gallery__media-placeholder-icon">{ icon }</div> }
 						className={ className }
 						labels={ {
-							title: __( 'Tiled Gallery' ),
-							name: __( 'images' ),
+							title: __( 'Tiled Gallery', 'jetpack' ),
+							name: __( 'images', 'jetpack' ),
 						} }
 						onSelect={ this.onSelectImages }
 						accept="image/*"
@@ -235,10 +235,10 @@ class TiledGalleryEdit extends Component {
 			<Fragment>
 				{ controls }
 				<InspectorControls>
-					<PanelBody title={ __( 'Tiled Gallery settings' ) }>
+					<PanelBody title={ __( 'Tiled Gallery settings', 'jetpack' ) }>
 						{ layoutSupportsColumns( layoutStyle ) && images.length > 1 && (
 							<RangeControl
-								label={ __( 'Columns' ) }
+								label={ __( 'Columns', 'jetpack' ) }
 								value={ columns }
 								onChange={ this.setColumnsNumber }
 								min={ 1 }
@@ -246,7 +246,7 @@ class TiledGalleryEdit extends Component {
 							/>
 						) }
 						<SelectControl
-							label={ __( 'Link To' ) }
+							label={ __( 'Link To', 'jetpack' ) }
 							value={ linkTo }
 							onChange={ this.setLinkTo }
 							options={ linkOptions }
@@ -280,7 +280,7 @@ class TiledGalleryEdit extends Component {
 								accept="image/*"
 								icon="insert"
 							>
-								{ __( 'Upload an image' ) }
+								{ __( 'Upload an image', 'jetpack' ) }
 							</FormFileUpload>
 						</div>
 					) }

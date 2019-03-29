@@ -21,12 +21,12 @@ import renderMaterialIcon from '../../utils/render-material-icon';
 export const name = 'contact-form';
 
 export const settings = {
-	title: __( 'Form' ),
-	description: __( 'A simple way to get feedback from folks visiting your site.' ),
+	title: __( 'Form', 'jetpack' ),
+	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
 	icon: renderMaterialIcon(
 		<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
 	),
-	keywords: [ __( 'email' ), __( 'feedback' ), __( 'contact' ) ],
+	keywords: [ __( 'email', 'jetpack' ), __( 'feedback', 'jetpack' ), __( 'contact', 'jetpack' ) ],
 	category: 'jetpack',
 	supports: {
 		reusable: false,
@@ -43,7 +43,7 @@ export const settings = {
 		},
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Submit' ),
+			default: __( 'Submit', 'jetpack' ),
 		},
 		customBackgroundButtonColor: { type: 'string' },
 		customTextButtonColor: { type: 'string' },
@@ -60,7 +60,7 @@ export const settings = {
 		},
 		submit_button_text: {
 			type: 'string',
-			default: __( 'Submit' ),
+			default: __( 'Submit', 'jetpack' ),
 		},
 	},
 
@@ -79,7 +79,7 @@ export const settings = {
 				},
 				submit_button_text: {
 					type: 'string',
-					default: __( 'Submit' ),
+					default: __( 'Submit', 'jetpack' ),
 				},
 				has_form_settings_set: {
 					type: 'string',
@@ -250,8 +250,8 @@ export const childBlocks = [
 		name: 'field-text',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Text' ),
-			description: __( 'When you need just a small amount of text, add a text input.' ),
+			title: __( 'Text', 'jetpack' ),
+			description: __( 'When you need just a small amount of text, add a text input.', 'jetpack' ),
 			icon: renderMaterialIcon( <Path d="M4 9h16v2H4V9zm0 4h10v2H4v-2z" /> ),
 			edit: editField( 'text' ),
 		},
@@ -260,8 +260,11 @@ export const childBlocks = [
 		name: 'field-name',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Name' ),
-			description: __( 'Introductions are important. Add an input for folks to add their name.' ),
+			title: __( 'Name', 'jetpack' ),
+			description: __(
+				'Introductions are important. Add an input for folks to add their name.',
+				'jetpack'
+			),
 			icon: renderMaterialIcon(
 				<Path d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 10c2.7 0 5.8 1.29 6 2H6c.23-.72 3.31-2 6-2m0-12C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
 			),
@@ -272,9 +275,9 @@ export const childBlocks = [
 		name: 'field-email',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Email' ),
-			keywords: [ __( 'e-mail' ), __( 'mail' ), 'email' ],
-			description: __( 'Want to reply to folks? Add an email address input.' ),
+			title: __( 'Email', 'jetpack' ),
+			keywords: [ __( 'e-mail', 'jetpack' ), __( 'mail', 'jetpack' ), 'email' ],
+			description: __( 'Want to reply to folks? Add an email address input.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
 			),
@@ -286,9 +289,9 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Website' ),
-			keywords: [ 'url', __( 'internet page' ), 'link' ],
-			description: __( 'Add an address input for a website.' ),
+			title: __( 'Website', 'jetpack' ),
+			keywords: [ 'url', __( 'internet page', 'jetpack' ), 'link' ],
+			description: __( 'Add an address input for a website.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z" />
 			),
@@ -300,9 +303,12 @@ export const childBlocks = [
 		name: 'field-date',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Date Picker' ),
-			keywords: [ __( 'Calendar' ), __( 'day month year', 'block search term' ) ],
-			description: __( 'The best way to set a date. Add a date picker.' ),
+			title: __( 'Date Picker', 'jetpack' ),
+			keywords: [
+				__( 'Calendar', 'jetpack' ),
+				__( 'day month year', 'block search term', 'jetpack' ),
+			],
+			description: __( 'The best way to set a date. Add a date picker.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2zM7 11h5v5H7z" />
 			),
@@ -313,9 +319,13 @@ export const childBlocks = [
 		name: 'field-telephone',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Telephone' ),
-			keywords: [ __( 'Phone' ), __( 'Cellular phone' ), __( 'Mobile' ) ],
-			description: __( 'Add a phone number input.' ),
+			title: __( 'Telephone', 'jetpack' ),
+			keywords: [
+				__( 'Phone', 'jetpack' ),
+				__( 'Cellular phone', 'jetpack' ),
+				__( 'Mobile', 'jetpack' ),
+			],
+			description: __( 'Add a phone number input.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M6.54 5c.06.89.21 1.76.45 2.59l-1.2 1.2c-.41-1.2-.67-2.47-.76-3.79h1.51m9.86 12.02c.85.24 1.72.39 2.6.45v1.49c-1.32-.09-2.59-.35-3.8-.75l1.2-1.19M7.5 3H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.49c0-.55-.45-1-1-1-1.24 0-2.45-.2-3.57-.57-.1-.04-.21-.05-.31-.05-.26 0-.51.1-.71.29l-2.2 2.2c-2.83-1.45-5.15-3.76-6.59-6.59l2.2-2.2c.28-.28.36-.67.25-1.02C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1z" />
 			),
@@ -326,9 +336,12 @@ export const childBlocks = [
 		name: 'field-textarea',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Message' ),
-			keywords: [ __( 'Textarea' ), 'textarea', __( 'Multiline text' ) ],
-			description: __( 'Let folks speak their mind. This text box is great for longer responses.' ),
+			title: __( 'Message', 'jetpack' ),
+			keywords: [ __( 'Textarea', 'jetpack' ), 'textarea', __( 'Multiline text', 'jetpack' ) ],
+			description: __(
+				'Let folks speak their mind. This text box is great for longer responses.',
+				'jetpack'
+			),
 			icon: renderMaterialIcon( <Path d="M21 11.01L3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z" /> ),
 			edit: props => (
 				<JetpackFieldTextarea
@@ -347,9 +360,9 @@ export const childBlocks = [
 		name: 'field-checkbox',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Checkbox' ),
-			keywords: [ __( 'Confirm' ), __( 'Accept' ) ],
-			description: __( 'Add a single checkbox.' ),
+			title: __( 'Checkbox', 'jetpack' ),
+			keywords: [ __( 'Confirm', 'jetpack' ), __( 'Accept', 'jetpack' ) ],
+			description: __( 'Add a single checkbox.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z" />
 			),
@@ -376,9 +389,9 @@ export const childBlocks = [
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Checkbox Group' ),
-			keywords: [ __( 'Choose Multiple' ), __( 'Option' ) ],
-			description: __( 'People love options. Add several checkbox items.' ),
+			title: __( 'Checkbox Group', 'jetpack' ),
+			keywords: [ __( 'Choose Multiple', 'jetpack' ), __( 'Option', 'jetpack' ) ],
+			description: __( 'People love options. Add several checkbox items.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z" />
 			),
@@ -396,10 +409,11 @@ export const childBlocks = [
 		name: 'field-radio',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Radio' ),
-			keywords: [ __( 'Choose' ), __( 'Select' ), __( 'Option' ) ],
+			title: __( 'Radio', 'jetpack' ),
+			keywords: [ __( 'Choose', 'jetpack' ), __( 'Select', 'jetpack' ), __( 'Option', 'jetpack' ) ],
 			description: __(
-				'Inspired by radios, only one radio item can be selected at a time. Add several radio button items.'
+				'Inspired by radios, only one radio item can be selected at a time. Add several radio button items.',
+				'jetpack'
 			),
 			icon: renderMaterialIcon(
 				<Fragment>
@@ -421,9 +435,13 @@ export const childBlocks = [
 		name: 'field-select',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Select' ),
-			keywords: [ __( 'Choose' ), __( 'Dropdown' ), __( 'Option' ) ],
-			description: __( 'Compact, but powerful. Add a select box with several items.' ),
+			title: __( 'Select', 'jetpack' ),
+			keywords: [
+				__( 'Choose', 'jetpack' ),
+				__( 'Dropdown', 'jetpack' ),
+				__( 'Option', 'jetpack' ),
+			],
+			description: __( 'Compact, but powerful. Add a select box with several items.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path d="M3 17h18v2H3zm16-5v1H5v-1h14m2-2H3v5h18v-5zM3 6h18v2H3z" />
 			),

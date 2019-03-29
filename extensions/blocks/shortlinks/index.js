@@ -29,7 +29,7 @@ class ShortlinksPanel extends Component {
 
 		return (
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'Shortlink' ) } className="jetpack-shortlinks__panel">
+				<PanelBody title={ __( 'Shortlink', 'jetpack' ) } className="jetpack-shortlinks__panel">
 					<ClipboardInput link={ shortlink } />
 				</PanelBody>
 			</JetpackPluginSidebar>

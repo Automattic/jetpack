@@ -160,7 +160,7 @@ class GalleryImageEdit extends Component {
 							icon="no-alt"
 							onClick={ onRemove }
 							className="tiled-gallery__item__remove"
-							label={ __( 'Remove Image' ) }
+							label={ __( 'Remove Image', 'jetpack' ) }
 						/>
 					</div>
 				) }

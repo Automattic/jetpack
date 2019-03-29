@@ -69,10 +69,10 @@ const attributes = {
 export const name = 'slideshow';
 
 export const settings = {
-	title: __( 'Slideshow' ),
+	title: __( 'Slideshow', 'jetpack' ),
 	category: 'jetpack',
-	keywords: [ __( 'image' ), __( 'gallery' ), __( 'slider' ) ],
-	description: __( 'Add an interactive slideshow.' ),
+	keywords: [ __( 'image', 'jetpack' ), __( 'gallery', 'jetpack' ), __( 'slider', 'jetpack' ) ],
+	description: __( 'Add an interactive slideshow.', 'jetpack' ),
 	attributes,
 	supports: {
 		align: [ 'center', 'wide', 'full' ],

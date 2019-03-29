@@ -12,7 +12,7 @@ import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
 
 export const name = 'wordads';
-export const title = __( 'Ad' );
+export const title = __( 'Ad', 'jetpack' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -26,8 +26,10 @@ export const settings = {
 
 	description: (
 		<Fragment>
-			<p>{ __( 'Earn income by adding high quality ads to your post' ) }</p>
-			<ExternalLink href="https://wordads.co/">{ __( 'Learn all about WordAds' ) }</ExternalLink>
+			<p>{ __( 'Earn income by adding high quality ads to your post', 'jetpack' ) }</p>
+			<ExternalLink href="https://wordads.co/">
+				{ __( 'Learn all about WordAds', 'jetpack' ) }
+			</ExternalLink>
 		</Fragment>
 	),
 
@@ -49,7 +51,7 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ __( 'ads' ), 'WordAds', __( 'Advertisement' ) ],
+	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
 
 	supports: {
 		align: [ 'left', 'center', 'right' ],

@@ -23,7 +23,7 @@ class DayEdit extends Component {
 					<div className={ classNames( day.name, 'business-hours__hours' ) }>
 						<TextControl
 							type="time"
-							label={ __( 'Opening' ) }
+							label={ __( 'Opening', 'jetpack' ) }
 							value={ opening }
 							className="business-hours__open"
 							placeholder={ defaultOpen }
@@ -33,7 +33,7 @@ class DayEdit extends Component {
 						/>
 						<TextControl
 							type="time"
-							label={ __( 'Closing' ) }
+							label={ __( 'Closing', 'jetpack' ) }
 							value={ closing }
 							className="business-hours__close"
 							placeholder={ defaultClose }
@@ -59,8 +59,12 @@ class DayEdit extends Component {
 					<div className="business-hours__row business-hours-row__add">
 						<div className={ classNames( day.name, 'business-hours__day' ) }>&nbsp;</div>
 						<div className={ classNames( day.name, 'business-hours__hours' ) }>
-							<IconButton isLink label={ __( 'Add Hours' ) } onClick={ this.addInterval }>
-								{ __( 'Add Hours' ) }
+							<IconButton
+								isLink
+								label={ __( 'Add Hours', 'jetpack' ) }
+								onClick={ this.addInterval }
+							>
+								{ __( 'Add Hours', 'jetpack' ) }
 							</IconButton>
 						</div>
 						<div className="business-hours__remove">&nbsp;</div>
@@ -166,7 +170,7 @@ class DayEdit extends Component {
 			<Fragment>
 				<span className="business-hours__day-name">{ localization.days[ day.name ] }</span>
 				<ToggleControl
-					label={ this.isClosed() ? __( 'Closed' ) : __( 'Open' ) }
+					label={ this.isClosed() ? __( 'Closed', 'jetpack' ) : __( 'Open', 'jetpack' ) }
 					checked={ ! this.isClosed() }
 					onChange={ this.toggleClosed }
 				/>

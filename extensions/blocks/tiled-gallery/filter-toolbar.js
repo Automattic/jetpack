@@ -13,7 +13,7 @@ const availableFilters = [
 				<Path d="M3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm18-4H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14z" />
 			</SVG>
 		),
-		title: _x( 'Original', 'image style' ),
+		title: _x( 'Original', 'image style', 'jetpack' ),
 		value: undefined,
 	},
 	{
@@ -24,7 +24,7 @@ const availableFilters = [
 				<Path d="M3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm11 10h2V5h-4v2h2v8zm7-14H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14z" />
 			</SVG>
 		),
-		title: _x( 'Black and White', 'image style' ),
+		title: _x( 'Black and White', 'image style', 'jetpack' ),
 		value: 'black-and-white',
 	},
 	{
@@ -35,7 +35,7 @@ const availableFilters = [
 				<Path d="M3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm18-4H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14zm-4-4h-4v-2h2c1.1 0 2-.89 2-2V7c0-1.11-.9-2-2-2h-4v2h4v2h-2c-1.1 0-2 .89-2 2v4h6v-2z" />
 			</SVG>
 		),
-		title: _x( 'Sepia', 'image style' ),
+		title: _x( 'Sepia', 'image style', 'jetpack' ),
 		value: 'sepia',
 	},
 	{
@@ -57,7 +57,7 @@ const availableFilters = [
 				<Path d="M3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm12 10h2V5h-2v4h-2V5h-2v6h4v4zm6-14H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14z" />
 			</SVG>
 		),
-		title: _x( 'Clarendon', 'image style' ),
+		title: _x( 'Clarendon', 'image style', 'jetpack' ),
 		value: 'clarendon',
 	},
 	{
@@ -68,12 +68,12 @@ const availableFilters = [
 				<Path d="M21 1H7c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 16H7V3h14v14zM3 5H1v16c0 1.1.9 2 2 2h16v-2H3V5zm14 8v-2c0-1.11-.9-2-2-2h-2V7h4V5h-6v6h4v2h-4v2h4c1.1 0 2-.89 2-2z" />
 			</SVG>
 		),
-		title: _x( 'Gingham', 'image style' ),
+		title: _x( 'Gingham', 'image style', 'jetpack' ),
 		value: 'gingham',
 	},
 ];
 
-const label = __( 'Pick an image filter' );
+const label = __( 'Pick an image filter', 'jetpack' );
 
 export default function FilterToolbar( { value, onChange } ) {
 	return (

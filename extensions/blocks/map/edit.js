@@ -145,20 +145,20 @@ class MapEdit extends Component {
 					</Toolbar>
 				</BlockControls>
 				<InspectorControls>
-					<PanelBody title={ __( 'Map Theme' ) }>
+					<PanelBody title={ __( 'Map Theme', 'jetpack' ) }>
 						<MapThemePicker
 							value={ mapStyle }
 							onChange={ value => setAttributes( { mapStyle: value } ) }
 							options={ settings.mapStyleOptions }
 						/>
 						<ToggleControl
-							label={ __( 'Show street names' ) }
+							label={ __( 'Show street names', 'jetpack' ) }
 							checked={ mapDetails }
 							onChange={ value => setAttributes( { mapDetails: value } ) }
 						/>
 					</PanelBody>
 					<PanelColorSettings
-						title={ __( 'Colors' ) }
+						title={ __( 'Colors', 'jetpack' ) }
 						initialOpen={ true }
 						colorSettings={ [
 							{
@@ -169,7 +169,7 @@ class MapEdit extends Component {
 						] }
 					/>
 					{ points.length ? (
-						<PanelBody title={ __( 'Markers' ) } initialOpen={ false }>
+						<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
 							<Locations
 								points={ points }
 								onChange={ value => {
@@ -178,18 +178,18 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					<PanelBody title={ __( 'Mapbox Access Token' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 						<TextControl
-							label={ __( 'Mapbox Access Token' ) }
+							label={ __( 'Mapbox Access Token', 'jetpack' ) }
 							value={ apiKeyControl }
 							onChange={ value => this.setState( { apiKeyControl: value } ) }
 						/>
 						<ButtonGroup>
 							<Button type="button" onClick={ this.updateAPIKey } isDefault>
-								{ __( 'Update Token' ) }
+								{ __( 'Update Token', 'jetpack' ) }
 							</Button>
 							<Button type="button" onClick={ this.removeAPIKey } isDefault>
-								{ __( 'Remove Token' ) }
+								{ __( 'Remove Token', 'jetpack' ) }
 							</Button>
 						</ButtonGroup>
 					</PanelBody>
@@ -202,23 +202,24 @@ class MapEdit extends Component {
 			</Placeholder>
 		);
 		const placeholderAPIStateFailure = (
-			<Placeholder icon={ settings.icon } label={ __( 'Map' ) } notices={ notices }>
+			<Placeholder icon={ settings.icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
 				<Fragment>
 					<div className="components-placeholder__instructions">
-						{ __( 'To use the map block, you need an Access Token.' ) }
+						{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
 						<br />
 						<ExternalLink href="https://www.mapbox.com">
-							{ __( 'Create an account or log in to Mapbox.' ) }
+							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
 						</ExternalLink>
 						<br />
 						{ __(
-							'Locate and copy the default access token. Then, paste it into the field below.'
+							'Locate and copy the default access token. Then, paste it into the field below.',
+							'jetpack'
 						) }
 					</div>
 					<TextControl
 						className="wp-block-jetpack-map-components-text-control-api-key"
 						disabled={ apiRequestOutstanding }
-						placeholder={ __( 'Paste Token Here' ) }
+						placeholder={ __( 'Paste Token Here', 'jetpack' ) }
 						value={ apiKeyControl }
 						onChange={ this.updateAPIKeyControl }
 					/>
@@ -228,7 +229,7 @@ class MapEdit extends Component {
 						disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
 						onClick={ this.updateAPIKey }
 					>
-						{ __( 'Set Token' ) }
+						{ __( 'Set Token', 'jetpack' ) }
 					</Button>
 				</Fragment>
 			</Placeholder>
