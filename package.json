@@ -182,7 +182,7 @@
 		"@babel/runtime": "7.4.2",
 		"@wordpress/babel-plugin-import-jsx-pragma": "2.1.0",
 		"babel-eslint": "10.0.1",
-		"babel-loader": "8.0.4",
+		"babel-loader": "8.0.5",
 		"chai": "4.2.0",
 		"commander": "2.19.0",
 		"copy-webpack-plugin": "4.6.0",
