@@ -298,7 +298,11 @@ CONTAINER;
 				$poll      = intval( $attributes['poll'] );
 				$poll_url  = sprintf( 'https://poll.fm/%d', $poll );
 				$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
-				$poll_link = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $poll_url ), esc_html( $attributes['title'] ) );
+				$poll_link = sprintf(
+					'<a href="%s" target="_blank">%s</a>',
+					esc_url( $poll_url ),
+					esc_html( $attributes['title'] )
+				);
 
 				if ( $no_script || Jetpack_AMP_Support::is_amp_request() ) {
 					return $poll_link;
@@ -435,7 +439,11 @@ CONTAINER;
 
 					$survey      = preg_replace( '/[^a-f0-9]/i', '', $attributes['survey'] );
 					$survey_url  = esc_url( "https://survey.fm/{$survey}" );
-					$survey_link = sprintf( '<a href="%s" target="_blank">%s</a>', $survey_url, esc_html( $attributes['title'] ) );
+					$survey_link = sprintf(
+						'<a href="%s" target="_blank">%s</a>',
+						$survey_url,
+						esc_html( $attributes['title'] )
+					);
 
 					$settings = array();
 
@@ -667,12 +675,12 @@ SCRIPT;
 		add_filter( 'the_content_rss', 'crowdsignal_link', 1 );
 	}
 
-		/**
-		 * Note that Core has the oembed of '#https?://survey\.fm/.*#i' as of 5.1.
-		 * This should be removed after Core has the current regex is in our minimum version.
-		 *
-		 * @see https://core.trac.wordpress.org/ticket/46467
-		 * @todo Confirm patch landed and remove once 5.2 is the minimum version.
-		 */
+	/**
+	 * Note that Core has the oembed of '#https?://survey\.fm/.*#i' as of 5.1.
+	 * This should be removed after Core has the current regex is in our minimum version.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/46467
+	 * @todo Confirm patch landed and remove once 5.2 is the minimum version.
+	 */
 	wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 }
