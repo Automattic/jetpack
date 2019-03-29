@@ -202,10 +202,6 @@ CONTAINER;
 				$infinite_scroll = true;
 			}
 
-			if ( defined( 'PADPRESS_LOADED' ) ) {
-				$inline = true;
-			}
-
 			if ( function_exists( 'get_option' ) && get_option( 'polldaddy_load_poll_inline' ) ) {
 				$inline = true;
 			}
