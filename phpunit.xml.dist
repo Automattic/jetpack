@@ -50,7 +50,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
 		<testsuite name="shortcodes">
-			<directory prefix="test" suffix=".php">tests/php/modules/shortcodes</directory>
+			<directory prefix="test_" suffix=".php">tests/php/modules/shortcodes</directory>
 		</testsuite>
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
