@@ -24,7 +24,7 @@ class Jetpack_Private {
 		add_action( 'admin_init', array( __CLASS__, 'private_blog_prevent_requests' ), 9 );
 		add_action( 'check_ajax_referer', array( __CLASS__, 'private_blog_ajax_nonce_check' ), 9, 2 );
 		add_action( 'rest_pre_dispatch', array( __CLASS__, 'disable_rest_api' ) );
-		add_filter( 'option_jetpack_active_modules', array( __CLASS__, 'module_override' ) );
+		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'private_get_modules' ) );
 		add_action( 'update_option_blog_public', array( __CLASS__, 'private_update_option_blog_public' ) );
 		add_action( 'update_right_now_text', array( __CLASS__, 'add_private_dashboard_glance_items' ) );
 		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
@@ -269,7 +269,10 @@ class Jetpack_Private {
 		}
 	}
 
-	static function module_override( $modules ) {
+	/**
+	 * Disables modules for private sites
+	 */
+	static function private_get_modules( $modules ) {
 		$disabled_modules = array(
 			'publicize',
 			'sharedaddy',
@@ -283,14 +286,7 @@ class Jetpack_Private {
 			'wordads',
 		);
 
-		foreach ( $disabled_modules as $module_slug ) {
-			$found = array_search( $module_slug, $modules );
-			if ( false !== $found ) {
-				unset( $modules[ $found ] );
-			}
-		}
-
-		return $modules;
+		return array_diff_key( $modules, array_flip( $disabled_modules ) );
 	}
 
 	/**
