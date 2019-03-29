@@ -161,32 +161,6 @@ CONTAINER;
 			global $post;
 			global $content_width;
 
-			/**
-			 * Variables extracted from $atts.
-			 *
-			 * @var string $survey
-			 * @var string $link_text
-			 * @var string $poll
-			 * @var string $rating
-			 * @var string $unique_id
-			 * @var string $item_id
-			 * @var string $title
-			 * @var string $permalink
-			 * @var int $cb
-			 * @var string $type
-			 * @var string $body
-			 * @var string $button
-			 * @var string $text_color
-			 * @var string $back_color
-			 * @var string $align
-			 * @var string $style
-			 * @var int $width
-			 * @var int $height
-			 * @var int $delay
-			 * @var string $visit
-			 * @var string $domain
-			 * @var string $id
-			 */
 			$attributes = shortcode_atts(
 				array(
 					'survey'     => null,
