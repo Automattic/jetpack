@@ -41,12 +41,10 @@ if (
 		 * Add all the actions & resgister the shortcode.
 		 */
 		public function __construct() {
-			if ( false === defined( 'GLOBAL_TAGS' ) ) {
-				add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
-				add_shortcode( 'polldaddy', array( $this, 'crowdsignal_shortcode' ) );
+			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
+			add_shortcode( 'polldaddy', array( $this, 'crowdsignal_shortcode' ) );
 
-				add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
-			}
+			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
 		}
