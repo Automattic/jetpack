@@ -9,18 +9,6 @@
 		'wp-admin-bar-ab-new-post': 'write_button',
 		'wp-admin-bar-my-account': 'my_account',
 		'wp-admin-bar-notes': 'notifications',
-		//account
-		'wp-admin-bar-user-info': 'my_account_user_name',
-		// account - profile
-		'wp-admin-bar-my-profile': 'my_account_profile_my_profile',
-		'wp-admin-bar-account-settings': 'my_account_profile_account_settings',
-		'wp-admin-bar-billing': 'my_account_profile_manage_purchases',
-		'wp-admin-bar-security': 'my_account_profile_security',
-		'wp-admin-bar-notifications': 'my_account_profile_notifications',
-		//account - special
-		'wp-admin-bar-get-apps': 'my_account_special_get_apps',
-		'wp-admin-bar-next-steps': 'my_account_special_next_steps',
-		'wp-admin-bar-help': 'my_account_special_help',
 	};
 
 	const notesTracksEvents = {
