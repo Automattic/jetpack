@@ -1,5 +1,7 @@
 <?php
 
+require_jetpack_file( 'modules/shortcodes/slideshow.php' );
+
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 	/**
@@ -40,8 +42,6 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../../modules/shortcodes/slideshow.php' ) ) . 'slideshow.php';
-
 		$slideshow = new Jetpack_Slideshow_Shortcode();
 
 		$post_id = $this->factory->post->create( array(
