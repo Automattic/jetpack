@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
-    "@automattic/jetpack-blocks": "15.0.0",
+    "@automattic/jetpack-blocks": "16.0.1",
     "@wordpress/browserslist-config": "2.3.0",
     "babel-core": "6.26.3",
     "babel-eslint": "10.0.1",
