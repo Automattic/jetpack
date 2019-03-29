@@ -429,9 +429,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_users( $args ) {
-		$user_ids = $args[0];
+		list( $user_ids, $previous_end ) = $args;
 
-		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
+		return array(
+			'users' => array_map( array( $this, 'sanitize_user_and_expand' ), get_users(
+				array(
+					'include' => $user_ids,
+					'orderby' => 'ID',
+					'order' => 'DESC'
+				)
+			) ),
+			'previous_end' => $previous_end
+		);
 	}
 
 	public function remove_user_from_blog_handler( $user_id, $blog_id ) {
