@@ -20,21 +20,19 @@ function jetpack_disable_send_frame_options_header() {
 add_action( 'admin_init', 'jetpack_disable_send_frame_options_header', 1 ); // High priority to get ahead of send_frame_options_header
 
 function jetpack_framing_allowed() {
-	if ( ! empty( $_GET['frame-nonce'] ) && false !== strpos( $_GET['frame-nonce'], '.' ) ) {
-		list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
-
-		$verified = Jetpack::init()->verify_xml_rpc_signature( $token, $signature );
-
-		if ( $verified ) {
-			if ( ! defined( 'IFRAME_REQUEST' ) ) {
-				define( 'IFRAME_REQUEST', true );
-			}
-
-			return true;
-		}
+	if ( empty( $_GET['frame-nonce'] ) || false === strpos( $_GET['frame-nonce'], '.' ) ) {
+		return false;
 	}
 
-	return false;
+	list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
+
+	$verified = Jetpack::init()->verify_xml_rpc_signature( $token, $signature );
+
+	if ( $verified && ! defined( 'IFRAME_REQUEST' ) ) {
+		define( 'IFRAME_REQUEST', true );
+	}
+
+	return (bool) $verified;
 }
 
 function jetpack_add_iframed_body_class( $classes ) {
