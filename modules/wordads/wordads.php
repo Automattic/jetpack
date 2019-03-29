@@ -99,15 +99,10 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	function init() {
-		// bail on infinite scroll
-		if ( self::is_infinite_scroll() ) {
-			return;
-		}
-
 		require_once WORDADS_ROOT . '/php/params.php';
 		$this->params = new WordAds_Params();
 
-		if ( $this->should_bail() ) {
+		if ( $this->should_bail() || self::is_infinite_scroll() ) {
 			return;
 		}
 
@@ -476,7 +471,7 @@ HTML;
 			'width'    => $width,
 			'height'   => $height,
 		);
-		$ad_number   = count( $this->ads );
+		$ad_number   = count( $this->ads ) . '-' . uniqid();
 
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
 		$css = esc_attr( $css );
