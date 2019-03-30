@@ -32,7 +32,8 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		// Don't show the masterbar on WordPress mobile apps.
-		if ( preg_match( '/wp-(android|iphone)/', $_SERVER['HTTP_USER_AGENT'] ) ) {
+		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+			add_filter( 'show_admin_bar', '__return_false' );
 			return;
 		}
 
