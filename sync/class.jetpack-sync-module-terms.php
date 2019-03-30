@@ -34,13 +34,13 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		$total_chunks_counter = 0;
 		foreach ( $taxonomies as $taxonomy ) {
 			// I hope this is never bigger than RAM...
-			$term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) ); // Should we set a limit here?
+			$term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s ORDER BY ", $taxonomy ) ); // Should we set a limit here?
 			// Request posts in groups of N for efficiency
 			$chunked_term_ids = array_chunk( $term_ids, self::ARRAY_CHUNK_SIZE );
 
 			// Send each chunk as an array of objects
 			foreach ( $chunked_term_ids as $chunk ) {
-				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy );
+				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy,  );
 				$total_chunks_counter ++;
 			}
 		}
@@ -106,15 +106,19 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	}
 
 	public function expand_term_ids( $args ) {
-		$term_ids = $args[0];
-		$taxonomy = $args[1];
+		list( $term_ids, $taxonomy, $previous_end ) = $args;
 
-		return get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-				'include'    => $term_ids,
-			)
+		return
+			array( 'terms' => get_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'hide_empty' => false,
+					'include'    => $term_ids,
+					'orderby'    => 'id',
+					'order'      => 'DESC'
+				)
+			),
+			'previous_end' => $previous_end
 		);
 	}
 }

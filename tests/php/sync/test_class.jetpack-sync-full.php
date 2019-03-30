@@ -170,6 +170,50 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 11, count( $terms ) );
 	}
 
+	function test_full_sync_sends_all_terms_with_previous_interval_end() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		for ( $i = 0; $i < 25; $i += 1 ) {
+			wp_insert_term( 'term' . $i, 'post_tag' );
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'terms' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$terms = $event->args['terms'];
+		$previous_interval_end = $event->args['previous_end'];
+		// The first batch has the previous_min_is not set.
+		// We user ~0 to denote that the previous min id unknown.
+		$this->assertEquals( $previous_interval_end, '~0' );
+
+		// Since posts are order by id and the ids are in decending order
+		// the very last post should be the id with the smallest ID. ( previous_interval_end )
+		$last_term = end( $terms );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$second_batch_terms = $event->args['terms'];
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->ID );
+
+		$last_term = end( $second_batch_terms );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->ID );
+
+		$this->full_sync->reset_data();
+	}
+
 	function test_full_sync_sends_all_users() {
 		$first_user_id = $this->factory->user->create();
 		for ( $i = 0; $i < 9; $i += 1 ) {
