@@ -156,6 +156,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_terms() {
 
 		for ( $i = 0; $i < 11; $i += 1 ) {
+			wp_insert_term( 'category' . $i, 'post_tag' );
 			wp_insert_term( 'term' . $i, 'post_tag' );
 		}
 
@@ -167,7 +168,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$terms = $this->server_replica_storage->get_terms( 'post_tag' );
-		$this->assertEquals( 11, count( $terms ) );
+		$this->assertEquals( 22, count( $terms ) );
 	}
 
 	function test_full_sync_sends_all_terms_with_previous_interval_end() {
@@ -201,7 +202,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
 		$second_batch_terms = $event->args['terms'];
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end ), $last_term->ID );
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
 
 		$last_term = end( $second_batch_terms );
 		$this->full_sync->continue_enqueuing();
@@ -209,7 +210,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end ), $last_term->ID );
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
 
 		$this->full_sync->reset_data();
 	}
