@@ -1,6 +1,9 @@
 <?php
 
-require_jetpack_file( 'modules/module-extras.php' );
+if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR  ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
+}
+
 require_jetpack_file( 'class.json-api-endpoints.php' );
 
 class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
