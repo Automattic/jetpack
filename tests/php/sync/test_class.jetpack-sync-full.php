@@ -971,8 +971,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( 2, count( $users ) );
-		$this->assertEquals( $sync_user_id, $users[0]->ID );
-		$this->assertEquals( $sync_user_id_2, $users[1]->ID );
+		// The users are ordered in reverse order now.
+		$this->assertEquals( $sync_user_id_2, $users[0]->ID );
+		$this->assertEquals( $sync_user_id, $users[1]->ID );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_user_id, $sync_user_id_2 ), $sync_status['config']['users'] );
@@ -1035,7 +1036,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( $existing_user_count+1, count( $users ) );
-		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
+		// the last created user should be the fist sent out.
+		$this->assertEquals( $keep_user_id, $users[ 0 ]->ID );
 	}
 
 	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
