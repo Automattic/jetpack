@@ -284,6 +284,22 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return the Gutenberg extensions (blocks and plugins) source directory
+	 *
+	 * @return string The Gutenberg extensions source directory
+	 */
+	public static function get_blocks_source_directory() {
+		/**
+		 * Filter to select Gutenberg blocks source directory
+		 *
+		 * @since 7.3.0
+		 *
+		 * @param string default: 'extensions/'
+		 */
+		return apply_filters( 'jetpack_blocks_source_directory', 'extensions/' );
+	}
+
+	/**
 	 * Checks for a given .json file in the blocks folder.
 	 *
 	 * @param string $preset The name of the .json file to look for.
@@ -291,7 +307,7 @@ class Jetpack_Gutenberg {
 	 * @return bool True if the file is found.
 	 */
 	public static function preset_exists( $preset ) {
-		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' );
+		return file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_source_directory() . 'setup/' . $preset . '.json' );
 	}
 
 	/**
@@ -304,7 +320,7 @@ class Jetpack_Gutenberg {
 	public static function get_preset( $preset ) {
 		return json_decode(
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_source_directory() . 'setup/' . $preset . '.json' )
 		);
 	}
 

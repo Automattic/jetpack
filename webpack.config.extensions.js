@@ -10,7 +10,6 @@ const _ = require( 'lodash' );
 const path = require( 'path' );
 const fs = require( 'fs' );
 const webpack = require( 'webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const DuplicatePackageCheckerPlugin = require( 'duplicate-package-checker-webpack-plugin' );
 const FileConfig = require( '@automattic/calypso-build/webpack/file-loader' );
 const Minify = require( '@automattic/calypso-build/webpack/minify' );
@@ -131,12 +130,6 @@ function getWebpackConfig() {
 			new webpack.IgnorePlugin( /^\.\/locale$/, /moment$/ ),
 			...SassConfig.plugins( { cssFilename, minify: ! isDevelopment } ),
 			new DuplicatePackageCheckerPlugin(),
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
 		],
 		externals: [ wordpressExternals, 'wp', 'lodash' ],
 	};
