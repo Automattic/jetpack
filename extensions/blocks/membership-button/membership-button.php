@@ -2,10 +2,11 @@
 /**
  * Memberships block.
  *
- * @since 7.2.0
+ * @since 7.3.0
  *
  * @package Jetpack
  */
+
 require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
 if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {

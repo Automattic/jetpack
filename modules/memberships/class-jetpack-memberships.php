@@ -1,13 +1,5 @@
 <?php
 /**
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @package memberships
- * @hide-in-jetpack
- */
-
-/**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
  */
@@ -23,7 +15,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	static private $version = '0.03';
+	static private $version = JETPACK__VERSION;
 	/**
 	 * Our CPT type for the product (plan).
 	 *
@@ -213,8 +205,8 @@ class Jetpack_Memberships {
 		$data = array(
 			'blog_id' => $this->get_blog_id(),
 			'id'	  => $id,
-			'button_label' => sprintf( __( '$%s Contribution' ),$this->format_price( $plan ) ),
-			'powered_text' => __( 'Powered by WordPress.com' ),
+			'button_label' => sprintf( __( '$%s Contribution', 'jetpack' ),$this->format_price( $plan ) ),
+			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
 		$classes = array(
