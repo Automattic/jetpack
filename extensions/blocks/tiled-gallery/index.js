@@ -133,7 +133,7 @@ export const settings = {
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
-		_x( 'masonry', 'block search term', 'jetpack' ),
+		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
 	styles: layoutStylesWithLabels,
 	supports: {
