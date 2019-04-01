@@ -27,6 +27,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'methods'  => WP_REST_Server::READABLE,
 					'callback' => array( $this, 'get_status' ),
+					'permission_callback' => array( $this, 'get_status_permission_check' ),
 				),
 			)
 		);
@@ -37,6 +38,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'methods'  => WP_REST_Server::CREATABLE,
 					'callback' => array( $this, 'create_product' ),
+					'permission_callback' => array( $this, 'get_status_permission_check' ),
 					'args'     => array(
 						'title' => array(
 							'type'   => 'string',
@@ -58,6 +60,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Ensure the user has proper permissions
+	 *
+	 * @return boolean
+	 */
+	public function get_status_permission_check() {
+		return current_user_can( 'edit_posts' );
 	}
 
 	public function create_product( $request ) {
