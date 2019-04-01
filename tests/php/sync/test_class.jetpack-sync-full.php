@@ -242,6 +242,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		
 		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
 
+		Jetpack_Sync_Settings::reset_data();
 		$this->full_sync->reset_data();
 
 	}
@@ -967,7 +968,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( 2, count( $users ) );
 		$this->assertEquals( $sync_user_id, $users[0]->ID );
@@ -1031,7 +1032,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( $existing_user_count+1, count( $users ) );
 		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
