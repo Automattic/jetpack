@@ -620,7 +620,7 @@ function sharing_admin_init() {
  * Set the Likes and Sharing Gutenberg extension as available
  */
 function jetpack_sharing_set_extension_availability() {
-	Jetpack_Gutenberg::set_extension_available( 'likes-and-sharing' );
+	Jetpack_Gutenberg::set_extension_available( 'sharing' );
 }
 
 add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_sharing_set_extension_availability' );

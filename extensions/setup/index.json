@@ -18,5 +18,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "likes-and-sharing", "seo" ]
+	"beta": [ "likes", "sharing", "seo" ]
 }
