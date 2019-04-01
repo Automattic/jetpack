@@ -1,8 +1,8 @@
 /*globals jQuery, JSON */
 ( function( $ ) {
-	const eventName = 'masterbar_click';
+	var eventName = 'masterbar_click';
 
-	const linksTracksEvents = {
+	var linksTracksEvents = {
 		//top level items
 		'wp-admin-bar-blog': 'my_sites',
 		'wp-admin-bar-newdash': 'reader',
@@ -11,7 +11,7 @@
 		'wp-admin-bar-notes': 'notifications',
 	};
 
-	const notesTracksEvents = {
+	var notesTracksEvents = {
 		openSite: function( data ) {
 			return {
 				clicked: 'masterbar_notifications_panel_site',
@@ -44,7 +44,7 @@
 	}
 
 	$( document ).ready( function() {
-		const trackableLinks =
+		var trackableLinks =
 			'.mb-trackable .ab-item:not(div),' +
 			'#wp-admin-bar-notes .ab-item,' +
 			'#wp-admin-bar-user-info .ab-item,' +
@@ -55,8 +55,8 @@
 				return;
 			}
 
-			let $target = $( e.target );
-			const $parent = $target.closest( 'li' );
+			var $target = $( e.target ),
+				$parent = $target.closest( 'li' );
 
 			if ( ! $target.is( 'a' ) ) {
 				$target = $target.closest( 'a' );
@@ -66,12 +66,12 @@
 				return;
 			}
 
-			const trackingId = $target.attr( 'ID' ) || $parent.attr( 'ID' );
+			var trackingId = $target.attr( 'ID' ) || $parent.attr( 'ID' );
 
 			if ( ! linksTracksEvents.hasOwnProperty( trackingId ) ) {
 				return;
 			}
-			const eventProps = { clicked: linksTracksEvents[ trackingId ] };
+			var eventProps = { clicked: linksTracksEvents[ trackingId ] };
 
 			if ( $parent.hasClass( 'menupop' ) ) {
 				window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProps );
@@ -90,17 +90,17 @@
 			return;
 		}
 
-		const event = ! e.data && e.originalEvent.data ? e.originalEvent : e;
+		var event = ! e.data && e.originalEvent.data ? e.originalEvent : e;
 		if ( event.origin !== 'https://widgets.wp.com' ) {
 			return;
 		}
 
-		const data = 'string' === typeof event.data ? parseJson( event.data, {} ) : event.data;
+		var data = 'string' === typeof event.data ? parseJson( event.data, {} ) : event.data;
 		if ( 'notesIframeMessage' !== data.type ) {
 			return;
 		}
 
-		const eventData = notesTracksEvents[ data.action ];
+		var eventData = notesTracksEvents[ data.action ];
 		if ( ! eventData ) {
 			return;
 		}
