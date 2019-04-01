@@ -277,7 +277,8 @@ class Jetpack_Memberships {
 		if ( $plan['formatted_price'] ) {
 			return $plan['formatted_price'];
 		}
-		return "{$plan['price']} {$plan['currency']}";
+		require_once JETPACK__PLUGIN_DIR . '/modules/simple-payments/simple-payments.php';
+		return Jetpack_Simple_Payments::format_price( $plan['price'],$plan['currency'] );
 	}
 }
 Jetpack_Memberships::get_instance();
