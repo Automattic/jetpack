@@ -2,13 +2,7 @@
  * External dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import {
-	RichText,
-	PlainText,
-	MediaPlaceholder,
-	BlockControls,
-	AlignmentToolbar,
-} from '@wordpress/editor';
+import { RichText, MediaPlaceholder, BlockControls, AlignmentToolbar } from '@wordpress/editor';
 import classnames from 'classnames';
 
 /**
@@ -35,7 +29,7 @@ export default class TestimonialEdit extends Component {
 				</BlockControls>
 				<div className={ classnames( className ) }>
 					<RichText
-						tagName="P"
+						tagName="DIV"
 						value={ attributes.content }
 						onChange={ this.onChangeContent }
 						placeholder={
@@ -62,19 +56,21 @@ export default class TestimonialEdit extends Component {
 						)
 					) }
 					{ ( isSelected || attributes.name ) && (
-						<PlainText
+						<RichText
+							tagName="DIV"
 							value={ attributes.name }
 							onChange={ this.onChangeName }
 							placeholder={ 'Write name…' }
-							className="wp-block-jetpack-testimonial__name"
+							wrapperClassName="wp-block-jetpack-testimonial__name"
 						/>
 					) }
 					{ ( isSelected || attributes.title ) && (
-						<PlainText
+						<RichText
+							tagName="DIV"
 							value={ attributes.title }
 							onChange={ this.onChangeTitle }
 							placeholder={ 'Write title…' }
-							className="wp-block-jetpack-testimonial__title"
+							wrapperClassName="wp-block-jetpack-testimonial__title"
 						/>
 					) }
 				</div>

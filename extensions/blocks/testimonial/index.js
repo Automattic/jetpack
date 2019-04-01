@@ -32,12 +32,12 @@ export const settings = {
 		},
 		name: {
 			type: 'string',
-			source: 'text',
+			source: 'html',
 			selector: '.wp-block-jetpack-testimonial__name',
 		},
 		title: {
 			type: 'string',
-			source: 'text',
+			source: 'html',
 			selector: '.wp-block-jetpack-testimonial__title',
 		},
 		mediaUrl: {
