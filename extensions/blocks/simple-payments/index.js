@@ -119,6 +119,8 @@ export const settings = {
 		className: false,
 		customClassName: false,
 		html: false,
+		// Disabled due several problems because the block uses custom post type to store information
+		// https://github.com/Automattic/jetpack/issues/11789
 		reusable: false,
 	},
 };
