@@ -1,0 +1,50 @@
+.wp-block-jetpack-testimonial {
+}
+
+.wp-block-jetpack-testimonial__name {
+    
+}
+
+.wp-block-jetpack-testimonial__title {
+    
+}
+
+.wp-block-jetpack-testimonial__content {
+    
+}
+
+.wp-block-jetpack-testimonial__media {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+}
+
+// styles
+
+.is-style-small {
+    font-size: 70%;
+}
+
+.is-style-normal {
+    font-size: 100%;
+}
+
+.is-style-large {
+    font-size: 125%;
+    font-style: italic;
+}
+
+.is-style-spotlight {
+    position: relative;
+    padding-top: 70px;
+    
+    .wp-block-jetpack-testimonial__media {
+        position: absolute;
+        top: 0;
+        left: calc(50% - 25px);
+    }
+}
+
+.is-style-quote {
+    border-left: 3px solid;
+}
