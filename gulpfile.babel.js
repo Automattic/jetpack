@@ -1,4 +1,3 @@
-/* jshint ignore:start */
 /**
  * External dependencies
  */
@@ -7,7 +6,6 @@ import deleteLines from 'gulp-rm-lines';
 import fs from 'fs';
 import gulp from 'gulp';
 import i18n_calypso from 'i18n-calypso/cli';
-import jshint from 'gulp-jshint';
 import json_transform from 'gulp-json-transform';
 import log from 'fancy-log';
 import po2json from 'gulp-po2json';
@@ -27,25 +25,6 @@ import { watch as sass_watch, build as sass_build } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
-} );
-
-/*
-	JS Hint
- */
-gulp.task( 'js:hint', function() {
-	return gulp
-		.src( [
-			'_inc/*.js',
-			'modules/*.js',
-			'modules/**/*.js',
-			'!_inc/*.min.js',
-			'!modules/*.min.',
-			'!modules/**/*.min.js',
-			'!**/*/*block.js',
-		] )
-		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter( 'jshint-stylish' ) )
-		.pipe( jshint.reporter( 'fail' ) );
 } );
 
 /*
@@ -231,7 +210,6 @@ gulp.task( 'languages:extract', function( done ) {
 } );
 
 gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
-gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
 
 // Default task
 gulp.task(
