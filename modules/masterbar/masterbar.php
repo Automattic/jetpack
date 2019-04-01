@@ -31,6 +31,12 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
+		// Don't show the masterbar on WordPress mobile apps.
+		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+			add_filter( 'show_admin_bar', '__return_false' );
+			return;
+		}
+
 		Jetpack::dns_prefetch( array(
 			'//s0.wp.com',
 			'//s1.wp.com',
