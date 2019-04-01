@@ -212,7 +212,6 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_terms':
-				var_dump( $args );
 				foreach ( $args['terms'] as $term_object ) {
 					$this->store->update_term( $term_object );
 				}
