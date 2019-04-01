@@ -38,6 +38,8 @@
 .wp-block-jetpack-testimonial__meta {
     display: flex;
     flex-direction: column;
+    color: #999;
+    font-size: 80%;
 }
 
 .wp-block-jetpack-testimonial__name {
@@ -84,6 +86,32 @@
         position: absolute;
         top: 0;
         left: calc(50% - 25px);
+    }
+    
+    .wp-block-jetpack-testimonial__author {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    &.is-aligned-left {
+        .wp-block-jetpack-testimonial__media {
+            left: 0;
+        }
+        .wp-block-jetpack-testimonial__author {
+            justify-content: start;
+            text-align: left;
+        }
+    }
+    
+    &.is-aligned-right {
+        .wp-block-jetpack-testimonial__media {
+            left: auto;
+            right: 0;
+        }
+        .wp-block-jetpack-testimonial__author {
+            justify-content: end;
+            text-align: right;
+        }
     }
 }
 
