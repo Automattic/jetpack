@@ -11,21 +11,21 @@ import { RichText } from '@wordpress/editor';
 export default ( { attributes: { name, title, content, mediaUrl, mediaId }, className } ) => (
 	<div className={ className }>
 		<RichText.Content
-			tagName="DIV"
+			tagName="div"
 			className="wp-block-jetpack-testimonial__content"
 			value={ content }
 		/>
 		{ mediaId && mediaUrl && <img src={ mediaUrl } alt="" /> }
 		{ name && (
 			<RichText.Content
-				tagName="DIV"
+				tagName="div"
 				className="wp-block-jetpack-testimonial__name"
 				value={ name }
 			/>
 		) }
 		{ title && (
 			<RichText.Content
-				tagName="DIV"
+				tagName="div"
 				className="wp-block-jetpack-testimonial__title"
 				value={ title }
 			/>

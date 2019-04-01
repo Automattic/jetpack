@@ -22,14 +22,16 @@ export default class TestimonialEdit extends Component {
 		const { attributes, className, isSelected } = this.props;
 		const hasMedia = attributes.mediaUrl && attributes.mediaId;
 
+		const alignmentClass = attributes.align && `is-aligned-${ attributes.align }`;
+
 		return (
 			<Fragment>
 				<BlockControls>
 					<AlignmentToolbar value={ attributes.align } onChange={ this.onChangeAlign } />
 				</BlockControls>
-				<div className={ classnames( className ) }>
+				<div className={ classnames( className, alignmentClass ) }>
 					<RichText
-						tagName="DIV"
+						tagName="div"
 						value={ attributes.content }
 						onChange={ this.onChangeContent }
 						placeholder={
@@ -38,41 +40,47 @@ export default class TestimonialEdit extends Component {
 						}
 						wrapperClassName="wp-block-jetpack-testimonial__content"
 					/>
-					{ hasMedia ? (
-						<img
-							src={ attributes.mediaUrl }
-							width={ 50 }
-							height={ 50 }
-							alt={ attributes.name || '' }
-							className="wp-block-jetpack-testimonial__media"
-						/>
-					) : (
-						isSelected && (
-							<MediaPlaceholder
-								onSelect={ this.onChangeMedia }
-								allowedTypes={ [ 'image' ] }
-								labels={ { title: 'The Image' } }
+					<div className="wp-block-jetpack-testimonial__author">
+						{ hasMedia ? (
+							<img
+								src={ attributes.mediaUrl }
+								width={ 50 }
+								height={ 50 }
+								alt={ attributes.name || '' }
+								className="wp-block-jetpack-testimonial__media"
 							/>
-						)
-					) }
-					{ ( isSelected || attributes.name ) && (
-						<RichText
-							tagName="DIV"
-							value={ attributes.name }
-							onChange={ this.onChangeName }
-							placeholder={ 'Write name…' }
-							wrapperClassName="wp-block-jetpack-testimonial__name"
-						/>
-					) }
-					{ ( isSelected || attributes.title ) && (
-						<RichText
-							tagName="DIV"
-							value={ attributes.title }
-							onChange={ this.onChangeTitle }
-							placeholder={ 'Write title…' }
-							wrapperClassName="wp-block-jetpack-testimonial__title"
-						/>
-					) }
+						) : (
+							isSelected && (
+								<MediaPlaceholder
+									onSelect={ this.onChangeMedia }
+									allowedTypes={ [ 'image' ] }
+									labels={ { title: 'The Image' } }
+								/>
+							)
+						) }
+						{ ( isSelected || attributes.name || attributes.title ) && (
+							<div className="wp-block-jetpack-testimonial__meta">
+								{ ( isSelected || attributes.name ) && (
+									<RichText
+										tagName="div"
+										value={ attributes.name }
+										onChange={ this.onChangeName }
+										placeholder={ 'Write name…' }
+										wrapperClassName="wp-block-jetpack-testimonial__name"
+									/>
+								) }
+								{ ( isSelected || attributes.title ) && (
+									<RichText
+										tagName="div"
+										value={ attributes.title }
+										onChange={ this.onChangeTitle }
+										placeholder={ 'Write title…' }
+										wrapperClassName="wp-block-jetpack-testimonial__title"
+									/>
+								) }
+							</div>
+						) }
+					</div>
 				</div>
 			</Fragment>
 		);
