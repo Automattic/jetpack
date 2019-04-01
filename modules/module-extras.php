@@ -4,8 +4,18 @@
  * For example, if a module shouldn't be activatable unless certain conditions are met, the code belongs in this file.
  */
 
-// Include extra tools that aren't modules, in a filterable way
+/**
+ * Features available all the time:
+ *    - When in development mode.
+ *    - When connected to WordPress.com.
+ */
 $tools = array(
+	// Always loaded, but only registered if theme supports it.
+	'custom-post-types/comics.php',
+	'custom-post-types/testimonial.php',
+	'custom-post-types/nova.php',
+	'geo-location.php',
+	'theme-tools.php',
 	'theme-tools/social-links.php',
 	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
@@ -15,33 +25,27 @@ $tools = array(
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
-	'custom-post-types/comics.php',
-	'custom-post-types/testimonial.php',
-	'custom-post-types/nova.php',
-	'theme-tools.php',
+	// Needed for SEO Tools.
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',
 	'seo-tools/jetpack-seo-posts.php',
-	'simple-payments/simple-payments.php',
 	'verification-tools/verification-tools-utils.php',
-	'woocommerce-analytics/wp-woocommerce-analytics.php',
-	'geo-location.php',
-	'calypsoify/class.jetpack-calypsoify.php',
-
-	// Keep working the VideoPress videos in existing posts/pages when the module is deactivated
+	// Needed for VideoPress, so videos keep working in existing posts/pages when the module is deactivated.
 	'videopress/utility-functions.php',
 	'videopress/class.videopress-gutenberg.php',
-
-	'plugin-search.php',
 );
 
-// Not every tool needs to be included if Jetpack is inactive and not in development mode
-if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-	$tools = array(
-		'seo-tools/jetpack-seo-utils.php',
-		'seo-tools/jetpack-seo-titles.php',
-		'seo-tools/jetpack-seo-posts.php',
-	);
+// Some features are only available when connected to WordPress.com.
+$connected_tools = array(
+	'calypsoify/class.jetpack-calypsoify.php',
+	'plugin-search.php',
+	'simple-payments/simple-payments.php',
+	'woocommerce-analytics/wp-woocommerce-analytics.php',
+);
+
+// Add connected features to our existing list if the site is currently connected.
+if ( Jetpack::is_active() ) {
+	$tools = array_merge( $tools, $connected_tools );
 }
 
 /**
