@@ -1,7 +1,10 @@
 <?php
-/*
+/**
  * Load module code that is needed even when a module isn't active.
- * For example, if a module shouldn't be activatable unless certain conditions are met, the code belongs in this file.
+ * For example, if a module shouldn't be activatable unless certain conditions are met,
+ * the code belongs in this file.
+ *
+ * @package Jetpack
  */
 
 /**
@@ -61,15 +64,21 @@ $jetpack_tools_to_include = apply_filters( 'jetpack_tools_to_include', $tools );
 if ( ! empty( $jetpack_tools_to_include ) ) {
 	foreach ( $jetpack_tools_to_include as $tool ) {
 		if ( file_exists( JETPACK__PLUGIN_DIR . '/modules/' . $tool ) ) {
-			require_once( JETPACK__PLUGIN_DIR . '/modules/' . $tool );
+			require_once JETPACK__PLUGIN_DIR . '/modules/' . $tool;
 		}
 	}
 }
 
 /**
  * Add the "(Jetpack)" suffix to the widget names
+ *
+ * @param string $widget_name Widget name.
  */
 function jetpack_widgets_add_suffix( $widget_name ) {
-	return sprintf( __( '%s (Jetpack)', 'jetpack' ), $widget_name );
+	return sprintf(
+		/* Translators: Placeholder is the name of a widget. */
+		__( '%s (Jetpack)', 'jetpack' ),
+		$widget_name
+	);
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
