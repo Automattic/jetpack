@@ -75,7 +75,7 @@ class BackupsScanRewind extends Component {
 				};
 			case 'awaiting_credentials':
 				return {
-					title: __( 'Action needed' ),
+					title: __( 'Awaiting credentials' ),
 					icon: 'notice',
 					description: __(
 						'You need to enter your server credentials to finish configuring Backups and Scan.'
