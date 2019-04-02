@@ -1,11 +1,10 @@
 module.exports = {
+	root: true,
 	parser: 'babel-eslint',
 	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier', 'prettier/react' ],
 	env: {
 		browser: true,
 		es6: true,
-		mocha: true,
-		node: true,
 		jquery: true,
 	},
 	parserOptions: {
@@ -100,6 +99,12 @@ module.exports = {
 		'jsx-a11y/anchor-is-valid': 0,
 	},
 	overrides: [
+		{
+			files: [ '_inc/client/**/test/*.js', '_inc/client/**/test/*.jsx' ],
+			env: {
+				mocha: true,
+			},
+		},
 		{
 			files: [ 'extensions/**/*', 'webpack.config.extensions.js' ],
 			rules: {

@@ -15,6 +15,3 @@
 /modules/lazy-images/js/lazy-images.js
 /modules/widgets/search/js/search-widget-admin.js
 /vendor/
-
-# Temporary ignore until Jest is set up
-/extensions/**/test/
