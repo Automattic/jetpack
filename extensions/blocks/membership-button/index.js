@@ -24,11 +24,11 @@ export const icon = (
 export const settings = {
 	title: __( 'Membership Button', 'jetpack' ),
 	icon,
-	description: __( 'Button allowing you to sell subscription products.' ),
+	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
 	category: 'jetpack',
 	keywords: [
-		_x( 'sell', 'block search term' ),
-		_x( 'subscription', 'block search term' ),
+		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'subscription', 'block search term', 'jetpack' ),
 		'stripe',
 	],
 	attributes: {
