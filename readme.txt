@@ -147,6 +147,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
 * Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
 * Related Posts: restore use of the jetpack_relatedposts_filter_options filter.
+* Security: Improvements to the Likes feature and the Slideshow block.
 * Sharing: update WhatsApp to be more consistent with the other sharing buttons.
 * Shortcodes: remove Lytro service, which closed in March.
 * Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.

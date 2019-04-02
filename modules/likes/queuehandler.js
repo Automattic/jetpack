@@ -193,7 +193,7 @@ function JetpackLikesMessageListener( event, message ) {
 				$list.append( element );
 			} );
 
-			offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
+			offset = jQuery( 'body' ).find( '[name=\'' + event.parent + '\']' ).offset();
 
 			$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
 			$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
