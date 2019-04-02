@@ -5,7 +5,7 @@
 import classnames from 'classnames';
 import SubmitButton from '../../utils/submit-button';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '../../utils/i18n';
+import { __ } from '@wordpress/i18n';
 import { trimEnd } from 'lodash';
 import { getCurrencyDefaults } from '@automattic/format-currency';
 
