@@ -9,7 +9,6 @@ import { Path, Rect, SVG, G } from '@wordpress/components';
 import { __, _x } from '../../utils/i18n';
 import edit from './edit';
 import './editor.scss';
-import { DEFAULT_CURRENCY } from '../simple-payments/constants';
 
 export const name = 'membership-button';
 
@@ -30,7 +29,7 @@ export const settings = {
 	keywords: [
 		_x( 'sell', 'block search term' ),
 		_x( 'subscription', 'block search term' ),
-		_x( 'stripe', 'block search term' ),
+		'stripe',
 	],
 	attributes: {
 		planId: {
@@ -51,29 +50,21 @@ export const settings = {
 	save: () => null,
 };
 
+// These are Stripe Settlement currencies https://stripe.com/docs/currencies since memberships supports only Stripe ATM.
 export const SUPPORTED_CURRENCY_LIST = [
-	DEFAULT_CURRENCY,
-	'EUR',
+	'USD',
 	'AUD',
 	'BRL',
 	'CAD',
-	'CZK',
-	'DKK',
-	'HKD',
-	'HUF',
-	'ILS',
-	'JPY',
-	'MYR',
-	'MXN',
-	'TWD',
-	'NZD',
-	'NOK',
-	'PHP',
-	'PLN',
-	'GBP',
-	'RUB',
-	'SGD',
-	'SEK',
 	'CHF',
-	'THB',
+	'DKK',
+	'EUR',
+	'GBP',
+	'HKD',
+	'JPY',
+	'MXN',
+	'NOK',
+	'NZD',
+	'SEK',
+	'SGD',
 ];

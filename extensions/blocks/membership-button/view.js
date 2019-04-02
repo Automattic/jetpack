@@ -28,21 +28,23 @@ function activateSubscription( block, blogId, planId, poweredText ) {
 }
 
 const initializeMembershipButtonBlocks = () => {
-	const mailchimpBlocks = Array.from( document.querySelectorAll( '.' + blockClassName ) );
-	mailchimpBlocks.forEach( block => {
-		const blog_id = block.getAttribute( 'data-blog-id' );
-		const plan_id = block.getAttribute( 'data-plan-id' );
-		const powered_text = block
+	const membershipButtonBlocks = Array.prototype.slice.call(
+		document.querySelectorAll( '.' + blockClassName )
+	);
+	membershipButtonBlocks.forEach( block => {
+		const blogId = block.getAttribute( 'data-blog-id' );
+		const planId = block.getAttribute( 'data-plan-id' );
+		const poweredText = block
 			.getAttribute( 'data-powered-text' )
 			.replace(
 				'WordPress.com',
 				'<a href="https://wordpress.com" target="_blank" rel="noreferrer noopener">WordPress.com</a>'
 			);
 		try {
-			activateSubscription( block, blog_id, plan_id, powered_text );
+			activateSubscription( block, blogId, planId, poweredText );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Membership Button ' + plan_id, err );
+			console.error( 'Problem activating Membership Button ' + planId, err );
 		}
 	} );
 };

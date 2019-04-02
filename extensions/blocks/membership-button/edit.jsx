@@ -228,7 +228,6 @@ class MembershipsButtonEdit extends Component {
 
 	renderMembershipAmounts = () => (
 		<div>
-			{' '}
 			{ this.state.products.map( product => (
 				<Button
 					className="membership-button__field-button"
@@ -238,7 +237,7 @@ class MembershipsButtonEdit extends Component {
 				>
 					{ formatPrice( parseFloat( product.price ), product.currency ) }
 				</Button>
-			) ) }{' '}
+			) ) }
 		</div>
 	);
 
