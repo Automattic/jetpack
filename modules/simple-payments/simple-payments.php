@@ -134,7 +134,7 @@ class Jetpack_Simple_Payments {
 			'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
 		), $attrs );
 
-		$data['price'] = self::format_price(
+		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
 			get_post_meta( $product->ID, 'spay_currency', true )
 		);
@@ -272,7 +272,7 @@ class Jetpack_Simple_Payments {
 	 * @param  string $currency Currency.
 	 * @return string           Formatted price.
 	 */
-	public static function format_price( $price, $currency ) {
+	private function format_price( $price, $currency ) {
 		$currency_details = self::get_currency( $currency );
 
 		if ( $currency_details ) {
@@ -550,7 +550,7 @@ class Jetpack_Simple_Payments {
 	 * @param  string $the_currency The desired currency, e.g. 'USD'.
 	 * @return ?array               Currency object or null if not found.
 	 */
-	public static function get_currency( $the_currency ) {
+	private static function get_currency( $the_currency ) {
 		$currencies = array(
 			'USD' => array(
 				'format'  => '%1$s%2$s', // 1: Symbol 2: currency value

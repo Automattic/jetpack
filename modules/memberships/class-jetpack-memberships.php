@@ -199,7 +199,7 @@ class Jetpack_Memberships {
 		$data = array(
 			'blog_id' => $this->get_blog_id(),
 			'id'	  => $id,
-			'button_label' => sprintf( __( '$%s Contribution', 'jetpack' ),$this->format_price( $plan ) ),
+			'button_label' => __( 'Your contribution', 'jetpack' ),
 			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
@@ -258,20 +258,6 @@ class Jetpack_Memberships {
 
 	static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
-	}
-
-	/**
-	 * Formats the price.
-	 *
-	 * @param array $plan - array representing the plan.
-	 *
-	 * @return string
-	 */
-	private function format_price( $plan ) {
-		if ( $plan['formatted_price'] ) {
-			return $plan['formatted_price'];
-		}
-		return Jetpack_Simple_Payments::format_price( $plan['price'],$plan['currency'] );
 	}
 }
 Jetpack_Memberships::get_instance();
