@@ -1,26 +1,26 @@
 {
-    "name"       : "automattic/jetpack",
-    "description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
-    "homepage"   : "http://jetpack.com/",
-    "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0-or-later",
-    "support": {
-        "issues": "https://github.com/Automattic/jetpack/issues"
-    },
-    "require"    : {
-        "composer/installers": "1.6.0",
-        "ext-openssl": "*"
-    },
-    "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
-        "wp-coding-standards/wpcs": "2.0.0",
-        "sirbrillig/phpcs-variable-analysis": "2.6.0",
-        "phpcompatibility/phpcompatibility-wp": "2.0.0"
-    },
-    "scripts": {
-      "php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
-      "php:lint": "composer install && vendor/bin/phpcs -p",
-      "php:autofix": "composer install && vendor/bin/phpcbf",
-      "php:lint:errors": "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
-    }
+	"name": "automattic/jetpack",
+	"description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
+	"homepage": "http://jetpack.com/",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/Automattic/jetpack/issues"
+	},
+	"require": {
+		"composer/installers": "1.6.0",
+		"ext-openssl": "*"
+	},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+		"wp-coding-standards/wpcs": "2.0.0",
+		"sirbrillig/phpcs-variable-analysis": "2.6.0",
+		"phpcompatibility/phpcompatibility-wp": "2.0.0"
+	},
+	"scripts": {
+		"php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:lint": "composer install && vendor/bin/phpcs -p",
+		"php:autofix": "composer install && vendor/bin/phpcbf",
+		"php:lint:errors": "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
+	}
 }

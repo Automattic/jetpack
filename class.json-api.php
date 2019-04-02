@@ -37,7 +37,7 @@ class WPCOM_JSON_API {
 	 */
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( !self::$self ) {
-			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
+			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.get_called_classFound
 			self::$self = new $class( $method, $url, $post_body );
 		}
 		return self::$self;
@@ -94,8 +94,10 @@ class WPCOM_JSON_API {
 			$this->url = $url;
 		}
 
-		$parsed     = parse_url( $this->url );
-		$this->path = $parsed['path'];
+		$parsed = parse_url( $this->url );
+		if ( ! empty( $parsed['path'] ) ) {
+			$this->path = $parsed['path'];
+		}
 
 		if ( !empty( $parsed['query'] ) ) {
 			wp_parse_str( $parsed['query'], $this->query );

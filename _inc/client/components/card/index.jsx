@@ -137,4 +137,4 @@ class Card extends React.Component {
 Card.Section = CardSection;
 Card.Footer = CardFooter;
 
-module.exports = Card;
+export default Card;

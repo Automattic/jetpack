@@ -59,4 +59,4 @@ const InfoPopoverExample = createReactClass( {
 	},
 } );
 
-module.exports = InfoPopoverExample;
+export default InfoPopoverExample;

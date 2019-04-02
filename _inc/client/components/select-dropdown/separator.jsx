@@ -11,4 +11,4 @@ class SelectDropdownSeparator extends React.Component {
 	}
 }
 
-module.exports = SelectDropdownSeparator;
+export default SelectDropdownSeparator;

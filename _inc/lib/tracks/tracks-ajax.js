@@ -1,15 +1,15 @@
 /* global jpTracksAJAX, jQuery */
-(function( $, jpTracksAJAX ) {
+( function( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
 	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
-	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
+	window.jpTracksAJAX.record_ajax_event = function( eventName, eventType, eventProp ) {
 		var data = {
 			tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
 			action: 'jetpack_tracks',
 			tracksEventType: eventType,
 			tracksEventName: eventName,
-			tracksEventProp: eventProp || false
+			tracksEventProp: eventProp || false,
 		};
 
 		return $.ajax( {
@@ -21,7 +21,7 @@
 					// eslint-disable-next-line
 					console.log( 'AJAX tracks event recorded: ', data, response );
 				}
-			}
+			},
 		} );
 	};
 
@@ -38,7 +38,7 @@
 
 			var eventProp = $jptracks.attr( 'data-jptracks-prop' ) || false;
 
-			var url    = $( this ).attr( 'href' );
+			var url = $( this ).attr( 'href' );
 			var target = $( this ).get( 0 ).target;
 			if ( url && target && '_self' !== target ) {
 				var newTabWindow = window.open( '', target );
@@ -59,5 +59,4 @@
 			} );
 		} );
 	} );
-
 } )( jQuery, jpTracksAJAX );

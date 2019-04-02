@@ -2550,4 +2550,4 @@ const Gridicon = createReactClass( {
 	},
 } );
 
-module.exports = Gridicon;
+export default Gridicon;

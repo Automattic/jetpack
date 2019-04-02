@@ -13,10 +13,10 @@
 import assign from 'lodash/assign';
 import { EventEmitter } from 'events';
 
-module.exports = function( prototype ) {
+export default function( prototype ) {
 	assign( prototype, EventEmitter.prototype );
 	prototype.emitChange = function() {
 		this.emit( 'change' );
 	};
 	prototype.off = prototype.removeListener;
-};
+}

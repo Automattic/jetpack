@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
-import ResizeObserver from 'resize-observer-polyfill';
 import classnames from 'classnames';
+import ResizeObserver from 'resize-observer-polyfill';
+import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { isEqual } from 'lodash';
@@ -45,7 +45,7 @@ class Slideshow extends Component {
 				this.initializeResizeObserver( swiper );
 			} )
 			.catch( () => {
-				onError( __( 'The Swiper library could not be loaded.' ) );
+				onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
 			} );
 	}
 
@@ -68,10 +68,14 @@ class Slideshow extends Component {
 			delay !== prevProps.delay ||
 			images !== prevProps.images
 		) {
-			const realIndex =
-				images.length === prevProps.images.length
-					? this.swiperInstance.realIndex
-					: prevProps.images.length;
+			let realIndex;
+			if ( ! this.swiperIndex ) {
+				realIndex = 0;
+			} else if ( images.length === prevProps.images.length ) {
+				realIndex = this.swiperInstance.realIndex;
+			} else {
+				realIndex = prevProps.images.length;
+			}
 			this.swiperInstance && this.swiperInstance.destroy( true, true );
 			this.buildSwiper( realIndex )
 				.then( swiper => {
@@ -79,7 +83,7 @@ class Slideshow extends Component {
 					this.initializeResizeObserver( swiper );
 				} )
 				.catch( () => {
-					onError( __( 'The Swiper library could not be loaded.' ) );
+					onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
 				} );
 		}
 	}

@@ -8,6 +8,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
@@ -16,7 +17,6 @@ import { includes } from 'lodash';
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import PublicizeServiceIcon from './service-icon';
 import getSiteFragment from '../../shared/get-site-fragment';
 
@@ -45,13 +45,14 @@ class PublicizeConnection extends Component {
 		this.state.showGooglePlusNotice && (
 			<Notice status="error" onRemove={ this.onRemoveGooglePlusNotice }>
 				{ __(
-					'Google+ will shut down in April 2019. You can keep posting with your existing Google+ connection through March.'
+					'Google+ will shut down in April 2019. You can keep posting with your existing Google+ connection through March.',
+					'jetpack'
 				) }
 				<ExternalLink
 					target="_blank"
 					href="https://www.blog.google/technology/safety-security/expediting-changes-google-plus/"
 				>
-					{ __( ' Learn more' ) }.
+					{ __( ' Learn more', 'jetpack' ) }.
 				</ExternalLink>
 			</Notice>
 		);
@@ -68,11 +69,12 @@ class PublicizeConnection extends Component {
 				<p>
 					{ __(
 						'Your LinkedIn connection needs to be reauthenticated ' +
-							'to continue working – head to Sharing to take care of it.'
+							'to continue working – head to Sharing to take care of it.',
+						'jetpack'
 					) }
 				</p>
 				<ExternalLink href={ `https://wordpress.com/sharing/${ getSiteFragment() }` }>
-					{ __( 'Go to Sharing settings' ) }
+					{ __( 'Go to Sharing settings', 'jetpack' ) }
 				</ExternalLink>
 			</Notice>
 		);

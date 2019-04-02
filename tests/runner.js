@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 require( '@babel/register' );
+
 const program = require( 'commander' ),
 	glob = require( 'glob' ),
 	Mocha = require( 'mocha' ),
 	boot = require( './boot-test' );
 
 program
-    .usage( '[options] [files]' )
-    .option( '-R, --reporter <name>', 'specify the reporter to use', 'spec' )
-    .option( '-g, --grep <pattern>', 'only run tests matching <pattern>' );
+	.usage( '[options] [files]' )
+	.option( '-R, --reporter <name>', 'specify the reporter to use', 'spec' )
+	.option( '-g, --grep <pattern>', 'only run tests matching <pattern>' );
 
 program.name = 'runner';
 
@@ -17,7 +18,7 @@ program.parse( process.argv );
 
 const mocha = new Mocha( {
 	ui: 'bdd',
-	reporter: program.reporter
+	reporter: program.reporter,
 } );
 
 if ( program.grep ) {
@@ -39,7 +40,7 @@ if ( program.args.length ) {
 
 		window.Initial_State = {
 			userData: {},
-			dismissedNotices: {}
+			dismissedNotices: {},
 		};
 
 		switch ( program.args[ 0 ] ) {

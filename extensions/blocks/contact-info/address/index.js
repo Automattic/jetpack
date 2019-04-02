@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Path, Circle } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { Path, Circle } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import edit from './edit';
 import save from './save';
 import renderMaterialIcon from '../../../utils/render-material-icon';
-import { __, _x } from '../../../utils/i18n';
 
 const attributes = {
 	address: {
@@ -50,12 +50,12 @@ const attributes = {
 export const name = 'address';
 
 export const settings = {
-	title: __( 'Address' ),
-	description: __( 'Lets you add a physical address with Schema markup.' ),
+	title: __( 'Address', 'jetpack' ),
+	description: __( 'Lets you add a physical address with Schema markup.', 'jetpack' ),
 	keywords: [
-		_x( 'location', 'block search term' ),
-		_x( 'direction', 'block search term' ),
-		_x( 'place', 'block search term' ),
+		_x( 'location', 'block search term', 'jetpack' ),
+		_x( 'direction', 'block search term', 'jetpack' ),
+		_x( 'place', 'block search term', 'jetpack' ),
 	],
 	icon: renderMaterialIcon(
 		<Fragment>

@@ -6,7 +6,10 @@ import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
+import extensionList from '../setup/index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+
+const betaExtensions = extensionList.beta || [];
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -18,9 +21,8 @@ import getJetpackExtensionAvailability from './get-jetpack-extension-availabilit
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( name );
-	const unavailable = ! available;
 
-	if ( unavailable ) {
+	if ( ! available ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -30,7 +32,12 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
-	const result = registerBlockType( `jetpack/${ name }`, settings );
+	const result = registerBlockType(
+		`jetpack/${ name }`,
+		betaExtensions.includes( name )
+			? { ...settings, title: `${ settings.title } (beta)` }
+			: settings
+	);
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.

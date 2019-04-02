@@ -60,7 +60,7 @@ class Radios extends React.Component {
 	}
 }
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'RadioInput',
 
 	mixins: [ Formsy.Mixin ],

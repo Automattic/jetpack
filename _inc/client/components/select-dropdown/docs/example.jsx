@@ -136,4 +136,4 @@ const SelectDropdownDemo = createReactClass( {
 	onDropdownSelect: function() {},
 } );
 
-module.exports = SelectDropdownDemo;
+export default SelectDropdownDemo;

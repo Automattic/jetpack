@@ -73,4 +73,4 @@ const NavItem = createReactClass( {
 	},
 } );
 
-module.exports = NavItem;
+export default NavItem;

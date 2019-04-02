@@ -17,7 +17,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 ### Prerequisites
 
-* [Docker](https://www.docker.com/community-edition)
+* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
 * [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
@@ -238,11 +238,9 @@ If you are an Automattician, sign up on Ngrok.com using your a8c Google account;
 
 Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
-
-
 ```
 authtoken: YOUR_AUTH_TOKEN # This should already be here
-region: eu # only needed for subdomains in Europe
+region: eu # only needed for subdomains in Europe (eu), Asia/Pacific (ap) or Australia (au)
 tunnels:
   jetpack:
     subdomain: YOUR_RESERVED_SUBDOMAIN # without the .ngrok.io

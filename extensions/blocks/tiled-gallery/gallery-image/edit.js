@@ -2,18 +2,15 @@
  * External Dependencies
  */
 import classnames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { IconButton, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
-/* @TODO Caption has been commented out */
-// import { RichText } from '@wordpress/editor';
 import { withSelect } from '@wordpress/data';
 
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
+/* @TODO Caption has been commented out */
+// import { RichText } from '@wordpress/editor';
 
 class GalleryImageEdit extends Component {
 	img = createRef();
@@ -163,7 +160,7 @@ class GalleryImageEdit extends Component {
 							icon="no-alt"
 							onClick={ onRemove }
 							className="tiled-gallery__item__remove"
-							label={ __( 'Remove Image' ) }
+							label={ __( 'Remove Image', 'jetpack' ) }
 						/>
 					</div>
 				) }

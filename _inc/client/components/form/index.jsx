@@ -114,4 +114,4 @@ Form.CountrySelect = CountrySelect;
 Form.HiddenInput = HiddenInput;
 Form.Submit = Submit;
 
-module.exports = Form;
+export default Form;

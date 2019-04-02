@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sal/class.json-api-platform.php';
+require_jetpack_file( 'sal/class.json-api-platform.php' );
 
 class SalPostsTest extends WP_UnitTestCase {
 	static $token;
