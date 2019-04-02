@@ -1,5 +1,6 @@
 <?php
 /**
+<<<<<<< HEAD
  * Module Name: Spelling and Grammar
  * Module Description: Check your spelling, style, and grammar
  * Sort Order: 6
@@ -358,3 +359,9 @@ add_action( 'init', 'AtD_addbuttons' );
 add_action( 'wp_ajax_proxy_atd', 'AtD_redirect_call' );
 add_action( 'wp_ajax_atd_ignore', 'AtD_ignore_call' );
 add_action( 'wp_ajax_atd_settings', 'AtD_settings' );
+=======
+ * Deprecated. No longer needed.
+ *
+ * @package Jetpack
+ */
+>>>>>>> Restores the module file with a deprecation notice so it'll load correctly on sites with opcaches that aren't automatically refreshing on file system changes.
