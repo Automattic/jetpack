@@ -1,13 +1,9 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { PlainText } from '@wordpress/editor';
 import { ToggleControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
 
 const JetpackFieldLabel = ( { setAttributes, label, resetFocus, isSelected, required } ) => {
 	return (
@@ -19,17 +15,19 @@ const JetpackFieldLabel = ( { setAttributes, label, resetFocus, isSelected, requ
 					resetFocus && resetFocus();
 					setAttributes( { label: value } );
 				} }
-				placeholder={ __( 'Write label…' ) }
+				placeholder={ __( 'Write label…', 'jetpack' ) }
 			/>
 			{ isSelected && (
 				<ToggleControl
-					label={ __( 'Required' ) }
+					label={ __( 'Required', 'jetpack' ) }
 					className="jetpack-field-label__required"
 					checked={ required }
 					onChange={ value => setAttributes( { required: value } ) }
 				/>
 			) }
-			{ ! isSelected && required && <span className="required">{ __( '(required)' ) }</span> }
+			{ ! isSelected && required && (
+				<span className="required">{ __( '(required)', 'jetpack' ) }</span>
+			) }
 		</div>
 	);
 };

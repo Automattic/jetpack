@@ -1,16 +1,11 @@
 /**
  * External dependencies
  */
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { get } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { __, _n } from '../../utils/i18n';
 
 class SeoPanel extends Component {
 	onMessageChange = event => {
@@ -25,12 +20,12 @@ class SeoPanel extends Component {
 				<textarea
 					value={ seoDescription }
 					onChange={ this.onMessageChange }
-					placeholder={ __( 'Write a description…' ) }
+					placeholder={ __( 'Write a description…', 'jetpack' ) }
 					rows={ 4 }
 				/>
 				<div className="jetpack-seo-character-count">
 					{ sprintf(
-						_n( '%d character', '%d characters', seoDescription.length ),
+						_n( '%d character', '%d characters', seoDescription.length, 'jetpack' ),
 						seoDescription.length
 					) }
 				</div>

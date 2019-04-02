@@ -9,6 +9,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -19,14 +20,15 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import PublicizeConnectionVerify from './connection-verify';
 import PublicizeForm from './form';
 import PublicizeSettingsButton from './settings-button';
-import { __ } from '../../utils/i18n';
 
 const PublicizePanel = ( { connections, refreshConnections } ) => (
 	<Fragment>
 		{ connections && connections.some( connection => connection.enabled ) && (
 			<PublicizeConnectionVerify />
 		) }
-		<div>{ __( "Connect and select the accounts where you'd like to share your post." ) }</div>
+		<div>
+			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+		</div>
 		{ connections && connections.length > 0 && (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }

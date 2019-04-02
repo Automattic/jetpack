@@ -9,7 +9,13 @@ import { ToggleControl } from '@wordpress/components';
 import { __ } from '../../../utils/i18n';
 
 const JetpackFieldRequiredToggle = ( { required, onChange } ) => {
-	return <ToggleControl label={ __( 'Required' ) } checked={ required } onChange={ onChange } />;
+	return (
+		<ToggleControl
+			label={ __( 'Required', 'jetpack' ) }
+			checked={ required }
+			onChange={ onChange }
+		/>
+	);
 };
 
 export default JetpackFieldRequiredToggle;

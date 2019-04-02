@@ -1,13 +1,9 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { IconButton } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
 
 class JetpackOption extends Component {
 	constructor( ...args ) {
@@ -63,7 +59,7 @@ class JetpackOption extends Component {
 					type="text"
 					className="jetpack-option__input"
 					value={ option }
-					placeholder={ __( 'Write option…' ) }
+					placeholder={ __( 'Write option…', 'jetpack' ) }
 					onChange={ this.onChangeOption }
 					onKeyDown={ this.onKeyPress }
 					ref={ this.textInput }
@@ -72,7 +68,7 @@ class JetpackOption extends Component {
 					<IconButton
 						className="jetpack-option__remove"
 						icon="trash"
-						label={ __( 'Remove option' ) }
+						label={ __( 'Remove option', 'jetpack' ) }
 						onClick={ this.onDeleteOption }
 					/>
 				) }

@@ -2,19 +2,19 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { isBlobURL } from '@wordpress/blob';
-import { compose, createHigherOrderComponent } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { Disabled, IconButton, SandBox, Toolbar } from '@wordpress/components';
+import classnames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { BlockControls, RichText } from '@wordpress/editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import classnames from 'classnames';
+import { compose, createHigherOrderComponent } from '@wordpress/compose';
+import { Disabled, IconButton, SandBox, Toolbar } from '@wordpress/components';
 import { get } from 'lodash';
+import { isBlobURL } from '@wordpress/blob';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import Loading from './loading';
 
 const VideoPressEdit = CoreVideoEdit =>
@@ -110,11 +110,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			const { fallback, isFetchingMedia } = this.state;
 
 			if ( isUploading ) {
-				return <Loading text={ __( 'Uploading…' ) } />;
+				return <Loading text={ __( 'Uploading…', 'jetpack' ) } />;
 			}
 
 			if ( isFetchingMedia || isFetchingPreview ) {
-				return <Loading text={ __( 'Embedding…' ) } />;
+				return <Loading text={ __( 'Embedding…', 'jetpack' ) } />;
 			}
 
 			if ( fallback || ! preview ) {
@@ -130,7 +130,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						<Toolbar>
 							<IconButton
 								className="components-icon-button components-toolbar__control"
-								label={ __( 'Edit video' ) }
+								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
 								icon="edit"
 							/>
@@ -149,7 +149,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 							<RichText
 								tagName="figcaption"
-								placeholder={ __( 'Write caption…' ) }
+								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								value={ caption }
 								onChange={ value => setAttributes( { caption: value } ) }
 								inlineToolbar

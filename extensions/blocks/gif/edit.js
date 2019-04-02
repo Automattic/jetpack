@@ -1,16 +1,19 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
 import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { Button, PanelBody, Path, Placeholder, SVG, TextControl } from '@wordpress/components';
 import { InspectorControls, RichText } from '@wordpress/editor';
 
+/**
+ * Internal dependencies
+ */
 import { icon, title } from './';
 
 const GIPHY_API_KEY = 't1PkR1Vq0mzHueIFBvZSZErgFs9NBmYW';
-const INPUT_PROMPT = __( 'Search for a term or paste a Giphy URL' );
+const INPUT_PROMPT = __( 'Search for a term or paste a Giphy URL', 'jetpack' );
 
 class GifEdit extends Component {
 	textControlRef = createRef();
@@ -141,7 +144,7 @@ class GifEdit extends Component {
 					value={ searchText }
 				/>
 				<Button isLarge onClick={ this.onSubmit }>
-					{ __( 'Search' ) }
+					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>
 		);
@@ -200,7 +203,7 @@ class GifEdit extends Component {
 									this.setState( { captionFocus: true } );
 								} }
 								onChange={ value => setAttributes( { caption: value } ) }
-								placeholder={ __( 'Write caption…' ) }
+								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								tagName="figcaption"
 								value={ caption }
 							/>

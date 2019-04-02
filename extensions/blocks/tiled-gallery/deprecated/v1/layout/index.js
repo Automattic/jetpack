@@ -2,10 +2,10 @@
  * External dependencies
  */
 import photon from 'photon';
+import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { format as formatUrl, parse as parseUrl } from 'url';
 import { isBlobURL } from '@wordpress/blob';
-import { sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -13,7 +13,6 @@ import { sprintf } from '@wordpress/i18n';
 import Image from '../image';
 import Mosaic from './mosaic';
 import Square from './square';
-import { __ } from '../../../../../utils/i18n';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 export default class Layout extends Component {
@@ -51,7 +50,11 @@ export default class Layout extends Component {
 		const { images, linkTo, selectedImage } = this.props;
 
 		/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
-		const ariaLabel = sprintf( __( 'image %1$d of %2$d in gallery' ), i + 1, images.length );
+		const ariaLabel = sprintf(
+			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
+			i + 1,
+			images.length
+		);
 		return (
 			<Image
 				alt={ img.alt }
