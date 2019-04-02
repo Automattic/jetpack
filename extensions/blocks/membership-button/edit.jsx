@@ -316,6 +316,7 @@ class MembershipsButtonEdit extends Component {
 						</Placeholder>
 					) }
 				{ ! this.props.attributes.planId &&
+					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
 						<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
