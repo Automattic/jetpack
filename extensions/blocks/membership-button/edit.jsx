@@ -7,7 +7,7 @@ import SubmitButton from '../../utils/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { trimEnd } from 'lodash';
-import { getCurrencyDefaults } from '@automattic/format-currency';
+import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
 
 import {
 	Button,
@@ -25,7 +25,6 @@ import { Fragment, Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { icon, SUPPORTED_CURRENCY_LIST } from '.';
-import { formatPrice } from '../simple-payments/utils';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -164,7 +163,7 @@ class MembershipsButtonEdit extends Component {
 						label={ __( 'Price' ) }
 						className="membership-button__field membership-button__field-price"
 						onChange={ this.handlePriceChange }
-						placeholder={ formatPrice( 0, this.state.editedProductCurrency, false ) }
+						placeholder={ formatCurrency( 0, this.state.editedProductCurrency ) }
 						required
 						step="1"
 						type="number"
@@ -217,7 +216,7 @@ class MembershipsButtonEdit extends Component {
 		const product = this.state.products
 			.filter( prod => parseInt( prod.id ) === parseInt( id ) )
 			.pop();
-		return formatPrice( parseFloat( product.price ), product.currency );
+		return formatCurrency( parseFloat( product.price ), product.currency );
 	};
 
 	setMembershipAmount = id =>
@@ -235,7 +234,7 @@ class MembershipsButtonEdit extends Component {
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
-					{ formatPrice( parseFloat( product.price ), product.currency ) }
+					{ formatCurrency( parseFloat( product.price ), product.currency ) }
 				</Button>
 			) ) }
 		</div>
@@ -253,7 +252,7 @@ class MembershipsButtonEdit extends Component {
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
 						options={ this.state.products.map( product => ( {
-							label: formatPrice( parseFloat( product.price ), product.currency ),
+							label: formatCurrency( parseFloat( product.price ), product.currency ),
 							value: product.id,
 							key: product.id,
 						} ) ) }
