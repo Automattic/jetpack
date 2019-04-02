@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import { Fragment } from '@wordpress/element';
-import { IconButton, Toolbar, ToolbarButton } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/editor';
+import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../utils/i18n';
+import { IconButton, Toolbar, ToolbarButton } from '@wordpress/components';
 
 const onSelectMedia = setAttributes => media =>
 	setAttributes( {
@@ -24,7 +20,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 			<MediaPlaceholder
 				icon="format-image"
 				labels={ {
-					title: __( 'Product Image' ),
+					title: __( 'Product Image', 'jetpack' ),
 				} }
 				accept="image/*"
 				allowedTypes={ [ 'image' ] }
@@ -45,7 +41,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 							render={ ( { open } ) => (
 								<IconButton
 									className="components-toolbar__control"
-									label={ __( 'Edit Image' ) }
+									label={ __( 'Edit Image', 'jetpack' ) }
 									icon="edit"
 									onClick={ open }
 								/>
@@ -53,7 +49,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 						/>
 						<ToolbarButton
 							icon={ 'trash' }
-							title={ __( 'Remove Image' ) }
+							title={ __( 'Remove Image', 'jetpack' ) }
 							onClick={ () =>
 								setAttributes( {
 									featuredMediaId: null,

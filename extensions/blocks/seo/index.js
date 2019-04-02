@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
@@ -11,7 +12,6 @@ import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import './editor.scss';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoPanel from './panel';
-import { __ } from '../../utils/i18n';
 
 export const name = 'seo';
 
@@ -19,7 +19,7 @@ export const settings = {
 	render: () => (
 		<Fragment>
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'SEO Description' ) }>
+				<PanelBody title={ __( 'SEO Description', 'jetpack' ) }>
 					<SeoPanel />
 				</PanelBody>
 			</JetpackPluginSidebar>
@@ -28,7 +28,7 @@ export const settings = {
 				id="seo-title"
 				title={
 					<span id="seo-defaults" key="seo-title-span">
-						{ __( 'SEO Description' ) }
+						{ __( 'SEO Description', 'jetpack' ) }
 					</span>
 				}
 			>

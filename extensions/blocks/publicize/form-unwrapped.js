@@ -10,7 +10,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { uniqueId } from 'lodash';
 
@@ -19,7 +19,6 @@ import { uniqueId } from 'lodash';
  */
 import PublicizeConnection from './connection';
 import PublicizeSettingsButton from './settings-button';
-import { __, _n } from '../../utils/i18n';
 
 export const MAXIMUM_MESSAGE_LENGTH = 256;
 
@@ -82,7 +81,7 @@ class PublicizeFormUnwrapped extends Component {
 				{ connections.some( connection => connection.enabled ) && (
 					<Fragment>
 						<label className="jetpack-publicize-message-note" htmlFor={ this.fieldId }>
-							{ __( 'Customize your message' ) }
+							{ __( 'Customize your message', 'jetpack' ) }
 						</label>
 						<div className="jetpack-publicize-message-box">
 							<textarea
@@ -92,13 +91,19 @@ class PublicizeFormUnwrapped extends Component {
 								disabled={ this.isDisabled() }
 								maxLength={ MAXIMUM_MESSAGE_LENGTH }
 								placeholder={ __(
-									"Write a message for your audience here. If you leave this blank, we'll use the post title as the message."
+									"Write a message for your audience here. If you leave this blank, we'll use the post title as the message.",
+									'jetpack'
 								) }
 								rows={ 4 }
 							/>
 							<div className={ characterCountClass }>
 								{ sprintf(
-									_n( '%d character remaining', '%d characters remaining', charactersRemaining ),
+									_n(
+										'%d character remaining',
+										'%d characters remaining',
+										charactersRemaining,
+										'jetpack'
+									),
 									charactersRemaining
 								) }
 							</div>

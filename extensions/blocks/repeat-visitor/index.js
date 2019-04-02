@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __, _x } from '../../utils/i18n';
 import renderMaterialIcon from '../../utils/render-material-icon';
 import edit from './components/edit';
 import save from './components/save';
@@ -29,15 +29,18 @@ export const settings = {
 		},
 	},
 	category: 'jetpack',
-	description: __( 'Control block visibility based on how often a visitor has viewed the page.' ),
+	description: __(
+		'Control block visibility based on how often a visitor has viewed the page.',
+		'jetpack'
+	),
 	icon,
 	keywords: [
-		_x( 'return', 'block search term' ),
-		_x( 'visitors', 'block search term' ),
-		_x( 'visibility', 'block search term' ),
+		_x( 'return', 'block search term', 'jetpack' ),
+		_x( 'visitors', 'block search term', 'jetpack' ),
+		_x( 'visibility', 'block search term', 'jetpack' ),
 	],
 	supports: { html: false },
-	title: __( 'Repeat Visitor' ),
+	title: __( 'Repeat Visitor', 'jetpack' ),
 	edit,
 	save,
 };

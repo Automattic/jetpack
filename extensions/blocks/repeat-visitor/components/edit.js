@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { InnerBlocks } from '@wordpress/editor';
@@ -10,19 +11,17 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { sprintf } from '@wordpress/i18n';
-import { __, _n } from '../../../utils/i18n';
 import { CRITERIA_AFTER, CRITERIA_BEFORE } from '../constants';
 import { icon } from '../index';
 
 const RADIO_OPTIONS = [
 	{
 		value: CRITERIA_AFTER,
-		label: __( 'Show after threshold' ),
+		label: __( 'Show after threshold', 'jetpack' ),
 	},
 	{
 		value: CRITERIA_BEFORE,
-		label: __( 'Show before threshold' ),
+		label: __( 'Show before threshold', 'jetpack' ),
 	},
 ];
 
@@ -47,7 +46,8 @@ class RepeatVisitorEdit extends Component {
 				_n(
 					'This block will only appear to people who have visited this page more than once.',
 					'This block will only appear to people who have visited this page more than %d times.',
-					+this.props.attributes.threshold
+					+this.props.attributes.threshold,
+					'jetpack'
 				),
 				this.props.attributes.threshold
 			);
@@ -57,7 +57,8 @@ class RepeatVisitorEdit extends Component {
 			_n(
 				'This block will only appear to people who are visiting this page for the first time.',
 				'This block will only appear to people who have visited this page at most %d times.',
-				+this.props.attributes.threshold
+				+this.props.attributes.threshold,
+				'jetpack'
 			),
 			this.props.attributes.threshold
 		);
@@ -72,14 +73,16 @@ class RepeatVisitorEdit extends Component {
 			>
 				<Placeholder
 					icon={ icon }
-					label={ __( 'Repeat Visitor' ) }
+					label={ __( 'Repeat Visitor', 'jetpack' ) }
 					className="wp-block-jetpack-repeat-visitor-placeholder"
 				>
 					<TextControl
 						className="wp-block-jetpack-repeat-visitor-threshold"
 						defaultValue={ this.props.attributes.threshold }
-						help={ this.state.isThresholdValid ? '' : __( 'Please enter a valid number.' ) }
-						label={ __( 'Visit count threshold' ) }
+						help={
+							this.state.isThresholdValid ? '' : __( 'Please enter a valid number.', 'jetpack' )
+						}
+						label={ __( 'Visit count threshold', 'jetpack' ) }
 						min="1"
 						onChange={ this.setThreshold }
 						pattern="[0-9]"
@@ -87,7 +90,7 @@ class RepeatVisitorEdit extends Component {
 					/>
 
 					<RadioControl
-						label={ __( 'Visibility' ) }
+						label={ __( 'Visibility', 'jetpack' ) }
 						selected={ this.props.attributes.criteria }
 						options={ RADIO_OPTIONS }
 						onChange={ this.setCriteria }

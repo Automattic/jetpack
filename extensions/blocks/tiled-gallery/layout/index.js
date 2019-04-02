@@ -2,10 +2,10 @@
  * External dependencies
  */
 import photon from 'photon';
+import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { format as formatUrl, parse as parseUrl } from 'url';
 import { isBlobURL } from '@wordpress/blob';
-import { sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -15,7 +15,6 @@ import GalleryImageSave from '../gallery-image/save';
 import Mosaic from './mosaic';
 import Square from './square';
 import { PHOTON_MAX_RESIZE } from '../constants';
-import { __ } from '../../../utils/i18n';
 
 export default class Layout extends Component {
 	photonize( { height, width, url } ) {
@@ -61,7 +60,11 @@ export default class Layout extends Component {
 		} = this.props;
 
 		/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
-		const ariaLabel = sprintf( __( 'image %1$d of %2$d in gallery' ), i + 1, images.length );
+		const ariaLabel = sprintf(
+			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
+			i + 1,
+			images.length
+		);
 		const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
 		return (
