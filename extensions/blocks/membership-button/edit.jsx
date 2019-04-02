@@ -157,13 +157,13 @@ class MembershipsButtonEdit extends Component {
 				<div className="membership-button__price-container">
 					<SelectControl
 						className="membership-button__field membership-button__field-currency"
-						label={ __( 'Currency' ) }
+						label={ __( 'Currency', 'jetpack' ) }
 						onChange={ this.handleCurrencyChange }
 						options={ this.getCurrencyList }
 						value={ this.state.editedProductCurrency }
 					/>
 					<TextControl
-						label={ __( 'Price' ) }
+						label={ __( 'Price', 'jetpack' ) }
 						className="membership-button__field membership-button__field-price"
 						onChange={ this.handlePriceChange }
 						placeholder={ formatCurrency( 0, this.state.editedProductCurrency ) }
@@ -175,21 +175,21 @@ class MembershipsButtonEdit extends Component {
 				</div>
 				<TextControl
 					className="membership-button__field"
-					label={ __( 'Describe your item in a few words' ) }
+					label={ __( 'Describe your item in a few words', 'jetpack' ) }
 					onChange={ this.handleTitleChange }
-					placeholder={ __( 'Describe your item in a few words' ) }
+					placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
 					value={ this.state.editedProductTitle }
 				/>
 				<SelectControl
-					label={ __( 'Renew interval' ) }
+					label={ __( 'Renew interval', 'jetpack' ) }
 					onChange={ this.handleRenewIntervalChange }
 					options={ [
 						{
-							label: __( 'Monthly' ),
+							label: __( 'Monthly', 'jetpack' ),
 							value: '1 month',
 						},
 						{
-							label: __( 'Yearly' ),
+							label: __( 'Yearly', 'jetpack' ),
 							value: '1 year',
 						},
 					] }
@@ -202,14 +202,14 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field-button"
 						onClick={ this.saveProduct }
 					>
-						{ __( 'Add Amount' ) }
+						{ __( 'Add Amount', 'jetpack' ) }
 					</Button>
 					<Button
 						isLarge
 						className="membership-button__field-button"
 						onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_NOT_ADDING } ) }
 					>
-						{ __( 'Cancel' ) }
+						{ __( 'Cancel', 'jetpack' ) }
 					</Button>
 				</div>
 			</div>
@@ -249,7 +249,7 @@ class MembershipsButtonEdit extends Component {
 
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Product' ) }>
+				<PanelBody title={ __( 'Product', 'jetpack' ) }>
 					<SelectControl
 						label="Membership plan"
 						value={ this.props.attributes.planId }
@@ -287,18 +287,21 @@ class MembershipsButtonEdit extends Component {
 						</Placeholder>
 					) }
 				{ ! this.props.attributes.planId && connected === API_STATE_NOTCONNECTED && (
-					<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
+					<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-							{ __( 'In order to start selling Membership plans, you have to connect to Stripe:' ) }
+							{ __(
+								'In order to start selling Membership plans, you have to connect to Stripe:',
+								'jetpack'
+							) }
 							<br />
 							<br />
 							<Button isDefault isLarge href={ connectURL } target="_blank">
-								{ __( 'Connect to Stripe or set up account' ) }
+								{ __( 'Connect to Stripe or set up account', 'jetpack' ) }
 							</Button>
 							<br />
 							<br />
 							<Button isLink onClick={ this.apiCall }>
-								{ __( 'Re-check Connection' ) }
+								{ __( 'Re-check Connection', 'jetpack' ) }
 							</Button>
 						</div>
 					</Placeholder>
@@ -306,9 +309,9 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.props.attributes.planId &&
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
-						<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
+						<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-								{ __( 'Add your first Membership amount:' ) }
+								{ __( 'Add your first Membership amount:', 'jetpack' ) }
 								<br />
 								<br />
 								{ this.renderAddMembershipAmount() }
@@ -319,11 +322,11 @@ class MembershipsButtonEdit extends Component {
 					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
-						<Placeholder icon={ icon } label={ __( 'Memberships' ) } notices={ notices }>
+						<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-								{ __( 'Select payment amount:' ) }
+								{ __( 'Select payment amount:', 'jetpack' ) }
 								{ this.renderMembershipAmounts() }
-								{ __( 'Or add another membership amount:' ) }
+								{ __( 'Or add another membership amount:', 'jetpack' ) }
 								<br />
 								{ this.renderAddMembershipAmount() }
 							</div>
