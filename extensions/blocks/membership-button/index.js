@@ -37,7 +37,6 @@ export const settings = {
 		},
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Your donation' ),
 		},
 		customBackgroundButtonColor: {
 			type: 'string',
