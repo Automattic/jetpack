@@ -148,6 +148,9 @@ class MembershipsButtonEdit extends Component {
 				</Button>
 			);
 		}
+		if ( this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) {
+			return;
+		}
 
 		return (
 			<div>
@@ -204,7 +207,7 @@ class MembershipsButtonEdit extends Component {
 					<Button
 						isLarge
 						className="membership-button__field-button"
-						onClick={ () => this.setState( { addingMembershipAmount: false } ) }
+						onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_NOT_ADDING } ) }
 					>
 						{ __( 'Cancel' ) }
 					</Button>
