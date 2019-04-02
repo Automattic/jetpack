@@ -1,17 +1,24 @@
-<?php
-
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 /**
  * Memberships: API to communicate with "product" database.
  *
- * @since 7.3
+ * @package    Jetpack
+ * @since      7.3.0
  */
 
-
+/**
+ * Class WPCOM_REST_API_V2_Endpoint_Memberships
+ * This introduces V2 endpoints.
+ */
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
+
+	/**
+	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
+	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'memberships';
-		$this->wpcom_is_wpcom_only_endpoint = true;
+		$this->namespace                       = 'wpcom/v2';
+		$this->rest_base                       = 'memberships';
+		$this->wpcom_is_wpcom_only_endpoint    = true;
 		$this->wpcom_is_site_specific_endpoint = true;
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -25,8 +32,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			$this->rest_base . '/status',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_status' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 				),
 			)
@@ -36,24 +43,24 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			$this->rest_base . '/product',
 			array(
 				array(
-					'methods'  => WP_REST_Server::CREATABLE,
-					'callback' => array( $this, 'create_product' ),
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_product' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
-					'args'     => array(
-						'title' => array(
-							'type'   => 'string',
+					'args'                => array(
+						'title'    => array(
+							'type'     => 'string',
 							'required' => true,
 						),
-						'price' => array(
-							'type'   => 'float',
+						'price'    => array(
+							'type'     => 'float',
 							'required' => true,
 						),
 						'currency' => array(
-							'type'   => 'string',
+							'type'     => 'string',
 							'required' => true,
 						),
 						'interval' => array(
-							'type'   => 'string',
+							'type'     => 'string',
 							'required' => true,
 						),
 					),
@@ -71,6 +78,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		return current_user_can( 'edit_posts' );
 	}
 
+	/**
+	 * Do create a product based on data, or pass request to wpcom.
+	 *
+	 * @param object $request - request passed from WP.
+	 *
+	 * @return array|WP_Error
+	 */
 	public function create_product( $request ) {
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
@@ -78,16 +92,19 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up Stripe account for this site first', 'jetpack' ) );
 			}
-			$product = Memberships_Product::create( get_current_blog_id(), array(
-				'title' => $request['title'],
-				'price' => $request['price'],
-				'currency' => $request['currency'],
-				'interval' => $request['interval'],
-				'connected_destination_account_id' => $connected_destination_account_id,
-			) );
+			$product = Memberships_Product::create(
+				get_current_blog_id(),
+				array(
+					'title'                            => $request['title'],
+					'price'                            => $request['price'],
+					'currency'                         => $request['currency'],
+					'interval'                         => $request['interval'],
+					'connected_destination_account_id' => $connected_destination_account_id,
+				)
+			);
 			return $product->to_array();
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
 				"/sites/$blog_id/{$this->rest_base}/product",
 				'2',
@@ -95,15 +112,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'method' => 'POST',
 				),
 				array(
-					'title' => $request['title'],
-					'price' => $request['price'],
+					'title'    => $request['title'],
+					'price'    => $request['price'],
 					'currency' => $request['currency'],
 					'interval' => $request['interval'],
 				),
 				'wpcom'
 			);
 			if ( is_wp_error( $response ) ) {
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com' , 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			return $data;
@@ -111,9 +128,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		return $request;
 	}
+
+	/**
+	 * Get a status of connection for the site. If this is Jetpack, pass the request to wpcom.
+	 *
+	 * @return array|WP_Error
+	 */
 	public function get_status() {
 		$connected_account_id = Jetpack_Memberships::get_connected_account_id();
-		$connect_url = '';
+		$connect_url          = '';
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
@@ -122,7 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			$products = get_memberships_plans( $blog_id );
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Jetpack_Client::wpcom_json_api_request_as_user(
 				"/sites/$blog_id/{$this->rest_base}/status",
 				'v2',
@@ -130,7 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				null
 			);
 			if ( is_wp_error( $response ) ) {
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com' , 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			if ( ! $connected_account_id ) {
@@ -140,8 +163,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		}
 		return array(
 			'connected_account_id' => $connected_account_id,
-			'connect_url' => $connect_url,
-			'products' => $products,
+			'connect_url'          => $connect_url,
+			'products'             => $products,
 		);
 	}
 }
