@@ -9,6 +9,7 @@
  * https://jeherve.survey.fm/a-survey-with-branches
  * [crowdsignal type="iframe" survey="7676FB1FF2B56CE9" height="auto" domain="jeherve" id="a-survey"]
  * [crowdsignal poll=9541291]
+ * [crowdsignal rating=8755352]
  *
  * @package Jetpack
  */
@@ -38,9 +39,11 @@ if (
 		private static $scripts = false;
 
 		/**
-		 * Add all the actions & resgister the shortcode.
+		 * Add all the actions & register the shortcode.
 		 */
 		public function __construct() {
+			add_action( 'init', array( $this, 'register_scripts' ) );
+
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
 			add_shortcode( 'polldaddy', array( $this, 'crowdsignal_shortcode' ) );
 
@@ -50,31 +53,40 @@ if (
 		}
 
 		/**
+		 * Register scripts that may be enqueued later on by the shortcode.
+		 */
+		public function register_scripts() {
+			wp_register_script(
+				'crowdsignal-shortcode',
+				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				true
+			);
+			wp_register_script(
+				'crowdsignal-survey',
+				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
+				array(),
+				JETPACK__VERSION,
+				true
+			);
+			wp_register_script(
+				'crowdsignal-rating',
+				'https://polldaddy.com/js/rating/rating.js',
+				array(),
+				JETPACK__VERSION,
+				true
+			);
+		}
+
+		/**
 		 * JavaScript code for a specific survey / poll.
 		 *
 		 * @param array  $settings Array of information about a survey / poll.
 		 * @param string $survey_link HTML link tag for a specific survey or poll.
 		 */
 		private function get_async_code( array $settings, $survey_link ) {
-			$include = <<<CONTAINER
-( function( d, c, j ) {
-	if ( !d.getElementById( j ) ) {
-		var pd = d.createElement( c ), s;
-		pd.id = j;
-		pd.src = 'https://polldaddy.com/survey.js';
-		s = d.getElementsByTagName( c )[0];
-		s.parentNode.insertBefore( pd, s );
-	}
-}( document, 'script', 'pd-embed' ) );
-CONTAINER;
-
-			// Compress it a bit.
-			$include = $this->compress_it( $include );
-
-			$placeholder = sprintf(
-				'<div class="cs-embed pd-embed" data-settings="%s"></div>',
-				esc_attr( wp_json_encode( $settings ) )
-			);
+			wp_enqueue_script( 'crowdsignal-survey' );
 
 			if ( 'button' === $settings['type'] ) {
 				$placeholder = sprintf(
@@ -83,29 +95,15 @@ CONTAINER;
 					esc_attr( wp_json_encode( $settings ) ),
 					esc_html( $settings['title'] )
 				);
+			} else {
+				$placeholder = sprintf(
+					'<div class="cs-embed pd-embed" data-settings="%1$s"></div><noscript>%2$s</noscript>',
+					esc_attr( wp_json_encode( $settings ) ),
+					$survey_link
+				);
 			}
 
-			$js_include  = $placeholder . "\n";
-			$js_include .= '<script type="text/javascript"><!--//--><![CDATA[//><!--' . "\n";
-			$js_include .= $include . "\n";
-			$js_include .= "//--><!]]></script>\n";
-
-			if ( 'button' !== $settings['type'] ) {
-				$js_include .= '<noscript>' . $survey_link . "</noscript>\n";
-			}
-
-			return $js_include;
-		}
-
-		/**
-		 * Compress a JavaScript snippet before it's added to the page.
-		 *
-		 * @param string $js JavaScript snippet.
-		 */
-		private function compress_it( $js ) {
-			$js = str_replace( array( "\n", "\t", "\r" ), '', $js );
-			$js = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $js );
-			return $js;
+			return $placeholder;
 		}
 
 		/**
@@ -255,13 +253,22 @@ CONTAINER;
 						esc_html( trim( $attributes['title'] ) )
 					);
 				} elseif ( $inline ) {
-					return <<<SCRIPT
-<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
-<script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
-PDRTJS_settings_{$rating}{$item_id}={$settings};
-//--><!]]></script>
-<script type="text/javascript" charset="UTF-8" async src="https://polldaddy.com/js/rating/rating.js"></script>
-SCRIPT;
+					$rating_js  = "<!--//--><![CDATA[//><!--\n";
+					$rating_js .= "PDRTJS_settings_{$rating}{$item_id}={$settings};";
+					$rating_js .= "\n//--><!]]>";
+
+					wp_enqueue_script( 'crowdsignal-rating' );
+					wp_add_inline_script(
+						'crowdsignal-rating',
+						$rating_js,
+						'before'
+					);
+
+					return sprintf(
+						'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d%2$s"></div>',
+						absint( $rating ),
+						esc_attr( $item_id )
+					);
 				} else {
 					if ( false === self::$scripts ) {
 						self::$scripts = array();
@@ -277,16 +284,19 @@ SCRIPT;
 
 					add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
-					$data = esc_attr( wp_json_encode( $data ) );
-
 					if ( $infinite_scroll ) {
-						return <<<CONTAINER
-<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}" data-settings="{$data}"></div>
-CONTAINER;
+						return sprintf(
+							'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d%2$s" data-settings="%3$s"></div>',
+							absint( $rating ),
+							esc_attr( $item_id ),
+							esc_attr( wp_json_encode( $data ) )
+						);
 					} else {
-						return <<<CONTAINER
-<div class="cs-rating pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
-CONTAINER;
+						return sprintf(
+							'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d%2$s"></div>',
+							absint( $rating ),
+							esc_attr( $item_id )
+						);
 					}
 				}
 			} elseif ( intval( $attributes['poll'] ) > 0 ) { // poll embed.
@@ -372,46 +382,43 @@ CONTAINER;
 
 							add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
-							$data = esc_attr( wp_json_encode( $data ) );
+							wp_enqueue_script( 'crowdsignal-shortcode' );
+							wp_localize_script(
+								'crowdsignal-shortcode',
+								'crowdsignal_shortcode_options',
+								array(
+									'script_url' => esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ),
+								)
+							);
 
-							$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
-							$str        = <<<CONTAINER
-<a name="pd_a_{$poll}"></a>
-<div class="CSS_Poll PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
-<div id="PD_superContainer"></div>
-<noscript>{$poll_link}</noscript>
-CONTAINER;
-
-							$loader = <<<SCRIPT
-( function( d, c, j ) {
-	if ( ! d.getElementById( j ) ) {
-		var pd = d.createElement( c ), s;
-		pd.id = j;
-		pd.src = '{$script_url}';
-		s = d.getElementsByTagName( c )[0];
-		s.parentNode.insertBefore( pd, s );
-	} else if ( typeof jQuery !== 'undefined' ) {
-		jQuery( d.body ).trigger( 'pd-script-load' );
-	}
-} ( document, 'script', 'pd-polldaddy-loader' ) );
-SCRIPT;
-
-							$loader = $this->compress_it( $loader );
-							$loader = "<script type='text/javascript'>\n" . $loader . "\n</script>";
-
-							return $str . $loader;
+							return sprintf(
+								'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="display:inline-block;%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
+								absint( $poll ),
+								esc_attr( wp_json_encode( $data ) ),
+								$float,
+								$margins,
+								$poll_link
+							);
 						} else {
 							if ( $inline ) {
 								$attributes['cb'] = '';
 							}
 
-							return <<<CONTAINER
-<a id="pd_a_{$poll}"></a>
-<div class="CSS_Poll PDS_Poll" id="PDI_container{$poll}" style="display:inline-block;{$float}{$margins}"></div>
-<div id="PD_superContainer"></div>
-<script type="text/javascript" charset="UTF-8" async src="{$poll_js}{$attributes['cb']}"></script>
-<noscript>{$poll_link}</noscript>
-CONTAINER;
+							wp_enqueue_script(
+								'crowdsignal-' . absint( $poll ),
+								esc_url( $poll_js . $attributes['cb'] ),
+								array(),
+								JETPACK__VERSION,
+								true
+							);
+
+							return sprintf(
+								'<a id="pd_a_%1$s"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$s" style="display:inline-block;%2$s%3$s"></div><div id="PD_superContainer"></div><noscript>%4$s</noscript>',
+								absint( $poll ),
+								$float,
+								$margins,
+								$poll_link
+							);
 						}
 					}
 				}
@@ -474,9 +481,13 @@ CONTAINER;
 								$attributes['height'] = (int) $attributes['height'];
 							}
 
-							return <<<CONTAINER
-<iframe src="{$survey_url}?iframe=1" frameborder="0" width="{$attributes['width']}" height="{$attributes['height']}" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0">{$survey_link}</iframe>
-CONTAINER;
+							return sprintf(
+								'<iframe src="%1$s?iframe=1" frameborder="0" width="%2$d" height="%3$d" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0">%4$s</iframe>',
+								esc_url( $survey_url ),
+								absint( $attributes['width'] ),
+								absint( $attributes['height'] ),
+								$survey_link
+							);
 						} elseif (
 							! empty( $attributes['domain'] )
 							&& ! empty( $attributes['id'] )
@@ -574,31 +585,37 @@ CONTAINER;
 		/**
 		 * Enqueue JavaScript containing all ratings / polls on the page.
 		 * Hooked into wp_footer
-		 *
-		 * @echo string $script.
 		 */
 		public function generate_scripts() {
-			$script = '';
-
 			if ( is_array( self::$scripts ) ) {
 				if ( isset( self::$scripts['rating'] ) ) {
-					$script = "<script type='text/javascript' charset='UTF-8' id='polldaddyRatings'><!--//--><![CDATA[//><!--\n";
+					$script = "<!--//--><![CDATA[//><!--\n";
 					foreach ( self::$scripts['rating'] as $rating ) {
 						$script .= "PDRTJS_settings_{$rating['id']}{$rating['item_id']}={$rating['settings']}; if ( typeof PDRTJS_RATING !== 'undefined' ){if ( typeof PDRTJS_{$rating['id']}{$rating['item_id']} == 'undefined' ){PDRTJS_{$rating['id']}{$rating['item_id']} = new PDRTJS_RATING( PDRTJS_settings_{$rating['id']}{$rating['item_id']} );}}";
 					}
-					$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' async src='https://polldaddy.com/js/rating/rating.js'></script>";
+					$script .= "\n//--><!]]>";
 
+					wp_enqueue_script( 'crowdsignal-rating' );
+					wp_add_inline_script(
+						'crowdsignal-rating',
+						$script,
+						'before'
+					);
 				}
 
 				if ( isset( self::$scripts['poll'] ) ) {
-					foreach ( self::$scripts['poll'] as $poll ) {
-						$script .= "<script type='text/javascript' charset='UTF-8' async src='{$poll['url']}'></script>";
+					foreach ( self::$scripts['poll'] as $poll_id => $poll ) {
+						wp_enqueue_script(
+							'crowdsignal-' . absint( $poll_id ),
+							esc_url( $poll['url'] ),
+							array(),
+							JETPACK__VERSION,
+							true
+						);
 					}
 				}
 			}
-
 			self::$scripts = false;
-			echo $script;
 		}
 
 		/**
@@ -623,31 +640,14 @@ CONTAINER;
 		public function crowdsignal_shortcode_infinite() {
 			// only try to load if a shortcode has been called and theme supports infinite scroll.
 			if ( self::$add_script ) {
-				$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
-
-				/*
-				 * if the script hasn't been loaded, load it
-				 * if the script loads successfully, fire an 'pd-script-load' event
-				 */
-				echo <<<SCRIPT
-<script type='text/javascript'>
-//<![CDATA[
-( function( d, c, j ) {
-	if ( !d.getElementById( j ) ) {
-		var pd = d.createElement( c ), s;
-		pd.id = j;
-		pd.async = true;
-		pd.src = '{$script_url}';
-		s = d.getElementsByTagName( c )[0];
-		s.parentNode.insertBefore( pd, s );
-	} else if ( typeof jQuery !== 'undefined' ) {
-		jQuery( d.body ).trigger( 'pd-script-load' );
-	}
-} ( document, 'script', 'pd-polldaddy-loader' ) );
-//]]>
-</script>
-SCRIPT;
-
+				wp_enqueue_script( 'crowdsignal-shortcode' );
+				wp_localize_script(
+					'crowdsignal-shortcode',
+					'crowdsignal_shortcode_options',
+					array(
+						'script_url' => esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ),
+					)
+				);
 			}
 		}
 	}
@@ -667,7 +667,7 @@ SCRIPT;
 				return $content;
 			}
 
-			return preg_replace( '!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", $content );
+			return preg_replace( '!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", $content ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		}
 
 		// higher priority because we need it before auto-link and autop get to it.
