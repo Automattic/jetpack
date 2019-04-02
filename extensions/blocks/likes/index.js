@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import JetpackLikesAndSharingPanel from '../../utils/likes-and-sharing-panel';
+import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-panel';
 import LikesCheckbox from './likes-checkbox';
 
 export const name = 'likes';

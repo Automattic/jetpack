@@ -6,8 +6,7 @@ import { createSlotFill, PanelBody } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import JetpackPluginSidebar from '../shared/jetpack-plugin-sidebar';
-import { __ } from './i18n';
+import { __ } from '../utils/i18n';
 
 const { Fill, Slot } = createSlotFill( 'JetpackLikesAndSharingPanel' );
 
@@ -21,9 +20,9 @@ JetpackLikesAndSharingPanel.Slot = () => (
 			}
 
 			return (
-				<JetpackPluginSidebar>
-					<PanelBody title={ __( 'Likes and Sharing' ) }>{ fills }</PanelBody>
-				</JetpackPluginSidebar>
+				<PanelBody title={ __( 'Likes and Sharing' ) }>
+					{ fills }
+				</PanelBody>
 			);
 		} }
 	</Slot>
