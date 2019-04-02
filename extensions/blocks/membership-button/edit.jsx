@@ -223,7 +223,7 @@ class MembershipsButtonEdit extends Component {
 	setMembershipAmount = id =>
 		this.props.setAttributes( {
 			planId: id,
-			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution' ),
+			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
 		} );
 
 	renderMembershipAmounts = () => (
