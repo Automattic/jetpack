@@ -11,12 +11,6 @@ class Jetpack_Memberships {
 	 */
 	static public $css_classname_prefix = 'jetpack-memberships';
 	/**
-	 * Increase this number each time there's a change in CSS or JS to bust cache.
-	 *
-	 * @var string
-	 */
-	static private $version = JETPACK__VERSION;
-	/**
 	 * Our CPT type for the product (plan).
 	 *
 	 * @var string
