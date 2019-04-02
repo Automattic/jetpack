@@ -239,12 +239,12 @@ class Jetpack_Memberships {
 		add_thickbox();
 		return sprintf(
 			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" class="%s" style="%s">%s</button>',
-			$data['blog_id'],
-			$data['powered_text'],
-			$data['id'],
-			implode( $classes, ' ' ),
-			$button_styles,
-			$data['button_label']
+			esc_attr( $data['blog_id'] ),
+			esc_attr( $data['powered_text'] ),
+			esc_attr( $data['id'] ),
+			esc_attr( implode( $classes, ' ' ) ),
+			esc_attr( $button_styles ),
+			esc_html( $data['button_label'] )
 		);
 	}
 
