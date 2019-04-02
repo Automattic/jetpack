@@ -22,7 +22,7 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Membership Button' ),
+	title: __( 'Membership Button', 'jetpack' ),
 	icon,
 	description: __( 'Button allowing you to sell subscription products.' ),
 	category: 'jetpack',
