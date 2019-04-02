@@ -106,7 +106,7 @@ function getWebpackConfig() {
 			rules: [
 				TranspileConfig.loader( {
 					workerCount,
-					configFile: path.join( __dirname, 'babel.config.extensions.js' ),
+					configFile: path.join( __dirname, 'babel.config.js' ),
 					cacheDirectory: true,
 					exclude: /node_modules\//,
 				} ),
