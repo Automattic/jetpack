@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 1.9.8
+ * Version: 1.9.9
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -18,7 +18,7 @@ class VaultPress {
 	var $option_name          = 'vaultpress';
 	var $auto_register_option = 'vaultpress_auto_register';
 	var $db_version           = 4;
-	var $plugin_version       = '1.9.8';
+	var $plugin_version       = '1.9.9';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -441,6 +441,27 @@ class VaultPress {
 		if ( !current_user_can( 'manage_options' ) )
 			return;
 
+		if ( isset( $_POST['action'] ) && 'delete-vp-settings' == $_POST['action'] ) {
+			check_admin_referer( 'delete_vp_settings' );
+
+			$ai_ping_queue_size = $this->ai_ping_queue_size();
+			if ( ! empty( $ai_ping_queue_size->option_count ) && $ai_ping_queue_size->option_count > 1 ) {
+				$this->ai_ping_queue_delete();
+			}
+
+			delete_option( $this->option_name );
+			delete_option( 'vaultpress_service_ips_external_cidr' );
+			delete_option( '_vp_signatures' );
+			delete_option( '_vp_config_option_name_ignore' );
+			delete_option( '_vp_config_post_meta_name_ignore' );
+			delete_option( '_vp_config_should_ignore_files' );
+			delete_option( '_vp_current_scan' );
+			delete_option( 'vaultpress_auto_register' );
+
+			wp_redirect( admin_url( 'admin.php?page=vaultpress&delete-vp-settings=1' ) );
+			exit();
+		}
+
 		// run code that might be updating the registration key
 		if ( isset( $_POST['action'] ) && 'register' == $_POST['action'] ) {
 			check_admin_referer( 'vaultpress_register' );
@@ -548,7 +569,9 @@ class VaultPress {
 		</div>
 			</div><!-- .card-grid -->
 		</div><!-- #vp_registration -->
-	</div><!-- #vp-head -->
+
+        <?php $this->ui_delete_vp_settings_button(); ?>
+    </div><!-- #vp-head -->
 <?php
 	}
 
@@ -559,6 +582,8 @@ class VaultPress {
 			$response = base64_decode( $this->contact_service( 'plugin_ui' ) );
 			echo $response;
 		?>
+
+		<?php $this->ui_delete_vp_settings_button(); ?>
 	</div>
 <?php
 	}
@@ -598,6 +623,32 @@ class VaultPress {
 			</div>
 		</div>
 <?php
+	}
+
+	function ui_delete_vp_settings_button() {
+		?>
+        <div class="grid" style="margin-top: 10px;">
+            <div class="vp_card half">
+				<?php
+				if ( isset( $_GET['delete-vp-settings'] ) && 1 == (int) $_GET['delete-vp-settings'] ) {
+					?>
+                    <p><?php _e( 'All VaultPress settings have been deleted.', 'vaultpress' ); ?></p>
+					<?php
+				} else {
+					?>
+                    <h2><?php _e( 'Delete VaultPress Settings', 'vaultpress' ); ?></h2>
+                    <p class="vp_card-description"><?php _e( 'Warning: Clicking this button will reset ALL VaultPress options in the database.', 'vaultpress' ); ?></p>
+                    <form method="post" action="">
+                        <button class="vp_button-secondary"><?php _e( 'Delete all VaultPress Settings', 'vaultpress' ); ?></button>
+                        <input type="hidden" name="action" value="delete-vp-settings"/>
+						<?php wp_nonce_field( 'delete_vp_settings' ); ?>
+                    </form>
+					<?php
+				}
+				?>
+            </div>
+        </div><!-- .card-grid -->
+		<?php
 	}
 
 	function get_config( $key ) {
@@ -1031,6 +1082,12 @@ class VaultPress {
 			"SELECT * FROM $wpdb->options WHERE `option_name` LIKE '\_vp\_ai\_ping\_%%' ORDER BY `option_id` $order LIMIT %d",
 			min( 10, max( 1, (int)$num ) )
 		) );
+	}
+
+	function ai_ping_queue_delete() {
+		global $wpdb;
+
+		return $wpdb->query( "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE '\_vp\_ai\_ping%'" );
 	}
 
 	function request_firewall_update( $external_services = false ) {

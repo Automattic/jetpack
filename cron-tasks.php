@@ -103,12 +103,12 @@ class VP_Site_Scanner {
 	}
 
 	function _scan_batch() {
-		$paths = get_option( '_vp_current_scan' );
+		$paths = (array) get_option( '_vp_current_scan' );
 		if ( empty( $paths ) || $this->_scan_clean_up( $paths ) )
 			return false;
 
 		reset( $paths );
-		list( $type, $current ) = each( $paths );
+		list( $type, $current ) = current( $paths );
 		if ( !is_object( $current ) || empty( $current->last_dir ) )
 			return $this->_scan_clean_up( $paths, $type );
 

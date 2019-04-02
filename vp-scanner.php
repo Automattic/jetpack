@@ -267,44 +267,42 @@ function vp_scan_file( $file, $tmp_file = null, $use_parser = false ) {
 			}
 
 			$is_vulnerable = true;
-			$matches = array ();
-			if ( is_array( $file_content ) && ( $signature->patterns ) && is_array( $signature->patterns ) ) {
-				if ( ! $use_parser ) {
-					reset( $signature->patterns );
-					while ( $is_vulnerable && list( , $pattern ) = each( $signature->patterns ) ) {
-						if ( ! $match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $file_content ) ) {
-							$is_vulnerable = false;
-							break;
-						}
-						$matches += $match;
-					}
-				} else {
-					// use the language specified in the signature if it has one
-					if ( ! empty( $signature->target_language ) && array_key_exists( $signature->target_language, $file_parsed ) ) {
-						$code = $file_parsed[ $signature->target_language ];
-					} else {
-						$code = $file_content;
-					}
-					// same code as the '! $use_parser' branch above
-					reset( $signature->patterns );
-					while ( $is_vulnerable && list( , $pattern ) = each( $signature->patterns ) ) {
-						if ( ! $match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $code ) ) {
-							$is_vulnerable = false;
-							break;
-						}
-						$matches += $match;
-					}
+
+			$code = $file_content;
+
+			if ( $use_parser ) {
+				// use the language specified in the signature if it has one
+				if ( ! empty( $signature->target_language ) && array_key_exists( $signature->target_language, $file_parsed ) ) {
+					$code = $file_parsed[ $signature->target_language ];
+
+
 				}
-			} else {
-				$is_vulnerable = false;
+			}
+
+			$matches = array();
+			if ( ! empty( $signature->patterns ) ) {
+				foreach ( $signature->patterns as $pattern ) {
+					$match = preg_grep( '#' . addcslashes( $pattern, '#' ) . '#im', $code );
+					if ( empty( $match ) ) {
+						$is_vulnerable = false;
+						break;
+					}
+
+					$matches += $match;
+				}
 			}
 
 			// convert the matched line to an array of details showing context around the lines
 			$lines = array();
+
+			$lines_parsed = array();
+
+			$line_indices_parsed = array();
+
 			if ( $use_parser ) {
-				$lines_parsed = array();
 				$line_indices_parsed = array_keys( $code );
 			}
+
 			foreach ( $matches as $line => $text ) {
 				$lines = array_merge( $lines, range( $line - 1, $line + 1 ) );
 				if ( $use_parser ) {
@@ -324,7 +322,11 @@ function vp_scan_file( $file, $tmp_file = null, $use_parser = false ) {
 					$lines_parsed = array_merge( $lines_parsed, $idx_around );
 				}
 			}
+
 			$details = array_intersect_key( $file_content, array_flip( $lines ) );
+
+			$details_parsed = array();
+
 			if ( $use_parser ) {
 				$details_parsed = array_intersect_key( $code, array_flip( $lines_parsed ) );
 			}
