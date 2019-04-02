@@ -105,9 +105,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			return $product->to_array();
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
-			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
 				"/sites/$blog_id/{$this->rest_base}/product",
-				'2',
+				'v2',
 				array(
 					'method' => 'POST',
 				),
@@ -116,8 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'price'    => $request['price'],
 					'currency' => $request['currency'],
 					'interval' => $request['interval'],
-				),
-				'wpcom'
+				)
 			);
 			if ( is_wp_error( $response ) ) {
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com', 'jetpack' ), 404 );
