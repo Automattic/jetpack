@@ -1,5 +1,12 @@
 <?php
 /**
+ * Jetpack_Memberships: wrapper for memberships functions.
+ *
+ * @package    Jetpack
+ * @since      7.3.0
+ */
+
+/**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
  */
@@ -9,23 +16,25 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	static public $css_classname_prefix = 'jetpack-memberships';
+	public static $css_classname_prefix = 'jetpack-memberships';
 	/**
 	 * Our CPT type for the product (plan).
 	 *
 	 * @var string
 	 */
-	static public $post_type_plan = 'jp_mem_plan';
+	public static $post_type_plan = 'jp_mem_plan';
 	/**
-	 * @var string Option that will store currently set up account (Stripe etc) id for memberships
+	 * Option that will store currently set up account (Stripe etc) id for memberships.
+	 *
+	 * @var string
 	 */
-	static public $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
 	/**
 	 * Button block type to use.
 	 *
 	 * @var string
 	 */
-	static private $button_block_name = 'membership-button';
+	private static $button_block_name = 'membership-button';
 	/**
 	 * Classic singleton pattern
 	 *
@@ -170,14 +179,21 @@ class Jetpack_Memberships {
 		return array_merge( $post_meta, array_values( $meta_keys ) );
 	}
 
+	/**
+	 * This returns meta attribute of passet array.
+	 * Used for array functions.
+	 *
+	 * @param array $map - stuff.
+	 *
+	 * @return mixed
+	 */
 	public function return_meta( $map ) {
 		return $map['meta'];
 	}
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
-	 * @param array       $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
-	 * @param string|bool $content - needed for the callback.
+	 * @param array $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
 	 *
 	 * @return string|void
 	 */
@@ -187,7 +203,7 @@ class Jetpack_Memberships {
 		if ( empty( $attrs['planId'] ) ) {
 			return;
 		}
-		$id = $attrs['planId'];
+		$id      = $attrs['planId'];
 		$product = get_post( $id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
@@ -195,10 +211,10 @@ class Jetpack_Memberships {
 		if ( $product->post_type !== self::$post_type_plan || 'trash' === $product->post_status ) {
 			return;
 		}
-		$plan = self::product_post_to_array( $product );
+
 		$data = array(
-			'blog_id' => $this->get_blog_id(),
-			'id'	  => $id,
+			'blog_id'      => self::get_blog_id(),
+			'id'           => $id,
 			'button_label' => __( 'Your contribution', 'jetpack' ),
 			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
@@ -248,7 +264,12 @@ class Jetpack_Memberships {
 		);
 	}
 
-	private function get_blog_id() {
+	/**
+	 * Get current blog id.
+	 *
+	 * @return int
+	 */
+	public static function get_blog_id() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
 		}
@@ -256,7 +277,12 @@ class Jetpack_Memberships {
 		return Jetpack_Options::get_option( 'id' );
 	}
 
-	static function get_connected_account_id() {
+	/**
+	 * Get the id of the connected payment acount (Stripe etc).
+	 *
+	 * @return int|void
+	 */
+	public static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
 	}
 }
