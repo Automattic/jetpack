@@ -263,7 +263,6 @@ class Jetpack_Plugin_Search {
 	 * Intercept the plugins API response and add in an appropriate card for Jetpack
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
-
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
@@ -299,7 +298,19 @@ class Jetpack_Plugin_Search {
 
 			// Try to match a passed search term with module's search terms
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
-				if ( false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term ) ) {
+				/*
+				* Does the site's current plan support the feature?
+				* We don't use Jetpack_Plan::supports() here because
+				* that check always returns Akismet as supported,
+				* since Akismet has a free version.
+				*/
+				$current_plan         = Jetpack_Plan::get();
+				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
+
+				if (
+					false !== stripos( $module_opts['search_terms'] . ', ' . $module_opts['name'], $normalized_term )
+					&& $is_supported_by_plan
+				) {
 					$matching_module = $module_slug;
 					break;
 				}
@@ -455,21 +466,15 @@ class Jetpack_Plugin_Search {
 			// Jetpack installed, active, feature not enabled; prompt to enable.
 		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&
-			! Jetpack::is_module_active( $plugin['module'] )
+			! Jetpack::is_module_active( $plugin['module'] ) &&
+			Jetpack_Plan::supports( $plugin['module'] )
 		) {
-			$links[] = Jetpack_Plan::supports( $plugin['module'] )
-				? '<button
+			$links[] = '<button
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
 					data-configure-url="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
-					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
-				: '<a
-					class="jetpack-plugin-search__primary button"
-					href="' . esc_url( $this->get_upgrade_url( $plugin['module'] ) ) . '"
-					data-module="' . esc_attr( $plugin['module'] ) . '"
-					data-track="purchase"
-					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
+					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>';
 
 			// Jetpack installed, active, feature enabled; link to settings.
 		} elseif (
