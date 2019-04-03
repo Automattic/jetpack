@@ -2,6 +2,10 @@
 	margin: 0 0 4px 0;
 }
 
+.plugin-card-jetpack-plugin-search .action-links {
+	position: relative;
+}
+
 .plugin-card-jetpack-plugin-search .plugin-action-buttons {
 	white-space: nowrap;
 }

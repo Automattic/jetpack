@@ -51,6 +51,25 @@ var JetpackPSH = {};
 		},
 
 		/**
+		 * Move action links below description.
+		 */
+		moveActionLinks: function() {
+			var hint = JetpackPSH.getCard();
+			if ( 'object' === typeof hint && null !== hint ) {
+				var descriptionContainer = hint.querySelector( '.column-description' );
+				// Keep only the first paragraph. The second is the plugin author.
+				var descriptionText = descriptionContainer.querySelector( 'p:first-child' );
+				var actionLinks = hint.querySelector( '.action-links' );
+
+				// Change the contents of the description, to keep the description text and the action links.
+				descriptionContainer.innerHTML = descriptionText.outerHTML + actionLinks.outerHTML;
+
+				// Remove the action links from their default location.
+				actionLinks.parentNode.removeChild( actionLinks );
+			}
+		},
+
+		/**
 		 * Replace bottom row of the card to insert logo, text and link to dismiss the card.
 		 */
 		replaceCardBottom: function() {
@@ -88,6 +107,7 @@ var JetpackPSH = {};
 					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
 				) {
 					JetpackPSH.updateCardTitle();
+					JetpackPSH.moveActionLinks();
 					JetpackPSH.replaceCardBottom();
 				}
 			} );
@@ -196,6 +216,9 @@ var JetpackPSH = {};
 
 			// Update title to show that the suggestion is from Jetpack.
 			JetpackPSH.updateCardTitle();
+
+			// Update the description and action links.
+			JetpackPSH.moveActionLinks();
 
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();
