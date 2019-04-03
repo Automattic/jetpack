@@ -30,7 +30,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
 		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
-		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -54,22 +53,10 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$rest_api_notice
 		);
 
-		$ie_notice = str_replace(
-			'#HEADER_TEXT#',
-			esc_html__( 'You are using an unsupported browser version.', 'jetpack' ),
-			$ie_notice
-		);
-		$ie_notice = str_replace(
-			'#TEXT#',
-			esc_html__( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ),
-			$ie_notice
-		);
-
 		if ( ! $this->is_rest_api_enabled() ) {
 			echo $rest_api_notice;
 		}
 		echo $noscript_notice;
-		echo $ie_notice;
 		?>
 
 		<div class="page-content configure">
