@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../utils/i18n';
 
 class SharingCheckbox extends Component {
 	render() {
@@ -17,7 +13,7 @@ class SharingCheckbox extends Component {
 
 		return (
 			<CheckboxControl
-				label={ __( 'Show sharing buttons.' ) }
+				label={ __( 'Show sharing buttons.', 'jetpack' ) }
 				checked={ isSharingEnabled }
 				onChange={ value => {
 					toggleSharing( value );

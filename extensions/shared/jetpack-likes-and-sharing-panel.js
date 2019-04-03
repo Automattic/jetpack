@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { createSlotFill, PanelBody } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../utils/i18n';
 
 const { Fill, Slot } = createSlotFill( 'JetpackLikesAndSharingPanel' );
 
@@ -19,11 +15,7 @@ JetpackLikesAndSharingPanel.Slot = () => (
 				return null;
 			}
 
-			return (
-				<PanelBody title={ __( 'Likes and Sharing' ) }>
-					{ fills }
-				</PanelBody>
-			);
+			return <PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) }>{ fills }</PanelBody>;
 		} }
 	</Slot>
 );
