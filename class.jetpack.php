@@ -7382,24 +7382,24 @@ p {
 	 * Deprecated manage functions
 	 */
 	function prepare_manage_jetpack_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function manage_activate_screen() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function admin_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function opt_out_jetpack_manage_url() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function opt_in_jetpack_manage_url() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function opt_in_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 	function can_display_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2' );
+		_deprecated_function( __METHOD__, 'jetpack-7.3' );
 	}
 }
