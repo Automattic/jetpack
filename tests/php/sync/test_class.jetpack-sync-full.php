@@ -44,6 +44,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
+		$this->server_replica_storage->reset(); // Reset the data in the local store.
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
