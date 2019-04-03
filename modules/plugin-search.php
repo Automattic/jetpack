@@ -215,7 +215,7 @@ class Jetpack_Plugin_Search {
 					'Learn more about these suggestions.',
 					'jetpack'
 				),
-				'supportLink'    => 'https://jetpack.com/support/plugin-search-hints/',
+				'supportLink'    => 'https://jetpack.com/redirect/?source=plugin-hint-learn-support',
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
