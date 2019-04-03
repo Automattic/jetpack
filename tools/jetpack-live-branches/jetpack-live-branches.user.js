@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.12
+// @version      1.13
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -15,15 +15,31 @@
 
 	function doit() {
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
-		const branch = jQuery( '.head-ref:first' ).text();
-		const branchIsForked = branch.includes( ':' );
-		const branchIsMerged =
-			$( '.gh-header-meta .State' )
-				.text()
-				.trim() === 'Merged';
+		const currentBranch = jQuery( '.head-ref:first' ).text();
+		const branchIsForked = currentBranch.includes( ':' );
+		const branchStatus = $( '.gh-header-meta .State' )
+			.text()
+			.trim();
 
-		if ( ! branchIsForked && ! branchIsMerged ) {
-			const link = getLink();
+		if ( branchStatus === 'Merged' ) {
+			const contents = `
+				<p><strong>This branch is already merged.</strong></p>
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( 'master' ) }">
+					Test with <code>master</code> branch instead.
+				</a></p>
+			`;
+			appendHtml( markdownBody, contents );
+		} else if ( branchStatus === 'Draft' ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>This branch is a draft. You can open live branches only from open pull requests.</strong></p>'
+			);
+		} else if ( branchIsForked ) {
+			appendHtml(
+				markdownBody,
+				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
+			);
+		} else {
 			const contents = `
 				<h4>Settings</h4>
 				${ getOptionsList(
@@ -111,22 +127,14 @@
 					33
 				) }
 				<p>
-					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="${ link }">
-						${ link }
-					</a>
+					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 				</p>
 			`;
 			appendHtml( markdownBody, contents );
-		} else if ( ! branchIsMerged ) {
-			appendHtml(
-				markdownBody,
-				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
-			);
-		} else {
-			appendHtml( markdownBody, '<p><strong>This branch is already merged.</strong></p>' );
+			updateLink();
 		}
 
-		function getLink() {
+		function getLink( branch ) {
 			const query = [ 'jetpack-beta', `branch=${ branch }` ];
 			$( '#jetpack-live-branches input[type=checkbox]:checked' ).each( ( i, input ) => {
 				query.push( input.name );
@@ -163,13 +171,15 @@
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
 			$el.append( liveBranches );
-			$el.find( 'input[type=checkbox]' ).change( toggle );
+			$el.find( 'input[type=checkbox]' ).change( function( e ) {
+				e.stopPropagation();
+				e.preventDefault();
+				updateLink();
+			} );
 		}
 
-		function toggle( e ) {
-			e.stopPropagation();
-			e.preventDefault();
-			const link = getLink();
+		function updateLink() {
+			const link = getLink( currentBranch );
 			$( '#jetpack-beta-branch-link' )
 				.attr( 'href', link )
 				.text( link );
