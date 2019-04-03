@@ -2,11 +2,26 @@
 	margin: 0 0 4px 0;
 }
 
+.plugin-card-jetpack-plugin-search .column-name,
+.plugin-card-jetpack-plugin-search .column-description {
+	margin-right: 20px;
+}
+
 .plugin-card-jetpack-plugin-search .action-links {
-	position: relative;
+	overflow: auto;
+	position: static;
+}
+
+@media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
+	.plugin-card-jetpack-plugin-search .action-links {
+		margin-left: 0;
+	}
 }
 
 .plugin-card-jetpack-plugin-search .plugin-action-buttons {
+	margin: 0;
+	width: 100%;
+	text-align: left;
 	white-space: nowrap;
 }
 
