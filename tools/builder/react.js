@@ -213,7 +213,6 @@ function buildStatic( done ) {
 					__dirname + '/../../_inc/build/static-version-notice.html',
 					window.versionNotice
 				);
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 				done();
 			} );
