@@ -38,6 +38,19 @@ var JetpackPSH = {};
 		},
 
 		/**
+		 * Update title of the card to add a mention that the result is from the Jetpack plugin.
+		 */
+		updateCardTitle: function() {
+			var hint = JetpackPSH.getCard();
+
+			if ( 'object' === typeof hint && null !== hint ) {
+				var title = hint.querySelector( '.column-name h3' );
+				title.outerHTML =
+					title.outerHTML + '<strong>' + jetpackPluginSearch.poweredBy + '</strong>';
+			}
+		},
+
+		/**
 		 * Replace bottom row of the card to insert logo, text and link to dismiss the card.
 		 */
 		replaceCardBottom: function() {
@@ -65,7 +78,7 @@ var JetpackPSH = {};
 		},
 
 		/**
-		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
+		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the title and the bottom row.
 		 * @param {array} mutationsList
 		 */
 		replaceOnNewResults: function( mutationsList ) {
@@ -74,6 +87,7 @@ var JetpackPSH = {};
 					'childList' === mutation.type &&
 					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
 				) {
+					JetpackPSH.updateCardTitle();
 					JetpackPSH.replaceCardBottom();
 				}
 			} );
@@ -179,6 +193,9 @@ var JetpackPSH = {};
 			if ( JetpackPSH.$pluginFilter.length < 1 ) {
 				return;
 			}
+
+			// Update title to show that the suggestion is from Jetpack.
+			JetpackPSH.updateCardTitle();
 
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();
