@@ -49,6 +49,11 @@ var JetpackPSH = {};
 					'" width="32" />' +
 					'<p class="jetpack-plugin-search__text">' +
 					jetpackPluginSearch.legend +
+					' <a class="jetpack-plugin-search__support_link" href="' +
+					jetpackPluginSearch.supportLink +
+					'" target="_blank" rel="noopener noreferrer" data-track="support_link" >' +
+					jetpackPluginSearch.supportText +
+					'</a>' +
 					'</p>' +
 					'</div>';
 
@@ -208,6 +213,15 @@ var JetpackPSH = {};
 					var $this = $( this );
 					JetpackPSH.trackEvent(
 						'wpa_plugin_search_learn_more',
+						$this.data( 'module' ),
+						$this.get( 0 )
+					);
+				} )
+				.on( 'click', '.jetpack-plugin-search__support_link', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					JetpackPSH.trackEvent(
+						'wpa_plugin_search_support_link',
 						$this.data( 'module' ),
 						$this.get( 0 )
 					);

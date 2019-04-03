@@ -207,9 +207,14 @@ class Jetpack_Plugin_Search {
 				'activating'     => esc_html__( 'Activating', 'jetpack' ),
 				'logo'           => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
 				'legend'         => esc_html__(
-					'Jetpack is trusted by millions to help secure and speed up their WordPress site. Make the most of it today.',
+					'This suggestion was made by Jetpack, the security and performance plugin already installed on your site.',
 					'jetpack'
 				),
+				'supportText'    => esc_html__(
+					'Learn more about these suggestions.',
+					'jetpack'
+				),
+				'supportLink'    => 'https://jetpack.com/support/plugin-search-hints/',
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
