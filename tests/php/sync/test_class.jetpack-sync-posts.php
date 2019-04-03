@@ -93,14 +93,15 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_post_deletes_data() {
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$count = $this->server_replica_storage->post_count();
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
 
 		// there should be no posts at all
-		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
+		$this->assertEquals( ( $count - 1 ), $this->server_replica_storage->post_count() );
 	}
 
 	public function test_delete_post_syncs_event() {
