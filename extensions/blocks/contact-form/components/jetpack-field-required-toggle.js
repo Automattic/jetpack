@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
 
 const JetpackFieldRequiredToggle = ( { required, onChange } ) => {
 	return (
