@@ -134,7 +134,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
 
-		$this->assertDataIsSynced();
+		$posts_sync_module = new Jetpack_Sync_Module_Posts();
+
+		$local_posts = array_map( array(
+			$posts_sync_module,
+			'filter_post_content_and_add_links'
+		), array( get_post( $this->post->ID ) ) );
+		$this->assertEquals( $local_posts, $this->server_replica_storage->get_posts() );
+
 	}
 
 	public function test_sync_new_page() {
