@@ -7,11 +7,9 @@ import SharingCheckbox from './sharing-checkbox';
 export const name = 'sharing';
 
 export const settings = {
-	render: () => {
-		return (
-			<JetpackLikesAndSharingPanel>
-				<SharingCheckbox />
-			</JetpackLikesAndSharingPanel>
-		);
-	},
+	render: ( { props } ) => (
+		<JetpackLikesAndSharingPanel>
+			<SharingCheckbox props={ props } />
+		</JetpackLikesAndSharingPanel>
+	),
 };

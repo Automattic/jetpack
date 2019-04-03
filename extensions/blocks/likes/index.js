@@ -7,11 +7,9 @@ import LikesCheckbox from './likes-checkbox';
 export const name = 'likes';
 
 export const settings = {
-	render: () => {
-		return (
-			<JetpackLikesAndSharingPanel>
-				<LikesCheckbox />
-			</JetpackLikesAndSharingPanel>
-		);
-	},
+	render: ( { props } ) => (
+		<JetpackLikesAndSharingPanel>
+			<LikesCheckbox props={ props } />
+		</JetpackLikesAndSharingPanel>
+	),
 };
