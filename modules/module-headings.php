@@ -12,6 +12,11 @@ function jetpack_get_module_i18n( $key ) {
 	static $modules;
 	if ( ! isset( $modules ) ) {
 		$modules = array(
+			'after-the-deadline' => array(
+				'name' => _x( 'Spelling and Grammar', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -251,6 +256,18 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/notes.php
 			'Other' =>_x( 'Other', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Writing` tag:
+			//  - modules/after-the-deadline.php
+			//  - modules/copy-post.php
+			//  - modules/custom-content-types.php
+			//  - modules/enhanced-distribution.php
+			//  - modules/json-api.php
+			//  - modules/latex.php
+			//  - modules/markdown.php
+			//  - modules/post-by-email.php
+			//  - modules/shortcodes.php
+			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
 			//  - modules/photon-cdn.php
@@ -273,17 +290,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/subscriptions.php
 			//  - modules/widgets.php
 			'Social' =>_x( 'Social', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Writing` tag:
-			//  - modules/copy-post.php
-			//  - modules/custom-content-types.php
-			//  - modules/enhanced-distribution.php
-			//  - modules/json-api.php
-			//  - modules/latex.php
-			//  - modules/markdown.php
-			//  - modules/post-by-email.php
-			//  - modules/shortcodes.php
-			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Appearance` tag:
 			//  - modules/custom-css.php
