@@ -306,6 +306,11 @@ class Jetpack_Plugin_Search {
 			}
 
 			if ( isset( $matching_module ) && $this->is_not_dismissed( $matching_module ) ) {
+				// Verify user has VP or Ak before showing a card to ensure we're not advertising
+				// something that the user would have to pay for.
+				if ( in_array( $module_slug, array( 'vaultpress', 'akismet' ) ) && ! Jetpack_Plan::supports( $module_slug ) ) {
+					return $result;
+				}
 				// Record event when a matching feature is found
 				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
@@ -455,23 +460,16 @@ class Jetpack_Plugin_Search {
 			// Jetpack installed, active, feature not enabled; prompt to enable.
 		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&
-			! Jetpack::is_module_active( $plugin['module'] )
+			! Jetpack::is_module_active( $plugin['module'] ) &&
+			Jetpack_Plan::supports( $plugin['module'] )
 		) {
-			$links[] = Jetpack_Plan::supports( $plugin['module'] )
-				? '<button
+			$links[] = '
+				<button
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"
 					data-module="' . esc_attr( $plugin['module'] ) . '"
 					data-configure-url="' . esc_url( $this->get_configure_url( $plugin['module'], $plugin['configure_url'] ) ) . '"
-					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>'
-				: '<a
-					class="jetpack-plugin-search__primary button"
-					href="' . esc_url( $this->get_upgrade_url( $plugin['module'] ) ) . '"
-					data-module="' . esc_attr( $plugin['module'] ) . '"
-					data-track="purchase"
-					> ' . esc_html__( 'Purchase', 'jetpack' ) . '</button>';
-
-			// Jetpack installed, active, feature enabled; link to settings.
+					> ' . esc_html__( 'Enable', 'jetpack' ) . '</button>';
 		} elseif (
 			! empty( $plugin['configure_url'] ) &&
 			current_user_can( 'jetpack_configure_modules' ) &&
