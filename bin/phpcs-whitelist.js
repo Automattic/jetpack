@@ -8,7 +8,9 @@ module.exports = [
 	'functions.opengraph.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/class.jetpack-password-checker.php',
+	'modules/masterbar/',
 	'modules/module-extras.php',
 	'modules/module-info.php',
 	'modules/theme-tools/social-menu/',
+	'sync/class.jetpack-sync-module-auth.php',
 ];
