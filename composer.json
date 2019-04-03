@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack",
-	"version": "7.2.0-alpha",
+	"version": "7.3.0-alpha",
 	"description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
 	"homepage": "https://jetpack.com/",
 	"type": "wordpress-plugin",
