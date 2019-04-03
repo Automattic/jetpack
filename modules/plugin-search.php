@@ -173,16 +173,23 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Checks that the module slug passed, the hint, is not in the list of previously dismissed hints.
+	 * Checks that the module slug passed should be displayed.
 	 *
-	 * @since 7.1.0
+	 * A feature hint will be displayed if it has not been dismissed before or if 2 or fewer other hints have been dismissed.
+	 *
+	 * @since 7.2.1
 	 *
 	 * @param string $hint The hint id, which is a Jetpack module slug.
 	 *
-	 * @return bool True if $hint wasn't already dismissed.
+	 * @return bool True if $hint should be displayed.
 	 */
-	protected function is_not_dismissed( $hint ) {
-		return ! in_array( $hint, $this->get_dismissed_hints(), true );
+	protected function should_display_hint( $hint ) {
+		$dismissed_hints = $this->get_dismissed_hints();
+		// If more than 2 hints have been dismissed, then show no more.
+		if ( 2 < count( $dismissed_hints ) ) {
+			return false;
+		}
+		return ! in_array( $hint, $dismissed_hints, true );
 	}
 
 	public function load_plugins_search_script() {
@@ -316,7 +323,7 @@ class Jetpack_Plugin_Search {
 				}
 			}
 
-			if ( isset( $matching_module ) && $this->is_not_dismissed( $matching_module ) ) {
+			if ( isset( $matching_module ) && $this->should_display_hint( $matching_module ) ) {
 				// Record event when a matching feature is found
 				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
