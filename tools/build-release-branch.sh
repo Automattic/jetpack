@@ -211,14 +211,9 @@ hash yarn 2>/dev/null || {
 	exit 1;
 }
 
-# Start clean by removing previously installed dependencies and built files
-yarn run distclean
-# Clean yarn's cache
+# Start cleaning the cache.
 yarn cache clean
-# Install dependencies
-yarn
-# Build the Admin Page
-NODE_ENV=production yarn run build-client
+yarn run build-production
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
