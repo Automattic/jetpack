@@ -75,21 +75,13 @@ export class Security extends Component {
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
-			foundMonitor = this.props.isModuleFound( 'monitor' ),
-			foundManage = this.props.isModuleFound( 'manage' );
+			foundMonitor = this.props.isModuleFound( 'monitor' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if (
-			! foundSso &&
-			! foundProtect &&
-			! foundAkismet &&
-			! foundBackups &&
-			! foundMonitor &&
-			! foundManage
-		) {
+		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
 			return null;
 		}
 
@@ -112,7 +104,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</div>
 				) }
-				{ foundManage && <ManagePlugins { ...commonProps } /> }
+				<ManagePlugins { ...commonProps } />
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
