@@ -191,12 +191,6 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 			false,
 			true
 		);
-		// there's a script in the response, which we strip on purpose since it's added by this ^ script
-		/*
-		$ig_embed = preg_replace( '@<(script)[^>]*?>.*?</\\1>@si', '', $response_body->html );
-		return $ig_embed;
-		*/
-
 		//no need for preg replace as the js file is automatically omitted via api call
 		return $response_body->html;
 	}
