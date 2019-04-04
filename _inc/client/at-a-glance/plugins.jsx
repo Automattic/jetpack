@@ -26,15 +26,6 @@ class DashPluginUpdates extends Component {
 		pluginUpdates: PropTypes.any.isRequired,
 	};
 
-	activateAndRedirect( e ) {
-		e.preventDefault();
-		this.props
-			.activateManage()
-			.then(
-				( window.location = 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl )
-			);
-	}
-
 	getContent() {
 		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.pluginUpdates;
