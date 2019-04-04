@@ -79,7 +79,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			 *
 			 * @param bool $check_validation Whether to allow API requests
 			 */
-			apply_filters( 'jetpack_json_api_requests_enabled', $check_validation )
+			! apply_filters( 'jetpack_json_api_requests_enabled', $check_validation )
 		) {
 			return new WP_Error( 'unauthorized_full_access', __( 'Full management mode is off for this site.', 'jetpack' ), 403 );
 		}
