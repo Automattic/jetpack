@@ -1,0 +1,126 @@
+$color__border: #e5e5e5;
+$color__back-link: #6c7781;
+
+
+.jetpack-about__link-back,
+.jetpack-about__main,
+.jetpack-about__plugin {
+	background-color: $white;
+	border: 1px solid $color__border;
+}
+
+.jetpack-about__link-back {
+	padding: 16px;
+	border-bottom: none;
+
+	a {
+		color: $color__back-link;
+		font-size: 0.75rem;
+
+		svg {
+			fill: $color__back-link;
+			height: 24px;
+			margin-right: 4px;
+			vertical-align: middle;
+			width: 24px;
+		}
+	}
+}
+
+.jetpack-about__main {
+	padding: 36px;
+}
+
+.jetpack-about__logo {
+	width: 265px;
+}
+
+.jetpack-about__content {}
+
+.jetpack-about__text {
+	margin-right: 30%;
+
+	p {
+		font-size: 1rem;
+		line-height: 1.6;
+	}
+}
+
+.jetpack-about__images {
+	float: right;
+	text-align: center;
+	margin-left: 5%;
+	width: 25%;
+
+	.gravatars {
+		border: 1px solid $color__border;
+
+		&:before {
+			content: '';
+			display: block;
+			padding-top: 100%;
+		}
+	}
+}
+
+.jetpack-about__colophon {
+	h3 {
+		margin-top: 2.4375rem;
+	}
+	.more {
+		margin-top: 0;
+		text-align: center;
+	}
+}
+
+.jetpack-about__services {
+	align-items: flex-start;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.jetpack-about__plugin {
+	margin-bottom: 4%;
+	width: 48%;
+
+	.plugin-card-top {
+		min-height: 165px;
+		position: relative;
+
+		.name,
+		.desc,
+		.details-link {
+			margin-left: 108px;
+		}
+
+		.name h3 {
+			margin-top: 0;
+		}
+
+		.plugin-icon {
+			height: 84px;
+			left: 24px;
+			position: absolute;
+			top: 24px;
+			width: 84px;
+		}
+
+		.details-link {
+			font-weight: 500;
+		}
+
+		.desc {}
+	}
+
+	.plugin-card-bottom {
+		background-color: $white;
+		padding
+
+		.num-ratings {
+			padding-left: 3px;
+		}
+		.column-rating {}
+		.action-links {}
+	}
+}
