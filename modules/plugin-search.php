@@ -189,6 +189,12 @@ class Jetpack_Plugin_Search {
 		if ( 2 < count( $dismissed_hints ) ) {
 			return false;
 		}
+
+		$plan = Jetpack_Plan::get();
+		if ( isset( $plan['class'] ) && ( 'free' === $plan['class'] || 'personal' === $plan['class'] ) && 'vaultpress' === $hint ) {
+			return false;
+		}
+
 		return ! in_array( $hint, $dismissed_hints, true );
 	}
 
