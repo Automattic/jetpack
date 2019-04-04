@@ -2,24 +2,27 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-alpha.0":
-  version "1.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-alpha.0.tgz#4d223092337ddb9cdac37f86980152fec75bd9cd"
-  integrity sha512-zhn0px50whrxqhKxmAWxh5WsoejaamZB+j/nU+cv+Ki29nlKON9gOv2EJFCzEEgwSO2YvjdjQB0gUk8B8XL5Ww==
+"@automattic/calypso-build@1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-alpha.2.tgz#02e4d0a130c315f818e69f00e89270066642c343"
+  integrity sha512-hIjvVnB6+BmDDKSQY5N/h9DCw1TLNkVtd9pem+/1dmubmMod3p2vbDel66xIL1Mh5EwYodKyg44obgWbJNZBbA==
   dependencies:
+    "@automattic/calypso-color-schemes" "^1.0.0-alpha.1"
     autoprefixer "9.4.4"
     babel-loader "8.0.5"
     css-loader "2.1.1"
+    duplicate-package-checker-webpack-plugin "3.0.0"
     mini-css-extract-plugin-with-rtl "github:Automattic/mini-css-extract-plugin-with-rtl"
     postcss-custom-properties "8.0.9"
     postcss-loader "3.0.0"
     sass-loader "7.1.0"
     terser-webpack-plugin "1.2.3"
     thread-loader "2.1.2"
+    webpack "4.29.6"
     webpack-filter-warnings-plugin "1.2.1"
     webpack-rtl-plugin "1.8.0"
 
-"@automattic/calypso-color-schemes@1.0.0-alpha.1":
+"@automattic/calypso-color-schemes@1.0.0-alpha.1", "@automattic/calypso-color-schemes@^1.0.0-alpha.1":
   version "1.0.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-1.0.0-alpha.1.tgz#86b62142582c0f909ecf7c8b8e22473b9ed4c592"
   integrity sha512-Q04s5H/2kqlyR++PeQKFANRlxDS3jnMzq2wci7fOAg+Zb0T7a0l5fap7Wc0t0hZtM22p+f3AnzQmdLdJs6ZOoQ==
