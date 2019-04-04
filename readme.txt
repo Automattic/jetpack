@@ -99,6 +99,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 7.2.1 =
+* Release date: April 04, 2019
+* Release post: https://wp.me/p1moTy-h7o
+
+* Feature Hints: display suggestions only for features available under the site's current plan.
+* Feature Hints: improve visual display to make more distinct from search results.
+* Feature Hints: disable hints once administrators have dismissed three hints.
+* Slideshow Block: resolve an issue that broke navigating between images.
+
 = 7.2 =
 
 * Release date: April 02, 2019
