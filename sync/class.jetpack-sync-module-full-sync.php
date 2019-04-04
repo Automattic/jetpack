@@ -204,9 +204,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$where_sql = Jetpack_Sync_Settings::get_comments_filter_sql();
 				break;
 		}
-
-		$results = $wpdb->get_results( $wpdb->prepare( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE %s" ), $where_sql );
-		if( isset( $results[0] ) ) {
+		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
+		if ( isset( $results[0] ) ) {
 			return $results[0];
 		}
 		return array();
