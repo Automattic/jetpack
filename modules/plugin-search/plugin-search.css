@@ -58,9 +58,13 @@
 	margin: 0 24px 0 16px;
 }
 
-@media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px)
-.plugin-card-jetpack-plugin-search .plugin-action-buttons li {
-    display: block;
+@media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
+	.plugin-card-jetpack-plugin-search .plugin-action-buttons li {
+		display: block;
+	}
+	.plugin-card-jetpack-plugin-search .plugin-action-buttons li button {
+		margin-right: 0;
+	}
 }
 
 /* Hides the link to dismiss cards when it's in action links are before being moved to bottom row*/
