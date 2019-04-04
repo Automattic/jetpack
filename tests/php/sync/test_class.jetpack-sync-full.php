@@ -154,10 +154,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_terms() {
-
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
 		for ( $i = 0; $i < 11; $i += 1 ) {
-			wp_insert_term( 'category-' . $i, 'category' );
-			wp_insert_term( 'term-' . $i, 'post_tag' );
+			wp_insert_term( 'category ' . $i, 'category' );
+			wp_insert_term( 'term ' . $i, 'post_tag' );
 		}
 
 		// simulate emptying the server storage
@@ -168,7 +169,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$terms = $this->server_replica_storage->get_terms( 'post_tag' );
-		$this->assertEquals( 22, count( $terms ) ); // 11 categories and 11 tags
+		$this->assertEquals( 11, count( $terms ) );
+
+		$terms = $this->server_replica_storage->get_terms( 'category' );
+		$this->assertEquals( 12, count( $terms ) ); // 11 + 1 (for uncategorized term)
 	}
 
 	function test_full_sync_sends_all_terms_with_previous_interval_end() {
