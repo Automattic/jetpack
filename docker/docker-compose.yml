@@ -21,6 +21,17 @@ services:
       - default.env
       - .env
 
+  db-test:
+    container_name: jetpack_mysql_test
+    image: mysql:5.7
+    restart: always
+    ports:
+      - "${PORT_MYSQL_TEST:-3308}:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
+    env_file:
+      - default.env
+      - .env
   ## SMTP Server + Web Interface for viewing and testing emails during development.
   ## http://danfarrelly.nyc/MailDev/
   maildev:
@@ -62,6 +73,7 @@ services:
     container_name: jetpack_wordpress
     depends_on:
       - db
+      - db-test
       - maildev
     build: .
     image: jetpack_wordpress:localbuild

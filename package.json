@@ -43,6 +43,7 @@
 		"docker:uninstall": "yarn docker:compose exec wordpress bash -c \"/var/scripts/uninstall.sh\"",
 		"docker:multisite-convert": "yarn docker:compose exec wordpress bash -c \"/var/scripts/multisite-convert.sh\"",
 		"docker:sh": "yarn docker:compose exec wordpress bash",
+		"docker:sh-test-db": "yarn docker:compose exec db-test bash",
 		"docker:phpunit": "yarn docker:compose exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist",
 		"docker:tail": "yarn docker:compose exec wordpress bash -c \"/var/scripts/tail.sh\"",
 		"docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
