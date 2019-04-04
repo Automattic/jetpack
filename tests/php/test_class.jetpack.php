@@ -1,11 +1,18 @@
 <?php
 
+require_once WP_CONTENT_DIR . '/plugins/jetpack/class.jetpack.php';
+
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
 	}
 }
 
+/**
+ * Class WP_Test_Jetpack
+ *
+ * @coversDefaultClass Jetpack
+ */
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $activated_modules = array();
@@ -781,6 +788,46 @@ EXPECTED;
 				'non_min_path'
 			),
 		);
+	}
+
+	/**
+	 * Tests verify_xml_rpc_signature();
+	 *
+	 * @author obenland
+	 * @covers ::verify_xml_rpc_signature
+	 */
+	function test_verify_xml_rpc_signature() {
+		$jetpack = Jetpack::init();
+		$user_id = $this->factory->user->create( array(
+			'role'            => 'administrator',
+			'user_registered' => '1994-01-01 00:00:00',
+		) );
+		wp_set_current_user( $user_id );
+
+		$token = sprintf( 'token:%d:%d', JETPACK__API_VERSION, $user_id );
+
+		// No signature.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( null, null, time(), wp_create_nonce() ) );
+
+		$_GET['nonce']     = wp_create_nonce();
+		$_GET['timestamp'] = time();
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
+
+		// Empty token_key.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( '::1', md5( '' ), time(), wp_create_nonce() ) );
+		// Wrong version.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( 'token::1', md5( '' ), time(), wp_create_nonce() ) );
+		// Empty user.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:', JETPACK__API_VERSION ), md5( '' ), time(), wp_create_nonce() ) );
+		// User doesn't exist.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:12', JETPACK__API_VERSION ), md5( '' ), time(), wp_create_nonce() ) );
+		// No token.
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token, md5( '' ), time(), wp_create_nonce()) );
+
+		Jetpack_Options::update_option( 'master_user', $user_id );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token, md5( '' ), time(), wp_create_nonce()) );
+
 	}
 
 	static function __cyrillic_salt( $password ) {
