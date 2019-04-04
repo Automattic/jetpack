@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.1.1
+Stable tag: 7.2
 Requires at least: 5.0
 Tested up to: 5.1
 
@@ -98,6 +98,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 8. Sharing: Connect your site to social networks for automated social sharing.
 
 == Changelog ==
+
+= 7.2.1 =
+* Release date: April 04, 2019
+* Release post: https://wp.me/p1moTy-h7o
+
+* Feature Hints: display suggestions only for features available under the site's current plan.
+* Feature Hints: improve visual display to make more distinct from search results.
+* Feature Hints: disable hints once administrators have dismissed three hints.
+* Slideshow Block: resolve an issue that broke navigating between images.
 
 = 7.2 =
 
