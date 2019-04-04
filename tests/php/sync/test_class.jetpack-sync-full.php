@@ -156,8 +156,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_terms() {
 
 		for ( $i = 0; $i < 11; $i += 1 ) {
-			wp_insert_term( 'category ' . $i, 'category' );
-			wp_insert_term( 'term ' . $i, 'post_tag' );
+			wp_insert_term( 'category-' . $i, 'category' );
+			wp_insert_term( 'term-' . $i, 'post_tag' );
 		}
 
 		// simulate emptying the server storage
