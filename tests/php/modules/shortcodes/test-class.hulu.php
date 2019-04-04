@@ -125,6 +125,9 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	 * @group external-http
 	 */
 	public function test_shortcodes_hulu_id_via_oembed_http_request() {
+		// we need to allow external calls for embed validation
+		// TODO allow specific request(s) or mock them out with 'pre_http_request'
+		add_filter( 'tests_allow_http_request', '__return_true' );
 		// Remove the HTTP request bypass
 		remove_all_filters( "pre_transient_hulu-{$this->video_id}" );
 
