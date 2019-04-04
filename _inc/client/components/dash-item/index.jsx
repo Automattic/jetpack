@@ -77,7 +77,7 @@ export class DashItem extends Component {
 				) &&
 				this.props.isDevMode &&
 				// Avoid toggle for manage as it's no longer a module
-				'manage' !== this.props.module ? (
+				'manage' === this.props.module ? (
 					''
 				) : (
 					<ModuleToggle
