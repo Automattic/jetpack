@@ -200,6 +200,7 @@ class Jetpack_Plugin_Search {
 			array(
 				'nonce'          => wp_create_nonce( 'wp_rest' ),
 				'base_rest_url'  => rest_url( '/jetpack/v4' ),
+				'poweredBy'      => esc_html__( 'by Jetpack (installed)', 'jetpack' ),
 				'manageSettings' => esc_html__( 'Configure', 'jetpack' ),
 				'activateModule' => esc_html__( 'Activate Module', 'jetpack' ),
 				'getStarted'     => esc_html__( 'Get started', 'jetpack' ),
@@ -207,9 +208,14 @@ class Jetpack_Plugin_Search {
 				'activating'     => esc_html__( 'Activating', 'jetpack' ),
 				'logo'           => 'https://ps.w.org/jetpack/assets/icon.svg?rev=1791404',
 				'legend'         => esc_html__(
-					'Jetpack is trusted by millions to help secure and speed up their WordPress site. Make the most of it today.',
+					'This suggestion was made by Jetpack, the security and performance plugin already installed on your site.',
 					'jetpack'
 				),
+				'supportText'    => esc_html__(
+					'Learn more about these suggestions.',
+					'jetpack'
+				),
+				'supportLink'    => 'https://jetpack.com/redirect/?source=plugin-hint-learn-support',
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);

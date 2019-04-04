@@ -39,14 +39,55 @@ var JetpackPSH = {};
 		},
 
 		/**
+		 * Update title of the card to add a mention that the result is from the Jetpack plugin.
+		 */
+		updateCardTitle: function() {
+			var hint = JetpackPSH.getCard();
+
+			if ( 'object' === typeof hint && null !== hint ) {
+				var title = hint.querySelector( '.column-name h3' );
+				title.outerHTML =
+					title.outerHTML + '<strong>' + jetpackPluginSearch.poweredBy + '</strong>';
+			}
+		},
+
+		/**
+		 * Move action links below description.
+		 */
+		moveActionLinks: function() {
+			var hint = JetpackPSH.getCard();
+			if ( 'object' === typeof hint && null !== hint ) {
+				var descriptionContainer = hint.querySelector( '.column-description' );
+				// Keep only the first paragraph. The second is the plugin author.
+				var descriptionText = descriptionContainer.querySelector( 'p:first-child' );
+				var actionLinks = hint.querySelector( '.action-links' );
+
+				// Change the contents of the description, to keep the description text and the action links.
+				descriptionContainer.innerHTML = descriptionText.outerHTML + actionLinks.outerHTML;
+
+				// Remove the action links from their default location.
+				actionLinks.parentNode.removeChild( actionLinks );
+			}
+		},
+
+		/**
 		 * Replace bottom row of the card to insert logo, text and link to dismiss the card.
 		 */
 		replaceCardBottom: function() {
 			var hint = JetpackPSH.getCard();
 			if ( 'object' === typeof hint && null !== hint ) {
 				hint.querySelector( '.plugin-card-bottom' ).outerHTML =
-					'<div class="jetpack-plugin-search__bottom"><img src="' + jetpackPluginSearch.logo + '" width="32" />' +
-					'<p class="jetpack-plugin-search__text">' + jetpackPluginSearch.legend + '</p>' +
+					'<div class="jetpack-plugin-search__bottom"><img src="' +
+					jetpackPluginSearch.logo +
+					'" width="32" />' +
+					'<p class="jetpack-plugin-search__text">' +
+					jetpackPluginSearch.legend +
+					' <a class="jetpack-plugin-search__support_link" href="' +
+					jetpackPluginSearch.supportLink +
+					'" target="_blank" rel="noopener noreferrer" data-track="support_link" >' +
+					jetpackPluginSearch.supportText +
+					'</a>' +
+					'</p>' +
 					'</div>';
 
 				// Remove link and parent li from action links and move it to bottom row
@@ -59,7 +100,7 @@ var JetpackPSH = {};
 		},
 
 		/**
-		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
+		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the title and the bottom row.
 		 * @param {array} mutationsList
 		 */
 		replaceOnNewResults: function( mutationsList ) {
@@ -68,6 +109,8 @@ var JetpackPSH = {};
 					'childList' === mutation.type &&
 					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
 				) {
+					JetpackPSH.updateCardTitle();
+					JetpackPSH.moveActionLinks();
 					JetpackPSH.replaceCardBottom();
 				}
 			} );
@@ -163,6 +206,12 @@ var JetpackPSH = {};
 				return;
 			}
 
+			// Update title to show that the suggestion is from Jetpack.
+			JetpackPSH.updateCardTitle();
+
+			// Update the description and action links.
+			JetpackPSH.moveActionLinks();
+
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();
 
@@ -190,7 +239,21 @@ var JetpackPSH = {};
 				.on( 'click', '.jetpack-plugin-search__learn-more', function( event ) {
 					event.preventDefault();
 					var $this = $( this );
-					JetpackPSH.trackEvent( 'wpa_plugin_search_learn_more', $this.data( 'module' ), $this.get(0) );
+
+					JetpackPSH.trackEvent(
+						'wpa_plugin_search_learn_more',
+						$this.data( 'module' ),
+						$this.get( 0 )
+					);
+				} )
+				.on( 'click', '.jetpack-plugin-search__support_link', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					JetpackPSH.trackEvent(
+						'wpa_plugin_search_support_link',
+						$this.data( 'module' ),
+						$this.get( 0 )
+					);
 				} );
 		}
 
