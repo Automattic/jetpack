@@ -1,4 +1,4 @@
-/* global tb_show */
+/* global tb_show, tb_remove */
 
 /**
  * Internal dependencies
@@ -6,6 +6,22 @@
 import './view.scss';
 const name = 'membership-button';
 const blockClassName = 'wp-block-jetpack-' + name;
+
+/**
+ * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
+ *
+ * @param {event} eventFromIframe - message event that gets emmited in the checkout iframe.
+ * @listens message
+ */
+function handleIframeResult( eventFromIframe ) {
+	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
+		const data = JSON.parse( eventFromIframe.data );
+		if ( data && data.action === 'close' ) {
+			window.removeEventListener( 'message', handleIframeResult );
+			tb_remove();
+		}
+	}
+}
 
 function activateSubscription( block, blogId, planId, poweredText ) {
 	block.addEventListener( 'click', () => {
@@ -18,6 +34,7 @@ function activateSubscription( block, blogId, planId, poweredText ) {
 				'TB_iframe=true&height=600&width=400',
 			null
 		);
+		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
 		const footer = document.createElement( 'DIV' );
