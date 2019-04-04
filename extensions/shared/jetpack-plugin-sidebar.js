@@ -11,6 +11,7 @@ import { registerPlugin } from '@wordpress/plugins';
  */
 import './jetpack-plugin-sidebar.scss';
 import JetpackLogo from './jetpack-logo';
+import JetpackLikesAndSharingPanel from './jetpack-likes-and-sharing-panel';
 
 const { Fill, Slot } = createSlotFill( 'JetpackPluginSidebar' );
 
@@ -30,6 +31,7 @@ JetpackPluginSidebar.Slot = () => (
 					</PluginSidebarMoreMenuItem>
 					<PluginSidebar name="jetpack" title="Jetpack" icon={ <JetpackLogo /> }>
 						{ fills }
+						<JetpackLikesAndSharingPanel.Slot />
 					</PluginSidebar>
 				</Fragment>
 			);

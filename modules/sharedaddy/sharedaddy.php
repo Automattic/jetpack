@@ -141,9 +141,10 @@ function sharing_add_meta_box() {
 	 * @param string $var Sharing Meta Box title. Default is "Sharing".
 	 */
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
+	$back_compat = Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ); // TODO: remove once the Sharing extension is done with it's beta.
 	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default' );
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default', array( '__back_compat_meta_box' => $back_compat ) );
 		}
 	}
 }
