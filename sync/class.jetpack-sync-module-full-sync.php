@@ -165,7 +165,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
 		$this->update_status_option( 'queue_finished', time(), true );
-		
+
 		$range = array();
 		// Only when we are sending the whole range do we want to send also the range
 		if ( $configs['posts'] === true ) {
@@ -195,14 +195,17 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			case 'posts':
 				$table = $wpdb->posts;
 				$id = 'ID';
+				$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+
 				break;
 			case 'comments':
 				$table = $wpdb->comments;
 				$id = 'comment_ID';
+				$where_sql = Jetpack_Sync_Settings::get_comments_filter_sql();
 				break;
 		}
-		echo "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table}";
-		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table}" );
+
+		$results = $wpdb->get_results( $wpdb->prepare( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE %s" ), $where_sql );
 		if( isset( $results[0] ) ) {
 			return $results[0];
 		}
