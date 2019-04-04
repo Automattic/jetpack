@@ -23,7 +23,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
 		add_action( 'jetpack_full_sync_start', $callable );
-		add_action( 'jetpack_full_sync_end', $callable );
+		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
@@ -165,6 +165,16 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
 		$this->update_status_option( 'queue_finished', time(), true );
+		
+		$range = array();
+		// Only when we are sending the whole range do we want to send also the range
+		if ( $configs['posts'] === true ) {
+			$range['posts'] = $this->get_range( 'posts' );
+		}
+
+		if ( $configs['comments'] === true ) {
+			$range['comments'] = $this->get_range( 'comments' );
+		}
 
 		/**
 		 * Fires when a full sync ends. This action is serialized
@@ -172,7 +182,31 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.2.0
 		 */
-		do_action( 'jetpack_full_sync_end', '' );
+		do_action( 'jetpack_full_sync_end', '', $range );
+	}
+
+	function get_range( $type ) {
+		global $wpdb;
+		if( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
+			return array();
+		}
+
+		switch ( $type ) {
+			case 'posts':
+				$table = $wpdb->posts;
+				$id = 'ID';
+				break;
+			case 'comments':
+				$table = $wpdb->comments;
+				$id = 'comment_ID';
+				break;
+		}
+		echo "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table}";
+		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table}" );
+		if( isset( $results[0] ) ) {
+			return $results[0];
+		}
+		return array();
 	}
 
 	function update_sent_progress_action( $actions ) {
