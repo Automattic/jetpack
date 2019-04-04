@@ -21,7 +21,7 @@ import DropdownSeparator from 'components/select-dropdown/separator';
 import DropdownLabel from 'components/select-dropdown/label';
 import Count from 'components/count';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables
@@ -53,13 +53,13 @@ class SelectDropdown extends Component {
 		this.state = initialState;
 	}
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++SelectDropdown.instances,
 		} );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.state.isOpen ) {
 			this.closeDropdown();
 		}

@@ -31,6 +31,12 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
+		// Don't show the masterbar on WordPress mobile apps.
+		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+			add_filter( 'show_admin_bar', '__return_false' );
+			return;
+		}
+
 		Jetpack::dns_prefetch( array(
 			'//s0.wp.com',
 			'//s1.wp.com',
@@ -509,7 +515,7 @@ class A8C_WPCOM_Masterbar {
 				'class' => 'mb-icon user-info-item',
 			),
 		) );
-		
+
 		$help_link = 'https://jetpack.com/support/';
 
 		if ( jetpack_is_atomic_site() ) {
@@ -660,7 +666,7 @@ class A8C_WPCOM_Masterbar {
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
 			$label = esc_html__( 'Plan', 'jetpack' );
-			$plan = Jetpack::get_active_plan();
+			$plan = Jetpack_Plan::get();
 
 			$plan_title = $this->create_menu_item_pair(
 				array(

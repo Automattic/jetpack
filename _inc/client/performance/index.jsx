@@ -11,9 +11,8 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isUnavailableInDevMode } from 'state/connection';
-import { getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';

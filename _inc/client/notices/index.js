@@ -1,17 +1,20 @@
 /**
  * External Dependencies
  */
-const debug = require( 'debug' )( 'calypso:notices' );
+import debugFactory from 'debug';
+import Emitter from 'mixins/emitter';
 
-const Emitter = require( 'mixins/emitter' );
+/**
+ * Internal Dependencies
+ */
+import './style.scss';
 
+const debug = debugFactory( 'calypso:notices' );
 debug( 'initializing notices' );
 
 const list = { containerNames: {} };
 Emitter( list );
 let delayedNotices = [];
-
-require( './style.scss' );
 
 const notices = {
 	/**

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+/* jshint ignore:start */
 /* eslint-disable no-console, no-process-exit */
 
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
+const whitelist = require( './phpcs-whitelist' );
 let exitCode = 0;
 
 /**
@@ -26,13 +28,6 @@ function parseGitDiffToPathArray( command ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function phpcsFilesToFilter( file ) {
-	// If the file path starts with anything like in the array below, it should be linted.
-	const whitelist = [
-		'_inc/lib/debugger/',
-		'extensions/',
-		'class.jetpack-gutenberg.php',
-	];
-
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
 		return true;
 	}
@@ -46,20 +41,17 @@ function phpcsFilesToFilter( file ) {
  * @param {String} file File name of js file modified.
  * @return {boolean}        If the file matches the whitelist.
  */
-function jsFilesToFilter( file ) {
-	if (
-		file.startsWith( '_inc/client/' ) &&
-		/\.jsx?$/.test( file )
-	) {
-		return true;
-	}
-
-	return false;
+function filterJsFiles( file ) {
+	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-const gitFiles = parseGitDiffToPathArray( 'git diff --cached --name-only --diff-filter=ACM' ).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter( Boolean );
-const jsFiles = gitFiles.filter( jsFilesToFilter );
+const gitFiles = parseGitDiffToPathArray(
+	'git diff --cached --name-only --diff-filter=ACM'
+).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
+	Boolean
+);
+const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 
@@ -90,7 +82,7 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const toLint = jsFiles;
+const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
 if ( toLint.length ) {
 	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
 		shell: true,
@@ -147,10 +139,13 @@ if ( phpcbfResult && phpcbfResult.status ) {
 }
 
 if ( phpcsResult && phpcsResult.status ) {
-	const phpcsStatus = ( 2 === phpcsResult.status ? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n' : 'PHPCS reported some problems and cannot automatically fix them.\n' );
+	const phpcsStatus =
+		2 === phpcsResult.status
+			? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
+			: 'PHPCS reported some problems and cannot automatically fix them.\n';
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
-			phpcsStatus +
+		phpcsStatus +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.\n' +
 			"But please don't. Code is poetry."

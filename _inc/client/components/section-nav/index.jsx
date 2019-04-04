@@ -3,21 +3,21 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	isEqual = require( 'lodash/isEqual' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
 
-const createReactClass = require( 'create-react-class' );
+import React from 'react';
+import isEqual from 'lodash/isEqual';
+import classNames from 'classnames';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal Dependencies
  */
-const NavTabs = require( './tabs' ),
-	NavItem = require( './item' ),
-	Search = require( 'components/search' );
+import NavTabs from './tabs';
 
-require( './style.scss' );
+import NavItem from './item';
+import Search from 'components/search';
+import './style.scss';
 
 /**
  * Main
@@ -45,11 +45,11 @@ const SectionNav = createReactClass( {
 		};
 	},
 
-	componentWillMount: function() {
+	UNSAFE_componentWillMount: function() {
 		this.checkForSiblingControls( this.props.children );
 	},
 
-	componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function( nextProps ) {
 		if ( isEqual( this.props, nextProps ) ) {
 			return;
 		}
@@ -185,4 +185,4 @@ const SectionNav = createReactClass( {
 	},
 } );
 
-module.exports = SectionNav;
+export default SectionNav;

@@ -1,22 +1,24 @@
 /**
  * External dependencies
  */
-const debug = require( 'debug' )( 'calypso:url-search' ),
-	page = require( 'page' );
+import debugFactory from 'debug';
+import page from 'page';
 
 /**
  * Internal dependencies
  */
-const buildUrl = require( './build-url' );
+import buildUrl from './build-url';
 
-module.exports = {
+const debug = debugFactory( 'calypso:url-search' );
+
+export default {
 	getInitialState: function() {
 		return {
 			searchOpen: false,
 		};
 	},
 
-	componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function( nextProps ) {
 		if ( ! nextProps.search ) {
 			this.setState( {
 				searchOpen: false,

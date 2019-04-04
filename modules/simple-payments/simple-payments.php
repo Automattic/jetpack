@@ -108,7 +108,7 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For all Jetpack sites
-		return Jetpack::is_active() && Jetpack::active_plan_supports( 'simple-payments');
+		return Jetpack::is_active() && Jetpack_Plan::supports( 'simple-payments');
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {

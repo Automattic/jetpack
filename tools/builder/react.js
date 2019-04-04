@@ -92,10 +92,12 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp
 			.src( '_inc/build/admin.js' )
-			.pipe( minify( {
-				noSource: true,
-				ext: { min: '.js' },
-			} ) )
+			.pipe(
+				minify( {
+					noSource: true,
+					ext: { min: '.js' },
+				} )
+			)
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
@@ -138,7 +140,7 @@ function onBuild( done, err, stats ) {
 	// Don't process minified JS in _inc or modules directories
 	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
 	gulp
-		.src( Array.concat( sources, sourceNegations ) )
+		.src( [ ...sources, ...sourceNegations ] )
 		.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 		.pipe(
@@ -211,7 +213,6 @@ function buildStatic( done ) {
 					__dirname + '/../../_inc/build/static-version-notice.html',
 					window.versionNotice
 				);
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 				done();
 			} );

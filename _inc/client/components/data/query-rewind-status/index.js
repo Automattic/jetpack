@@ -25,7 +25,7 @@ class QueryRewindStatus extends Component {
 		sitePlan: {},
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.isFetchingRewindStatus && ! this.props.isDevMode ) {
 			this.props.fetchRewind();
 		}

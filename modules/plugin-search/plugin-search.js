@@ -9,7 +9,6 @@ var JetpackPSH = {};
 
 ( function( $, jpsh ) {
 	JetpackPSH = {
-
 		$pluginFilter: $( '#plugin-filter' ),
 
 		/**
@@ -29,7 +28,7 @@ var JetpackPSH = {};
 		 */
 		trackEvent: function( eventName, feature, target ) {
 			jpTracksAJAX
-				.record_ajax_event( eventName, 'click', { 'feature' : feature } )
+				.record_ajax_event( eventName, 'click', { feature: feature } )
 				.always( function() {
 					if ( 'undefined' !== typeof target && !! target.getAttribute( 'href' ) ) {
 						// If it has an href, follow it.
@@ -39,27 +38,66 @@ var JetpackPSH = {};
 		},
 
 		/**
+		 * Update title of the card to add a mention that the result is from the Jetpack plugin.
+		 */
+		updateCardTitle: function() {
+			var hint = JetpackPSH.getCard();
+
+			if ( 'object' === typeof hint && null !== hint ) {
+				var title = hint.querySelector( '.column-name h3' );
+				title.outerHTML =
+					title.outerHTML + '<strong>' + jetpackPluginSearch.poweredBy + '</strong>';
+			}
+		},
+
+		/**
+		 * Move action links below description.
+		 */
+		moveActionLinks: function() {
+			var hint = JetpackPSH.getCard();
+			if ( 'object' === typeof hint && null !== hint ) {
+				var descriptionContainer = hint.querySelector( '.column-description' );
+				// Keep only the first paragraph. The second is the plugin author.
+				var descriptionText = descriptionContainer.querySelector( 'p:first-child' );
+				var actionLinks = hint.querySelector( '.action-links' );
+
+				// Change the contents of the description, to keep the description text and the action links.
+				descriptionContainer.innerHTML = descriptionText.outerHTML + actionLinks.outerHTML;
+
+				// Remove the action links from their default location.
+				actionLinks.parentNode.removeChild( actionLinks );
+			}
+		},
+
+		/**
 		 * Replace bottom row of the card to insert logo, text and link to dismiss the card.
 		 */
 		replaceCardBottom: function() {
 			var hint = JetpackPSH.getCard();
 			if ( 'object' === typeof hint && null !== hint ) {
 				hint.querySelector( '.plugin-card-bottom' ).outerHTML =
-					'<div class="jetpack-plugin-search__bottom"><img src="' + jetpackPluginSearch.logo + '" width="32" />' +
-					'<p class="jetpack-plugin-search__text">' + jetpackPluginSearch.legend + '</p>' +
+					'<div class="jetpack-plugin-search__bottom"><img src="' +
+					jetpackPluginSearch.logo +
+					'" width="32" />' +
+					'<p class="jetpack-plugin-search__text">' +
+					jetpackPluginSearch.legend +
+					' <a class="jetpack-plugin-search__support_link" href="' +
+					jetpackPluginSearch.supportLink +
+					'" target="_blank" rel="noopener noreferrer" data-track="support_link" >' +
+					jetpackPluginSearch.supportText +
+					'</a>' +
+					'</p>' +
 					'</div>';
 
 				// Remove link and parent li from action links and move it to bottom row
 				var dismissLink = document.querySelector( '.jetpack-plugin-search__dismiss' );
 				dismissLink.parentNode.parentNode.removeChild( dismissLink.parentNode );
-				document
-					.querySelector( '.jetpack-plugin-search__bottom' )
-					.appendChild( dismissLink );
+				document.querySelector( '.jetpack-plugin-search__bottom' ).appendChild( dismissLink );
 			}
 		},
 
 		/**
-		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the bottom row.
+		 * Check if plugin card list nodes changed. If there's a Jetpack PSH card, replace the title and the bottom row.
 		 * @param {array} mutationsList
 		 */
 		replaceOnNewResults: function( mutationsList ) {
@@ -68,6 +106,8 @@ var JetpackPSH = {};
 					'childList' === mutation.type &&
 					1 === document.querySelectorAll( '.plugin-card-jetpack-plugin-search' ).length
 				) {
+					JetpackPSH.updateCardTitle();
+					JetpackPSH.moveActionLinks();
 					JetpackPSH.replaceCardBottom();
 				}
 			} );
@@ -82,10 +122,10 @@ var JetpackPSH = {};
 					xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
 				},
 				data: JSON.stringify( {
-					hint: moduleName
+					hint: moduleName,
 				} ),
 				contentType: 'application/json',
-				dataType: 'json'
+				dataType: 'json',
 			} ).done( function() {
 				JetpackPSH.trackEvent( 'wpa_plugin_search_dismiss', moduleName );
 			} );
@@ -106,13 +146,15 @@ var JetpackPSH = {};
 				},
 				data: JSON.stringify( data ),
 				contentType: 'application/json',
-				dataType: 'json'
-			} ).done( function() {
-				JetpackPSH.updateButton( moduleName );
-				JetpackPSH.trackEvent( 'wpa_plugin_search_activate', moduleName );
-			} ).error( function() {
-				$moduleBtn.toggleClass( 'install-now updating-message' );
-			} );
+				dataType: 'json',
+			} )
+				.done( function() {
+					JetpackPSH.updateButton( moduleName );
+					JetpackPSH.trackEvent( 'wpa_plugin_search_activate', moduleName );
+				} )
+				.error( function() {
+					$moduleBtn.toggleClass( 'install-now updating-message' );
+				} );
 		},
 
 		// Remove onclick handler, disable loading spinner, update button to redirect to module settings.
@@ -123,7 +165,7 @@ var JetpackPSH = {};
 				beforeSend: function( xhr ) {
 					xhr.setRequestHeader( 'X-WP-Nonce', jpsh.nonce );
 				},
-				dataType: 'json'
+				dataType: 'json',
 			} ).done( function( response ) {
 				var $moduleBtn = JetpackPSH.$pluginFilter.find( '#plugin-select-activate' );
 				$moduleBtn.prop( 'onclick', null ).off( 'click' );
@@ -148,10 +190,19 @@ var JetpackPSH = {};
 						track = 'get_started';
 					}
 					$moduleBtn.replaceWith(
-						'<a id="plugin-select-settings" class="' + classes + '" href="' + url + '" data-module="' + moduleName + '" data-track="' + track + '">' + label + '</a>'
+						'<a id="plugin-select-settings" class="' +
+							classes +
+							'" href="' +
+							url +
+							'" data-module="' +
+							moduleName +
+							'" data-track="' +
+							track +
+							'">' +
+							label +
+							'</a>'
 					);
 				}, 1000 );
-
 			} );
 		},
 
@@ -162,6 +213,12 @@ var JetpackPSH = {};
 			if ( JetpackPSH.$pluginFilter.length < 1 ) {
 				return;
 			}
+
+			// Update title to show that the suggestion is from Jetpack.
+			JetpackPSH.updateCardTitle();
+
+			// Update the description and action links.
+			JetpackPSH.moveActionLinks();
 
 			// Replace PSH bottom row on page load
 			JetpackPSH.replaceCardBottom();
@@ -184,18 +241,33 @@ var JetpackPSH = {};
 					var $this = $( this );
 					if ( $this.data( 'track' ) ) {
 						// This catches Purchase, Configure, and Get started. Feature activation is tracked when it ends successfully, in its callback.
-						JetpackPSH.trackEvent( 'wpa_plugin_search_' + $this.data( 'track' ), $this.data( 'module' ), $this.get(0) );
+						JetpackPSH.trackEvent(
+							'wpa_plugin_search_' + $this.data( 'track' ),
+							$this.data( 'module' ),
+							$this.get( 0 )
+						);
 					}
 				} )
 				.on( 'click', '.jetpack-plugin-search__learn-more', function( event ) {
 					event.preventDefault();
 					var $this = $( this );
-					JetpackPSH.trackEvent( 'wpa_plugin_search_learn_more', $this.data( 'module' ), $this.get(0) );
+					JetpackPSH.trackEvent(
+						'wpa_plugin_search_learn_more',
+						$this.data( 'module' ),
+						$this.get( 0 )
+					);
+				} )
+				.on( 'click', '.jetpack-plugin-search__support_link', function( event ) {
+					event.preventDefault();
+					var $this = $( this );
+					JetpackPSH.trackEvent(
+						'wpa_plugin_search_support_link',
+						$this.data( 'module' ),
+						$this.get( 0 )
+					);
 				} );
-		}
-
+		},
 	};
 
 	JetpackPSH.init();
-
 } )( jQuery, jetpackPluginSearch );

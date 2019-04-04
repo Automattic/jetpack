@@ -405,7 +405,8 @@ select {
 	vertical-align: top;
 	white-space: nowrap;
 	box-sizing: border-box;
-	padding: 7px 32px 9px 14px; // Aligns the text to the 8px baseline grid and adds padding on right to allow for the arrow.
+	/* Aligns the text to the 8px baseline grid and adds padding on right to allow for the arrow. */
+	padding: 7px 32px 9px 14px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;

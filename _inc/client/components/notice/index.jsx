@@ -12,7 +12,7 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
  */
 import Gridicon from 'components/gridicon';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class SimpleNotice extends React.Component {
 	static displayName = 'SimpleNotice';

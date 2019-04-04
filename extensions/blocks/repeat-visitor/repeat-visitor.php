@@ -31,7 +31,7 @@ function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 
 	if (
 		( 'after-visits' === $criteria && $count >= $threshold ) ||
-		( 'before-visits' === $criteria && $count <= $threshold )
+		( 'before-visits' === $criteria && $count < $threshold )
 	) {
 		return $content;
 	}

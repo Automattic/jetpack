@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { isFetchingStatsData, fetchStatsData } from 'state/at-a-glance';
 
 class QueryStatsData extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingStatsData ) {
 			this.props.fetchStatsData( this.props.range );
 		}

@@ -1,16 +1,19 @@
-/** External Dependencies **/
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' ),
-	Formsy = require( 'formsy-react' );
+/**
+ * External Dependencies
+ */
+import PropTypes from 'prop-types';
+import React from 'react';
+import classNames from 'classnames';
+import Formsy from 'formsy-react';
+import createReactClass from 'create-react-class';
 
-const createReactClass = require( 'create-react-class' );
-
-/** Internal Dependencies **/
-const Label = require( './label' ),
-	getUniqueId = require( './counter' ),
-	FormInputValidation = require( '../form-input-validation' ),
-	requiredFieldErrorFormatter = require( './required-error-label' );
+/**
+ * Internal Dependencies
+ */
+import Label from './label';
+import getUniqueId from './counter';
+import FormInputValidation from '../form-input-validation';
+import requiredFieldErrorFormatter from './required-error-label';
 
 class Radios extends React.Component {
 	static propTypes = {
@@ -57,7 +60,7 @@ class Radios extends React.Component {
 	}
 }
 
-module.exports = createReactClass( {
+export default createReactClass( {
 	displayName: 'RadioInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -79,7 +82,7 @@ module.exports = createReactClass( {
 		};
 	},
 
-	componentWillMount: function() {
+	UNSAFE_componentWillMount: function() {
 		this.setValue( this.props.selected );
 	},
 

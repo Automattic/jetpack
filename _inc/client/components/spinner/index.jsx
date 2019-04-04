@@ -3,11 +3,11 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
 
-require( './style.scss' );
+import React from 'react';
+import classNames from 'classnames';
+import './style.scss';
 
 class Spinner extends React.Component {
 	static propTypes = {
@@ -23,7 +23,7 @@ class Spinner extends React.Component {
 		duration: 3000,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++Spinner.instances,
 		} );
@@ -119,4 +119,4 @@ class Spinner extends React.Component {
 	}
 }
 
-module.exports = Spinner;
+export default Spinner;

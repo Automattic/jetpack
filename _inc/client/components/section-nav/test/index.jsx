@@ -1,7 +1,10 @@
-const assert = require( 'chai' ).assert,
-	sinon = require( 'sinon' ),
-	useMockery = require( 'test/helpers/use-mockery' ),
-	useFakeDom = require( 'test/helpers/use-fake-dom' );
+/**
+ * External Dependencies
+ */
+import { assert } from 'chai';
+import sinon from 'sinon';
+import useMockery from 'test/helpers/use-mockery';
+import useFakeDom from 'test/helpers/use-fake-dom';
 let ReactDom, React, TestUtils, SectionNav;
 
 function createComponent( component, props, children ) {

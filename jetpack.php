@@ -5,7 +5,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 7.2-alpha
+ * Version: 7.3-alpha
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
 
-define( 'JETPACK__VERSION',            '7.2-alpha' );
+define( 'JETPACK__VERSION',            '7.3-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -55,7 +55,7 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 function jetpack_require_lib_dir() {
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
-add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+
 
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
@@ -75,6 +75,25 @@ function jetpack_should_use_minified_assets() {
 	}
 	return true;
 }
+
+/**
+ * Outputs for an admin notice about running Jetpack on outdated WordPress.
+ *
+ * @since 7.2.0
+ */
+function jetpack_admin_unsupported_wp_notice() { ?>
+	<div class="notice notice-error is-dismissible">
+		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+	</div>
+	<?php
+}
+
+if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
+	return;
+}
+
+add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
@@ -102,6 +121,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

@@ -1343,19 +1343,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_data_fetch_failed' );
 		}
 
-		// Save plan details in the database for future use without API calls
-		$results = json_decode( $response['body'], true );
+		Jetpack_Plan::update_from_sites_response( $response );
 
-		if ( is_array( $results ) && isset( $results['plan'] ) ) {
-
-			// Set flag for newly purchased plan
-			$current_plan = Jetpack::get_active_plan();
-			if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] && 'jetpack_free' !== $results['plan']['product_slug'] ) {
-				update_option( 'show_welcome_for_new_plan', true ) ;
-			}
-
-			update_option( 'jetpack_active_plan', $results['plan'], true );
-		}
 		$body = wp_remote_retrieve_body( $response );
 
 		return json_decode( $body );

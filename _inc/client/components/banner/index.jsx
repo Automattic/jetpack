@@ -16,7 +16,7 @@ import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import PlanIcon from 'components/plans/plan-icon';
 
-require( './style.scss' );
+import './style.scss';
 
 class Banner extends Component {
 	static propTypes = {

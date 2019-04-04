@@ -2,8 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import noop from 'lodash/noop';
@@ -42,7 +41,7 @@ class JetpackDialogue extends Component {
 		return (
 			<div
 				className="jp-dialogue-full__container"
-				role="dialog"
+				role="presentation"
 				onClick={ this.maybeDismiss }
 				onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }
 			>
@@ -63,7 +62,7 @@ class JetpackDialogue extends Component {
 
 				<div
 					className={ classes }
-					role="dialog"
+					role="presentation"
 					onClick={ this.clickForeground }
 					onKeyDown={ onKeyDownCallback( this.clickForeground ) }
 				>

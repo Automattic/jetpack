@@ -1,18 +1,15 @@
 /**
  * External dependencies
  */
-const assert = require( 'assert' ),
-	React = require( 'react' ),
-	ReactDOM = require( 'react-dom' ),
-	TestUtils = React.addons.TestUtils,
-	unique = require( 'lodash/uniq' );
+import assert from 'assert';
+import React from 'react';
+import ReactDOM, { TestUtils } from 'react-dom';
+import unique from 'lodash/uniq';
 
 /**
  * Internal dependencies
  */
-const CompactFormToggle = require( 'components/forms/form-toggle/compact' );
-
-require( 'lib/react-test-env-setup' )();
+import CompactFormToggle from 'components/forms/form-toggle/compact';
 
 describe( 'CompactFormToggle', function() {
 	describe( 'rendering', function() {
@@ -51,14 +48,7 @@ describe( 'FormToggle', function() {
 
 		it( 'should be checked when checked is true', function() {
 			[ true, false ].forEach( function( bool ) {
-				const toggle = TestUtils.renderIntoDocument(
-						<CompactFormToggle
-							checked={ bool }
-							onChange={ function() {
-								return;
-							} }
-						/>
-					),
+				const toggle = TestUtils.renderIntoDocument( <CompactFormToggle checked={ bool } /> ),
 					toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 				assert( 0 < toggleInput.length, 'a form toggle was rendered' );

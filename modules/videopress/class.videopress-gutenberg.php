@@ -64,11 +64,11 @@ class VideoPress_Gutenberg {
 		if (
 			method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active()
 			&& method_exists( 'Jetpack', 'is_module_active' )
-			&& method_exists( 'Jetpack', 'active_plan_supports' )
+			&& method_exists( 'Jetpack_Plan', 'supports' )
 		) {
 			if ( Jetpack::is_module_active( 'videopress' ) ) {
 				return array( 'available' => true );
-			} elseif ( ! Jetpack::active_plan_supports( 'videopress' ) ) {
+			} elseif ( ! Jetpack_Plan::supports( 'videopress' ) ) {
 				return array(
 					'available'          => false,
 					'unavailable_reason' => 'missing_plan',

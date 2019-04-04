@@ -85,12 +85,12 @@ abstract class Jetpack_Admin_Page {
 	function admin_head() {
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
 			/**
-			 * Fires in the <head> of a particular Jetpack configuation page.
+			 * Fires in the <head> of a particular Jetpack configuration page.
 			 *
 			 * The dynamic portion of the hook name, `$_GET['configure']`,
 			 * refers to the slug of module, such as 'stats', 'sso', etc.
 			 * A complete hook for the latter would be
-			 * 'jetpack_module_configuation_head_sso'.
+			 * 'jetpack_module_configuration_head_sso'.
 			 *
 			 * @since 3.0.0
 			 */
@@ -185,7 +185,7 @@ abstract class Jetpack_Admin_Page {
 			return false;
 		}
 
-		$current = Jetpack::get_active_plan();
+		$current = Jetpack_Plan::get();
 
 		$to_deactivate = array();
 		if ( isset( $current['product_slug'] ) ) {
@@ -207,7 +207,7 @@ abstract class Jetpack_Admin_Page {
 
 			$to_leave_enabled = array();
 			foreach ( $to_deactivate as $feature ) {
-				if ( Jetpack::active_plan_supports( $feature ) ) {
+				if ( Jetpack_Plan::supports( $feature ) ) {
 					$to_leave_enabled []= $feature;
 				}
 			}

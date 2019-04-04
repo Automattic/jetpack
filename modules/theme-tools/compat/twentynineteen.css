@@ -112,12 +112,9 @@
 	margin-bottom: -0.3125em !important;
 }
 
-.sd-social-icon .sd-content ul {
-	margin-bottom: 0 !important;
-}
-
+.sd-social-icon .sd-content ul,
 .sd-social-official .sd-content ul {
-	margin-bottom: -0.625em !important;
+	margin-bottom: 0 !important;
 }
 
 .entry #sharing_email .sharing_send,

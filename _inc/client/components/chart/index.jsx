@@ -1,18 +1,18 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PropTypes = require( 'prop-types' ),
-	noop = require( 'lodash/noop' ),
-	throttle = require( 'lodash/throttle' );
+import React from 'react';
+
+import PropTypes from 'prop-types';
+import noop from 'lodash/noop';
+import throttle from 'lodash/throttle';
 
 /**
  * Internal dependencies
  */
-const BarContainer = require( './bar-container' ),
-	touchDetect = require( 'lib/touch-detect' );
-
-require( './style.scss' );
+import BarContainer from './bar-container';
+import { hasTouch } from 'lib/touch-detect';
+import './style.scss';
 
 export default class ModuleChart extends React.Component {
 	static displayName = 'ModuleChart';
@@ -48,7 +48,7 @@ export default class ModuleChart extends React.Component {
 		window.removeEventListener( 'resize', this.resize );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
@@ -59,7 +59,7 @@ export default class ModuleChart extends React.Component {
 		let width = node.clientWidth - 82,
 			maxBars;
 
-		if ( touchDetect.hasTouch() ) {
+		if ( hasTouch() ) {
 			width = width <= 0 ? 350 : width; // mobile safari bug with zero width
 			maxBars = Math.floor( width / this.props.minTouchBarWidth );
 		} else {
@@ -151,7 +151,7 @@ export default class ModuleChart extends React.Component {
 					data={ data }
 					yAxisMax={ yAxisMax }
 					chartWidth={ this.state.width }
-					isTouch={ touchDetect.hasTouch() }
+					isTouch={ hasTouch() }
 				/>
 				{ emptyChart }
 			</div>

@@ -94,12 +94,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
 			),
 
-			'manage' => array(
-				'name' => _x( 'Manage', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Manage all of your sites from a centralized dashboard.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.', 'Jumpstart Description', 'jetpack' ),
-			),
-
 			'markdown' => array(
 				'name' => _x( 'Markdown', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Write posts or pages in plain-text Markdown syntax', 'Module Description', 'jetpack' ),

@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.10
+// @version      1.13
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
 // ==/UserScript==
+
+/* global jQuery */
 
 ( function() {
 	const $ = jQuery.noConflict();
@@ -13,77 +15,174 @@
 
 	function doit() {
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
-		const branch = jQuery( '.head-ref:first' ).text();
-		const branchIsForked = branch.includes( ':' );
-		const branchIsMerged = $( '.gh-header-meta .State' ).text().trim() === 'Merged';
-		const isGutenbergPr = $( ".discussion-sidebar .sidebar-labels .labels a[title='Gutenberg']" ).length;
-		const base = 'https://jurassic.ninja/create?';
-		const query = `jetpack-beta&branch=${ branch }&wp-debug-log${ isGutenbergPr ? '&gutenpack' : '' }`;
-		let link = base + query;
-		const canLiveTestText =
-			`<div id="jetpack-live-branches">
-			<h2>Jetpack Live Branches</h2>
-			<p style="height:3em;" ><a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="${ link }">${ link }</a></p>
-			<ul>
-			<li class="task-list-item enabled"><input type="checkbox" name="shortlived" class="task-list-item-checkbox">Launch a shortlived site</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="wp-debug-log" checked class="task-list-item-checkbox">Launch sites with WP_DEBUG and WP_DEBUG_LOG set to true</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="gutenberg" class="task-list-item-checkbox">Launch with Gutenberg installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="gutenpack" ${ isGutenbergPr ? 'checked' : '' } class="task-list-item-checkbox">Launch with built blocks</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="wordpress-4" class="task-list-item-checkbox">Launch with latest WordPress 4.9 instead</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="classic-editor" class="task-list-item-checkbox">Launch with Classic Editor plugin</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="woocommerce" class="task-list-item-checkbox">Launch with WooCommerce installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="code-snippets" class="task-list-item-checkbox">Launch with Code Snippets installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="wp-rollback" class="task-list-item-checkbox">Launch with WP Rollback installed</li>
-			<li class="task-list-item enabled"><input type="checkbox" name="wp-downgrade" class="task-list-item-checkbox">Launch with WP Downgrade installed</li>
-			</ul>
-			</div>`;
-		const branchIsForkedText =
-			'<div id="jetpack-live-branches">' +
-			'<h2>Jetpack Live Branches</h2>' +
-			'<p><strong>This branch can\'t be tested live because it comes from a forked version of this repo.</p>' +
-			'</div>';
-		const branchIsMergedText =
-			'<div id="jetpack-live-branches">' +
-			'<h2>Jetpack Live Branches</h2>' +
-			'<p><strong>This branch is already merged.</p>' +
-			'</div>';
-		if ( ! branchIsForked && ! branchIsMerged ) {
-			appendHtml( markdownBody, canLiveTestText );
-		} else if ( ! branchIsMerged ) {
-			appendHtml( markdownBody, branchIsForkedText );
+		const currentBranch = jQuery( '.head-ref:first' ).text();
+		const branchIsForked = currentBranch.includes( ':' );
+		const branchStatus = $( '.gh-header-meta .State' )
+			.text()
+			.trim();
+
+		if ( branchStatus === 'Merged' ) {
+			const contents = `
+				<p><strong>This branch is already merged.</strong></p>
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( 'master' ) }">
+					Test with <code>master</code> branch instead.
+				</a></p>
+			`;
+			appendHtml( markdownBody, contents );
+		} else if ( branchStatus === 'Draft' ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>This branch is a draft. You can open live branches only from open pull requests.</strong></p>'
+			);
+		} else if ( branchIsForked ) {
+			appendHtml(
+				markdownBody,
+				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
+			);
 		} else {
-			appendHtml( markdownBody, branchIsMergedText );
+			const contents = `
+				<h4>Settings</h4>
+				${ getOptionsList(
+					[
+						{
+							label: 'A shortlived site',
+							name: 'shortlived',
+						},
+						{
+							checked: true,
+							label: '<code>WP_DEBUG</code> and <code>WP_DEBUG_LOG</code> set to true',
+							name: 'wp-debug-log',
+						},
+						{
+							label: 'Multisite based on subdomains',
+							name: 'subdomain_multisite',
+						},
+						{
+							label: 'Multisite based on subdirectories',
+							name: 'subdir_multisite',
+						},
+						{
+							label: 'Pre-generate content',
+							name: 'content',
+						},
+						{
+							label: '<code>xmlrpc.php</code> unavailable',
+							name: 'blockxmlrpc',
+						},
+					],
+					100
+				) }
+				<h4>Plugins</h4>
+				${ getOptionsList(
+					[
+						{
+							label: 'WordPress Beta Tester',
+							name: 'wordpress-beta-tester',
+						},
+						{
+							label: 'Gutenberg',
+							name: 'gutenberg',
+						},
+						{
+							label: 'Classic Editor',
+							name: 'classic-editor',
+						},
+						{
+							label: 'WooCommerce',
+							name: 'woocommerce',
+						},
+						{
+							label: 'WooCommerce Beta Tester',
+							name: 'woocommerce-beta-tester',
+						},
+						{
+							label: 'Config Constants',
+							name: 'config-constants',
+						},
+						{
+							label: 'Code Snippets',
+							name: 'code-snippets',
+						},
+						{
+							label: 'WP Rollback',
+							name: 'wp-rollback',
+						},
+						{
+							label: 'WP Downgrade',
+							name: 'wp-downgrade',
+						},
+						{
+							label: 'WP Super Cache',
+							name: 'wp-super-cache',
+						},
+						{
+							label: 'WP Log Viewer',
+							name: 'wp-log-viewer',
+						},
+						{
+							label: 'WP Job Manager',
+							name: 'wp-job-manager',
+						},
+					],
+					33
+				) }
+				<p>
+					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
+				</p>
+			`;
+			appendHtml( markdownBody, contents );
+			updateLink();
 		}
 
-		function appendHtml( el, str ) {
-			const div = document.createElement( 'div' );
+		function getLink( branch ) {
+			const query = [ 'jetpack-beta', `branch=${ branch }` ];
+			$( '#jetpack-live-branches input[type=checkbox]:checked' ).each( ( i, input ) => {
+				query.push( input.name );
+			} );
+			return `https://jurassic.ninja/create?${ query.join( '&' ) }`;
+		}
+
+		function getOption( { checked = false, label, name }, columnWidth ) {
+			return `
+			<li style="min-width: ${ columnWidth }%">
+				<label style="font-weight: inherit; ">
+					<input type="checkbox" name="${ name }" ${ checked ? 'checked' : '' }>
+					${ label }
+				</label>
+			</li>
+			`;
+		}
+
+		function getOptionsList( options, columnWidth ) {
+			return `
+				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
+					${ options
+						.map( option => {
+							return getOption( option, columnWidth );
+						} )
+						.join( '' ) }
+				</ul>
+			`;
+		}
+
+		function appendHtml( el, contents ) {
 			const $el = $( el );
-			$( div ).append( str );
-			$el.append( $( div ).children().get( 0 ) );
-
-			$el.find( 'input[type=checkbox]' ).change( toggle );
+			const liveBranches = $( '<div id="jetpack-live-branches" />' ).append(
+				`<h2>Jetpack Live Branches</h2> ${ contents }`
+			);
+			$el.append( liveBranches );
+			$el.find( 'input[type=checkbox]' ).change( function( e ) {
+				e.stopPropagation();
+				e.preventDefault();
+				updateLink();
+			} );
 		}
 
-		function toggle( e ) {
-			e.stopPropagation();
-			e.preventDefault();
-			const $link = $( '#jetpack-beta-branch-link' );
-			const $this = $( this );
-			const name = $this.attr( 'name' );
-			const checked = $this.is( ':checked' );
-
-			const query_array = $link.attr( 'href' ).split( '?' )[ 1 ].split( '&' );
-
-			if ( checked ) {
-				query_array.push( name );
-				link = base + query_array.join( '&' );
-			} else {
-				link = base + query_array.filter( function( item ) {
-					return item !== name;
-				} ).join( '&' );
-			}
-			$link.attr( 'href', link );
-			$link.text( link );
+		function updateLink() {
+			const link = getLink( currentBranch );
+			$( '#jetpack-beta-branch-link' )
+				.attr( 'href', link )
+				.text( link );
 		}
 	}
 } )();

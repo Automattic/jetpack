@@ -161,7 +161,6 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 			$blocked_comment->comment_date     = $comment->comment_date;
 			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
 			$blocked_comment->comment_approved = 'jetpack_sync_blocked';
-
 			return $blocked_comment;
 		}
 
@@ -178,17 +177,20 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	}
 
 	public function expand_comment_ids( $args ) {
-		$comment_ids = $args[0];
+		list( $comment_ids, $previous_interval_end ) = $args;
 		$comments    = get_comments(
 			array(
 				'include_unapproved' => true,
 				'comment__in'        => $comment_ids,
+				'orderby'            => 'comment_ID',
+				'order'              => 'DESC',
 			)
 		);
 
 		return array(
 			$comments,
 			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$previous_interval_end,
 		);
 	}
 }

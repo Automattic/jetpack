@@ -60,6 +60,20 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
+	 */
+	function test_does_calling_get_availability_twice_result_in_notice() {
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		Jetpack_Gutenberg::get_availability();
+		Jetpack_Gutenberg::get_availability();
+		remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+	}
+
+	function register_block() {
+		jetpack_register_block( 'jetpack/apple' );
+	}
+
 	function test_registered_block_is_available() {
 		jetpack_register_block( 'jetpack/apple' );
 		$availability = Jetpack_Gutenberg::get_availability();
@@ -76,8 +90,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
 		jetpack_register_block( 'jetpack/durian' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		$this->assertFalse( $availability['durian']['available'], 'durian is available!' );
-		$this->assertEquals( $availability['durian']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );
+		$this->assertArrayNotHasKey( 'durian', $availability, 'durian is available!' );
 	}
 
 	function test_block_is_not_available_when_not_registered_returns_missing_module() {
@@ -105,8 +118,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/parsnip' );
 		$availability = Jetpack_Gutenberg::get_availability();
-		$this->assertFalse( $availability['parsnip']['available'], 'parsnip is available!' );
-		$this->assertEquals( $availability['parsnip']['unavailable_reason'], 'not_whitelisted', 'unavailable_reason is not "not_whitelisted"' );
+		$this->assertArrayNotHasKey( 'parsnip', $availability, 'parsnip is available!' );
 
 	}
 

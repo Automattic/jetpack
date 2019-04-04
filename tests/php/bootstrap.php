@@ -35,7 +35,7 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
 	// Legacy tests
 	$test_root = '/tmp/wordpress-tests-lib';
-} 
+}
 
 echo "Using test root $test_root\n";
 
@@ -85,7 +85,7 @@ function _manually_install_woocommerce() {
 	} else {
 		$GLOBALS['wp_roles']->reinit();
 	}
-	
+
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
@@ -93,7 +93,7 @@ function _manually_install_woocommerce() {
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
+		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
 	}
 }
 
@@ -107,6 +107,9 @@ if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstal
 // Load attachment helper methods.
 require dirname( __FILE__ ) . '/attachment_test_case.php';
 
+// Load WPCOM-shared helper functions.
+require dirname( __FILE__ ) . '/lib/wpcom-helper-functions.php';
+
 function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
@@ -115,8 +118,12 @@ function in_running_uninstall_group() {
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
 // @todo Remove version check when 5.1 is the minimum WP version.
-if ( version_compare( $wp_version, '5.1', '>=' ) ) {
+if ( file_exists( $test_root . '/includes/listener-loader.php' ) ) {
+	// version 5.1 and higher could have this set.
 	require $test_root . '/includes/listener-loader.php';
 } else {
-	require $test_root . '/includes/speed-trap-listener.php';
+	if ( file_exists( require $test_root . '/includes/speed-trap-listener.php' ) ) {
+		echo 'UPDATE YOUR WP CORE TESTS HELPERS!';
+		require $test_root . '/includes/speed-trap-listener.php';
+	}
 }

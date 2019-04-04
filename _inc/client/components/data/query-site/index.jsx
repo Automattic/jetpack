@@ -31,7 +31,7 @@ class QuerySite extends Component {
 		sitePlan: {},
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if (
 			! this.props.isFetchingSiteData &&
 			! this.props.isDevMode &&

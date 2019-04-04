@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PropTypes = require( 'prop-types' ),
-	throttle = require( 'lodash/throttle' );
+import React from 'react';
+
+import PropTypes from 'prop-types';
+import throttle from 'lodash/throttle';
 
 /**
  * Internal dependencies
  */
-const Label = require( './label' );
+import Label from './label';
 
 export default class ModuleChartXAxis extends React.Component {
 	static displayName = 'ModuleChartXAxis';
@@ -38,7 +39,7 @@ export default class ModuleChartXAxis extends React.Component {
 		window.removeEventListener( 'resize', this.resizeThrottled );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		this.resize( nextProps );
 	}
 

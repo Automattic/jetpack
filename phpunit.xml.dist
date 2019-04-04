@@ -14,17 +14,16 @@
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
+			<file>tests/php/test_class.jetpack-plan.php</file>
 		</testsuite>
 		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>
 		</testsuite>
 		<testsuite name="core-api">
-			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
+			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test" suffix=".php">tests/php/core-api</directory>
 		</testsuite>
 		<testsuite name="media">
-			<file>tests/php/_inc/lib/test_class.jetpack-media-extractor.php</file>
-			<file>tests/php/_inc/lib/test_class.jetpack-media-summary.php</file>
-			<file>tests/php/test_class.jetpack-post-images.php</file>
+			<directory prefix="test" suffix=".php">tests/php/media</directory>
 		</testsuite>
 		<testsuite name="photon">
 			<file>tests/php/test_class.jetpack_photon.php</file>
@@ -33,8 +32,7 @@
 			<file>tests/php/test_class.functions.opengraph.php</file>
 		</testsuite>
 		<testsuite name="json-api">
-			<file>tests/php/test_class.json-api-jetpack-endpoints.php</file>
-			<directory prefix="test_" suffix=".php">tests/php/sal</directory>
+			<directory prefix="test" suffix=".php">tests/php/json-api</directory>
 		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
