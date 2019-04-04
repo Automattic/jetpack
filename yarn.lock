@@ -1216,7 +1216,16 @@
     "@babel/runtime" "^7.3.1"
     "@wordpress/dom-ready" "^2.2.0"
 
-"@wordpress/api-fetch@2.2.8", "@wordpress/api-fetch@^2.2.8":
+"@wordpress/api-fetch@3.1.2":
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-3.1.2.tgz#f6083ce6d9b30b1ed0e537a22582dce4ae36ba35"
+  integrity sha512-QgvgNrFwCgKBoY7/1aNyYFV9lcKdI9RStVkQAitdhvpNKom8mydVf0Tm2zmC/rAx+NMZ65Gn8FoOMCMV5l/Yng==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    "@wordpress/i18n" "^3.3.0"
+    "@wordpress/url" "^2.5.0"
+
+"@wordpress/api-fetch@^2.2.8":
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-2.2.8.tgz#be9a586ccb3f5c31201d75a76eabd4b7bc2a16b2"
   integrity sha512-mbdP9GvDe8Ojv8cobk30mfg2btEZDQEe7IgO+rGSlvVlHC88U8cc2VgOLNX6c9/6/sCvkoGd4Tsy85VbdTlTXw==
