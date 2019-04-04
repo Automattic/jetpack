@@ -1,6 +1,15 @@
 <?php
 
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
+
+	public function setUp() {
+		parent::setUp();
+
+		// we need to allow external calls for embed validation
+		// TODO allow specific request(s) or mock them out with 'pre_http_request'
+		add_filter( 'tests_allow_http_request', '__return_true' );
+	}
+
 	/**
 	 * @covers ::jetpack_shortcode_instagram
 	 */
@@ -25,7 +34,6 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 		ob_start();
 		the_content();
@@ -47,7 +55,6 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		$instagram_url = 'https://www.instagram.com/tv/BkQjCfsBIzi/';
 		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 		ob_start();
 		the_content();
@@ -72,7 +79,6 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		$instagram_canonical_url = 'https://www.instagram.com/p/' . $instagram_id . '/';
 		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_original_url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 		ob_start();
 		the_content();
@@ -97,7 +103,6 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		$instagram_canonical_url = 'https://www.instagram.com/tv/' . $instagram_id . '/';
 		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_original_url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 		ob_start();
 		the_content();
