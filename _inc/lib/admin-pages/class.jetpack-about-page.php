@@ -218,6 +218,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			}
 
 			$title = wp_kses( $plugin['name'], $plugins_allowedtags );
+			$version     = wp_kses( $plugin['version'], $plugins_allowedtags );
+
+			$name = strip_tags( $title . ' ' . $version );
 
 			// Remove any HTML from the description.
 			$description = strip_tags( $plugin['short_description'] );
