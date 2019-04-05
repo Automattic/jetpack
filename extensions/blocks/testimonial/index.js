@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { createBlock } from '@wordpress/blocks';
+import { filter } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import './style.scss';
@@ -52,4 +58,44 @@ export const settings = {
 	},
 	edit: TestimonialEdit,
 	save: TestimonialSave,
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/quote', 'core/pullquote' ],
+				transform: attributes => {
+					const citationParts = ( attributes.citation || '' ).split( ', ' );
+					const author = citationParts.length === 2 ? citationParts[ 0 ] : attributes.citation;
+					const title = citationParts.length === 2 ? citationParts[ 1 ] : null;
+					return createBlock( 'jetpack/testimonial', {
+						content: attributes.value,
+						name: author,
+						title,
+					} );
+				},
+			},
+		],
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/pullquote' ],
+				transform: ( { content, name: author, title } ) => {
+					return createBlock( 'core/pullquote', {
+						value: '<p>' + content + '</p>',
+						citation: filter( [ author, title ] ).join( ', ' ),
+					} );
+				},
+			},
+			{
+				type: 'block',
+				blocks: [ 'core/quote' ],
+				transform: ( { content, name: author, title } ) => {
+					return createBlock( 'core/quote', {
+						value: '<p>' + content + '</p>',
+						citation: filter( [ author, title ] ).join( ', ' ),
+					} );
+				},
+			},
+		],
+	},
 };
