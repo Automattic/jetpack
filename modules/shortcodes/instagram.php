@@ -139,6 +139,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	$url_args = array(
 		'url'      => $instagram_http_url,
 		'maxwidth' => $atts['width'],
+		'omitscript'=> 1
 	);
 
 	if ( $atts['hidecaption'] ) {
@@ -190,10 +191,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 			false,
 			true
 		);
-		// there's a script in the response, which we strip on purpose since it's added by this ^ script
-		$ig_embed = preg_replace( '@<(script)[^>]*?>.*?</\\1>@si', '', $response_body->html );
-
-		return $ig_embed;
+		return $response_body->html;
 	}
 
 	return '<!-- instagram error: no embed found -->';
