@@ -638,4 +638,8 @@ abstract class SAL_Site {
 	function get_launch_status() {
 		return false;
 	}
+
+	function get_site_segment() {
+		return false;
+	}
 }
