@@ -1115,7 +1115,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$other_args = array_diff_key( $named_args, array_flip( $consumed_args ) );
 
 		$decoded_body = ! empty( $named_args['body'] )
-			? json_decode( $named_args['body'] )
+			? json_decode( $named_args['body'], true )
 			: false;
 
 		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
@@ -1127,7 +1127,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
 			$other_args,
 			empty( $decoded_body ) ? null : $decoded_body,
-			$named_args['base_api_path']
+			empty( $named_args['base_api_path'] ) ? 'rest' : $named_args['base_api_path']
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1173,34 +1173,46 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * [--host=<host>]
 	 * : The SSH server's address.
 	 *
-	 * [--user=<user>]
+	 * [--ssh-user=<user>]
 	 * : The username to use to log in to the SSH server.
 	 *
 	 * [--pass=<pass>]
 	 * : The password used to log in, if using a password. (optional)
-	 * ---
-	 * default:
-	 * ---
 	 *
 	 * [--kpri=<kpri>]
 	 * : The private key used to log in, if using a private key. (optional)
-	 * ---
-	 * default:
-	 * ---
 	 *
 	 * [--pretty]
-	 * : Will pretty print the results of a successful API call.
+	 * : Will pretty print the results of a successful API call. (optional)
 	 *
 	 * [--strip-success]
-	 * : Will remove the green success label from successful API calls.
+	 * : Will remove the green success label from successful API calls. (optional)
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack call_api --resource='/sites/%d'
+	 * wp jetpack upload_ssh_creds --host=example.com --ssh-user=example --pass=password
+	 * wp jetpack updload_ssh_creds --host=example.com --ssh-user=example --kpri=key
 	 */
 	public function upload_ssh_creds( $args, $named_args ) {
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$required_args = array(
+			'host',
+			'ssh-user',
+		);
+
+		foreach ( $required_args as $arg ) {
+			if ( empty( $arg ) ) {
+				WP_CLI::error(
+					sprintf(
+						/* translators: %s is a slug, such as 'host'. */
+						__( '`%s` cannot be empty.', 'jetpack' ),
+						$arg
+					)
+				);
+			}
 		}
 
 		if ( empty( $named_args['pass'] ) && empty( $named_args['kpri'] ) ) {
@@ -1209,24 +1221,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$values = array(
 			'credentials' => array(
-				'site_url' => '',
+				'site_url' => get_site_url(),
 				'abspath'  => ABSPATH,
 				'protocol' => 'ssh',
 				'port'     => 22,
 				'role'     => 'main',
 				'host'     => $named_args['host'],
-				'user'     => $named_args['user'],
-				'pass'     => empty( $named_args['pass'] ) ? null : $named_args['pass'],
-				'kpri'     => empty( $named_args['kpri'] ) ? null : $named_args['kpri'],
+				'user'     => $named_args['ssh-user'],
+				'pass'     => empty( $named_args['pass'] ) ? '' : $named_args['pass'],
+				'kpri'     => empty( $named_args['kpri'] ) ? '' : $named_args['kpri'],
 			),
 		);
 
-		$named_args = wp_parse_args( array(
-			'resource'    => '/activity-log/%d/update-credentials',
-			'method'      => 'POST',
-			'api_version' => '1.1',
-			'body'        => json_encode( $values ),
-		), $named_args );
+		$named_args = wp_parse_args(
+			array(
+				'resource'    => '/activity-log/%d/update-credentials',
+				'method'      => 'POST',
+				'api_version' => '1.1',
+				'body'        => wp_json_encode( $values ),
+				'timeout'     => 30,
+			),
+			$named_args
+		);
 
 		self::call_api( $args, $named_args );
 	}
