@@ -155,28 +155,6 @@ function notes_more_info() {
 add_filter( 'jetpack_module_more_info_notes', 'notes_more_info' );
 
 /**
- * LaTeX support link.
- */
-function latex_load_more_link() {
-	echo 'https://jetpack.com/support/beautiful-math-with-latex/';
-}
-add_filter( 'jetpack_learn_more_button_latex', 'latex_load_more_link' );
-
-/**
- * LaTeX description.
- */
-function latex_more_info() {
-	esc_html_e(
-		'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.
-		Jetpack combines the power of LaTeX and the simplicity of WordPress to give you the ultimate
-		in math blogging platforms. Use $latex your latex code here$ or [latex]your latex code here[/latex]
-		to include  in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_latex', 'latex_more_info' );
-
-/**
  * Sharing support link.
  */
 function sharedaddy_load_more_link() {
