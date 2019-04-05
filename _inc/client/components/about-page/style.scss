@@ -53,12 +53,16 @@ $color__back-link: #6c7781;
 	width: 25%;
 
 	.gravatars {
-		border: 1px solid $color__border;
 
-		&:before {
-			content: '';
-			display: block;
-			padding-top: 100%;
+		li {
+			float: left;
+			margin-bottom: 0;
+			width: 25%;
+
+			img {
+				vertical-align: top;
+				width: 100%;
+			}
 		}
 	}
 }
