@@ -938,7 +938,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'jetpack_wga', $grouped_options ) : true;
 					break;
 
-				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ) : true;
