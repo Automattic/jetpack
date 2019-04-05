@@ -66,7 +66,7 @@ export class Masthead extends React.Component {
 				''
 			),
 			isDashboardView = includes(
-				[ '/', '/dashboard', '/apps', '/my-plan', '/plans' ],
+				[ '/', '/dashboard', '/my-plan', '/plans' ],
 				this.props.route.path
 			),
 			isStatic = '' === this.props.route.path;
