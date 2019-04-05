@@ -28,7 +28,10 @@ export default ( { attributes, className } ) => {
 						width={ 50 }
 						height={ 50 }
 						alt={ name || '' }
-						className="wp-block-jetpack-testimonial__media"
+						className={ classnames(
+							'wp-block-jetpack-testimonial__media',
+							`wp-image-${ mediaId }`
+						) }
 					/>
 				) }
 
