@@ -227,14 +227,12 @@ class Main extends React.Component {
 				);
 				break;
 			case '/settings':
-			case '/general':
-			case '/engagement':
 			case '/security':
-			case '/traffic':
-			case '/discussion':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
+			case '/discussion':
+			case '/traffic':
 			case '/privacy':
 				navComponent = settingsNav;
 				pageComponent = (
@@ -339,13 +337,12 @@ window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
 	const settingRoutes = [
 		'#/settings',
-		'#/general',
-		'#/discussion',
 		'#/security',
 		'#/performance',
-		'#/traffic',
 		'#/writing',
 		'#/sharing',
+		'#/discussion',
+		'#/traffic',
 		'#/privacy',
 	];
 
