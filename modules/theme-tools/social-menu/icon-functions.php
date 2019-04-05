@@ -143,7 +143,6 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'flickr.com'        => 'flickr',
 			'foursquare.com'    => 'foursquare',
 			'goodreads.com'     => 'goodreads',
-			'plus.google.com'   => 'google-plus',
 			'google.com'        => 'google',
 			'github.com'        => 'github',
 			'instagram.com'     => 'instagram',
