@@ -2,5 +2,6 @@
 	"extends": [ "config:base" ],
 	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
-	"supportPolicy": [ "lts_latest" ]
+	"supportPolicy": [ "lts_latest" ],
+	"groupName": "all"
 }
