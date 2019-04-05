@@ -1,7 +1,6 @@
 $color__border: #e5e5e5;
 $color__back-link: #6c7781;
 
-
 .jetpack-about__link-back,
 .jetpack-about__main,
 .jetpack-about__plugin {
@@ -9,13 +8,27 @@ $color__back-link: #6c7781;
 	border: 1px solid $color__border;
 }
 
+.jetpack-about__main,
+.jetpack-about__colophon {
+	font-size: 14px;
+
+		p {
+			font-size: 14px;
+		}
+}
+
 .jetpack-about__link-back {
-	padding: 16px;
+	padding: 14px;
 	border-bottom: none;
 
 	a {
 		color: $color__back-link;
 		font-size: 0.75rem;
+
+		&:hover,
+		&:active {
+			color: darken( $color__back-link, 30% );
+		}
 
 		svg {
 			fill: $color__back-link;
@@ -35,14 +48,16 @@ $color__back-link: #6c7781;
 	width: 265px;
 }
 
-.jetpack-about__content {}
-
 .jetpack-about__text {
-	margin-right: 30%;
+	margin-right: 40%;
 
 	p {
 		font-size: 1rem;
 		line-height: 1.6;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
 	}
 }
 
@@ -50,29 +65,34 @@ $color__back-link: #6c7781;
 	float: right;
 	text-align: center;
 	margin-left: 5%;
-	width: 25%;
+	width: 35%;
+}
 
-	.gravatars {
+.jetpack-about__gravatars {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 0;
 
-		li {
-			float: left;
-			margin-bottom: 0;
-			width: 25%;
+	li {
+		margin-bottom: 0;
+		width: 25%;
 
-			img {
-				vertical-align: top;
-				width: 100%;
-			}
+		img {
+			vertical-align: top;
+			width: 100%;
 		}
 	}
 }
 
 .jetpack-about__colophon {
+	margin-bottom: 3rem;
+
 	h3 {
 		margin-top: 2.4375rem;
 	}
-	.more {
-		margin-top: 0;
+
+	.jetpack-about__services-more {
+		margin-top: 1.5em;
 		text-align: center;
 	}
 }
@@ -85,11 +105,16 @@ $color__back-link: #6c7781;
 }
 
 .jetpack-about__plugin {
-	margin-bottom: 4%;
-	width: 48%;
+	margin-bottom: 0;
+	width: 49%;
+
+	&:nth-child(n+3){
+		margin-top: 2%;
+	}
 
 	.plugin-card-top {
 		min-height: 165px;
+		padding: 20px 20px 15px;
 		position: relative;
 
 		.name,
@@ -113,18 +138,26 @@ $color__back-link: #6c7781;
 		.details-link {
 			font-weight: 500;
 		}
-
-		.desc {}
 	}
 
 	.plugin-card-bottom {
+		align-items: center;
 		background-color: $white;
-		padding
+		display: flex;
+		justify-content: space-between;
 
 		.num-ratings {
 			padding-left: 3px;
 		}
-		.column-rating {}
-		.action-links {}
+
+		.plugin-action-buttons {
+			clear: none;
+			float: none;
+			margin: 0;
+
+			li:last-child {
+				margin-bottom: 0;
+			}
+		}
 	}
 }

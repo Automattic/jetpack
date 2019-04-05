@@ -59,8 +59,8 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 */
 	function page_render() {
 		?>
-		<div class="page-content configure">
-			<div class="frame top">
+		<div class="jp-lower">
+			<div class="page-content configure">
 				<div class="jetpack-about__link-back">
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack' ) ); ?>">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>
@@ -99,8 +99,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					</div>
 					<div class="jetpack-about__content">
 						<div class="jetpack-about__images">
-							<div class="gravatars"><?php $this->display_gravatars(); ?></div>
-							<a href="https://automattic.com/about/" target="_blank"><?php esc_html_e( 'Meet the team', 'jetpack' ); ?></a>
+							<ul class="jetpack-about__gravatars">
+								<?php $this->display_gravatars(); ?>
+							</ul>
+							<p>
+								<a href="https://automattic.com/about/" target="_blank"><?php esc_html_e( 'Meet the team', 'jetpack' ); ?></a>
+							</p>
 						</div>
 
 						<div class="jetpack-about__text">
@@ -136,7 +140,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					<?php $this->display_plugins(); ?>
 					</ul>
 
-					<p class="more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/" target="_blank">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array() ) ) ); ?></p>
+					<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/" target="_blank">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array() ) ) ); ?></p>
 				</div>
 			</div>
 		</div>
@@ -403,14 +407,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			</div>
 
 			<div class="plugin-card-bottom">
-				<div class="action-links">
-					<?php
-					if ( $action_links ) {
-						echo '<ul class="plugin-action-buttons"><li>' . implode( '</li><li>', $action_links ) . '</li></ul>';
-					}
-					?>
-				</div>
-				<div class="vers column-rating">
+				<div class="meta">
 					<?php
 					wp_star_rating(
 						array(
@@ -421,21 +418,29 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					);
 					?>
 					<span class="num-ratings" aria-hidden="true">(<?php echo number_format_i18n( $plugin['num_ratings'] ); ?> <?php esc_html_e( 'ratings', 'jetpack' ); ?>)</span>
+					<div class="downloaded">
+						<?php
+						if ( $plugin['active_installs'] >= 1000000 ) {
+							$active_installs_millions = floor( $plugin['active_installs'] / 1000000 );
+							$active_installs_text     = sprintf(
+								_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
+								number_format_i18n( $active_installs_millions )
+							);
+						} elseif ( 0 == $plugin['active_installs'] ) {
+							$active_installs_text = _x( 'Less Than 10', 'Active plugin installations' );
+						} else {
+							$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
+						}
+						printf( __( '%s Active Installations' ), $active_installs_text );
+						?>
+					</div>
 				</div>
-				<div class="column-downloaded">
+
+				<div class="action-links">
 					<?php
-					if ( $plugin['active_installs'] >= 1000000 ) {
-						$active_installs_millions = floor( $plugin['active_installs'] / 1000000 );
-						$active_installs_text     = sprintf(
-							_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
-							number_format_i18n( $active_installs_millions )
-						);
-					} elseif ( 0 == $plugin['active_installs'] ) {
-						$active_installs_text = _x( 'Less Than 10', 'Active plugin installations' );
-					} else {
-						$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
+					if ( $action_links ) {
+						echo '<ul class="plugin-action-buttons"><li>' . implode( '</li><li>', $action_links ) . '</li></ul>';
 					}
-					printf( __( '%s Active Installations' ), $active_installs_text );
 					?>
 				</div>
 			</div>
@@ -504,11 +509,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		$random = array_rand( $gravatars, 16 );
 
 		foreach ( $random as $key ) {
-			$url =
-			$output .= '<li><img src="' . $gravatars[$key] . '"></li>' . "\n";
+			$output .= '<li><img src="' . $gravatars[$key] . '?s=150"></li>' . "\n";
 		}
 
-		echo '<ul>' . $output . '</ul>';
+		echo $output;
 	}
 
 }
