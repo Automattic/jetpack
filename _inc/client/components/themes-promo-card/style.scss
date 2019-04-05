@@ -1,9 +1,9 @@
-.jp-apps-card {
+.jp-themes-promo-card {
 	margin-top: rem( 64px );
 	margin-bottom: 0;
 }
 
-.jp-apps-card__content {
+.jp-themes-promo-card__content {
 	margin-bottom: 0;
 
 	&.dops-card {
@@ -15,7 +15,7 @@
 	}
 }
 
-.jp-apps-card__top {
+.jp-themes-promo-card__top {
 	padding: rem( 60px ) 0 0;
 	background: #ffffff;
 	text-align: center;
@@ -26,7 +26,7 @@
 	}
 }
 
-.jp-apps-card__description {
+.jp-themes-promo-card__description {
 	max-width: 80%;
 	margin: 0 auto;
 	padding: rem( 10px ) rem( 24px ) rem( 24px );
@@ -39,17 +39,17 @@
 	}
 }
 
-.jp-apps-card__paragraph {
+.jp-themes-promo-card__paragraph {
 	font-size: rem( 15px );
 }
 
-.jp-apps-card__header {
+.jp-themes-promo-card__header {
 	margin-top: 0;
 	margin-bottom: rem( 5px );
 	font-weight: 500;
 }
 
-.jp-apps-card__promo_subhead {
+.jp-themes-promo-card__promo_subhead {
 	margin-top: 0;
 	font-style: italic;
 }

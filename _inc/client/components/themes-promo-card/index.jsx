@@ -42,20 +42,20 @@ class ThemesPromoCard extends React.Component {
 
 		return (
 			<div className={ classes }>
-				<Card className="jp-apps-card__content">
-					<div className="jp-apps-card__top">
+				<Card className="jp-themes-promo-card__content">
+					<div className="jp-themes-promo-card__top">
 						<img src={ imagePath + 'themes.svg' } alt={ __( ' Premium Themes' ) } />
 					</div>
 
-					<div className="jp-apps-card__description">
-						<h3 className="jp-apps-card__header">{ __( 'Introducing Premium Themes' ) }</h3>
+					<div className="jp-themes-promo-card__description">
+						<h3 className="jp-themes-promo-card__header">{ __( 'Introducing Premium Themes' ) }</h3>
 						{ this.props.showBackups
 							? __(
 									'{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}' +
 										"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind: real-time backups, automatic malware scanning, and priority support from our global team of experts guarantee that your site will always be safe and secure.{{/p}}",
 									{
 										components: {
-											p: <p className="jp-apps-card__paragraph" />,
+											p: <p className="jp-themes-promo-card__paragraph" />,
 										},
 									}
 							  )
@@ -64,7 +64,7 @@ class ThemesPromoCard extends React.Component {
 										"{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}",
 									{
 										components: {
-											p: <p className="jp-apps-card__paragraph" />,
+											p: <p className="jp-themes-promo-card__paragraph" />,
 										},
 									}
 							  ) }
