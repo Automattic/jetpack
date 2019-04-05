@@ -749,7 +749,7 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	/**
-	 * Filter the default ajax action name
+	 * Filter the Sharing buttons' Ajax action name Jetpack checks for, to allow the use of the buttons with your own Ajax implementation.
 	 *
 	 * @module sharedaddy
 	 *
