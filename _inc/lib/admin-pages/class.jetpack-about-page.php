@@ -60,7 +60,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		?>
 		<div class="jp-lower">
-			<div class="page-content configure">
+			<div class="page-content">
 				<div class="jetpack-about__link-back">
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack' ) ); ?>">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>
@@ -102,7 +102,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<ul class="jetpack-about__gravatars">
 								<?php $this->display_gravatars(); ?>
 							</ul>
-							<p>
+							<p class="meet-the-team">
 								<a href="https://automattic.com/about/" target="_blank"><?php esc_html_e( 'Meet the team', 'jetpack' ); ?></a>
 							</p>
 						</div>
@@ -439,7 +439,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<div class="action-links">
 					<?php
 					if ( $action_links ) {
-						echo '<ul class="plugin-action-buttons"><li>' . implode( '</li><li>', $action_links ) . '</li></ul>';
+						echo '<ul class="action-buttons"><li>' . implode( '</li><li>', $action_links ) . '</li></ul>';
 					}
 					?>
 				</div>

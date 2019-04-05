@@ -51,6 +51,10 @@ $color__back-link: #6c7781;
 .jetpack-about__text {
 	margin-right: 40%;
 
+	@media screen and (max-width: 660px) {
+		margin-right: 0;
+	}
+
 	p {
 		font-size: 1rem;
 		line-height: 1.6;
@@ -64,14 +68,26 @@ $color__back-link: #6c7781;
 .jetpack-about__images {
 	float: right;
 	text-align: center;
+	margin-bottom: 1em;
 	margin-left: 5%;
-	width: 35%;
+	width: 36.5%;
+
+	@media screen and (max-width: 660px) {
+		margin-left: 0;
+		text-align: left;
+		width: 100%;
+	}
+
+	.meet-the-team {
+		max-width: 320px;
+		text-align: center;
+	}
 }
 
 .jetpack-about__gravatars {
 	display: flex;
 	flex-wrap: wrap;
-	margin-top: 0;
+	max-width: 320px;
 
 	li {
 		margin-bottom: 0;
@@ -107,6 +123,15 @@ $color__back-link: #6c7781;
 .jetpack-about__plugin {
 	margin-bottom: 0;
 	width: 49%;
+
+	@media screen and (max-width: 782px) {
+        width: 100%;
+        margin-top: 2%;
+
+        &:first-child {
+	        margin-top: 0;
+        }
+    }
 
 	&:nth-child(n+3){
 		margin-top: 2%;
@@ -144,16 +169,21 @@ $color__back-link: #6c7781;
 		align-items: center;
 		background-color: $white;
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: space-between;
 
-		.num-ratings {
-			padding-left: 3px;
+		.meta {
+			margin-right: 1em;
 		}
 
-		.plugin-action-buttons {
+		.num-ratings {
+			display: inline-block;
+		}
+
+		.action-buttons {
 			clear: none;
 			float: none;
-			margin: 0;
+			margin: 0.5em 0;
 
 			li:last-child {
 				margin-bottom: 0;
