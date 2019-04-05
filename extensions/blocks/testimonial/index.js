@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import './editor.scss';
+import './style.scss';
 import TestimonialEdit from './edit';
 import TestimonialSave from './save';
 import { __, _x } from '../../utils/i18n';
