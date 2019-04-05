@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { ClipboardButton, TextControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __, _x } from './i18n';
 import './clipboard-input.scss';
 
 class ClipboardInput extends Component {
@@ -38,7 +38,7 @@ class ClipboardInput extends Component {
 					onFinishCopy={ this.onFinishCopy }
 					text={ link }
 				>
-					{ hasCopied ? __( 'Copied!' ) : _x( 'Copy', 'verb' ) }
+					{ hasCopied ? __( 'Copied!', 'jetpack' ) : _x( 'Copy', 'verb', 'jetpack' ) }
 				</ClipboardButton>
 			</div>
 		);

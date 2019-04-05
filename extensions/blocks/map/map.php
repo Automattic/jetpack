@@ -23,15 +23,9 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	$dependencies = array(
-		'lodash',
-		'wp-element',
-		'wp-i18n',
-	);
-
 	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
 
-	Jetpack_Gutenberg::load_assets_as_required( 'map', $dependencies );
+	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
 	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $api_key ) . '" ', $content, 1 );
 }

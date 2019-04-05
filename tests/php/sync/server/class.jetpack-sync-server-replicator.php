@@ -207,7 +207,8 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_users':
-				foreach ( $args as $user ) {
+
+				foreach ( $args['users'] as $user ) {
 					$this->store->upsert_user( $user );
 				}
 				break;

@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { TextControl, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __ } from '../../utils/i18n';
 import SubmitButton from '../../utils/submit-button';
-import apiFetch from '@wordpress/api-fetch';
-import { sprintf, _n } from '@wordpress/i18n';
 
 class SubscriptionEdit extends Component {
 	state = {
@@ -30,7 +29,7 @@ class SubscriptionEdit extends Component {
 			return (
 				<div className={ className } role="form">
 					<ToggleControl
-						label={ __( 'Show total subscribers' ) }
+						label={ __( 'Show total subscribers', 'jetpack' ) }
 						checked={ showSubscribersTotal }
 						onChange={ () => {
 							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
@@ -61,12 +60,12 @@ class SubscriptionEdit extends Component {
 			// Handle error condition
 			if ( ! count.hasOwnProperty( 'count' ) ) {
 				this.setState( {
-					subscriberCountString: __( 'Subscriber count unavailable' ),
+					subscriberCountString: __( 'Subscriber count unavailable', 'jetpack' ),
 				} );
 			} else {
 				this.setState( {
 					subscriberCountString: sprintf(
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count ),
+						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count, 'jetpack' ),
 						count.count
 					),
 				} );

@@ -196,6 +196,57 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}
 
+	function test_full_sync_sends_previous_interval_end_for_users() {
+		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		for ( $i = 0; $i < 45; $i += 1 ) {
+			$user_ids[] = $this->factory->user->create();
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'users' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$users = $event->args['users'];
+		$previous_interval_end = $event->args['previous_end'];
+
+		// The first batch has the previous_min_is not set.
+		// We user ~0 to denote that the previous min id unknown.
+		$this->assertEquals( $previous_interval_end, '~0' );
+
+		// Since posts are order by id and the ids are in decending order
+		// the very last post should be the id with the smallest ID. ( previous_interval_end )
+		$last_user = end( $users );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$second_batch_users = $event->args['users'];
+		$previous_interval_end = $event->args['previous_end'];
+
+		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+
+		$last_user = end( $second_batch_users );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+		$previous_interval_end = $event->args['previous_end'];
+		
+		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+
+		Jetpack_Sync_Settings::reset_data();
+		$this->full_sync->reset_data();
+
+	}
+
 	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
 	function test_full_sync_sends_only_current_blog_users_in_multisite() {
 		if ( ! is_multisite() ) {
@@ -708,8 +759,39 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $this->full_sync_end_checksum['comments'] ) );
 	}
 
-	function record_full_sync_end_checksum( $checksum ) {
-		$this->full_sync_end_checksum = $checksum;
+	function test_full_sync_end_sends_range() {
+		$this->create_dummy_data_and_empty_the_queue();
+		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 2 );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+
+		$this->assertTrue( isset( $this->full_sync_end_range ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->count ) );
+
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->count ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_end' );
+
+		list( $checksum, $range ) = $event->args;
+		$this->assertTrue( isset( $range['posts']->max ) );
+		$this->assertTrue( isset( $range['posts']->min ) );
+		$this->assertTrue( isset( $range['posts']->count ) );
+
+		$this->assertTrue( isset( $range['comments']->max ) );
+		$this->assertTrue( isset( $range['comments']->min ) );
+		$this->assertTrue( isset( $range['comments']->count ) );
+	}
+
+	function record_full_sync_end_checksum( $checksum, $range ) {
+		// $checksum  has been deprecated...
+		$this->full_sync_end_range = $range;
 	}
 
 	function record_full_sync_start_config( $modules ) {
@@ -917,11 +999,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( 2, count( $users ) );
-		$this->assertEquals( $sync_user_id, $users[0]->ID );
-		$this->assertEquals( $sync_user_id_2, $users[1]->ID );
+		// The users are ordered in reverse order now.
+		$this->assertEquals( $sync_user_id_2, $users[0]->ID );
+		$this->assertEquals( $sync_user_id, $users[1]->ID );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_user_id, $sync_user_id_2 ), $sync_status['config']['users'] );
@@ -981,10 +1064,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( $existing_user_count+1, count( $users ) );
-		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
+		// the last created user should be the fist sent out.
+		$this->assertEquals( $keep_user_id, $users[ 0 ]->ID );
 	}
 
 	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {

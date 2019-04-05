@@ -16,7 +16,7 @@ const FileConfig = require( '@automattic/calypso-build/webpack/file-loader' );
 const Minify = require( '@automattic/calypso-build/webpack/minify' );
 const SassConfig = require( '@automattic/calypso-build/webpack/sass' );
 const TranspileConfig = require( '@automattic/calypso-build/webpack/transpile' );
-const wordpressExternals = require( '@automattic/calypso-build/webpack/wordpress-externals' );
+const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
 /**
  * Internal dependencies
@@ -106,7 +106,7 @@ function getWebpackConfig() {
 			rules: [
 				TranspileConfig.loader( {
 					workerCount,
-					configFile: path.join( __dirname, 'babel.config.extensions.js' ),
+					configFile: path.join( __dirname, 'babel.config.js' ),
 					cacheDirectory: true,
 					exclude: /node_modules\//,
 				} ),
@@ -137,8 +137,8 @@ function getWebpackConfig() {
 					to: 'index.json',
 				},
 			] ),
+			new WordPressExternalDependenciesPlugin(),
 		],
-		externals: [ wordpressExternals, 'wp', 'lodash' ],
 	};
 
 	return webpackConfig;

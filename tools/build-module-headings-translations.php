@@ -85,7 +85,7 @@ foreach ( $tags as $tag => $files ) {
 }
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\n\treturn \$module_tags[ \$key ];
+$file_contents .= "\n\treturn ! empty( \$module_tags[ \$key ] ) ? \$module_tags[ \$key ] : '';
 }\n";
 
 file_put_contents( "{$jp_dir}modules/module-headings.php", $file_contents );

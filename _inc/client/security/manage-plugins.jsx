@@ -33,10 +33,6 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 		}
 
 		configLink = () => {
-			if ( this.props.isUnavailableInDevMode( 'manage' ) ) {
-				return;
-			}
-
 			return (
 				<Card
 					compact

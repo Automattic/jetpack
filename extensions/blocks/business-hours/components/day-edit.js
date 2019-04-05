@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { IconButton, TextControl, ToggleControl } from '@wordpress/components';
-import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import { __ } from '../../../utils/i18n';
+import { isEmpty } from 'lodash';
 
 const defaultOpen = '09:00';
 const defaultClose = '17:00';
@@ -27,7 +23,7 @@ class DayEdit extends Component {
 					<div className={ classNames( day.name, 'business-hours__hours' ) }>
 						<TextControl
 							type="time"
-							label={ __( 'Opening' ) }
+							label={ __( 'Opening', 'jetpack' ) }
 							value={ opening }
 							className="business-hours__open"
 							placeholder={ defaultOpen }
@@ -37,7 +33,7 @@ class DayEdit extends Component {
 						/>
 						<TextControl
 							type="time"
-							label={ __( 'Closing' ) }
+							label={ __( 'Closing', 'jetpack' ) }
 							value={ closing }
 							className="business-hours__close"
 							placeholder={ defaultClose }
@@ -63,8 +59,12 @@ class DayEdit extends Component {
 					<div className="business-hours__row business-hours-row__add">
 						<div className={ classNames( day.name, 'business-hours__day' ) }>&nbsp;</div>
 						<div className={ classNames( day.name, 'business-hours__hours' ) }>
-							<IconButton isLink label={ __( 'Add Hours' ) } onClick={ this.addInterval }>
-								{ __( 'Add Hours' ) }
+							<IconButton
+								isLink
+								label={ __( 'Add Hours', 'jetpack' ) }
+								onClick={ this.addInterval }
+							>
+								{ __( 'Add Hours', 'jetpack' ) }
 							</IconButton>
 						</div>
 						<div className="business-hours__remove">&nbsp;</div>
@@ -170,7 +170,7 @@ class DayEdit extends Component {
 			<Fragment>
 				<span className="business-hours__day-name">{ localization.days[ day.name ] }</span>
 				<ToggleControl
-					label={ this.isClosed() ? __( 'Closed' ) : __( 'Open' ) }
+					label={ this.isClosed() ? __( 'Closed', 'jetpack' ) : __( 'Open', 'jetpack' ) }
 					checked={ ! this.isClosed() }
 					onChange={ this.toggleClosed }
 				/>

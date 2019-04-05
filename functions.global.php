@@ -6,7 +6,8 @@
  * This file is loaded whether or not Jetpack is active.
  *
  * Please namespace with jetpack_
- * Please write docblocks
+ *
+ * @package Jetpack
  */
 
 /**
@@ -48,14 +49,17 @@ function jetpack_is_atomic_site() {
  * @since 5.2
  */
 function jetpack_register_migration_post_type() {
-	register_post_type( 'jetpack_migration', array(
-		'supports'     => array(),
-		'taxonomies'   => array(),
-		'hierarchical' => false,
-		'public'       => false,
-		'has_archive'  => false,
-		'can_export'   => true,
-	) );
+	register_post_type(
+		'jetpack_migration',
+		array(
+			'supports'     => array(),
+			'taxonomies'   => array(),
+			'hierarchical' => false,
+			'public'       => false,
+			'has_archive'  => false,
+			'can_export'   => true,
+		)
+	);
 }
 
 /**
@@ -63,8 +67,8 @@ function jetpack_register_migration_post_type() {
  *
  * @since 5.2
  *
- * @param string $option_name
- * @param bool $option_value
+ * @param string $option_name  Option name.
+ * @param bool   $option_value Option value.
  *
  * @return int|WP_Error
  */
@@ -72,10 +76,10 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 	jetpack_register_migration_post_type();
 
 	$insert = array(
-		'post_title' => $option_name,
+		'post_title'            => $option_name,
 		'post_content_filtered' => $option_value,
-		'post_type' => 'jetpack_migration',
-		'post_date' => date( 'Y-m-d H:i:s', time() ),
+		'post_type'             => 'jetpack_migration',
+		'post_date'             => date( 'Y-m-d H:i:s', time() ),
 	);
 
 	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
@@ -92,7 +96,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
  *
  * @since 5.2
  *
- * @param string $option_name
+ * @param string $option_name Option name.
  *
  * @return mixed|null
  */
@@ -107,11 +111,22 @@ function jetpack_get_migration_data( $option_name ) {
  *
  * @since 5.3
  *
- * @return string
+ * @echo string
  */
 function jetpack_render_tos_blurb() {
 	printf(
-		__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com.', 'jetpack' ),
+		wp_kses(
+			/* Translators: placeholders are links. */
+			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
+			array(
+				'a'      => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+				'strong' => true,
+			)
+		),
 		'https://wordpress.com/tos',
 		'https://jetpack.com/support/what-data-does-jetpack-sync'
 	);
@@ -134,12 +149,17 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', esc_html__( 'Problem creating file for theme download', 'jetpack' ) );
 		}
-		$theme = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
+		$theme = pathinfo( wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
 
 		// Remove filter to avoid endless loop since wpcom_json_api_request_as_blog uses this too.
 		remove_filter( 'pre_http_request', 'jetpack_theme_update' );
 		$result = Jetpack_Client::wpcom_json_api_request_as_blog(
-			"themes/download/$theme.zip", '1.1', array( 'stream' => true, 'filename' => $file )
+			"themes/download/$theme.zip",
+			'1.1',
+			array(
+				'stream'   => true,
+				'filename' => $file,
+			)
 		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
@@ -172,14 +192,14 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  *
  * @since 6.1.0
  *
- * @param $any
- * @param array $seen_nodes
+ * @param array|obj $any        Source data to be cleaned up.
+ * @param array     $seen_nodes Built array of nodes.
  *
  * @return array
  */
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	if ( is_object( $any ) ) {
-		$input = get_object_vars( $any );
+		$input        = get_object_vars( $any );
 		$input['__o'] = 1;
 	} else {
 		$input = &$any;

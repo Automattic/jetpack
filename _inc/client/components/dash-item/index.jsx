@@ -71,10 +71,13 @@ export class DashItem extends Component {
 
 		if ( '' !== this.props.module ) {
 			toggle =
-				includes(
+				( includes(
 					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
 					this.props.module
-				) && this.props.isDevMode ? (
+				) &&
+					this.props.isDevMode ) ||
+				// Avoid toggle for manage as it's no longer a module
+				'manage' === this.props.module ? (
 					''
 				) : (
 					<ModuleToggle

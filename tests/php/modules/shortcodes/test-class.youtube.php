@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		$url = 'http://www.youtube.com/watch?v=' . $youtube_id;
 		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
-		do_action( 'init' );
+		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );
 		ob_start();
 		the_content();

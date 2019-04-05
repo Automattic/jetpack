@@ -11,6 +11,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -22,7 +23,6 @@ import './editor.scss';
 import './store';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './panel';
-import { __ } from '../../utils/i18n';
 
 export const name = 'publicize';
 
@@ -30,7 +30,7 @@ export const settings = {
 	render: () => (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'Share this post' ) }>
+				<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
 					<PublicizePanel />
 				</PanelBody>
 			</JetpackPluginSidebar>
@@ -39,7 +39,7 @@ export const settings = {
 				id="publicize-title"
 				title={
 					<span id="publicize-defaults" key="publicize-title-span">
-						{ __( 'Share this post' ) }
+						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
 			>

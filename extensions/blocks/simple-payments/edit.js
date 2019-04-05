@@ -3,11 +3,12 @@
  */
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
-import { get, isEqual, pick, trimEnd } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
+import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
+import { getCurrencyDefaults } from '@automattic/format-currency';
 import {
 	Disabled,
 	ExternalLink,
@@ -16,7 +17,6 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { getCurrencyDefaults } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -24,7 +24,6 @@ import { getCurrencyDefaults } from '@automattic/format-currency';
 import HelpMessage from './help-message';
 import ProductPlaceholder from './product-placeholder';
 import FeaturedMedia from './featured-media';
-import { __, _n } from '../../utils/i18n';
 import { decimalPlaces, formatPrice } from './utils';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 
@@ -90,34 +89,26 @@ class SimplePaymentsEdit extends Component {
 		 * When subsequent saves occur, we should avoid injecting attributes so that we do not
 		 * overwrite changes that the user has made with stale state from the previous save.
 		 */
-		if ( ! this.shouldInjectPaymentAttributes ) {
+
+		const { simplePayment } = this.props;
+		if ( ! this.shouldInjectPaymentAttributes || isEmpty( simplePayment ) ) {
 			return;
 		}
 
-		const { attributes, setAttributes, simplePayment } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
+		const { attributes, setAttributes } = this.props;
+		const { content, currency, email, featuredMediaId, multiple, price, title } = attributes;
 
-		if ( productId && simplePayment ) {
-			setAttributes( {
-				content: get( simplePayment, [ 'content', 'raw' ], content ),
-				currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
-				email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
-				featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
-				multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
-				price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
-				title: get( simplePayment, [ 'title', 'raw' ], title ),
-			} );
-			this.shouldInjectPaymentAttributes = ! this.shouldInjectPaymentAttributes;
-		}
+		setAttributes( {
+			content: get( simplePayment, [ 'content', 'raw' ], content ),
+			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
+			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
+			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
+			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
+			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
+			title: get( simplePayment, [ 'title', 'raw' ], title ),
+		} );
+
+		this.shouldInjectPaymentAttributes = ! this.shouldInjectPaymentAttributes;
 	}
 
 	toApi() {
@@ -180,9 +171,10 @@ class SimplePaymentsEdit extends Component {
 					this.setState( {
 						fieldEmailError:
 							apiErrorKey === 'spay_email'
-								? sprintf( __( '%s is not a valid email address.' ), email )
+								? sprintf( __( '%s is not a valid email address.', 'jetpack' ), email )
 								: null,
-						fieldPriceError: apiErrorKey === 'spay_price' ? __( 'Invalid price.' ) : null,
+						fieldPriceError:
+							apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null,
 					} );
 				} )
 				.finally( () => {
@@ -228,14 +220,17 @@ class SimplePaymentsEdit extends Component {
 
 		if ( ! price || parseFloat( price ) === 0 ) {
 			this.setState( {
-				fieldPriceError: __( 'If you’re selling something, you need a price tag. Add yours here.' ),
+				fieldPriceError: __(
+					'If you’re selling something, you need a price tag. Add yours here.',
+					'jetpack'
+				),
 			} );
 			return false;
 		}
 
 		if ( Number.isNaN( parseFloat( price ) ) ) {
 			this.setState( {
-				fieldPriceError: __( 'Invalid price' ),
+				fieldPriceError: __( 'Invalid price', 'jetpack' ),
 			} );
 			return false;
 		}
@@ -243,7 +238,8 @@ class SimplePaymentsEdit extends Component {
 		if ( parseFloat( price ) < 0 ) {
 			this.setState( {
 				fieldPriceError: __(
-					'Your price is negative — enter a positive number so people can pay the right amount.'
+					'Your price is negative — enter a positive number so people can pay the right amount.',
+					'jetpack'
 				),
 			} );
 			return false;
@@ -253,7 +249,8 @@ class SimplePaymentsEdit extends Component {
 			if ( precision === 0 ) {
 				this.setState( {
 					fieldPriceError: __(
-						'We know every penny counts, but prices in this currency can’t contain decimal values.'
+						'We know every penny counts, but prices in this currency can’t contain decimal values.',
+						'jetpack'
 					),
 				} );
 				return false;
@@ -264,7 +261,8 @@ class SimplePaymentsEdit extends Component {
 					_n(
 						'The price cannot have more than %d decimal place.',
 						'The price cannot have more than %d decimal places.',
-						precision
+						precision,
+						'jetpack'
 					),
 					precision
 				),
@@ -291,7 +289,8 @@ class SimplePaymentsEdit extends Component {
 		if ( ! email ) {
 			this.setState( {
 				fieldEmailError: __(
-					'We want to make sure payments reach you, so please add an email address.'
+					'We want to make sure payments reach you, so please add an email address.',
+					'jetpack'
 				),
 			} );
 			return false;
@@ -299,7 +298,7 @@ class SimplePaymentsEdit extends Component {
 
 		if ( ! emailValidator.validate( email ) ) {
 			this.setState( {
-				fieldEmailError: sprintf( __( '%s is not a valid email address.' ), email ),
+				fieldEmailError: sprintf( __( '%s is not a valid email address.', 'jetpack' ), email ),
 			} );
 			return false;
 		}
@@ -323,7 +322,8 @@ class SimplePaymentsEdit extends Component {
 		if ( ! title ) {
 			this.setState( {
 				fieldTitleError: __(
-					'Please add a brief title so that people know what they’re paying for.'
+					'Please add a brief title so that people know what they’re paying for.',
+					'jetpack'
 				),
 			} );
 			return false;
@@ -412,7 +412,7 @@ class SimplePaymentsEdit extends Component {
 		 * The only disabled state that concerns us is when we expect a product but don't have it in
 		 * local state.
 		 */
-		const isDisabled = productId && ! simplePayment;
+		const isDisabled = productId && isEmpty( simplePayment );
 
 		if ( ! isSelected && isDisabled ) {
 			return (
@@ -462,9 +462,9 @@ class SimplePaymentsEdit extends Component {
 						className={ classNames( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
-						label={ __( 'Item name' ) }
+						label={ __( 'Item name', 'jetpack' ) }
 						onChange={ this.handleTitleChange }
-						placeholder={ __( 'Item name' ) }
+						placeholder={ __( 'Item name', 'jetpack' ) }
 						required
 						type="text"
 						value={ title }
@@ -475,16 +475,16 @@ class SimplePaymentsEdit extends Component {
 
 					<TextareaControl
 						className="simple-payments__field simple-payments__field-content"
-						label={ __( 'Describe your item in a few words' ) }
+						label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						onChange={ this.handleContentChange }
-						placeholder={ __( 'Describe your item in a few words' ) }
+						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
 						value={ content }
 					/>
 
 					<div className="simple-payments__price-container">
 						<SelectControl
 							className="simple-payments__field simple-payments__field-currency"
-							label={ __( 'Currency' ) }
+							label={ __( 'Currency', 'jetpack' ) }
 							onChange={ this.handleCurrencyChange }
 							options={ this.getCurrencyList }
 							value={ currency }
@@ -494,7 +494,7 @@ class SimplePaymentsEdit extends Component {
 							className={ classNames( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
-							label={ __( 'Price' ) }
+							label={ __( 'Price', 'jetpack' ) }
 							onChange={ this.handlePriceChange }
 							placeholder={ formatPrice( 0, currency, false ) }
 							required
@@ -510,7 +510,7 @@ class SimplePaymentsEdit extends Component {
 					<div className="simple-payments__field-multiple">
 						<ToggleControl
 							checked={ Boolean( multiple ) }
-							label={ __( 'Allow people to buy more than one item at a time' ) }
+							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
 							onChange={ this.handleMultipleChange }
 						/>
 					</div>
@@ -520,9 +520,9 @@ class SimplePaymentsEdit extends Component {
 						className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
-						label={ __( 'Email' ) }
+						label={ __( 'Email', 'jetpack' ) }
 						onChange={ this.handleEmailChange }
-						placeholder={ __( 'Email' ) }
+						placeholder={ __( 'Email', 'jetpack' ) }
 						required
 						type="email"
 						value={ email }
@@ -532,10 +532,11 @@ class SimplePaymentsEdit extends Component {
 					</HelpMessage>
 					<HelpMessage id={ `${ instanceId }-email-help` }>
 						{ __(
-							'Enter the email address associated with your PayPal account. Don’t have an account?'
+							'Enter the email address associated with your PayPal account. Don’t have an account?',
+							'jetpack'
 						) + ' ' }
 						<ExternalLink href="https://www.paypal.com/">
-							{ __( 'Create one on PayPal' ) }
+							{ __( 'Create one on PayPal', 'jetpack' ) }
 						</ExternalLink>
 					</HelpMessage>
 				</div>

@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { __, _x } from '../../utils/i18n';
-import renderMaterialIcon from '../../utils/render-material-icon';
-
 import './editor.scss';
 import BusinessHours from './edit';
+import renderMaterialIcon from '../../utils/render-material-icon';
 
 /**
  * Block Registrations:
@@ -23,17 +22,17 @@ export const icon = renderMaterialIcon(
 );
 
 export const settings = {
-	title: __( 'Business Hours' ),
-	description: __( 'Display opening hours for your business.' ),
+	title: __( 'Business Hours', 'jetpack' ),
+	description: __( 'Display opening hours for your business.', 'jetpack' ),
 	icon,
 	category: 'jetpack',
 	supports: {
 		html: true,
 	},
 	keywords: [
-		_x( 'opening hours', 'block search term' ),
-		_x( 'closing time', 'block search term' ),
-		_x( 'schedule', 'block search term' ),
+		_x( 'opening hours', 'block search term', 'jetpack' ),
+		_x( 'closing time', 'block search term', 'jetpack' ),
+		_x( 'schedule', 'block search term', 'jetpack' ),
 	],
 	attributes: {
 		days: {

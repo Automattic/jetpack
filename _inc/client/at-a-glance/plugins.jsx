@@ -16,7 +16,6 @@ import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
-import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
 class DashPluginUpdates extends Component {
@@ -25,17 +24,7 @@ class DashPluginUpdates extends Component {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
 		pluginUpdates: PropTypes.any.isRequired,
-		isModuleAvailable: PropTypes.bool.isRequired,
 	};
-
-	activateAndRedirect( e ) {
-		e.preventDefault();
-		this.props
-			.activateManage()
-			.then(
-				( window.location = 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl )
-			);
-	}
 
 	getContent() {
 		const labelName = __( 'Plugin Updates' );
@@ -107,12 +96,10 @@ class DashPluginUpdates extends Component {
 
 	render() {
 		return (
-			this.props.isModuleAvailable && (
-				<div>
-					<QueryPluginUpdates />
-					{ this.getContent() }
-				</div>
-			)
+			<div>
+				<QueryPluginUpdates />
+				{ this.getContent() }
+			</div>
 		);
 	}
 }
@@ -120,5 +107,4 @@ class DashPluginUpdates extends Component {
 export default connect( state => ( {
 	pluginUpdates: getPluginUpdates( state ),
 	isDevMode: isDevMode( state ),
-	isModuleAvailable: isModuleAvailable( state, 'manage' ),
 } ) )( DashPluginUpdates );
