@@ -38,7 +38,7 @@ class ThemesPromoCard extends React.Component {
 	};
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-themes-card' );
+		const classes = classNames( this.props.className, 'jp-themes-promo-card' );
 
 		return (
 			<div className={ classes }>
