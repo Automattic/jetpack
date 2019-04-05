@@ -168,11 +168,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		$range = array();
 		// Only when we are sending the whole range do we want to send also the range
-		if ( $configs['posts'] === true ) {
+		if ( isset( $configs['posts'] ) && $configs['posts'] === true ) {
 			$range['posts'] = $this->get_range( 'posts' );
 		}
 
-		if ( $configs['comments'] === true ) {
+		if ( isset( $configs['comments'] ) && $configs['comments'] === true ) {
 			$range['comments'] = $this->get_range( 'comments' );
 		}
 
