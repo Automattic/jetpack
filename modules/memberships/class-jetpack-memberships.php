@@ -67,7 +67,7 @@ class Jetpack_Memberships {
 	 * @return array
 	 */
 	private static function get_plan_property_mapping() {
-		$meta_prefix = 'mem_';
+		$meta_prefix = 'jetpack_memberships_';
 		$properties  = array(
 			'price'    => array(
 				'meta' => $meta_prefix . 'price',
