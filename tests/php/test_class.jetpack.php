@@ -841,7 +841,7 @@ EXPECTED;
 		$this->assertSame( $user_id, $verified['user_id'] );
 
 		// Clear cached verification.
-		$jetpack::$instance = false;
+		Jetpack::$instance = false;
 		$jetpack            = Jetpack::init();
 
 		$_GET['nonce']     = $nonce;
