@@ -281,6 +281,12 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
 	}
 
+	shouldShowSupportCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
+
 	render() {
 		return (
 			<div>
@@ -290,7 +296,7 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
-					{ this.props.isSiteConnected && <SupportCard path={ this.props.route.path } /> }
+					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
