@@ -20,8 +20,6 @@
 /class.jetpack-gutenberg.php @automattic/gutenpack
 /extensions/ @automattic/gutenpack
 
-/sync/ @automattic/poseidon
-/tests/php/sync @automattic/poseidon
 
 # Catch-all owners, the Jetpack Crew
 # Please leave this at the bottom of the list
