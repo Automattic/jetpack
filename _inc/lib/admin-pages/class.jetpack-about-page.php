@@ -447,6 +447,8 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	}
 
 	function display_gravatars() {
+		$output = '';
+
 		// just placeholders for now, ideally we nab these from a8c servers
 		$gravatars = array(
 			'https://2.gravatar.com/avatar/5ef318426c941cbef6db5342c1356231',
@@ -507,7 +509,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		}
 
 		echo '<ul>' . $output . '</ul>';
-
 	}
 
 }
