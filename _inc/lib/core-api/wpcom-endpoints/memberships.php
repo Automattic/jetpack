@@ -156,9 +156,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			if ( ! $connected_account_id ) {
-				$connect_url = $data['connect_url'];
+				$connect_url = empty( $data['connect_url'] ) ? '' : $data['connect_url'];
 			}
-			$products = $data['products'];
+			$products = empty( $data['products'] ) ? array() : $data['products'];
 		}
 		return array(
 			'connected_account_id' => $connected_account_id,
