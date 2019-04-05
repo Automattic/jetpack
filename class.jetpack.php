@@ -89,7 +89,6 @@ class Jetpack {
 		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
 		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
 		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
 	static $capability_translations = array(
@@ -136,14 +135,6 @@ class Jetpack {
 		),
 		'minileven'         => array(
 			'WPtouch'                              => 'wptouch/wptouch.php',
-		),
-		'latex'             => array(
-			'LaTeX for WordPress'                  => 'latex/latex.php',
-			'Youngwhans Simple Latex'              => 'youngwhans-simple-latex/yw-latex.php',
-			'Easy WP LaTeX'                        => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
-			'MathJax-LaTeX'                        => 'mathjax-latex/mathjax-latex.php',
-			'Enable Latex'                         => 'enable-latex/enable-latex.php',
-			'WP QuickLaTeX'                        => 'wp-quicklatex/wp-quicklatex.php',
 		),
 		'protect'           => array(
 			'Limit Login Attempts'                 => 'limit-login-attempts/limit-login-attempts.php',
@@ -7184,7 +7175,7 @@ p {
 	public static function jetpack_tos_agreed() {
 		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
 	}
-	
+
 	/**
 	 * Handles activating default modules as well general cleanup for the new connection.
 	 *
