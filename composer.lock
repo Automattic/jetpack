@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98dc18f800232681a90f631a517fa148",
+    "content-hash": "f9343bd861e38447caedb321de72a45e",
     "packages": [
         {
             "name": "composer/installers",
@@ -354,16 +354,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.6.0",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "f72e025d8d715f984d037e2b646891e7161eb64b"
+                "reference": "92047deef6f97c058b8bb1ac43c8f57009454198"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/f72e025d8d715f984d037e2b646891e7161eb64b",
-                "reference": "f72e025d8d715f984d037e2b646891e7161eb64b",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/92047deef6f97c058b8bb1ac43c8f57009454198",
+                "reference": "92047deef6f97c058b8bb1ac43c8f57009454198",
                 "shasum": ""
             },
             "require": {
@@ -397,7 +397,7 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2019-02-15T01:41:58+00:00"
+            "time": "2019-04-01T22:46:44+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
