@@ -471,7 +471,7 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
-		$script_deps_path     = self::get_blocks_directory() . $type . '/view.deps.json';
+		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
 
 		$script_dependencies   = file_exists( $script_deps_path )
 			? json_decode( file_get_contents( $script_deps_path ) )
