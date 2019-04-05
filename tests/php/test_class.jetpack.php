@@ -1,6 +1,6 @@
 <?php
 
-require_once WP_CONTENT_DIR . '/plugins/jetpack/class.jetpack.php';
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
