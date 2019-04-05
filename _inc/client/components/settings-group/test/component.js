@@ -18,7 +18,6 @@ describe( 'SettingsGroup', () => {
 			'minileven',
 			'contact-form',
 			'sitemaps',
-			'latex',
 			'carousel',
 			'tiled-gallery',
 			'custom-content-types',

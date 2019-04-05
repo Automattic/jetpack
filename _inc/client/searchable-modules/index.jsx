@@ -44,7 +44,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				'custom-css',
 				'enhanced-distribution',
 				'json-api',
-				'latex',
 				'notes',
 				'shortcodes',
 				'shortlinks',
