@@ -186,7 +186,7 @@
 		"chai": "4.2.0",
 		"commander": "2.19.0",
 		"copy-webpack-plugin": "5.0.2",
-		"danger": "7.0.17",
+		"danger": "7.0.19",
 		"enzyme": "3.9.0",
 		"enzyme-adapter-react-16": "1.11.2",
 		"enzyme-to-json": "3.3.5",
