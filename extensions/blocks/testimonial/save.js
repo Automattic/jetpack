@@ -2,33 +2,55 @@
  * External dependencies
  */
 import { RichText } from '@wordpress/editor';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
 //import { __ } from '../../utils/i18n';
 
-export default ( { attributes: { name, title, content, mediaUrl, mediaId }, className } ) => (
-	<div className={ className }>
-		<RichText.Content
-			tagName="div"
-			className="wp-block-jetpack-testimonial__content"
-			value={ content }
-		/>
-		{ mediaId && mediaUrl && <img src={ mediaUrl } alt="" /> }
-		{ name && (
+export default ( { attributes, className } ) => {
+	const { align, content, name, title, mediaUrl, mediaId } = attributes;
+	const hasMedia = mediaUrl && mediaId;
+
+	const alignmentClass = align && `is-aligned-${ align }`;
+	return (
+		<div className={ classnames( className, alignmentClass ) }>
 			<RichText.Content
 				tagName="div"
-				className="wp-block-jetpack-testimonial__name"
-				value={ name }
+				className="wp-block-jetpack-testimonial__content"
+				value={ content }
 			/>
-		) }
-		{ title && (
-			<RichText.Content
-				tagName="div"
-				className="wp-block-jetpack-testimonial__title"
-				value={ title }
-			/>
-		) }
-	</div>
-);
+			<div className="wp-block-jetpack-testimonial__author">
+				{ hasMedia && (
+					<img
+						src={ mediaUrl }
+						width={ 50 }
+						height={ 50 }
+						alt={ name || '' }
+						className="wp-block-jetpack-testimonial__media"
+					/>
+				) }
+
+				{ ( name || title ) && (
+					<div className="wp-block-jetpack-testimonial__meta">
+						{ name && (
+							<RichText.Content
+								tagName="div"
+								className="wp-block-jetpack-testimonial__name"
+								value={ name }
+							/>
+						) }
+						{ title && (
+							<RichText.Content
+								tagName="div"
+								className="wp-block-jetpack-testimonial__title"
+								value={ title }
+							/>
+						) }
+					</div>
+				) }
+			</div>
+		</div>
+	);
+};
