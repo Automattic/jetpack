@@ -804,30 +804,61 @@ EXPECTED;
 		) );
 		wp_set_current_user( $user_id );
 
-		$token = sprintf( 'token:%d:%d', JETPACK__API_VERSION, $user_id );
+		$nonce     = wp_create_nonce();
+		$timestamp = time();
+		$token     = sprintf( 'token:%d:%d', JETPACK__API_VERSION, $user_id );
+
+		$_SERVER['REQUEST_URI'] = '/endpoint';
+		$jetpack_signature = new Jetpack_Signature( 'token.1', (int) Jetpack_Options::get_option( 'time_diff' ) );
+		$signature         = $jetpack_signature->sign_current_request( array(
+			'nonce'     => $nonce,
+			'timestamp' => $timestamp,
+			'token'     => $token,
+		) );
 
 		// No signature.
 		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( null, null, time(), wp_create_nonce() ) );
-
-		$_GET['nonce']     = wp_create_nonce();
-		$_GET['timestamp'] = time();
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( null, null, $timestamp, $nonce ) );
 
 		// Empty token_key.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( '::1', md5( '' ), time(), wp_create_nonce() ) );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( '::1', $signature, $timestamp, $nonce ) );
 		// Wrong version.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( 'token::1', md5( '' ), time(), wp_create_nonce() ) );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( 'token::1', $signature, $timestamp, $nonce ) );
 		// Empty user.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:', JETPACK__API_VERSION ), md5( '' ), time(), wp_create_nonce() ) );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:', JETPACK__API_VERSION ), $signature, $timestamp, $nonce ) );
 		// User doesn't exist.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:12', JETPACK__API_VERSION ), md5( '' ), time(), wp_create_nonce() ) );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:12', JETPACK__API_VERSION ), $signature, $timestamp, $nonce ) );
 		// No token.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token, md5( '' ), time(), wp_create_nonce()) );
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token,$signature, $timestamp, $nonce ) );
 
-		Jetpack_Options::update_option( 'master_user', $user_id );
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token, md5( '' ), time(), wp_create_nonce()) );
+		// Set user token.
+		Jetpack::update_user_token( $user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $user_id ), true );
 
+		// Success with function parameters.
+		$verified = $jetpack->verify_xml_rpc_signature( $token, $signature, $timestamp, $nonce );
+		$this->assertInternalType( 'array', $verified );
+		$this->assertSame( 'user', $verified['type'] );
+		$this->assertSame( $user_id, $verified['user_id'] );
+
+		// Clear cached verification.
+		$jetpack::$instance = false;
+		$jetpack            = Jetpack::init();
+
+		$_GET['nonce']     = $nonce;
+		$_GET['timestamp'] = $timestamp;
+		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
+
+		$_GET['token']     = $token;
+		$_GET['signature'] = $signature;
+
+		// Success with request parameters.
+		$verified = $jetpack->verify_xml_rpc_signature();
+		$this->assertInternalType( 'array', $verified );
+		$this->assertSame( 'user', $verified['type'] );
+		$this->assertSame( $user_id, $verified['user_id'] );
+
+		// Cleanup.
+		Jetpack_Options::delete_option( array( 'user_tokens', 'master_user' ) );
 	}
 
 	static function __cyrillic_salt( $password ) {
