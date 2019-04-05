@@ -759,7 +759,12 @@ function sharing_display( $text = '', $echo = false ) {
 	$ajax_action = apply_filters( 'sharing_ajax_action', 'get_latest_posts' );
 
 	// Allow to be used in ajax requests for latest posts.
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && $ajax_action == $_REQUEST['action'] ) {
+	if (
+		defined( 'DOING_AJAX' )
+		&& DOING_AJAX
+		&& isset( $_REQUEST['action'] )
+		&& $ajax_action === $_REQUEST['action']
+	) {
 		$show = true;
 	}
 
