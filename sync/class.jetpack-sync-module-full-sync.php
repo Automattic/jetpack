@@ -187,20 +187,20 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function get_range( $type ) {
 		global $wpdb;
-		if( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
+		if ( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
 			return array();
 		}
 
 		switch ( $type ) {
 			case 'posts':
-				$table = $wpdb->posts;
-				$id = 'ID';
+				$table     = $wpdb->posts;
+				$id        = 'ID';
 				$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
 
 				break;
 			case 'comments':
-				$table = $wpdb->comments;
-				$id = 'comment_ID';
+				$table     = $wpdb->comments;
+				$id        = 'comment_ID';
 				$where_sql = Jetpack_Sync_Settings::get_comments_filter_sql();
 				break;
 		}
@@ -208,6 +208,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		if ( isset( $results[0] ) ) {
 			return $results[0];
 		}
+
 		return array();
 	}
 
