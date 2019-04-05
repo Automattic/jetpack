@@ -191,7 +191,6 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 			false,
 			true
 		);
-		//no need for preg replace as the js file is automatically omitted via api call
 		return $response_body->html;
 	}
 
