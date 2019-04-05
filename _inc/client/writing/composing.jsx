@@ -199,6 +199,7 @@ export class Composing extends React.Component {
 	render() {
 		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
 			foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
+			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' );
 
 		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD ) {
@@ -206,6 +207,7 @@ export class Composing extends React.Component {
 		}
 
 		const markdown = this.props.module( 'markdown' ),
+			latex = this.props.module( 'latex' ),
 			atd = this.props.module( 'after-the-deadline' ),
 			copyPost = this.props.module( 'copy-post' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
@@ -264,6 +266,27 @@ export class Composing extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 			),
+			latexSettings = (
+				<SettingsGroup
+					module={ latex }
+					support={ {
+						text: __( 'Use LaTeX markup for complex equations and other geekery.' ),
+						link: 'https://jetpack.com/support/beautiful-math-with-latex/',
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="latex"
+							activated={ !! this.props.getOptionValue( 'latex' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'latex' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'latex' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">{ latex.description }</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
 			atdSettings = (
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
@@ -301,6 +324,7 @@ export class Composing extends React.Component {
 			>
 				{ foundCopyPost && copyPostSettings }
 				{ foundMarkdown && markdownSettings }
+				{ foundLatex && latexSettings }
 				{ foundAtD && atdSettings }
 			</SettingsCard>
 		);
