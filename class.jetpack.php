@@ -5205,19 +5205,19 @@ p {
 			}
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id );
-		if ( ! $token ) {
+		$access_token = Jetpack_Data::get_access_token( $user_id );
+		if ( ! $access_token ) {
 			return false;
 		}
 
 		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
+		if ( ! hash_equals( substr( $access_token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
-		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
+		$jetpack_signature = new Jetpack_Signature( $access_token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
 			$post_data   = $_POST;
 			$file_hashes = array();
@@ -5243,9 +5243,12 @@ p {
 			$body = null;
 		}
 
-		$signature = $jetpack_signature->sign_current_request(
-			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
-		);
+		$signature = $jetpack_signature->sign_current_request( array(
+			'body'      => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body,
+			'nonce'     => $nonce,
+			'timestamp' => $timestamp,
+			'token'     => $token,
+		) );
 
 		if ( ! $signature ) {
 			return false;
@@ -5292,7 +5295,7 @@ p {
 
 		$this->xmlrpc_verification = array(
 			'type'    => $token_type,
-			'user_id' => $token->external_user_id,
+			'user_id' => $access_token->external_user_id,
 		);
 
 		return $this->xmlrpc_verification;
