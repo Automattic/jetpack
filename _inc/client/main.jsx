@@ -50,6 +50,8 @@ import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
+const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
@@ -275,6 +277,12 @@ class Main extends React.Component {
 		);
 	};
 
+	shouldShowAppsCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
+
 	render() {
 		return (
 			<div>
@@ -285,7 +293,7 @@ class Main extends React.Component {
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.props.isSiteConnected && <SupportCard path={ this.props.route.path } /> }
-					{ this.props.isSiteConnected && <AppsCard /> }
+					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
@@ -330,17 +338,16 @@ export default connect(
 window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
 	const settingRoutes = [
-			'#/settings',
-			'#/general',
-			'#/discussion',
-			'#/security',
-			'#/performance',
-			'#/traffic',
-			'#/writing',
-			'#/sharing',
-			'#/privacy',
-		],
-		dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+		'#/settings',
+		'#/general',
+		'#/discussion',
+		'#/security',
+		'#/performance',
+		'#/traffic',
+		'#/writing',
+		'#/sharing',
+		'#/privacy',
+	];
 
 	// Clear currents
 	jQuery( '.current' ).each( function( i, obj ) {
