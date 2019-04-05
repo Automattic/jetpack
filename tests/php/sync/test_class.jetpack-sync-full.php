@@ -759,8 +759,39 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $this->full_sync_end_checksum['comments'] ) );
 	}
 
-	function record_full_sync_end_checksum( $checksum ) {
-		$this->full_sync_end_checksum = $checksum;
+	function test_full_sync_end_sends_range() {
+		$this->create_dummy_data_and_empty_the_queue();
+		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 2 );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+
+		$this->assertTrue( isset( $this->full_sync_end_range ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->count ) );
+
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->count ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_end' );
+
+		list( $checksum, $range ) = $event->args;
+		$this->assertTrue( isset( $range['posts']->max ) );
+		$this->assertTrue( isset( $range['posts']->min ) );
+		$this->assertTrue( isset( $range['posts']->count ) );
+
+		$this->assertTrue( isset( $range['comments']->max ) );
+		$this->assertTrue( isset( $range['comments']->min ) );
+		$this->assertTrue( isset( $range['comments']->count ) );
+	}
+
+	function record_full_sync_end_checksum( $checksum, $range ) {
+		// $checksum  has been deprecated...
+		$this->full_sync_end_range = $range;
 	}
 
 	function record_full_sync_start_config( $modules ) {
