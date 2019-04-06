@@ -4093,9 +4093,9 @@ damerau-levenshtein@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.4.tgz#03191c432cb6eea168bb77f3a55ffdccb8978514"
 
-danger@7.0.19:
-  version "7.0.19"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-7.0.19.tgz#aa3d976fc7bfa616e1537ad8951c0d13f0a1c42d"
+danger@7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-7.1.0.tgz#1bfb606822ad554c93678f62ee410d9f9c772055"
   dependencies:
     "@babel/polyfill" "^7.2.5"
     "@octokit/rest" "^16.14.1"
@@ -4114,8 +4114,10 @@ danger@7.0.19:
     lodash.includes "^4.3.0"
     lodash.isobject "^3.0.2"
     lodash.keys "^4.0.8"
+    lodash.mapvalues "^4.6.0"
     lodash.memoize "^4.1.2"
     memfs-or-file-map-to-github-branch "^1.1.0"
+    micromatch "^3.1.10"
     node-cleanup "^2.1.2"
     node-fetch "^2.3.0"
     override-require "^1.1.1"
@@ -7997,6 +7999,10 @@ lodash.keys@~2.4.1:
     lodash._isnative "~2.4.1"
     lodash._shimkeys "~2.4.1"
     lodash.isobject "~2.4.1"
+
+lodash.mapvalues@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.mapvalues/-/lodash.mapvalues-4.6.0.tgz#1bafa5005de9dd6f4f26668c30ca37230cc9689c"
 
 lodash.memoize@^4.1.2:
   version "4.1.2"
