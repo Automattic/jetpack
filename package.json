@@ -165,7 +165,7 @@
 		"whatwg-fetch": "1.1.1"
 	},
 	"devDependencies": {
-		"@automattic/calypso-build": "1.0.0-alpha.2",
+		"@automattic/calypso-build": "1.0.0-alpha.3",
 		"@automattic/calypso-color-schemes": "1.0.0",
 		"@automattic/wordpress-external-dependencies-plugin": "1.0.0-alpha.0",
 		"@babel/core": "7.4.0",
