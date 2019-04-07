@@ -1,14 +1,17 @@
 <?php
 /**
- * Jetpack Debugger functionality allowing for self-service diagnostic information.
+ * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
  * @package jetpack
  */
 
+/** Ensure the Jetpack_Debug_Data class is available. It should be via the library loaded, but defense is good. */
+require_once 'class-jetpack-debug-data.php';
+
 /**
  * Class Jetpack_Debugger
  *
- * A namespacing class for functionality related to the in-plugin diagnostic tooling.
+ * A namespacing class for functionality related to the legacy in-plugin diagnostic tooling.
  */
 class Jetpack_Debugger {
 
@@ -18,9 +21,8 @@ class Jetpack_Debugger {
 	 * @return string The plan slug prepended with "JetpackPlan"
 	 */
 	private static function what_jetpack_plan() {
-		$plan = Jetpack_Plan::get();
-		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
-		return 'JetpackPlan' . $plan;
+		// Specifically not deprecating this function since it modifies the output of the Jetpack_Debug_Data::what_jetpack_plan return.
+		return 'JetpackPlan' . Jetpack_Debug_Data::what_jetpack_plan();
 	}
 
 	/**
@@ -28,33 +30,15 @@ class Jetpack_Debugger {
 	 *
 	 * A dedication function instead of using Core functionality to allow for output in seconds.
 	 *
+	 * @deprecated 7.3.0
+	 *
 	 * @param int $seconds Number of seconds to convert to human time.
 	 *
 	 * @return string Human readable time.
 	 */
 	public static function seconds_to_time( $seconds ) {
-		$seconds = intval( $seconds );
-		$units   = array(
-			'week'   => WEEK_IN_SECONDS,
-			'day'    => DAY_IN_SECONDS,
-			'hour'   => HOUR_IN_SECONDS,
-			'minute' => MINUTE_IN_SECONDS,
-			'second' => 1,
-		);
-		// specifically handle zero.
-		if ( 0 === $seconds ) {
-			return '0 seconds';
-		}
-		$human_readable = '';
-		foreach ( $units as $name => $divisor ) {
-			$quot = intval( $seconds / $divisor );
-			if ( $quot ) {
-				$human_readable .= "$quot $name";
-				$human_readable .= ( abs( $quot ) > 1 ? 's' : '' ) . ', ';
-				$seconds        -= $quot * $divisor;
-			}
-		}
-		return substr( $human_readable, 0, -2 );
+		_deprecated_function( 'Jetpack_Debugger::seconds_to_time', 'Jetpack 7.3.0', 'Jeptack_Debug_Data::seconds_to_time' );
+		return Jetpack_Debug_Data::seconds_to_time( $seconds );
 	}
 
 	/**
@@ -90,6 +74,7 @@ class Jetpack_Debugger {
 	 * Handles output to the browser for the in-plugin debugger.
 	 */
 	public static function jetpack_debug_display_handler() {
+		global $wp_version;
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jetpack' ) );
 		}
@@ -151,14 +136,14 @@ class Jetpack_Debugger {
 		/* translators: The number of items waiting to be synced. */
 		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue size: %1$s', 'jetpack' ), $queue->size() );
 		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $queue->lag() ) );
+		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), Jetpack_Debug_Data::seconds_to_time( $queue->lag() ) );
 
 		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
 
 		/* translators: The number of items waiting to be synced. */
 		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
 		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
+		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), Jetpack_Debug_Data::seconds_to_time( $full_sync_queue->lag() ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 		$idc_urls = array(
@@ -328,14 +313,33 @@ class Jetpack_Debugger {
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
 				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
-				echo sprintf(
-					wp_kses(
-						/* translators: URL for Jetpack support. */
-						__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
-						array( 'a' => array( 'href' => array() ) )
-					),
-					'https://jetpack.com/contact-support/'
-				);
+				/**
+				 * Offload to new WordPress debug data in WP 5.2+
+				 *
+				 * @todo remove fallback when 5.2 is the minimum supported.
+				 */
+				if ( version_compare( $wp_version, '5.2-alpha', '>=' ) ) {
+					echo sprintf(
+						wp_kses(
+							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
+							__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
+							array( 'a' => array( 'href' => array() ) )
+						),
+						'https://jetpack.com/contact-support/',
+						esc_url( admin_url() . 'site-health.php?tab=debug' )
+					);
+					$hide_debug = true;
+				} else { // Versions before 5.2, fallback.
+					echo sprintf(
+						wp_kses(
+							/* translators: URL for Jetpack support. */
+							__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
+							array( 'a' => array( 'href' => array() ) )
+						),
+						'https://jetpack.com/contact-support/'
+					);
+					$hide_debug = false;
+				}
 				?>
 						</p>
 				<hr />
@@ -391,11 +395,17 @@ class Jetpack_Debugger {
 				?>
 			</div>
 		<hr />
-		<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
+			<?php
+			if ( ! $hide_debug ) {
+				?>
+			<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
 			<div id="debug_info_div">
-			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-			<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
-		</div>
+				<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
+				<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
+			</div>
+				<?php
+			}
+			?>
 		</div>
 		<?php
 	}
