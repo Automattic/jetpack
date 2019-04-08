@@ -20,8 +20,8 @@ const path = require( 'path' );
 /**
  * Internal variables
  */
-const editorSetup = path.join( __dirname, 'extensions', 'setup', 'editor' );
-const viewSetup = path.join( __dirname, 'extensions', 'setup', 'view' );
+const editorSetup = path.join( __dirname, 'extensions', 'editor' );
+const viewSetup = path.join( __dirname, 'extensions', 'view' );
 
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -29,7 +29,7 @@ function blockScripts( type, inputDir, presetBlocks ) {
 		.filter( fs.existsSync );
 }
 
-const presetPath = path.join( __dirname, 'extensions', 'setup', 'index.json' );
+const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetBlocks = _.get( presetIndex, [ 'production' ], [] );
 const presetBetaBlocks = _.get( presetIndex, [ 'beta' ], [] );

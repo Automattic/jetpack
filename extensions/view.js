@@ -1,4 +1,4 @@
 /**
  * Internal dependencies
  */
-import './public-path';
+import './shared/public-path';
