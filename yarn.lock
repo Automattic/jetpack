@@ -2,13 +2,15 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-alpha.3":
-  version "1.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-alpha.3.tgz#552693c068810184c45de6ab131e691957da1647"
-  integrity sha512-4l011zIs8IddrZHL3pvVD3ZaPq9y4mVp1cgS4IcDF1Ivekgt3/E8+sw5ox3Ho74xpnmPvUkt9HflB3MOmtM3PQ==
+"@automattic/calypso-build@1.0.0-alpha.4":
+  version "1.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-alpha.4.tgz#4df46dc2ebaeb34f8d1b3ca4568e7e766cf70c02"
+  integrity sha512-mTWuIq1txyEFr88GyCwu8agYVhvXoyTJDlKharth0z58SGL+0l18iv/tr72iCi6FEZbaR779lVnMmvjPSednOA==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0-alpha.0"
+    "@babel/plugin-transform-react-jsx" "7.3.0"
+    "@wordpress/babel-plugin-import-jsx-pragma" "2.1.0"
     autoprefixer "9.4.4"
     babel-loader "8.0.5"
     browserslist "4.5.4"
