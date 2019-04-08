@@ -136,10 +136,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
+		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.deps.json';
+		$script_dependencies = file_exists( $script_deps_path )
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies[] = 'wp-polyfill';
+
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			array( 'wp-i18n', 'wp-polyfill' ),
+			$script_dependencies,
 			JETPACK__VERSION,
 			true
 		);
