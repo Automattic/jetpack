@@ -92,22 +92,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_config( $full_sync_config );
 		$this->set_enqueue_status( $enqueue_status );
 
-		$range = array();
-		// Only when we are sending the whole range do we want to send also the range
-		if ( isset( $full_sync_config['posts'] ) && $full_sync_config['posts'] === true ) {
-			$range['posts'] = $this->get_range( 'posts' );
-		}
-
-		if ( isset( $full_sync_config['comments'] ) && $full_sync_config['comments'] === true ) {
-			$range['comments'] = $this->get_range( 'comments' );
-		}
-
+		$range = $this->get_content_range( $full_sync_config );
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
 		 *
 		 * @since 4.2.0
-		 * $range added in 7.3.0
+		 * @param $full_sync_config - array
+		 * @param $range array @since 7.3.0
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 
@@ -177,21 +169,15 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
 		$this->update_status_option( 'queue_finished', time(), true );
 
-		$range = array();
-		// Only when we are sending the whole range do we want to send also the range
-		if ( isset( $configs['posts'] ) && $configs['posts'] === true ) {
-			$range['posts'] = $this->get_range( 'posts' );
-		}
-
-		if ( isset( $configs['comments'] ) && $configs['comments'] === true ) {
-			$range['comments'] = $this->get_range( 'comments' );
-		}
+		$range = $this->get_content_range( $configs );
 
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
 		 *
 		 * @since 4.2.0
+		 * @param args ''
+		 * @param $range array @since 7.3.0
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
@@ -221,6 +207,19 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		}
 
 		return array();
+	}
+
+	private function get_content_range( $config ) {
+		$range = array();
+		// Only when we are sending the whole range do we want to send also the range
+		if ( isset( $config['posts'] ) && $config['posts'] === true ) {
+			$range['posts'] = $this->get_range( 'posts' );
+		}
+
+		if ( isset( $config['comments'] ) && $config['comments'] === true ) {
+			$range['comments'] = $this->get_range( 'comments' );
+		}
+		return $range;
 	}
 
 	function update_sent_progress_action( $actions ) {
