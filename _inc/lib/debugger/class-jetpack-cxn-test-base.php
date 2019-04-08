@@ -51,21 +51,91 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Adds a new test to the Jetpack Connection Testing suite.
 	 *
-	 * @param callable $callable Test to add to queue.
-	 * @param array    $groups Testing groups to add test to.
+	 * @since 7.1.0
+	 * @since 7.3.0 Adds name parameter and returns WP_Error on failure.
 	 *
-	 * @return bool True if successfully added. False for a failure.
+	 * @param callable $callable Test to add to queue.
+	 * @param string   $name Unique name for the test.
+	 * @param string   $type   Optional. Core Site Health type: 'direct' if test can be run during initial load or 'async' if test should run async.
+	 * @param array    $groups Optional. Testing groups to add test to.
+	 *
+	 * @return mixed True if successfully added. WP_Error on failure.
 	 */
-	public function add_test( $callable, $groups = array( 'default' ) ) {
+	public function add_test( $callable, $name, $type = 'direct', $groups = array( 'default' ) ) {
+		if ( is_array( $name ) ) {
+			// Pre-7.3.0 method passed the $groups parameter here.
+			return new WP_Error( __( 'add_test arguments changed in 7.3.0. Please reference inline documentation.', 'jetpack' ) );
+		}
+		if ( array_key_exists( $name, $this->tests ) ) {
+			return new WP_Error( __( 'Test names must be unique.', 'jetpack' ) );
+		}
 		if ( is_callable( $callable ) ) {
-			$this->tests[] = array(
+			$this->tests[ $name ] = array(
 				'test'  => $callable,
 				'group' => $groups,
+				'type'  => $type,
 			);
 			return true;
 		}
 
-		return false;
+		return new WP_Error( __( 'Tests must be valid PHP callables.', 'jetpack' ) );
+	}
+
+	/**
+	 * Lists all tests to run.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $type Optional. Core Site Health type: 'direct' or 'async'. All by default.
+	 * @param string $group Optional. A specific testing group. All by default.
+	 *
+	 * @return array $tests Array of tests with test information.
+	 */
+	public function list_tests( $type = 'all', $group = 'all' ) {
+		if ( ! ( 'all' === $type || 'direct' === $type || 'async' === $type ) ) {
+			_doing_it_wrong( 'Jetpack_Cxn_Test_Base->list_tests', 'Type must be all, direct, or async', '7.3.0' );
+		}
+
+		$tests = array();
+		foreach ( $this->tests as $name => $value ) {
+			// Get all valid tests by group staged.
+			if ( 'all' === $group ) {
+				$tests[ $name ] = $value;
+			} elseif ( $group === $value['group'] ) {
+				$tests[ $name ] = $value;
+			}
+
+			// Next filter out any that do not match the type.
+			if ( 'all' !== $type ) {
+				if ( $type !== $value['type'] ) {
+					unset( $tests[ $name ] );
+				}
+			}
+		}
+
+		return $tests;
+	}
+
+	/**
+	 * Run a specific test.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $name Name of test.
+	 *
+	 * @return mixed $result Test result array or WP_Error if invalid name. {
+	 * @type string $name Test name
+	 * @type mixed  $pass True if passed, false if failed, 'skipped' if skipped.
+	 * @type string $message Human-readable test result message.
+	 * @type string $resolution Human-readable resolution steps.
+	 * }
+	 */
+	public function run_test( $name ) {
+		if ( array_key_exists( $name, $this->tests ) ) {
+			return call_user_func( $this->tests[ $name ] );
+		}
+
+		return new WP_Error( __( 'There is no test by that name: ', 'jetpack' ) . $name );
 	}
 
 	/**

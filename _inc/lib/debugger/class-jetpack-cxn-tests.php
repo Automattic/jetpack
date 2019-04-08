@@ -22,7 +22,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			if ( false === strpos( $method, 'test__' ) ) {
 				continue;
 			}
-			$this->add_test( array( $this, $method ) );
+			$this->add_test( array( $this, $method ), $method, 'direct' );
 		}
 
 		/**
@@ -44,8 +44,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			 * Intentionally added last as it checks for an existing failure state before attempting.
 			 * Generally, any failed location condition would result in the WP.com check to fail too, so
 			 * we will skip it to avoid confusing error messages.
+			 *
+			 * Note: This really should be an 'async' test.
 			 */
-			$this->add_test( array( $this, 'last__wpcom_self_test' ) );
+			$this->add_test( array( $this, 'last__wpcom_self_test' ), 'test__wpcom_self_test', 'direct' );
 		}
 	}
 
