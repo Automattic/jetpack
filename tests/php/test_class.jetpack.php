@@ -797,12 +797,8 @@ EXPECTED;
 	 * @covers ::verify_xml_rpc_signature
 	 */
 	function test_verify_xml_rpc_signature() {
-		$jetpack = Jetpack::init();
-		$user_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1994-01-01 00:00:00',
-		) );
-		wp_set_current_user( $user_id );
+		$jetpack = MockJetpack::init();
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		$nonce     = wp_create_nonce();
 		$timestamp = time();
@@ -832,7 +828,7 @@ EXPECTED;
 		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token,$signature, $timestamp, $nonce ), 'Expected that there was no user token.' );
 
 		// Set user token.
-		Jetpack::update_user_token( $user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $user_id ), true );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $user_id ) ) );
 
 		// Success with function parameters.
 		$verified = $jetpack->verify_xml_rpc_signature( $token, $signature, $timestamp, $nonce );
@@ -841,8 +837,7 @@ EXPECTED;
 		$this->assertSame( $user_id, $verified['user_id'], 'Expected user id to match with supplied user id.' );
 
 		// Clear cached verification.
-		Jetpack::$instance = false;
-		$jetpack            = Jetpack::init();
+		$jetpack->reset_saved_auth_state();
 
 		$_GET['nonce']     = $nonce;
 		$_GET['timestamp'] = $timestamp;
@@ -858,7 +853,20 @@ EXPECTED;
 		$this->assertSame( $user_id, $verified['user_id'], 'Expected user id to match with supplied user id.' );
 
 		// Cleanup.
-		Jetpack_Options::delete_option( array( 'user_tokens', 'master_user' ) );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		$_SERVER['REQUEST_URI'] = '';
+		unset(
+			$_SERVER['HTTP_CONTENT_TYPE'],
+			$GLOBALS['HTTP_RAW_POST_DATA'],
+			$_GET['token'],
+			$_GET['timestamp'],
+			$_GET['nonce'],
+			$_GET['body-hash'],
+			$_GET['signature']
+		);
+
+		wp_delete_user( $user_id );
+		$jetpack->reset_saved_auth_state();
 	}
 
 	static function __cyrillic_salt( $password ) {
