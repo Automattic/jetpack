@@ -10,7 +10,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import ClipboardInput from '../../utils/clipboard-input';
+import ClipboardInput from '../../shared/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
 export const name = 'shortlinks';

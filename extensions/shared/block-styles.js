@@ -34,19 +34,3 @@ export function getActiveStyleName( styles, className ) {
 	const style = getActiveStyle( styles, className );
 	return style ? style.name : null;
 }
-
-export function getDefaultStyleClass( styles ) {
-	const defaultStyle = find( styles, 'isDefault' );
-	return defaultStyle ? `is-style-${ defaultStyle.name }` : null;
-}
-
-/**
- * Checks if className has a class selector starting with `is-style-`
- * Does not check validity of found style.
- *
- * @param  {String}  classNames Optional. Space separated classNames. Defaults to ''.
- * @return {Boolean} true if `classNames` has a Gutenberg style class
- */
-export function hasStyleClass( classNames = '' ) {
-	return classNames.split( ' ' ).some( className => className.startsWith( 'is-style-' ) );
-}

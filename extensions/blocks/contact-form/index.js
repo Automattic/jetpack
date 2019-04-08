@@ -16,7 +16,7 @@ import JetpackField from './components/jetpack-field';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 export const name = 'contact-form';
 

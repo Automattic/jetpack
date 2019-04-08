@@ -13,8 +13,8 @@ import { InnerBlocks, InspectorControls } from '@wordpress/editor';
  * Internal dependencies
  */
 import HelpMessage from '../../../shared/help-message';
-import renderMaterialIcon from '../../../utils/render-material-icon';
-import SubmitButton from '../../../utils/submit-button';
+import renderMaterialIcon from '../../../shared/render-material-icon';
+import SubmitButton from '../../../shared/submit-button';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',

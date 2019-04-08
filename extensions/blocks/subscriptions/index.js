@@ -11,7 +11,7 @@ import { RawHTML } from '@wordpress/element';
  */
 import edit from './edit';
 import save from './save';
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 export const name = 'subscriptions';
 export const settings = {

@@ -9,7 +9,7 @@ import { TextControl, ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import SubmitButton from '../../utils/submit-button';
+import SubmitButton from '../../shared/submit-button';
 
 class SubscriptionEdit extends Component {
 	state = {
