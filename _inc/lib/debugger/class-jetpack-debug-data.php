@@ -112,7 +112,7 @@ class Jetpack_Debug_Data {
 	 *         @type boolean $private  Optional. Set to true if data is sensitive (API keys, etc).
 	 * }
 	 */
-	private static function debug_data() {
+	public static function debug_data() {
 		$debug_info = array();
 
 		/* Add various important Jetpack options */

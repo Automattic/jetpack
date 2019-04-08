@@ -79,116 +79,16 @@ class Jetpack_Debugger {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jetpack' ) );
 		}
 
-		$user_id     = get_current_user_id();
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
-			$user_token = $user_tokens[ $user_id ];
-		} else {
-			$user_token = '[this user has no token]';
-		}
-		unset( $user_tokens );
-
-		$debug_info = "\r\n";
-		foreach ( array(
-			'CLIENT_ID'   => 'id',
-			'BLOG_TOKEN'  => 'blog_token',
-			'MASTER_USER' => 'master_user',
-			'CERT'        => 'fallback_no_verify_ssl_certs',
-			'TIME_DIFF'   => 'time_diff',
-			'VERSION'     => 'version',
-			'OLD_VERSION' => 'old_version',
-			'PUBLIC'      => 'public',
-		) as $label => $option_name ) {
-			$debug_info .= "\r\n" . esc_html( $label . ': ' . Jetpack_Options::get_option( $option_name ) );
+		$data       = Jetpack_Debug_Data::debug_data();
+		$debug_info = '';
+		foreach ( $data as $datum ) {
+			$debug_info .= $datum['label'] . ': ' . $datum['value'] . "\r\n";
 		}
 
-		$debug_info .= "\r\n" . esc_html( 'USER_ID: ' . $user_id );
-		$debug_info .= "\r\n" . esc_html( 'USER_TOKEN: ' . $user_token );
 		$debug_info .= "\r\n" . esc_html( 'PHP_VERSION: ' . PHP_VERSION );
 		$debug_info .= "\r\n" . esc_html( 'WORDPRESS_VERSION: ' . $GLOBALS['wp_version'] );
-		$debug_info .= "\r\n" . esc_html( 'JETPACK__VERSION: ' . JETPACK__VERSION );
-		$debug_info .= "\r\n" . esc_html( 'JETPACK__PLUGIN_DIR: ' . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( 'SITE_URL: ' . site_url() );
 		$debug_info .= "\r\n" . esc_html( 'HOME_URL: ' . home_url() );
-		$debug_info .= "\r\n" . esc_html( 'PLAN: ' . self::what_jetpack_plan() );
-
-		$debug_info .= "\r\n";
-
-		$debug_info .= "\r\n" . '-- SYNC Status -- ';
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		if ( $sync_module ) {
-			$sync_statuses              = $sync_module->get_status();
-			$human_readable_sync_status = array();
-			foreach ( $sync_statuses  as $sync_status => $sync_status_value ) {
-				$human_readable_sync_status[ $sync_status ] =
-					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ), true )
-						? date( 'r', $sync_status_value ) : $sync_status_value;
-			}
-			/* translators: A string reporting status. Example: "started" */
-			$debug_info .= "\r\n" . sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		}
-
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
-
-		/* translators: The number of items waiting to be synced. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue size: %1$s', 'jetpack' ), $queue->size() );
-		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), Jetpack_Debug_Data::seconds_to_time( $queue->lag() ) );
-
-		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
-
-		/* translators: The number of items waiting to be synced. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
-		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), Jetpack_Debug_Data::seconds_to_time( $full_sync_queue->lag() ) );
-
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-		$idc_urls = array(
-			'home'       => Jetpack_Sync_Functions::home_url(),
-			'siteurl'    => Jetpack_Sync_Functions::site_url(),
-			'WP_HOME'    => Jetpack_Constants::is_defined( 'WP_HOME' ) ? Jetpack_Constants::get_constant( 'WP_HOME' ) : '',
-			'WP_SITEURL' => Jetpack_Constants::is_defined( 'WP_SITEURL' ) ? Jetpack_Constants::get_constant( 'WP_SITEURL' ) : '',
-		);
-		/* translators: List of URLs. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync IDC URLs: %s', wp_json_encode( $idc_urls ) ) );
-		/* translators: String of a current option. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync error IDC option: %s', wp_json_encode( Jetpack_Options::get_option( 'sync_error_idc' ) ) ) );
-		/* translators: String of a current option. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync IDC Optin: %s', (string) Jetpack::sync_idc_optin() ) );
-
-		$debug_info .= "\r\n";
-
-		foreach ( array(
-			'HTTP_HOST',
-			'SERVER_PORT',
-			'HTTPS',
-			'GD_PHP_HANDLER',
-			'HTTP_AKAMAI_ORIGIN_HOP',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_CLIENT_IP',
-			'HTTP_FASTLY_CLIENT_IP',
-			'HTTP_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_INCAP_CLIENT_IP',
-			'HTTP_TRUE_CLIENT_IP',
-			'HTTP_X_CLIENTIP',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_IP_TRAIL',
-			'HTTP_X_REAL_IP',
-			'HTTP_X_VARNISH',
-			'REMOTE_ADDR',
-		) as $header ) {
-			if ( isset( $_SERVER[ $header ] ) ) {
-				$debug_info .= "\r\n" . esc_html( $header . ': ' . $_SERVER[ $header ] );
-			}
-		}
-
-		$debug_info .= "\r\n" . esc_html( 'PROTECT_TRUSTED_HEADER: ' . wp_json_encode( get_site_option( 'trusted_ip_header' ) ) );
 
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 
