@@ -31,6 +31,10 @@ const attributes = {
 		type: 'number',
 		default: 3,
 	},
+	ids: {
+		default: [],
+		type: 'array',
+	},
 	images: {
 		type: 'array',
 		default: [],
