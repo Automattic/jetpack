@@ -416,10 +416,12 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block.
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
+	 *                                    detected script dependencies from the webpack build.
 	 *
 	 * @return void
 	 */
-	public static function load_assets_as_required( $type ) {
+	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -427,7 +429,7 @@ class Jetpack_Gutenberg {
 
 		$type = sanitize_title_with_dashes( $type );
 		self::load_styles_as_required( $type );
-		self::load_scripts_as_required( $type );
+		self::load_scripts_as_required( $type, $script_dependencies );
 	}
 
 	/**
@@ -454,16 +456,19 @@ class Jetpack_Gutenberg {
 		}
 
 	}
+
 	/**
 	 * Only enqueue block scripts when needed.
 	 *
 	 * @param string $type Slug of the block.
+	 * @param array  $dependencies Script dependencies. Will be merged with automatically
+	 *                             detected script dependencies from the webpack build.
 	 *
 	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
-	public static function load_scripts_as_required( $type ) {
+	public static function load_scripts_as_required( $type, $dependencies = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -473,10 +478,10 @@ class Jetpack_Gutenberg {
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
 
-		$script_dependencies   = file_exists( $script_deps_path )
+		$script_dependencies = file_exists( $script_deps_path )
 			? json_decode( file_get_contents( $script_deps_path ) )
 			: array();
-		$script_dependencies[] = 'wp-polyfill';
+		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
 
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
