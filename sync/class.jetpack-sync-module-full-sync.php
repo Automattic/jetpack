@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
-		add_action( 'jetpack_full_sync_start', $callable );
+		add_action( 'jetpack_full_sync_start', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
@@ -92,13 +92,24 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_config( $full_sync_config );
 		$this->set_enqueue_status( $enqueue_status );
 
+		$range = array();
+		// Only when we are sending the whole range do we want to send also the range
+		if ( isset( $full_sync_config['posts'] ) && $full_sync_config['posts'] === true ) {
+			$range['posts'] = $this->get_range( 'posts' );
+		}
+
+		if ( isset( $full_sync_config['comments'] ) && $full_sync_config['comments'] === true ) {
+			$range['comments'] = $this->get_range( 'comments' );
+		}
+
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
 		 *
 		 * @since 4.2.0
+		 * $range added in 7.3.0
 		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config );
+		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 

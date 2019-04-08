@@ -17,11 +17,29 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_enqueues_sync_start_action() {
+		$post = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post, 11 );
+
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 		$this->assertTrue( $start_event !== false );
+
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+
+		list( $config, $range ) = $start_event->args;
+
+		$this->assertTrue( $config !== false );
+
+		$this->assertTrue( isset( $range['posts']->max ) );
+		$this->assertTrue( isset( $range['posts']->min ) );
+		$this->assertTrue( isset( $range['posts']->count ) );
+
+		$this->assertTrue( isset( $range['comments']->max ) );
+		$this->assertTrue( isset( $range['comments']->min ) );
+		$this->assertTrue( isset( $range['comments']->count ) );
+
 	}
 
 	// this only applies to the test replicastore - in production we overlay data
@@ -40,6 +58,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+
+
+
 	}
 
 	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
