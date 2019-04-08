@@ -58,9 +58,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
-
-
-
 	}
 
 	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
