@@ -6,7 +6,7 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash';
 import classNames from 'classnames';
 import createReactClass from 'create-react-class';
 

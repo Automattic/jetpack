@@ -8,8 +8,7 @@ import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
-import includes from 'lodash/includes';
-import get from 'lodash/get';
+import { get, includes } from 'lodash';
 
 /**
  * Internal dependencies

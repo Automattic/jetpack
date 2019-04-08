@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-// import get from 'lodash/get';
-// import includes from 'lodash/includes';
+// import { get, includes } from 'lodash';
 import classNames from 'classnames';
 
 /**

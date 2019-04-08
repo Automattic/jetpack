@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import analytics from 'lib/analytics';
 
 /**

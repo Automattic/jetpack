@@ -5,11 +5,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
-import isEmpty from 'lodash/isEmpty';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
-import get from 'lodash/get';
+import { get, includes, isEmpty } from 'lodash';
 
 /**
  * Internal dependencies

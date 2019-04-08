@@ -2,8 +2,7 @@
  * External dependencies
  */
 import url from 'url';
-
-import pick from 'lodash/pick';
+import { pick } from 'lodash';
 
 /**
  * Given a URL or path and search terms, returns a path including the search

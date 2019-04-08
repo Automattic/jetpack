@@ -2,10 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-
 import PropTypes from 'prop-types';
-import noop from 'lodash/noop';
-import throttle from 'lodash/throttle';
+import { noop, throttle } from 'lodash';
 
 /**
  * Internal dependencies

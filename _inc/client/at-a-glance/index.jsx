@@ -5,8 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import chunk from 'lodash/chunk';
-import get from 'lodash/get';
+import { chunk, get } from 'lodash';
 
 /**
  * Internal dependencies

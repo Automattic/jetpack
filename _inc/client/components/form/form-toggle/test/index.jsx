@@ -4,7 +4,7 @@
 import assert from 'assert';
 import React from 'react';
 import ReactDOM, { TestUtils } from 'react-dom';
-import unique from 'lodash/uniq';
+import { unique } from 'lodash';
 
 /**
  * Internal dependencies

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import concat from 'lodash/concat';
-import without from 'lodash/without';
+import { concat, without } from 'lodash';
 
 /**
  * Internal dependencies

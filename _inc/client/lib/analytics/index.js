@@ -2,7 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import assign from 'lodash/assign';
+import { assign } from 'lodash';
 
 /**
  * Internal dependencies
