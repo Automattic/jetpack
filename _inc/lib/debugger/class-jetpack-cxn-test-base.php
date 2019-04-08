@@ -12,6 +12,8 @@
 
 /**
  * "Unit Tests" for the Jetpack connection.
+ *
+ * @since 7.1.0
  */
 class Jetpack_Cxn_Test_Base {
 
@@ -183,13 +185,18 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a failing test.
 	 *
+	 * @since 7.1.0
+	 * @since 7.3.0 Added $action for resolution action link, $severity for issue severity.
+	 *
 	 * @param string $name Test name.
 	 * @param string $message Message detailing the failure.
-	 * @param string $resolution Steps to resolve.
+	 * @param string $resolution Optional. Steps to resolve.
+	 * @param string $action Optional. URL to direct users to self-resolve.
+	 * @param string $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false ) {
+	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical' ) {
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
 			case 'cycle_connection':
@@ -208,6 +215,8 @@ class Jetpack_Cxn_Test_Base {
 			'pass'       => false,
 			'message'    => $message,
 			'resolution' => $resolution,
+			'action'     => $action,
+			'severity'   => $severity,
 		);
 	}
 
@@ -237,6 +246,68 @@ class Jetpack_Cxn_Test_Base {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Output results of failures in format expected by Core's Site Health tool.
+	 *
+	 * Specifically not asking for a testing group since we're opinionated that Site Heath should see all.
+	 *
+	 * @return array Array of test results
+	 */
+	public function output_results_for_core_site_health() {
+		$result = array(
+			'label'       => __( 'Jetpack is fired up and working great.', 'jetpack' ),
+			'status'      => 'good',
+			'badge'       => array(
+				'label' => __( 'Jetpack', 'jetpack' ),
+				'color' => 'green',
+			),
+			'description' => sprintf(
+				'<p>%s</p>',
+				__( "Jetpack's local testing suite passed all tests!", 'jetpack' )
+			),
+			'actions'     => '',
+			'test'        => 'jetpack_debugger_local_testing_suite_core',
+		);
+
+		if ( $this->pass() ) {
+			return $result;
+		}
+
+		$fails = $this->list_fails();
+		$error = false;
+		foreach ( $fails as $fail ) {
+			if ( ! $error ) {
+				$error                 = true;
+				$result['label']       = $fail['message'];
+				$result['status']      = $fail['severity'];
+				$result['description'] = sprintf(
+					'<p>%s</p>',
+					$fail['resolution']
+				);
+				if ( ! empty( $fail['action'] ) ) {
+					$result['actions'] = sprintf(
+						'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+						esc_url( $fail['action'] ),
+						__( 'Resolve', 'jetpack' ),
+						/* translators: accessibility text */
+						__( '(opens in a new tab)', 'jetpack' )
+					);
+				}
+			} else {
+				$result['description'] .= sprintf(
+					'<p>%s</p>',
+					__( 'There was another problem:', 'jetpack' )
+				) . ' ' . $fail['message'] . ': ' . $fail['resolution'];
+				if ( 'critical' === $fail['severity'] ) { // In case the initial failure is only "recommended".
+					$result['status'] = 'critical';
+				}
+			}
+		}
+
+		return $result;
+
 	}
 
 	/**
