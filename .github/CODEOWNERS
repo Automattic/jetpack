@@ -26,4 +26,4 @@
 * @automattic/jetpack-crew
 
 /sync/ @automattic/poseidon @automattic/jetpack-crew
-/tests/php/sync @automattic/poseidon @automattic/jetpack-crew
+/tests/php/sync/ @automattic/poseidon @automattic/jetpack-crew
