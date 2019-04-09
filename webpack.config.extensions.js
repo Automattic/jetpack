@@ -56,14 +56,17 @@ const editorBetaScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), allPresetBlocks ),
 ];
 
-const webpackConfig = getBaseWebpackConfig( null, {
-	entry: {
-		editor: editorScript,
-		'editor-beta': editorBetaScript,
-		...viewBlocksScripts,
-	},
-	'output-path': path.join( __dirname, '_inc', 'blocks' ),
-} );
+const webpackConfig = getBaseWebpackConfig(
+	{ WP: true },
+	{
+		entry: {
+			editor: editorScript,
+			'editor-beta': editorBetaScript,
+			...viewBlocksScripts,
+		},
+		'output-path': path.join( __dirname, '_inc', 'blocks' ),
+	}
+);
 
 module.exports = {
 	...webpackConfig,
