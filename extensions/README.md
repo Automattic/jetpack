@@ -3,7 +3,7 @@
 This directory contains the source code for extensions in the new post editor,
 also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
 
-## How do I develop post editor extensions in Jetpack?
+## How do I develop block editor extensions in Jetpack?
 
 - Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 - Start a new branch.
@@ -16,7 +16,7 @@ also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpres
 - Once the code works well in both enviornments, and has been approved by a Jetpack crew member, you can merge your branch!
 
 ## What if I need to manually create a WordPress.com diff?
-You can build blocks from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
+You can build extensions from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
 
 ```bash
 yarn build-extensions \
@@ -24,7 +24,7 @@ yarn build-extensions \
   --watch
 ```
 
-Alternatively, if you don’t need to touch PHP files, you can build blocks in the Jetpack folder without --output-path and use rsync to push files directly to your sandbox:
+Alternatively, if you don’t need to touch PHP files, you can build extensions in the Jetpack folder without --output-path and use rsync to push files directly to your sandbox:
 
 
 ```bash
@@ -43,14 +43,16 @@ Generally, all new extensions should start out as beta.
 - Once you've sucessfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in extensions/index.json.
 
-## How do I merge blocks to Jetpack
+## How do I merge extensions to Jetpack
 - Jetpack is released once a month (PCYsg-eg5-p2), so be sure your team's schedule is aware of code freezes.
 - Make sure you and your team have tested your PR in both the Jetpack environment, and the WordPress.com environment.
 - Additionally, your PR will require approval from a Jetpack crew member.
+- Once merged, your extension will appear in the next release.
 
-## How do I deploy to WordPress.com?
-- merge to Jetpack master first
-- then merge the auto-generated diff on WordPress.com
+## How do I merge extensions to WordPress.com?
+- Extensions are continuously deployed to WordPress.com, just like other parts of Jetpack.
+- Merge to Jetpack master first.
+- Now, merge the auto-generated diff on WordPress.com. There's no need to wait on release schedules.
 
 ## Can I use Jurassic Ninja to test blocks?
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
