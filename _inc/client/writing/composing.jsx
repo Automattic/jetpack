@@ -270,7 +270,9 @@ export class Composing extends React.Component {
 				<SettingsGroup
 					module={ latex }
 					support={ {
-						text: __( 'Use LaTeX markup for complex equations and other geekery.' ),
+						text: __(
+							'Use the LaTeX markup language to write mathematical equations and formulas.'
+						),
 						link: 'https://jetpack.com/support/beautiful-math-with-latex/',
 					} }
 				>
