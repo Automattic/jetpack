@@ -276,11 +276,11 @@ class GalleryEdit extends Component {
 				</ul>
 				<DropZone onFilesDrop={ this.addFiles } />
 				{ isSelected && (
-					<div className="wp-block-jetpack-slideshow__add-item">
+					<div className="wp-block-jetpack-logo-gallery__add-item">
 						<FormFileUpload
 							multiple
 							isLarge
-							className="wp-block-jetpack-slideshow__add-item-button"
+							className="wp-block-jetpack-logo-gallery__add-item-button"
 							onChange={ this.uploadFromFiles }
 							accept="image/*"
 							icon="insert"
