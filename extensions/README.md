@@ -1,17 +1,21 @@
 # Jetpack Block Editor Extensions
 
-This directory lists extensions for the Block Editor, also known as Gutenberg,
-[that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
+This directory contains the source code for extensions in the new post editor,
+also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
 
-## How do I develop blocks in Jetpack?
+## How do I develop post editor extensions in Jetpack?
 
 - Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
-- Modify files in extensions/ directory.
-- To build blocks run `yarn build-extensions` [--watch].
-- Jetpack wp-admin should be your primary way to develop and test blocks
-- Then test them on WPCOM before deploying.
+- Start a new branch.
+- Add your new extension's files to the extensions/blocks directory.
+- Or modify existing extensions in the same folder.
+- Run `yarn build-extensions [--watch]` to compile your changes.
+- Now test your changes in your docker environment's wp-admin.
+- Open a PR, and a WordPress.com diff will be automatically generated with your changes.
+- Test the WordPress.com diff
+- Once the code works well in both enviornments, and has been approved by a Jetpack crew member, you can merge your branch!
 
-## How do I develop with WPCOM / Calypso?
+## What if I need to manually create a WordPress.com diff?
 You can build blocks from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
 
 ```bash
@@ -30,18 +34,20 @@ YOUR_WPCOM_SANDBOXUSERNAME@YOUR_WPCOM_SANDBOX.wordpress.com:/home/wpcom/public_h
 
 Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
-## BETA BLOCKS
-Explain beta blocks process here
+## BETA Extenstions
+Generally, all new extensions should start out as beta.
+
+- Before you develop, remember to add your extension's slug to the beta array in extensions/index.json.
+- Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
 
 ## How do I merge blocks to Jetpack
-- All Jetpack patches need a review from the Jetpack Crew team
-- Jetpack is released once a month (PCYsg-eg5-p2)
-- TODO
+- Jetpack is released once a month (PCYsg-eg5-p2), so be sure your team's schedule is aware of code freezes.
+- Make sure you and your team have tested your PR in both the Jetpack environment, and the WordPress.com environment.
+- Additionally, your PR will require approval from a Jetpack crew member.
 
-## How do I deploy to wpcom?
+## How do I deploy to WordPress.com?
 - merge to Jetpack master first
-- sync the blocks using Fusion (PCYsg-fkM-p2)
-- TODO
+- then merge the auto-generated diff on WordPress.com
 
 ## Can I use Jurassic Ninja to test blocks?
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
@@ -57,7 +63,7 @@ We define different types of block editor extensions:
 
 ## Extension Structure
 
-Extensions loosely follow this structure:
+Extensions in the `extensions/blocks` folder loosely follow this structure:
 
 ```
 .
@@ -77,8 +83,12 @@ If your block depends on another block, place them all in extensions folder:
 └── sub-blockname/
 ```
 
-Notes:
+## The Build
 
-Remember to add any block-related files (including Webpack and Babel build scripts) to Fusion so that blocks can be built on wpcom as well.
+- Compiled extensions are output to `_inc/blocks`
+- You can view the various build commands in package.json
+- You can see the build configuration in webpack.config.extensions.js
 
-(we should document that somewhere and add link to docs above those lines in `build-plugin-files.php`)
+If you need to modify the build process, bear in mind that config files are also
+synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
+you test the new build in both environments.
