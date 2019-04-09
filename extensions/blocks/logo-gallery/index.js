@@ -16,6 +16,10 @@ const blockAttributes = {
 		type: 'string',
 		default: 'medium',
 	},
+	ids: {
+		default: [],
+		type: 'array',
+	},
 	images: {
 		type: 'array',
 		default: [],
