@@ -39,6 +39,9 @@ Generally, all new extensions should start out as beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in extensions/index.json.
 - Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
+- In the WordPress.com environment, a12s will be able to see beta extensions with no further configuration
+- Once you've sucessfully beta tested your new extension, you can open new PR to make your extension live!
+- Simply move the extension's slug out of the beta array and into the production array in extensions/index.json.
 
 ## How do I merge blocks to Jetpack
 - Jetpack is released once a month (PCYsg-eg5-p2), so be sure your team's schedule is aware of code freezes.
