@@ -1,0 +1,40 @@
+//block variables 
+$logo-gallery-selection:  #0085ba; // Gutenberg primary theme color (https://github.com/WordPress/gutenberg/blob/6928e41c8afd7daa3a709afdda7eee48218473b7/bin/packages/post-css-config.js#L4)
+$logo-gallery-selection-color: #fff;
+
+.wp-block-jetpack-logo-gallery {
+	list-style-type: none;
+    padding: 0;
+    text-align: center;
+
+	.logo-gallery-item {
+        display: inline-block;
+        vertical-align: middle;
+		margin: 0 16px 16px 0; // Add space between thumbnails
+
+		figure {
+			margin: 0;
+			height: 100%;
+		}
+
+		img {
+            display: block;
+            width: 100%;
+			max-width: 180px;
+			height: auto;
+		}
+	}
+
+	// Last item always needs margins reset.
+	.logo-gallery-item:last-child {
+		margin-right: 0;
+	}
+}
+
+.wp-block-jetpack-logo-gallery.is-small .logo-gallery-item img {
+    max-width: 120px;
+}
+
+.wp-block-jetpack-logo-gallery.is-large .logo-gallery-item img {
+    max-width: 240px;
+}

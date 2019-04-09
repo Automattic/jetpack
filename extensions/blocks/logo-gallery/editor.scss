@@ -1,0 +1,62 @@
+@import './style.scss';
+
+// Override the default list style type _only in the editor_
+// to avoid :not() selector specificity issues.
+// See https://github.com/WordPress/gutenberg/pull/10358
+ul.wp-block-jetpack-logo-gallery li {
+	list-style-type: none;
+}
+
+.logo-gallery-item {
+	position: relative;
+
+	// Hide the focus outline that otherwise briefly appears when selecting a block.
+	figure:not(.is-selected):focus {
+		outline: none;
+	}
+
+	img:focus,
+	.is-selected {
+		outline: 4px solid $logo-gallery-selection;
+	}
+
+	.is-transient img {
+		opacity: 0.3;
+	}
+
+}
+
+.logo-gallery-item__inline-menu {
+	padding: 2px;
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	background-color: $logo-gallery-selection;
+	display: inline-flex;
+	z-index: 20;
+
+	.components-button {
+		color: $logo-gallery-selection-color;
+
+		&:hover,
+		&:focus {
+			color: $logo-gallery-selection-color;
+		}
+	}
+}
+
+.logo-gallery-item__remove {
+	padding: 0;
+
+	&.components-button:focus {
+		color: inherit;
+	}
+}
+
+.logo-gallery-item .components-spinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -9px;
+	margin-left: -9px;
+}
