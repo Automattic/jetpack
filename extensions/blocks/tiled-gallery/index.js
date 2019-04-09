@@ -74,11 +74,6 @@ const blockAttributes = {
 				selector: 'img',
 				source: 'attribute',
 			},
-			caption: {
-				selector: 'figcaption',
-				source: 'html',
-				type: 'string',
-			},
 			height: {
 				attribute: 'data-height',
 				selector: 'img',
@@ -151,11 +146,10 @@ export const settings = {
 					const validImages = filter( attributes.images, ( { id, url } ) => id && url );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
-							images: validImages.map( ( { id, url, alt, caption } ) => ( {
+							images: validImages.map( ( { id, url, alt } ) => ( {
 								id,
 								url,
 								alt,
-								caption,
 							} ) ),
 						} );
 					}
@@ -175,8 +169,8 @@ export const settings = {
 				blocks: [ 'core/image' ],
 				transform: ( { images } ) => {
 					if ( images.length > 0 ) {
-						return images.map( ( { id, url, alt, caption } ) =>
-							createBlock( 'core/image', { id, url, alt, caption } )
+						return images.map( ( { id, url, alt } ) =>
+							createBlock( 'core/image', { id, url, alt } )
 						);
 					}
 					return createBlock( 'core/image' );
