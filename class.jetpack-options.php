@@ -368,9 +368,17 @@ class Jetpack_Options {
 		global $wpdb;
 		$autoload_value = $autoload ? 'yes' : 'no';
 
+		$old_value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		if ( $old_value === $value ) {
+			return false;
+		}
+
 		$serialized_value = maybe_serialize( $value );
-		// try updating, if no update then insert
-		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
 		// below we used "insert ignore" to at least suppress the resulting error
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
@@ -380,6 +388,7 @@ class Jetpack_Options {
 			)
 		);
 
+		// Try inserting the option if the value doesn't exits.
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
@@ -389,7 +398,7 @@ class Jetpack_Options {
 				)
 			);
 		}
-		return $updated_num;
+		return (bool)$updated_num;
 	}
 
 	/**
