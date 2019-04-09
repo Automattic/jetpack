@@ -2,14 +2,21 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-alpha.4":
-  version "1.0.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-alpha.4.tgz#4df46dc2ebaeb34f8d1b3ca4568e7e766cf70c02"
-  integrity sha512-mTWuIq1txyEFr88GyCwu8agYVhvXoyTJDlKharth0z58SGL+0l18iv/tr72iCi6FEZbaR779lVnMmvjPSednOA==
+"@automattic/calypso-build@1.0.0-beta.0":
+  version "1.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.0.tgz#525c20de4d0220128a032edb56ec8afbf05101f2"
+  integrity sha512-BDhf40BUWPQ2zxKOaQ/ClDVm8xIEKHVzdTPbi6X3AYxPdaHRgXIPToKdn426Zw44MaCgDfm0MqmMIGzllWPXmw==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0-alpha.0"
+    "@babel/plugin-proposal-class-properties" "7.4.0"
+    "@babel/plugin-proposal-export-default-from" "7.2.0"
+    "@babel/plugin-proposal-export-namespace-from" "7.2.0"
+    "@babel/plugin-syntax-dynamic-import" "7.2.0"
     "@babel/plugin-transform-react-jsx" "7.3.0"
+    "@babel/plugin-transform-runtime" "7.4.0"
+    "@babel/preset-env" "7.4.2"
+    "@babel/preset-react" "7.0.0"
     "@wordpress/babel-plugin-import-jsx-pragma" "2.1.0"
     autoprefixer "9.4.4"
     babel-loader "8.0.5"
