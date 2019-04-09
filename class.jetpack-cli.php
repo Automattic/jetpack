@@ -1204,7 +1204,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 
 		foreach ( $required_args as $arg ) {
-			if ( empty( $arg ) ) {
+			if ( empty( $args[ $arg ] ) ) {
 				WP_CLI::error(
 					sprintf(
 						/* translators: %s is a slug, such as 'host'. */
