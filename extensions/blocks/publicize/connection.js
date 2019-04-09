@@ -21,19 +21,6 @@ import PublicizeServiceIcon from './service-icon';
 import getSiteFragment from '../../shared/get-site-fragment';
 
 class PublicizeConnection extends Component {
-	state = {
-		showGooglePlusNotice: true,
-	};
-
-	/**
-	 * Hide notice when it's removed
-	 */
-	onRemoveGooglePlusNotice = () => {
-		this.setState( {
-			showGooglePlusNotice: false,
-		} );
-	};
-
 	/**
 	 * Displays a message when a connection requires reauthentication. We used this when migrating LinkedIn API usage from v1 to v2,
 	 * since the prevous OAuth1 tokens were incompatible with OAuth2.
