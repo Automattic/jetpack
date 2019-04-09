@@ -44,7 +44,7 @@ Generally, all new extensions should start out as beta.
 - Simply move the extension's slug out of the beta array and into the production array in extensions/index.json.
 
 ## How do I merge extensions to Jetpack
-- Jetpack is released once a month (PCYsg-eg5-p2), so be sure your team's schedule is aware of code freezes.
+- Jetpack is released once a month, so be sure your team is aware of code freeze schedule (PCYsg-eg5-p2).
 - Make sure you and your team have tested your PR in both the Jetpack environment, and the WordPress.com environment.
 - Additionally, your PR will require approval from a Jetpack crew member.
 - Once merged, your extension will appear in the next release.
@@ -52,7 +52,8 @@ Generally, all new extensions should start out as beta.
 ## How do I merge extensions to WordPress.com?
 - Extensions are continuously deployed to WordPress.com, just like other parts of Jetpack.
 - Merge to Jetpack master first.
-- Now, merge the auto-generated diff on WordPress.com. There's no need to wait on release schedules.
+- Now, merge the auto-generated diff on WordPress.com.
+- There's no need to wait on release schedules, in fact it is best if you merge your WordPress.com diff immediately after you've merged to Jetpack master.
 
 ## Can I use Jurassic Ninja to test blocks?
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
