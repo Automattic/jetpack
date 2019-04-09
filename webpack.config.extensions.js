@@ -65,8 +65,10 @@ const webpackConfig = getBaseWebpackConfig( null, {
 	'output-path': path.join( __dirname, '_inc', 'blocks' ),
 } );
 
-module.exports = _.merge( {}, webpackConfig, {
+module.exports = {
+	...webpackConfig,
 	plugins: [
+		...webpackConfig.plugins,
 		new CopyWebpackPlugin( [
 			{
 				from: presetPath,
@@ -74,4 +76,4 @@ module.exports = _.merge( {}, webpackConfig, {
 			},
 		] ),
 	],
-} );
+};
