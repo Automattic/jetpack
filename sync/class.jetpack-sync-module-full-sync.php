@@ -178,8 +178,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * and sent to the server.
 		 *
 		 * @since 4.2.0
+		 * @since 7.3.0 Added $range arg.
+		 *
 		 * @param args ''
-		 * @param $range array @since 7.3.0
+		 * @param $range array 
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
