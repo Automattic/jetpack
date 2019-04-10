@@ -24,6 +24,7 @@ import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
+import Widgets from './widgets';
 import { Masterbar } from './masterbar';
 import WritingMedia from './writing-media';
 
@@ -50,6 +51,7 @@ export class Writing extends React.Component {
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
+			'widgets',
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -97,6 +99,7 @@ export class Writing extends React.Component {
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
 				) }
+				{ this.props.isModuleFound( 'widgets' ) && <Widgets { ...commonProps } /> }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
