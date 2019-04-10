@@ -44,6 +44,10 @@ class V1_Migration_Manager {
 	 * @returns bool
 	 */
 	public function is_migration_active() {
+		if ( ! empty( $_SERVER['HTTP_X_MIGRATION_VALIDATION'] ) ) {
+			return false;
+		}
+
 		$migration_activated = $this->options['migration_active'];
 		if ( $migration_activated && time() < intval( $migration_activated ) ) {
 			return true;
