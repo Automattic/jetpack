@@ -14,7 +14,8 @@ import { __ } from '../../utils/i18n';
 import './editor.scss';
 
 const getKeyDownHandler = callback => event => {
-	if ( event.key === 'Enter' || event.key === 'Space' ) {
+	// Accept only Enter and Space keys
+	if ( event.key === 'Enter' || event.key === ' ' ) {
 		callback( event );
 	}
 };
