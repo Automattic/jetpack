@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-beta.2":
-  version "1.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.2.tgz#d1dd9619392aa57aeef67cda3f703303f38388d0"
-  integrity sha512-unRf3yPwV1/6i/yd8UTxWP7zxDoMnG/vvT/6dvDr/CCna3Q9JRtKM5YhMqjvwDKr80XYBFysoA3heIk4truHiA==
+"@automattic/calypso-build@1.0.0-beta.4":
+  version "1.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.4.tgz#b9fa33e1a9b16943d43e7eabe13f3718456fea3e"
+  integrity sha512-YepaQ6lAqOv0hwmUSEuoCgkP6v2O0CT5NbdAvtytsMP7bvVpeBI6zLrd+riJ8wxdp9I3ID1KoOzHUhEzdEf4ow==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0"
