@@ -854,18 +854,7 @@ EXPECTED;
 
 		// Cleanup.
 		Jetpack_Options::delete_option( 'user_tokens' );
-		$_SERVER['REQUEST_URI'] = '';
-		unset(
-			$_SERVER['HTTP_CONTENT_TYPE'],
-			$GLOBALS['HTTP_RAW_POST_DATA'],
-			$_GET['token'],
-			$_GET['timestamp'],
-			$_GET['nonce'],
-			$_GET['body-hash'],
-			$_GET['signature']
-		);
-
-		wp_delete_user( $user_id );
+		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['signature'] );
 		$jetpack->reset_saved_auth_state();
 	}
 
