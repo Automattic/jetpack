@@ -13,7 +13,7 @@ also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpres
 - Now test your changes in your docker environment's wp-admin.
 - Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 - Test the WordPress.com diff
-- Once the code works well in both enviornments, and has been approved by a Jetpack crew member, you can merge your branch!
+- Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
 
 ## What if I need to manually create a WordPress.com diff?
 You can build extensions from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
@@ -29,19 +29,19 @@ Alternatively, if you don’t need to touch PHP files, you can build extensions 
 
 ```bash
 rsync -a --delete _inc/blocks/ \
-YOUR_WPCOM_SANDBOXUSERNAME@YOUR_WPCOM_SANDBOX.wordpress.com:/home/wpcom/public_html/wp-content/mu-plugins/jetpack/_inc/blocks/﻿
+  YOUR_WPCOM_SANDBOXUSERNAME@YOUR_WPCOM_SANDBOX.wordpress.com:/home/wpcom/public_html/wp-content/mu-plugins/jetpack/_inc/blocks/﻿
 ```
 
 Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
-## BETA Extenstions
+## BETA Extensions
 Generally, all new extensions should start out as beta.
 
-- Before you develop, remember to add your extension's slug to the beta array in extensions/index.json.
+- Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
 - Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
 - In the WordPress.com environment, a12s will be able to see beta extensions with no further configuration
 - Once you've sucessfully beta tested your new extension, you can open new PR to make your extension live!
-- Simply move the extension's slug out of the beta array and into the production array in extensions/index.json.
+- Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
 ## How do I merge extensions to Jetpack
 - Jetpack is released once a month, so be sure your team is aware of code freeze schedule (PCYsg-eg5-p2).
