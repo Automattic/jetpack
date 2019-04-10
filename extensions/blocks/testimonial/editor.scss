@@ -1,0 +1,11 @@
+.wp-block-jetpack-testimonial__media {
+    cursor: pointer;
+
+    &.is-placeholder {
+        background: red;
+    }
+    
+    &:focus {
+        box-shadow: 0 0 0 2px;
+    }
+}
