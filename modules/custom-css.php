@@ -58,19 +58,15 @@ function custom_css_loaded() {
  * @uses admin_url
  * @return string module settings URL
  */
-function jetpack_custom_css_configuration_url() {
+function jetpack_custom_css_configuration_url( $default_url ) {
 	// Redirect to Core's CSS editor in the customizer if the feature is available.
-	if ( function_exists( 'wp_get_custom_css' ) ) {
-		$configuration_link = Jetpack_Custom_CSS_Enhancements::customizer_link(
-			array(
-				'return_url' => wp_get_referer(),
-			)
-		);
-	} else {
-		$configuration_link = admin_url( 'themes.php?page=editcss#settingsdiv' );
+	if ( ! function_exists( 'wp_get_custom_css' ) ) {
+		return $default_url;
 	}
 
-	return $configuration_link;
+	return Jetpack_Custom_CSS_Enhancements::customizer_link(
+		array( 'return_url' => wp_get_referer() )
+	);
 }
 
 
