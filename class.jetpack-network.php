@@ -458,7 +458,7 @@ class Jetpack_Network {
 		 * `Jetpack::get_assumed_site_creation_date()` to assume the site's creation date.
 		 */
 		$blog_details = get_blog_details();
-		$site_creation_date = $blog_details['registered'];
+		$site_creation_date = $blog_details->registered;
 
 		/**
 		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
