@@ -68,7 +68,6 @@
 	"dependencies": {
 		"@automattic/custom-colors-loader": "automattic/custom-colors-loader",
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/wordpress-external-dependencies-plugin": "1.0.0-alpha.0",
 		"@wordpress/api-fetch": "3.1.2",
 		"@wordpress/blob": "2.1.0",
 		"@wordpress/blocks": "6.0.7",
@@ -164,6 +163,7 @@
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "1.0.0-beta.4",
+		"@automattic/wordpress-external-dependencies-plugin": "1.0.0",
 		"@babel/core": "7.4.0",
 		"@babel/plugin-proposal-class-properties": "7.4.0",
 		"@babel/plugin-proposal-export-default-from": "7.2.0",

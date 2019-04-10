@@ -53,7 +53,7 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
-"@automattic/wordpress-external-dependencies-plugin@^1.0.0":
+"@automattic/wordpress-external-dependencies-plugin@1.0.0", "@automattic/wordpress-external-dependencies-plugin@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/wordpress-external-dependencies-plugin/-/wordpress-external-dependencies-plugin-1.0.0.tgz#1f05e3eb6ff4647b3abe1d6a06aa5ac9bb111b4b"
   integrity sha512-7eAR1PVvajLi0UBp466miytBqD2Ekw209Go+xqQOJG8XUky2Do27WTPJWV6WS6D1ByfaxI9duXxh2UE9S/6nMg==
