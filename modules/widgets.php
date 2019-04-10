@@ -43,10 +43,6 @@ function jetpack_widgets_loaded() {
 	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
 }
 
-function jetpack_widgets_configuration_url() {
-	return admin_url( 'widgets.php' );
-}
-
 /**
  * Overrides default configuration url
  *
