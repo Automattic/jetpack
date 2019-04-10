@@ -40,7 +40,7 @@ Generally, all new extensions should start out as beta.
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
 - Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
 - In the WordPress.com environment, a12s will be able to see beta extensions with no further configuration
-- Once you've sucessfully beta tested your new extension, you can open new PR to make your extension live!
+- Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
 ## How do I merge extensions to Jetpack
@@ -92,8 +92,8 @@ If your block depends on another block, place them all in extensions folder:
 ## The Build
 
 - Compiled extensions are output to `_inc/blocks`
-- You can view the various build commands in package.json
-- You can see the build configuration in webpack.config.extensions.js
+- You can view the various build commands in `package.json`
+- You can see the build configuration in `webpack.config.extensions.js`
 
 If you need to modify the build process, bear in mind that config files are also
 synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
