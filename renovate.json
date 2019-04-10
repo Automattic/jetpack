@@ -2,5 +2,16 @@
 	"extends": [ "config:base" ],
 	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
-	"supportPolicy": [ "lts_latest" ]
+	"supportPolicy": [ "lts_latest" ],
+	"packageRules": [
+		{
+			"packagePatterns": [ "^@wordpress/" ],
+			"groupName": "External WordPress dependencies",
+			"rangeStrategy": "replace"
+		},
+		{
+			"packageNames": [ "lodash" ],
+			"rangeStrategy": "replace"
+		}
+	]
 }
