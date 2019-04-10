@@ -34,6 +34,7 @@ $color__back-link: #6c7781;
 			fill: $color__back-link;
 			height: 24px;
 			margin-right: 4px;
+			margin-top: -3px;
 			vertical-align: middle;
 			width: 24px;
 		}
@@ -106,38 +107,24 @@ $color__back-link: #6c7781;
 	h3 {
 		margin-top: 2.4375rem;
 	}
-
-	.jetpack-about__services-more {
-		margin-top: 1.5em;
-		text-align: center;
-	}
 }
 
+.jetpack-about__services-more {
+	margin-top: 1.5em;
+	text-align: center;
+}
+
+
 .jetpack-about__services {
-	align-items: flex-start;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 16px;
 }
 
 .jetpack-about__plugin {
 	margin-bottom: 0;
-	width: 49%;
 
-	@media screen and (max-width: 782px) {
-        width: 100%;
-        margin-top: 2%;
-
-        &:first-child {
-	        margin-top: 0;
-        }
-    }
-
-	&:nth-child(n+3){
-		margin-top: 2%;
-	}
-
-	.plugin-card-top {
+ 	.plugin-card-top {
 		min-height: 165px;
 		padding: 20px 20px 15px;
 		position: relative;

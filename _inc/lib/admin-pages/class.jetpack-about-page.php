@@ -35,7 +35,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	function page_admin_scripts() {
 		wp_enqueue_style( 'plugin-install' );
 		wp_enqueue_script( 'plugin-install' );
-
+		// required for plugin modal action button functionality
+		wp_enqueue_script( 'updates' );
+		// required for modal popup JS and styling
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_script( 'thickbox' );
 	}
@@ -103,14 +105,14 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 								<?php $this->display_gravatars(); ?>
 							</ul>
 							<p class="meet-the-team">
-								<a href="https://automattic.com/about/" target="_blank"><?php esc_html_e( 'Meet the team', 'jetpack' ); ?></a>
+								<a href="https://automattic.com/about/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_meet_the_team"><?php esc_html_e( 'Meet the Automattic team', 'jetpack' ); ?></a>
 							</p>
 						</div>
 
 						<div class="jetpack-about__text">
 							<p>
 								<?php esc_html_e( 'We are the people behind WordPress.com, WooCommerce, Jetpack, Simplenote, Longreads, VaultPress, Akismet, Gravatar, Crowdsignal, Cloudup, and more. We believe in making the web a better place.', 'jetpack' ); ?>
-								<a href="https://automattic.com/" target="_blank">
+								<a href="https://automattic.com/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
 									<?php esc_html_e( 'Learn more about us.', 'jetpack' ); ?>
 								</a>
 							</p>
@@ -123,10 +125,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<p>
 								<?php
 									// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e()
-									echo wp_kses( __( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank">Automattic Creed</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array() ) ) ); ?>
+									echo wp_kses( __( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'class' => array(), 'target' => array(), 'data-jptracks-name' => array() ) ) ); ?>
 							</p>
 							<p>
-								<a href="https://automattic.com/jobs" target="_blank">
+								<a href="https://automattic.com/jobs" target="_blank"  class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
 									<?php esc_html_e( 'Come work with us', 'jetpack' ); ?>
 								</a>
 							</p>
@@ -140,7 +142,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					<?php $this->display_plugins(); ?>
 					</ul>
 
-					<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/" target="_blank">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array() ) ) ); ?></p>
+					<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'class' => array(), 'data-jptracks-name' => array() ) ) ); ?></p>
 				</div>
 			</div>
 		</div>
@@ -245,11 +247,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						if ( $status['url'] ) {
 							if ( $compatible_php && $compatible_wp ) {
 								$action_links[] = sprintf(
-									'<a class="install-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+									'<a class="install-now button jptracks" data-slug="%s" href="%s" aria-label="%s" data-name="%s" data-jptracks-name="jetpack_about_install_button" data-jptracks-prop="%s">%s</a>',
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
 									/* translators: %s: plugin name and version */
 									esc_attr( sprintf( __( 'Install %s now' ), $name ) ),
+									esc_attr( $name ),
 									esc_attr( $name ),
 									__( 'Install Now' )
 								);
@@ -265,12 +268,13 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					case 'update_available':
 						if ( $status['url'] ) {
 							$action_links[] = sprintf(
-								'<a class="update-now button aria-button-if-js" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+								'<a class="update-now button aria-button-if-js jptracks" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s" data-jptracks-name="jetpack_about_update_button" data-jptracks-prop="%s">%s</a>',
 								esc_attr( $status['file'] ),
 								esc_attr( $plugin['slug'] ),
 								esc_url( $status['url'] ),
 								/* translators: %s: plugin name and version */
 								esc_attr( sprintf( __( 'Update %s now' ), $name ) ),
+								esc_attr( $name ),
 								esc_attr( $name ),
 								__( 'Update Now' )
 							);
@@ -305,9 +309,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							}
 
 							$action_links[] = sprintf(
-								'<a href="%1$s" class="button activate-now" aria-label="%2$s">%3$s</a>',
+								'<a href="%1$s" class="button activate-now" aria-label="%2$s"  data-jptracks-name="jetpack_about_activate_button" data-jptracks-prop="%3$s">%4$s</a>',
 								esc_url( $activate_url ),
 								esc_attr( sprintf( $button_label, $plugin['name'] ) ),
+								esc_attr( $plugin['name'] ),
 								$button_text
 							);
 						} else {
@@ -391,7 +396,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			<div class="plugin-card-top">
 				<div class="name column-name">
 					<h3>
-						<a href="<?php echo esc_url( $details_link ); ?>" class="thickbox open-plugin-details-modal">
+						<a href="<?php echo esc_url( $details_link ); ?>" class="thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
 						<?php echo $title; ?>
 						<img src="<?php echo esc_attr( $plugin_icon_url ); ?>" class="plugin-icon" alt="">
 						</a>
@@ -402,7 +407,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				</div>
 
 				<div class="details-link">
-					<a class="thickbox open-plugin-details-modal" href="<?php echo $details_link; ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
+					<a class="thickbox open-plugin-details-modal" href="<?php echo $details_link; ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
 				</div>
 			</div>
 
