@@ -45,7 +45,15 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
-"@automattic/wordpress-external-dependencies-plugin@1.0.0-alpha.0", "@automattic/wordpress-external-dependencies-plugin@^1.0.0-alpha.0":
+"@automattic/wordpress-external-dependencies-plugin@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/wordpress-external-dependencies-plugin/-/wordpress-external-dependencies-plugin-1.0.0.tgz#1f05e3eb6ff4647b3abe1d6a06aa5ac9bb111b4b"
+  integrity sha512-7eAR1PVvajLi0UBp466miytBqD2Ekw209Go+xqQOJG8XUky2Do27WTPJWV6WS6D1ByfaxI9duXxh2UE9S/6nMg==
+  dependencies:
+    webpack "^4.29.6"
+    webpack-sources "^1.3.0"
+
+"@automattic/wordpress-external-dependencies-plugin@^1.0.0-alpha.0":
   version "1.0.0-alpha.0"
   resolved "https://registry.yarnpkg.com/@automattic/wordpress-external-dependencies-plugin/-/wordpress-external-dependencies-plugin-1.0.0-alpha.0.tgz#eeb63dcc51c26622b3798b27e5ce655c91d12e07"
   integrity sha512-NGY8hGa7Pux/UnTE5csJX5LwT2O+z5pQhQofMfCTRTKmV9q13KuidFGpa+7CN3m7HJUUmUqbDwfSE0Yoe5q9fQ==
