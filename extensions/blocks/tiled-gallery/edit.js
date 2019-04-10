@@ -28,7 +28,7 @@ import {
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
-import { getActiveStyleName } from '../../utils';
+import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
 
 const linkOptions = [

@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
-import SubmitButton from '../../utils/submit-button';
+import SubmitButton from '../../shared/submit-button';
 import { __ } from '@wordpress/i18n';
 import {
 	Button,

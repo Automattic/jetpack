@@ -6,7 +6,7 @@ import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import extensionList from '../setup/index.json';
+import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 
 const betaExtensions = extensionList.beta || [];

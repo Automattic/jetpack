@@ -9,7 +9,7 @@ import { Path } from '@wordpress/components';
  */
 import './editor.scss';
 import BusinessHours from './edit';
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 /**
  * Block Registrations:
