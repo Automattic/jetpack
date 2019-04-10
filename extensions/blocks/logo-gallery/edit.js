@@ -29,7 +29,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Logo from './logo';
-import icon from './icon';
+import { default as icon, smallSizeIcon, mediumSizeIcon, largeSizeIcon } from './icons';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
@@ -195,19 +195,19 @@ class GalleryEdit extends Component {
 
 		const toolbarControls = [
 			{
-				icon: 'arrow-down',
+				icon: smallSizeIcon,
 				title: __( 'Small size', 'jetpack' ),
 				isActive: logoSize === 'small',
 				onClick: () => setAttributes( { logoSize: 'small' } ),
 			},
 			{
-				icon: 'sort',
+				icon: mediumSizeIcon,
 				title: __( 'Medium size', 'jetpack' ),
 				isActive: logoSize === 'medium',
 				onClick: () => setAttributes( { logoSize: 'medium' } ),
 			},
 			{
-				icon: 'arrow-up',
+				icon: largeSizeIcon,
 				title: __( 'Large size', 'jetpack' ),
 				isActive: logoSize === 'large',
 				onClick: () => setAttributes( { logoSize: 'large' } ),

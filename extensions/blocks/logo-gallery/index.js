@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import edit from './edit';
 import save from './save';
 import transforms from './transforms';
-import icon from './icon';
+import { default as icon } from './icons';
 
 const blockAttributes = {
 	logoSize: {
