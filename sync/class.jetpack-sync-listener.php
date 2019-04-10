@@ -86,7 +86,7 @@ class Jetpack_Sync_Listener {
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue( $queue ) {
-		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) || Jetpack_Sync_Settings::get_setting( 'network_disable' ) ) {
 			return false;
 		}
 

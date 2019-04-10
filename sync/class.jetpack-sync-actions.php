@@ -87,7 +87,8 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
+		return ( ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
+		         || ! Jetpack_Sync_Settings::get_setting( 'network_disable' ) )
 				 && ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
 				 && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
