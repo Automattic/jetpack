@@ -311,7 +311,6 @@ class Jetpack_Protect_Module {
 	 */
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_screen( __FILE__, array ( $this, 'configuration_screen' ) );
 	}
 
 	/**
@@ -622,13 +621,6 @@ class Jetpack_Protect_Module {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 		}
-	}
-
-	/**
-	 * Prints the configuration screen
-	 */
-	public function configuration_screen() {
-		require_once dirname( __FILE__ ) . '/protect/config-ui.php';
 	}
 
 	/**

@@ -31,7 +31,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
  */
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
 
 	// Generate the tracking code after wp() has queried for posts.
 	add_action( 'template_redirect', 'stats_template_redirect', 1 );
@@ -809,56 +808,6 @@ function stats_convert_post_title( $matches ) {
 	if ( isset( $stats_posts[$post_id] ) )
 		return '<a href="' . get_permalink( $post_id ) . '" target="_blank">' . get_the_title( $post_id ) . '</a>';
 	return $matches[0];
-}
-
-/**
- * Stats Configuration Screen.
- *
- * @access public
- * @return void
- */
-function stats_configuration_screen() {
-	$options = stats_get_options();
-?>
-	<div class="narrow">
-		<p><?php printf( __( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
-		<form method="post">
-		<input type='hidden' name='action' value='save_options' />
-		<?php wp_nonce_field( 'stats' ); ?>
-		<table id="menu" class="form-table">
-		<tr valign="top"><th scope="row"><label for="admin_bar"><?php esc_html_e( 'Admin bar' , 'jetpack' ); ?></label></th>
-		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php esc_html_e( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ); ?></label></td></tr>
-		<tr valign="top"><th scope="row"><?php esc_html_e( 'Registered users', 'jetpack' ); ?></th>
-		<td>
-			<?php esc_html_e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
-			<?php
-	$count_roles = stats_get_option( 'count_roles' );
-	foreach ( get_editable_roles() as $role => $details ) {
-?>
-				<label><input type='checkbox' name='count_role_<?php echo $role; ?>'<?php checked( in_array( $role, $count_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
-				<?php
-	}
-?>
-		</td></tr>
-		<tr valign="top"><th scope="row"><?php esc_html_e( 'Smiley' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php esc_html_e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php echo wp_kses( __( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ), array( 'strong' => array() ) ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
-		<tr valign="top"><th scope="row"><?php esc_html_e( 'Report visibility' , 'jetpack' ); ?></th>
-		<td>
-			<?php esc_html_e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
-			<?php
-	$stats_roles = stats_get_option( 'roles' );
-	foreach ( get_editable_roles() as $role => $details ) {
-?>
-				<label><input type='checkbox' <?php if ( 'administrator' === $role ) echo "disabled='disabled' "; ?>name='role_<?php echo $role; ?>'<?php checked( 'administrator' === $role || in_array( $role, $stats_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
-				<?php
-	}
-?>
-		</td></tr>
-		</table>
-		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
-		</form>
-	</div>
-	<?php
 }
 
 /**
