@@ -40,12 +40,6 @@
     flex-direction: column;
     color: #999;
     font-size: 80%;
-    padding-left: 1em;
-    
-    .is-aligned-right & {
-        padding-left: 0;
-        padding-right: 1em;
-    }
 }
 
 .wp-block-jetpack-testimonial__name {
@@ -60,6 +54,13 @@
     width: 50px;
     height: 50px;
     border-radius: 25px;
+    margin-right: 1em;
+    overflow: hidden;
+    
+    .is-aligned-right & {
+        margin-left: 0;
+        margin-right: 1em;
+    }
 }
 
 // styles
@@ -99,11 +100,9 @@
         text-align: center;
     }
     
-    .wp-block-jetpack-testimonial__meta {
-        padding-left: 0;
-    }
-    
     &.is-aligned-left {
+        margin-left: 0;
+
         .wp-block-jetpack-testimonial__media {
             left: 0;
         }
@@ -117,13 +116,11 @@
         .wp-block-jetpack-testimonial__media {
             left: auto;
             right: 0;
+            margin-right: 0;
         }
         .wp-block-jetpack-testimonial__author {
             justify-content: end;
             text-align: right;
-        }
-        .wp-block-jetpack-testimonial__meta {
-            padding-right: 0;
         }
     }
 }
