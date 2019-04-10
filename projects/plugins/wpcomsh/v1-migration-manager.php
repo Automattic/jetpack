@@ -43,8 +43,12 @@ class V1_Migration_Manager {
 	 *
 	 * @returns bool
 	 */
-	public function is_migration_active(){
-		return $this->options['migration_active'];
+	public function is_migration_active() {
+		$migration_activated = $this->options['migration_active'];
+		if ( $migration_activated && time() < intval( $migration_activated ) ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
