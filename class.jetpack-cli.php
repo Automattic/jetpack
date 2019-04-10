@@ -1476,6 +1476,129 @@ class Jetpack_CLI extends WP_CLI_Command {
 		) ) );
 		exit( 1 );
 	}
+
+	/**
+	 * Creates the essential files in Jetpack to start building a Gutenberg block.
+	 *
+	 * All files will be created in a directory under extensions/blocks named based on the block title or a specific given slug.
+	 *
+	 * ## OPTIONS
+	 *
+	 * title : Block name, also used to create the slug. If it's something like "Logo gallery", the slug will be 'logo-gallery'
+	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
+	 * --description: Allows to provide a text description of the block.
+	 * --keywords: Provide up to three keywords separated by comma so users  when they search for a block in the editor.
+	 * --external-edit: Creates an additional file to create the edit as an external component. It doesn't require any value.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack block "Cool Block"
+	 * wp jetpack block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
+	 * wp jetpack block "Jukebox" --keywords="music, audio, media"
+	 *
+	 * @subcommand block
+	 * @synopsis <title> [--slug] [--description] [--keywords] [--external-edit]
+	 */
+	public function block( $args, $assoc_args ) {
+		// It's ok not to check because if it's set, WPCLI exits earlier.
+		$title = $args[0];
+
+		$slug = isset( $assoc_args['slug'] )
+			? $assoc_args['slug']
+			: sanitize_title( $title );
+
+		if ( ! preg_match( '/^[a-z][a-z0-9\-]*$/', $slug ) ) {
+			WP_CLI::error( esc_html__( 'Invalid block slug. They can contain only lowercase alphanumeric characters or dashes, and start with a letter', 'jetpack' ) . ' 👻' );
+		}
+
+		global $wp_filesystem;
+		if ( ! WP_Filesystem() ) {
+			WP_CLI::error( esc_html__( "Can't write files", 'jetpack' ) . ' 😱' );
+		}
+
+		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/$slug";
+
+		if ( $wp_filesystem->exists( $path ) && $wp_filesystem->is_dir( $path ) ) {
+			WP_CLI::error( sprintf( esc_html__( 'Name conflicts with the existing block %s', 'jetpack' ), $path ) . ' ⛔️' );
+			exit( 1 );
+		}
+
+		$wp_filesystem->mkdir( $path );
+
+		$files = array(
+			"$path/$slug.js" => $this->render_block_file( 'block-register-php', array(
+				'slug' => $slug,
+				'title' => $title,
+			) ),
+			"$path/index.js" => $this->render_block_file( 'block-index-js', array(
+				'slug' => $slug,
+				'title' => $title,
+				'description' => isset( $assoc_args['description'] )
+					? $assoc_args['description']
+					: $title,
+				'keywords' => isset( $assoc_args['keywords'] )
+					? array_map( function( $keyword ) {
+						// Construction necessary for Mustache lists
+						return array( 'keyword' => trim( $keyword ) );
+					}, explode( ',', $assoc_args['keywords'] ) )
+					: '',
+				'externalEdit' => !! isset( $assoc_args['external-edit'] )
+			) ),
+			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
+			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
+				'title' => $title,
+			) ),
+		);
+
+		if ( isset( $assoc_args['external-edit'] ) ) {
+			$className = str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) );
+			$files[ "{$path}/edit.js" ] = $this->render_block_file( 'block-edit-js', array(
+				'title' => $title,
+				'className' => $className,
+			) );
+		}
+
+		$files_written = array();
+
+		foreach ( $files as $filename => $contents ) {
+			if ( $wp_filesystem->put_contents( $filename, $contents ) ) {
+				$files_written[] = $filename;
+			} else {
+				WP_CLI::error( sprintf( esc_html__( 'Error creating %s', 'jetpack' ), $filename ) );
+			}
+		}
+
+		if ( empty( $files_written ) ) {
+			WP_CLI::log( esc_html__( 'No files were created' ) );
+		} else {
+			// Load index.json and insert the slug of the new block in the production array
+			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
+			$block_list = $wp_filesystem->get_contents( $block_list_path );
+			if ( empty( $block_list ) ) {
+				WP_CLI::error( sprintf( esc_html__( 'Error fetching contents of %s', 'jetpack' ), $block_list_path ) );
+			} else if ( false === stripos( $block_list, $slug ) ) {
+				$new_block_list = json_decode( $block_list );
+				$new_block_list->beta[] = $slug;
+				if ( ! $wp_filesystem->put_contents( $block_list_path, wp_json_encode( $new_block_list ) ) ) {
+					WP_CLI::error( sprintf( esc_html__( 'Error writing new %s', 'jetpack' ), $block_list_path ) );
+				}
+			}
+
+			WP_CLI::success( sprintf( esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉', $title, $slug ) );
+		}
+	}
+
+	/**
+	 * Built the file replacing the placeholders in the template with the data supplied.
+	 *
+	 * @param string $template
+	 * @param array $data
+	 *
+	 * @return string mixed
+	 */
+	private static function render_block_file( $template, $data = array() ) {
+		return \WP_CLI\Utils\mustache_render( JETPACK__PLUGIN_DIR . "wp-cli-templates/$template.mustache", $data );
+	}
 }
 
 /*
