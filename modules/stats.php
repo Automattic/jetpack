@@ -578,14 +578,19 @@ function stats_reports_page( $main_chart_only = false ) {
 	<div id="jp-stats-wrap">
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
-			<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
+			<?php
+				if ( current_user_can( 'jetpack_manage_modules' ) ) :
+					$i18n_headers = jetpack_get_module_i18n( 'stats' );
+			?>
 				<a
 					style="font-size:13px;"
-					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack&configure=stats' ) ); ?>"
+					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
 				>
 					<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-			<?php endif; ?>
+			<?php
+				endif;
+			?>
 			</h2>
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
