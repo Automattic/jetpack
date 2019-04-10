@@ -18,7 +18,7 @@ add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );
 function vaultpress_jetpack_stub() {
 	if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
 		Jetpack::enable_module_configurable( __FILE__ );
-		add_filter( 'jetpack_module_configuration_url_vaultpress', 'vaultpress_jetpack_configure' );
+		add_filter( 'jetpack_module_configuration_url_vaultpress', 'vaultpress_jetpack_configure_url' );
 		add_filter( 'jetpack_module_free_text_vaultpress', 'vaultpress_jetpack_module_free_text' );
 	}
 }
@@ -27,6 +27,6 @@ function vaultpress_jetpack_module_free_text() {
 	return __( 'Active', 'jetpack' );
 }
 
-function vaultpress_jetpack_configure() {
+function vaultpress_jetpack_configure_url() {
 	return menu_page_url( 'vaultpress', false );
 }

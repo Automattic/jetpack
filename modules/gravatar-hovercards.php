@@ -29,7 +29,7 @@ function grofiles_hovercards_init() {
 	add_filter( 'jetpack_module_configuration_url_gravatar-hovercards', 'gravatar_hovercards_configuration_url' );
 }
 
- function gravatar_hovercards_configuration_url() {
+function gravatar_hovercards_configuration_url() {
 	return admin_url( 'options-discussion.php#show_avatars' );
 }
 
