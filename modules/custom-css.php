@@ -59,11 +59,6 @@ function custom_css_loaded() {
  * @return string module settings URL
  */
 function jetpack_custom_css_configuration_url( $default_url ) {
-	// Redirect to Core's CSS editor in the customizer if the feature is available.
-	if ( ! function_exists( 'wp_get_custom_css' ) ) {
-		return $default_url;
-	}
-
 	return Jetpack_Custom_CSS_Enhancements::customizer_link(
 		array( 'return_url' => wp_get_referer() )
 	);
