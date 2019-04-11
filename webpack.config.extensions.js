@@ -64,7 +64,7 @@ const webpackConfig = getBaseWebpackConfig(
 			'editor-beta': editorBetaScript,
 			...viewBlocksScripts,
 		},
-		'output-chunk-filename': '[name].[contenthash].js',
+		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( __dirname, '_inc', 'blocks' ),
 	}
 );
