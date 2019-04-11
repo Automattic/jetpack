@@ -91,6 +91,7 @@ export class Writing extends React.Component {
 					<CustomContentTypes { ...commonProps } />
 				) }
 				<ThemeEnhancements { ...commonProps } />
+				{ this.props.isModuleFound( 'widgets' ) && <Widgets { ...commonProps } /> }
 				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
 					<PostByEmail
 						{ ...commonProps }
@@ -99,7 +100,6 @@ export class Writing extends React.Component {
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
 				) }
-				{ this.props.isModuleFound( 'widgets' ) && <Widgets { ...commonProps } /> }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
