@@ -93,9 +93,13 @@ class Jetpack_Debug_Data {
 			'jetpack' => array(
 				'label'       => __( 'Jetpack', 'jetpack' ),
 				'description' => sprintf(
-					/* translators: URL is to jetpack.com's contact support page. */
-					__( 'Diagnostic information helpful to <a href="%s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team</a>', 'jetpack' ),
-					esc_html( 'https://jetpack.com/contact-support' )
+					/* translators: %1$s is URL to jetpack.com's contact support page. %2$s accessibility text */
+					__(
+						'Diagnostic information helpful to <a href="%1$s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team<span class="screen-reader-text">%2$s</span></a>',
+						'jetpack'
+					),
+					esc_html( 'https://jetpack.com/contact-support/' ),
+					__( '(opens in a new tab)', 'jetpack' )
 				),
 				'fields'      => self::debug_data(),
 			),
