@@ -122,7 +122,7 @@ class Jetpack_Sync_Settings {
 			unset( self::$settings_cache[ $setting ] );
 
 			// if we set the disabled option to true, clear the queues
-			if ( ( 'disable' === $setting ) && ! ! $value ) {
+			if ( ( 'disable' === $setting || 'network_disable' ) && ! ! $value ) {
 				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
@@ -132,7 +132,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_network_setting( $setting ) {
-		return substr( $setting, 0, strlen('network_') ) === 'network_';
+		return substr( $setting, 0, strlen( 'network_' ) ) === 'network_';
 	}
 
 	// returns escapted SQL that can be injected into a WHERE clause

@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 
 		// create a post - this will end up in the queue before data is sent
 		$post_id = $this->factory->post->create();
-		$this->assertTrue( $this->listener->get_sync_queue()->size() > 0 );
+		$this->assertTrue( $this->listener->get_sync_queue()->has_any_items() );
 
 		Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 1 ) );
 
