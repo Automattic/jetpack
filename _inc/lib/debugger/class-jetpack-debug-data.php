@@ -94,7 +94,7 @@ class Jetpack_Debug_Data {
 				'label'       => __( 'Jetpack', 'jetpack' ),
 				'description' => sprintf(
 					/* translators: URL is to jetpack.com's contact support page. */
-					__( 'Diagnostic information helpful to <a href="%s" target="_blank">your Jetpack Happiness team</a>', 'jetpack' ),
+					__( 'Diagnostic information helpful to <a href="%s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team</a>', 'jetpack' ),
 					esc_html( 'https://jetpack.com/contact-support' )
 				),
 				'fields'      => self::debug_data(),
