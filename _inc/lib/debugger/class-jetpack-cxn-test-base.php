@@ -69,16 +69,16 @@ class Jetpack_Cxn_Test_Base {
 		if ( array_key_exists( $name, $this->tests ) ) {
 			return new WP_Error( __( 'Test names must be unique.', 'jetpack' ) );
 		}
-		if ( is_callable( $callable ) ) {
-			$this->tests[ $name ] = array(
-				'test'  => $callable,
-				'group' => $groups,
-				'type'  => $type,
-			);
-			return true;
+		if ( ! is_callable( $callable ) ) {
+			return new WP_Error( __( 'Tests must be valid PHP callables.', 'jetpack' ) );
 		}
 
-		return new WP_Error( __( 'Tests must be valid PHP callables.', 'jetpack' ) );
+		$this->tests[ $name ] = array(
+			'test'  => $callable,
+			'group' => $groups,
+			'type'  => $type,
+		);
+		return true;
 	}
 
 	/**
