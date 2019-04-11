@@ -336,7 +336,7 @@ class Filter_Embedded_HTML_Objects {
 	 *
 	 * @param string $html Post HTML.
 	 */
-	private static function get_attrs( $html ) {
+	public static function get_attrs( $html ) {
 		if (
 			! ( class_exists( 'DOMDocument' ) && function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
