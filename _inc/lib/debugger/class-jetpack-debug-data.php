@@ -92,7 +92,11 @@ class Jetpack_Debug_Data {
 		$jetpack = array(
 			'jetpack' => array(
 				'label'       => __( 'Jetpack', 'jetpack' ),
-				'description' => __( 'Diagnostic information helpful to <a href="https://jetpack.com/contact-support">your Jetpack Happiness team</a>', 'jetpack' ),
+				'description' => sprintf(
+					/* translators: URL is to jetpack.com's contact support page. */
+					__( 'Diagnostic information helpful to <a href="%s" target="_blank">your Jetpack Happiness team</a>', 'jetpack' ),
+					esc_html( 'https://jetpack.com/contact-support' )
+				),
 				'fields'      => self::debug_data(),
 			),
 		);
