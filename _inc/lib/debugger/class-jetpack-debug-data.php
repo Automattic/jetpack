@@ -164,10 +164,9 @@ class Jetpack_Debug_Data {
 		$user_id     = get_current_user_id();
 		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		$blog_token  = Jetpack_Options::get_option( 'blog_token' );
+		$user_token  = null;
 		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
 			$user_token = $user_tokens[ $user_id ];
-		} else {
-			$user_token = null;
 		}
 		unset( $user_tokens );
 
