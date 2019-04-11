@@ -258,9 +258,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 */
 		$response_format = apply_filters( 'site_settings_site_format', self::$site_format );
 
-		$blog_id = (int) $this->api->get_blog_id_for_output();
-		/** This filter is documented in class.json-api-endpoints.php */
-		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
+		$blog_id    = (int) $this->api->get_blog_id_for_output();
+		$site       = $this->get_platform()->get_site( $blog_id );
 
 		foreach ( array_keys( $response_format ) as $key ) {
 
@@ -299,22 +298,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$jetpack_relatedposts_options['enabled'] = true;
 				}
 
-				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
-					$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
-				}
+				$jetpack_relatedposts_options[ 'enabled' ] =
+					$jetpack_relatedposts_options[ 'enabled' ]
+					&& $site->is_module_active( 'related-posts' );
 
 				$jetpack_search_supported = false;
 				if ( function_exists( 'wpcom_is_jetpack_search_supported' ) ) {
 					$jetpack_search_supported = wpcom_is_jetpack_search_supported( $blog_id );
 				}
 
-				$jetpack_search_active = false;
-				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
-					$jetpack_search_active = Jetpack::is_module_active( 'search' );
-				}
-				if ( function_exists( 'is_jetpack_module_active' ) ) {
-					$jetpack_search_active = is_jetpack_module_active( 'search', $blog_id );
-				}
+				$jetpack_search_active =
+					$jetpack_search_supported
+					&& $site->is_module_active( 'search' );
 
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
@@ -324,7 +319,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+				$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
 				$response[ $key ] = array(
 
@@ -534,18 +529,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
 					break;
 				case 'jetpack_search_enabled':
-					if ( ! method_exists( 'Jetpack', 'activate_module' ) ) {
-						break;
-					}
-					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					if ( $value ) {
-						$jetpack_search_update_success = $is_wpcom
-							? Jetpack::activate_module( $blog_id, 'search' )
-							: Jetpack::activate_module( 'search', false, false );
+						Jetpack::activate_module( $blog_id, 'search' );
 					} else {
-						$jetpack_search_update_success = $is_wpcom
-							? Jetpack::deactivate_module( $blog_id, 'search' )
-							: Jetpack::deactivate_module( 'search' );
+						Jetpack::deactivate_module( $blog_id, 'search' );
 					}
 					$updated[ $key ] = (bool) $value;
 					break;
@@ -555,19 +542,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( ! $this->jetpack_relatedposts_supported() ) {
 						break;
 					}
-					if ( 'jetpack_relatedposts_enabled' === $key && method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
-						$before_action = Jetpack::is_module_active('related-posts');
+					$just_the_key = substr( $key, 21 );
+
+					if ( 'jetpack_relatedposts_enabled' === $key ) {
 						if ( $value ) {
-							Jetpack::activate_module( 'related-posts', false, false );
+							Jetpack::activate_module( $blog_id, 'related-posts' );
 						} else {
-							Jetpack::deactivate_module( 'related-posts' );
-						}
-						$after_action = Jetpack::is_module_active('related-posts');
-						if ( $after_action == $before_action ) {
-							break;
+							Jetpack::deactivate_module( $blog_id, 'related-posts' );
 						}
 					}
-					$just_the_key = substr( $key, 21 );
 					$jetpack_relatedposts_options[ $just_the_key ] = $value;
 				break;
 
