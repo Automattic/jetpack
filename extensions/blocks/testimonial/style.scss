@@ -38,8 +38,13 @@
 .wp-block-jetpack-testimonial__meta {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
     color: #999;
     font-size: 80%;
+    
+    .is-aligned-center & {
+        flex-grow: 0;
+    }
 }
 
 .wp-block-jetpack-testimonial__name {
