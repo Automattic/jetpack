@@ -99,9 +99,7 @@ class Jetpack_Cxn_Test_Base {
 		$tests = array();
 		foreach ( $this->tests as $name => $value ) {
 			// Get all valid tests by group staged.
-			if ( 'all' === $group ) {
-				$tests[ $name ] = $value;
-			} elseif ( $group === $value['group'] ) {
+			if ( 'all' === $group || $group === $value['group'] ) {
 				$tests[ $name ] = $value;
 			}
 
