@@ -12,6 +12,8 @@
 
 /**
  * "Unit Tests" for the Jetpack connection.
+ *
+ * @since 7.1.0
  */
 class Jetpack_Cxn_Test_Base {
 
@@ -49,21 +51,87 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Adds a new test to the Jetpack Connection Testing suite.
 	 *
-	 * @param callable $callable Test to add to queue.
-	 * @param array    $groups Testing groups to add test to.
+	 * @since 7.1.0
+	 * @since 7.3.0 Adds name parameter and returns WP_Error on failure.
 	 *
-	 * @return bool True if successfully added. False for a failure.
+	 * @param callable $callable Test to add to queue.
+	 * @param string   $name Unique name for the test.
+	 * @param string   $type   Optional. Core Site Health type: 'direct' if test can be run during initial load or 'async' if test should run async.
+	 * @param array    $groups Optional. Testing groups to add test to.
+	 *
+	 * @return mixed True if successfully added. WP_Error on failure.
 	 */
-	public function add_test( $callable, $groups = array( 'default' ) ) {
-		if ( is_callable( $callable ) ) {
-			$this->tests[] = array(
-				'test'  => $callable,
-				'group' => $groups,
-			);
-			return true;
+	public function add_test( $callable, $name, $type = 'direct', $groups = array( 'default' ) ) {
+		if ( is_array( $name ) ) {
+			// Pre-7.3.0 method passed the $groups parameter here.
+			return new WP_Error( __( 'add_test arguments changed in 7.3.0. Please reference inline documentation.', 'jetpack' ) );
+		}
+		if ( array_key_exists( $name, $this->tests ) ) {
+			return new WP_Error( __( 'Test names must be unique.', 'jetpack' ) );
+		}
+		if ( ! is_callable( $callable ) ) {
+			return new WP_Error( __( 'Tests must be valid PHP callables.', 'jetpack' ) );
 		}
 
-		return false;
+		$this->tests[ $name ] = array(
+			'test'  => $callable,
+			'group' => $groups,
+			'type'  => $type,
+		);
+		return true;
+	}
+
+	/**
+	 * Lists all tests to run.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $type Optional. Core Site Health type: 'direct' or 'async'. All by default.
+	 * @param string $group Optional. A specific testing group. All by default.
+	 *
+	 * @return array $tests Array of tests with test information.
+	 */
+	public function list_tests( $type = 'all', $group = 'all' ) {
+		if ( ! ( 'all' === $type || 'direct' === $type || 'async' === $type ) ) {
+			_doing_it_wrong( 'Jetpack_Cxn_Test_Base->list_tests', 'Type must be all, direct, or async', '7.3.0' );
+		}
+
+		$tests = array();
+		foreach ( $this->tests as $name => $value ) {
+			// Get all valid tests by group staged.
+			if ( 'all' === $group || $group === $value['group'] ) {
+				$tests[ $name ] = $value;
+			}
+
+			// Next filter out any that do not match the type.
+			if ( 'all' !== $type && $type !== $value['type'] ) {
+				unset( $tests[ $name ] );
+			}
+		}
+
+		return $tests;
+	}
+
+	/**
+	 * Run a specific test.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $name Name of test.
+	 *
+	 * @return mixed $result Test result array or WP_Error if invalid name. {
+	 * @type string $name Test name
+	 * @type mixed  $pass True if passed, false if failed, 'skipped' if skipped.
+	 * @type string $message Human-readable test result message.
+	 * @type string $resolution Human-readable resolution steps.
+	 * }
+	 */
+	public function run_test( $name ) {
+		if ( array_key_exists( $name, $this->tests ) ) {
+			return call_user_func( $this->tests[ $name ] );
+		}
+
+		return new WP_Error( __( 'There is no test by that name: ', 'jetpack' ) . $name );
 	}
 
 	/**
@@ -183,13 +251,18 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a failing test.
 	 *
+	 * @since 7.1.0
+	 * @since 7.3.0 Added $action for resolution action link, $severity for issue severity.
+	 *
 	 * @param string $name Test name.
 	 * @param string $message Message detailing the failure.
-	 * @param string $resolution Steps to resolve.
+	 * @param string $resolution Optional. Steps to resolve.
+	 * @param string $action Optional. URL to direct users to self-resolve.
+	 * @param string $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false ) {
+	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical' ) {
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
 			case 'cycle_connection':
@@ -199,7 +272,8 @@ class Jetpack_Cxn_Test_Base {
 				$resolution = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
 				break;
 			case 'support':
-				$resolution = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
+			case false:
+				$resolution = __( 'Please contact Jetpack support.', 'jetpack' ); // @todo: Link to support.
 				break;
 		}
 
@@ -208,6 +282,8 @@ class Jetpack_Cxn_Test_Base {
 			'pass'       => false,
 			'message'    => $message,
 			'resolution' => $resolution,
+			'action'     => $action,
+			'severity'   => $severity,
 		);
 	}
 
@@ -237,6 +313,68 @@ class Jetpack_Cxn_Test_Base {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Output results of failures in format expected by Core's Site Health tool.
+	 *
+	 * Specifically not asking for a testing group since we're opinionated that Site Heath should see all.
+	 *
+	 * @return array Array of test results
+	 */
+	public function output_results_for_core_site_health() {
+		$result = array(
+			'label'       => __( 'Jetpack is fired up and working great.', 'jetpack' ),
+			'status'      => 'good',
+			'badge'       => array(
+				'label' => __( 'Jetpack', 'jetpack' ),
+				'color' => 'green',
+			),
+			'description' => sprintf(
+				'<p>%s</p>',
+				__( "Jetpack's local testing suite passed all tests!", 'jetpack' )
+			),
+			'actions'     => '',
+			'test'        => 'jetpack_debugger_local_testing_suite_core',
+		);
+
+		if ( $this->pass() ) {
+			return $result;
+		}
+
+		$fails = $this->list_fails();
+		$error = false;
+		foreach ( $fails as $fail ) {
+			if ( ! $error ) {
+				$error                 = true;
+				$result['label']       = $fail['message'];
+				$result['status']      = $fail['severity'];
+				$result['description'] = sprintf(
+					'<p>%s</p>',
+					$fail['resolution']
+				);
+				if ( ! empty( $fail['action'] ) ) {
+					$result['actions'] = sprintf(
+						'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+						esc_url( $fail['action'] ),
+						__( 'Resolve', 'jetpack' ),
+						/* translators: accessibility text */
+						__( '(opens in a new tab)', 'jetpack' )
+					);
+				}
+			} else {
+				$result['description'] .= sprintf(
+					'<p>%s</p>',
+					__( 'There was another problem:', 'jetpack' )
+				) . ' ' . $fail['message'] . ': ' . $fail['resolution'];
+				if ( 'critical' === $fail['severity'] ) { // In case the initial failure is only "recommended".
+					$result['status'] = 'critical';
+				}
+			}
+		}
+
+		return $result;
+
 	}
 
 	/**
