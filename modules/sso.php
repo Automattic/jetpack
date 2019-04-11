@@ -317,6 +317,21 @@ class Jetpack_SSO {
 	}
 
 	function login_init() {
+		if ( is_user_logged_in() ) {
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
+			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'redirect_to'               => $redirect_to,
+						'request_redirect_to'       => $_request_redirect_to,
+					),
+					admin_url()
+				)
+			);
+			exit;
+		}
+
 		global $action;
 
 		if ( Jetpack_SSO_Helpers::should_hide_login_form() ) {
