@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
 
 /**
@@ -27,7 +27,11 @@ export const settings = {
 	title,
 	icon,
 	category: 'jetpack',
-	keywords: [ __( 'animated', 'jetpack' ), __( 'giphy', 'jetpack' ), __( 'image', 'jetpack' ) ],
+	keywords: [
+		_x( 'animated', 'block search term', 'jetpack' ),
+		_x( 'giphy', 'block search term', 'jetpack' ),
+		_x( 'image', 'block search term', 'jetpack' ),
+	],
 	description: __( 'Search for and insert an animated image.', 'jetpack' ),
 	attributes: {
 		align: {

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
 
 /**
@@ -71,7 +71,11 @@ export const name = 'slideshow';
 export const settings = {
 	title: __( 'Slideshow', 'jetpack' ),
 	category: 'jetpack',
-	keywords: [ __( 'image', 'jetpack' ), __( 'gallery', 'jetpack' ), __( 'slider', 'jetpack' ) ],
+	keywords: [
+		_x( 'image', 'block search term', 'jetpack' ),
+		_x( 'gallery', 'block search term', 'jetpack' ),
+		_x( 'slider', 'block search term', 'jetpack' ),
+	],
 	description: __( 'Add an interactive slideshow.', 'jetpack' ),
 	attributes,
 	supports: {
