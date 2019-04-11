@@ -1,17 +1,12 @@
 {
-	"name": "automattic/jetpack",
-	"description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
+	"name": "automattic/jetpack-core",
+	"description": "Core library for Jetpack",
 	"homepage": "http://jetpack.com/",
 	"version": "7.2-alpha",
-	"type": "wordpress-plugin",
+	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"support": {
 		"issues": "https://github.com/Automattic/jetpack/issues"
-	},
-	"require": {
-		"composer/installers": "1.6.0",
-		"ext-openssl": "*",
-		"automattic/jetpack-core": "7.2-alpha"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
@@ -24,14 +19,5 @@
 		"php:lint": "composer install && vendor/bin/phpcs -p",
 		"php:autofix": "composer install && vendor/bin/phpcbf",
 		"php:lint:errors": "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
-	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "./packages/jetpack-core",
-			"options": {
-				"symlink": true
-			}
-		}
-	]
+	}
 }
