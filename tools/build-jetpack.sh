@@ -41,6 +41,7 @@ fi
 git clone \
     --branch $TARGET_BRANCH \
     --depth 1000 \
+    --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
