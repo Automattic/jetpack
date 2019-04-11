@@ -57,7 +57,6 @@ function buildQuerystringNoPrefix( group, name ) {
 }
 
 const analytics = {
-
 	initialize: function( userId, username, superProps ) {
 		analytics.setUser( userId, username );
 		analytics.setSuperProps( superProps );
@@ -130,7 +129,11 @@ const analytics = {
 				eventProperties = assign( eventProperties, superProperties );
 			}
 
-			debug( 'Record event "%s" called with props %s', eventName, JSON.stringify( eventProperties ) );
+			debug(
+				'Record event "%s" called with props %s',
+				eventName,
+				JSON.stringify( eventProperties )
+			);
 
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
 		},
