@@ -276,6 +276,7 @@ class Jetpack_Cxn_Test_Base {
 				$resolution = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
 				break;
 			case 'support':
+			case false:
 				$resolution = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
 				break;
 		}
