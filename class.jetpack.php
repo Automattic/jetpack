@@ -7153,8 +7153,8 @@ p {
 	}
 
 	/**
-	 * Checks for whether Jetpack Rewind is enabled.
-	 * Will return true if the state of Rewind is anything except "unavailable".
+	 * Checks for whether Jetpack Backup & Scan is enabled.
+	 * Will return true if the state of Backup & Scan is anything except "unavailable".
 	 * @return bool|int|mixed
 	 */
 	public static function is_rewind_enabled() {
@@ -7184,7 +7184,7 @@ p {
 	public static function jetpack_tos_agreed() {
 		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
 	}
-	
+
 	/**
 	 * Handles activating default modules as well general cleanup for the new connection.
 	 *
