@@ -715,20 +715,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
 
 			case 'disable':
-				Jetpack_Sync_Settings::update_settings( array( 'disable' => 1 ) );
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'enable':
-				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
-				update_option( 'jetpack_sync_settings_disable', 0 );
+				Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
 				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'reset':
-				Jetpack_Sync_Settings::update_settings( array( 'disable' => 1 ) );
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
+
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
 				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
-
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
 					$listener->get_full_sync_queue()->reset();
