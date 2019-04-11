@@ -151,7 +151,7 @@ yarn docker:phpunit --filter=Protect
 
 This command runs the tests as a multi site install
 ```sh
-yarn docker:phpunit-mu --filter=Protext
+yarn docker:phpunit:multisite --filter=Protect
 ```
 
 ### Starting over
