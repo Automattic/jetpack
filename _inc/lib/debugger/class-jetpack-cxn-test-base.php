@@ -277,7 +277,7 @@ class Jetpack_Cxn_Test_Base {
 				break;
 			case 'support':
 			case false:
-				$resolution = __( 'Please contact support.', 'jetpack' ); // @todo: Link to support.
+				$resolution = __( 'Please contact Jetpack support.', 'jetpack' ); // @todo: Link to support.
 				break;
 		}
 
