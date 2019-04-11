@@ -84,9 +84,8 @@ class Jetpack_Carousel {
 			}
 		}
 
-		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
-			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
 		}
 	}
 
@@ -128,11 +127,6 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
-	}
-
-	function jetpack_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-media.php#carousel_background_color' ) );
-		exit;
 	}
 
 	function asset_version( $version ) {
