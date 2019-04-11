@@ -106,10 +106,8 @@ class Jetpack_Cxn_Test_Base {
 			}
 
 			// Next filter out any that do not match the type.
-			if ( 'all' !== $type ) {
-				if ( $type !== $value['type'] ) {
-					unset( $tests[ $name ] );
-				}
+			if ( 'all' !== $type && $type !== $value['type'] ) {
+				unset( $tests[ $name ] );
 			}
 		}
 
