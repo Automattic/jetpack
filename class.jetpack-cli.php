@@ -701,18 +701,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
 					);
 				}
-
+				WP_CLI::log( __( 'Sync Status:', 'jetpack' ) );
 				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
 				break;
 			case 'settings':
-				WP_CLI::log( __( 'Sync Settings', 'jetpack' ) );
+				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
 				foreach( Jetpack_Sync_Settings::get_settings() as $setting => $item ) {
 					$settings[]  = array(
 						'setting' => $setting,
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
 					);
 				}
-
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
 
 			case 'disable':
@@ -720,15 +719,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'enable':
-				// Don't set it via the Jetpack_Sync_Settings since that also
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 0 );
 				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'reset':
 				Jetpack_Sync_Settings::update_settings( array( 'disable' => 1 ) );
-				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
+				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
 				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
+
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
 					$listener->get_full_sync_queue()->reset();
@@ -746,13 +746,32 @@ class Jetpack_CLI extends WP_CLI_Command {
 							$listener->get_full_sync_queue()->reset();
 							WP_CLI::log( sprintf( __( 'Reset Full Sync Queue on %s', 'jetpack' ), get_site_url() ) );
 							break;
+						default:
+							WP_CLI::error( __( 'Please specify what type of queue do you want to reset: `full` or `regular`.', 'jetpack' ) );
+							break;
 					}
 				}
 
 				break;
 			case 'start':
 				if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
-					WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
+					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
+						return;
+					}
+					if ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
+						return;
+					}
+					if ( Jetpack::is_development_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
+						return;
+					}
+					if (  Jetpack::is_staging_site() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+						return;
+					}
+
 				}
 				// Get the original settings so that we can restore them later
 				$original_settings = Jetpack_Sync_Settings::get_settings();
