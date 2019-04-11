@@ -164,7 +164,7 @@
 		"whatwg-fetch": "1.1.1"
 	},
 	"devDependencies": {
-		"@automattic/calypso-build": "1.0.0-beta.2",
+		"@automattic/calypso-build": "1.0.0-beta.4",
 		"@babel/core": "7.4.0",
 		"@babel/plugin-proposal-class-properties": "7.4.0",
 		"@babel/plugin-proposal-export-default-from": "7.2.0",
