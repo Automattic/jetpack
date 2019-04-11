@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 import { Path } from '@wordpress/components';
 import { RawHTML } from '@wordpress/element';
@@ -30,7 +30,11 @@ export const settings = {
 	),
 	category: 'jetpack',
 
-	keywords: [ __( 'subscribe', 'jetpack' ), __( 'join', 'jetpack' ), __( 'follow', 'jetpack' ) ],
+	keywords: [
+		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'join', 'block search term', 'jetpack' ),
+		_x( 'follow', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
 		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },

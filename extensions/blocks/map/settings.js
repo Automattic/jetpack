@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 export const settings = {
 	name: 'map',
@@ -25,7 +25,11 @@ export const settings = {
 		</svg>
 	),
 	category: 'jetpack',
-	keywords: [ __( 'map', 'jetpack' ), __( 'location', 'jetpack' ) ],
+	keywords: [
+		_x( 'map', 'block search term', 'jetpack' ),
+		_x( 'location', 'block search term', 'jetpack' ),
+		_x( 'navigation', 'block search term', 'jetpack' ),
+	],
 	description: __( 'Add an interactive map showing one or more locations.', 'jetpack' ),
 	attributes: {
 		align: {
