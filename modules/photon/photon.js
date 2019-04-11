@@ -7,7 +7,7 @@
 			// is not the same as the current src we should wait until the image load event
 			var lazySrc = this.getAttribute('data-lazy-src');
 			if ( lazySrc && this.src !== lazySrc ) {
-				this.addEventListener( 'load', recalculate );
+				this.addEventListener( 'onload', recalculate );
 				return;
 			}
 
@@ -22,7 +22,7 @@
 			}
 		}
 		else {
-			this.addEventListener( 'load', recalculate );
+			this.addEventListener( 'onload', recalculate );
 			return;
 		}
 	}
@@ -45,17 +45,16 @@
 		img.removeAttribute( 'scale' );
 	};
 
-	// Vanilla version of jQuery.ready()
-	var ready = function( fn ) {
-		if ( document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading' ) {
-			fn();
-		} else {
-			document.addEventListener( 'DOMContentLoaded', fn );
-		}
-	};
 	/**
 	 * Check both when page loads, and when IS is triggered.
 	 */
-	ready( restore_dims );
+	if ( typeof window !== 'undefined' && typeof document !== 'undefined' ) {
+		// `DOMContentLoaded` may fire before the script has a chance to run
+		if ( document.readyState === 'loading' ) {
+			document.addEventListener( 'DOMContentLoaded', restore_dims );
+		} else {
+			restore_dims();
+		}
+	}
 	document.body.addEventListener( 'post-load', restore_dims );
 } )();
