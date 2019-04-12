@@ -131,7 +131,7 @@ export const settings = {
 	description: __( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ),
 	icon,
 	keywords: [
-		_x( 'images', 'block search term', 'jetpack' ),
+		_x( 'test', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
