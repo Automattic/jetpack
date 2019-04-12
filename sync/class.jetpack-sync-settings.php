@@ -69,9 +69,8 @@ class Jetpack_Sync_Settings {
 
 		if ( false === $value ) { // no default value is set.
 			// We set one so that it gets autoloaded
-			$value        = Jetpack_Sync_Defaults::get_default_setting( $setting );
-			if ( substr( $setting, 0, strlen('network_') ) === 'network_' ) {
-
+			$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+			if ( self::is_network_setting( $setting ) ) {
 				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 			} else {
 				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
@@ -132,7 +131,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_network_setting( $setting ) {
-		return substr( $setting, 0, strlen( 'network_' ) ) === 'network_';
+		return strpos( $setting, 'network_' ) === 0;
 	}
 
 	// returns escapted SQL that can be injected into a WHERE clause
