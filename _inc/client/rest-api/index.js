@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-require( 'es6-promise' ).polyfill();
-import 'whatwg-fetch';
 import assign from 'lodash/assign';
 
 /**

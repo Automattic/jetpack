@@ -97,7 +97,6 @@
 		"css-loader": "2.1.1",
 		"del": "4.1.0",
 		"email-validator": "2.0.4",
-		"es6-promise": "4.2.6",
 		"eslint": "5.15.3",
 		"eslint-config-prettier": "4.1.0",
 		"eslint-config-wpcalypso": "4.0.1",
@@ -160,8 +159,7 @@
 		"swiper": "4.5.0",
 		"uglify-save-license": "0.4.1",
 		"url-loader": "1.1.2",
-		"webpack": "4.29.6",
-		"whatwg-fetch": "1.1.1"
+		"webpack": "4.29.6"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "1.0.0-beta.4",
