@@ -22,6 +22,7 @@ const path = require( 'path' );
  */
 const editorSetup = path.join( __dirname, 'extensions', 'editor' );
 const viewSetup = path.join( __dirname, 'extensions', 'view' );
+const BLOCKS_ENV = process.env.BLOCKS_ENV || 'production'; // "woocommerce", "production", "wpcom"…
 
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -31,8 +32,8 @@ function blockScripts( type, inputDir, presetBlocks ) {
 
 const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetBlocks = _.get( presetIndex, [ 'production' ], [] );
-const presetBetaBlocks = _.get( presetIndex, [ 'beta' ], [] );
+const presetBlocks = _.get( presetIndex, [ BLOCKS_ENV ], [] );
+const presetBetaBlocks = 'production' === BLOCKS_ENV ? _.get( presetIndex, [ 'beta' ], [] ) : [];
 const allPresetBlocks = [ ...presetBlocks, ...presetBetaBlocks ];
 
 // Helps split up each block into its own folder view script

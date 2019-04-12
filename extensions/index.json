@@ -18,5 +18,6 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "likes", "sharing", "seo" ]
+	"beta": [ "likes", "sharing", "seo" ],
+	"woocommerce": [ "gif" ]
 }
