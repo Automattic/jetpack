@@ -90,7 +90,7 @@ rsync -az --delete _inc/blocks/ \
   YOUR_WPCOM_SANDBOX:/BLOCKS_PATH_IN_YOUR_SANDBOX/
 ```
 
-Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
+To test extensions for a Simple site in Calypso, sandbox the simple site URL (example.wordpress.com). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
 
 ## The Build
