@@ -76,6 +76,7 @@ Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=ma
 You can build extensions from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
 
 ```bash
+yarn clean-extensions
 yarn build-extensions \
   --output-path /PATH_TO_YOUR_SANDBOX/wp-content/mu-plugins/jetpack/_inc/blocks/ \
   --watch
