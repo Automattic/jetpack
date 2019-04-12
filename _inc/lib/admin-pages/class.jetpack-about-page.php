@@ -62,88 +62,86 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		?>
 		<div class="jp-lower">
-			<div class="page-content">
-				<div class="jetpack-about__link-back">
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack' ) ); ?>">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>
-						<?php esc_html_e( 'Back to Jetpack Dashboard', 'jetpack' ); ?>
-					</a>
+			<div class="jetpack-about__link-back">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack' ) ); ?>">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>
+					<?php esc_html_e( 'Back to Jetpack Dashboard', 'jetpack' ); ?>
+				</a>
+			</div>
+			<div class="jetpack-about__main">
+				<div class="jetpack-about__logo">
+					<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+						 viewBox="0 0 800 96" style="enable-background:new 0 0 800 96;" xml:space="preserve">
+					<g>
+						<path style="fill: #39c;" d="M292.922,78c-19.777,0-32.598-14.245-32.598-29.078V47.08c0-15.086,12.821-29.08,32.598-29.08
+							c19.861,0,32.682,13.994,32.682,29.08v1.843C325.604,63.755,312.783,78,292.922,78z M315.044,47.245
+							c0-10.808-7.877-20.447-22.122-20.447s-22.04,9.639-22.04,20.447v1.341c0,10.811,7.795,20.614,22.04,20.614
+							s22.122-9.803,22.122-20.614V47.245z"/>
+						<path d="M69.602,75.821l-7.374-13.826H29.463l-7.124,13.826H11.277l30.167-55.81h8.715l30.671,55.81H69.602z M45.552,30.906
+							L33.401,54.369h24.72L45.552,30.906z"/>
+						<path d="M128.427,78c-20.028,0-29.329-10.894-29.329-25.391V20.012h10.391v32.765c0,10.308,6.788,16.424,19.692,16.424
+							c13.242,0,18.687-6.116,18.687-16.424V20.012h10.475v32.598C158.342,66.436,149.46,78,128.427,78z"/>
+						<path d="M216.667,28.727v47.094h-10.475V28.727h-24.386v-8.715h59.245v8.715H216.667z"/>
+						<path d="M418.955,75.821V31.659l-2.766,4.861l-23.379,39.301h-5.112L364.569,36.52l-2.765-4.861v44.162h-10.224v-55.81h14.497
+							l22.038,38.296L390.713,63l2.599-4.692l21.786-38.296h14.331v55.81H418.955z"/>
+						<path d="M508.619,75.821l-7.374-13.826H468.48l-7.123,13.826h-11.061l30.167-55.81h8.715l30.669,55.81H508.619z M484.569,30.906
+							l-12.151,23.464h24.72L484.569,30.906z"/>
+						<path d="M562.081,28.727v47.094h-10.474V28.727h-24.386v-8.715h59.245v8.715H562.081z"/>
+						<path d="M638.924,28.727v47.094H628.45V28.727h-24.386v-8.715h59.245v8.715H638.924z"/>
+						<path d="M689.118,75.821v-50.53c4.19,0,5.866-2.263,5.866-5.28h4.442v55.81H689.118z"/>
+						<path d="M781.464,35.765c-5.028-4.609-12.402-8.967-22.374-8.967c-14.916,0-23.296,10.225-23.296,20.867v1.089
+							c0,10.558,8.464,20.445,24.05,20.445c9.303,0,17.012-4.441,21.872-8.965L788,66.854C781.883,72.887,771.492,78,759.174,78
+							c-21.118,0-33.939-13.743-33.939-28.828v-1.843c0-15.084,13.993-29.329,34.44-29.329c11.816,0,22.541,4.944,28.324,11.146
+							L781.464,35.765z"/>
+						<path d="M299.82,37.417c1.889,1.218,2.418,3.749,1.192,5.648l-9.553,14.797c-1.226,1.901-3.752,2.452-5.637,1.234l0,0
+							c-1.886-1.22-2.421-3.745-1.192-5.647l9.553-14.797C295.41,36.753,297.935,36.201,299.82,37.417L299.82,37.417z"/>
+					</g>
+					</svg>
 				</div>
-				<div class="jetpack-about__main">
-					<div class="jetpack-about__logo">
-						<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-							 viewBox="0 0 800 96" style="enable-background:new 0 0 800 96;" xml:space="preserve">
-						<g>
-							<path style="fill: #39c;" d="M292.922,78c-19.777,0-32.598-14.245-32.598-29.078V47.08c0-15.086,12.821-29.08,32.598-29.08
-								c19.861,0,32.682,13.994,32.682,29.08v1.843C325.604,63.755,312.783,78,292.922,78z M315.044,47.245
-								c0-10.808-7.877-20.447-22.122-20.447s-22.04,9.639-22.04,20.447v1.341c0,10.811,7.795,20.614,22.04,20.614
-								s22.122-9.803,22.122-20.614V47.245z"/>
-							<path d="M69.602,75.821l-7.374-13.826H29.463l-7.124,13.826H11.277l30.167-55.81h8.715l30.671,55.81H69.602z M45.552,30.906
-								L33.401,54.369h24.72L45.552,30.906z"/>
-							<path d="M128.427,78c-20.028,0-29.329-10.894-29.329-25.391V20.012h10.391v32.765c0,10.308,6.788,16.424,19.692,16.424
-								c13.242,0,18.687-6.116,18.687-16.424V20.012h10.475v32.598C158.342,66.436,149.46,78,128.427,78z"/>
-							<path d="M216.667,28.727v47.094h-10.475V28.727h-24.386v-8.715h59.245v8.715H216.667z"/>
-							<path d="M418.955,75.821V31.659l-2.766,4.861l-23.379,39.301h-5.112L364.569,36.52l-2.765-4.861v44.162h-10.224v-55.81h14.497
-								l22.038,38.296L390.713,63l2.599-4.692l21.786-38.296h14.331v55.81H418.955z"/>
-							<path d="M508.619,75.821l-7.374-13.826H468.48l-7.123,13.826h-11.061l30.167-55.81h8.715l30.669,55.81H508.619z M484.569,30.906
-								l-12.151,23.464h24.72L484.569,30.906z"/>
-							<path d="M562.081,28.727v47.094h-10.474V28.727h-24.386v-8.715h59.245v8.715H562.081z"/>
-							<path d="M638.924,28.727v47.094H628.45V28.727h-24.386v-8.715h59.245v8.715H638.924z"/>
-							<path d="M689.118,75.821v-50.53c4.19,0,5.866-2.263,5.866-5.28h4.442v55.81H689.118z"/>
-							<path d="M781.464,35.765c-5.028-4.609-12.402-8.967-22.374-8.967c-14.916,0-23.296,10.225-23.296,20.867v1.089
-								c0,10.558,8.464,20.445,24.05,20.445c9.303,0,17.012-4.441,21.872-8.965L788,66.854C781.883,72.887,771.492,78,759.174,78
-								c-21.118,0-33.939-13.743-33.939-28.828v-1.843c0-15.084,13.993-29.329,34.44-29.329c11.816,0,22.541,4.944,28.324,11.146
-								L781.464,35.765z"/>
-							<path d="M299.82,37.417c1.889,1.218,2.418,3.749,1.192,5.648l-9.553,14.797c-1.226,1.901-3.752,2.452-5.637,1.234l0,0
-								c-1.886-1.22-2.421-3.745-1.192-5.647l9.553-14.797C295.41,36.753,297.935,36.201,299.82,37.417L299.82,37.417z"/>
-						</g>
-						</svg>
+				<div class="jetpack-about__content">
+					<div class="jetpack-about__images">
+						<ul class="jetpack-about__gravatars">
+							<?php $this->display_gravatars(); ?>
+						</ul>
+						<p class="meet-the-team">
+							<a href="https://automattic.com/about/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_meet_the_team"><?php esc_html_e( 'Meet the Automattic team', 'jetpack' ); ?></a>
+						</p>
 					</div>
-					<div class="jetpack-about__content">
-						<div class="jetpack-about__images">
-							<ul class="jetpack-about__gravatars">
-								<?php $this->display_gravatars(); ?>
-							</ul>
-							<p class="meet-the-team">
-								<a href="https://automattic.com/about/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_meet_the_team"><?php esc_html_e( 'Meet the Automattic team', 'jetpack' ); ?></a>
-							</p>
-						</div>
 
-						<div class="jetpack-about__text">
-							<p>
-								<?php esc_html_e( 'We are the people behind WordPress.com, WooCommerce, Jetpack, Simplenote, Longreads, VaultPress, Akismet, Gravatar, Crowdsignal, Cloudup, and more. We believe in making the web a better place.', 'jetpack' ); ?>
-								<a href="https://automattic.com/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
-									<?php esc_html_e( 'Learn more about us.', 'jetpack' ); ?>
-								</a>
-							</p>
-							<p>
-								<?php esc_html_e( 'We’re a distributed company with 864 Automatticians in 68 countries speaking 84 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ); ?>
-							</p>
-							<p>
-								<?php esc_html_e( 'We believe in Open Source and the vast majority of our work is available under the GPL.', 'jetpack' ); ?>
-							</p>
-							<p>
-								<?php
-									// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e()
-									echo wp_kses( __( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'class' => array(), 'target' => array(), 'data-jptracks-name' => array() ) ) ); ?>
-							</p>
-							<p>
-								<a href="https://automattic.com/jobs" target="_blank"  class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
-									<?php esc_html_e( 'Come work with us', 'jetpack' ); ?>
-								</a>
-							</p>
-						</div>
+					<div class="jetpack-about__text">
+						<p>
+							<?php esc_html_e( 'We are the people behind WordPress.com, WooCommerce, Jetpack, Simplenote, Longreads, VaultPress, Akismet, Gravatar, Crowdsignal, Cloudup, and more. We believe in making the web a better place.', 'jetpack' ); ?>
+							<a href="https://automattic.com/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
+								<?php esc_html_e( 'Learn more about us.', 'jetpack' ); ?>
+							</a>
+						</p>
+						<p>
+							<?php esc_html_e( 'We’re a distributed company with 864 Automatticians in 68 countries speaking 84 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ); ?>
+						</p>
+						<p>
+							<?php esc_html_e( 'We believe in Open Source and the vast majority of our work is available under the GPL.', 'jetpack' ); ?>
+						</p>
+						<p>
+							<?php
+								// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e()
+								echo wp_kses( __( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'class' => array(), 'target' => array(), 'data-jptracks-name' => array() ) ) ); ?>
+						</p>
+						<p>
+							<a href="https://automattic.com/jobs" target="_blank"  class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
+								<?php esc_html_e( 'Come work with us', 'jetpack' ); ?>
+							</a>
+						</p>
 					</div>
 				</div>
+			</div>
 
-				<div class="jetpack-about__colophon">
-					<h3><?php esc_html_e( 'Popular WordPress services by Automattic', 'jetpack' ); ?></h3>
-					<ul class="jetpack-about__services">
-					<?php $this->display_plugins(); ?>
-					</ul>
+			<div class="jetpack-about__colophon">
+				<h3><?php esc_html_e( 'Popular WordPress services by Automattic', 'jetpack' ); ?></h3>
+				<ul class="jetpack-about__services">
+				<?php $this->display_plugins(); ?>
+				</ul>
 
-					<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'class' => array(), 'data-jptracks-name' => array() ) ) ); ?></p>
-				</div>
+				<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'class' => array(), 'data-jptracks-name' => array() ) ) ); ?></p>
 			</div>
 		</div>
 		<?php
