@@ -85,7 +85,7 @@ Alternatively, if you don’t need to touch PHP files, you can build extensions 
 
 
 ```bash
-rsync -a --delete _inc/blocks/ \
+rsync -az --delete _inc/blocks/ \
   YOUR_WPCOM_SANDBOX:/BLOCKS_PATH_IN_YOUR_SANDBOX/
 ```
 
