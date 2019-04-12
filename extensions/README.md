@@ -47,7 +47,7 @@ And add your extensions's slug the appropriate array in `extensions/index.json`.
 1. Test the WordPress.com diff
 1. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
 
-### BETA Extensions
+### Beta Extensions
 Generally, all new extensions should start out as beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
