@@ -1484,11 +1484,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * title : Block name, also used to create the slug. If it's something like "Logo gallery", the slug will be 'logo-gallery'
+	 * title : Block name, also used to create the slug and the edit PHP class name.
+	 *         If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
 	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
 	 * --description: Allows to provide a text description of the block.
 	 * --keywords: Provide up to three keywords separated by comma so users  when they search for a block in the editor.
-	 * --external-edit: Creates an additional file to create the edit as an external component. It doesn't require any value.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -1497,7 +1497,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack block "Jukebox" --keywords="music, audio, media"
 	 *
 	 * @subcommand block
-	 * @synopsis <title> [--slug] [--description] [--keywords] [--external-edit]
+	 * @synopsis <title> [--slug] [--description] [--keywords]
 	 */
 	public function block( $args, $assoc_args ) {
 		// It's ok not to check because if it's set, WPCLI exits earlier.
@@ -1526,7 +1526,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$wp_filesystem->mkdir( $path );
 
 		$files = array(
-			"$path/$slug.js" => $this->render_block_file( 'block-register-php', array(
+			"$path/$slug.php" => $this->render_block_file( 'block-register-php', array(
 				'slug' => $slug,
 				'title' => $title,
 			) ),
@@ -1542,21 +1542,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 						return array( 'keyword' => trim( $keyword ) );
 					}, explode( ',', $assoc_args['keywords'] ) )
 					: '',
-				'externalEdit' => !! isset( $assoc_args['external-edit'] )
 			) ),
 			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
 			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
 				'title' => $title,
 			) ),
-		);
-
-		if ( isset( $assoc_args['external-edit'] ) ) {
-			$className = str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) );
 			$files[ "{$path}/edit.js" ] = $this->render_block_file( 'block-edit-js', array(
 				'title' => $title,
-				'className' => $className,
-			) );
-		}
+				'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
+			) )
+		);
 
 		$files_written = array();
 
