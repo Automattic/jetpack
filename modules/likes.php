@@ -632,6 +632,10 @@ function jetpack_post_likes_register_rest_field() {
 // Add Likes post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
 /**
  * Set the Likes and Sharing Gutenberg extension availability
  */
