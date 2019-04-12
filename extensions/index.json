@@ -4,12 +4,14 @@
 		"contact-form",
 		"contact-info",
 		"gif",
+		"likes",
 		"mailchimp",
 		"map",
 		"markdown",
 		"publicize",
 		"related-posts",
 		"repeat-visitor",
+		"sharing",
 		"shortlinks",
 		"simple-payments",
 		"slideshow",
@@ -18,5 +20,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "likes", "sharing", "seo" ]
+	"beta": [ "seo" ]
 }
