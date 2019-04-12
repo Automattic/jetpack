@@ -208,7 +208,7 @@ class Jetpack_Memberships {
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_plan || 'trash' === $product->post_status ) {
+		if ( $product->post_type !== self::$post_type_plan || 'public' !== $product->post_status ) {
 			return;
 		}
 
