@@ -20,10 +20,6 @@ const JetpackPluginSidebar = ( { children } ) => <Fill>{ children }</Fill>;
 JetpackPluginSidebar.Slot = () => (
 	<Slot>
 		{ fills => {
-			if ( ! fills.length ) {
-				return null;
-			}
-
 			return (
 				<Fragment>
 					<PluginSidebarMoreMenuItem target="jetpack" icon={ <JetpackLogo /> }>
