@@ -1,6 +1,6 @@
 # Jetpack Block Editor Extensions
 
-This directory contains the source code for extensions in the new post editor,
+This directory contains the source code for extensions in the block editor,
 also known as Gutenberg, [that was introduced in WordPress 5.0](https://wordpress.org/news/2018/12/bebo/).
 
 ## Extension Type
@@ -39,19 +39,21 @@ If your block depends on another block, place them all in extensions folder:
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 1. Start a new branch.
 1. Add your new extension's source files to the extensions/blocks directory.
-And add your extensions's slug the appropriate array in `extensions/index.json`.
+And add your extensions's slug the beta array in `extensions/index.json`.
+By keeping your extension in beta array, it's safe to do small PRs and merge frequently.
 1. Or modify existing extensions in the same folder.
 1. Run `yarn build-extensions [--watch]` to compile your changes.
-1. Now test your changes in your docker environment's wp-admin.
+1. Now test your changes in your Docker environment's wp-admin.
 1. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 1. Test the WordPress.com diff
 1. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
+1. When your block is ready to be shipped, move your extensions's slug from beta to production array in `extensions/index.json`
 
 ### Beta Extensions
 Generally, all new extensions should start out as beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
-- Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
+- Ensure that, in you Docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
 - In the WordPress.com environment, a12s will be able to see beta extensions with no further configuration
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
@@ -84,14 +86,12 @@ yarn build-extensions \
 
 Alternatively, if you don’t need to touch PHP files, you can build extensions in the Jetpack folder without --output-path and use rsync to push files directly to your sandbox:
 
-
 ```bash
 rsync -az --delete _inc/blocks/ \
   YOUR_WPCOM_SANDBOX:/BLOCKS_PATH_IN_YOUR_SANDBOX/
 ```
 
-To test extensions for a Simple site in Calypso, sandbox the simple site URL (example.wordpress.com). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
-
+To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
 ## The Build
 
@@ -140,3 +140,54 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 
 `wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"`
 
+## Good to know when developing Gutenberg extensions
+
+### Don't worry about dependencies
+
+The build takes care of core dependencies for both editor and view -scripts. React, lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalised and automatically enqueued in PHP for your extension.
+
+Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
+
+### Jetpack sidebar
+
+Jetpack sidebar is registered on all Gutenberg editor pages and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme).
+
+Just render to `JetpackPluginSidebar` from anywhere in the code:
+
+```jsx
+import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
+
+<JetpackPluginSidebar>
+	<PanelBody title={ __( 'My sidebar section', 'jetpack' ) }>
+		<p>Jetpack is Bestpack!</p>
+	</PanelBody>
+</JetpackPluginSidebar>
+```
+
+Remember to be mindful of posts, pages, custom post types and re-usable blocks.
+
+### i18n
+As of 04/2019 `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
+
+Not possible:
+
+> Still confused? Check out <a>documentation</a> for more!
+
+Possible:
+
+> Still confused? <a>Check out documentation for more!</a>
+
+### Colours
+
+- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals]. Use Gutenberg colour variables where possible.
+- The build also supports [Muriel colours](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`). Prefer CSS custom properties if possible.
+
+### Icons
+
+Please use [Material icons](https://material.io/tools/icons/?style=outline) and don't rely on icons used in core to avoid visual mixing up.
+
+### Linking to wp-admin or Calypso
+
+<!-- @TODO: Document `getSiteFragment`? -->
+
+...
