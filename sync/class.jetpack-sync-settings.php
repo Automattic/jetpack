@@ -176,6 +176,10 @@ class Jetpack_Sync_Settings {
 		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	}
 
+	static function is_sync_enabled() {
+		return ! (  self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
+	}
+
 	static function set_doing_cron( $is_doing_cron ) {
 		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_doing_cron = $is_doing_cron;
