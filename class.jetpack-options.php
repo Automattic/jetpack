@@ -398,7 +398,7 @@ class Jetpack_Options {
 				)
 			);
 		}
-		return (bool)$updated_num;
+		return (bool) $updated_num;
 	}
 
 	/**
