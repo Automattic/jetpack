@@ -24,7 +24,7 @@ function jetpack_framing_allowed() {
 		return false;
 	}
 
-	list( $token, $signature ) = explode( '.', $_GET['frame-nonce'] );
+	list( $token, $signature ) = explode( '.', rawurldecode( $_GET['frame-nonce'] ) );
 
 	$verified = Jetpack::init()->verify_xml_rpc_signature( $token, $signature );
 
