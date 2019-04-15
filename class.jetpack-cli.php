@@ -1616,15 +1616,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 
 			WP_CLI::success( sprintf(
-					/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
-					esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n"
-					/* translators: the placeholder is a URL */
-					. esc_html__( 'You can learn more about developing Jetpack blocks at %s.', 'jetpack' ),
-					$title,
-					$slug,
-					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
-				)
-			);
+				/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
+				esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n"
+				/* translators: the placeholder is a URL */
+				. esc_html__( 'You can learn more about developing Jetpack blocks at %s.', 'jetpack' ),
+				$title,
+				$slug,
+				'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+			) );
 		}
 	}
 
