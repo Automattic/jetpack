@@ -26,6 +26,7 @@
     
     .is-aligned-center & {
         justify-content: center;
+        text-align: center;
     }
     
     .is-aligned-right & {
@@ -44,6 +45,11 @@
     
     .is-aligned-center & {
         flex-grow: 0;
+        text-align: center;
+    }
+    
+    .is-aligned-center.has-media & {
+        text-align: left;
     }
 }
 
@@ -109,6 +115,12 @@
     .wp-block-jetpack-testimonial__author {
         justify-content: center;
         text-align: center;
+    }
+    
+    &.is-aligned-center.has-media {
+        .wp-block-jetpack-testimonial__meta {
+            text-align: center;
+        }
     }
     
     &.is-aligned-left {
