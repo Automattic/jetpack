@@ -69,6 +69,7 @@ class DashActivity extends Component {
 				</DashItem>
 				<Card
 					key="view-activity"
+					className="jp-dash-item__manage-in-wpcom"
 					compact
 					href={ `https://wordpress.com/activity-log/${ this.props.siteRawUrl }` }
 				>
