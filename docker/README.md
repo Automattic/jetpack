@@ -149,6 +149,11 @@ This will run unit tests for Jetpack. You can pass arguments to `phpunit` like s
 yarn docker:phpunit --filter=Protect
 ```
 
+This command runs the tests as a multi site install
+```sh
+yarn docker:phpunit:multisite --filter=Protect
+```
+
 ### Starting over
 
 To remove all docker images, all mysql data, and all docker-related files from your local machine run:
