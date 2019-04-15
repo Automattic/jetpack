@@ -3,21 +3,33 @@
  */
 import { __ } from '@wordpress/i18n';
 import { createSlotFill, PanelBody } from '@wordpress/components';
+import { registerPlugin } from '@wordpress/plugins';
+
+/**
+ * Internal dependencies
+ */
+import JetpackPluginSidebar from './jetpack-plugin-sidebar';
 
 const { Fill, Slot } = createSlotFill( 'JetpackLikesAndSharingPanel' );
 
-const JetpackLikesAndSharingPanel = ( { children } ) => <Fill>{ children }</Fill>;
+export { Fill as default };
 
-JetpackLikesAndSharingPanel.Slot = () => (
-	<Slot>
-		{ fills => {
-			if ( ! fills.length ) {
-				return null;
-			}
+registerPlugin( 'jetpack-likes-and-sharing-panel', {
+	render() {
+		return (
+			<Slot>
+				{ fills => {
+					if ( ! fills.length ) {
+						return null;
+					}
 
-			return <PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) }>{ fills }</PanelBody>;
-		} }
-	</Slot>
-);
-
-export default JetpackLikesAndSharingPanel;
+					return (
+						<JetpackPluginSidebar>
+							<PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) }>{ fills }</PanelBody>
+						</JetpackPluginSidebar>
+					);
+				} }
+			</Slot>
+		);
+	},
+} );
