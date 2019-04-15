@@ -68,11 +68,11 @@ class Jetpack_Sync_Settings {
 		}
 
 		if ( false === $value ) { // no default value is set.
-			// We set one so that it gets autoloaded
 			$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
 			if ( self::is_network_setting( $setting ) ) {
 				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 			} else {
+				// We set one so that it gets autoloaded
 				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 		}
