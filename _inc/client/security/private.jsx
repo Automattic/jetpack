@@ -34,7 +34,11 @@ export const Private = withModuleSettingsFormHelpers(
 							link: 'https://jetpack.com/support/private',
 						} }
 					>
-						<p>{ __( 'Private sites can only be seen by you and users you approve.' ) } </p>
+						<p>
+							{ __(
+								'Private sites can only be seen by you and other users who are members of this site.'
+							) }{' '}
+						</p>
 
 						<ModuleToggle
 							slug="private"

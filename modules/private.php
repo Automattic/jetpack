@@ -38,8 +38,7 @@ class Jetpack_Private {
 	 * @param object $wp Current WordPress environment instance (passed by reference).
 	 */
 	static function privatize_blog( $wp ) {
-		global $pagenow, $wpdb;
-		$this_current_user = wp_get_current_user();
+		global $pagenow;
 
 		if ( 'wp-login.php' === $pagenow ) {
 			return;
@@ -54,7 +53,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) ) {
+		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
 			return;
 		}
 
@@ -71,8 +70,6 @@ class Jetpack_Private {
 	 * @param Mixed $user Current WordPress user or user_id.
 	 */
 	static function is_private_blog_user( $blog, $user ) {
-		global $wpdb;
-
 		if ( ! is_object( $user ) ) {
 			$user = new WP_User( $user );
 		}
@@ -90,7 +87,7 @@ class Jetpack_Private {
 			$blog    = get_blog_details( $fields );
 			$blog_id = $blog->blog_id;
 		} else {
-			$blog_id = $wpdb->blogid;
+			$blog_id = get_current_blog_id();
 		}
 
 		// check if the user has read permissions.
@@ -198,7 +195,6 @@ class Jetpack_Private {
 	static function private_blog_prevent_requests() {
 		global $pagenow;
 
-		$this_current_user     = wp_get_current_user();
 		$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
 		$is_admin_post_request = ( 'admin-post.php' === $pagenow );
 
@@ -213,7 +209,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( ! Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) {
+		if ( ! Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
 			wp_die( '', 403 );
 		}
 	}
@@ -225,10 +221,6 @@ class Jetpack_Private {
 	 * @param false|int $result The result of the nonce check.
 	 */
 	static function private_blog_ajax_nonce_check( $action, $result ) {
-		global $wpdb;
-
-		$this_current_user = wp_get_current_user();
-
 		if ( is_super_admin() ) {
 			return;
 		}
@@ -248,7 +240,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( ! Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) {
+		if ( ! Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
 			wp_die( '', 403 );
 		}
 	}
@@ -257,10 +249,7 @@ class Jetpack_Private {
 	 * Disables WordPress Rest API for external requests
 	 */
 	static function disable_rest_api() {
-		global $wpdb;
-		$this_current_user = wp_get_current_user();
-
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) ) {
+		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
 			return;
 		}
 
@@ -309,9 +298,7 @@ class Jetpack_Private {
 	 * Returns the private page template for OPML.
 	 */
 	static function hide_opml() {
-		$this_current_user = wp_get_current_user();
-
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( $wpdb->blogid, $this_current_user ) ) ) {
+		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
 			return;
 		}
 		
