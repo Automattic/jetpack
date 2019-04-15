@@ -22,10 +22,8 @@ export const settings = {
 	keywords: [ __( 'testimonial' ) ],
 	styles: [
 		{ name: 'quote', label: _x( 'Quote', 'block style' ), isDefault: true },
-		{ name: 'large', label: _x( 'Large', 'block style' ) },
-		{ name: 'small', label: _x( 'Small', 'block style' ) },
+		{ name: 'standard', label: _x( 'Standard', 'block style' ) },
 		{ name: 'spotlight', label: _x( 'Spotlight', 'block style' ) },
-		{ name: 'normal', label: _x( 'Normal', 'block style' ) },
 	],
 	attributes: {
 		align: {
