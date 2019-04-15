@@ -557,6 +557,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
 
+		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
+
 		// Also works for post type that was never registed
 		$post_id = $this->factory->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
@@ -565,6 +567,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -589,6 +592,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
+		$this->assertEquals( 'post', $post->post_type );
 
 
 		// Since the filter is not there any more the sync should happen as expected.
