@@ -103,8 +103,11 @@
 
 .is-style-spotlight {
     position: relative;
-    padding-top: 70px;
     text-align: center;
+    
+    &.has-media {
+        padding-top: 70px;
+    }
     
     .wp-block-jetpack-testimonial__media {
         position: absolute;
