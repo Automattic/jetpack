@@ -129,7 +129,7 @@ class Jetpack_AMP_Support {
 	 */
 	private static function add_site_icon_to_metadata( $metadata ) {
 		$size          = 60;
-		$site_icon_url = Jetpack_Sync_Functions::site_icon_url( $size );
+		$site_icon_url = class_exists( 'Jetpack_Sync_Functions' ) ? Jetpack_Sync_Functions::site_icon_url( $size ) : '';
 
 		if ( function_exists( 'blavatar_domain' ) ) {
 			$metadata['publisher']['logo'] = array(
