@@ -1490,7 +1490,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * The title is also used to create the slug and the edit PHP class name. If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
 	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
 	 * --description: Allows to provide a text description of the block.
-	 * --keywords: Provide up to three keywords separated by comma so users  when they search for a block in the editor.
+	 * --keywords: Provide up to three keywords separated by comma so users can find this block when they search in Gutenberg's inserter.
 	 *
 	 * ## BLOCK TYPE EXAMPLES
 	 *
@@ -1524,7 +1524,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function block( $args, $assoc_args ) {
 		if ( isset( $args[1] ) ) {
-			$title = $args[1];
+			$title = ucwords( $args[1] );
 		} else {
 			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
 			exit( 1 );
@@ -1533,6 +1533,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']
 			: sanitize_title( $title );
+
+		if ( preg_match( '#^jetpack/#', $slug ) ) {
+			$slug = preg_replace( '#^jetpack/#', '', $slug );
+		}
 
 		if ( ! preg_match( '/^[a-z][a-z0-9\-]*$/', $slug ) ) {
 			WP_CLI::error( esc_html__( 'Invalid block slug. They can contain only lowercase alphanumeric characters or dashes, and start with a letter', 'jetpack' ) . ' 👻' );
@@ -1570,7 +1574,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					? array_map( function( $keyword ) {
 						// Construction necessary for Mustache lists
 						return array( 'keyword' => trim( $keyword ) );
-					}, explode( ',', $assoc_args['keywords'] ) )
+					}, explode( ',', $assoc_args['keywords'], 3 ) )
 					: '',
 				'hasKeywords' => $hasKeywords
 			) ),
@@ -1596,7 +1600,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( empty( $files_written ) ) {
-			WP_CLI::log( esc_html__( 'No files were created' ) );
+			WP_CLI::log( esc_html__( 'No files were created', 'jetpack' ) );
 		} else {
 			// Load index.json and insert the slug of the new block in the production array
 			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
@@ -1611,7 +1615,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 			}
 
-			WP_CLI::success( sprintf( esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉', $title, $slug ) );
+			WP_CLI::success( sprintf(
+					/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
+					esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n"
+					/* translators: the placeholder is a URL */
+					. esc_html__( 'You can learn more about developing Jetpack blocks at %s.', 'jetpack' ),
+					$title,
+					$slug,
+					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+				)
+			);
 		}
 	}
 
