@@ -150,9 +150,9 @@ Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPr
 
 ### Jetpack sidebar
 
-Jetpack sidebar is registered on all Gutenberg editor pages and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme).
+Jetpack sidebar is always registered in the editor and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
 
-Just render to `JetpackPluginSidebar` from anywhere in the code:
+Just render with `JetpackPluginSidebar` component from anywhere in your plugin's code:
 
 ```jsx
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
@@ -164,10 +164,12 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 </JetpackPluginSidebar>
 ```
 
-Remember to be mindful of posts, pages, custom post types and re-usable blocks.
+The sidebar won't show up at all if nothing isn't rendering in the sidebar's "slot".
+
+Remember to be mindful of posts, pages, custom post types and re-usable block post type. See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts.
 
 ### i18n
-As of 04/2019 `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
+As of 04/2019, `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
 
 Not possible:
 
