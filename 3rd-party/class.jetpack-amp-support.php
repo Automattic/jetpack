@@ -265,9 +265,6 @@ class Jetpack_AMP_Support {
 			'twitter'       => array(),
 			'pinterest'     => array(),
 			'whatsapp'      => array(),
-			'google-plus-1' => array(
-				'type' => 'gplus',
-			),
 			'tumblr'        => array(),
 			'linkedin'      => array(),
 		);
