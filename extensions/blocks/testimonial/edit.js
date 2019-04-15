@@ -31,7 +31,6 @@ export default class TestimonialEdit extends Component {
 	render() {
 		const { attributes, className, isSelected } = this.props;
 		const hasMedia = attributes.mediaUrl && attributes.mediaId;
-		const alignmentClass = attributes.align && `is-aligned-${ attributes.align }`;
 		const avatarTooltip = hasMedia ? __( 'Change avatar' ) : __( 'Add avatar' );
 
 		return (
@@ -60,7 +59,12 @@ export default class TestimonialEdit extends Component {
 						) }
 					/>
 				</BlockControls>
-				<div className={ classnames( className, alignmentClass ) }>
+				<div
+					className={ classnames( className, {
+						'has-media': hasMedia || isSelected,
+						[ `is-aligned-${ attributes.align }` ]: !! attributes.align,
+					} ) }
+				>
 					<RichText
 						tagName="div"
 						value={ attributes.content }

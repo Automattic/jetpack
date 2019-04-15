@@ -13,9 +13,13 @@ export default ( { attributes, className } ) => {
 	const { align, content, name, title, mediaUrl, mediaId } = attributes;
 	const hasMedia = mediaUrl && mediaId;
 
-	const alignmentClass = align && `is-aligned-${ align }`;
 	return (
-		<div className={ classnames( className, alignmentClass ) }>
+		<div
+			className={ classnames( className, {
+				'has-media': hasMedia,
+				[ `is-aligned-${ align }` ]: !! align,
+			} ) }
+		>
 			<RichText.Content
 				tagName="div"
 				className="wp-block-jetpack-testimonial__content"
