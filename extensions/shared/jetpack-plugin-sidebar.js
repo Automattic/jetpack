@@ -20,7 +20,8 @@ const JetpackPluginSidebar = ( { children } ) => <Fill>{ children }</Fill>;
 JetpackPluginSidebar.Slot = () => (
 	<Slot>
 		{ fills => {
-			if ( ! fills.length ) {
+			const likesAndSharingPanel = <JetpackLikesAndSharingPanel.Slot />;
+			if ( ! fills.length && ! likesAndSharingPanel ) {
 				return null;
 			}
 
@@ -31,7 +32,7 @@ JetpackPluginSidebar.Slot = () => (
 					</PluginSidebarMoreMenuItem>
 					<PluginSidebar name="jetpack" title="Jetpack" icon={ <JetpackLogo /> }>
 						{ fills }
-						<JetpackLikesAndSharingPanel.Slot />
+						{ likesAndSharingPanel }
 					</PluginSidebar>
 				</Fragment>
 			);
