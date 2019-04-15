@@ -1,10 +1,11 @@
+@import '../../shared/styles/jetpack.scss';
 @import './variables.scss';
 @import './css-gram.scss';
 
 $tiled-gallery-max-column-count: 20;
 
 .wp-block-jetpack-tiled-gallery {
-	margin: 0 auto 1.5em;
+	margin: 0 auto $jetpack-block-margin-bottom;
 
 	&.is-style-circle .tiled-gallery__item img {
 		border-radius: 50%;

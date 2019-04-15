@@ -1,7 +1,8 @@
+@import '../../shared/styles/gutenberg-colors.scss';
+@import '../../shared/styles/gutenberg-variables.scss';
 
 .wp-block-jetpack-simple-payments {
-	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-		Helvetica Neue, sans-serif;
+	font-family: $default-font;
 	display: grid;
 	grid-template-columns: 200px auto;
 	grid-column-gap: 10px;

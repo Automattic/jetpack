@@ -1,3 +1,5 @@
+@import '../../shared/gutenberg-colors.scss';
+
 .wp-block-jetpack-gif {
 	clear: both;
 	margin: 0 0 20px;
@@ -25,7 +27,7 @@
 	.wp-block-jetpack-gif-caption {
 		margin-top: 0.5em;
 		margin-bottom: 1em;
-		color: #555d66;
+		color: $dark-gray-500;
 		text-align: center;
 	}
 	.wp-block-jetpack-gif-wrapper {

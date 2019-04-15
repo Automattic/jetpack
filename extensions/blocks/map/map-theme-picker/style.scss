@@ -17,7 +17,7 @@
 			transform: scale( 1.1 );
 		}
 		&.is-selected {
-			border-color: black;
+			border-color: $black;
 		}
 		&.is-theme-default {
 			background-image: url( './map-theme_default.jpg' );

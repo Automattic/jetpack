@@ -1,3 +1,5 @@
+@import '../../shared/gutenberg-colors.scss';
+
 .wp-block-jetpack-mailchimp {
 
 	&.is-processing {
@@ -15,17 +17,17 @@
 		}
 
 		&.wp-block-jetpack-mailchimp_error {
-			background-color: $muriel-hot-red-500;
-			color: #fff;
+			background-color: var( --muriel-hot-red-500 );
+			color: var( --muriel-white );
 		}
 
 		&.wp-block-jetpack-mailchimp_processing {
-			background-color: rgba( 0, 0, 0, 0.025 );
+			background-color: rgba( 0, 0, 0, 0.025 ); // This would be "dark-opacity-light-50" which doesn't exist in Gutenberg
 		}
 
 		&.wp-block-jetpack-mailchimp_success {
-			background-color: $muriel-hot-green-500;
-			color: #fff;
+			background-color: var( --muriel-hot-green-500 );
+			color: var( --muriel-white );
 		}
 	}
 
