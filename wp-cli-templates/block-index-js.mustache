@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -16,8 +16,8 @@ import edit from './edit';
  */
 import './editor.scss';
 
-export const name     = '{{ slug }}';
-export const title    = __( '{{ title }}', 'jetpack' );
+export const name = '{{ slug }}';
+export const title = __( '{{ title }}', 'jetpack' );
 export const settings = {
 	title,
 
@@ -35,7 +35,6 @@ export const settings = {
 
 	category: 'jetpack',
 
-	/* @TODO Add up to three keywords */
 	keywords: [ {{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}} ],
 
 	supports: {
@@ -43,8 +42,8 @@ export const settings = {
 	},
 
 	/* @TODO Write the block editor UI */
-	edit: () => <div>Hi! The edit view for this block goes here.</div>,
+	edit,
 
 	/* @TODO Write the block editor output */
-	save: () => null,
+	save: () => <p>__( 'Block output goes here', 'jetpack' )</p>,
 };

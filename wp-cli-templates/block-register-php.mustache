@@ -9,7 +9,7 @@
 
 jetpack_register_block(
 	'jetpack/{{ slug }}',
-	array( 'render_callback' => 'jetpack_{{ slug }}_block_load_assets' )
+	array( 'render_callback' => 'jetpack_{{ underscoredSlug }}_block_load_assets' )
 );
 
 /**
@@ -20,7 +20,7 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_{{ slug }}_block_load_assets( $attr, $content ) {
+function jetpack_{{ underscoredSlug }}_block_load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( '{{ slug }}' );
 	return $content;
 }

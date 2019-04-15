@@ -2,24 +2,24 @@
 * External dependencies
 */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 
 /**
 * Internal dependencies
 */
-/* @TODO add any needed dependency */
-
+/* @TODO Add any needed dependency */
 import './editor.scss';
 
 class {{ className }}Edit extends Component {
 
+	/**
+	 * Write the block editor UI.
+	 */
     render() {
         const { attributes, setAttributes } = this.props;
 
         return (
-            <Fragment>
-
-            </Fragment>
+			<p>__( 'Block edit goes here', 'jetpack' )</p>
         );
     }
 }

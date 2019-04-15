@@ -1478,30 +1478,57 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Creates the essential files in Jetpack to start building a Gutenberg block.
+	 * Creates the essential files in Jetpack to start building a Gutenberg block or plugin.
 	 *
-	 * All files will be created in a directory under extensions/blocks named based on the block title or a specific given slug.
+	 * ## TYPES
 	 *
-	 * ## OPTIONS
+	 * block: it creates a Jetpack block. All files will be created in a directory under extensions/blocks named based on the block title or a specific given slug.
 	 *
-	 * title : Block name, also used to create the slug and the edit PHP class name.
-	 *         If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
+	 * ## BLOCK TYPE OPTIONS
+	 *
+	 * The first parameter is the block title and it's not associative. Add it wrapped in quotes.
+	 * The title is also used to create the slug and the edit PHP class name. If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
 	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
 	 * --description: Allows to provide a text description of the block.
 	 * --keywords: Provide up to three keywords separated by comma so users  when they search for a block in the editor.
 	 *
-	 * ## EXAMPLES
+	 * ## BLOCK TYPE EXAMPLES
 	 *
-	 * wp jetpack block "Cool Block"
-	 * wp jetpack block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
-	 * wp jetpack block "Jukebox" --keywords="music, audio, media"
+	 * wp jetpack scaffold block "Cool Block"
+	 * wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
+	 * wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"
 	 *
-	 * @subcommand block
-	 * @synopsis <title> [--slug] [--description] [--keywords]
+	 * @subcommand scaffold block
+	 * @synopsis <type> <title> [--slug] [--description] [--keywords]
+	 *
+	 * @param array $args       Positional parameters, when strings are passed, wrap them in quotes.
+	 * @param array $assoc_args Associative parameters like --slug="nice-block".
+	 */
+	public function scaffold( $args, $assoc_args ) {
+		// It's ok not to check if it's set, because otherwise WPCLI exits earlier.
+		switch ( $args[0] ) {
+			case 'block':
+				$this->block( $args, $assoc_args );
+				break;
+			default:
+				WP_CLI::error( sprintf( esc_html__( 'Invalid subcommand %s.', 'jetpack' ), $args[0] ) . ' 👻' );
+				exit( 1 );
+		}
+	}
+
+	/**
+	 * Creates the essential files in Jetpack to build a Gutenberg block.
+	 *
+	 * @param array $args       Positional parameters. Only one is used, that corresponds to the block title.
+	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
 	 */
 	public function block( $args, $assoc_args ) {
-		// It's ok not to check because if it's set, WPCLI exits earlier.
-		$title = $args[0];
+		if ( isset( $args[1] ) ) {
+			$title = $args[1];
+		} else {
+			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
+			exit( 1 );
+		}
 
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']
@@ -1529,6 +1556,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			"$path/$slug.php" => $this->render_block_file( 'block-register-php', array(
 				'slug' => $slug,
 				'title' => $title,
+				'underscoredSlug' => str_replace( '-', '_', $slug ),
 			) ),
 			"$path/index.js" => $this->render_block_file( 'block-index-js', array(
 				'slug' => $slug,
@@ -1545,6 +1573,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			) ),
 			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
 			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
+				'slug' => $slug,
 				'title' => $title,
 			) ),
 			$files[ "{$path}/edit.js" ] = $this->render_block_file( 'block-edit-js', array(
