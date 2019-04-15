@@ -121,7 +121,7 @@ class Jetpack_Sync_Settings {
 			unset( self::$settings_cache[ $setting ] );
 
 			// if we set the disabled option to true, clear the queues
-			if ( ( 'disable' === $setting || 'network_disable' ) && ! ! $value ) {
+			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
 				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
