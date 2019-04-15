@@ -51,7 +51,7 @@ And add your extensions's slug the appropriate array in `extensions/index.json`.
 Generally, all new extensions should start out as beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
-- Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`
+- Ensure that, in you docker environment, the `JETPACK_BETA_BLOCKS` constant is set to `true`. You can also try defining your constant in `docker/wordpress/wp-config.php` as `define( 'JETPACK_BETA_BLOCKS', true );`.
 - In the WordPress.com environment, a12s will be able to see beta extensions with no further configuration
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
