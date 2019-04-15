@@ -289,7 +289,7 @@ export class DevCard extends React.Component {
 				</ul>
 				<hr />
 				<ul>
-					<strong>Rewind</strong>
+					<strong>Backup & Scan</strong>
 					<li>
 						<label htmlFor="rewindUnavailable">
 							<input

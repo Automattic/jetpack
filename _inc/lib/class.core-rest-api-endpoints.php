@@ -1074,7 +1074,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! is_wp_error( $rewind_data ) ) {
 			return rest_ensure_response( array(
 					'code' => 'success',
-					'message' => esc_html__( 'Rewind data correctly received.', 'jetpack' ),
+					'message' => esc_html__( 'Backup & Scan data correctly received.', 'jetpack' ),
 					'data' => wp_json_encode( $rewind_data ),
 				)
 			);
@@ -1090,7 +1090,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error(
 			'error_get_rewind_data',
-			esc_html__( 'Could not retrieve Rewind data.', 'jetpack' ),
+			esc_html__( 'Could not retrieve Backup & Scan data.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
 	}
