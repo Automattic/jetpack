@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { RichText } from '@wordpress/editor';
+import { RichText, getFontSizeClass } from '@wordpress/editor';
 import classnames from 'classnames';
 
 /**
@@ -10,16 +10,20 @@ import classnames from 'classnames';
 //import { __ } from '../../utils/i18n';
 
 export default ( { attributes, className } ) => {
-	const { align, content, name, title, mediaUrl, mediaId } = attributes;
+	const { align, content, name, title, mediaUrl, mediaId, fontSize, customFontSize } = attributes;
 	const hasMedia = mediaUrl && mediaId;
+	const fontSizeClass = getFontSizeClass( fontSize );
+	const styles = {
+		fontSize: fontSizeClass ? undefined : customFontSize,
+	};
+	const blockClassName = classnames( className, {
+		'has-media': hasMedia,
+		[ `is-aligned-${ align }` ]: !! align,
+		[ fontSizeClass ]: fontSizeClass,
+	} );
 
 	return (
-		<div
-			className={ classnames( className, {
-				'has-media': hasMedia,
-				[ `is-aligned-${ align }` ]: !! align,
-			} ) }
-		>
+		<div className={ blockClassName } style={ styles }>
 			<RichText.Content
 				tagName="div"
 				className="wp-block-jetpack-testimonial__content"

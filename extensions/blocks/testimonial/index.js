@@ -53,6 +53,12 @@ export const settings = {
 		mediaId: {
 			type: 'number',
 		},
+		fontSize: {
+			type: 'string',
+		},
+		customFontSize: {
+			type: 'number',
+		},
 	},
 	edit: TestimonialEdit,
 	save: TestimonialSave,

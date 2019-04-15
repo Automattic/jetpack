@@ -2,8 +2,18 @@
  * External dependencies
  */
 import { Component, Fragment } from '@wordpress/element';
-import { RichText, BlockControls, AlignmentToolbar, MediaUpload } from '@wordpress/editor';
-import { Tooltip, Toolbar } from '@wordpress/components';
+import {
+	RichText,
+	BlockControls,
+	AlignmentToolbar,
+	MediaUpload,
+	getFontSizeClass,
+	withFontSizes,
+	InspectorControls,
+	FontSizePicker,
+} from '@wordpress/editor';
+import { Tooltip, Toolbar, PanelBody } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 import classnames from 'classnames';
 import { filter } from 'lodash';
 
@@ -20,7 +30,7 @@ const getKeyDownHandler = callback => event => {
 	}
 };
 
-export default class TestimonialEdit extends Component {
+class TestimonialBlock extends Component {
 	onChangeName = value => void this.props.setAttributes( { name: value } );
 	onChangeTitle = value => void this.props.setAttributes( { title: value } );
 	onChangeContent = value => void this.props.setAttributes( { content: value } );
@@ -29,9 +39,18 @@ export default class TestimonialEdit extends Component {
 		void this.props.setAttributes( { mediaUrl: media.url, mediaId: media.id } );
 
 	render() {
-		const { attributes, className, isSelected } = this.props;
+		const { attributes, isSelected, fontSize, setFontSize } = this.props;
 		const hasMedia = attributes.mediaUrl && attributes.mediaId;
 		const avatarTooltip = hasMedia ? __( 'Change avatar' ) : __( 'Add avatar' );
+		const fontSizeClass = getFontSizeClass( attributes.fontSize );
+		const styles = {
+			fontSize: fontSizeClass ? undefined : attributes.customFontSize,
+		};
+		const className = classnames( this.props.className, {
+			'has-media': hasMedia || isSelected,
+			[ `is-aligned-${ attributes.align }` ]: !! attributes.align,
+			[ fontSizeClass ]: fontSizeClass,
+		} );
 
 		return (
 			<Fragment>
@@ -59,12 +78,12 @@ export default class TestimonialEdit extends Component {
 						) }
 					/>
 				</BlockControls>
-				<div
-					className={ classnames( className, {
-						'has-media': hasMedia || isSelected,
-						[ `is-aligned-${ attributes.align }` ]: !! attributes.align,
-					} ) }
-				>
+				<InspectorControls>
+					<PanelBody title={ __( 'Size Settings' ) } className="blocks-font-size">
+						<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
+					</PanelBody>
+				</InspectorControls>
+				<div style={ styles } className={ className }>
 					<RichText
 						tagName="div"
 						value={ attributes.content }
@@ -134,3 +153,7 @@ export default class TestimonialEdit extends Component {
 		);
 	}
 }
+
+const TestimonialEdit = compose( [ withFontSizes( 'fontSize' ) ] )( TestimonialBlock );
+
+export default TestimonialEdit;
