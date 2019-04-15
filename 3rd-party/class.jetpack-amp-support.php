@@ -9,8 +9,11 @@ class Jetpack_AMP_Support {
 
 	static function init() {
 
-		// enable stats
-		if ( Jetpack::is_module_active( 'stats' ) ) {
+		// Add Stats tracking pixel on Jetpack sites when the Stats module is active.
+		if (
+			Jetpack::is_module_active( 'stats' )
+			&& ! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		) {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
 		}
 
@@ -53,7 +56,7 @@ class Jetpack_AMP_Support {
 	}
 
 	static function amp_disable_the_content_filters() {
-		if ( defined( 'WPCOM') && WPCOM ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_filter( 'videopress_show_2015_player', '__return_true' );
 			add_filter( 'protected_embeds_use_form_post', '__return_false' );
 			remove_filter( 'the_title', 'widont' );
@@ -213,7 +216,7 @@ class Jetpack_AMP_Support {
 	 * @return array Dimensions.
 	 */
 	static function extract_image_dimensions_from_getimagesize( $dimensions ) {
-		if ( ! ( defined('WPCOM') && WPCOM && function_exists( 'require_lib' ) ) ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) ) {
 			return $dimensions;
 		}
 		require_lib( 'wpcom/imagesize' );
@@ -235,7 +238,10 @@ class Jetpack_AMP_Support {
 	}
 
 	static function amp_post_jetpack_og_tags() {
-		Jetpack::init()->check_open_graph();
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			Jetpack::init()->check_open_graph();
+		}
+
 		if ( function_exists( 'jetpack_og_tags' ) ) {
 			jetpack_og_tags();
 		}
