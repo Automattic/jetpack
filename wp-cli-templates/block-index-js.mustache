@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __{{#hasKeywords}}, _x{{/hasKeywords}} } from '@wordpress/i18n';
 import { ExternalLink, Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './edit';
 
 /**
@@ -35,7 +35,7 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ {{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}} ],
+	keywords: [{{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}}],
 
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.

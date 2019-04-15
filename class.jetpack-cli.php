@@ -1552,6 +1552,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$wp_filesystem->mkdir( $path );
 
+		$hasKeywords = isset( $assoc_args['keywords'] );
+
 		$files = array(
 			"$path/$slug.php" => $this->render_block_file( 'block-register-php', array(
 				'slug' => $slug,
@@ -1564,19 +1566,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'description' => isset( $assoc_args['description'] )
 					? $assoc_args['description']
 					: $title,
-				'keywords' => isset( $assoc_args['keywords'] )
+				'keywords' => $hasKeywords
 					? array_map( function( $keyword ) {
 						// Construction necessary for Mustache lists
 						return array( 'keyword' => trim( $keyword ) );
 					}, explode( ',', $assoc_args['keywords'] ) )
 					: '',
+				'hasKeywords' => $hasKeywords
 			) ),
 			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
 			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
 				'slug' => $slug,
 				'title' => $title,
 			) ),
-			$files[ "{$path}/edit.js" ] = $this->render_block_file( 'block-edit-js', array(
+			"$path/edit.js" => $this->render_block_file( 'block-edit-js', array(
 				'title' => $title,
 				'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 			) )
