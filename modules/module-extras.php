@@ -86,18 +86,24 @@ add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 
 add_action( 'blog_privacy_selector', 'priv_notice_privacy_selector' );
 
+/**
+ * Displays the option to enable privacy in Settings.
+ */
 function priv_notice_privacy_selector() {
- 	?>
- 	<p>
- 	<?php
+	?>
+	<p>
+	<?php
 		printf(
-			__( 'You can also make your site completely private by allowing only registered users to see your site. 
-	 			Activate Jetpack\'s Private Site feature <a href="%s">here</a>.', 'jetpack' ),
-			admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private'
+			'%s <a href="%s#/security?term=private">%s</a>',
+			esc_html__( 'You can also make your site completely private by allowing only registered users to see your site.', 'jetpack' ),
+			esc_url(
+				admin_url( 'admin.php?page=jetpack' ),
+				esc_html__( 'Go to Private Sites settings', 'jetpack' )
+			)
 		);
 	?>
- 	</p>
+	</p>
 
- 	<?php
+	<?php
 }
 
