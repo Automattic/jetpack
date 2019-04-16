@@ -1617,13 +1617,22 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			WP_CLI::success( sprintf(
 				/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
-				esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n"
+				esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n" .
+				"--------------------------------------------------------------------------------------------------------------------\n" .
+				/* translators: the placeholder is a directory path */
+				esc_html__( 'The files were created at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
+				/* translators: the placeholder is a file path */
+				esc_html__( 'The block slug has been added to the beta list at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To load the block, add the constant JETPACK_BETA_BLOCKS as true to your wp-config.php file', 'jetpack' ) . "\n" .
 				/* translators: the placeholder is a URL */
-				. esc_html__( 'You can learn more about developing Jetpack blocks at %s.', 'jetpack' ),
+				"\n" . esc_html__( 'Read more at %s', 'jetpack' ) . "\n",
 				$title,
 				$slug,
+				$path,
+				$block_list_path,
 				'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
-			) );
+			) . '--------------------------------------------------------------------------------------------------------------------' );
 		}
 	}
 
