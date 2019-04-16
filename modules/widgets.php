@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Add images, Twitter streams, and more to your sidebar.
+ * Module Description: Provides additional widgets for use on your site.
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
