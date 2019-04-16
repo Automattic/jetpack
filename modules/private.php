@@ -84,10 +84,6 @@ class Jetpack_Private {
 			$blog_id = get_current_blog_id();
 		}
 
-		// check if the user has read permissions.
-		$the_user = wp_get_current_user();
-		$the_user->for_site( $blog_id );
-
 		/**
 		 * Filter the capabilites a user needs to have to see the site
 		 *
@@ -97,7 +93,7 @@ class Jetpack_Private {
 		 * @param string $cap The lowest capability a user needs to have
 		 */
 		$capability = apply_filters( 'jetpack_private_capability', 'read' );
-		return $the_user->has_cap( $capability );
+		return current_user_can_for_blog( $blog_id, $capability );
 	}
 
 	/**
