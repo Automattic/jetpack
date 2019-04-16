@@ -229,7 +229,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'widgets' => array(
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add images, Twitter streams, and more to your sidebar.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Provides additional widgets for use on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'wordads' => array(
