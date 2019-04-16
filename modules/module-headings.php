@@ -224,7 +224,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'widget-visibility' => array(
 				'name' => _x( 'Widget Visibility', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Configure widgets to appear only on certain posts or pages.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Control where widgets appear on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'widgets' => array(
