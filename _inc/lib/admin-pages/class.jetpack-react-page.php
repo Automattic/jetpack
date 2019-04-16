@@ -150,8 +150,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			true
 		);
 
-		wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
-
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
