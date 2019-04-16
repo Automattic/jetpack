@@ -25,11 +25,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
 							encodeURIComponent( url ),
 					],
-					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
 					facebook: [
-						window.location.protocol +
-							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-							encodeURIComponent( url ),
+						'https://public-api.wordpress.com/rest/v1.1/sites/' +
+							parseInt( window.WPCOM_site_ID, 10 ) +
+							'/sharing-buttons/facebook/count?post_ID=' +
+							parseInt( id, 10 ),
 					],
 				};
 
@@ -39,7 +39,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					}
 
 					while ( ( service_request = requests[ service ].pop() ) ) {
-						jQuery.getScript( service_request );
+						jQuery.ajax( {
+							url: service_request,
+							dataType: 'jsonp',
+							jsonpCallback: 'WPCOMSharing.update_' + service + '_count',
+							cache: true,
+						} );
 					}
 
 					if ( sharing_js_options.is_stats_active ) {
@@ -62,32 +67,22 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			return url;
 		},
 		update_facebook_count: function( data ) {
-			var url, permalink;
-
-			if ( ! data ) {
+			if ( ! data || ! data.counts || ! Array.isArray( data.counts ) ) {
 				return;
 			}
 
-			for ( url in data ) {
-				if (
-					! data.hasOwnProperty( url ) ||
-					! data[ url ].share ||
-					! data[ url ].share.share_count
-				) {
-					continue;
+			data.counts.forEach( function( post ) {
+				if ( ! post.post_ID || ! post.count || ! post.URL ) {
+					return;
 				}
 
-				permalink = WPCOMSharing.get_permalink( url );
-
-				if ( ! ( permalink in WPCOM_sharing_counts ) ) {
-					continue;
-				}
+				var permalink = WPCOMSharing.get_permalink( post.URL );
 
 				WPCOMSharing.inject_share_count(
 					'sharing-facebook-' + WPCOM_sharing_counts[ permalink ],
-					data[ url ].share.share_count
+					post.count
 				);
-			}
+			} );
 		},
 		update_pinterest_count: function( data ) {
 			if ( 'undefined' !== typeof data.count && data.count * 1 > 0 ) {
