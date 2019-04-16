@@ -6,8 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import classNames from 'classnames';
-import includes from 'lodash/includes';
-import noop from 'lodash/noop';
+import { includes, noop } from 'lodash';
 
 /**
  * Internal dependencies

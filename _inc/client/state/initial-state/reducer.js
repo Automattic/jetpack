@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
-import get from 'lodash/get';
+import { assign, get, merge } from 'lodash';
 
 /**
  * Internal dependencies

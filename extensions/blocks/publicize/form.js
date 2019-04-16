@@ -8,7 +8,7 @@
 /**
  * External dependencies
  */
-import get from 'lodash/get';
+import { get } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 

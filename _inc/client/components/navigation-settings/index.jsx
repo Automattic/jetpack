@@ -1,9 +1,6 @@
 /**
  * External dependencies
- *
- * @format
  */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
@@ -13,7 +10,7 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
 

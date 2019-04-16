@@ -18,8 +18,7 @@ import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
-import isArray from 'lodash/isArray';
-import get from 'lodash/get';
+import { get, isArray } from 'lodash';
 import { showBackups } from 'state/initial-state';
 
 /**

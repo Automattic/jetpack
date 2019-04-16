@@ -7,8 +7,7 @@ import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
+import { get, includes } from 'lodash';
 import Banner from 'components/banner';
 
 /**

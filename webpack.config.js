@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const devMode = process.env.NODE_ENV !== 'production';
@@ -48,9 +49,6 @@ const webpackConfig = {
 	},
 	resolve: {
 		extensions: [ '.js', '.jsx' ],
-		alias: {
-			react: path.join( __dirname, '/node_modules/react' ),
-		},
 		modules: [
 			path.resolve( __dirname, 'node_modules' ),
 			path.resolve( __dirname, '_inc/client' ),
@@ -74,13 +72,8 @@ const webpackConfig = {
 			// both options are optional
 			filename: '[name].dops-style.css',
 		} ),
+		new WordPressExternalDependenciesPlugin(),
 	],
-	externals: {
-		'react/addons': true,
-		'react/lib/ExecutionEnvironment': true,
-		'react/lib/ReactContext': true,
-		jsdom: 'window',
-	},
 	devtool: devMode ? 'source-map' : false,
 };
 

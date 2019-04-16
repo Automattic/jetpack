@@ -1,9 +1,6 @@
 /**
  * External dependencies
- *
- * @format
  */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -13,7 +10,7 @@ import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import Modal from 'components/modal';
 import { getPlanClass } from 'lib/plans/constants';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import analytics from 'lib/analytics';
 
 /**

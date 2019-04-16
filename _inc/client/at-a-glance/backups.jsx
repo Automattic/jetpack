@@ -6,9 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
+import { get, isEmpty, noop } from 'lodash';
 
 /**
  * Internal dependencies

@@ -8,7 +8,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies

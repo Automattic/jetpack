@@ -4,14 +4,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 /**
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-
 import './style.scss';
 
 export default class SimpleNotice extends React.Component {

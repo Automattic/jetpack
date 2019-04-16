@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import Banner from 'components/banner';
 
 /**

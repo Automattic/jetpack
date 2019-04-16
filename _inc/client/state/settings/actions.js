@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import get from 'lodash/get';
+import { get, some } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
-import some from 'lodash/some';
 
 /**
  * Internal dependencies

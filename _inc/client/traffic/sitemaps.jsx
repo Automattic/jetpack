@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
-import get from 'lodash/get';
+import { get } from 'lodash';
 import analytics from 'lib/analytics';
 
 /**

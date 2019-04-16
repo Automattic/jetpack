@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { getPlanClass } from 'lib/plans/constants';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies

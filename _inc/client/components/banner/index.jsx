@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import noop from 'lodash/noop';
-import size from 'lodash/size';
+import { noop, size } from 'lodash';
 
 /**
  * Internal dependencies

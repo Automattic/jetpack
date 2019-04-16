@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import map from 'lodash/map';
+import { map } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 
 export default class ValidationErrorList extends React.Component {
