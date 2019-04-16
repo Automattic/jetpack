@@ -394,7 +394,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			<div class="plugin-card-top">
 				<div class="name column-name">
 					<h3>
-						<a href="<?php echo esc_url( $details_link ); ?>" class="thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
+						<a href="<?php echo esc_url( $details_link ); ?>" class="jptracks thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
 						<?php echo $title; ?>
 						<img src="<?php echo esc_attr( $plugin_icon_url ); ?>" class="plugin-icon" alt="">
 						</a>
@@ -405,7 +405,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				</div>
 
 				<div class="details-link">
-					<a class="thickbox open-plugin-details-modal" href="<?php echo $details_link; ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
+					<a class="jptracks thickbox open-plugin-details-modal" href="<?php echo $details_link; ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
 				</div>
 			</div>
 

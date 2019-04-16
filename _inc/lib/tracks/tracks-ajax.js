@@ -27,10 +27,9 @@
 
 	$( document ).ready( function() {
 		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function( event ) {
-			var $this = $( this );
+			var $this = $( event.target );
 			// We know that the jptracks element is either this, or its ancestor
 			var $jptracks = $this.closest( '.jptracks' );
-
 			// We need an event name at least
 			var eventName = $jptracks.attr( 'data-jptracks-name' );
 			if ( undefined === eventName ) {
@@ -46,13 +45,11 @@
 				newTabWindow.opener = null;
 			}
 
-			if ( ! $this.hasClass( 'thickbox' ) ) {
-				event.preventDefault();
-			}
+			event.preventDefault();
 
 			window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp ).always( function() {
 				// Continue on to whatever url they were trying to get to.
-				if ( url ) {
+				if ( url && ! $this.hasClass( 'thickbox' ) ) {
 					if ( newTabWindow ) {
 						newTabWindow.location = url;
 						return;
