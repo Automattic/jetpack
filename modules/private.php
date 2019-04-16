@@ -3,7 +3,7 @@
  * Module Name: Private site
  * Module Description: Make your site only visible to you and users you approve.
  * Sort Order: 9
- * First Introduced: 7.0
+ * First Introduced: 7.2
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Private
@@ -70,7 +70,7 @@ class Jetpack_Private {
 	 * @param Mixed $user Current WordPress user or user_id.
 	 */
 	protected static function is_private_blog_user( $blog, $user ) {
-		if ( ! is_object( $user ) ) {
+		if ( ! ( $user instanceof WP_User ) ) {
 			$user = new WP_User( $user );
 		}
 
@@ -100,8 +100,8 @@ class Jetpack_Private {
 		/**
 		 * Filter the capabilites a user needs to have to see the site
 		 *
-		 * @module sitemaps
-		 * @since 6.9
+		 * @module private sites
+		 * @since 7.2
 		 *
 		 * @param string $cap The lowest capability a user needs to have
 		 */
