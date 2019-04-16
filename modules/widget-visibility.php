@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Widget Visibility
- * Module Description: Control where widgets appear on your site.
+ * Module Description: Configure widgets to appear only on certain posts or pages.
  * First Introduced: 2.4
  * Requires Connection: No
  * Auto Activate: Yes
