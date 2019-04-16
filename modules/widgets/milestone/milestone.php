@@ -74,7 +74,10 @@ class Milestone_Widget extends WP_Widget {
 	}
 
 	public static function enqueue_template() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
 			return;
 		}
 
@@ -179,7 +182,10 @@ class Milestone_Widget extends WP_Widget {
 	 * Hooks into the "wp_footer" action.
 	 */
 	function localize_script() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return;
 		}
 

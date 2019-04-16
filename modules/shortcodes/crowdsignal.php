@@ -235,7 +235,10 @@ CONTAINER;
 
 			$item_id = esc_js( $item_id );
 
-			if ( Jetpack_AMP_Support::is_amp_request() ) {
+			if (
+				class_exists( 'Jetpack_AMP_Support' )
+				&& Jetpack_AMP_Support::is_amp_request()
+			) {
 				return sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $permalink ), esc_html( trim( $title ) ) );
 			} elseif ( $inline ) {
 				return <<<SCRIPT
@@ -279,7 +282,10 @@ CONTAINER;
 			$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
 			$poll_link = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $poll_url ), esc_html( $title ) );
 
-			if ( $no_script || Jetpack_AMP_Support::is_amp_request() ) {
+			if (
+				$no_script
+				|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
+			) {
 				return $poll_link;
 			} else {
 				if ( $type == 'slider' && !$inline ) {
