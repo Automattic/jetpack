@@ -3,7 +3,7 @@
  * Module Name: Private site
  * Module Description: Make your site only visible to you and users you approve.
  * Sort Order: 9
- * First Introduced: 7.2
+ * First Introduced: 7.3
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Private
@@ -88,7 +88,7 @@ class Jetpack_Private {
 		 * Filter the capabilites a user needs to have to see the site
 		 *
 		 * @module private sites
-		 * @since 7.2
+		 * @since 7.3
 		 *
 		 * @param string $cap The lowest capability a user needs to have
 		 */
