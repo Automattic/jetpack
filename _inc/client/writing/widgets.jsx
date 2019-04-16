@@ -46,7 +46,7 @@ class Widgets extends Component {
 				<SettingsGroup
 					module={ { module: 'widget-visibility' } }
 					support={ {
-						text: this.props.widgetVisibilityModule.description,
+						text: __( 'Configure widgets to appear only on certain posts or pages.' ),
 						link: 'https://jetpack.com/support/widget-visibility/',
 					} }
 				>
@@ -69,7 +69,6 @@ export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
 			widgetVisibilityActive: ownProps.getOptionValue( 'widget-visibility' ),
-			widgetVisibilityModule: getModule( state, 'widget-visibility' ),
 			widgetsActive: ownProps.getOptionValue( 'widgets' ),
 			widgetsModule: getModule( state, 'widgets' ),
 		};
