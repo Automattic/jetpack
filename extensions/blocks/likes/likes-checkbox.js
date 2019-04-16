@@ -6,14 +6,21 @@ import { CheckboxControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-panel';
+
 const LikesCheckbox = ( { areLikesEnabled, editPost } ) => (
-	<CheckboxControl
-		label={ __( 'Show likes.', 'jetpack' ) }
-		checked={ areLikesEnabled }
-		onChange={ value => {
-			editPost( { jetpack_likes_enabled: value } );
-		} }
-	/>
+	<JetpackLikesAndSharingPanel>
+		<CheckboxControl
+			label={ __( 'Show likes.', 'jetpack' ) }
+			checked={ areLikesEnabled }
+			onChange={ value => {
+				editPost( { jetpack_likes_enabled: value } );
+			} }
+		/>
+	</JetpackLikesAndSharingPanel>
 );
 
 // Fetch the post meta.

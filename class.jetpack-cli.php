@@ -668,20 +668,26 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * status : Print the current sync status
-	 * start  : Start a full sync from this site to WordPress.com
+	 * status   : Print the current sync status
+	 * settings : Prints the current sync settings
+	 * start    : Start a full sync from this site to WordPress.com
+	 * enable   : Enables sync on the site
+	 * disable  : Disable sync on a site
+	 * reset    : Disables sync and Resets the sync queues on a site
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sync status
+	 * wp jetpack sync settings
 	 * wp jetpack sync start --modules=functions --sync_wait_time=5
+	 * wp jetpack sync enable
+	 * wp jetpack sync disable
+	 * wp jetpack sync reset
+	 * wp jetpack sync reset --queue=full or regular
 	 *
 	 * @synopsis <status|start> [--<field>=<value>]
 	 */
 	public function sync( $args, $assoc_args ) {
-		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
-			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
-		}
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
 
@@ -695,10 +701,79 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
 					);
 				}
-
+				WP_CLI::log( __( 'Sync Status:', 'jetpack' ) );
 				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
 				break;
+			case 'settings':
+				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
+				foreach( Jetpack_Sync_Settings::get_settings() as $setting => $item ) {
+					$settings[]  = array(
+						'setting' => $setting,
+						'value' => is_scalar( $item ) ? $item : json_encode( $item )
+					);
+				}
+				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
+
+			case 'disable':
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
+				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
+				break;
+			case 'enable':
+				Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
+				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
+				break;
+			case 'reset':
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
+
+				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
+				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
+				$listener = Jetpack_Sync_Listener::get_instance();
+				if ( empty( $assoc_args['queue'] ) ) {
+					$listener->get_sync_queue()->reset();
+					$listener->get_full_sync_queue()->reset();
+					WP_CLI::log( sprintf( __( 'Reset Full Sync and Regular Queues Queue on %s', 'jetpack' ), get_site_url() ) );
+					break;
+				}
+
+				if ( ! empty( $assoc_args['queue'] ) ) {
+					switch ( $assoc_args['queue'] ) {
+						case 'regular':
+							$listener->get_sync_queue()->reset();
+							WP_CLI::log( sprintf( __( 'Reset Regular Sync Queue on %s', 'jetpack' ), get_site_url() ) );
+							break;
+						case 'full':
+							$listener->get_full_sync_queue()->reset();
+							WP_CLI::log( sprintf( __( 'Reset Full Sync Queue on %s', 'jetpack' ), get_site_url() ) );
+							break;
+						default:
+							WP_CLI::error( __( 'Please specify what type of queue do you want to reset: `full` or `regular`.', 'jetpack' ) );
+							break;
+					}
+				}
+
+				break;
 			case 'start':
+				if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
+						return;
+					}
+					if ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
+						return;
+					}
+					if ( Jetpack::is_development_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
+						return;
+					}
+					if (  Jetpack::is_staging_site() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+						return;
+					}
+
+				}
 				// Get the original settings so that we can restore them later
 				$original_settings = Jetpack_Sync_Settings::get_settings();
 

@@ -7008,8 +7008,8 @@ p {
 	}
 
 	/**
-	 * Checks for whether Jetpack Rewind is enabled.
-	 * Will return true if the state of Rewind is anything except "unavailable".
+	 * Checks for whether Jetpack Backup & Scan is enabled.
+	 * Will return true if the state of Backup & Scan is anything except "unavailable".
 	 * @return bool|int|mixed
 	 */
 	public static function is_rewind_enabled() {

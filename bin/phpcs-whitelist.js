@@ -1,5 +1,6 @@
 // If the file path starts with anything like in the array below, it should be linted.
 module.exports = [
+	'3rd-party/3rd-party.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
 	'extensions/',

@@ -226,7 +226,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				return <LoadingCard />;
 			}
 
-			// Rewind is working in this site.
+			// Backup & Scan is working in this site.
 			if ( includes( [ 'provisioning', 'awaiting_credentials', 'active' ], rewindState ) ) {
 				return <BackupsScanRewind { ...this.props } rewindState={ rewindState } />;
 			}
