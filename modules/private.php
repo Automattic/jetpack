@@ -53,7 +53,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
+		if ( is_user_logged_in() && Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
 			return;
 		}
 
@@ -196,12 +196,7 @@ class Jetpack_Private {
 		global $pagenow;
 
 		$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
-		$is_admin_post_request = ( 'admin-post.php' === $pagenow );
-
-		if ( is_super_admin() ) {
-			return;
-		}
-		
+		$is_admin_post_request = ( 'admin-post.php' === $pagenow );		
 		
 		// Make sure we are in the right code path, if not bail now.
 		
@@ -221,10 +216,6 @@ class Jetpack_Private {
 	 * @param false|int $result The result of the nonce check.
 	 */
 	static function private_blog_ajax_nonce_check( $action, $result ) {
-		if ( is_super_admin() ) {
-			return;
-		}
-
 		if ( 1 !== $result && 2 !== $result ) {
 			return;
 		}
@@ -249,7 +240,7 @@ class Jetpack_Private {
 	 * Disables WordPress Rest API for external requests
 	 */
 	static function disable_rest_api() {
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
+		if ( is_user_logged_in() && Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
 			return;
 		}
 
@@ -298,7 +289,7 @@ class Jetpack_Private {
 	 * Returns the private page template for OPML.
 	 */
 	static function hide_opml() {
-		if ( is_user_logged_in() && ( is_super_admin() || Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) ) {
+		if ( is_user_logged_in() && Jetpack_Private::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
 			return;
 		}
 		
