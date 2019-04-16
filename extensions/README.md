@@ -200,9 +200,3 @@ Possible:
 ### Icons
 
 Please use [Material icons](https://material.io/tools/icons/?style=outline) and don't rely on icons used in core to avoid visual mixing up.
-
-### Linking to wp-admin or Calypso
-
-<!-- @TODO: Document `getSiteFragment`? -->
-
-...
