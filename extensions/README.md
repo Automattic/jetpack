@@ -33,7 +33,6 @@ If your block depends on another block, place them all in extensions folder:
 ```
 
 ## Developing block editor extensions in Jetpack
-=======
 
 ### High level overview of the development flow
 
