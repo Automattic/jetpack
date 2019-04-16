@@ -594,17 +594,25 @@ function sharing_add_footer() {
 	 * @param bool true Control whether the sharing module should add any JavaScript to the site. Default to true.
 	 */
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
-
-		/**
-		 * Filter the display of sharing counts next to the sharing buttons.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 3.2.0
-		 *
-		 * @param bool true Control the display of counters next to the sharing buttons. Default to true.
-		 */
-		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
+		if (
+			/**
+			 * Filter the display of sharing counts next to the sharing buttons.
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 3.2.0
+			 *
+			 * @param bool true Control the display of counters next to the sharing buttons. Default to true.
+			 */
+			apply_filters( 'jetpack_sharing_counts', true )
+			&& is_array( $jetpack_sharing_counts )
+			&& count( $jetpack_sharing_counts )
+			// We cannot get Facebook sharing counts if a site is not connected to WordPress.com.
+			&& (
+				Jetpack::is_active()
+				|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			)
+		) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
 				/** This filter is documented in class.json-api-endpoints.php */
