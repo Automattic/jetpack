@@ -1551,6 +1551,177 @@ class Jetpack_CLI extends WP_CLI_Command {
 		) ) );
 		exit( 1 );
 	}
+
+	/**
+	 * Creates the essential files in Jetpack to start building a Gutenberg block or plugin.
+	 *
+	 * ## TYPES
+	 *
+	 * block: it creates a Jetpack block. All files will be created in a directory under extensions/blocks named based on the block title or a specific given slug.
+	 *
+	 * ## BLOCK TYPE OPTIONS
+	 *
+	 * The first parameter is the block title and it's not associative. Add it wrapped in quotes.
+	 * The title is also used to create the slug and the edit PHP class name. If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
+	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
+	 * --description: Allows to provide a text description of the block.
+	 * --keywords: Provide up to three keywords separated by comma so users can find this block when they search in Gutenberg's inserter.
+	 *
+	 * ## BLOCK TYPE EXAMPLES
+	 *
+	 * wp jetpack scaffold block "Cool Block"
+	 * wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
+	 * wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"
+	 *
+	 * @subcommand scaffold block
+	 * @synopsis <type> <title> [--slug] [--description] [--keywords]
+	 *
+	 * @param array $args       Positional parameters, when strings are passed, wrap them in quotes.
+	 * @param array $assoc_args Associative parameters like --slug="nice-block".
+	 */
+	public function scaffold( $args, $assoc_args ) {
+		// It's ok not to check if it's set, because otherwise WPCLI exits earlier.
+		switch ( $args[0] ) {
+			case 'block':
+				$this->block( $args, $assoc_args );
+				break;
+			default:
+				WP_CLI::error( sprintf( esc_html__( 'Invalid subcommand %s.', 'jetpack' ), $args[0] ) . ' 👻' );
+				exit( 1 );
+		}
+	}
+
+	/**
+	 * Creates the essential files in Jetpack to build a Gutenberg block.
+	 *
+	 * @param array $args       Positional parameters. Only one is used, that corresponds to the block title.
+	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
+	 */
+	public function block( $args, $assoc_args ) {
+		if ( isset( $args[1] ) ) {
+			$title = ucwords( $args[1] );
+		} else {
+			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
+			exit( 1 );
+		}
+
+		$slug = isset( $assoc_args['slug'] )
+			? $assoc_args['slug']
+			: sanitize_title( $title );
+
+		if ( preg_match( '#^jetpack/#', $slug ) ) {
+			$slug = preg_replace( '#^jetpack/#', '', $slug );
+		}
+
+		if ( ! preg_match( '/^[a-z][a-z0-9\-]*$/', $slug ) ) {
+			WP_CLI::error( esc_html__( 'Invalid block slug. They can contain only lowercase alphanumeric characters or dashes, and start with a letter', 'jetpack' ) . ' 👻' );
+		}
+
+		global $wp_filesystem;
+		if ( ! WP_Filesystem() ) {
+			WP_CLI::error( esc_html__( "Can't write files", 'jetpack' ) . ' 😱' );
+		}
+
+		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/$slug";
+
+		if ( $wp_filesystem->exists( $path ) && $wp_filesystem->is_dir( $path ) ) {
+			WP_CLI::error( sprintf( esc_html__( 'Name conflicts with the existing block %s', 'jetpack' ), $path ) . ' ⛔️' );
+			exit( 1 );
+		}
+
+		$wp_filesystem->mkdir( $path );
+
+		$hasKeywords = isset( $assoc_args['keywords'] );
+
+		$files = array(
+			"$path/$slug.php" => $this->render_block_file( 'block-register-php', array(
+				'slug' => $slug,
+				'title' => $title,
+				'underscoredSlug' => str_replace( '-', '_', $slug ),
+			) ),
+			"$path/index.js" => $this->render_block_file( 'block-index-js', array(
+				'slug' => $slug,
+				'title' => $title,
+				'description' => isset( $assoc_args['description'] )
+					? $assoc_args['description']
+					: $title,
+				'keywords' => $hasKeywords
+					? array_map( function( $keyword ) {
+						// Construction necessary for Mustache lists
+						return array( 'keyword' => trim( $keyword ) );
+					}, explode( ',', $assoc_args['keywords'], 3 ) )
+					: '',
+				'hasKeywords' => $hasKeywords
+			) ),
+			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
+			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
+				'slug' => $slug,
+				'title' => $title,
+			) ),
+			"$path/edit.js" => $this->render_block_file( 'block-edit-js', array(
+				'title' => $title,
+				'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
+			) )
+		);
+
+		$files_written = array();
+
+		foreach ( $files as $filename => $contents ) {
+			if ( $wp_filesystem->put_contents( $filename, $contents ) ) {
+				$files_written[] = $filename;
+			} else {
+				WP_CLI::error( sprintf( esc_html__( 'Error creating %s', 'jetpack' ), $filename ) );
+			}
+		}
+
+		if ( empty( $files_written ) ) {
+			WP_CLI::log( esc_html__( 'No files were created', 'jetpack' ) );
+		} else {
+			// Load index.json and insert the slug of the new block in the production array
+			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
+			$block_list = $wp_filesystem->get_contents( $block_list_path );
+			if ( empty( $block_list ) ) {
+				WP_CLI::error( sprintf( esc_html__( 'Error fetching contents of %s', 'jetpack' ), $block_list_path ) );
+			} else if ( false === stripos( $block_list, $slug ) ) {
+				$new_block_list = json_decode( $block_list );
+				$new_block_list->beta[] = $slug;
+				if ( ! $wp_filesystem->put_contents( $block_list_path, wp_json_encode( $new_block_list ) ) ) {
+					WP_CLI::error( sprintf( esc_html__( 'Error writing new %s', 'jetpack' ), $block_list_path ) );
+				}
+			}
+
+			WP_CLI::success( sprintf(
+				/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
+				esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n" .
+				"--------------------------------------------------------------------------------------------------------------------\n" .
+				/* translators: the placeholder is a directory path */
+				esc_html__( 'The files were created at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
+				/* translators: the placeholder is a file path */
+				esc_html__( 'The block slug has been added to the beta list at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To load the block, add the constant JETPACK_BETA_BLOCKS as true to your wp-config.php file', 'jetpack' ) . "\n" .
+				/* translators: the placeholder is a URL */
+				"\n" . esc_html__( 'Read more at %s', 'jetpack' ) . "\n",
+				$title,
+				$slug,
+				$path,
+				$block_list_path,
+				'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+			) . '--------------------------------------------------------------------------------------------------------------------' );
+		}
+	}
+
+	/**
+	 * Built the file replacing the placeholders in the template with the data supplied.
+	 *
+	 * @param string $template
+	 * @param array $data
+	 *
+	 * @return string mixed
+	 */
+	private static function render_block_file( $template, $data = array() ) {
+		return \WP_CLI\Utils\mustache_render( JETPACK__PLUGIN_DIR . "wp-cli-templates/$template.mustache", $data );
+	}
 }
 
 /*
