@@ -86,6 +86,9 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_allowed() {
+		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+			return true;
+		}
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
@@ -97,9 +100,7 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 		if ( ! Jetpack::is_active() ) {
-			if (
-				! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) &&
-				! doing_action( 'jetpack_user_authorized' ) ) {
+			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
 		}
