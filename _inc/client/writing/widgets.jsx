@@ -15,8 +15,7 @@ import { ModuleToggle } from 'components/module-toggle';
 
 class Widgets extends Component {
 	render() {
-		const isActive = this.props.getOptionValue( 'widgets' ),
-			isLinked = this.props.isLinked;
+		const isLinked = this.props.isLinked;
 
 		return (
 			<SettingsCard
@@ -35,7 +34,7 @@ class Widgets extends Component {
 					<ModuleToggle
 						slug="widgets"
 						disabled={ ! isLinked }
-						activated={ isActive }
+						activated={ this.props.widgetsActive }
 						toggling={ this.props.isSavingAnyOption( 'widgets' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
@@ -44,13 +43,34 @@ class Widgets extends Component {
 						) }
 					</ModuleToggle>
 				</SettingsGroup>
+				<SettingsGroup
+					module={ { module: 'widget-visibility' } }
+					support={ {
+						text: __( 'Configure widgets to appear only on certain posts or pages.' ),
+						link: 'https://jetpack.com/support/widget-visibility/',
+					} }
+				>
+					<ModuleToggle
+						slug="widget-visibility"
+						disabled={ ! isLinked }
+						activated={ this.props.widgetVisibilityActive }
+						toggling={ this.props.isSavingAnyOption( 'widget-visibility' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						{ __( 'Control where widgets appear on your site with visibility settings' ) }
+					</ModuleToggle>
+				</SettingsGroup>
 			</SettingsCard>
 		);
 	}
 }
 
-export default connect( state => {
-	return {
-		widgetsModule: getModule( state, 'widgets' ),
-	};
-} )( withModuleSettingsFormHelpers( Widgets ) );
+export default withModuleSettingsFormHelpers(
+	connect( ( state, ownProps ) => {
+		return {
+			widgetVisibilityActive: ownProps.getOptionValue( 'widget-visibility' ),
+			widgetsActive: ownProps.getOptionValue( 'widgets' ),
+			widgetsModule: getModule( state, 'widgets' ),
+		};
+	} )( Widgets )
+);
