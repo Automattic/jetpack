@@ -87,7 +87,7 @@ class Jetpack_Private {
 		/**
 		 * Filter the capabilites a user needs to have to see the site
 		 *
-		 * @module private sites
+		 * @module private
 		 * @since 7.3
 		 *
 		 * @param string $cap The lowest capability a user needs to have
@@ -152,12 +152,14 @@ class Jetpack_Private {
 		</fieldset>
 		<div class="jetpack-private__setting-disabled highlight">
 			<?php
-				printf(
-					'%s <a href="%s">%s</a>',
-					esc_html__( 'This setting is ignored because you', 'jetpack' ),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' ),
-					esc_html__( 'made your site private', 'jetpack' )
-				);
+			wp_kses(
+					printf(
+					/* translators: URL for Jetpack dashboard. */
+					__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ),
+					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+				),
+				array( 'a' => array( 'href' => true ) )
+			);
 			?>
 		</div>
 		<fieldset>
@@ -273,14 +275,17 @@ class Jetpack_Private {
 	 */
 	static function private_update_option_blog_public() {
 		if ( function_exists( 'add_settings_error' ) ) {
+			/* translators: URL for Jetpack dashboard. */
 			add_settings_error(
 				'general',
 				'setting_not_updated',
-				sprintf(
-					'%s <a href="%s">%s</a>',
-					esc_html__( 'This setting is ignored because you', 'jetpack' ),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' ),
-					esc_html__( 'made your site private', 'jetpack' )
+				wp_kses(
+					sprintf(
+						/* translators: URL for Jetpack dashboard. */
+						__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ),
+						esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+					),
+					array( 'a' => array( 'href' => true ) )
 				)
 			);
 		}

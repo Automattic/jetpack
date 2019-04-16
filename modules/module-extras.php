@@ -93,11 +93,14 @@ function priv_notice_privacy_selector() {
 	?>
 	<p>
 	<?php
-		printf(
-			'%s <a href="%s#/security?term=private">%s</a>',
-			esc_html__( 'You can also make your site completely private by allowing only registered users to see your site.', 'jetpack' ),
-			esc_url( admin_url( 'admin.php?page=jetpack' ) ),
-			esc_html__( 'Go to Private Sites settings', 'jetpack' )
+
+		wp_kses(
+			printf(
+				/* translators: URL to the Jetpack dashboard. */
+				__( 'You can also make your site completely private by allowing only registered users to see your site. Activate Jetpack\'s Private Site feature <a href="%s">here</a>.', 'jetpack' ),
+				esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+			),
+			array( 'a' => array( 'href' => true ) )
 		);
 	?>
 	</p>
