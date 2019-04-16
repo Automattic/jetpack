@@ -29,7 +29,7 @@ export const Private = withModuleSettingsFormHelpers(
 						module={ { module: 'private' } }
 						support={ {
 							text: __(
-								"This option is great if you're still working on your site and aren't quire ready to show it off to the rest of the internet yet, or if you're publishing things you'd like to keep private or make available only to specific people. You can make your site public whenever you'd like (or vice versa)."
+								"This option is great if you're still working on your site and aren't quite ready to show it off to the rest of the internet yet, or if you're publishing things you'd like to keep private or make available only to specific people. You can make your site public whenever you'd like (or vice versa)."
 							),
 							link: 'https://jetpack.com/support/private',
 						} }

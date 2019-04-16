@@ -84,12 +84,12 @@ function jetpack_widgets_add_suffix( $widget_name ) {
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 
-add_action( 'blog_privacy_selector', 'priv_notice_privacy_selector' );
+add_action( 'blog_privacy_selector', 'jetpack_priv_notice_privacy_selector' );
 
 /**
  * Displays the option to enable privacy in Settings.
  */
-function priv_notice_privacy_selector() {
+function jetpack_priv_notice_privacy_selector() {
 	?>
 	<p>
 	<?php
@@ -97,7 +97,7 @@ function priv_notice_privacy_selector() {
 		wp_kses(
 			printf(
 				/* translators: URL to the Jetpack dashboard. */
-				__( 'You can also make your site completely private by allowing only registered users to see your site. Activate Jetpack\'s Private Site feature <a href="%s">here</a>.', 'jetpack' ),
+				__( 'You can also make your site completely private by allowing only registered users to see it. <a href="%s">Go to Private Site settings</a>.', 'jetpack' ),
 				esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
 			),
 			array( 'a' => array( 'href' => true ) )
