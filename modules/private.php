@@ -37,7 +37,7 @@ class Jetpack_Private {
 	 *
 	 * @param object $wp Current WordPress environment instance (passed by reference).
 	 */
-	protected static function privatize_blog( $wp ) {
+	static function privatize_blog( $wp ) {
 		global $pagenow;
 
 		if ( 'wp-login.php' === $pagenow ) {
@@ -53,7 +53,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
+		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id() ) ) {
 			return;
 		}
 
@@ -66,18 +66,9 @@ class Jetpack_Private {
 	 * Does not check whether the blog is private. Accepts blog and user in various types.
 	 * Returns true for super admins.
 	 *
-	 * @param int   $blog Current WordPress blod id.
-	 * @param Mixed $user Current WordPress user or user_id.
+	 * @param int   $blog Current WordPress blod id..
 	 */
-	protected static function is_private_blog_user( $blog, $user ) {
-		if ( ! ( $user instanceof WP_User ) ) {
-			$user = new WP_User( $user );
-		}
-
-		if ( ! $user->ID ) {
-			return false;
-		}
-
+	protected static function is_private_blog_user( $blog ) {
 		if ( is_numeric( $blog ) ) {
 			$blog_id = intval( $blog );
 		} elseif ( is_object( $blog ) ) {
@@ -94,7 +85,7 @@ class Jetpack_Private {
 		}
 
 		// check if the user has read permissions.
-		$the_user = wp_clone( $user );
+		$the_user = wp_get_current_user();
 		$the_user->for_site( $blog_id );
 
 		/**
@@ -112,7 +103,7 @@ class Jetpack_Private {
 	/**
 	 * Hides the blog's name on the login form for private blogs.
 	 */
-	protected static function privatize_blog_maybe_mask_blog_name() {
+	static function privatize_blog_maybe_mask_blog_name() {
 		add_filter( 'bloginfo', array( __CLASS__, 'privatize_blog_mask_blog_name' ), 3, 2 );
 	}
 
@@ -123,7 +114,7 @@ class Jetpack_Private {
 	 * @param mixed $value The requested non-URL site information.
 	 * @param mixed $what  Type of information requested.
 	 */
-	protected static function privatize_blog_mask_blog_name( $value, $what ) {
+	static function privatize_blog_mask_blog_name( $value, $what ) {
 		if ( in_array( $what, array( 'name', 'title' ), true ) ) {
 			$value = __( 'Private Site', 'jetpack' );
 		}
@@ -134,7 +125,7 @@ class Jetpack_Private {
 	/**
 	 * Remove the privatize_blog_mask_blog_name filter
 	 */
-	protected static function remove_privatize_blog_mask_blog_name_filter() {
+	static function remove_privatize_blog_mask_blog_name_filter() {
 		remove_filter( 'bloginfo', array( __CLASS__, 'privatize_blog_mask_blog_name' ) );
 	}
 
@@ -143,7 +134,7 @@ class Jetpack_Private {
 	 *
 	 * @param array $comment Documented in wp-includes/comment.php.
 	 */
-	protected static function privatize_blog_comments( $comment ) {
+	static function privatize_blog_comments( $comment ) {
 		self::privatize_blog( null );
 		return $comment;
 	}
@@ -151,7 +142,7 @@ class Jetpack_Private {
 	/**
 	 * Extend the 'Site Visibility' privacy options to also include a private option
 	 **/
-	protected static function privatize_blog_priv_selector() {
+	static function privatize_blog_priv_selector() {
 		?>
 		<style>
 			.jetpack-private__setting-disabled {
@@ -183,7 +174,7 @@ class Jetpack_Private {
 	 *
 	 * @param string $output Robots.txt output.
 	 */
-	protected static function private_robots_txt( $output ) {
+	static function private_robots_txt( $output ) {
 		$output  = "User-agent: *\n"; // Purposefully overriding current output; we only want these rules.
 		$output .= "Disallow: /\n";
 		return $output;
@@ -194,14 +185,14 @@ class Jetpack_Private {
 	 * content from this page.
 	 * https://support.pinterest.com/entries/21063792-what-if-i-don-t-want-images-from-my-site-to-be-pinned
 	 */
-	protected static function private_no_pinning() {
+	static function private_no_pinning() {
 		echo '<meta name="pinterest" content="nopin" />';
 	}
 
 	/**
 	 * Prevents ajax and post requests on private blogs for users who don't have permissions
 	 */
-	protected static function private_blog_prevent_requests() {
+	static function private_blog_prevent_requests() {
 		global $pagenow;
 
 		$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
@@ -213,7 +204,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( ! self::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
+		if ( ! self::is_private_blog_user( get_current_blog_id() ) ) {
 			wp_die( '', 403 );
 		}
 	}
@@ -224,7 +215,7 @@ class Jetpack_Private {
 	 * @param string    $action The Ajax nonce action.
 	 * @param false|int $result The result of the nonce check.
 	 */
-	protected static function private_blog_ajax_nonce_check( $action, $result ) {
+	static function private_blog_ajax_nonce_check( $action, $result ) {
 		if ( 1 !== $result && 2 !== $result ) {
 			return;
 		}
@@ -240,7 +231,7 @@ class Jetpack_Private {
 			return;
 		}
 
-		if ( ! self::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
+		if ( ! self::is_private_blog_user( get_current_blog_id() ) ) {
 			wp_die( '', 403 );
 		}
 	}
@@ -248,8 +239,8 @@ class Jetpack_Private {
 	/**
 	 * Disables WordPress Rest API for external requests
 	 */
-	protected static function disable_rest_api() {
-		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
+	static function disable_rest_api() {
+		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id() ) ) {
 			return;
 		}
 
@@ -263,7 +254,7 @@ class Jetpack_Private {
 	 *
 	 * @param array $modules Available modules.
 	 */
-	protected static function private_get_modules( $modules ) {
+	static function private_get_modules( $modules ) {
 		$disabled_modules = array(
 			'publicize',
 			'sharedaddy',
@@ -283,7 +274,7 @@ class Jetpack_Private {
 	/**
 	 * Show an error when the blog_public option is updated
 	 */
-	protected static function private_update_option_blog_public() {
+	static function private_update_option_blog_public() {
 		if ( function_exists( 'add_settings_error' ) ) {
 			add_settings_error(
 				'general',
@@ -301,15 +292,15 @@ class Jetpack_Private {
 	/**
 	 * Adds a message to the 'At a Glance' dashboard widget.
 	 */
-	protected static function add_private_dashboard_glance_items( $content ) {
+	static function add_private_dashboard_glance_items( $content ) {
 		return $content . '<br><br>' . __( 'This site is currently Private', 'jetpack' );
 	}
 
 	/**
 	 * Returns the private page template for OPML.
 	 */
-	protected static function hide_opml() {
-		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id(), wp_get_current_user() ) ) {
+	static function hide_opml() {
+		if ( is_user_logged_in() && self::is_private_blog_user( get_current_blog_id() ) ) {
 			return;
 		}
 

@@ -96,10 +96,8 @@ function priv_notice_privacy_selector() {
 		printf(
 			'%s <a href="%s#/security?term=private">%s</a>',
 			esc_html__( 'You can also make your site completely private by allowing only registered users to see your site.', 'jetpack' ),
-			esc_url(
-				admin_url( 'admin.php?page=jetpack' ),
-				esc_html__( 'Go to Private Sites settings', 'jetpack' )
-			)
+			esc_url( admin_url( 'admin.php?page=jetpack' ) ),
+			esc_html__( 'Go to Private Sites settings', 'jetpack' )
 		);
 	?>
 	</p>
