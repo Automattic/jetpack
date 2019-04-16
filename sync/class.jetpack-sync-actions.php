@@ -87,12 +87,24 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
+			return false;
+		}
+		if ( Jetpack::is_development_mode() ) {
+			return false;
+		}
+		if ( Jetpack::is_staging_site() ) {
+			return false;
+		}
+		if ( ! Jetpack::is_active() ) {
+			if (
+				! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) &&
+				! doing_action( 'jetpack_user_authorized' ) ) {
+				return false;
+			}
+		}
 
-		return (
-			Jetpack_Sync_Settings::is_sync_enabled()
-			&& ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
-			&& ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-			|| defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+		return true;
 	}
 
 	static function sync_via_cron_allowed() {
