@@ -11,7 +11,9 @@ if (
 	exit;
 }
 
-define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+	define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+}
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-options.php';
 
 Jetpack_Options::delete_all_known_options();
