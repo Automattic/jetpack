@@ -8,7 +8,7 @@
 nocache_headers();
 header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_bloginfo( 'charset' ) );
 
-$url = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$url         = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $redirect_to = set_url_scheme( $url );
 ?><!DOCTYPE html>
 <!--[if IE 8]>

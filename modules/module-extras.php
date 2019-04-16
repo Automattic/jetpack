@@ -87,7 +87,7 @@ add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 add_action( 'blog_privacy_selector', 'jetpack_priv_notice_privacy_selector' );
 
 /**
- * Displays the option to enable privacy in Settings.
+ * Echos notice directing site owners to Jetpack's Private Site feature.
  */
 function jetpack_priv_notice_privacy_selector() {
 	?>

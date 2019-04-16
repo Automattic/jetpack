@@ -913,9 +913,13 @@ function jetpack_more_info_copy_post() {
 }
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
 
+/**
+ * Private sites description.
+ */
 function jetpack_private_more_info() {
 	esc_html_e(
-		'Make your site private. It will only be visible to registered users.'
+		'Make your site private. It will only be visible to registered users.',
+		'jetpack'
 	);
 }
 add_action( 'jetpack_module_more_info_private', 'jetpack_private_more_info' );
