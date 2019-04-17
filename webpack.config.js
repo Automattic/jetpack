@@ -77,14 +77,4 @@ const webpackConfig = {
 	devtool: devMode ? 'source-map' : false,
 };
 
-if ( ! devMode ) {
-	// Create global process.env.NODE_ENV constant available at the browser window
-	// eslint-disable-next-line no-new
-	new webpack.DefinePlugin( {
-		// This has effect on the react lib size
-		// TODO switch depending on actual environment
-		'process.env.NODE_ENV': JSON.stringify( process.env.NODE_ENV ),
-	} );
-}
-
 module.exports = webpackConfig;

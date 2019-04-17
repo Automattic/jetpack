@@ -23,43 +23,34 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 
 	function init_before_send() {
 		// full sync
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_taxonomy_id' ) );
 	}
 
-	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
-
-		// TODO: process state
-		$taxonomies           = get_taxonomies();
-		$total_chunks_counter = 0;
-		foreach ( $taxonomies as $taxonomy ) {
-			// I hope this is never bigger than RAM...
-			$term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) ); // Should we set a limit here?
-			// Request posts in groups of N for efficiency
-			$chunked_term_ids = array_chunk( $term_ids, self::ARRAY_CHUNK_SIZE );
-
-			// Send each chunk as an array of objects
-			foreach ( $chunked_term_ids as $chunk ) {
-				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy );
-				$total_chunks_counter ++;
-			}
-		}
-
-		return array( $total_chunks_counter, true );
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_terms', $wpdb->term_taxonomy, 'term_taxonomy_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
-	function estimate_full_sync_actions( $config ) {
-		// TODO - make this (and method above) more efficient for large numbers of terms or taxonomies
-		global $wpdb;
-
-		$taxonomies           = get_taxonomies();
-		$total_chunks_counter = 0;
-		foreach ( $taxonomies as $taxonomy ) {
-			$total_ids             = $wpdb->get_var( $wpdb->prepare( "SELECT count(term_id) FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) );
-			$total_chunks_counter += (int) ceil( $total_ids / self::ARRAY_CHUNK_SIZE );
+	private function get_where_sql( $config ) {
+		if ( is_array( $config ) ) {
+			return 'term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
-		return $total_chunks_counter;
+		return '';
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		global $wpdb;
+
+		$query = "SELECT count(*) FROM $wpdb->term_taxonomy";
+
+		if ( $where_sql = $this->get_where_sql( $config ) ) {
+			$query .= ' WHERE ' . $where_sql;
+		}
+
+		$count = $wpdb->get_var( $query );
+
+		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
 	function get_full_sync_actions() {
@@ -105,16 +96,19 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		$this->taxonomy_whitelist = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 	}
 
-	public function expand_term_ids( $args ) {
-		$term_ids = $args[0];
-		$taxonomy = $args[1];
+	public function expand_term_taxonomy_id( $args ) {
+		list( $term_taxonomy_ids,  $previous_end ) = $args;
 
-		return get_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'hide_empty' => false,
-				'include'    => $term_ids,
-			)
+		return
+			array( 'terms' => get_terms(
+				array(
+					'hide_empty'       => false,
+					'term_taxonomy_id' => $term_taxonomy_ids,
+					'orderby'          => 'term_taxonomy_id',
+					'order'            => 'DESC'
+				)
+			),
+			'previous_end' => $previous_end
 		);
 	}
 }
